@@ -1,0 +1,12 @@
+version: "3"
+services:
+  loan-fe-web:
+    build: .
+    ports:
+      - "4590:80"
+    container_name: loan-fe-web
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
