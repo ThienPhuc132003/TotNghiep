@@ -1,10 +1,10 @@
 version: "3"
 services:
-  loan-fe-web:
+  dakl-fe:
     build: .
     ports:
       - "4590:80"
-    container_name: DAKL Frontend
+    container_name: DAKLFE
     deploy:
       resources:
         limits:
