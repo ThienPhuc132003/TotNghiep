@@ -29,6 +29,6 @@ jobs:
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           port: 22
           script: |
-            cd : /root/DAKL/FE
+            cd /root/DAKL/FE
             sudo docker compose down       
             docker compose up --build -d
