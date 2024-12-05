@@ -4,7 +4,7 @@ services:
     build: .
     ports:
       - "4590:80"
-    container_name: loan-fe-web
+    container_name: DAKL Frontend
     deploy:
       resources:
         limits:
