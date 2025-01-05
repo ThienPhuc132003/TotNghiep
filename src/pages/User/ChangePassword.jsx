@@ -50,7 +50,7 @@ const ChangePasswordPage = () => {
         },
       });
       if (response.success === true) {
-        localStorage.removeItem("otpVerified", "true");
+        localStorage.removeItem("otpVerified");
         navigate("/login");
       } else {
         setErrorMessages({ password: t("login.error") });
