@@ -11,11 +11,11 @@ const userSlice = createSlice({
     setUserProfile(state, action) {
       state.userProfile = action.payload;
     },
-    setUserAvatar(state, action) {
-      state.userProfile.avatar = action.payload;
+    clearUserProfile(state) {
+      state.userProfile = null;
     },
   },
 });
 
-export const { setUserProfile ,setUserAvatar} = userSlice.actions;
+export const { setUserProfile, clearUserProfile } = userSlice.actions;
 export default userSlice.reducer;

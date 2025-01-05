@@ -1,0 +1,19 @@
+.help-button {
+  display: flex;
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+}
+
+.fa-circle-question {
+  color: #272e4f;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.fa-circle-question:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+}
