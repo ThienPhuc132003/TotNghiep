@@ -3,7 +3,7 @@ import axiosClient from "./axiosClient";
 import { parseQuery } from "./queryParser";
 
 const Api = ({
-  domain = "http://152.42.232.101:9005/api/v1/",
+  domain = "https://giasuvlu.click/",
   endpoint,
   method = METHOD_TYPE.GET,
   data,

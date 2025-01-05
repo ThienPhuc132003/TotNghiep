@@ -1,14 +1,16 @@
-import logoAlpha from "../../assets/images/logoAlpha.png";
 import React from "react";
 import PropTypes from "prop-types";
-import "../../assets/css/LoginLayout.style.css";
+import "../../../assets/css/LoginLayout.style.css";
+
 const LoginLayoutComponent = (props) => {
   const { children = null } = props;
   return (
-    <>
-      <img src={logoAlpha} alt="logo" className="logoAlpha" />
-      {children}
-    </>
+    <div className="login-layout">
+      <div className="login-container">
+        <img src="/logo.png" alt="logo" className="logo" />
+        {children}
+      </div>
+    </div>
   );
 };
 

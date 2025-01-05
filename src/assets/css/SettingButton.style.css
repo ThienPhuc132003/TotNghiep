@@ -1,0 +1,18 @@
+.setting-button {
+  display: flex;
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: #ffffff00;
+}
+.fa-gear {
+  color: #272e4f;
+  cursor: pointer;
+  transition: transform 0.7s ease;
+}
+
+.fa-gear:hover {
+  transform: rotate(180deg);
+  color: #272e4f;
+}

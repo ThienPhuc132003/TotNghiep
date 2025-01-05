@@ -1,0 +1,34 @@
+.language-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.language-selector select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.language-selector select:focus {
+  outline: none;
+  border-color: #272e4f;
+}
+
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  margin-right: 5px; /* Space between flag and option text */
+}
+
+.flag-container {
+  margin-left: 10px;
+}
