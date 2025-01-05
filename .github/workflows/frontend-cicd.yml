@@ -20,8 +20,7 @@ jobs:
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
-          target: "/root/why-soft/super-loan/frontend"
-
+          target : "/root/DAKL/FE"
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
         with:
@@ -30,6 +29,6 @@ jobs:
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           port: 22
           script: |
-            cd /root/why-soft/super-loan/frontend
+            cd /root/DAKL/FE
             sudo docker compose down       
             docker compose up --build -d
