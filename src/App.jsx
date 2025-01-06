@@ -18,8 +18,8 @@ const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 // Admin
-const AdminDashboard = lazy(() => import("./pages/Admin/Dashboard"));
-const AdminLogin = lazy(() => import("./pages/Admin/Login"));
+const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
+const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 
 function App() {
   return (
