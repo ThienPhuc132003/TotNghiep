@@ -5,7 +5,7 @@ const TestVideoPage = () => {
   return (
     <div id="jitsi-container" style={{ width: "100%", height: "100vh" }}>
       <JitsiMeeting
-        domain="meet.jit.si"
+        domain="giasuvlu.click"
         roomName="testroom"
         configOverwrite={{
           startWithAudioMuted: true,
