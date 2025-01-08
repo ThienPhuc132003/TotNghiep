@@ -10,10 +10,27 @@ const AdminLoginPage = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const navigate = useNavigate();
+
+  const validateFields = () => {
+    const errors = {};
+    if (!emailOrPhoneNumber) {
+      errors.emailOrPhoneNumber = "Email or Phone Number is required";
+    }
+    if (!password) {
+      errors.password = "Password is required";
+    }
+    return errors;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateFields();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
     try {
       const response = await Api({
         endpoint: "admin/login",
@@ -30,7 +47,7 @@ const AdminLoginPage = () => {
         Cookies.set("role", "admin");
         navigate("/admin/dashboard");
       } else {
-        setErrorMessage("Login failed: No token received");
+        setErrorMessage("Login failed: Invalid credentials");
       }
     } catch (error) {
       setErrorMessage("Login failed: Invalid credentials");
@@ -50,8 +67,11 @@ const AdminLoginPage = () => {
               name="emailOrPhoneNumber"
               value={emailOrPhoneNumber}
               onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
-              required
+              className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
             />
+            {fieldErrors.emailOrPhoneNumber && (
+              <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
+            )}
           </div>
           <div className="admin-form-group">
             <label htmlFor="password">Password</label>
@@ -61,10 +81,13 @@ const AdminLoginPage = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              className={fieldErrors.password ? "error-border" : ""}
             />
+            {fieldErrors.password && (
+              <p className="error-message">{fieldErrors.password}</p>
+            )}
           </div>
-          {errorMessage && <p className="admin-error-message">{errorMessage}</p>}
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
           <button type="submit" className="admin-login-button">
             Login
           </button>

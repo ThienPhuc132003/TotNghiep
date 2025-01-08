@@ -10,11 +10,29 @@ import { useDispatch } from "react-redux";
 const LoginPage = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const validateFields = () => {
+    const errors = {};
+    if (!emailOrPhoneNumber) {
+      errors.emailOrPhoneNumber = "Email or Phone Number is required";
+    }
+    if (!password) {
+      errors.password = "Password is required";
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateFields();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
     try {
       const responseLogin = await Api({
         endpoint: "user/login",
@@ -43,10 +61,10 @@ const LoginPage = () => {
         }
         navigate("/dashboard");
       } else {
-        console.error("Login failed: No token received");
+        setErrorMessage("Login failed: Invalid credentials");
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      setErrorMessage("Login failed: Invalid credentials");
     }
   };
 
@@ -63,8 +81,11 @@ const LoginPage = () => {
               name="emailOrPhoneNumber"
               value={emailOrPhoneNumber}
               onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
-              required
+              className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
             />
+            {fieldErrors.emailOrPhoneNumber && (
+              <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
+            )}
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
@@ -74,9 +95,13 @@ const LoginPage = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              className={fieldErrors.password ? "error-border" : ""}
             />
+            {fieldErrors.password && (
+              <p className="error-message">{fieldErrors.password}</p>
+            )}
           </div>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
           <button type="submit" className="login-button">
             Login
           </button>
