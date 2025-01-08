@@ -17,6 +17,7 @@ const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
+const TestVideo = lazy(() => import("./pages/User/TestVideo"));
 // Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
@@ -32,6 +33,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/otp-verify" element={<OtpVerify />} />
+          <Route path="/test-video" element={<TestVideo />} />
           <Route element={<OtpProtectedRoute />}>
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>

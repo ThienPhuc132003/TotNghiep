@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosClient = axios.create({
-  baseURL: "https://giasuvlu.click/",
+  baseURL: "https://giasuvlu.click/api/",
   headers: {
     "Content-Type": "application/json", // Mặc định cho JSON
   },
