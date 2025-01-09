@@ -68,26 +68,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleMicrosoftLogin = async () => {
-    try {
-      // Gọi API để lấy URL xác thực Microsoft
-      const response = await Api({
-        endpoint: "user/auth/get-uri-microsoft",
-        method: METHOD_TYPE.GET,
-      });
-      const authUrl = response.data.authUrl;
-
-      if (authUrl) {
-        // Chuyển hướng người dùng tới Microsoft login
-        window.location.href = authUrl;
-      } else {
-        console.error("Microsoft Auth URL not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching Microsoft Auth URL:", error);
-    }
-  };
-
   return (
     <LoginLayout>
       <div className="login-form">
@@ -133,14 +113,6 @@ const LoginPage = () => {
           <p>
             <Link to="/forgot-password">Forgot Password?</Link>
           </p>
-        </div>
-        <div className="social-login">
-          <button
-            onClick={handleMicrosoftLogin}
-            className="microsoft-login-button"
-          >
-            Login with Microsoft
-          </button>
         </div>
       </div>
     </LoginLayout>
