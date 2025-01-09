@@ -92,6 +92,14 @@ const LoginPage = () => {
     <LoginLayout>
       <div className="login-form">
         <h1>Login</h1>
+        <div className="social-login">
+          <button
+            onClick={handleMicrosoftLogin}
+            className="microsoft-login-button"
+          >
+            Login with Microsoft
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="emailOrPhoneNumber">Email or Phone Number</label>
@@ -134,14 +142,7 @@ const LoginPage = () => {
             <Link to="/forgot-password">Forgot Password?</Link>
           </p>
         </div>
-        <div className="social-login">
-          <button
-            onClick={handleMicrosoftLogin}
-            className="microsoft-login-button"
-          >
-            Login with Microsoft
-          </button>
-        </div>
+       
       </div>
     </LoginLayout>
   );

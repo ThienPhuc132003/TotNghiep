@@ -46,6 +46,7 @@ const ProfilePage = () => {
       fullname: profileData.fullName,
       birthday: profileData.birthday,
       phoneNumber: profileData.phoneNumber,
+      personalEmail: profileData.personalEmail,
       workEmail: profileData.workEmail,
       homeAddress: profileData.homeAddress,
       gender: profileData.gender,
@@ -224,7 +225,7 @@ const ProfilePage = () => {
               type="email"
               id="email"
               name="email"
-              value={profileData.personalEmail || "null"}
+              value={profileData.email || "null"}
               onChange={handleChange}
               readOnly
               className="read-only"
