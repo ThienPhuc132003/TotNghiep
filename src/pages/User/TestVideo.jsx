@@ -66,10 +66,12 @@ const TestVideoPage = () => {
   };
 
   return (
+
     <div id="live-share-container" style={{ width: "100%", height: "100vh" }}>
       <div ref={videoRef} style={{ width: "100%", height: "100%" }}></div>
       <button onClick={startCall}>Start Call</button>
       <button onClick={endCall}>End Call</button>
+
     </div>
   );
 };
