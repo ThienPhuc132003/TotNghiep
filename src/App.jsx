@@ -19,7 +19,6 @@ const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 
 const MicrosoftCallback = lazy(() => import("./pages/User/MicrosoftCallback"));
-const TestVideo = lazy(() => import("./pages/User/TestVideo"));
 // Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
@@ -37,7 +36,7 @@ function App() {
           <Route path="/otp-verify" element={<OtpVerify />} />
 
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
-          <Route path="/test-video" element={<TestVideo />} />
+
           <Route element={<OtpProtectedRoute />}>
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>
