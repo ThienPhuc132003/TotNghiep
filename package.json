@@ -10,11 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@azure/communication-calling": "^1.31.2",
-    "@azure/communication-common": "^2.3.1",
     "@jitsi/react-sdk": "^1.4.0",
-    "@microsoft/live-share": "^1.4.0",
-    "@microsoft/teamsfx": "^3.0.0",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.2",
     "country-flag-icons": "^1.5.13",
