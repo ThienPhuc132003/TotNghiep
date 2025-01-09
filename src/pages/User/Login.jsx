@@ -54,7 +54,7 @@ const LoginPage = () => {
           });
           if (responseGetProfile.success === true) {
             dispatch(setUserProfile(responseGetProfile.data));
-            console.log("Login successful:", responseGetProfile.data);
+            console.log("dispath thanh cong tét", responseGetProfile.data);
           }
         } catch (error) {
           console.error("Login failed:", error);

@@ -38,31 +38,40 @@ const MicrosoftCallbackPage = () => {
           data: { code: code, sessionState: sessionState },
         });
 
-        console.log("API Response:", response);
-
         if (!response || !response.data) {
           console.error("Error in API response:", response);
           navigate("/login");
           return;
         }
 
-          const { userId, token } = response.data;
+        const { token } = response.data;
 
-        if (!token || !userId) {
-          console.error(
-            "Token or user data missing in API response:",
-            response.data
-          );
+        if (!token) {
+          console.error("Token missing in API response:", response.data);
           navigate("/login");
           return;
         }
-
+        
         Cookies.set("token", token);
         Cookies.set("role", "user");
-        dispatch(setUserProfile({ userId })); //dispatch userId
-        console.log("Redux after dispatch:", userId);
-        console.log("before navigate to dashboard");
-        navigate("/dashboard");
+        
+        try {
+          const responseGetProfile = await Api({
+            endpoint: "user/get-profile",
+            method: METHOD_TYPE.GET,
+          });
+          if (responseGetProfile.success === true) {
+            console.log("Dispatching profile data:", responseGetProfile.data); 
+            dispatch(setUserProfile(responseGetProfile.data));
+            console.log("Profile fetched successfully:", responseGetProfile.data);
+          } else {
+            console.error("Failed to fetch profile:", responseGetProfile.message);
+          }
+        } catch (error) {
+          console.error("Failed to fetch profile:", error);
+        }
+        
+        navigate("/login");
       } catch (error) {
         console.error("Error during Microsoft Login flow:", error);
         navigate("/login");
@@ -76,4 +85,4 @@ const MicrosoftCallbackPage = () => {
 };
 
 const MicrosoftCallback = React.memo(MicrosoftCallbackPage);
-export default MicrosoftCallback;     
+export default MicrosoftCallback;

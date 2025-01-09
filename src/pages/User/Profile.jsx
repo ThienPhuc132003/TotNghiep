@@ -12,7 +12,7 @@ import getCroppedImg from "../../utils/cropImage";
 import Modal from "react-modal";
 
 // Set the app element for accessibility
-Modal.setAppElement('#root');
+Modal.setAppElement("#root");
 
 const ProfilePage = () => {
   const userProfile = useSelector((state) => state.user.userProfile);
@@ -224,7 +224,7 @@ const ProfilePage = () => {
               type="email"
               id="email"
               name="email"
-              value={profileData.email || "null"}
+              value={profileData.personalEmail || "null"}
               onChange={handleChange}
               readOnly
               className="read-only"
