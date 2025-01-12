@@ -1,0 +1,19 @@
+{
+  "register": {
+    "title": "Register",
+    "orRegisterWith": "Or register with:",
+    "fullName": "Full Name",
+    "birthday": "Birthday",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "homeAddress": "Home Address",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "registerButton": "Register",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login"
+  }
+}

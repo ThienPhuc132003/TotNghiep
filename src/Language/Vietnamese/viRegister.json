@@ -1,0 +1,20 @@
+{
+  "register": {
+    "title": "Đăng ký",
+    "orRegisterWith": "Hoặc đăng ký với:",
+    "fullName": "Họ và tên",
+    "birthday": "Ngày sinh",
+    "email": "Email",
+    "phoneNumber": "Số điện thoại",
+    "homeAddress": "Địa chỉ nhà",
+    "gender": "Giới tính",
+    "male": "Nam",
+    "female": "Nữ",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "registerButton": "Đăng ký",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "login": "Đăng nhập",
+    "registerWithMicrosoft": "Đăng ký bằng Microsoft"
+  }
+}

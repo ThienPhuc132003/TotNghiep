@@ -2,7 +2,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
-  background: white;
+  background: rgba(255, 255, 255, 1);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -21,23 +21,36 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: bold;
+  color: rgba(0, 0, 0, 1);
 }
 
-.register-form .form-group input {
+.register-form .form-group input,
+.register-form .form-group select {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   box-sizing: border-box;
+}
+
+.register-form .form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.register-form .form-row .form-group {
+  flex: 1;
+  min-width: calc(50% - 1rem);
 }
 
 .register-form .register-button {
   width: 100%;
   padding: 0.75rem;
-  background: #6e8efb;
+  background: rgba(215, 33, 52, 1);
   border: none;
   border-radius: 5px;
-  color: white;
+  color: rgba(255, 255, 255, 1);
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s;
@@ -45,122 +58,90 @@
 }
 
 .register-form .register-button:hover {
-  background: #a777e3;
+  background: rgba(30, 76, 161, 1);
 }
-  
-  .user-type {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-  
-  .user-type label {
-    margin-right: 1rem;
-  }
-  
-  .form-group {
-    margin-bottom: 1rem;
-    text-align: left;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-  
-  .form-row {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .form-row .form-group {
-    flex: 1;
-    margin-right: 1rem;
-  }
-  
-  .form-row .form-group:last-child {
-    margin-right: 0;
-  }
-  
-  .gender-group {
-    display: flex;
-    align-items: center;
-    margin-top: 0.5rem;
-  }
-  
-  .gender-group label {
-    margin-right: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .register-button {
-    width: 100%;
-    padding: 0.75rem;
-    background: #6e8efb;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-    box-sizing: border-box;
-  }
-  
-  .register-button:hover {
-    background: #a777e3;
-  }
-  
-  .social-login {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  
-  .social-button {
-    margin: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .social-button.facebook {
-    background: #3b5998;
-  }
-  
-  .social-button.facebook:hover {
-    background: #2d4373;
-  }
-  
-  .social-button.google {
-    background: #db4437;
-  }
-  
-  .social-button.google:hover {
-    background: #c23321;
-  }
-  
-  .login-link {
-    margin-top: 1rem;
-  }
-  
-  .login-link a {
-    color: #6e8efb;
-    text-decoration: none;
-  }
-  
-  .login-link a:hover {
-    text-decoration: underline;
-  }
+
+.register-link {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.register-link a {
+  color: rgba(30, 76, 161, 1);
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: rgba(215, 33, 52, 1);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.social-login {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.social-login p {
+  margin-bottom: 0.5rem;
+}
+
+.social-button {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.social-button.facebook {
+  background: #3b5998;
+}
+
+.social-button.google {
+  background: #db4437;
+}
+
+.social-button:hover {
+  opacity: 0.8;
+}
+.gender-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Add spacing between the radio buttons */
+}
+
+.gender-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Add spacing between the radio button and the label text */
+}
+.microsoft-login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem;
+  background: #2f2f2f;
+  border: none;
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 1);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  box-sizing: border-box;
+}
+
+.microsoft-login-button:hover {
+  background: #1a1a1a;
+}
+
+.microsoft-login-button i {
+  margin-right: 0.5rem;
+}

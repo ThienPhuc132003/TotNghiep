@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { setUserProfile } from "../../redux/userSlice";
 import { useDispatch } from "react-redux";
+// import LanguageSelector from "../../components/LanguageSelector";
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -18,10 +21,10 @@ const LoginPage = () => {
   const validateFields = () => {
     const errors = {};
     if (!emailOrPhoneNumber) {
-      errors.emailOrPhoneNumber = "Email or Phone Number is required";
+      errors.emailOrPhoneNumber = t("login.emptyEmail");
     }
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = t("login.emptyPassword");
     }
     return errors;
   };
@@ -54,23 +57,21 @@ const LoginPage = () => {
           });
           if (responseGetProfile.success === true) {
             dispatch(setUserProfile(responseGetProfile.data));
-            console.log("dispath thanh cong tét", responseGetProfile.data);
           }
         } catch (error) {
           console.error("Login failed:", error);
         }
         navigate("/dashboard");
       } else {
-        setErrorMessage("Login failed: Invalid credentials");
+        setErrorMessage(t("login.invalidCredentials"));
       }
     } catch (error) {
-      setErrorMessage("Login failed: Invalid credentials");
+      setErrorMessage(t("login.invalidCredentials"));
     }
   };
 
   const handleMicrosoftLogin = async () => {
     try {
-      // Gọi API để lấy URL xác thực Microsoft
       const response = await Api({
         endpoint: "user/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
@@ -78,7 +79,6 @@ const LoginPage = () => {
       const authUrl = response.data.authUrl;
 
       if (authUrl) {
-        // Chuyển hướng người dùng tới Microsoft login
         window.location.href = authUrl;
       } else {
         console.error("Microsoft Auth URL not found.");
@@ -91,18 +91,19 @@ const LoginPage = () => {
   return (
     <LoginLayout>
       <div className="login-form">
-        <h1>Login</h1>
+        <h1>{t("login.title")}</h1>
         <div className="social-login">
           <button
             onClick={handleMicrosoftLogin}
             className="microsoft-login-button"
           >
-            Login with Microsoft
+            <i className="fab fa-microsoft"></i>
+            {t("login.loginWithMicrosoft")}
           </button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="emailOrPhoneNumber">Email or Phone Number</label>
+            <label htmlFor="emailOrPhoneNumber">{t("login.emailOrPhoneNumber")}</label>
             <input
               type="text"
               id="emailOrPhoneNumber"
@@ -116,7 +117,7 @@ const LoginPage = () => {
             )}
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t("login.password")}</label>
             <input
               type="password"
               id="password"
@@ -131,18 +132,17 @@ const LoginPage = () => {
           </div>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
           <button type="submit" className="login-button">
-            Login
+            {t("login.loginButton")}
           </button>
         </form>
         <div className="register-link">
           <p>
-            Dont have an account? <Link to="/register">Register</Link>
+            {t("login.dontHaveAccount")} <Link to="/register">{t("common.register")}</Link>
           </p>
           <p>
-            <Link to="/forgot-password">Forgot Password?</Link>
+            <Link to="/forgot-password">{t("login.forgotPasswordLink")}</Link>
           </p>
         </div>
-       
       </div>
     </LoginLayout>
   );

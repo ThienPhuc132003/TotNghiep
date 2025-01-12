@@ -43,16 +43,7 @@ const UserDashboardLayoutComponent = (props) => {
                 Dashboard
               </Button>
             </li>
-            <li>
-              <Button
-                onClick={() => navigate("/user/profile")}
-                className={`custom-button ${
-                  location.pathname === "/user/profile" ? "active" : ""
-                }`}
-              >
-                Profile
-              </Button>
-            </li>
+          
             <li>
               <Button
                 onClick={() => navigate("/register-tutor")}

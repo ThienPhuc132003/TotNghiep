@@ -1,0 +1,8 @@
+{
+    "common": {
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "register": "Register",
+      "isRequired": "is required"
+    }
+  }

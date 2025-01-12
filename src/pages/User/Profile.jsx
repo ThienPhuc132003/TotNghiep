@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ProfileLayout from "../../components/User/layout/ProfileLayout";
 import { useSelector, useDispatch } from "react-redux";
 import dfMale from "../../assets/images/df-male.png";
 import dfFemale from "../../assets/images/df-female.png";
@@ -10,7 +9,7 @@ import { setUserProfile } from "../../redux/userSlice";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../utils/cropImage";
 import Modal from "react-modal";
-
+import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
@@ -135,7 +134,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <ProfileLayout>
+    <UserDashboardLayout>
       <div className="profile-form">
         <h1>User Profile</h1>
         {successMessage && (
@@ -205,7 +204,6 @@ const ProfilePage = () => {
               name="fullName"
               value={profileData.fullName || "null"}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="form-group">
@@ -216,7 +214,6 @@ const ProfilePage = () => {
               name="birthday"
               value={profileData.birthday || "null"}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="form-group">
@@ -251,7 +248,6 @@ const ProfilePage = () => {
               name="homeAddress"
               value={profileData.homeAddress || "null"}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="form-group">
@@ -262,7 +258,6 @@ const ProfilePage = () => {
               name="workEmail"
               value={profileData.workEmail || "null"}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="form-group">
@@ -275,7 +270,6 @@ const ProfilePage = () => {
                   value="MALE"
                   checked={profileData.gender === "MALE"}
                   onChange={handleChange}
-                  required
                 />
                 Male
               </label>
@@ -286,7 +280,6 @@ const ProfilePage = () => {
                   value="FEMALE"
                   checked={profileData.gender === "FEMALE"}
                   onChange={handleChange}
-                  required
                 />
                 Female
               </label>
@@ -297,7 +290,7 @@ const ProfilePage = () => {
           </button>
         </form>
       </div>
-    </ProfileLayout>
+    </UserDashboardLayout>
   );
 };
 

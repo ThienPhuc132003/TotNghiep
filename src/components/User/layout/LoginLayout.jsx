@@ -1,13 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "../../../assets/css/LoginLayout.style.css";
+import logo from "../../../assets/images/logoVLU.png";
 
 const LoginLayoutComponent = (props) => {
   const { children = null } = props;
   return (
     <div className="login-layout">
       <div className="login-container">
-        <img src="/logo.png" alt="logo" className="logo" />
+        <img src={logo} alt="logo" className="logo" />
         {children}
       </div>
     </div>
