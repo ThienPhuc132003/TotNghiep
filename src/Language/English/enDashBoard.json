@@ -1,0 +1,11 @@
+{
+    "dashboard": {
+      "welcomeMessage": "Welcome to your Dashboard",
+      "manageSessions": "Manage your tutoring sessions",
+      "viewProfile": "View your profile",
+      "upcomingSessions": "Upcoming Sessions",
+      "noUpcomingSessions": "No upcoming sessions.",
+      "recentActivities": "Recent Activities",
+      "noRecentActivities": "No recent activities."
+    }
+  }

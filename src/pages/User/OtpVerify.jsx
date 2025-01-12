@@ -6,9 +6,8 @@ import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import LanguageSelector from "../../components/LanguageSelector";
 import "../../assets/css/OtpVerify.style.css";
-
+// import LanguageSelector from "../../components/LanguageSelector";
 const OtpVerifyPage = () => {
   const [otp, setOtp] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
@@ -69,9 +68,9 @@ const OtpVerifyPage = () => {
   return (
     <LoginLayout>
       <div className="otp-verify-form">
-        <div className="language-box">
+        {/* <div className="language-box">
           <LanguageSelector />
-        </div>
+        </div> */}
         <h1 className="FormName">{t("login.otpVerifyTitle")}</h1>
         <p className="description">{t("login.otpVerifySubtitle")}</p>
         <InputField

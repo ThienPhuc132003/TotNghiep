@@ -36,21 +36,23 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/otp-verify" element={<OtpVerify />} />
-
-
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
-
-
+          <Route path="dashboard" element={<UserDashboard />} />
+            <Route path="user/profile" element={<Profile />} />
+            <Route path="register-tutor" element={<RegisterTutor />} />
           <Route element={<OtpProtectedRoute />}>
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>
 
+
+          {/* user pages */}
           <Route path="/" element={<UserPrivateRoutes />}>
             <Route index element={<Navigate to="/dashboard" />} />
-            <Route path="dashboard" element={<UserDashboard />} />
-            <Route path="user/profile" element={<Profile />} />
-            <Route path="register-tutor" element={<RegisterTutor />} />
+           
           </Route>
+
+
+          
           <Route path="/" element={<AdminPrivateRoutes />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
           </Route>

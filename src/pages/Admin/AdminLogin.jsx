@@ -4,6 +4,8 @@ import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { setAdminProfile } from "../../redux/adminSlice"; // Import the setAdminProfile action
 import "../../assets/css/Admin/AdminLogin.style.css";
 
 const AdminLoginPage = () => {
@@ -12,6 +14,7 @@ const AdminLoginPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize dispatch
 
   const validateFields = () => {
     const errors = {};
@@ -45,6 +48,18 @@ const AdminLoginPage = () => {
       if (token) {
         Cookies.set("token", token);
         Cookies.set("role", "admin");
+        try {
+          const adminInfoResponse = await Api({
+            endpoint: "admin/get-profile",
+            method: METHOD_TYPE.GET,
+            token,
+          });
+          if (adminInfoResponse.success === true) {
+            dispatch(setAdminProfile(adminInfoResponse.data)); 
+          }
+        } catch (error) {
+          setErrorMessage("Login failed: Invalid credentials");
+        }
         navigate("/admin/dashboard");
       } else {
         setErrorMessage("Login failed: Invalid credentials");

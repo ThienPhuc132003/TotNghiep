@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import "../../assets/css/User.style.css";
+import "../../assets/css/Admin/Admin.style.css";
 import { useSelector } from "react-redux";
 import dfMale from "../../assets/images/df-male.png";
 import dfFemale from "../../assets/images/df-female.png";
 
 const UserComponent = () => {
-  const userInfo = useSelector((state) => state.user.userProfile);
+  const adminInfo = useSelector((state) => state.admin.adminProfile);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -20,24 +20,24 @@ const UserComponent = () => {
   };
 
   const getAvatar = () => {
-    if (userInfo.avatar) {
-      return userInfo.avatar;
+    if (adminInfo.avatar) {
+      return adminInfo.avatar;
     }
-    return userInfo.gender === "FEMALE" ? dfFemale : dfMale;
+    return adminInfo.gender === "FEMALE" ? dfFemale : dfMale;
   };
 
   return (
-    <div className="user-dropdown">
-      <div className="user-info-dropdown">
+    <div className="admin-dropdown">
+      <div className="admin-info-dropdown">
         <img
-          className="user-avatar-square"
+          className="admin-avatar-square"
           src={getAvatar()}
-          alt="user-avatar"
+          alt="uadminser-avatar"
           onClick={handleDoubleClick}
         />
-        <div className="user-details" onClick={toggleDropdown}>
-          <span className="user-name">{userInfo.fullname}</span>
-          <span className="user-role">Hoc vien</span>
+        <div className="admin-details" onClick={toggleDropdown}>
+          <span className="admin-name">{adminInfo.fullname}</span>
+          <span className="admin-role">Hoc vien</span>
         </div>
       </div>
 

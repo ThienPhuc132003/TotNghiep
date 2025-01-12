@@ -1,0 +1,31 @@
+{
+    "login": {
+      "title": "Login",
+      "emailOrPhoneNumber": "Email or Phone Number",
+      "password": "Password",
+      "loginButton": "Login",
+      "dontHaveAccount": "Don't have an account?",
+      "forgotPasswordLink": "Forgot Password?",
+      "loginWithMicrosoft": "Login with Microsoft",
+      "invalidCredentials": "Login failed: Invalid credentials",
+      "emptyEmail": "Email or Phone Number is required",
+      "emptyPassword": "Password is required",
+      "otpVerifyTitle": "OTP Verification",
+      "otpVerifySubtitle": "Please enter the OTP sent to your email or phone number.",
+      "otpPlaceholder": "Enter OTP",
+      "emptyOtp": "OTP is required",
+      "invalidOtp": "Invalid OTP",
+      "error": "An error occurred, please try again",
+      "changePasswordTitle": "Change Password",
+      "changePasswordSubtitle": "Please enter your new password.",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "emptyNewPassword": "New password is required",
+      "emptyConfirmPassword": "Confirm password is required",
+      "passwordNotMatch": "Passwords do not match",
+      "forgotPasswordTitle": "Forgot Password",
+      "forgotPasswordSubtitle": "Please enter your email or phone number to receive an OTP.",
+      "emailOrPhonePlaceholder": "Enter email or phone number",
+      "emailNotFound": "Email or phone number not found"
+    }
+  }

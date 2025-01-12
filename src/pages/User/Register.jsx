@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/Register.style.css";
 
 const RegisterPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     fullName: "",
     birthday: "",
@@ -23,6 +25,7 @@ const RegisterPage = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const {
@@ -62,19 +65,41 @@ const RegisterPage = () => {
     }
   };
 
+  const handleMicrosoftRegister = async () => {
+    try {
+      const response = await Api({
+        endpoint: "user/auth/get-uri-microsoft",
+        method: METHOD_TYPE.GET,
+      });
+      const authUrl = response.data.authUrl;
+
+      if (authUrl) {
+        window.location.href = authUrl;
+      } else {
+        console.error("Microsoft Auth URL not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Microsoft Auth URL:", error);
+    }
+  };
+
   return (
     <LoginLayout>
       <div className="register-form">
-        <h1>Register</h1>
+        <h1>{t("register.title")}</h1>
         <div className="social-login">
-          <p>Or register with:</p>
-          <button className="social-button facebook">Facebook</button>
-          <button className="social-button google">Google</button>
+          <button
+            onClick={handleMicrosoftRegister}
+            className="microsoft-login-button"
+          >
+            <i className="fab fa-microsoft"></i>
+            {t("register.registerWithMicrosoft")}
+          </button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="fullName">Full Name</label>
+              <label htmlFor="fullName">{t("register.fullName")}</label>
               <input
                 type="text"
                 id="fullName"
@@ -85,7 +110,7 @@ const RegisterPage = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="birthday">Birthday</label>
+              <label htmlFor="birthday">{t("register.birthday")}</label>
               <input
                 type="date"
                 id="birthday"
@@ -98,7 +123,7 @@ const RegisterPage = () => {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">{t("register.email")}</label>
               <input
                 type="email"
                 id="email"
@@ -109,7 +134,7 @@ const RegisterPage = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="phoneNumber">Phone Number</label>
+              <label htmlFor="phoneNumber">{t("register.phoneNumber")}</label>
               <input
                 type="tel"
                 id="phoneNumber"
@@ -122,7 +147,7 @@ const RegisterPage = () => {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="homeAddress">Home Address</label>
+              <label htmlFor="homeAddress">{t("register.homeAddress")}</label>
               <input
                 type="text"
                 id="homeAddress"
@@ -133,7 +158,7 @@ const RegisterPage = () => {
               />
             </div>
             <div className="form-group">
-              <label>Gender</label>
+              <label>{t("register.gender")}</label>
               <div className="gender-group">
                 <label>
                   <input
@@ -144,7 +169,7 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     required
                   />
-                  Male
+                  {t("register.male")}
                 </label>
                 <label>
                   <input
@@ -155,14 +180,14 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     required
                   />
-                  Female
+                  {t("register.female")}
                 </label>
               </div>
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">{t("register.password")}</label>
               <input
                 type="password"
                 id="password"
@@ -173,7 +198,7 @@ const RegisterPage = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="confirmPassword">{t("register.confirmPassword")}</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -185,12 +210,12 @@ const RegisterPage = () => {
             </div>
           </div>
           <button type="submit" className="register-button">
-            Register
+            {t("register.registerButton")}
           </button>
         </form>
         <div className="login-link">
           <p>
-            Already have an account? <Link to="/login">Login</Link>
+            {t("register.alreadyHaveAccount")} <Link to="/login">{t("register.login")}</Link>
           </p>
         </div>
       </div>

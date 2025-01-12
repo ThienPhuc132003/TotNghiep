@@ -6,9 +6,8 @@ import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import LanguageSelector from "../../components/LanguageSelector";
 import "../../assets/css/ForgotPassword.style.css";
-
+// import LanguageSelector from "../../components/LanguageSelector";
 const ForgotPasswordPage = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
@@ -45,16 +44,19 @@ const ForgotPasswordPage = () => {
     }
   }, [emailOrPhone, validateFields, navigate, t]);
 
-  const handleEmailChange = useCallback((e) => {
-    const value = e.target.value;
-    setEmailOrPhone(value);
-    if (errorMessages.email) {
-      setErrorMessages((prevErrors) => ({
-        ...prevErrors,
-        email: "",
-      }));
-    }
-  }, [errorMessages.email]);
+  const handleEmailChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setEmailOrPhone(value);
+      if (errorMessages.email) {
+        setErrorMessages((prevErrors) => ({
+          ...prevErrors,
+          email: "",
+        }));
+      }
+    },
+    [errorMessages.email]
+  );
 
   const handleBackPage = useCallback(() => {
     navigate("/login");
@@ -63,9 +65,9 @@ const ForgotPasswordPage = () => {
   return (
     <LoginLayout>
       <div className="forgot-password-form">
-        <div className="language-box">
+        {/* <div className="language-box">
           <LanguageSelector />
-        </div>
+        </div> */}
         <h1 className="FormName">{t("login.forgotPasswordTitle")}</h1>
         <p className="description">{t("login.forgotPasswordSubtitle")}</p>
         <InputField

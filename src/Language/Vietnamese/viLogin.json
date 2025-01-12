@@ -1,0 +1,31 @@
+{
+    "login": {
+      "title": "Đăng nhập",
+      "emailOrPhoneNumber": "Email hoặc Số điện thoại",
+      "password": "Mật khẩu",
+      "loginButton": "Đăng nhập",
+      "dontHaveAccount": "Chưa có tài khoản?",
+      "forgotPasswordLink": "Quên mật khẩu?",
+      "loginWithMicrosoft": "Đăng nhập bằng Microsoft",
+      "invalidCredentials": "Đăng nhập thất bại: Thông tin không hợp lệ",
+      "emptyEmail": "Email hoặc Số điện thoại không được để trống",
+      "emptyPassword": "Mật khẩu không được để trống",
+      "otpVerifyTitle": "Xác minh OTP",
+      "otpVerifySubtitle": "Vui lòng nhập mã OTP đã được gửi đến email hoặc số điện thoại của bạn.",
+      "otpPlaceholder": "Nhập mã OTP",
+      "emptyOtp": "Mã OTP không được để trống",
+      "invalidOtp": "Mã OTP không hợp lệ",
+      "error": "Đã xảy ra lỗi, vui lòng thử lại",
+      "changePasswordTitle": "Đổi mật khẩu",
+      "changePasswordSubtitle": "Vui lòng nhập mật khẩu mới của bạn.",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới",
+      "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới",
+      "emptyNewPassword": "Mật khẩu mới không được để trống",
+      "emptyConfirmPassword": "Xác nhận mật khẩu không được để trống",
+      "passwordNotMatch": "Mật khẩu không khớp",
+      "forgotPasswordTitle": "Quên mật khẩu",
+      "forgotPasswordSubtitle": "Vui lòng nhập email hoặc số điện thoại của bạn để nhận mã OTP.",
+      "emailOrPhonePlaceholder": "Nhập email hoặc số điện thoại",
+      "emailNotFound": "Email hoặc số điện thoại không tồn tại"
+    }
+  }

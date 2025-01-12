@@ -1,19 +1,22 @@
 import React from "react";
 import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
+import { useTranslation } from "react-i18next";
 
 const DashboardPage = () => {
+  const { t } = useTranslation();
+
   return (
     <UserDashboardLayout>
-      <h2>Welcome to your Dashboard</h2>
-      <p>Here you can manage your tutoring sessions, view your profile, and more.</p>
+      <h2>{t("dashboard.welcomeMessage")}</h2>
+      <p>{t("dashboard.manageSessions")}</p>
       <div className="dashboard-content">
         <div className="card">
-          <h3>Upcoming Sessions</h3>
-          <p>No upcoming sessions.</p>
+          <h3>{t("dashboard.upcomingSessions")}</h3>
+          <p>{t("dashboard.noUpcomingSessions")}</p>
         </div>
         <div className="card">
-          <h3>Recent Activities</h3>
-          <p>No recent activities.</p>
+          <h3>{t("dashboard.recentActivities")}</h3>
+          <p>{t("dashboard.noRecentActivities")}</p>
         </div>
       </div>
     </UserDashboardLayout>

@@ -6,7 +6,6 @@ import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import LanguageSelector from "../../components/LanguageSelector";
 import "../../assets/css/ChangePassword.style.css";
 
 const ChangePasswordPage = () => {
@@ -75,9 +74,9 @@ const ChangePasswordPage = () => {
   return (
     <LoginLayout>
       <div className="change-password-form">
-        <div className="language-box">
+        {/* <div className="language-box">
           <LanguageSelector />
-        </div>
+        </div> */}
         <h1 className="FormName">{t("login.changePasswordTitle")}</h1>
         <p className="description">{t("login.changePasswordSubtitle")}</p>
         <InputField

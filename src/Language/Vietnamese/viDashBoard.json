@@ -1,0 +1,11 @@
+{
+    "dashboard": {
+      "welcomeMessage": "Chào mừng đến với Bảng điều khiển",
+      "manageSessions": "Quản lý các buổi học",
+      "viewProfile": "Xem hồ sơ",
+      "upcomingSessions": "Các buổi học sắp tới",
+      "noUpcomingSessions": "Không có buổi học sắp tới.",
+      "recentActivities": "Hoạt động gần đây",
+      "noRecentActivities": "Không có hoạt động gần đây."
+    }
+  }

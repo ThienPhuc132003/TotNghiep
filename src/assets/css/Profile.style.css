@@ -4,7 +4,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
-  background: white;
+  background: rgba(255, 255, 255, 1);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -23,12 +23,13 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: bold;
+  color: rgba(0, 0, 0, 1);
 }
 
 .profile-form .form-group input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   box-sizing: border-box;
 }
@@ -49,10 +50,10 @@
 .profile-form .profile-button {
   width: 100%;
   padding: 0.75rem;
-  background: #6e8efb;
+  background: rgba(215, 33, 52, 1);
   border: none;
   border-radius: 5px;
-  color: white;
+  color: rgba(255, 255, 255, 1);
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s;
@@ -60,7 +61,7 @@
 }
 
 .profile-form .profile-button:hover {
-  background: #a777e3;
+  background: rgba(30, 76, 161, 1);
 }
 
 .avatar-container {
@@ -96,8 +97,8 @@
   align-items: center;
   padding: 5px 10px;
   border-radius: 20px;
-  background-color: rgb(38, 38, 122);
-  color: white;
+  background-color: rgba(30, 76, 161, 1);
+  color: rgba(255, 255, 255, 1);
   font-weight: bold;
   height: 40px;
 }
@@ -107,7 +108,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
+  background: rgba(255, 255, 255, 1);
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -145,10 +146,10 @@
 
 .crop-save-button {
   padding: 0.5rem 1rem;
-  background-color: #6e8efb;
+  background-color: rgba(215, 33, 52, 1);
   border: none;
   border-radius: 5px;
-  color: white;
+  color: rgba(255, 255, 255, 1);
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s;
@@ -160,22 +161,22 @@
 }
 
 .crop-save-button:hover:not(:disabled) {
-  background-color: #a777e3;
+  background-color: rgba(30, 76, 161, 1);
 }
 
 .modal-close-button {
   padding: 0.5rem 1rem;
-  background-color: #ff4d4d;
+  background-color: rgba(215, 33, 52, 1);
   border: none;
   border-radius: 5px;
-  color: white;
+  color: rgba(255, 255, 255, 1);
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .modal-close-button:hover {
-  background-color: #ff1a1a;
+  background-color: rgba(30, 76, 161, 1);
 }
 
 .modal-title {
