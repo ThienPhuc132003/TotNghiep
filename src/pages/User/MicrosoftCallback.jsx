@@ -58,4 +58,5 @@ const MicrosoftCallbackPage = () => {
 };
 
 const MicrosoftCallback = React.memo(MicrosoftCallbackPage);
+
 export default MicrosoftCallback;

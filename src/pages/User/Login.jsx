@@ -91,14 +91,18 @@ const LoginPage = () => {
   return (
     <LoginLayout>
       <div className="login-form">
+
         <h1>{t("login.title")}</h1>
+
         <div className="social-login">
           <button
             onClick={handleMicrosoftLogin}
             className="microsoft-login-button"
           >
+
             <i className="fab fa-microsoft"></i>
             {t("login.loginWithMicrosoft")}
+
           </button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -143,6 +147,8 @@ const LoginPage = () => {
             <Link to="/forgot-password">{t("login.forgotPasswordLink")}</Link>
           </p>
         </div>
+
+
       </div>
     </LoginLayout>
   );
