@@ -4,11 +4,10 @@ import Cookies from "js-cookie";
 const axiosClient = axios.create({
   baseURL: "https://giasuvlu.click/api/",
   headers: {
-    "Content-Type": "application/json", // Mặc định cho JSON
+    "Content-Type": "application/json",
   },
 });
 
-// Add a request interceptor
 axiosClient.interceptors.request.use(
   function (config) {
     const token = Cookies.get("token");
@@ -16,7 +15,6 @@ axiosClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Xử lý FormData - Xóa Content-Type để axios tự thêm multipart/form-data
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
     }
@@ -28,7 +26,6 @@ axiosClient.interceptors.request.use(
   }
 );
 
-// Add a response interceptor
 axiosClient.interceptors.response.use(
   function (response) {
     return response.data;
