@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../Button";
 import Cookies from "js-cookie";
 import UserAccountToolbar from "./UserAccountToolbar";
+import ZoomMeetingButton from "../../ZoomMeetingButton";
 const UserDashboardLayoutComponent = (props) => {
   const { children = null } = props;
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const UserDashboardLayoutComponent = (props) => {
                 Dashboard
               </Button>
             </li>
-          
+
             <li>
               <Button
                 onClick={() => navigate("/register-tutor")}
@@ -54,18 +55,19 @@ const UserDashboardLayoutComponent = (props) => {
                 Register as Tutor
               </Button>
             </li>
+            <li>
+              <ZoomMeetingButton />
+            </li>
             <UserAccountToolbar
               onEditProfile={() => navigate("/user/profile")}
               onLogout={handleLogout}
-            >
-              <></>
-            </UserAccountToolbar>
+            />
           </ul>
         </nav>
       </header>
       <main className="main-content">{children}</main>
       <footer className="footer">
-        <p>&copy; 2023 Online Tutor. All rights reserved.</p>
+        <p>&copy; 2025 Online Tutor. All rights reserved.</p>
       </footer>
     </div>
   );

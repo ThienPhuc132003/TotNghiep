@@ -92,40 +92,37 @@ const ProfilePage = () => {
 
   const handleCropSave = async () => {
     try {
-      const response = await Api({
-        endpoint: `media/media-url?mediaCategory=admin_avatar`,
+      const avatarResponse = await Api({
+        endpoint: "media-service/media/media-url?mediaCategory=user_avatar",
         method: METHOD_TYPE.GET,
       });
-      if (response.success === true) {
-        const fileName = response.data.fileName;
-        try {
-          const croppedImage = await getCroppedImg(
-            selectedImage,
-            croppedAreaPixels
-          );
-          const formData = new FormData();
-          formData.append("avatar", croppedImage, "avatar.png");
 
-          const response = await Api({
-            endpoint: `media/upload-media?mediaCategory=admin_avatar&fileName=${fileName}`,
-            method: METHOD_TYPE.POST,
-            data: formData,
-            isFormData: true,
+      if (avatarResponse.success === true) {
+        const fileName = avatarResponse.data.fileName;
+        const croppedImage = await getCroppedImg(selectedImage, croppedAreaPixels);
+        const formData = new FormData();
+        formData.append("file", croppedImage);
+
+        const uploadResponse = await Api({
+          endpoint: `media-service/media/upload-media?mediaCategory=user_avatar&fileName=${fileName}`,
+          method: METHOD_TYPE.POST,
+          data: formData,
+          isFormData: true,
+        });
+
+        if (uploadResponse.success === true) {
+          const pushAvatarToServer = await Api({
+            endpoint: `loan-service/borrower/update-profile`,
+            method: METHOD_TYPE.PUT,
+            data: { avatar: uploadResponse.data.mediaUrl },
           });
-
-          if (response.success === true) {
-            dispatch(
-              setUserProfile({ ...userProfile, avatar: response.data.avatar })
-            );
-            setProfileData({ ...profileData, avatar: response.data.avatar });
-            setSuccessMessage("Avatar updated successfully!");
-            setIsCropping(false);
-            setIsModalOpen(false);
-          } else {
-            console.error("Failed to upload avatar:", response.message);
-          }
-        } catch (error) {
-          console.error("Failed to upload avatar:", error);
+          dispatch(setUserProfile(pushAvatarToServer.data));
+          setProfileData({ ...profileData, avatar: pushAvatarToServer.data.avatar });
+          setSuccessMessage("Avatar updated successfully!");
+          setIsCropping(false);
+          setIsModalOpen(false);
+        } else {
+          console.error("Failed to upload avatar:", uploadResponse.message);
         }
       }
     } catch (error) {

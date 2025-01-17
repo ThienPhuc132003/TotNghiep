@@ -17,9 +17,11 @@ const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
-
-
 const MicrosoftCallback = lazy(() => import("./pages/User/MicrosoftCallback"));
+import PaymentPage from "./pages/User/PaymentPage";
+import PaymentSuccess from "./pages/User/PaymentSuccess";
+import PaymentFailed from "./pages/User/PaymentFailed";
+
 
 // Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
@@ -38,21 +40,19 @@ function App() {
           <Route path="/otp-verify" element={<OtpVerify />} />
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
           <Route path="dashboard" element={<UserDashboard />} />
-            <Route path="user/profile" element={<Profile />} />
-            <Route path="register-tutor" element={<RegisterTutor />} />
+          <Route path="payment" element={<PaymentPage />} />
+          <Route path="payment/success" element={<PaymentSuccess />} /> {/* Add this route */}
+          <Route path="payment/failed" element={<PaymentFailed />} /> {/* Add this route */}
+          {/* Add this route */}
+          <Route path="user/profile" element={<Profile />} />
+          <Route path="register-tutor" element={<RegisterTutor />} />
           <Route element={<OtpProtectedRoute />}>
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>
-
-
           {/* user pages */}
           <Route path="/" element={<UserPrivateRoutes />}>
             <Route index element={<Navigate to="/dashboard" />} />
-           
           </Route>
-
-
-          
           <Route path="/" element={<AdminPrivateRoutes />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
           </Route>

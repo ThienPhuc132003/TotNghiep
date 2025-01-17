@@ -8,7 +8,7 @@ const Api = ({
   method = METHOD_TYPE.GET,
   data,
   query,
-  isFormData = false, // Cờ để xác định FormData
+  isFormData = false,
 }) => {
   const url = `${domain}${endpoint}${parseQuery(query)}`;
   console.log(`API URL axi: ${url}`);
@@ -17,7 +17,6 @@ const Api = ({
     headers: {},
   };
 
-  // Nếu là FormData, không cần thêm Content-Type
   if (isFormData) {
     config.headers["Content-Type"] = "multipart/form-data";
   }
