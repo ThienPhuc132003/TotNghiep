@@ -23,6 +23,7 @@ import PaymentSuccess from "./pages/User/PaymentSuccess";
 import PaymentFailed from "./pages/User/PaymentFailed";
 
 
+
 // Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
@@ -41,8 +42,10 @@ function App() {
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="payment" element={<PaymentPage />} />
-          <Route path="payment/success" element={<PaymentSuccess />} /> {/* Add this route */}
-          <Route path="payment/failed" element={<PaymentFailed />} /> {/* Add this route */}
+          <Route path="payment/success" element={<PaymentSuccess />} />
+          <Route path="payment/failed" element={<PaymentFailed />} /> 
+
+          
           {/* Add this route */}
           <Route path="user/profile" element={<Profile />} />
           <Route path="register-tutor" element={<RegisterTutor />} />
