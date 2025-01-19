@@ -16,6 +16,7 @@ const ZoomMeetingButton = () => {
     if (code) {
       handleZoomCode(code);
     }
+
     async function handleZoomCode(code) {
       try {
         const response = await Api({
@@ -37,17 +38,13 @@ const ZoomMeetingButton = () => {
             console.log("Access Token and Refresh Token set in cookies");
             await createZoomMeeting(accessToken);
           }
-          navigate("/"); // Điều hướng về trang có ZoomMeetingButton
+          navigate("/dashboard"); // Điều hướng về trang dashboard
         } else {
           console.error("Zoom Auth Result not found.");
         }
       } catch (error) {
         console.error("Error handling Zoom Auth Code:", error);
       }
-    }
-
-    if (code) {
-      handleZoomCode(code);
     }
   }, [location, navigate]);
 
