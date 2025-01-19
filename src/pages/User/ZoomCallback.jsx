@@ -6,6 +6,7 @@ import { METHOD_TYPE } from "../../network/methodType";
 
 const createZoomMeeting = async (accessToken) => {
   console.log("Creating Zoom meeting with access token:", accessToken);
+  // Thêm mã để tạo phòng Zoom nếu cần thiết
 };
 
 const ZoomCallbackPage = () => {
@@ -38,7 +39,7 @@ const ZoomCallbackPage = () => {
             Cookies.set("zoomRefreshToken", refreshToken);
             await createZoomMeeting(accessToken);
           }
-          navigate("/zoom-meeting"); // Navigate to the page with ZoomMeetingButton
+          navigate("/dashboard"); // Điều hướng về trang dashboard
         } else {
           console.error("Zoom Auth Result not found.");
           navigate("/login");
