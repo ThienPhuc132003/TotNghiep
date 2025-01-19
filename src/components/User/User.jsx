@@ -8,6 +8,7 @@ import dfFemale from "../../assets/images/df-female.png";
 
 const UserComponent = () => {
   const userInfo = useSelector((state) => state.user.userProfile);
+  console.log(userInfo);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
