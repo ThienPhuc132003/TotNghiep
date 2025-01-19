@@ -5,8 +5,23 @@ import Cookies from "js-cookie";
 import { METHOD_TYPE } from "../../network/methodType";
 
 const createZoomMeeting = async (accessToken) => {
-  console.log("Creating Zoom meeting with access token:", accessToken);
-  // Thêm mã để tạo phòng Zoom nếu cần thiết
+  try {
+    const response = await Api({
+      endpoint: "meeting/create",
+      method: METHOD_TYPE.POST,
+      data: {
+        topic: "Team Sync Meeting",
+        password: "12345",
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const meetingData = response.data;
+    console.log("Zoom Meeting Created:", meetingData);
+  } catch (error) {
+    console.error("Error creating Zoom Meeting:", error);
+  }
 };
 
 const ZoomCallbackPage = () => {
