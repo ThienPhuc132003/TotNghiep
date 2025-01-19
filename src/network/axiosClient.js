@@ -11,8 +11,16 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   function (config) {
     const token = Cookies.get("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const zoomToken = Cookies.get("zoomAccessToken");
+
+    if (config.url.includes("zoom")) {
+      if (zoomToken) {
+        config.headers.Authorization = `Bearer ${zoomToken}`;
+      }
+    } else {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
 
     if (config.data instanceof FormData) {

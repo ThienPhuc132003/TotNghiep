@@ -39,7 +39,7 @@ const ZoomCallbackPage = () => {
             Cookies.set("zoomRefreshToken", refreshToken);
             await createZoomMeeting(accessToken);
           }
-          navigate("/dashboard"); // Điều hướng về trang dashboard
+          navigate("/dashboard"); 
         } else {
           console.error("Zoom Auth Result not found.");
           navigate("/login");
