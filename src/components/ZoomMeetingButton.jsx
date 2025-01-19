@@ -1,83 +1,112 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Api from "../network/Api";
 import { METHOD_TYPE } from "../network/methodType";
-import Button from "./Button";
+import Cookies from "js-cookie";
 
 const ZoomMeetingButton = () => {
   const navigate = useNavigate();
-
-  const createZoomMeeting = async () => {
-    try {
-      // Bước 1: Lấy zoomAuthUrl
-      const authResponse = await Api({
-        endpoint: "meeting/auth",
-        method: METHOD_TYPE.GET,
-        data: {
-          topic: "Test Zoom Meeting 2",
-          password: "123456",
-        },
-      });
-
-      if (authResponse.success) {
-        const zoomAuthUrl = authResponse.data.zoomAuthUrl;
-        window.location.href = zoomAuthUrl;
-      }
-    } catch (error) {
-      console.error("Failed to get zoomAuthUrl:", error);
-    }
-  };
-
-  const handleZoomCallback = async (authorizationCode) => {
-    try {
-      // Bước 2: Lấy accessToken từ authorizationCode
-      const tokenResponse = await Api({
-        endpoint: "meeting/handle",
-        method: METHOD_TYPE.POST,
-        data: {
-          authorizationCode,
-        },
-      });
-
-      if (tokenResponse.success) {
-        const accessToken = tokenResponse.data.accessToken;
-
-        // Bước 3: Tạo cuộc họp Zoom
-        const meetingResponse = await Api({
-          endpoint: "meeting/create",
-          method: METHOD_TYPE.POST,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            topic: "Team Sync Meeting",
-            password: "12345",
-          },
-        });
-
-        if (meetingResponse.success) {
-          const { meetingId, topic, startTime, joinUrl } = meetingResponse.data;
-          console.log("Meeting created:", { meetingId, topic, startTime, joinUrl });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to handle Zoom callback:", error);
-    }
-  };
+  const location = useLocation();
+  const [meetingData, setMeetingData] = useState(null);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.get("code");
+    const searchParams = new URLSearchParams(location.search);
+    const code = searchParams.get("code");
 
-    if (authorizationCode) {
-      handleZoomCallback(authorizationCode);
+    if (code) {
+      handleZoomCode(code);
     }
-  }, [navigate]);
+    async function handleZoomCode(code) {
+      try {
+        const response = await Api({
+          endpoint: "meeting/handle",
+          method: METHOD_TYPE.POST,
+          data: {
+            authorizationCode: code,
+          },
+        });
+        const result = response.data.result;
+
+        if (result) {
+          console.log("Zoom Auth Result:", result);
+          const accessToken = result.accessToken;
+          const refreshToken = result.refreshToken;
+          if (accessToken) {
+            Cookies.set("zoomAccessToken", accessToken);
+            Cookies.set("zoomRefreshToken", refreshToken);
+            console.log("Access Token and Refresh Token set in cookies");
+            await createZoomMeeting(accessToken);
+          }
+          navigate("/"); // Điều hướng về trang có ZoomMeetingButton
+        } else {
+          console.error("Zoom Auth Result not found.");
+        }
+      } catch (error) {
+        console.error("Error handling Zoom Auth Code:", error);
+      }
+    }
+
+    if (code) {
+      handleZoomCode(code);
+    }
+  }, [location, navigate]);
+
+  const createZoomMeeting = async (accessToken) => {
+    try {
+      const response = await Api({
+        endpoint: "meeting/create",
+        method: METHOD_TYPE.POST,
+        data: {
+          topic: "Team Sync Meeting",
+          password: "12345",
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const meetingData = response.data;
+      setMeetingData(meetingData);
+      console.log("Zoom Meeting Created:", meetingData);
+    } catch (error) {
+      console.error("Error creating Zoom Meeting:", error);
+    }
+  };
+
+  const handleZoomAuth = async () => {
+    try {
+      const response = await Api({
+        endpoint: "meeting/auth",
+        method: METHOD_TYPE.GET,
+      });
+      const zoomAuthUrl = response.data.zoomAuthUrl;
+
+      if (zoomAuthUrl) {
+        window.location.href = zoomAuthUrl;
+      } else {
+        console.error("Zoom Auth URL not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Zoom Auth URL:", error);
+    }
+  };
 
   return (
-    <Button onClick={createZoomMeeting}>
-      Tạo cuộc họp Zoom
-    </Button>
+    <div>
+      <button onClick={handleZoomAuth} className="zoom-meeting-button">
+        Connect to Zoom
+      </button>
+      {meetingData && (
+        <div>
+          <h3>Meeting Created</h3>
+          <p>Meeting ID: {meetingData.meetingId}</p>
+          <p>Topic: {meetingData.topic}</p>
+          <p>Start Time: {meetingData.startTime}</p>
+          <p>
+            Join URL: <a href={meetingData.joinUrl}>{meetingData.joinUrl}</a>
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 
