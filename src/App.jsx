@@ -40,7 +40,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/otp-verify" element={<OtpVerify />} />
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
-          <Route path="/meeting/callback" element={<ZoomCallback />} />
+          <Route path="/api/meeting/callback" element={<ZoomCallback />} />
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="payment" element={<PaymentPage />} />
           <Route path="payment/success" element={<PaymentSuccess />} />
