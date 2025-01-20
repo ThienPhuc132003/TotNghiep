@@ -8,10 +8,12 @@ import Button from "../../Button";
 import Cookies from "js-cookie";
 import UserAccountToolbar from "./UserAccountToolbar";
 import LoginZoomButton from "../../LoginZoomButton";
+
 const UserDashboardLayoutComponent = (props) => {
   const { children = null } = props;
   const navigate = useNavigate();
   const location = useLocation();
+  const isAuth = Cookies.get("token");
 
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -34,34 +36,46 @@ const UserDashboardLayoutComponent = (props) => {
         <h1>Online Tutor</h1>
         <nav>
           <ul>
-            <li>
-              <Button
-                onClick={() => navigate("/dashboard")}
-                className={`custom-button ${
-                  location.pathname === "/dashboard" ? "active" : ""
-                }`}
-              >
-                Dashboard
-              </Button>
-            </li>
-
-            <li>
-              <Button
-                onClick={() => navigate("/register-tutor")}
-                className={`custom-button ${
-                  location.pathname === "/register-tutor" ? "active" : ""
-                }`}
-              >
-                Register as Tutor
-              </Button>
-            </li>
-            <li>
-              <LoginZoomButton />
-            </li>
-            <UserAccountToolbar
-              onEditProfile={() => navigate("/user/profile")}
-              onLogout={handleLogout}
-            />
+            {isAuth ? (
+              <>
+                <li>
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                    className={`custom-button ${
+                      location.pathname === "/dashboard" ? "active" : ""
+                    }`}
+                  >
+                    Dashboard
+                  </Button>
+                </li>
+                <li>
+                  <Button
+                    onClick={() => navigate("/register-tutor")}
+                    className={`custom-button ${
+                      location.pathname === "/register-tutor" ? "active" : ""
+                    }`}
+                  >
+                    Register as Tutor
+                  </Button>
+                </li>
+                <li>
+                  <LoginZoomButton />
+                </li>
+                <UserAccountToolbar
+                  onEditProfile={() => navigate("/user/profile")}
+                  onLogout={handleLogout}
+                />
+              </>
+            ) : (
+              <li>
+                <Button
+                  onClick={() => navigate("/login")}
+                  className="custom-button"
+                >
+                  Login
+                </Button>
+              </li>
+            )}
           </ul>
         </nav>
       </header>
