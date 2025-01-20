@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../Button";
 import Cookies from "js-cookie";
 import UserAccountToolbar from "./UserAccountToolbar";
-import ZoomMeetingButton from "../../ZoomMeetingButton";
+import LoginZoomButton from "../../LoginZoomButton";
 const UserDashboardLayoutComponent = (props) => {
   const { children = null } = props;
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ const UserDashboardLayoutComponent = (props) => {
               </Button>
             </li>
             <li>
-              <ZoomMeetingButton />
+              <LoginZoomButton />
             </li>
             <UserAccountToolbar
               onEditProfile={() => navigate("/user/profile")}
