@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import AdminPrivateRoutes from "./route/AdminPrivateRoutes";
-import UserPrivateRoutes from "./route/UserPrivateRoutes";
+// import UserPrivateRoutes from "./route/UserPrivateRoutes";
 import OtpProtectedRoute from "./route/OtpProtectedRoute";
 // User
 const UserDashboard = lazy(() => import("./pages/User/Dashboard"));
@@ -64,9 +64,7 @@ function App() {
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>
           {/* user pages */}
-          <Route path="/" element={<UserPrivateRoutes />}>
-            <Route index element={<Navigate to="/dashboard" />} />
-          </Route>
+          <Route index element={<Navigate to="/dashboard" />} />
           <Route path="/" element={<AdminPrivateRoutes />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
           </Route>
