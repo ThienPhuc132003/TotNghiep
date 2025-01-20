@@ -11,11 +11,11 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   function (config) {
     const token = Cookies.get("token");
-    const zoomToken = Cookies.get("zoomAccessToken");
+    const zoomAccessToken = Cookies.get("zoomAccessToken");
 
     if (config.url.includes("zoom")) {
-      if (zoomToken) {
-        config.headers.Authorization = `Bearer ${zoomToken}`;
+      if (zoomAccessToken) {
+        config.headers.Authorization = `Bearer ${zoomAccessToken}`;
       }
     } else {
       if (token) {
@@ -38,10 +38,32 @@ axiosClient.interceptors.response.use(
   function (response) {
     return response.data;
   },
-  function (error) {
+  async function (error) {
     if (error.response && error.response.status === 401) {
-      Cookies.remove("token");
-      window.location.href = "/login";
+      const originalRequest = error.config;
+      const refreshToken = Cookies.get("zoomRefreshToken");
+
+      if (refreshToken && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const response = await axiosClient.post("meeting/zoom/refresh", {
+            refreshToken: refreshToken,
+          });
+          const newAccessToken = response.data.result.accessToken;
+          const newRefreshToken = response.data.result.refreshToken;
+          Cookies.set("zoomAccessToken", newAccessToken);
+          Cookies.set("zoomRefreshToken", newRefreshToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axiosClient(originalRequest);
+        } catch (refreshError) {
+          Cookies.remove("zoomAccessToken");
+          Cookies.remove("zoomRefreshToken");
+          window.location.href = "/login";
+        }
+      } else {
+        Cookies.remove("token");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

@@ -1,76 +1,36 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Api from "../../network/Api";
-import Cookies from "js-cookie";
+import { useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import Api from "../network/Api";
+import PropTypes from "prop-types";
 import { METHOD_TYPE } from "../../network/methodType";
 
-const createZoomMeeting = async (accessToken) => {
-  try {
-    const response = await Api({
-      endpoint: "meeting/create",
-      method: METHOD_TYPE.POST,
-      data: {
-        topic: "Team Sync Meeting",
-        password: "12345",
-      },
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const meetingData = response.data;
-    console.log("Zoom Meeting Created:", meetingData);
-  } catch (error) {
-    console.error("Error creating Zoom Meeting:", error);
-  }
-};
-
-const ZoomCallbackPage = () => {
+const ZoomCallback = ({ setAccessToken }) => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const code = searchParams.get("code");
 
   useEffect(() => {
-    const handleZoomCallback = async () => {
-      try {
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(url.search);
-        const code = params.get("code");
+    if (code) {
+      // Gửi code đến backend để lấy accessToken
+      Api({
+        endpoint: "meeting/handle",
+        method: METHOD_TYPE.POST,
+        data: { authorizationCode: code },
+      })
+        .then((response) => {
+          const token = response.data.result.accessToken;
+          setAccessToken(token); // Lưu accessToken
+          navigate("/create-meeting"); // Điều hướng đến trang tạo phòng họp
+        })
+        .catch((error) => console.error("Error fetching access token:", error));
+    }
+  }, [code, setAccessToken, navigate]);
 
-        if (!code) {
-          navigate("/login");
-          return;
-        }
-
-        const response = await Api({
-          endpoint: "meeting/handle",
-          method: METHOD_TYPE.POST,
-          data: { authorizationCode: code },
-        });
-
-        const result = response.data.result;
-        if (result) {
-          const accessToken = result.accessToken;
-          const refreshToken = result.refreshToken;
-          if (accessToken) {
-            Cookies.set("zoomAccessToken", accessToken);
-            Cookies.set("zoomRefreshToken", refreshToken);
-            await createZoomMeeting(accessToken);
-          }
-          navigate("/dashboard"); 
-        } else {
-          console.error("Zoom Auth Result not found.");
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error("Error handling Zoom Auth Code:", error);
-        navigate("/login");
-      }
-    };
-
-    handleZoomCallback();
-  }, [navigate]);
-
-  return <div>Processing your Zoom login...</div>;
+  return <div>Processing Zoom Authentication...</div>;
 };
 
-const ZoomCallback = React.memo(ZoomCallbackPage);
+ZoomCallback.propTypes = {
+  setAccessToken: PropTypes.func.isRequired,
+};
 
 export default ZoomCallback;

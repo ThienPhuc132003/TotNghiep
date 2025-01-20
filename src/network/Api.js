@@ -23,11 +23,11 @@ const Api = ({
 
   switch (method) {
     case METHOD_TYPE.POST:
-      return axiosClient.post(endpoint, data, config);
+      return axiosClient.post(url, data, config);
     case METHOD_TYPE.PUT:
-      return axiosClient.put(endpoint, data, config);
+      return axiosClient.put(url, data, config);
     case METHOD_TYPE.DELETE:
-      return axiosClient.delete(endpoint, { data, ...config });
+      return axiosClient.delete(url, { data, ...config });
     default:
       return axiosClient.get(url, config);
   }
