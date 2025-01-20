@@ -1,6 +1,7 @@
+// src/pages/User/ZoomCallback.jsx
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Api from "../../network/Api"; // Adjusted the relative path
+import Api from "../../network/Api";
 import PropTypes from "prop-types";
 import { METHOD_TYPE } from "../../network/methodType";
 
