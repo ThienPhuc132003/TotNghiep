@@ -20,10 +20,14 @@ const ZoomCallback = () => {
       })
         .then((response) => {
           console.log("API response:", response); // Log the API response
-          const { accessToken, refreshToken } = response.data.result;
-          Cookies.set("zoomAccessToken", accessToken);
-          Cookies.set("zoomRefreshToken", refreshToken);
-          navigate("/dashboard");
+          if (response.success === true) {
+            const { accessToken, refreshToken } = response.data.result;
+            Cookies.set("zoomAccessToken", accessToken);
+            Cookies.set("zoomRefreshToken", refreshToken);
+            navigate("/dashboard");
+          } else {
+            console.error("Authorization failed:", response.message);
+          }
         })
         .catch((error) => {
           console.error("Error fetching access token:", error);
@@ -33,7 +37,7 @@ const ZoomCallback = () => {
     }
   }, [code, navigate]);
 
-  return <div>Processing Zoom Authentication...</div>;
+  return <div>Loading...</div>;
 };
 
 export default ZoomCallback;
