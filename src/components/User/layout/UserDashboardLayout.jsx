@@ -61,6 +61,14 @@ const UserDashboardLayoutComponent = (props) => {
                 <li>
                   <LoginZoomButton />
                 </li>
+                <li>
+                  <Button
+                    onClick={() => navigate("/create-meeting")}
+                    className="custom-button"
+                  >
+                    Tạo phòng Zoom
+                  </Button>
+                </li>
                 <UserAccountToolbar
                   onEditProfile={() => navigate("/user/profile")}
                   onLogout={handleLogout}

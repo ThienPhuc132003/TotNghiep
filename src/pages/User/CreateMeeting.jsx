@@ -1,10 +1,10 @@
-// src/pages/User/CreateMeeting.jsx
 import { useState } from "react";
 import Api from "../../network/Api";
 import PropTypes from "prop-types";
 import { METHOD_TYPE } from "../../network/methodType";
+import Cookies from "js-cookie";
 
-const CreateMeeting = ({ accessToken }) => {
+const CreateMeeting = () => {
   const [topic, setTopic] = useState("");
   const [password, setPassword] = useState("");
   const [meetingDetails, setMeetingDetails] = useState(null);
@@ -16,6 +16,7 @@ const CreateMeeting = ({ accessToken }) => {
     setMeetingDetails(null);
 
     try {
+      const accessToken = Cookies.get("zoomAccessToken");
       const response = await Api({
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
@@ -24,7 +25,7 @@ const CreateMeeting = ({ accessToken }) => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      setMeetingDetails(response.data); // Lưu thông tin phòng họp
+      setMeetingDetails(response.data);
       setStatus("Meeting created successfully!");
     } catch (error) {
       setStatus("Failed to create meeting.");
