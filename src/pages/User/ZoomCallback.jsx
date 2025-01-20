@@ -11,18 +11,25 @@ const ZoomCallback = () => {
 
   useEffect(() => {
     if (code) {
+      console.log("Authorization code:", code); // Log the authorization code
+
       Api({
         endpoint: "meeting/handle",
         method: METHOD_TYPE.POST,
         data: { authorizationCode: code },
       })
         .then((response) => {
+          console.log("API response:", response); // Log the API response
           const { accessToken, refreshToken } = response.data.result;
           Cookies.set("zoomAccessToken", accessToken);
           Cookies.set("zoomRefreshToken", refreshToken);
           navigate("/dashboard");
         })
-        .catch((error) => console.error("Error fetching access token:", error));
+        .catch((error) => {
+          console.error("Error fetching access token:", error);
+        });
+    } else {
+      console.error("Authorization code not found in URL");
     }
   }, [code, navigate]);
 
