@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Api from "../network/Api";
+import Api from "../../network/Api";
 import PropTypes from "prop-types";
 import { METHOD_TYPE } from "../../network/methodType";
 
