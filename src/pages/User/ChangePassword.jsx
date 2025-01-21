@@ -6,7 +6,7 @@ import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import "../../assets/css/ChangePassword.style.css";
+import "../../assets/css/FormFields.style.css";
 
 const ChangePasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -19,13 +19,15 @@ const ChangePasswordPage = () => {
 
   const validateFields = useCallback(() => {
     const errors = {};
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (password === "") {
       errors.password = t("login.emptyNewPassword");
+    } else if (!passwordRegex.test(password)) {
+      errors.password = t("login.invalidPassword");
     }
     if (confirmPassword === "") {
       errors.confirmPassword = t("login.emptyConfirmPassword");
-    }
-    if (password !== confirmPassword) {
+    } else if (password !== confirmPassword) {
       errors.confirmPassword = t("login.passwordNotMatch");
     }
     return errors;
@@ -73,10 +75,7 @@ const ChangePasswordPage = () => {
 
   return (
     <LoginLayout>
-      <div className="change-password-form">
-        {/* <div className="language-box">
-          <LanguageSelector />
-        </div> */}
+      <div className="form-container">
         <h1 className="FormName">{t("login.changePasswordTitle")}</h1>
         <p className="description">{t("login.changePasswordSubtitle")}</p>
         <InputField

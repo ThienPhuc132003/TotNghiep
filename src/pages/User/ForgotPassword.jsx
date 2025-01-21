@@ -1,22 +1,22 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import LoginLayout from "../../components/User/layout/LoginLayout";
-import InputField from "../../components/InputField";
-import Button from "../../components/Button";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import "../../assets/css/ForgotPassword.style.css";
-// import LanguageSelector from "../../components/LanguageSelector";
+import InputField from "../../components/InputField";
+import Button from "../../components/Button";
+import LoginLayout from "../../components/User/layout/LoginLayout";
+import "../../assets/css/FormFields.style.css";
+
 const ForgotPasswordPage = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
-  const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const validateFields = useCallback(() => {
     const errors = {};
-    if (emailOrPhone === "") {
+    if (!emailOrPhone) {
       errors.email = t("login.emptyEmail");
     }
     return errors;
@@ -64,10 +64,7 @@ const ForgotPasswordPage = () => {
 
   return (
     <LoginLayout>
-      <div className="forgot-password-form">
-        {/* <div className="language-box">
-          <LanguageSelector />
-        </div> */}
+      <div className="form-container">
         <h1 className="FormName">{t("login.forgotPasswordTitle")}</h1>
         <p className="description">{t("login.forgotPasswordSubtitle")}</p>
         <InputField

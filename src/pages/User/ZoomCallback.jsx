@@ -1,43 +1,64 @@
-import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Api from "../../network/Api";
-import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
+import { METHOD_TYPE } from "../../network/methodType";
+import { useDispatch } from "react-redux";
+import { setUserProfile } from "../../redux/userSlice";
 
-const ZoomCallback = () => {
-  const [searchParams] = useSearchParams();
+const ZoomCallbackPage = () => {
   const navigate = useNavigate();
-  const code = searchParams.get("code");
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (code) {
-      console.log("Authorization code:", code); // Log the authorization code
+    const handleZoomCallback = async () => {
+      try {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        const code = params.get("code");
 
-      Api({
-        endpoint: "meeting/handle",
-        method: METHOD_TYPE.POST,
-        data: { authorizationCode: code },
-      })
-        .then((response) => {
-          console.log("API response:", response); // Log the API response
-          if (response.success === true) {
-            const { accessToken, refreshToken } = response.data.result;
-            Cookies.set("zoomAccessToken", accessToken);
-            Cookies.set("zoomRefreshToken", refreshToken);
-            navigate("/dashboard");
-          } else {
-            console.error("Authorization failed:", response.message);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching access token:", error);
+        if (!code) {
+          navigate("/login");
+          return;
+        }
+
+        const response = await Api({
+          endpoint: "meeting/handle",
+          method: METHOD_TYPE.POST,
+          data: { authorizationCode: code },
         });
-    } else {
-      console.error("Authorization code not found in URL");
-    }
-  }, [code, navigate]);
+        const { accessToken } = response.data.result;
+        const { refreshToken } = response.data.result;
+        console.log(accessToken);
+        console.log(refreshToken);
+        if (response.success === true) {
+          const { accessToken, refreshToken } = response.data.result;
+          Cookies.set("zoomAccessToken", accessToken);
+          Cookies.set("zoomRefreshToken", refreshToken);
 
-  return <div>Loading...</div>;
+          const responseGetProfile = await Api({
+            endpoint: "user/get-profile",
+            method: METHOD_TYPE.GET,
+          });
+
+          if (responseGetProfile.success === true) {
+            dispatch(setUserProfile(responseGetProfile.data));
+          }
+          navigate("/dashboard");
+        } else {
+          navigate("/login");
+        }
+      } catch (error) {
+        navigate("/login");
+      }
+    };
+
+    handleZoomCallback();
+  }, [navigate, dispatch]);
+
+  return <div>Processing your login...</div>;
 };
+
+const ZoomCallback = React.memo(ZoomCallbackPage);
 
 export default ZoomCallback;

@@ -1,0 +1,91 @@
+/* FormFields.style.css */
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-container h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 1);
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .form-group .error {
+    color: rgba(215, 33, 52, 1);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+  
+  .submit-cancel {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+  
+  .submit-cancel button {
+    width: 48%;
+    padding: 0.75rem;
+    background: rgba(215, 33, 52, 1);
+    border: none;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 1);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .submit-cancel button:hover {
+    background: rgba(30, 76, 161, 1);
+  }
+  
+/* Style for error and correct borders */
+.error-border {
+    border-color: rgba(215, 33, 52, 1);
+    padding: 10px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    background-color: rgba(255, 235, 238, 1); /* Light red background */
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+  
+  .correct-border {
+    border-color: rgba(30, 76, 161, 1);
+    padding: 10px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    background-color: rgba(235, 245, 255, 1); /* Light blue background */
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+  
+  /* Add focus effect */
+  .error-border:focus,
+  .correct-border:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
