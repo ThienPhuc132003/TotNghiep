@@ -52,15 +52,9 @@ function App() {
           <Route path="/otp-verify" element={<OtpVerify />} />
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
 
-          <Route
-            path="/api/meeting/callback"
-            element={<ZoomCallback setAccessToken={setAccessToken} />}
-          />
+          <Route path="/api/meeting/callback" element={<ZoomCallback />} />
           {accessToken && (
-            <Route
-              path="/create-meeting"
-              element={<CreateMeeting accessToken={accessToken} />}
-            />
+            <Route path="/create-meeting" element={<CreateMeeting />} />
           )}
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="payment" element={<PaymentPage />} />
