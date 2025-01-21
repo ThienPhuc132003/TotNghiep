@@ -12,9 +12,8 @@ const ZoomCallbackPage = () => {
   useEffect(() => {
     const handleZoomCallback = async () => {
       try {
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(url.search);
-        const code = params.get("code");
+        const queryParams = new URLSearchParams(window.location.search);
+        const code = queryParams.get("code");
 
         if (!code) {
           navigate("/login");

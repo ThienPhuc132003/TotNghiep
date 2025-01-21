@@ -1,5 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
-import Cookies from "js-cookie";
+import { lazy, Suspense} from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,14 +30,6 @@ const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 
 function App() {
-  const [accessToken, setAccessToken] = useState(null);
-
-  useEffect(() => {
-    const token = Cookies.get("zoomAccessToken");
-    if (token) {
-      setAccessToken(token);
-    }
-  }, []);
 
   return (
     <Router>
@@ -53,9 +44,9 @@ function App() {
           <Route path="/auth/callback" element={<MicrosoftCallback />} />
 
           <Route path="/api/meeting/callback" element={<ZoomCallback />} />
-          {accessToken && (
-            <Route path="/create-meeting" element={<CreateMeeting />} />
-          )}
+
+          <Route path="/create-meeting" element={<CreateMeeting />} />
+
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="payment" element={<PaymentPage />} />
           <Route path="payment/success" element={<PaymentSuccess />} />
