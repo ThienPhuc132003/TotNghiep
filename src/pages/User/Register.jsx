@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
+import HoverForInfo from "../../components/HoverForInfo";
 import "../../assets/css/Register.style.css";
 
 const RegisterPage = () => {
@@ -78,8 +79,8 @@ const RegisterPage = () => {
       } else {
         console.error("Microsoft Auth URL not found.");
       }
-    } catch (error) {
-      console.error("Error fetching Microsoft Auth URL:", error);
+    } catch (errors) {
+      console.error("Error fetching Microsoft Auth URL:", errors);
     }
   };
 
@@ -99,38 +100,46 @@ const RegisterPage = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="fullName">{t("register.fullName")}</label>
+              <label htmlFor="fullName">
+                {t("register.fullName")}{" "}
+                <HoverForInfo Text="Không có kí tự đặc biệt, không vợt 50 kí tự" />
+              </label>
               <input
                 type="text"
                 id="fullName"
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                required
+                placeholder="Trịnh Văn Thiên Phúc"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="birthday">{t("register.birthday")}</label>
+              <label htmlFor="birthday">
+                {t("register.birthday")}{" "}
+                <HoverForInfo Text="Ngày tháng năm phù hợp" />
+              </label>
               <input
                 type="date"
                 id="birthday"
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                required
               />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="email">{t("register.email")}</label>
+              <label htmlFor="email">
+                {t("register.email")}{" "}
+                <HoverForInfo Text="Đúng định dạng têngmail@gmail.com" />
+              </label>
               <input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                required
+                placeholder="example@gmail.com"
               />
             </div>
             <div className="form-group">
@@ -141,7 +150,7 @@ const RegisterPage = () => {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                required
+                placeholder="0123456789"
               />
             </div>
           </div>
@@ -154,31 +163,30 @@ const RegisterPage = () => {
                 name="homeAddress"
                 value={formData.homeAddress}
                 onChange={handleChange}
-                required
+                placeholder="58a huỳnh văn bánh"
               />
             </div>
             <div className="form-group">
               <label>{t("register.gender")}</label>
               <div className="gender-group">
-                <label>
+                <label className="gender-label">
                   <input
                     type="radio"
                     name="gender"
                     value="MALE"
                     checked={formData.gender === "MALE"}
                     onChange={handleChange}
-                    required
                   />
                   {t("register.male")}
                 </label>
-                <label>
+                <label className="gender-label">
                   <input
                     type="radio"
                     name="gender"
                     value="FEMALE"
                     checked={formData.gender === "FEMALE"}
                     onChange={handleChange}
-                    required
+                    placeholder="Strong@123"
                   />
                   {t("register.female")}
                 </label>
@@ -187,25 +195,34 @@ const RegisterPage = () => {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="password">{t("register.password")}</label>
+              <label htmlFor="password">
+                {t("register.password")}{" "}
+                <HoverForInfo
+                  Text="Mật khẩu gồm tối thiểu 1 chữ in hoa, 
+                1 chữ cái thường, 1 ký tự đặc biệt và không được quá 12 ký tự"
+                />
+              </label>
               <input
                 type="password"
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                required
+                placeholder="Example@123"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="confirmPassword">{t("register.confirmPassword")}</label>
+              <label htmlFor="confirmPassword">
+                {t("register.confirmPassword")}
+                <HoverForInfo />
+              </label>
               <input
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                required
+                placeholder="Example@123"
               />
             </div>
           </div>
@@ -215,7 +232,8 @@ const RegisterPage = () => {
         </form>
         <div className="login-link">
           <p>
-            {t("register.alreadyHaveAccount")} <Link to="/login">{t("register.login")}</Link>
+            {t("register.alreadyHaveAccount")}{" "}
+            <Link to="/login">{t("register.login")}</Link>
           </p>
         </div>
       </div>

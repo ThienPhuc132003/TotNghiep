@@ -1,0 +1,93 @@
+/* src/assets/css/AdminForm.style.css */
+
+/* Container for the form */
+.admin-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  /* Form group styling */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: #272e4f;
+  }
+  
+  /* Form actions (buttons) */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  .form-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .form-actions .save-button {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .form-actions .close-button {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  /* Grid layout for form fields */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .form-grid .form-group {
+    margin: 0;
+  }
+  
+  /* Loading and error messages */
+  .loading,
+  .error {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .loading {
+    color: #888;
+  }
+  
+  .error {
+    color: red;
+  }

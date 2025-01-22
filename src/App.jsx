@@ -1,4 +1,4 @@
-import { lazy, Suspense} from "react";
+import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -28,9 +28,9 @@ import PaymentFailed from "./pages/User/PaymentFailed";
 // Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
+const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
 
 function App() {
-
   return (
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
@@ -62,6 +62,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="/" element={<AdminPrivateRoutes />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
+            <Route path="quan-ly-admin" element={<ListOfAdmin />} />
           </Route>
         </Routes>
       </Suspense>

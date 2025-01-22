@@ -1,13 +1,16 @@
+/* src/assets/css/Admin/AdminDashboardLayout.style.css */
+
 @font-face {
   font-family: "ISOCPEUR";
   src: url("../assets/fonts/ISOCPEUR.ttf") format("truetype");
 }
+
 .admin-dashboard-layout {
   display: flex;
   height: 100vh;
 }
 
-.admin-sidebar {
+.sidebar {
   width: 250px;
   background-color: #ff7e5f;
   color: white;
@@ -20,23 +23,29 @@
   left: 0;
   overflow-y: auto;
 }
-.admin-sidebar h1 {
-  margin-bottom: 2rem;
+
+.main-logo {
+  margin: 2rem 0;
+  font-size: 1.5rem;
+  font-family: "ISOCPEUR", sans-serif;
 }
-.admin-sidebar-nav {
+
+.primary-navigation {
   width: 100%;
 }
-.admin-sidebar-nav ul {
+
+.primary-navigation ul {
   list-style: none;
   padding: 0;
   width: 100%;
 }
 
-.admin-sidebar-nav ul li {
+.primary-navigation ul li {
   width: 100%;
 }
 
-.admin-sidebar-nav ul li button {
+.primary-navigation ul li a,
+.primary-navigation ul li button {
   width: 100%;
   text-align: left;
   background: none;
@@ -45,81 +54,62 @@
   padding: 0.75rem 1rem;
   cursor: pointer;
   transition: background 0.3s;
+  display: flex;
+  align-items: center;
 }
 
-.admin-sidebar-nav ul li button:hover {
+.primary-navigation ul li a:hover,
+.primary-navigation ul li button:hover {
   background-color: #feb47b;
 }
 
-.admin-sidebar-nav ul li button.active {
+.primary-navigation ul li a.active,
+.primary-navigation ul li button.active {
   background-color: #feb47b;
 }
 
-.main-layout {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  margin-left: 250px; /* Adjust based on sidebar width */
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
 }
 
-.content-area {
-  display: flex;
-  flex-direction: column;
+.menu-name {
   flex: 1;
 }
 
-.admin-navbar {
-  background-color: #6e8efb;
+.admin-dashboard-content {
+  margin-left: 250px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  background-color: #627dff;
   color: white;
   padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: fixed;
-  width: calc(100% - 250px); /* Adjust based on sidebar width */
-  top: 0;
-  left: 250px; /* Adjust based on sidebar width */
-  z-index: 1000;
-}
-
-.admin-navbar ul {
-  list-style: none;
-  display: flex;
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-}
-
-.admin-navbar ul li {
-  margin: 0;
-}
-
-.admin-navbar ul li button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.admin-navbar ul li button:hover {
-  color: #a777e3;
-}
-
-.admin-navbar ul li button.active {
-  font-weight: bold;
-  color: #a777e3;
 }
 
 .admin-main-content {
-  margin-top: 4rem; /* Adjust based on header height */
-  padding: 2rem;
   flex: 1;
+  padding: 2rem;
   overflow-y: auto;
 }
 
-.logo-side-bar {
-  font-family: "ISOCPEUR", sans-serif;
-  font-size: 50px;
+.admin-cards {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.admin-card {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex: 1;
 }
