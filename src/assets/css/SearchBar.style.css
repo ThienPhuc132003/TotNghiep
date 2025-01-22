@@ -1,0 +1,26 @@
+/* src/assets/css/SearchBar.style.css */
+.customer-search,
+.employee-search,
+.asset-type-search,
+.asset-search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  margin: 20px 0px;
+  width: 200px;
+  padding: 10px;
+  border: 1px solid rgba(39, 46, 79, 1);
+  border-radius: 20px;
+  font-size: 12px;
+  background-color: rgba(39, 46, 79, 0.2);
+}
+
+.customer-search-input,
+.employee-search-input,
+.asset-type-search-input,
+.asset-search-input {
+  border: none;
+  background-color: transparent;
+  outline: none;
+}

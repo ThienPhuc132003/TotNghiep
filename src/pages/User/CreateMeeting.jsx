@@ -73,7 +73,7 @@ const CreateMeeting = () => {
 };
 
 CreateMeeting.propTypes = {
-  accessToken: PropTypes.string.isRequired,
+  accessToken: PropTypes.string,
 };
 
 export default CreateMeeting;

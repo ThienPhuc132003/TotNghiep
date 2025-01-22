@@ -93,7 +93,7 @@ const ProfilePage = () => {
   const handleCropSave = async () => {
     try {
       const avatarResponse = await Api({
-        endpoint: "media-service/media/media-url?mediaCategory=user_avatar",
+        endpoint: "media/media-url?mediaCategory=user_avatar",
         method: METHOD_TYPE.GET,
       });
 
@@ -104,7 +104,7 @@ const ProfilePage = () => {
         formData.append("file", croppedImage);
 
         const uploadResponse = await Api({
-          endpoint: `media-service/media/upload-media?mediaCategory=user_avatar&fileName=${fileName}`,
+          endpoint: `media/upload-media?mediaCategory=user_avatar&fileName=${fileName}`,
           method: METHOD_TYPE.POST,
           data: formData,
           isFormData: true,

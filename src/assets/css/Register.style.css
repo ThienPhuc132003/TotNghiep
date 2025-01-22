@@ -18,7 +18,9 @@
 }
 
 .register-form .form-group label {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
   margin-bottom: 0.5rem;
   font-weight: bold;
   color: rgba(0, 0, 0, 1);
@@ -113,14 +115,16 @@
 }
 .gender-group {
   display: flex;
+  padding-top:5px;
   align-items: center;
   gap: 1rem; /* Add spacing between the radio buttons */
 }
 
-.gender-group label {
+.gender-group .gender-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* Add spacing between the radio button and the label text */
+  gap: 10px !important; 
+  margin-bottom: 0 !important; 
 }
 .microsoft-login-button {
   display: flex;
