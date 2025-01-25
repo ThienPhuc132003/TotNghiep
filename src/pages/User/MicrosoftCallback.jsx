@@ -44,7 +44,7 @@ const MicrosoftCallbackPage = () => {
           }
           navigate("/dashboard");
         } else {
-          navigate("/login");
+          navigate("/dashboard");
         }
       } catch (error) {
         navigate("/login");
