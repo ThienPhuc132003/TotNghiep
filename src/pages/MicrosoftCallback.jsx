@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setUserProfile } from "../../redux/userSlice";
 import { setAdminProfile } from "../../redux/adminSlice";
-import { METHOD_TYPE } from "../../network/methodType";
+import { METHOD_TYPE } from "../network/methodType";
 
 const MicrosoftCallbackPage = () => {
   const navigate = useNavigate();
