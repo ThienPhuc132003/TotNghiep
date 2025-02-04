@@ -12,22 +12,15 @@ const MicrosoftCallbackPage = () => {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Xác định role dựa vào URL
-  const getRoleFromPath = () => {
-    if (window.location.pathname.includes("/admin/login")) return "admin";
-    if (window.location.pathname.includes("/login")) return "user";
-    return null;
-  };
-
   const handleMicrosoftCallback = useCallback(async () => {
     try {
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
       const code = params.get("code");
-      const role = getRoleFromPath();
+      const role = params.get("state"); // 🔥 Extract role from state
   
       if (!code || !role) {
-        setErrorMessage("Thiếu mã xác thực hoặc không xác định được vai trò.");
+        setErrorMessage("Authentication failed: Missing code or role.");
         return navigate("/login");
       }
   
@@ -42,10 +35,9 @@ const MicrosoftCallbackPage = () => {
         data: { code },
       });
   
-      const { token } = response.data; // Xóa userId & adminId nếu không dùng
-  
+      const { token } = response.data;
       if (!token) {
-        setErrorMessage("Không nhận được token từ máy chủ.");
+        setErrorMessage("Authentication failed: No token received.");
         return;
       }
   
@@ -53,7 +45,6 @@ const MicrosoftCallbackPage = () => {
       Cookies.set("role", role);
   
       const profileEndpoint = role === "admin" ? "admin/get-profile" : "user/get-profile";
-  
       const profileResponse = await Api({
         endpoint: profileEndpoint,
         method: METHOD_TYPE.GET,
@@ -66,13 +57,14 @@ const MicrosoftCallbackPage = () => {
   
         navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
       } else {
-        setErrorMessage("Lỗi khi lấy thông tin tài khoản.");
+        setErrorMessage("Error fetching profile data.");
       }
     } catch (error) {
-      setErrorMessage("Đã xảy ra lỗi khi xác thực.");
-      console.error("Lỗi xác thực Microsoft:", error);
+      setErrorMessage("Authentication failed.");
+      console.error("Microsoft Auth Error:", error);
     }
   }, [navigate, dispatch]);
+  
   
   useEffect(() => {
     handleMicrosoftCallback();
