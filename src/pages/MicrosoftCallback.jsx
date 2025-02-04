@@ -24,10 +24,13 @@ const MicrosoftCallbackPage = () => {
           return;
         }
 
+        // Determine if the current page is admin login
+        const isAdminLogin = window.location.pathname.includes("/admin/login");
+
         const response = await Api({
-          endpoint: "auth/callback",
+          endpoint: isAdminLogin ? "admin/auth/callback" : "user/auth/callback",
           method: METHOD_TYPE.POST,
-          data: { code: code, sessionState: sessionState },
+          data: { code: code },
         });
 
         const { token, userId, adminId } = response.data;

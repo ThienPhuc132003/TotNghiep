@@ -17,7 +17,7 @@ const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
-const MicrosoftCallback = lazy(() => import("./pages/User/MicrosoftCallback"));
+const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
 
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
