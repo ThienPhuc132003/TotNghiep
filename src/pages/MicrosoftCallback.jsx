@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Api from "../../network/Api";
+import Api from "../network/Api";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setUserProfile } from "../../redux/userSlice";
