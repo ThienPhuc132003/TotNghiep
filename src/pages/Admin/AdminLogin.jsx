@@ -97,7 +97,7 @@ const AdminLoginPage = () => {
   const handleMicrosoftLogin = async () => {
     try {
       const response = await Api({
-        endpoint: "admin/auth/get-uri-microsoft", 
+        endpoint: "user/auth/get-uri-microsoft", 
         method: METHOD_TYPE.GET,
       });
   
