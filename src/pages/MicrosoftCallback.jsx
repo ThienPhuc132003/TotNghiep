@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Api from "../network/Api";
 import Cookies from "js-cookie";
@@ -10,72 +10,80 @@ import { METHOD_TYPE } from "../network/methodType";
 const MicrosoftCallbackPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    const handleMicrosoftCallback = async () => {
-      try {
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(url.search);
-        const code = params.get("code");
-        const sessionState = params.get("session_state");
+  // Xác định role dựa vào URL
+  const getRoleFromPath = () => {
+    if (window.location.pathname.includes("/admin/login")) return "admin";
+    if (window.location.pathname.includes("/login")) return "user";
+    return null;
+  };
 
-        if (!code || !sessionState) {
-          navigate("/login");
-          return;
-        }
-
-        // Determine if the current page is admin login
-        const isAdminLogin = window.location.pathname.includes("/admin/login");
-
-        const response = await Api({
-          endpoint: isAdminLogin ? "admin/auth/callback" : "user/auth/callback",
-          method: METHOD_TYPE.POST,
-          data: { code: code },
-        });
-
-        const { token, userId, adminId } = response.data;
-        if (token) {
-          Cookies.set("token", token);
-
-          if (userId) {
-            Cookies.set("role", "user");
-
-            const responseGetProfile = await Api({
-              endpoint: "user/get-profile",
-              method: METHOD_TYPE.GET,
-            });
-
-            if (responseGetProfile.success === true) {
-              dispatch(setUserProfile(responseGetProfile.data));
-            }
-            navigate("/dashboard");
-          } else if (adminId) {
-            Cookies.set("role", "admin");
-
-            const responseGetProfile = await Api({
-              endpoint: "admin/get-profile",
-              method: METHOD_TYPE.GET,
-            });
-
-            if (responseGetProfile.success === true) {
-              dispatch(setAdminProfile(responseGetProfile.data));
-            }
-            navigate("/admin/dashboard");
-          } else {
-            navigate("/login");
-          }
-        } else {
-          navigate("/login");
-        }
-      } catch (error) {
-        navigate("/login");
+  const handleMicrosoftCallback = useCallback(async () => {
+    try {
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams(url.search);
+      const code = params.get("code");
+      const role = getRoleFromPath();
+  
+      if (!code || !role) {
+        setErrorMessage("Thiếu mã xác thực hoặc không xác định được vai trò.");
+        return navigate("/login");
       }
-    };
-
-    handleMicrosoftCallback();
+  
+      const apiUrl =
+        role === "admin"
+          ? "https://giasuvlu.click/api/admin/auth/callback"
+          : "https://giasuvlu.click/api/user/auth/callback";
+  
+      const response = await Api({
+        endpoint: apiUrl,
+        method: METHOD_TYPE.POST,
+        data: { code },
+      });
+  
+      const { token } = response.data; // Xóa userId & adminId nếu không dùng
+  
+      if (!token) {
+        setErrorMessage("Không nhận được token từ máy chủ.");
+        return;
+      }
+  
+      Cookies.set("token", token);
+      Cookies.set("role", role);
+  
+      const profileEndpoint = role === "admin" ? "admin/get-profile" : "user/get-profile";
+  
+      const profileResponse = await Api({
+        endpoint: profileEndpoint,
+        method: METHOD_TYPE.GET,
+      });
+  
+      if (profileResponse.success) {
+        role === "admin"
+          ? dispatch(setAdminProfile(profileResponse.data))
+          : dispatch(setUserProfile(profileResponse.data));
+  
+        navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
+      } else {
+        setErrorMessage("Lỗi khi lấy thông tin tài khoản.");
+      }
+    } catch (error) {
+      setErrorMessage("Đã xảy ra lỗi khi xác thực.");
+      console.error("Lỗi xác thực Microsoft:", error);
+    }
   }, [navigate, dispatch]);
+  
+  useEffect(() => {
+    handleMicrosoftCallback();
+  }, [handleMicrosoftCallback]);
 
-  return <div>Processing your login...</div>;
+  return (
+    <div>
+      <h2>Đang xử lý đăng nhập...</h2>
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+    </div>
+  );
 };
 
 const MicrosoftCallback = React.memo(MicrosoftCallbackPage);
