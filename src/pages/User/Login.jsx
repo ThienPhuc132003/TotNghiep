@@ -73,21 +73,22 @@ const LoginPage = () => {
   const handleMicrosoftLogin = async () => {
     try {
       const response = await Api({
-        endpoint: "user/auth/get-uri-microsoft",
+        endpoint: "user/auth/get-uri-microsoft", 
         method: METHOD_TYPE.GET,
       });
+  
       const authUrl = response.data.authUrl;
-
       if (authUrl) {
-        window.location.href = authUrl;
+        window.location.href = `${authUrl}&state=user`; 
       } else {
-        console.error("Microsoft Auth URL not found.");
+        setErrorMessage("Microsoft Auth URL not found.");
       }
     } catch (error) {
-      console.error("Error fetching Microsoft Auth URL:", error);
+      setErrorMessage("Error fetching Microsoft Auth URL.");
+      console.error("Error:", error);
     }
   };
-
+  
   return (
     <LoginLayout>
       <div className="login-form">
