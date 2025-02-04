@@ -18,9 +18,9 @@ const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 const MicrosoftCallback = lazy(() => import("./pages/User/MicrosoftCallback"));
+
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
-
 import PaymentPage from "./pages/User/PaymentPage";
 import PaymentSuccess from "./pages/User/PaymentSuccess";
 import PaymentFailed from "./pages/User/PaymentFailed";
@@ -29,6 +29,8 @@ import PaymentFailed from "./pages/User/PaymentFailed";
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
+const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
+const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
   return (
@@ -62,7 +64,9 @@ function App() {
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="/" element={<AdminPrivateRoutes />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
+            <Route path="admin/profile" element={<AdminProfile />} />
             <Route path="quan-ly-admin" element={<ListOfAdmin />} />
+            <Route path="quan-ly-nganh" element={<ListOfMajor />} />
           </Route>
         </Routes>
       </Suspense>

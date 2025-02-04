@@ -1,7 +1,6 @@
 import { METHOD_TYPE } from "./methodType";
 import axiosClient from "./axiosClient";
-import { parseQuery } from "./queryParser";
-
+import qs from 'qs';
 const Api = ({
   domain = "https://giasuvlu.click/api/",
   endpoint,
@@ -10,7 +9,8 @@ const Api = ({
   query,
   isFormData = false,
 }) => {
-  const url = `${domain}${endpoint}${parseQuery(query)}`;
+  const queryString = query ? `?${qs.stringify(query, { encode: false })}` : '';
+  const url = `${domain}${endpoint}${queryString}`;
   console.log(`API URL axi: ${url}`);
 
   const config = {

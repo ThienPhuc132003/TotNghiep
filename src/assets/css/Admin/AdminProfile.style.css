@@ -1,5 +1,5 @@
-.profile-container {
-  max-width: 800px;
+.profile-form {
+  max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
   background: #fff;
@@ -7,11 +7,10 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.profile-header {
+.avatar-container {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
 }
 
 .avatar {
@@ -23,7 +22,7 @@
 
 .change-avatar-button {
   padding: 0.5rem 1rem;
-  background-color: rgb(30, 76, 161); /* Updated primary color */
+  background-color: #007bff;
   border: none;
   border-radius: 5px;
   color: white;
@@ -32,7 +31,7 @@
 }
 
 .change-avatar-button:hover {
-  background-color: rgb(30, 76, 161); /* Updated primary color */
+  background-color: #0056b3;
 }
 
 .form-group {
@@ -42,7 +41,6 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: bold;
 }
 
 .form-group input {
@@ -61,7 +59,7 @@
 .profile-button {
   width: 100%;
   padding: 0.75rem;
-  background: rgb(30, 76, 161); /* Updated primary color */
+  background: #007bff;
   border: none;
   border-radius: 5px;
   color: white;
@@ -71,17 +69,17 @@
 }
 
 .profile-button:hover {
-  background: rgb(30, 76, 161); /* Updated primary color */
+  background: #0056b3;
 }
 
 .success-message {
-  color: rgb(76, 175, 80); /* Updated success color */
+  color: green;
   font-size: 1rem;
   margin-bottom: 1rem;
 }
 
 .error-message {
-  color: rgb(229, 115, 115); /* Updated error color */
+  color: red;
   font-size: 1rem;
   margin-bottom: 1rem;
 }
@@ -91,15 +89,33 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  background: rgba(255, 255, 255, 1);
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  max-width: 500px;
+  width: 100%;
 }
 
-.modal-title {
-  text-align: center;
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background: #333;
+  margin-top: 1rem;
+}
+
+.file-input {
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -110,7 +126,7 @@
 
 .crop-save-button {
   padding: 0.5rem 1rem;
-  background-color: rgb(30, 76, 161); /* Updated primary color */
+  background-color: #007bff;
   border: none;
   border-radius: 5px;
   color: white;
@@ -124,12 +140,12 @@
 }
 
 .crop-save-button:hover:not(:disabled) {
-  background-color: rgb(30, 76, 161); /* Updated primary color */
+  background-color: #0056b3;
 }
 
 .modal-close-button {
   padding: 0.5rem 1rem;
-  background-color: rgb(229, 115, 115); /* Updated error color */
+  background-color: #d9534f;
   border: none;
   border-radius: 5px;
   color: white;
@@ -138,10 +154,10 @@
 }
 
 .modal-close-button:hover {
-  background-color: rgb(229, 115, 115); /* Updated error color */
+  background-color: #c9302c;
 }
 
-.blurred {
-  filter: blur(2px);
-  pointer-events: none;
+.modal-title {
+  text-align: center;
+  margin-bottom: 1rem;
 }

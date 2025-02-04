@@ -1,0 +1,12 @@
+{
+    "major": {
+      "management": "Quản Lý Ngành",
+      "listTitle": "Danh Sách Ngành",
+      "id": "ID",
+      "name": "Tên",
+      "confirmDelete": "Bạn có chắc chắn muốn xóa ngành này không?",
+      "status": "Trạng Thái",
+      "active": "Hoạt Động",
+      "inactive": "Không Hoạt Động"
+    }
+  }

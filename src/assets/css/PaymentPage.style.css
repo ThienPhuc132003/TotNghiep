@@ -59,6 +59,11 @@
   background-color: #ddd;
 }
 
+.payment-buttons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 .payment-success,
 .payment-failure {
   color: green;

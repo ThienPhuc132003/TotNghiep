@@ -1,3 +1,4 @@
+// src/components/Table.jsx
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import ReactPaginate from "react-paginate";
@@ -47,29 +48,45 @@ const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, on
             {columns.map((col) => (
               <th key={col.dataKey} onClick={() => requestSort(col.dataKey)}>
                 {col.title}
+                {sortConfig.key === col.dataKey && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? '▲' : '▼'}
+                  </span>
+                )}
               </th>
             ))}
             <th>{t("common.actions")}</th>
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((row, rowIndex) => (
-            <tr key={rowIndex} className={rowIndex % 2 === 0 ? "row-even" : "row-odd"} onDoubleClick={() => onView(row)}>
-              {columns.map((col, colIndex) => (
-                <td key={colIndex}>
-                  {col.renderCell ? col.renderCell(getNestedValue(row, col.dataKey), row) : getNestedValue(row, col.dataKey)}
+          {sortedData.length > 0 ? (
+            sortedData.map((row, rowIndex) => (
+              <tr key={rowIndex} className={rowIndex % 2 === 0 ? "row-even" : "row-odd"} onDoubleClick={() => onView(row)}>
+                {columns.map((col, colIndex) => (
+                  <td key={colIndex}>
+                    {col.renderCell ? col.renderCell(getNestedValue(row, col.dataKey), row) : getNestedValue(row, col.dataKey)}
+                  </td>
+                ))}
+                <td className="action-buttons">
+                  <button onClick={() => onView(row)} title={t("common.view")} className="action-button view">
+                    <i className="fa-regular fa-eye"></i>
+                  </button>
+                  <button onClick={() => onEdit(row)} title={t("common.edit")} className="action-button edit">
+                    <i className="fa-solid fa-pen"></i>
+                  </button>
+                  <button onClick={() => onDelete(row)} title={t("common.delete")} className="action-button delete">
+                    <i className="fa-regular fa-trash-can"></i>
+                  </button>
                 </td>
-              ))}
-              <td className="action-buttons">
-                <button onClick={() => onDelete(row)} title={t("common.delete")} className="action-button delete">
-                  <i className="fa-regular fa-trash-can"></i>
-                </button>
-                <button onClick={() => onEdit(row)} title={t("common.edit")} className="action-button edit">
-                  <i className="fa-solid fa-pen"></i>
-                </button>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length + 1} className="no-data">
+                {t("common.noDataFound")}
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
       {pageCount > 1 && (

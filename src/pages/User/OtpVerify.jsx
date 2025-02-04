@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
@@ -11,10 +11,22 @@ import "../../assets/css/FormFields.style.css";
 const OtpVerifyPage = () => {
   const [otp, setOtp] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [resendTimer, setResendTimer] = useState(60);
+  const [isResending, setIsResending] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { emailOrPhone } = location.state || {};
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setResendTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const validateFields = useCallback(() => {
     const errors = {};
@@ -30,6 +42,7 @@ const OtpVerifyPage = () => {
     if (Object.keys(errors).length > 0) {
       return;
     }
+    setIsSubmitting(true);
     try {
       const response = await Api({
         endpoint: "user/verify-otp",
@@ -38,12 +51,15 @@ const OtpVerifyPage = () => {
       });
       if (response.success === true) {
         localStorage.setItem("otpVerified", "true");
-        navigate("/change-password", { state: { emailOrPhone, otp } });
+        setSuccessMessage(t("login.otpVerified"));
+        setTimeout(() => navigate("/change-password", { state: { emailOrPhone, otp } }), 2000);
       } else {
         setErrorMessages({ otp: t("login.invalidOtp") });
       }
     } catch (error) {
       setErrorMessages({ otp: t("login.error") });
+    } finally {
+      setIsSubmitting(false);
     }
   }, [otp, emailOrPhone, validateFields, navigate, t]);
 
@@ -60,6 +76,27 @@ const OtpVerifyPage = () => {
     },
     [errorMessages.otp]
   );
+
+  const handleResendOtp = useCallback(async () => {
+    setIsResending(true);
+    try {
+      const response = await Api({
+        endpoint: "user/resend-otp",
+        method: METHOD_TYPE.POST,
+        data: { email: emailOrPhone },
+      });
+      if (response.success === true) {
+        setResendTimer(60);
+        setSuccessMessage(t("login.otpResent"));
+      } else {
+        setErrorMessages({ otp: t("login.errorResendingOtp") });
+      }
+    } catch (error) {
+      setErrorMessages({ otp: t("login.errorResendingOtp") });
+    } finally {
+      setIsResending(false);
+    }
+  }, [emailOrPhone, t]);
 
   const handleBackPage = useCallback(() => {
     navigate("/forgot-password");
@@ -79,13 +116,23 @@ const OtpVerifyPage = () => {
           onChange={handleOtpChange}
           className={errorMessages.otp ? "error-border" : "correct-border"}
         />
-        <p className="error">{errorMessages.otp}</p>
+        {errorMessages.otp && (
+          <p className="error-message">{errorMessages.otp}</p>
+        )}
+        {successMessage && (
+          <p className="success-message">{successMessage}</p>
+        )}
         <div className="submit-cancel">
-          <Button className="submit" onClick={handleOtpVerification}>
-            {t("common.confirm")}
+          <Button className="submit" onClick={handleOtpVerification} disabled={isSubmitting}>
+            {isSubmitting ? t("common.sending") : t("common.confirm")}
           </Button>
           <Button className="cancel" onClick={handleBackPage}>
             {t("common.cancel")}
+          </Button>
+        </div>
+        <div className="resend-otp">
+          <Button className="resend" onClick={handleResendOtp} disabled={resendTimer > 0 || isResending}>
+            {resendTimer > 0 ? `${t("login.resendOtp")} (${resendTimer}s)` : t("login.resendOtp")}
           </Button>
         </div>
       </div>

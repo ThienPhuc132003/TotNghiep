@@ -1,6 +1,6 @@
-// src/pages/Admin/AdminDashboard.jsx
 import React from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
+import "../../assets/css/Admin/AdminDashboard.style.css";
 
 const AdminDashboardPage = () => {
   return (

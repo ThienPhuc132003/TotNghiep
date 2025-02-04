@@ -15,6 +15,7 @@ const PaymentPage = () => {
     expiryDate: "",
     cvv: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -23,13 +24,12 @@ const PaymentPage = () => {
   };
 
   const handlePayment = (status) => {
-    setPaymentStatus(status);
-    setStep(3);
-    navigate(status === "success" ? "/payment/success" : "/payment/failed");
-  };
-
-  const handleNextStep = () => {
-    setStep(step + 1);
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setPaymentStatus(status);
+      setStep(3);
+      setIsSubmitting(false);
+    }, 2000);
   };
 
   useEffect(() => {
@@ -82,17 +82,17 @@ const PaymentPage = () => {
             value={paymentInfo.cvv}
             onChange={handleInputChange}
           />
-          <button onClick={handleNextStep}>Next</button>
+          <button onClick={() => setStep(2)}>Next</button>
         </div>
       )}
       {step === 2 && (
         <div className="payment-buttons">
           <h2>Confirm Payment</h2>
-          <button onClick={() => handlePayment("success")}>
-            Simulate Success
+          <button onClick={() => handlePayment("success")} disabled={isSubmitting}>
+            {isSubmitting ? "Processing..." : "Simulate Success"}
           </button>
-          <button onClick={() => handlePayment("failure")}>
-            Simulate Failure
+          <button onClick={() => handlePayment("failure")} disabled={isSubmitting}>
+            {isSubmitting ? "Processing..." : "Simulate Failure"}
           </button>
         </div>
       )}

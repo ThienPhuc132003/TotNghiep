@@ -1,76 +1,35 @@
-.admin-dashboard-layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .admin-header {
-    background-color: #ff7e5f;
-    color: white;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .admin-header h1 {
-    margin: 0;
-  }
-  
-  .admin-header nav ul {
-    list-style: none;
-    display: flex;
-    gap: 1rem;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .admin-header nav ul li a {
-    color: white;
-    text-decoration: none;
-  }
-  
-  .admin-main-content {
-    flex: 1;
-    padding: 2rem;
-  }
-  
-  .admin-footer {
-    background-color: #ff7e5f;
-    color: white;
-    text-align: center;
-    padding: 1rem;
-  }
-  
+.admin-dashboard-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-card {
+  flex: 1;
+  min-width: 300px;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.admin-card h3 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.admin-card p {
+  color: #666;
+}
+
+@media (max-width: 768px) {
   .admin-dashboard-content {
-    display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
+    flex-direction: column;
   }
-  
-  .admin-card {
-    background-color: white;
-    padding: 1rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    flex: 1;
-  }
-  
-  .admin-custom-button {
-    padding: 0.75rem 1.5rem;
-    background-color: #ff7e5f;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .admin-custom-button:hover {
-    background-color: #feb47b;
-  }
-  
-  .admin-custom-button.active {
-    background-color: #feb47b;
-  }
+}

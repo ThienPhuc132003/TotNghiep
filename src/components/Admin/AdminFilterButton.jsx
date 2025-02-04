@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import "../assets/css/FilterButton.style.css";
-import Button from "./Button";
+import "../../assets/css/Admin/AdminFilterButton.style.css";
+import Button from "../Button";
 
-const FilterButtonComponent = ({ fields, onApply }) => {
+const AdminFilterButtonComponent = ({ fields, onApply }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filterValues, setFilterValues] = useState({});
 
@@ -29,7 +29,7 @@ const FilterButtonComponent = ({ fields, onApply }) => {
   return (
     <div className="filter-button-container">
       <Button onClick={toggleFilter} className="filter-button">
-        Filter
+        Lọc nâng cao
       </Button>
       {isOpen && (
         <div className="filter-panel">
@@ -37,7 +37,11 @@ const FilterButtonComponent = ({ fields, onApply }) => {
             <div key={field.key} className="filter-field">
               <label>{field.label}</label>
               {field.type === "select" ? (
-                <select name={field.key} value={filterValues[field.key] || ""} onChange={handleChange}>
+                <select
+                  name={field.key}
+                  value={filterValues[field.key] || ""}
+                  onChange={handleChange}
+                >
                   <option value="">Select</option>
                   {field.options.map((option) => (
                     <option key={option} value={option}>
@@ -67,7 +71,7 @@ const FilterButtonComponent = ({ fields, onApply }) => {
   );
 };
 
-FilterButtonComponent.propTypes = {
+AdminFilterButtonComponent.propTypes = {
   fields: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
@@ -77,5 +81,5 @@ FilterButtonComponent.propTypes = {
   onApply: PropTypes.func.isRequired,
 };
 
-const FilterButton = React.memo(FilterButtonComponent);
-export default FilterButton;
+const AdminFilterButton = React.memo(AdminFilterButtonComponent);
+export default AdminFilterButton;

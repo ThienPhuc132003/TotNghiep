@@ -1,8 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "../../../assets/css/UserDashboardLayout.style.css";
-import { METHOD_TYPE } from "../../../network/methodType";
-import Api from "../../../network/Api";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../Button";
 import Cookies from "js-cookie";
@@ -14,22 +12,6 @@ const UserDashboardLayoutComponent = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isAuth = Cookies.get("token");
-
-  const handleLogout = async (e) => {
-    e.preventDefault();
-    try {
-      await Api({
-        endpoint: "user/logout",
-        method: METHOD_TYPE.POST,
-      });
-      navigate("/login");
-      Cookies.remove("token");
-      Cookies.remove("role");
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
-
   return (
     <div className="user-dashboard-layout">
       <header className="header">
@@ -71,7 +53,7 @@ const UserDashboardLayoutComponent = (props) => {
                 </li>
                 <UserAccountToolbar
                   onEditProfile={() => navigate("/user/profile")}
-                  onLogout={handleLogout}
+  
                 />
               </>
             ) : (

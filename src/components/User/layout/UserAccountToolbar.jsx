@@ -4,13 +4,13 @@ import User from "../User";
 import SettingButton from "../../SettingButton";
 import NotifiButton from "../../NotifiButton";
 import HelpButton from "../../HelpButton";
-const UserAccountToolbarComponent = ({ onEditProfile, onLogout }) => {
+const UserAccountToolbarComponent = ({ onEditProfile }) => {
   return (
     <>
       <div className="user-account-toolbar">
         <NotifiButton />
         <HelpButton />
-        <User onEditProfile={onEditProfile} onLogout={onLogout} />
+        <User onEditProfile={onEditProfile} />
         <SettingButton endpoint="user/logout" pathLogout="/login"/>
       </div>
     </>
@@ -23,7 +23,6 @@ const UserAccountToolbarComponent = ({ onEditProfile, onLogout }) => {
 // };
 UserAccountToolbarComponent.propTypes = {
   onEditProfile: PropTypes.func,
-  onLogout: PropTypes.func,
 };
 
 const UserAccountToolbar = React.memo(UserAccountToolbarComponent);

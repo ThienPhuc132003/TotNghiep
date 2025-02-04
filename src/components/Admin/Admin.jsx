@@ -16,7 +16,7 @@ const UserComponent = () => {
   };
 
   const handleDoubleClick = () => {
-    navigate("/user/profile");
+    navigate("/admin/profile");
   };
 
   const getAvatar = () => {
