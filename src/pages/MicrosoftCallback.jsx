@@ -17,44 +17,54 @@ const MicrosoftCallbackPage = () => {
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
       const code = params.get("code");
-      const role = params.get("state"); // 🔥 Extract role from state
-  
+      const role = params.get("state"); 
+
+      console.log("URL:", url);
+      console.log("Code:", code);
+      console.log("Role:", role);
+
       if (!code || !role) {
         setErrorMessage("Authentication failed: Missing code or role.");
         return navigate("/login");
       }
-  
+
       const apiUrl =
         role === "admin"
           ? "https://giasuvlu.click/api/admin/auth/callback"
           : "https://giasuvlu.click/api/user/auth/callback";
-  
+
+      console.log("API URL:", apiUrl);
+
       const response = await Api({
         endpoint: apiUrl,
         method: METHOD_TYPE.POST,
         data: { code },
       });
-  
+
+      console.log("Response:", response);
+
       const { token } = response.data;
       if (!token) {
         setErrorMessage("Authentication failed: No token received.");
         return;
       }
-  
+
       Cookies.set("token", token);
       Cookies.set("role", role);
-  
+
       const profileEndpoint = role === "admin" ? "admin/get-profile" : "user/get-profile";
       const profileResponse = await Api({
         endpoint: profileEndpoint,
         method: METHOD_TYPE.GET,
       });
-  
+
+      console.log("Profile Response:", profileResponse);
+
       if (profileResponse.success) {
         role === "admin"
           ? dispatch(setAdminProfile(profileResponse.data))
           : dispatch(setUserProfile(profileResponse.data));
-  
+
         navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
       } else {
         setErrorMessage("Error fetching profile data.");
@@ -64,8 +74,7 @@ const MicrosoftCallbackPage = () => {
       console.error("Microsoft Auth Error:", error);
     }
   }, [navigate, dispatch]);
-  
-  
+
   useEffect(() => {
     handleMicrosoftCallback();
   }, [handleMicrosoftCallback]);
