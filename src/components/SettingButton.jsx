@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Api from "../network/Api";
 import { METHOD_TYPE } from "../network/methodType";
 import PropTypes from "prop-types";
-const SettingButtonComponent = ({endpoint,pathLogout}) => {
+const SettingButtonComponent = ({ endpoint, pathLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -28,7 +28,11 @@ const SettingButtonComponent = ({endpoint,pathLogout}) => {
   return (
     <div className="setting-button-container">
       <Button className="setting-button" onClick={toggleDropdown}>
-        <i className={`fa-solid fa-gear fa-2xl ${isDropdownOpen ? "rotate" : ""}`}></i>
+        <i
+          className={`fa-solid fa-gear fa-2xl ${
+            isDropdownOpen ? "rotate" : ""
+          }`}
+        ></i>
       </Button>
       <div className={`dropdown-menu ${isDropdownOpen ? "open" : ""}`}>
         <button onClick={handleLogout}>Logout</button>

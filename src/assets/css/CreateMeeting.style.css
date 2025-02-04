@@ -1,0 +1,79 @@
+.create-meeting-form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .create-meeting-form h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .create-meeting-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .create-meeting-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .create-meeting-button:hover:not(:disabled) {
+    background: #0056b3;
+  }
+  
+  .status-message {
+    text-align: center;
+    margin-top: 1rem;
+    color: green;
+  }
+  
+  .meeting-details {
+    margin-top: 2rem;
+    text-align: left;
+  }
+  
+  .meeting-details h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .meeting-details p {
+    margin-bottom: 0.5rem;
+  }
+  
+  .meeting-details a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .meeting-details a:hover {
+    text-decoration: underline;
+  }

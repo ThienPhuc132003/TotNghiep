@@ -1,20 +1,45 @@
 /* File: components/StyledTable.css */
 
-/* Base styles for the table */
+/* src/assets/css/Table.style.css */
+.table-container {
+  display: flex;
+  width: 100%;
+}
 .custom-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid #ddd;
-  border-radius: 30px 30px 0 0 ;
+  border-radius: 30px 30px 0 0;
   overflow: hidden;
 }
 
-/* Xử lý riêng phần header để khớp với góc tròn */
 .custom-table thead {
   background-color: rgba(39, 46, 79, 1);
-  color: white; 
+  color: white;
   height: 50px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.custom-table thead th {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.custom-table tbody td {
+  padding: 10px;
+  text-align: center;
+}
+
+.sort-indicator {
+  margin-left: 5px;
+  font-size: 12px;
 }
 
 .custom-table thead th:first-child {

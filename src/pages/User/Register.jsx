@@ -20,11 +20,31 @@ const RegisterPage = () => {
     confirmPassword: "",
   });
 
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Clear the error message for the field being edited
+    if (formErrors[name]) {
+      setFormErrors({ ...formErrors, [name]: "" });
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const errors = { ...formErrors };
+
+    if (!value) {
+      errors[name] = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+    } else {
+      delete errors[name];
+    }
+
+    setFormErrors(errors);
   };
 
   const handleSubmit = async (e) => {
@@ -40,6 +60,23 @@ const RegisterPage = () => {
       confirmPassword,
     } = formData;
 
+    const errors = {};
+    if (!fullName) errors.fullName = "Full Name is required";
+    if (!birthday) errors.birthday = "Birthday is required";
+    if (!email) errors.email = "Email is required";
+    if (!phoneNumber) errors.phoneNumber = "Phone Number is required";
+    if (!homeAddress) errors.homeAddress = "Home Address is required";
+    if (!gender) errors.gender = "Gender is required";
+    if (!password) errors.password = "Password is required";
+    if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setIsSubmitting(true);
+
     const data = {
       fullname: fullName,
       birthday: birthday,
@@ -50,6 +87,7 @@ const RegisterPage = () => {
       password: password,
       confirmPassword: confirmPassword,
     };
+
     try {
       const response = await Api({
         endpoint: "user/register",
@@ -63,6 +101,8 @@ const RegisterPage = () => {
       }
     } catch (error) {
       console.error("Registration failed:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -110,8 +150,13 @@ const RegisterPage = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Trịnh Văn Thiên Phúc"
+                className={formErrors.fullName ? "error-border" : ""}
               />
+              {formErrors.fullName && (
+                <p className="error-message">{formErrors.fullName}</p>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="birthday">
@@ -124,7 +169,12 @@ const RegisterPage = () => {
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
+                onBlur={handleBlur}
+                className={formErrors.birthday ? "error-border" : ""}
               />
+              {formErrors.birthday && (
+                <p className="error-message">{formErrors.birthday}</p>
+              )}
             </div>
           </div>
           <div className="form-row">
@@ -139,8 +189,13 @@ const RegisterPage = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="example@gmail.com"
+                className={formErrors.email ? "error-border" : ""}
               />
+              {formErrors.email && (
+                <p className="error-message">{formErrors.email}</p>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="phoneNumber">{t("register.phoneNumber")}</label>
@@ -150,8 +205,13 @@ const RegisterPage = () => {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="0123456789"
+                className={formErrors.phoneNumber ? "error-border" : ""}
               />
+              {formErrors.phoneNumber && (
+                <p className="error-message">{formErrors.phoneNumber}</p>
+              )}
             </div>
           </div>
           <div className="form-row">
@@ -163,8 +223,13 @@ const RegisterPage = () => {
                 name="homeAddress"
                 value={formData.homeAddress}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="58a huỳnh văn bánh"
+                className={formErrors.homeAddress ? "error-border" : ""}
               />
+              {formErrors.homeAddress && (
+                <p className="error-message">{formErrors.homeAddress}</p>
+              )}
             </div>
             <div className="form-group">
               <label>{t("register.gender")}</label>
@@ -176,6 +241,7 @@ const RegisterPage = () => {
                     value="MALE"
                     checked={formData.gender === "MALE"}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                   />
                   {t("register.male")}
                 </label>
@@ -186,11 +252,14 @@ const RegisterPage = () => {
                     value="FEMALE"
                     checked={formData.gender === "FEMALE"}
                     onChange={handleChange}
-                    placeholder="Strong@123"
+                    onBlur={handleBlur}
                   />
                   {t("register.female")}
                 </label>
               </div>
+              {formErrors.gender && (
+                <p className="error-message">{formErrors.gender}</p>
+              )}
             </div>
           </div>
           <div className="form-row">
@@ -208,8 +277,13 @@ const RegisterPage = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Example@123"
+                className={formErrors.password ? "error-border" : ""}
               />
+              {formErrors.password && (
+                <p className="error-message">{formErrors.password}</p>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="confirmPassword">
@@ -222,12 +296,17 @@ const RegisterPage = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Example@123"
+                className={formErrors.confirmPassword ? "error-border" : ""}
               />
+              {formErrors.confirmPassword && (
+                <p className="error-message">{formErrors.confirmPassword}</p>
+              )}
             </div>
           </div>
-          <button type="submit" className="register-button">
-            {t("register.registerButton")}
+          <button type="submit" className="register-button" disabled={isSubmitting}>
+            {isSubmitting ? "Registering..." : t("register.registerButton")}
           </button>
         </form>
         <div className="login-link">

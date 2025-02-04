@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -11,10 +11,23 @@ import "../../assets/css/Admin/AdminLogin.style.css";
 const AdminLoginPage = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch(); // Initialize dispatch
+
+  useEffect(() => {
+    const savedEmailOrPhoneNumber = localStorage.getItem("emailOrPhoneNumber");
+    const savedPassword = localStorage.getItem("password");
+    if (savedEmailOrPhoneNumber && savedPassword) {
+      setEmailOrPhoneNumber(savedEmailOrPhoneNumber);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   const validateFields = () => {
     const errors = {};
@@ -34,6 +47,7 @@ const AdminLoginPage = () => {
     if (Object.keys(errors).length > 0) {
       return;
     }
+    setIsSubmitting(true);
     try {
       const response = await Api({
         endpoint: "admin/login",
@@ -46,8 +60,17 @@ const AdminLoginPage = () => {
       const token = response.data.token;
 
       if (token) {
-        Cookies.set("token", token);
+        Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
         Cookies.set("role", "admin");
+
+        if (rememberMe) {
+          localStorage.setItem("emailOrPhoneNumber", emailOrPhoneNumber);
+          localStorage.setItem("password", password);
+        } else {
+          localStorage.removeItem("emailOrPhoneNumber");
+          localStorage.removeItem("password");
+        }
+
         try {
           const adminInfoResponse = await Api({
             endpoint: "admin/get-profile",
@@ -55,63 +78,117 @@ const AdminLoginPage = () => {
             token,
           });
           if (adminInfoResponse.success === true) {
-            dispatch(setAdminProfile(adminInfoResponse.data)); 
+            dispatch(setAdminProfile(adminInfoResponse.data));
+            navigate("/admin/dashboard");
           }
         } catch (error) {
           setErrorMessage("Login failed: Invalid credentials");
         }
-        navigate("/admin/dashboard");
       } else {
         setErrorMessage("Login failed: Invalid credentials");
       }
     } catch (error) {
       setErrorMessage("Login failed: Invalid credentials");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleMicrosoftLogin = async () => {
+    try {
+      const response = await Api({
+        endpoint: "user/auth/get-uri-microsoft",
+        method: METHOD_TYPE.GET,
+      });
+      const authUrl = response.data.authUrl;
+
+      if (authUrl) {
+        window.location.href = authUrl;
+      } else {
+        console.error("Microsoft Auth URL not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Microsoft Auth URL:", error);
     }
   };
 
   return (
     <LoginLayout>
       <div className="admin-form">
-        <h1>Admin Login</h1>
+        <h1>Login</h1>
+        <div className="social-login">
+          <button onClick={handleMicrosoftLogin} className="microsoft-login-button">
+            <i className="fab fa-microsoft"></i> Login with Microsoft
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
-          <div className="admin-form-group">
+          <div className="admin-form-container">
             <label htmlFor="emailOrPhoneNumber">Email or Phone Number</label>
-            <input
-              type="text"
-              id="emailOrPhoneNumber"
-              name="emailOrPhoneNumber"
-              value={emailOrPhoneNumber}
-              onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
-              className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
-            />
-            {fieldErrors.emailOrPhoneNumber && (
-              <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
-            )}
+            <div className="admin-form-group">
+              <input
+                type="text"
+                id="emailOrPhoneNumber"
+                name="emailOrPhoneNumber"
+                value={emailOrPhoneNumber}
+                onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
+                className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
+              />
+              <i className="fa-regular fa-user"></i>
+              {fieldErrors.emailOrPhoneNumber && (
+                <p className="error-message">
+                  {fieldErrors.emailOrPhoneNumber}
+                </p>
+              )}
+            </div>
           </div>
-          <div className="admin-form-group">
+          <div className="admin-form-container">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={fieldErrors.password ? "error-border" : ""}
-            />
+            <div className="admin-form-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={fieldErrors.password ? "error-border" : ""}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <i className="fa-regular fa-eye-slash"></i>
+                ) : (
+                  <i className="fa-regular fa-eye"></i>
+                )}
+              </button>
+            </div>
             {fieldErrors.password && (
               <p className="error-message">{fieldErrors.password}</p>
             )}
           </div>
+
+          <div className="remember-me">
+            <label>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="checkbox-remember-me"
+              />
+              Remember Me
+            </label>
+          </div>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
-          <button type="submit" className="admin-login-button">
-            Login
+          <button
+            type="submit"
+            className="admin-login-button"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
-        <div className="admin-register-link">
-          <p>
-            Dont have an account? <Link to="/register">Register</Link>
-          </p>
-        </div>
       </div>
     </LoginLayout>
   );

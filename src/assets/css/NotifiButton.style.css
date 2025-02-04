@@ -41,6 +41,8 @@
   align-items: center;
   padding: 10px 15px;
   border-bottom: 1px solid #ddd;
+  background-color: rgb(30, 76, 161); /* Updated primary color */
+  color: white;
 }
 
 .notifi-dropdown-header h3 {
@@ -52,7 +54,7 @@
 .notifi-mark-buttons button {
   background: none;
   border: none;
-  color: #007bff;
+  color: white;
   cursor: pointer;
   font-size: 14px;
   margin-left: 5px;
@@ -84,19 +86,19 @@
 }
 
 .notifi-filter-button.active {
-  background-color: #1a2e4f; /* Dark blue background for active button */
+  background-color: rgb(30, 76, 161); /* Updated primary color */
   color: #ffffff;
-  border-color: #1a2e4f; /* Border color matching the background */
+  border-color: rgb(30, 76, 161); /* Border color matching the background */
 }
 
 .notifi-filter-button:not(.active) {
-  background-color: #e0e3eb; /* Light gray for inactive button */
+  background-color: rgb(245, 245, 245); /* Updated secondary color */
   color: #333; /* Darker color for text */
   border-color: #a0a4b0; /* Border color for inactive button */
 }
 
 .notifi-filter-button:hover {
-  background-color: #1a2e4f;
+  background-color: rgb(30, 76, 161); /* Updated primary color */
   color: #ffffff;
 }
 
@@ -114,7 +116,7 @@
 }
 
 .notifi-dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: rgb(245, 245, 245); /* Updated secondary color */
 }
 
 /* Read and unread styles */
@@ -169,10 +171,11 @@
   flex-shrink: 0;
   width: 8px;
   height: 8px;
-  background-color: red;
+  background-color: rgb(255, 213, 79); /* Updated accent color */
   border-radius: 50%;
   margin-left: 10px;
 }
+
 .notifi-dropdown-content {
   max-height: 400px; /* Adjust the height as needed */
   overflow-y: auto;

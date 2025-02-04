@@ -1,86 +1,110 @@
-/* src/assets/css/ListOfAdmin.style.css */
+.admin-content {
+  padding: 2rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.admin-list-title {
+  padding-bottom: 10px;
+}
+.admin-search-filter {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
 
-.admin-loan-box {
-    display: flex;
-    width: 1031px;
-    gap: 15px;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  
-  .admin-content {
-    height: 700px;
-    margin-top: 20px;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid rgba(39, 46, 79, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .admin-search-filter {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .status-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .status-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #ddd;
-    color: #333;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  .status-button:hover {
-    background-color: #272e4f;
-    color: white;
-  }
-  
-  .status-button.active {
-    background-color: #272e4f;
-    color: white;
-    cursor: default;
-  }
-  
-  .status-button.active:hover {
-    background-color: #272e4f;
-    color: white;
-  }
-  
-  .add-admin-button {
-    padding: 10px 20px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .add-admin-button:hover {
-    background-color: #45a049;
-  }
-  
-  .filter-add-admin {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-  }
-  
-  @media (max-width: 1024px) {
-    .admin-loan-box {
-      width: 100%;
-    }
-  }
+.admin-search {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+.admin-search-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50px;
+  background-color: black;
+  margin-right: 5px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.admin-search i {
+  color: white;
+}
+.admin-search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 16px;
+  border: none;
+}
+.admin-search-input:focus {
+  outline: none;
+}
+.filter-add-admin {
+  display: flex;
+  gap: 1rem;
+}
+.filter-add-admin .filter-button {
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.filter-button:hover {
+  background: #0056b3;
+}
+.add-admin-button {
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-admin-button:hover {
+  background: #0056b3;
+}
+
+.status-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.status-button {
+  padding: 0.5rem 1rem;
+  background: #f1f1f1;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.status-button.active {
+  background: #007bff;
+  color: white;
+}
+
+.status-button:hover {
+  background: #ddd;
+}
+
+.success-message {
+  color: green;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  color: red;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}

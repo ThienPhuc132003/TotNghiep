@@ -12,6 +12,8 @@ const ChangePasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { emailOrPhone, otp } = location.state || {};
@@ -39,6 +41,7 @@ const ChangePasswordPage = () => {
     if (Object.keys(errors).length > 0) {
       return;
     }
+    setIsSubmitting(true);
     try {
       const response = await Api({
         endpoint: "user/reset-password",
@@ -52,22 +55,37 @@ const ChangePasswordPage = () => {
       });
       if (response.success === true) {
         localStorage.removeItem("otpVerified");
-        navigate("/login");
+        setSuccessMessage(t("login.passwordChanged"));
+        setTimeout(() => navigate("/login"), 2000);
       } else {
         setErrorMessages({ password: t("login.error") });
       }
     } catch (error) {
       setErrorMessages({ password: t("login.error") });
+    } finally {
+      setIsSubmitting(false);
     }
   }, [password, confirmPassword, emailOrPhone, otp, validateFields, navigate, t]);
 
   const handlePasswordChange = useCallback((e) => {
     setPassword(e.target.value);
-  }, []);
+    if (errorMessages.password) {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        password: "",
+      }));
+    }
+  }, [errorMessages.password]);
 
   const handleConfirmPasswordChange = useCallback((e) => {
     setConfirmPassword(e.target.value);
-  }, []);
+    if (errorMessages.confirmPassword) {
+      setErrorMessages((prevErrors) => ({
+        ...prevErrors,
+        confirmPassword: "",
+      }));
+    }
+  }, [errorMessages.confirmPassword]);
 
   const handleBackPage = () => {
     navigate("/otp-verify");
@@ -96,11 +114,12 @@ const ChangePasswordPage = () => {
           onChange={handleConfirmPasswordChange}
           className={errorMessages.confirmPassword ? "error-border" : "correct-border"}
         />
-        <p className="error">{errorMessages.password}</p>
-        <p className="error">{errorMessages.confirmPassword}</p>
+        {successMessage && (
+          <p className="success-message">{successMessage}</p>
+        )}
         <div className="submit-cancel">
-          <Button className="submit" onClick={handleChangePassword}>
-            {t("common.confirm")}
+          <Button className="submit" onClick={handleChangePassword} disabled={isSubmitting}>
+            {isSubmitting ? t("common.sending") : t("common.confirm")}
           </Button>
           <Button className="cancel" onClick={handleBackPage}>
             {t("common.cancel")}

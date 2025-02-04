@@ -1,0 +1,12 @@
+{
+    "major": {
+      "management": "Major Management",
+      "listTitle": "List of Majors",
+      "id": "ID",
+      "name": "Name",
+      "confirmDelete": "Are you sure you want to delete this major?",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  }

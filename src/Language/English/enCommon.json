@@ -1,8 +1,20 @@
 {
-    "common": {
-      "confirm": "Confirm",
-      "cancel": "Cancel",
-      "register": "Register",
-      "isRequired": "is required"
-    }
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "register": "Register",
+    "isRequired": "is required",
+    "createdAt": "Created At",
+    "createdBy": "Created By",
+    "loading": "Loading...",
+    "addButton": "Add",
+    "searchPlaceholder": "Search",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noInactiveData": "No inactive data found.",
+    "status": "Status",
+    "actions": "Actions",
+    "save": "Save",
+    "close": "Close"
   }
+}

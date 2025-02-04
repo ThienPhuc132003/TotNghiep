@@ -83,6 +83,15 @@
   margin-top: 0.5rem;
 }
 
+.error-border {
+  border-color: rgba(215, 33, 52, 1);
+}
+
+.register-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 .social-login {
   text-align: center;
   margin-bottom: 1rem;

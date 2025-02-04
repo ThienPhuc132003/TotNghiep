@@ -5,26 +5,25 @@ import dfFemale from "../../assets/images/df-female.png";
 import "../../assets/css/Profile.style.css";
 import { METHOD_TYPE } from "../../network/methodType";
 import Api from "../../network/Api";
-import { setUserProfile } from "../../redux/userSlice";
+import { setAdminProfile } from "../../redux/adminSlice";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../utils/cropImage";
 import Modal from "react-modal";
-import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
+import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
-const ProfilePage = () => {
-  const userProfile = useSelector((state) => state.user.userProfile);
+const AdminProfilePage = () => {
+  const adminProfile = useSelector((state) => state.admin.adminProfile);
   const dispatch = useDispatch();
   const [profileData, setProfileData] = useState({
-    avatar: userProfile?.avatar || null,
-    fullName: userProfile?.fullname || "",
-    birthday: userProfile?.birthday || "",
-    email: userProfile?.personalEmail || "",
-    phoneNumber: userProfile?.phoneNumber || "",
-    homeAddress: userProfile?.homeAddress || "",
-    gender: userProfile?.gender || "",
-    workEmail: userProfile?.workEmail || "",
+    avatar: adminProfile?.avatar || null,
+    fullName: adminProfile?.fullname || "",
+    birthday: adminProfile?.birthday || "",
+    email: adminProfile?.email || "",
+    phoneNumber: adminProfile?.phoneNumber || "",
+    homeAddress: adminProfile?.homeAddress || "",
+    gender: adminProfile?.gender || "",
   });
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -54,16 +53,15 @@ const ProfilePage = () => {
       email: profileData.email,
       homeAddress: profileData.homeAddress,
       gender: profileData.gender,
-      workEmail: profileData.workEmail,
     };
     try {
       const response = await Api({
-        endpoint: "user/update-profile",
+        endpoint: "admin/update-profile",
         method: METHOD_TYPE.PUT,
         data: dataToSend,
       });
       if (response.success === true) {
-        dispatch(setUserProfile(response.data));
+        dispatch(setAdminProfile(response.data));
         setSuccessMessage("Profile updated successfully!");
       } else {
         setErrorMessage("Failed to update profile: " + response.message);
@@ -99,7 +97,7 @@ const ProfilePage = () => {
   const handleCropSave = async () => {
     try {
       const avatarResponse = await Api({
-        endpoint: "media/media-url?mediaCategory=user_avatar",
+        endpoint: "media/media-url?mediaCategory=admin_avatar",
         method: METHOD_TYPE.GET,
       });
 
@@ -110,7 +108,7 @@ const ProfilePage = () => {
         formData.append("file", croppedImage);
 
         const uploadResponse = await Api({
-          endpoint: `media/upload-media?mediaCategory=user_avatar&fileName=${fileName}`,
+          endpoint: `media/upload-media?mediaCategory=admin_avatar&fileName=${fileName}`,
           method: METHOD_TYPE.POST,
           data: formData,
           isFormData: true,
@@ -118,13 +116,13 @@ const ProfilePage = () => {
 
         if (uploadResponse.success === true) {
           const pushAvatarToServer = await Api({
-            endpoint: `user/update-profile`,
+            endpoint: `admin/update-profile`,
             method: METHOD_TYPE.PUT,
             data: { avatar: uploadResponse.data.mediaUrl },
           });
 
           if (pushAvatarToServer.success === true) {
-            dispatch(setUserProfile(pushAvatarToServer.data));
+            dispatch(setAdminProfile(pushAvatarToServer.data));
             setProfileData({ ...profileData, avatar: pushAvatarToServer.data.avatar });
             setSuccessMessage("Avatar updated successfully!");
             setIsCropping(false);
@@ -140,9 +138,9 @@ const ProfilePage = () => {
   };
 
   return (
-    <UserDashboardLayout>
-      <div className="profile-container">
-        <h1>User Profile</h1>
+    <AdminDashboardLayout>
+      <div className="profile-form">
+        <h1>Admin Profile</h1>
         {successMessage && (
           <div className="success-message">{successMessage}</div>
         )}
@@ -150,7 +148,7 @@ const ProfilePage = () => {
           <div className="error-message">{errorMessage}</div>
         )}
         <form onSubmit={handleSubmit}>
-          <div className="profile-header">
+          <div className="form-group avatar-container">
             <img src={getAvatar()} alt="Avatar" className="avatar" />
             <button
               type="button"
@@ -160,6 +158,51 @@ const ProfilePage = () => {
               Change Avatar
             </button>
           </div>
+          <Modal
+            isOpen={isModalOpen}
+            onRequestClose={() => setIsModalOpen(false)}
+            contentLabel="Change Avatar"
+            className="modal"
+            overlayClassName="overlay"
+          >
+            <h2 className="modal-title">Select and Crop Avatar</h2>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="file-input"
+            />
+            {isCropping && (
+              <div className="crop-container">
+                <Cropper
+                  image={selectedImage}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+            )}
+            <div className="modal-buttons">
+              <button
+                type="button"
+                className="crop-save-button"
+                onClick={handleCropSave}
+                disabled={!selectedImage}
+              >
+                Save Avatar
+              </button>
+              <button
+                type="button"
+                className="modal-close-button"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </Modal>
           <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
             <input
@@ -187,8 +230,9 @@ const ProfilePage = () => {
               id="email"
               name="email"
               value={profileData.email}
+              onChange={handleChange}
+              className="read-only"
               readOnly
-              className="blurred"
             />
           </div>
           <div className="form-group">
@@ -198,8 +242,7 @@ const ProfilePage = () => {
               id="phoneNumber"
               name="phoneNumber"
               value={profileData.phoneNumber}
-              readOnly
-              className="blurred"
+              onChange={handleChange}
             />
           </div>
           <div className="form-group">
@@ -209,16 +252,6 @@ const ProfilePage = () => {
               id="homeAddress"
               name="homeAddress"
               value={profileData.homeAddress}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="workEmail">Work Email</label>
-            <input
-              type="email"
-              id="workEmail"
-              name="workEmail"
-              value={profileData.workEmail}
               onChange={handleChange}
             />
           </div>
@@ -251,55 +284,10 @@ const ProfilePage = () => {
             Save Changes
           </button>
         </form>
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={() => setIsModalOpen(false)}
-          contentLabel="Change Avatar"
-          className="modal"
-          overlayClassName="overlay"
-        >
-          <h2 className="modal-title">Select and Crop Avatar</h2>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="file-input"
-          />
-          {isCropping && (
-            <div className="crop-container">
-              <Cropper
-                image={selectedImage}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-          )}
-          <div className="modal-buttons">
-            <button
-              type="button"
-              className="crop-save-button"
-              onClick={handleCropSave}
-              disabled={!selectedImage}
-            >
-              Save Avatar
-            </button>
-            <button
-              type="button"
-              className="modal-close-button"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-          </div>
-        </Modal>
       </div>
-    </UserDashboardLayout>
+    </AdminDashboardLayout>
   );
 };
 
-const Profile = React.memo(ProfilePage);
-export default Profile;
+const AdminProfile = React.memo(AdminProfilePage);
+export default AdminProfile;

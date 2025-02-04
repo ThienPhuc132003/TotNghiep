@@ -13,6 +13,8 @@ const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const validateFields = useCallback(() => {
     const errors = {};
@@ -28,6 +30,7 @@ const ForgotPasswordPage = () => {
     if (Object.keys(errors).length > 0) {
       return;
     }
+    setIsSubmitting(true);
     try {
       const response = await Api({
         endpoint: "user/forgot-password",
@@ -35,14 +38,16 @@ const ForgotPasswordPage = () => {
         data: { emailOrPhoneNumber: emailOrPhone },
       });
       if (response.success === true) {
-        navigate("/otp-verify", { state: { emailOrPhone } });
+        setSuccessMessage(t("login.resetLinkSent"));
       } else {
         setErrorMessages({ email: t("login.emailNotFound") });
       }
     } catch (error) {
       setErrorMessages({ email: t("login.error") });
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [emailOrPhone, validateFields, navigate, t]);
+  }, [emailOrPhone, validateFields, t]);
 
   const handleEmailChange = useCallback(
     (e) => {
@@ -76,10 +81,15 @@ const ForgotPasswordPage = () => {
           onChange={handleEmailChange}
           className={errorMessages.email ? "error-border" : "correct-border"}
         />
-        <p className="error">{errorMessages.email}</p>
+        {errorMessages.email && (
+          <p className="error-message">{errorMessages.email}</p>
+        )}
+        {successMessage && (
+          <p className="success-message">{successMessage}</p>
+        )}
         <div className="submit-cancel">
-          <Button className="submit" onClick={handleForgotPassword}>
-            {t("common.confirm")}
+          <Button className="submit" onClick={handleForgotPassword} disabled={isSubmitting}>
+            {isSubmitting ? t("common.sending") : t("common.confirm")}
           </Button>
           <Button className="cancel" onClick={handleBackPage}>
             {t("common.cancel")}

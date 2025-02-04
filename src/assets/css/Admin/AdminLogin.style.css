@@ -1,79 +1,118 @@
 .admin-layout {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #ff7e5f, #feb47b);
-  }
-  
-  .admin-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .admin-logo {
-    width: 100px;
-    margin-bottom: 1rem;
-  }
-  
-  .admin-form {
-    width: 100%;
-  }
-  
-  .admin-form-group {
-    margin-bottom: 1rem;
-    text-align: left;
-  }
-  
-  .admin-form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-  }
-  
-  .admin-form-group input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-  
-  .admin-login-button {
-    width: 100%;
-    padding: 0.75rem;
-    background: #ff7e5f;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-    box-sizing: border-box;
-  }
-  
-  .admin-login-button:hover {
-    background: #feb47b;
-  }
-  
-  .admin-register-link {
-    margin-top: 1rem;
-  }
-  
-  .admin-register-link a {
-    color: #ff7e5f;
-    text-decoration: none;
-  }
-  
-  .admin-register-link a:hover {
-    text-decoration: underline;
-  }
-  
-  .admin-error-message {
-    color: red;
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+}
+
+.admin-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.admin-logo {
+  width: 100px;
+  margin-bottom: 1rem;
+}
+
+.admin-form {
+  width: 100%;
+}
+
+.admin-form-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.admin-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.admin-form-container label {
+  font-weight: bold;
+  align-self: flex-start;
+}
+.admin-form-group {
+  display: flex;
+  flex-direction: row;
+  width: 220px;
+  padding: 10px 30px 10px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  box-sizing: border-box;
+  gap: 10px;
+}
+.admin-form-group input {
+  border: none;
+  outline: none;
+}
+.toggle-password {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black;
+  font-size: 0.875rem;
+}
+
+.toggle-password:hover {
+  text-decoration: underline;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.remember-me input {
+  margin-right: 5px;
+}
+.checkbox-remember-me {
+  width: 12px;
+  height: 12px;
+  accent-color: #000000; /* Change the color of the checkbox to black */
+  cursor: pointer;
+}
+.admin-login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #ff7e5f;
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  box-sizing: border-box;
+}
+
+.admin-login-button:hover {
+  background: #feb47b;
+}
+
+.admin-register-link {
+  margin-top: 1rem;
+}
+
+.admin-register-link a {
+  color: #ff7e5f;
+  text-decoration: none;
+}
+
+.admin-register-link a:hover {
+  text-decoration: underline;
+}
+
+.admin-error-message {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}

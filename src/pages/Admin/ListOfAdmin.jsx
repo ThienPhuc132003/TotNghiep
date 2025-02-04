@@ -1,60 +1,66 @@
+// src/pages/Admin/ListOfAdmin.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
-import FilterButton from "../../components/FilterButton";
+import AdminFilterButton from "../../components/Admin/AdminFilterButton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import AdminForm from "../../components/Admin/AdminForm";
-import { formatInTimeZone } from "date-fns-tz";
+import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal";
+import { formatInTimeZone } from "date-fns-tz";
+import i18n from "../../i18n";
 
 const ListOfAdminPage = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [modalData, setModalData] = useState(null);
+  const [modalData, setModalData] = useState({});
   const [modalMode, setModalMode] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [currentStatus, setCurrentStatus] = useState("ACTIVE");
+  const [isLoading, setIsLoading] = useState(false);
   const itemsPerPage = 5;
-  const currentPath = "/quan-ly-admin"; 
+  const currentPath = "/quan-ly-admin";
 
-  console.log("admin-management-pagesssss");
   const fetchData = useCallback(
-    async (filter = []) => {
+    async () => {
+      setIsLoading(true);
       try {
         const query = {
           rpp: itemsPerPage,
           page: currentPage + 1,
         };
-
+  
         if (searchQuery) {
-          filter.push({
-            key: "adminId",
-            operator: "like",
-            value: searchQuery,
-          });
+          // Add additional filters
+          query.filte = JSON.stringify([
+            {
+              key: "adminId",
+              operator: "like", 
+              value: searchQuery,
+            },
+          ]);
         }
-
+  
         const response = await Api({
           endpoint: "admin/search",
           method: METHOD_TYPE.GET,
           query,
         });
-
+  
         if (response.success === true) {
           setData(response.data.items);
           setTotalItems(response.data.total);
-        } else {
-          console.log("Failed to fetch data");
         }
       } catch (error) {
         console.log("An error occurred while fetching data");
+      } finally {
+        setIsLoading(false);
       }
     },
     [currentPage, itemsPerPage, searchQuery]
@@ -68,11 +74,85 @@ const ListOfAdminPage = () => {
     setCurrentPage(event.selected);
   };
 
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    fetchData();
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleAddAdmin = () => {
+    setModalMode("add");
+    setModalData({
+      fullname: "",
+      birthday: "",
+      email: "",
+      phoneNumber: "",
+      homeAddress: "",
+      gender: "",
+      password: "",
+      confirmPassword: "",
+      roleId: "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (admin) => {
+    setModalData({
+      adminId: admin.adminId,
+      fullname: admin.adminProfile.fullname,
+      phoneNumber: admin.phoneNumber,
+      email: admin.email,
+      homeAddress: admin.adminProfile.homeAddress,
+      birthday: admin.adminProfile.birthday,
+      gender: admin.adminProfile.gender,
+      workEmail: admin.adminProfile.workEmail,
+      roleId: admin.roleId,
+    });
+    setModalMode("edit");
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalData({});
+    setModalMode(null);
+  };
+
+  const handleSave = async () => {
+    fetchData(); // Refresh the data after saving
+    setIsModalOpen(false);
+    setModalData({});
+    setModalMode(null);
+  };
+
+  const handleCreateAdmin = async (formData) => {
+    try {
+      const response = await Api({
+        endpoint: "admin",
+        method: METHOD_TYPE.POST,
+        data: formData,
+      });
+
+      if (response.success) {
+        handleSave();
+      } else {
+        console.log("Failed to create admin");
+      }
+    } catch (error) {
+      console.log("An error occurred while creating admin");
+    }
+  };
+
   const handleDelete = async (adminId) => {
     if (window.confirm(t("admin.confirmDelete"))) {
       try {
         const response = await Api({
-          endpoint: `admin-service/admin/${adminId}`,
+          endpoint: `admin/${adminId}`,
           method: METHOD_TYPE.DELETE,
         });
 
@@ -87,37 +167,6 @@ const ListOfAdminPage = () => {
     }
   };
 
-  const handleAddAdmin = () => {
-    setModalMode("add");
-    setModalData(null);
-    setIsModalOpen(true);
-  };
-
-  const handleView = (admin) => {
-    setModalData(admin);
-    setModalMode("view");
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (admin) => {
-    setModalData(admin);
-    setModalMode("edit");
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setModalData(null);
-    setModalMode(null);
-  };
-
-  const handleSave = () => {
-    fetchData(); // Refresh the data after saving
-    setIsModalOpen(false);
-    setModalData(null);
-    setModalMode(null);
-  };
-
   const handleApplyFilter = (filterValues) => {
     // Apply filter logic here
     console.log("Filter applied with values:", filterValues);
@@ -125,22 +174,55 @@ const ListOfAdminPage = () => {
 
   const pageCount = Math.ceil(totalItems / itemsPerPage);
 
-  const activeAdmins = data.filter((admin) => admin.status === "ACTIVE");
-  const inactiveAdmins = data.filter((admin) => admin.status === "INACTIVE");
+  const addFields = [
+    { key: "fullname", label: t("admin.name") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
+    { key: "email", label: t("admin.email") },
+    { key: "phoneNumber", label: t("admin.phone") },
+    { key: "homeAddress", label: t("admin.homeAddress") },
+    {
+      key: "gender",
+      label: t("admin.gender"),
+      type: "select",
+      options: ["MALE", "FEMALE"],
+    },
+    { key: "password", label: t("admin.password") },
+    { key: "confirmPassword", label: t("admin.confirmPassword") },
+    {
+      key: "roleId",
+      label: t("admin.role"),
+      type: "select",
+      options: ["BEST_ADMIN", "OTHER_ROLE"],
+    },
+  ];
 
-  const fields = [
+  const viewFields = [
     { key: "adminId", label: t("admin.id") },
-    { key: "adminProfile.fullname", label: t("admin.name") },
+    { key: "fullname", label: t("admin.name") },
     { key: "phoneNumber", label: t("admin.phone") },
     { key: "email", label: t("admin.email") },
-    { key: "adminProfile.identifyCardNumber", label: t("admin.idCard") },
-    { key: "createdAt", label: t("common.createdAt") },
-    { key: "createdBy", label: t("common.createdBy") },
+    { key: "homeAddress", label: t("admin.homeAddress") },
+    { key: "birthday", label: t("admin.birthday") },
+    { key: "gender", label: t("admin.gender") },
+    { key: "workEmail", label: t("admin.workEmail") },
+    { key: "roleId", label: t("admin.role") },
   ];
+
+  const editFields = viewFields.map((field) => ({
+    ...field,
+    readOnly: ![
+      "fullname",
+      "birthday",
+      "workEmail",
+      "homeAddress",
+      "gender",
+    ].includes(field.key),
+  }));
 
   const columns = [
     { title: t("admin.id"), dataKey: "adminId" },
     { title: t("admin.name"), dataKey: "adminProfile.fullname" },
+    { title: t("admin.role"), dataKey: "roleId" },
     { title: t("admin.phone"), dataKey: "phoneNumber" },
     { title: t("admin.email"), dataKey: "email" },
     {
@@ -161,71 +243,56 @@ const ListOfAdminPage = () => {
       },
     },
     { title: t("common.createdBy"), dataKey: "createdBy" },
+    {
+      title: t("admin.status"),
+      dataKey: "status",
+      renderCell: (value) => (
+        <span className={`status ${value.toLowerCase()}`}>
+          {t(`admin.${value.toLowerCase()}`)}
+        </span>
+      ),
+    },
   ];
+
+  const combinedAdmins = data;
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2>{t("admin.listTitle")}</h2>
+        <h2 className="admin-list-title">{t("admin.listTitle")}</h2>
         <div className="admin-search-filter">
           <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
+            value={searchInput}
+            onChange={setSearchInput}
             searchBarClassName="admin-search"
             searchInputClassName="admin-search-input"
-            placeholder={t("admin.searchPlaceholder")}
+            searchBarButtonClassName="admin-search-button"
+            searchBarOnClick={handleSearch}
+            onKeyPress={handleKeyPress}
+            placeholder={t("common.searchPlaceholder")}
           />
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddAdmin}>
-              {t("admin.addButton")}
+              {t("common.addButton")}
             </button>
-            <FilterButton fields={fields} onApply={handleApplyFilter} />
+            <AdminFilterButton
+              fields={editFields}
+              onApply={handleApplyFilter}
+            />
           </div>
         </div>
-        <div className="status-buttons">
-          <button
-            className={`status-button ${
-              currentStatus === "ACTIVE" ? "active" : ""
-            }`}
-            onClick={() => setCurrentStatus("ACTIVE")}
-          >
-            {t("admin.active")}
-          </button>
-          <button
-            className={`status-button ${
-              currentStatus === "INACTIVE" ? "active" : ""
-            }`}
-            onClick={() => setCurrentStatus("INACTIVE")}
-          >
-            {t("admin.inactive")}
-          </button>
-        </div>
-        {currentStatus === "ACTIVE" ? (
-          <>
-            <Table
-              columns={columns}
-              data={activeAdmins}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={(admin) => handleDelete(admin.adminId)}
-              pageCount={pageCount}
-              onPageChange={handlePageClick}
-            />
-          </>
-        ) : inactiveAdmins.length > 0 ? (
-          <>
-            <Table
-              columns={columns}
-              data={inactiveAdmins}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={(admin) => handleDelete(admin.adminId)}
-              pageCount={pageCount}
-              onPageChange={handlePageClick}
-            />
-          </>
+        {isLoading ? (
+          <p>{t("common.loading")}</p>
         ) : (
-          <p>{t("admin.noInactiveData")}</p>
+          <Table
+            columns={columns}
+            data={combinedAdmins}
+            onView={handleEdit}
+            onEdit={handleEdit}
+            onDelete={(admin) => handleDelete(admin.adminId)}
+            pageCount={pageCount}
+            onPageChange={handlePageClick}
+          />
         )}
       </div>
     </>
@@ -234,20 +301,19 @@ const ListOfAdminPage = () => {
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
-      currentPage={t("admin.management")}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
       {/* Admin Modal */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <AdminForm
+        <FormDetail
+          formData={modalData}
+          fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"} // Ensure mode is never null
-          adminId={
-            modalMode === "view" || modalMode === "edit"
-              ? modalData.adminId
-              : null
+          onChange={(name, value) =>
+            setModalData({ ...modalData, [name]: value })
           }
+          onSubmit={modalMode === "add" ? handleCreateAdmin : handleSave}
           onClose={handleCloseModal}
-          onSave={handleSave}
         />
       </Modal>
     </AdminDashboardLayout>

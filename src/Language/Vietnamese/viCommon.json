@@ -1,8 +1,20 @@
 {
-    "common": {
-      "confirm": "Xác nhận",
-      "cancel": "Hủy",
-      "register": "Đăng ký",
-      "isRequired": "là bắt buộc"
-    }
+  "common": {
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "register": "Đăng ký",
+    "isRequired": "là bắt buộc",
+    "createdAt": "Ngày Tạo",
+    "createdBy": "Người Tạo",
+    "loading": "Đang tải...",
+    "addButton": "Thêm",
+    "searchPlaceholder": "Tìm kiếm",
+    "active": "Hoạt Động",
+    "inactive": "Không Hoạt Động",
+    "noInactiveData": "Không tìm thấy dữ liệu không hoạt động.",
+    "status": "Trạng Thái",
+    "actions": "Hành động",
+    "save": "Lưu",
+    "close": "Đóng"
   }
+}
