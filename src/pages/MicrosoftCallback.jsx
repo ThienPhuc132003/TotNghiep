@@ -30,8 +30,8 @@ const MicrosoftCallbackPage = () => {
 
       const apiUrl =
         role === "admin"
-          ? "https://giasuvlu.click/api/admin/auth/callback"
-          : "https://giasuvlu.click/api/user/auth/callback";
+          ? "admin/auth/callback"
+          : "user/auth/callback";
 
       console.log("API URL:", apiUrl);
 
