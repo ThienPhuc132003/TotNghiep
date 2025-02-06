@@ -6,6 +6,13 @@
   background: linear-gradient(135deg, #ff7e5f, #feb47b);
 }
 
+.login-tittle {
+  margin-bottom: 8px;
+  color: white;
+}
+.login-sub-title {
+  margin-bottom: 1rem;
+}
 .admin-container {
   background: white;
   padding: 2rem;
@@ -37,21 +44,28 @@
 .admin-form-container label {
   font-weight: bold;
   align-self: flex-start;
+  color: white;
 }
 .admin-form-group {
   display: flex;
+  justify-content: space-between;
   flex-direction: row;
-  width: 220px;
-  padding: 10px 30px 10px 10px;
+  width: 350px;
+  padding: 10px;
   margin-bottom: 8px;
   border: 1px solid #ccc;
   border-radius: 16px;
   box-sizing: border-box;
-  gap: 10px;
 }
 .admin-form-group input {
+  width: 270px;
+  background: none;
   border: none;
   outline: none;
+  color: white;
+}
+.admin-form-group i {
+  color: white;
 }
 .toggle-password {
   background: none;
@@ -71,7 +85,9 @@
   gap: 10px;
   margin-bottom: 8px;
 }
-
+.remember-me label {
+  color: white;
+}
 .remember-me input {
   margin-right: 5px;
 }
@@ -84,7 +100,7 @@
 .admin-login-button {
   width: 100%;
   padding: 0.75rem;
-  background: #ff7e5f;
+  background: rgba(64, 104, 178, 1);
   border: none;
   border-radius: 16px;
   color: white;
@@ -92,10 +108,13 @@
   cursor: pointer;
   transition: background 0.3s;
   box-sizing: border-box;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5.5px);
+  -webkit-backdrop-filter: blur(5.5px);
 }
 
 .admin-login-button:hover {
-  background: #feb47b;
+  background: rgba(30, 76, 161, 1);
 }
 
 .admin-register-link {

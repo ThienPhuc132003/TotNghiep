@@ -5,9 +5,9 @@ import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setAdminProfile } from "../../redux/adminSlice"; // Import the setAdminProfile action
+import { setAdminProfile } from "../../redux/adminSlice"; 
 import "../../assets/css/Admin/AdminLogin.style.css";
-
+// import MicrosoftIcon from "../../assets/images/microsoft.png";
 const AdminLoginPage = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +17,7 @@ const AdminLoginPage = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Initialize dispatch
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const savedEmailOrPhoneNumber = localStorage.getItem("emailOrPhoneNumber");
@@ -97,13 +97,13 @@ const AdminLoginPage = () => {
   const handleMicrosoftLogin = async () => {
     try {
       const response = await Api({
-        endpoint: "user/auth/get-uri-microsoft", 
+        endpoint: "admin/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
       });
-  
+
       const authUrl = response.data.authUrl;
       if (authUrl) {
-        window.location.href = `${authUrl}&state=admin`; 
+        window.location.href = `${authUrl}&state=admin`;
       } else {
         setErrorMessage("Microsoft Auth URL not found.");
       }
@@ -112,26 +112,34 @@ const AdminLoginPage = () => {
       console.error("Error:", error);
     }
   };
-  
 
   return (
     <LoginLayout>
       <div className="admin-form">
-        <h1>Login</h1>
+        <h1 className="login-tittle">Quản lý GiaSuVLU</h1>
         <div className="social-login">
-          <button onClick={handleMicrosoftLogin} className="microsoft-login-button">
-            <i className="fab fa-microsoft"></i> Login with Microsoft
+          <button
+            onClick={handleMicrosoftLogin}
+            className="microsoft-login-button"
+          >
+            {/* <img src={MicrosoftIcon} className="microsoft-icon" />Đăng nhập bằng Microsoft */}
+            <i className="fab fa-microsoft fa-xl"></i>Login with Microsoft
           </button>
+        </div>
+        {/* devider */}
+        <div className="divider">
+          <span>hoặc</span>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="admin-form-container">
-            <label htmlFor="emailOrPhoneNumber">Email or Phone Number</label>
+            <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
             <div className="admin-form-group">
               <input
                 type="text"
                 id="emailOrPhoneNumber"
                 name="emailOrPhoneNumber"
                 value={emailOrPhoneNumber}
+                placeholder="nhập email hoặc số điện thoại"
                 onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
               />
@@ -144,13 +152,14 @@ const AdminLoginPage = () => {
             </div>
           </div>
           <div className="admin-form-container">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mật khẩu</label>
             <div className="admin-form-group">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
                 value={password}
+                placeholder="nhập mật khẩu"
                 onChange={(e) => setPassword(e.target.value)}
                 className={fieldErrors.password ? "error-border" : ""}
               />

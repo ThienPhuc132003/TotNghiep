@@ -3,15 +3,22 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, rgba(30, 76, 161, 1), rgba(215, 33, 52, 1));
+  background: linear-gradient(
+    135deg,
+    rgba(30, 76, 161, 1),
+    rgba(215, 33, 52, 1)
+  );
 }
 
 .login-container {
-  background: rgba(255, 255, 255, 1);
   padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5.5px);
+  -webkit-backdrop-filter: blur(5.5px);
 }
 
 .logo {
@@ -80,6 +87,8 @@
 }
 
 .social-login {
+  display: flex;
+  justify-content: center;
   margin-bottom: 1rem;
 }
 
@@ -87,9 +96,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 250px;
   padding: 0.75rem;
-  background: #2F2F2F;
+  background: #2f2f2f;
   border: none;
   border-radius: 5px;
   color: rgba(255, 255, 255, 1);
@@ -97,12 +106,40 @@
   cursor: pointer;
   transition: background 0.3s;
   box-sizing: border-box;
+  gap: 10px;
 }
 
+.microsoft-icon {
+  width: 20px;
+  height: 20px;
+}
 .microsoft-login-button:hover {
-  background: #1A1A1A;
+  background: #1a1a1a;
 }
 
 .microsoft-login-button i {
   margin-right: 0.5rem;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1rem 0;
+}
+.divider span{
+  color: white;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+  margin-right: 0.25em;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 0.25em;
 }

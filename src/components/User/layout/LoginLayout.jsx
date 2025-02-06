@@ -8,7 +8,7 @@ const LoginLayoutComponent = (props) => {
   return (
     <div className="login-layout">
       <div className="login-container">
-        <img src={logo} alt="logo" className="logo" />
+        {/* <img src={logo} alt="logo" className="logo" /> */}
         {children}
       </div>
     </div>
