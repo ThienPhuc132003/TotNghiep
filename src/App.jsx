@@ -43,7 +43,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/otp-verify" element={<OtpVerify />} />
-          <Route path="user/auth/callback" element={<MicrosoftCallback />} />
 
           <Route path="/api/meeting/callback" element={<ZoomCallback />} />
 
@@ -54,9 +53,13 @@ function App() {
           <Route path="payment/success" element={<PaymentSuccess />} />
           <Route path="payment/failed" element={<PaymentFailed />} />
 
-          {/* Add this route */}
           <Route path="user/profile" element={<Profile />} />
           <Route path="register-tutor" element={<RegisterTutor />} />
+
+          {/* call back */}
+          <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
+          <Route path="/admin/auth/callback" element={<MicrosoftCallback />} />
+
           <Route element={<OtpProtectedRoute />}>
             <Route path="/change-password" element={<ChangePassword />} />
           </Route>
