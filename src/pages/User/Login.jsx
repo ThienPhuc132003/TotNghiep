@@ -129,9 +129,9 @@ const LoginPage = () => {
           <span>hoặc</span>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="form-container">
+          <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email or Phone Number</label>
-            <div className="form-group">
+            <div className="login-form-group">
               <input
                 type="text"
                 id="emailOrPhoneNumber"
@@ -148,9 +148,9 @@ const LoginPage = () => {
               )}
             </div>
           </div>
-          <div className="form-container">
+          <div className="login-form-container">
             <label htmlFor="password">Password</label>
-            <div className="form-group">
+            <div className="login-form-group">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"

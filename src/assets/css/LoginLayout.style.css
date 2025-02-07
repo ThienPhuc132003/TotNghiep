@@ -96,7 +96,7 @@
   width: 100%;
 }
 
-.form-group {
+.login-form-group {
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -107,14 +107,39 @@
   border-radius: 16px;
   box-sizing: border-box;
 }
-.form-group i {
+.login-form-group i {
   color: white;
 }
-.form-group input {
+
+.login-form-group input {
   width: 270px;
+  background-color: transparent !important; 
   background: none;
   border: none;
   outline: none;
+  color: white;
+}
+.login-form-group input:-webkit-autofill,
+.login-form-group input:-webkit-autofill:hover,
+.login-form-group input:-webkit-autofill:focus,
+.login-form-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important; /* Forces transparency */
+  box-shadow: 0 0 0px 1000px transparent inset !important; /* Forces transparency */
+  background-color: transparent !important;
+  -webkit-text-fill-color: white !important; /* Ensures text remains white */
+  color: white !important;
+  caret-color: white !important; /* Cursor color */
+  transition: background-color 5000s ease-in-out 0s; /* Forces autofill transparency */
+}
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.login-form-container label {
+  font-weight: bold;
+  align-self: flex-start;
   color: white;
 }
 
@@ -229,7 +254,6 @@
   align-self: flex-start;
   color: white;
 }
-
 
 .admin-form-group i {
   color: white;

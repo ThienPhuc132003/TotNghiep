@@ -131,9 +131,9 @@ const AdminLoginPage = () => {
           <span>hoặc</span>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="admin-form-container">
+          <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
-            <div className="admin-form-group">
+            <div className="login-form-group">
               <input
                 type="text"
                 id="emailOrPhoneNumber"
@@ -151,9 +151,9 @@ const AdminLoginPage = () => {
               )}
             </div>
           </div>
-          <div className="admin-form-container">
+          <div className="login-form-container">
             <label htmlFor="password">Mật khẩu</label>
-            <div className="admin-form-group">
+            <div className="login-form-group">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
