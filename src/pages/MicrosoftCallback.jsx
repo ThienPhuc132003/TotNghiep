@@ -11,6 +11,7 @@ const MicrosoftCallbackPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleMicrosoftCallback = useCallback(async () => {
     try {
@@ -31,8 +32,8 @@ const MicrosoftCallbackPage = () => {
         return navigate("/login");
       }
 
-      const role = isAdmin ? "admin" : "user";
-      const apiUrl = isAdmin ? "admin/auth/callback" : "user/auth/callback";
+      const role = isAdmin ? "user" : "admin";
+      const apiUrl = isAdmin ? "user/auth/callback" : "admin/auth/callback";
 
       const response = await Api({
         endpoint: apiUrl,
@@ -49,7 +50,9 @@ const MicrosoftCallbackPage = () => {
       Cookies.set("token", token);
       Cookies.set("role", role);
 
-      const profileEndpoint = isAdmin ? "admin/get-profile" : "user/get-profile";
+      const profileEndpoint = isAdmin
+        ? "admin/get-profile"
+        : "user/get-profile";
       const profileResponse = await Api({
         endpoint: profileEndpoint,
         method: METHOD_TYPE.GET,
@@ -60,7 +63,11 @@ const MicrosoftCallbackPage = () => {
           ? dispatch(setAdminProfile(profileResponse.data))
           : dispatch(setUserProfile(profileResponse.data));
 
-        navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
+        setSuccessMessage(
+          "Authentication successful. Token received and profile fetched."
+        );
+        // Comment out the navigate calls to stay on the current page
+        // navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
       } else {
         setErrorMessage("Error fetching profile data.");
       }
@@ -78,6 +85,7 @@ const MicrosoftCallbackPage = () => {
     <div>
       <h2>Đang xử lý đăng nhập...</h2>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
     </div>
   );
 };
