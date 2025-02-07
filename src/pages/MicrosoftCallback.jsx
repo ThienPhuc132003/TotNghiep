@@ -19,6 +19,10 @@ const MicrosoftCallbackPage = () => {
       const params = new URLSearchParams(url.search);
       const code = params.get("code");
 
+      console.log("URL:", url);
+      console.log("Params:", params);
+      console.log("Code:", code);
+
       if (!code) {
         setErrorMessage("Authentication failed: Missing code.");
         return navigate("/login");
@@ -27,19 +31,26 @@ const MicrosoftCallbackPage = () => {
       const isUser = url.pathname.includes("/user/auth/callback");
       const isAdmin = url.pathname.includes("/admin/auth/callback");
 
+      console.log("isUser:", isUser);
+      console.log("isAdmin:", isAdmin);
+
       if (!isUser && !isAdmin) {
         setErrorMessage("Authentication failed: Invalid callback URL.");
         return navigate("/login");
       }
 
-      const role = isAdmin ? "user" : "admin";
-      const apiUrl = isAdmin ? "user/auth/callback" : "admin/auth/callback";
+      const role = isAdmin ? "admin" : "user";
+      const apiUrl = isAdmin ? "admin/auth/callback" : "user/auth/callback";
+
+      console.log("API URL:", apiUrl);
 
       const response = await Api({
         endpoint: apiUrl,
         method: METHOD_TYPE.POST,
         data: { code },
       });
+
+      console.log("Response:", response);
 
       const { token } = response.data;
       if (!token) {
@@ -50,22 +61,20 @@ const MicrosoftCallbackPage = () => {
       Cookies.set("token", token);
       Cookies.set("role", role);
 
-      const profileEndpoint = isAdmin
-        ? "admin/get-profile"
-        : "user/get-profile";
+      const profileEndpoint = isAdmin ? "admin/get-profile" : "user/get-profile";
       const profileResponse = await Api({
         endpoint: profileEndpoint,
         method: METHOD_TYPE.GET,
       });
+
+      console.log("Profile Response:", profileResponse);
 
       if (profileResponse.success) {
         isAdmin
           ? dispatch(setAdminProfile(profileResponse.data))
           : dispatch(setUserProfile(profileResponse.data));
 
-        setSuccessMessage(
-          "Authentication successful. Token received and profile fetched."
-        );
+        setSuccessMessage("Authentication successful. Token received and profile fetched.");
         // Comment out the navigate calls to stay on the current page
         // navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
       } else {
