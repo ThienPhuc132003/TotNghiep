@@ -17,42 +17,50 @@ const MicrosoftCallbackPage = () => {
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
       const code = params.get("code");
-      const role = params.get("state"); 
-  
-      if (!code || !role) {
-        setErrorMessage("Authentication failed: Missing code or role.");
+
+      if (!code) {
+        setErrorMessage("Authentication failed: Missing code.");
         return navigate("/login");
       }
-  
-      const apiUrl = role === "admin" ? "admin/auth/callback" : "user/auth/callback";
-  
+
+      const isUser = url.pathname.includes("/user/auth/callback");
+      const isAdmin = url.pathname.includes("/admin/auth/callback");
+
+      if (!isUser && !isAdmin) {
+        setErrorMessage("Authentication failed: Invalid callback URL.");
+        return navigate("/login");
+      }
+
+      const role = isAdmin ? "admin" : "user";
+      const apiUrl = isAdmin ? "admin/auth/callback" : "user/auth/callback";
+
       const response = await Api({
         endpoint: apiUrl,
         method: METHOD_TYPE.POST,
         data: { code },
       });
-  
+
       const { token } = response.data;
       if (!token) {
         setErrorMessage("Authentication failed: No token received.");
         return;
       }
-  
+
       Cookies.set("token", token);
       Cookies.set("role", role);
-  
-      const profileEndpoint = role === "admin" ? "admin/get-profile" : "user/get-profile";
+
+      const profileEndpoint = isAdmin ? "admin/get-profile" : "user/get-profile";
       const profileResponse = await Api({
         endpoint: profileEndpoint,
         method: METHOD_TYPE.GET,
       });
-  
+
       if (profileResponse.success) {
-        role === "admin"
+        isAdmin
           ? dispatch(setAdminProfile(profileResponse.data))
           : dispatch(setUserProfile(profileResponse.data));
-  
-        navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
+
+        navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
       } else {
         setErrorMessage("Error fetching profile data.");
       }
