@@ -116,7 +116,7 @@ const AdminLoginPage = () => {
   return (
     <LoginLayout>
       <div className="admin-form">
-        <h1 className="login-tittle">Quản lý GiaSuVLU</h1>
+        <h1 className="login-title">Quản lý GiaSuVLU</h1>
         <div className="social-login">
           <button
             onClick={handleMicrosoftLogin}

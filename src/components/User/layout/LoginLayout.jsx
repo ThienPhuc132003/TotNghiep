@@ -7,6 +7,9 @@ const LoginLayoutComponent = (props) => {
   const { children = null } = props;
   return (
     <div className="login-layout">
+      <div className="gradient-layer"></div>
+      <div className="pattern-layer"></div>
+      <div className="glow-layer"></div>
       <div className="login-container">
         {/* <img src={logo} alt="logo" className="logo" /> */}
         {children}
