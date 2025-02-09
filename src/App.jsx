@@ -57,8 +57,9 @@ function App() {
           <Route path="register-tutor" element={<RegisterTutor />} />
 
           {/* call back */}
-          <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
           <Route path="/admin/auth/callback" element={<MicrosoftCallback />} />
+          <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
+ 
 
           <Route element={<OtpProtectedRoute />}>
             <Route path="/change-password" element={<ChangePassword />} />

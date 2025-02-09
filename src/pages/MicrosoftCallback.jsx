@@ -76,7 +76,7 @@ const MicrosoftCallbackPage = () => {
 
         setSuccessMessage("Authentication successful. Token received and profile fetched.");
         // Comment out the navigate calls to stay on the current page
-        // navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
+        navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
       } else {
         setErrorMessage("Error fetching profile data.");
       }

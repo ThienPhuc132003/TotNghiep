@@ -1,12 +1,15 @@
+/* src/assets/css/Admin/ListOfAdmin.style.css */
 .admin-content {
   padding: 2rem;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .admin-list-title {
   padding-bottom: 10px;
 }
+
 .admin-search-filter {
   display: flex;
   justify-content: space-between;
@@ -20,6 +23,7 @@
   border-radius: 20px;
   box-sizing: border-box;
 }
+
 .admin-search-button {
   display: flex;
   justify-content: center;
@@ -31,22 +35,27 @@
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .admin-search i {
   color: white;
 }
+
 .admin-search-input {
   width: 100%;
   padding: 0.5rem;
-  border-radius: 16px;
   border: none;
+  border-radius: 16px;
 }
+
 .admin-search-input:focus {
   outline: none;
 }
+
 .filter-add-admin {
   display: flex;
   gap: 1rem;
 }
+
 .filter-add-admin .filter-button {
   padding: 0.75rem 1.5rem;
   background: #007bff;
@@ -56,9 +65,11 @@
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .filter-button:hover {
   background: #0056b3;
 }
+
 .add-admin-button {
   padding: 0.75rem 1.5rem;
   background: #007bff;
@@ -107,4 +118,13 @@
   color: red;
   font-size: 1rem;
   margin-bottom: 1rem;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  color: #007bff;
 }

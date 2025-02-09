@@ -34,7 +34,10 @@
   color: white;
   pointer-events: none;
 }
-.pagination li.disabled {
-  color: rgba(39, 46, 79, 0.568);
+
+.pagination li.disabled a {
+  background-color: #ccc;
+  color: #999;
+  cursor: not-allowed;
   pointer-events: none;
 }

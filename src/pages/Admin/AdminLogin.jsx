@@ -5,7 +5,7 @@ import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setAdminProfile } from "../../redux/adminSlice"; 
+import { setAdminProfile } from "../../redux/adminSlice";
 import "../../assets/css/Admin/AdminLogin.style.css";
 // import MicrosoftIcon from "../../assets/images/microsoft.png";
 const AdminLoginPage = () => {
@@ -123,7 +123,7 @@ const AdminLoginPage = () => {
             className="microsoft-login-button"
           >
             {/* <img src={MicrosoftIcon} className="microsoft-icon" />Đăng nhập bằng Microsoft */}
-            <i className="fab fa-microsoft fa-xl"></i>Login with Microsoft
+            <i className="fab fa-microsoft fa-xl"></i>Đăng nhập với Microsoft
           </button>
         </div>
         {/* devider */}
@@ -188,7 +188,7 @@ const AdminLoginPage = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="checkbox-remember-me"
               />
-              Remember Me
+              Nhớ mật khẩu
             </label>
           </div>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -197,7 +197,7 @@ const AdminLoginPage = () => {
             className="admin-login-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? "Đăng nhập thành công" : "Đăngn nhập"}
           </button>
         </form>
       </div>

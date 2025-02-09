@@ -1,10 +1,12 @@
-/* File: components/StyledTable.css */
-
 /* src/assets/css/Table.style.css */
 .table-container {
   display: flex;
+  flex-direction: column;
   width: 100%;
+  overflow-x: auto;
+  padding-bottom: 20px; /* Add padding to the bottom to ensure pagination is visible */
 }
+
 .custom-table {
   width: 100%;
   border-collapse: separate;
@@ -12,6 +14,7 @@
   border: 1px solid #ddd;
   border-radius: 30px 30px 0 0;
   overflow: hidden;
+  table-layout: fixed; /* Add this line to fix the table layout */
 }
 
 .custom-table thead {
@@ -26,6 +29,7 @@
 .custom-table thead th {
   padding: 10px;
   cursor: pointer;
+  width: 150px; /* Set a fixed width for each column */
 }
 
 .custom-table tbody tr:hover {
@@ -35,6 +39,7 @@
 .custom-table tbody td {
   padding: 10px;
   text-align: center;
+  width: 150px; /* Set a fixed width for each column */
 }
 
 .sort-indicator {
@@ -55,67 +60,19 @@
   background-color: #f9fafb;
   text-align: center;
 }
-.row-even td {
-  text-align: center;
-  vertical-align: middle;
-  font-size: 12px;
-}
+
 .row-odd {
   background-color: rgba(242, 242, 240, 1);
   text-align: center;
 }
-.row-odd td{
+
+.loading, .error, .no-data {
   text-align: center;
-  vertical-align: middle;
-  font-size: 12px;
-}
-/* Table cell styling */
-.custom-table td {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  vertical-align: middle;
+  padding: 1rem;
+  font-size: 1.25rem;
+  color: #007bff;
 }
 
-/* Status labels */
-.status {
-  display: inline-flex;
-  justify-content: center;
-  padding: 5px;
-  width: 100px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status.deleted {
-  color: #b91c1c;
-  background-color: #fee2e2;
-  border: 1px solid rgba(252, 82, 82, 1);
-}
-
-.status.active {
-  color: #374151;
-  background-color: #e5e7eb;
-  border: 1px solid rgba(39, 46, 79, 1);
-}
-.status.good {
-  color: #374151;
-  background-color: #e5e7eb;
-  border: 1px solid rgba(39, 46, 79, 1);
-}
-
-.status.bad {
-  color: rgba(252, 82, 82, 1);
-  background-color: rgba(252, 82, 82, 0.2);
-  border: 1px solid rgba(252, 82, 82, 1);
-}
-
-.status.unknow {
-  color: rgba(255, 94, 58, 1);
-  background-color: rgba(255, 94, 58, 0.2);
-  border: 1px solid rgba(255, 94, 58, 1);
-}
-/* Action buttons */
 .action-buttons {
   gap: 0.5rem;
 }
@@ -151,33 +108,4 @@
 
 .action-button.delete:hover {
   color: #ff4500;
-}
-/* Arrow button styling */
-.arrow-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  margin-left: 5px;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.arrow-button:hover {
-  transform: scale(1.2);
-  color: #ff4500; /* Change color on hover */
-}
-
-.arrow-button.asc::after {
-  content: '▲';
-  color: #007bff; /* Blue color for ascending arrow */
-}
-
-.arrow-button.desc::after {
-  content: '▼';
-  color: #007bff; /* Blue color for descending arrow */
-}
-
-.arrow-button.default::after {
-  content: '↕';
-  color: #007bff; /* Blue color for default arrow */
 }
