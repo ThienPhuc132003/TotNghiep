@@ -10,6 +10,7 @@
       "confirmDelete": "Bạn có chắc chắn muốn xóa admin này không?",
       "status": "Trạng Thái",
       "active": "Hoạt Động",
-      "inactive": "Không Hoạt Động"
+      "inactive": "Không Hoạt Động",
+      "role": "Vai Trò"
     }
   }

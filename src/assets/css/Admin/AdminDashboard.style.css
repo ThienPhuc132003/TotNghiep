@@ -1,3 +1,4 @@
+/* src/assets/css/Admin/AdminDashboard.style.css */
 .admin-dashboard-content {
   display: flex;
   flex-wrap: wrap;
@@ -32,4 +33,18 @@
   .admin-dashboard-content {
     flex-direction: column;
   }
+}
+
+/* Add dark mode styles */
+body.dark-mode .admin-card {
+  background: #333;
+  color: #fff;
+}
+
+body.dark-mode .admin-card h3 {
+  color: #fff;
+}
+
+body.dark-mode .admin-card p {
+  color: #ccc;
 }

@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal";
 import { formatInTimeZone } from "date-fns-tz";
 import i18n from "../../i18n";
+import Spinner from "../../components/Spinner"; 
 
 const ListOfAdminPage = () => {
   const { t } = useTranslation();
@@ -24,47 +25,47 @@ const ListOfAdminPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const itemsPerPage = 5;
   const currentPath = "/quan-ly-admin";
 
-  const fetchData = useCallback(
-    async () => {
-      setIsLoading(true);
-      try {
-        const query = {
-          rpp: itemsPerPage,
-          page: currentPage + 1,
-        };
-  
-        if (searchQuery) {
-          // Add additional filters
-          query.filte = JSON.stringify([
-            {
-              key: "adminId",
-              operator: "like", 
-              value: searchQuery,
-            },
-          ]);
-        }
-  
-        const response = await Api({
-          endpoint: "admin/search",
-          method: METHOD_TYPE.GET,
-          query,
-        });
-  
-        if (response.success === true) {
-          setData(response.data.items);
-          setTotalItems(response.data.total);
-        }
-      } catch (error) {
-        console.log("An error occurred while fetching data");
-      } finally {
-        setIsLoading(false);
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const query = {
+        rpp: itemsPerPage,
+        page: currentPage + 1,
+      };
+
+      if (searchQuery) {
+        query.filter = JSON.stringify([
+          {
+            key: "adminId",
+            operator: "like",
+            value: searchQuery,
+          },
+        ]);
       }
-    },
-    [currentPage, itemsPerPage, searchQuery]
-  );
+
+      const response = await Api({
+        endpoint: "admin/search",
+        method: METHOD_TYPE.GET,
+        query,
+      });
+
+      if (response.success === true) {
+        setData(response.data.items);
+        setTotalItems(response.data.total);
+      } else {
+        setError(t("common.errorLoadingData"));
+      }
+    } catch (error) {
+      setError(t("common.errorLoadingData"));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, itemsPerPage, searchQuery, t]);
 
   useEffect(() => {
     fetchData();
@@ -76,7 +77,7 @@ const ListOfAdminPage = () => {
 
   const handleSearch = () => {
     setSearchQuery(searchInput);
-    fetchData();
+    setCurrentPage(0); // Reset to first page on search
   };
 
   const handleKeyPress = (e) => {
@@ -282,7 +283,11 @@ const ListOfAdminPage = () => {
           </div>
         </div>
         {isLoading ? (
-          <p>{t("common.loading")}</p>
+          <div className="loading-container">
+            <Spinner /> {t("common.loading")}
+          </div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
         ) : (
           <Table
             columns={columns}
@@ -292,6 +297,7 @@ const ListOfAdminPage = () => {
             onDelete={(admin) => handleDelete(admin.adminId)}
             pageCount={pageCount}
             onPageChange={handlePageClick}
+            forcePage={currentPage}
           />
         )}
       </div>

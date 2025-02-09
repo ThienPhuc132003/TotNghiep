@@ -1,15 +1,16 @@
 {
-    "admin": {
-      "management": "Admin Management",
-      "listTitle": "List of Admins",
-      "id": "ID",
-      "name": "Name",
-      "phone": "Phone",
-      "email": "Email",
-      "idCard": "ID Card",
-      "confirmDelete": "Are you sure you want to delete this admin?",
-      "status": "Status",
-      "active": "Active",
-      "inactive": "Inactive"
-    }
+  "admin": {
+    "management": "Admin Management",
+    "listTitle": "List of Admins",
+    "id": "ID",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "idCard": "ID Card",
+    "confirmDelete": "Are you sure you want to delete this admin?",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "role": "Role"
   }
+}

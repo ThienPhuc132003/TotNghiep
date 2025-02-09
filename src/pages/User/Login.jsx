@@ -130,13 +130,14 @@ const LoginPage = () => {
         </div>
         <form onSubmit={handleSubmit}>
           <div className="login-form-container">
-            <label htmlFor="emailOrPhoneNumber">Email or Phone Number</label>
+            <label htmlFor="emailOrPhoneNumber">Email hoặc số điện thoại</label>
             <div className="login-form-group">
               <input
                 type="text"
                 id="emailOrPhoneNumber"
                 name="emailOrPhoneNumber"
                 value={emailOrPhoneNumber}
+                 placeholder="nhập email hoặc số điện thoại"
                 onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
               />
@@ -156,6 +157,7 @@ const LoginPage = () => {
                 id="password"
                 name="password"
                 value={password}
+                 placeholder="nhập mật khẩu"
                 onChange={(e) => setPassword(e.target.value)}
                 className={fieldErrors.password ? "error-border" : ""}
               />

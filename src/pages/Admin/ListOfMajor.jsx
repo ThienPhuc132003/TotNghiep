@@ -10,6 +10,7 @@ import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal";
+import Spinner from "../../components/Spinner"; // Assuming you have a Spinner component
 
 const ListOfMajorPage = () => {
   const { t } = useTranslation();
@@ -22,46 +23,47 @@ const ListOfMajorPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const itemsPerPage = 5;
   const currentPath = "/quan-ly-nganh";
 
-  const fetchData = useCallback(
-    async (filter = []) => {
-      setIsLoading(true);
-      try {
-        const query = {
-          rpp: itemsPerPage,
-          page: currentPage + 1,
-        };
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const query = {
+        rpp: itemsPerPage,
+        page: currentPage + 1,
+      };
 
-        if (searchQuery) {
-          filter.push({
+      if (searchQuery) {
+        query.filter = JSON.stringify([
+          {
             key: "majorId",
             operator: "like",
             value: searchQuery,
-          });
-        }
-
-        const response = await Api({
-          endpoint: "major",
-          method: METHOD_TYPE.GET,
-          query,
-        });
-
-        if (response.success === true) {
-          setData(response.data.items);
-          setTotalItems(response.data.total);
-        } else {
-          console.log("Failed to fetch data");
-        }
-      } catch (error) {
-        console.log("An error occurred while fetching data");
-      } finally {
-        setIsLoading(false);
+          },
+        ]);
       }
-    },
-    [currentPage, itemsPerPage, searchQuery]
-  );
+
+      const response = await Api({
+        endpoint: "major",
+        method: METHOD_TYPE.GET,
+        query,
+      });
+
+      if (response.success === true) {
+        setData(response.data.items);
+        setTotalItems(response.data.total);
+      } else {
+        setError(t("common.errorLoadingData"));
+      }
+    } catch (error) {
+      setError(t("common.errorLoadingData"));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, itemsPerPage, searchQuery, t]);
 
   useEffect(() => {
     fetchData();
@@ -71,22 +73,14 @@ const ListOfMajorPage = () => {
     setCurrentPage(event.selected);
   };
 
-  const handleDelete = async (majorId) => {
-    if (window.confirm(t("major.confirmDelete"))) {
-      try {
-        const response = await Api({
-          endpoint: `major/${majorId}`,
-          method: METHOD_TYPE.DELETE,
-        });
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    setCurrentPage(0); // Reset to first page on search
+  };
 
-        if (response.success) {
-          fetchData(); // Refresh the data after deletion
-        } else {
-          console.log("Failed to delete major");
-        }
-      } catch (error) {
-        console.log("An error occurred while deleting major");
-      }
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
     }
   };
 
@@ -138,19 +132,28 @@ const ListOfMajorPage = () => {
     }
   };
 
+  const handleDelete = async (majorId) => {
+    if (window.confirm(t("major.confirmDelete"))) {
+      try {
+        const response = await Api({
+          endpoint: `major/${majorId}`,
+          method: METHOD_TYPE.DELETE,
+        });
+
+        if (response.success) {
+          fetchData(); // Refresh the data after deletion
+        } else {
+          console.log("Failed to delete major");
+        }
+      } catch (error) {
+        console.log("An error occurred while deleting major");
+      }
+    }
+  };
+
   const handleApplyFilter = (filterValues) => {
     // Apply filter logic here
     console.log("Filter applied with values:", filterValues);
-  };
-
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   const pageCount = Math.ceil(totalItems / itemsPerPage);
@@ -197,15 +200,21 @@ const ListOfMajorPage = () => {
           </div>
         </div>
         {isLoading ? (
-          <p>{t("common.loading")}</p>
+          <div className="loading-container">
+            <Spinner /> {t("common.loading")}
+          </div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
         ) : (
           <Table
             columns={columns}
             data={combinedMajors}
+            onView={handleEdit}
             onEdit={handleEdit}
             onDelete={(major) => handleDelete(major.majorId)}
             pageCount={pageCount}
             onPageChange={handlePageClick}
+            forcePage={currentPage}
           />
         )}
       </div>
@@ -215,7 +224,6 @@ const ListOfMajorPage = () => {
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
-      currentPage={t("major.management")}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
       {/* Major Modal */}
