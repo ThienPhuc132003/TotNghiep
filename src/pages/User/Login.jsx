@@ -32,10 +32,11 @@ const LoginPage = () => {
   const validateFields = () => {
     const errors = {};
     if (!emailOrPhoneNumber) {
-      errors.emailOrPhoneNumber = "Email or Phone Number is required";
+      errors.emailOrPhoneNumber =
+        "Email hoặc số điện thoại không được để trống.";
     }
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Mật khẩu không được để trống.";
     }
     return errors;
   };
@@ -82,13 +83,13 @@ const LoginPage = () => {
             navigate("/dashboard");
           }
         } catch (error) {
-          setErrorMessage("Login failed: Invalid credentials");
+          setErrorMessage("Đăng nhập thất bại: Thông tin không hợp lệ.");
         }
       } else {
-        setErrorMessage("Login failed: Invalid credentials");
+        setErrorMessage("Đăng nhập thất bại: Thông tin không hợp lệ.");
       }
     } catch (error) {
-      setErrorMessage("Login failed: Invalid credentials");
+      setErrorMessage("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.");
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +138,7 @@ const LoginPage = () => {
                 id="emailOrPhoneNumber"
                 name="emailOrPhoneNumber"
                 value={emailOrPhoneNumber}
-                 placeholder="nhập email hoặc số điện thoại"
+                placeholder="nhập email hoặc số điện thoại"
                 onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
               />
@@ -157,7 +158,7 @@ const LoginPage = () => {
                 id="password"
                 name="password"
                 value={password}
-                 placeholder="nhập mật khẩu"
+                placeholder="nhập mật khẩu"
                 onChange={(e) => setPassword(e.target.value)}
                 className={fieldErrors.password ? "error-border" : ""}
               />

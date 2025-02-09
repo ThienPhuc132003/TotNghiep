@@ -19,6 +19,10 @@ const MicrosoftCallbackPage = () => {
         const params = new URLSearchParams(url.search);
         const code = params.get("code");
 
+        console.log("URL:", url);
+        console.log("Params:", params);
+        console.log("Code:", code);
+
         if (!code) {
             setErrorMessage("Authentication failed: Missing code.");
             return navigate("/login");
@@ -28,11 +32,17 @@ const MicrosoftCallbackPage = () => {
         const role = path.includes("/admin/auth/callback") ? "admin" : "user";
         const apiUrl = `${role}/auth/callback`;
 
+        console.log("Path:", path);
+        console.log("Role:", role);
+        console.log("API URL:", apiUrl);
+
         const response = await Api({
             endpoint: apiUrl,
             method: METHOD_TYPE.POST,
             data: { code },
         });
+
+        console.log("Response:", response);
 
         if (!response || !response.data?.token) {
             setErrorMessage("Authentication failed: No token received.");
@@ -46,6 +56,8 @@ const MicrosoftCallbackPage = () => {
             endpoint: `${role}/get-profile`,
             method: METHOD_TYPE.GET,
         });
+
+        console.log("Profile Response:", profileResponse);
 
         if (profileResponse.success) {
             role === "admin"
@@ -63,12 +75,11 @@ const MicrosoftCallbackPage = () => {
     }
 }, [navigate, dispatch]);
 
-
-  useEffect(() => {
+useEffect(() => {
     handleMicrosoftCallback();
-  }, [handleMicrosoftCallback]);
+}, [handleMicrosoftCallback]);
 
-  return (
+return (
     <div>
       <h2>Đang xử lý đăng nhập...</h2>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
