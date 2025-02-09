@@ -15,76 +15,54 @@ const MicrosoftCallbackPage = () => {
 
   const handleMicrosoftCallback = useCallback(async () => {
     try {
-      const url = new URL(window.location.href);
-      const params = new URLSearchParams(url.search);
-      const code = params.get("code");
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        const code = params.get("code");
 
-      console.log("URL:", url);
-      console.log("Params:", params);
-      console.log("Code:", code);
+        if (!code) {
+            setErrorMessage("Authentication failed: Missing code.");
+            return navigate("/login");
+        }
 
-      if (!code) {
-        setErrorMessage("Authentication failed: Missing code.");
-        return navigate("/login");
-      }
+        const path = url.pathname;
+        const role = path.includes("/admin/auth/callback") ? "admin" : "user";
+        const apiUrl = `${role}/auth/callback`;
 
-      const isUser = url.pathname.includes("/user/auth/callback");
-      const isAdmin = url.pathname.includes("/admin/auth/callback");
+        const response = await Api({
+            endpoint: apiUrl,
+            method: METHOD_TYPE.POST,
+            data: { code },
+        });
 
-      console.log("isUser:", isUser);
-      console.log("isAdmin:", isAdmin);
+        if (!response || !response.data?.token) {
+            setErrorMessage("Authentication failed: No token received.");
+            return;
+        }
 
-      if (!isUser && !isAdmin) {
-        setErrorMessage("Authentication failed: Invalid callback URL.");
-        return navigate("/login");
-      }
+        Cookies.set("token", response.data.token);
+        Cookies.set("role", role);
 
-      const role = isAdmin ? "admin" : "user";
-      const apiUrl = isAdmin ? "admin/auth/callback" : "user/auth/callback";
+        const profileResponse = await Api({
+            endpoint: `${role}/get-profile`,
+            method: METHOD_TYPE.GET,
+        });
 
-      console.log("API URL:", apiUrl);
+        if (profileResponse.success) {
+            role === "admin"
+                ? dispatch(setAdminProfile(profileResponse.data))
+                : dispatch(setUserProfile(profileResponse.data));
 
-      const response = await Api({
-        endpoint: apiUrl,
-        method: METHOD_TYPE.POST,
-        data: { code },
-      });
-
-      console.log("Response:", response);
-
-      const { token } = response.data;
-      if (!token) {
-        setErrorMessage("Authentication failed: No token received.");
-        return;
-      }
-
-      Cookies.set("token", token);
-      Cookies.set("role", role);
-
-      const profileEndpoint = isAdmin ? "admin/get-profile" : "user/get-profile";
-      const profileResponse = await Api({
-        endpoint: profileEndpoint,
-        method: METHOD_TYPE.GET,
-      });
-
-      console.log("Profile Response:", profileResponse);
-
-      if (profileResponse.success) {
-        isAdmin
-          ? dispatch(setAdminProfile(profileResponse.data))
-          : dispatch(setUserProfile(profileResponse.data));
-
-        setSuccessMessage("Authentication successful. Token received and profile fetched.");
-        // Comment out the navigate calls to stay on the current page
-        navigate(isAdmin ? "/admin/dashboard" : "/dashboard");
-      } else {
-        setErrorMessage("Error fetching profile data.");
-      }
+            setSuccessMessage("Authentication successful.");
+            navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
+        } else {
+            setErrorMessage("Error fetching profile data.");
+        }
     } catch (error) {
-      setErrorMessage("Authentication failed.");
-      console.error("Microsoft Auth Error:", error);
+        setErrorMessage("Authentication failed.");
+        console.error("Microsoft Auth Error:", error);
     }
-  }, [navigate, dispatch]);
+}, [navigate, dispatch]);
+
 
   useEffect(() => {
     handleMicrosoftCallback();
