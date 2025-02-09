@@ -197,7 +197,7 @@ const AdminLoginPage = () => {
             className="admin-login-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đăng nhập thành công" : "Đăngn nhập"}
+            {isSubmitting ? "Đăng nhập thành công" : "Đăng nhập"}
           </button>
         </form>
       </div>
