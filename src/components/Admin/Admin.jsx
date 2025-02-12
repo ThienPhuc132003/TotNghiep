@@ -37,7 +37,7 @@ const UserComponent = () => {
         />
         <div className="admin-details" onClick={toggleDropdown}>
           <span className="admin-name">{adminInfo.fullname}</span>
-          <span className="admin-role">Hoc vien</span>
+          <span className="admin-role">Admin</span>
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-// src/pages/Admin/ListOfAdmin.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
@@ -12,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal";
 import { formatInTimeZone } from "date-fns-tz";
 import i18n from "../../i18n";
-import Spinner from "../../components/Spinner"; 
+import Spinner from "../../components/Spinner";
 
 const ListOfAdminPage = () => {
   const { t } = useTranslation();
@@ -26,7 +25,7 @@ const ListOfAdminPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const itemsPerPage = 5;
+  const itemsPerPage = 7;
   const currentPath = "/quan-ly-admin";
 
   const fetchData = useCallback(async () => {
@@ -214,9 +213,10 @@ const ListOfAdminPage = () => {
     readOnly: ![
       "fullname",
       "birthday",
-      "workEmail",
+      "phoneNumber",
       "homeAddress",
       "gender",
+      "roleId",
     ].includes(field.key),
   }));
 
@@ -310,7 +310,11 @@ const ListOfAdminPage = () => {
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
       {/* Admin Modal */}
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={modalMode === "add" ? "Add Admin" : "Edit Admin"}
+      >
         <FormDetail
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
@@ -319,7 +323,6 @@ const ListOfAdminPage = () => {
             setModalData({ ...modalData, [name]: value })
           }
           onSubmit={modalMode === "add" ? handleCreateAdmin : handleSave}
-          onClose={handleCloseModal}
         />
       </Modal>
     </AdminDashboardLayout>

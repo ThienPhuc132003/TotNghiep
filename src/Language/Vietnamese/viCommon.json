@@ -15,6 +15,7 @@
     "status": "Trạng Thái",
     "actions": "Hành động",
     "save": "Lưu",
-    "close": "Đóng"
+    "close": "Đóng",
+    "noDataFound": "Không tìm thấy dữ liệu."
   }
 }

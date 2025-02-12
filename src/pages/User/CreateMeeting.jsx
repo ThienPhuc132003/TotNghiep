@@ -1,36 +1,39 @@
-import { useState } from "react";
-import Api from "../../network/Api";
-import PropTypes from "prop-types";
-import { METHOD_TYPE } from "../../network/methodType";
-import Cookies from "js-cookie";
+// src/pages/User/CreateMeeting.jsx
+import React, { useState } from "react";
 import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
 import "../../assets/css/CreateMeeting.style.css";
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import Modal from "../../components/Modal";
+import FormDetail from "../../components/FormDetail";
 
-const CreateMeeting = () => {
+const CreateMeetingPage = () => {
   const [topic, setTopic] = useState("");
   const [password, setPassword] = useState("");
-  const [meetingDetails, setMeetingDetails] = useState(null);
-  const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({});
+  const [modalMode, setModalMode] = useState(null);
 
   const handleCreateMeeting = async (e) => {
     e.preventDefault();
-    setStatus("");
     setIsSubmitting(true);
-    setMeetingDetails(null);
-
+    setStatus("");
     try {
-      const accessToken = Cookies.get("zoomAccessToken");
       const response = await Api({
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
         data: { topic, password },
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
       });
-      setMeetingDetails(response.data);
-      setStatus("Meeting created successfully!");
+      if (response.success) {
+        setStatus("Meeting created successfully.");
+        setModalData(response.data);
+        setModalMode("view");
+        setIsModalOpen(true);
+      } else {
+        setStatus("Failed to create meeting.");
+      }
     } catch (error) {
       setStatus("Failed to create meeting.");
       console.error(error);
@@ -39,10 +42,17 @@ const CreateMeeting = () => {
     }
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalData({});
+    setModalMode(null);
+  };
+
   return (
     <UserDashboardLayout>
       <div className="create-meeting-form">
         <h1>Create Zoom Meeting</h1>
+        {status && <p className="status-message">{status}</p>}
         <form onSubmit={handleCreateMeeting}>
           <div className="form-group">
             <label htmlFor="topic">Topic:</label>
@@ -68,24 +78,29 @@ const CreateMeeting = () => {
             {isSubmitting ? "Creating..." : "Create Meeting"}
           </button>
         </form>
-
-        {status && <p className="status-message">{status}</p>}
-
-        {meetingDetails && (
-          <div className="meeting-details">
-            <h2>Meeting Details:</h2>
-            <p><strong>Meeting ID:</strong> {meetingDetails.meetingId}</p>
-            <p><strong>Join URL:</strong> <a href={meetingDetails.joinUrl} target="_blank" rel="noopener noreferrer">{meetingDetails.joinUrl}</a></p>
-            <p><strong>Start Time:</strong> {meetingDetails.startTime}</p>
-          </div>
-        )}
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Meeting Details"
+      >
+        <FormDetail
+          formData={modalData}
+          fields={[
+            { key: "id", label: "Meeting ID", readOnly: true },
+            { key: "topic", label: "Topic", readOnly: true },
+            { key: "password", label: "Password", readOnly: true },
+            { key: "start_url", label: "Start URL", readOnly: true },
+            { key: "join_url", label: "Join URL", readOnly: true },
+          ]}
+          mode={modalMode || "view"}
+          onChange={() => {}}
+          onSubmit={() => {}}
+        />
+      </Modal>
     </UserDashboardLayout>
   );
 };
 
-CreateMeeting.propTypes = {
-  accessToken: PropTypes.string,
-};
-
+const CreateMeeting = React.memo(CreateMeetingPage);
 export default CreateMeeting;

@@ -1,3 +1,4 @@
+// src/pages/User/Profile.jsx
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import dfMale from "../../assets/images/df-male.png";
@@ -8,7 +9,7 @@ import Api from "../../network/Api";
 import { setUserProfile } from "../../redux/userSlice";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../utils/cropImage";
-import Modal from "react-modal";
+import Modal from "../../components/Modal";
 import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -73,13 +74,6 @@ const ProfilePage = () => {
     }
   };
 
-  const getAvatar = () => {
-    if (profileData.avatar) {
-      return profileData.avatar;
-    }
-    return profileData.gender === "FEMALE" ? dfFemale : dfMale;
-  };
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -92,65 +86,54 @@ const ProfilePage = () => {
     }
   };
 
-  const onCropComplete = (croppedAreaPixels) => {
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
 
   const handleCropSave = async () => {
     try {
-      const avatarResponse = await Api({
-        endpoint: "media/media-url?mediaCategory=user_avatar",
-        method: METHOD_TYPE.GET,
+      const croppedImage = await getCroppedImg(selectedImage, croppedAreaPixels);
+      const formData = new FormData();
+      formData.append("avatar", croppedImage);
+
+      const response = await Api({
+        endpoint: "user/upload-avatar",
+        method: METHOD_TYPE.POST,
+        data: formData,
+        isFormData: true,
       });
 
-      if (avatarResponse.success === true) {
-        const fileName = avatarResponse.data.fileName;
-        const croppedImage = await getCroppedImg(selectedImage, croppedAreaPixels);
-        const formData = new FormData();
-        formData.append("file", croppedImage);
-
-        const uploadResponse = await Api({
-          endpoint: `media/upload-media?mediaCategory=user_avatar&fileName=${fileName}`,
-          method: METHOD_TYPE.POST,
-          data: formData,
-          isFormData: true,
-        });
-
-        if (uploadResponse.success === true) {
-          const pushAvatarToServer = await Api({
-            endpoint: `user/update-profile`,
-            method: METHOD_TYPE.PUT,
-            data: { avatar: uploadResponse.data.mediaUrl },
-          });
-
-          if (pushAvatarToServer.success === true) {
-            dispatch(setUserProfile(pushAvatarToServer.data));
-            setProfileData({ ...profileData, avatar: pushAvatarToServer.data.avatar });
-            setSuccessMessage("Avatar updated successfully!");
-            setIsCropping(false);
-            setIsModalOpen(false);
-          } else {
-            setErrorMessage("Failed to upload avatar: " + uploadResponse.message);
-          }
-        }
+      if (response.success === true) {
+        dispatch(setUserProfile({ ...userProfile, avatar: response.data.avatar }));
+        setIsModalOpen(false);
+        setSelectedImage(null);
+        setIsCropping(false);
+        setSuccessMessage("Avatar updated successfully!");
+      } else {
+        setErrorMessage("Failed to upload avatar: " + response.message);
       }
     } catch (error) {
       setErrorMessage("Failed to upload avatar: " + error.message);
     }
   };
 
+  const getAvatar = () => {
+    if (profileData.avatar) {
+      return profileData.avatar;
+    }
+    return profileData.gender === "FEMALE" ? dfFemale : dfMale;
+  };
+
   return (
     <UserDashboardLayout>
-      <div className="profile-container">
+      <div className="profile-form">
         <h1>User Profile</h1>
         {successMessage && (
           <div className="success-message">{successMessage}</div>
         )}
-        {errorMessage && (
-          <div className="error-message">{errorMessage}</div>
-        )}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="profile-header">
+          <div className="form-group avatar-container">
             <img src={getAvatar()} alt="Avatar" className="avatar" />
             <button
               type="button"
@@ -160,6 +143,51 @@ const ProfilePage = () => {
               Change Avatar
             </button>
           </div>
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            title="Select and Crop Avatar"
+            className="modal"
+            overlayClassName="overlay"
+          >
+            <h2 className="modal-title">Select and Crop Avatar</h2>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="file-input"
+            />
+            {isCropping && (
+              <div className="crop-container">
+                <Cropper
+                  image={selectedImage}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+            )}
+            <div className="modal-buttons">
+              <button
+                type="button"
+                className="crop-save-button"
+                onClick={handleCropSave}
+                disabled={!selectedImage}
+              >
+                Save Avatar
+              </button>
+              <button
+                type="button"
+                className="modal-close-button"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </Modal>
           <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
             <input
@@ -187,8 +215,9 @@ const ProfilePage = () => {
               id="email"
               name="email"
               value={profileData.email}
+              onChange={handleChange}
+              className="read-only"
               readOnly
-              className="blurred"
             />
           </div>
           <div className="form-group">
@@ -198,8 +227,7 @@ const ProfilePage = () => {
               id="phoneNumber"
               name="phoneNumber"
               value={profileData.phoneNumber}
-              readOnly
-              className="blurred"
+              onChange={handleChange}
             />
           </div>
           <div className="form-group">
@@ -251,51 +279,6 @@ const ProfilePage = () => {
             Save Changes
           </button>
         </form>
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={() => setIsModalOpen(false)}
-          contentLabel="Change Avatar"
-          className="modal"
-          overlayClassName="overlay"
-        >
-          <h2 className="modal-title">Select and Crop Avatar</h2>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="file-input"
-          />
-          {isCropping && (
-            <div className="crop-container">
-              <Cropper
-                image={selectedImage}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-          )}
-          <div className="modal-buttons">
-            <button
-              type="button"
-              className="crop-save-button"
-              onClick={handleCropSave}
-              disabled={!selectedImage}
-            >
-              Save Avatar
-            </button>
-            <button
-              type="button"
-              className="modal-close-button"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-          </div>
-        </Modal>
       </div>
     </UserDashboardLayout>
   );

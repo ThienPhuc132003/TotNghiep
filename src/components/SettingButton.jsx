@@ -34,7 +34,7 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
           }`}
         ></i>
       </Button>
-      <div className={`dropdown-menu ${isDropdownOpen ? "open" : ""}`}>
+      <div className={`setting-dropdown-menu ${isDropdownOpen ? "open" : ""}`}>
         <button onClick={handleLogout}>Logout</button>
       </div>
     </div>

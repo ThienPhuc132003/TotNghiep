@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "../../../assets/css/Admin/AdminDashboardLayout.style.css";
 import AdminAccountToolbar from "./AdminAccountToolbar";
+import AdminSidebar from "../AdminSidebar";
 import { fetchMenuData } from "../../../redux/menuAdminSlice";
 import { useTranslation } from "react-i18next";
 import {
   setSidebarVisibility,
   toggleSidebar,
 } from "../../../redux/uiAdminSlice";
-import Cookies from "js-cookie";
 
 const AdminDashboardLayoutComponent = (props) => {
   const {
     children = null,
     childrenMiddleContentLower = null,
     rightChildren = null,
-    currentPath,
     currentPage,
   } = props;
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const menuData = useSelector((state) => state.menuAdmin.data);
   const menuStatus = useSelector((state) => state.menuAdmin.status);
+  const menuData = useSelector((state) => state.menuAdmin.data);
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
   const location = useLocation();
-  const role = Cookies.get("role");
+  const currentPath = location.pathname;
 
   const [openMenus, setOpenMenus] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -66,19 +65,6 @@ const AdminDashboardLayoutComponent = (props) => {
     }
   }, [menuStatus, dispatch]);
 
-  const handleMenuClick = (menuName) => {
-    setOpenMenus((prevOpenMenus) => {
-      const newOpenMenus = { ...prevOpenMenus };
-      if (newOpenMenus[menuName]) {
-        delete newOpenMenus[menuName];
-      } else {
-        newOpenMenus[menuName] = true;
-      }
-      localStorage.setItem("openMenus", JSON.stringify(newOpenMenus));
-      return newOpenMenus;
-    });
-  };
-
   useEffect(() => {
     const savedOpenMenus = JSON.parse(localStorage.getItem("openMenus"));
     if (savedOpenMenus) {
@@ -92,60 +78,16 @@ const AdminDashboardLayoutComponent = (props) => {
     }
   }, [menuData]);
 
-  const removeDiacritics = (str) => {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  };
-
-  const renderMenuItems = (items) => {
-    return items.map((item) => {
-      const itemName = item.name;
-      const itemPath = item.name
-        ? removeDiacritics(item.name.toLowerCase().replace(/ /g, "-"))
-        : "";
-      const isActive = location.pathname.includes(itemPath);
-
-      const hasActiveChild =
-        item.children &&
-        item.children.some((child) =>
-          location.pathname.includes(
-            child.name ? child.name.toLowerCase().replace(/ /g, "-") : ""
-          )
-        );
-
-      if (item.children && item.isCollapsed) {
-        return (
-          <React.Fragment key={item.name}>
-            <li
-              key={`${item.name}-parent`}
-              className={`menu-item ${
-                isActive || hasActiveChild ? "active" : ""
-              }`}
-              onClick={() => handleMenuClick(item.name)}
-            >
-              <a className="menu-item">
-                {item.icon && (
-                  <img src={item.icon} alt={itemName} className="menu-icon" />
-                )}
-                <p className="menu-name">{itemName}</p>
-              </a>
-            </li>
-            {openMenus[item.name] && (
-              <ul className="submenu">{renderMenuItems(item.children)}</ul>
-            )}
-          </React.Fragment>
-        );
+  const handleMenuClick = (menuName) => {
+    setOpenMenus((prevOpenMenus) => {
+      const newOpenMenus = { ...prevOpenMenus };
+      if (newOpenMenus[menuName]) {
+        delete newOpenMenus[menuName];
+      } else {
+        newOpenMenus[menuName] = true;
       }
-
-      return (
-        <li key={item.name} className={`menu-item ${isActive ? "active" : ""}`}>
-          <Link to={`/${itemPath}`}>
-            {item.icon && (
-              <img src={item.icon} alt={itemName} className="menu-icon" />
-            )}
-            <p className="menu-name">{itemName}</p>
-          </Link>
-        </li>
-      );
+      localStorage.setItem("openMenus", JSON.stringify(newOpenMenus));
+      return newOpenMenus;
     });
   };
 
@@ -155,25 +97,7 @@ const AdminDashboardLayoutComponent = (props) => {
         isSidebarVisible ? "" : "sidebar-hidden"
       }`}
     >
-      {/* Sidebar */}
-      <div className="sidebar">
-        <h1 className="main-logo">Admin</h1>
-        <nav className="primary-navigation">
-          <ul>
-            <li className={currentPath === "/admin/dashboard" ? "active" : ""}>
-              <Link to="/admin/dashboard">
-                <i className="fa-solid fa-house"></i>{" "}
-                <p className="menu-name">{t("menu.dashboard")}</p>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        <hr className="main-layout-divider" />
-        <nav className="secondary-navigation">
-          <ul>{role === "admin" && renderMenuItems(menuData)}</ul>
-        </nav>
-      </div>
-      {/* Content Area */}
+      <AdminSidebar currentPath={currentPath} openMenus={openMenus} handleMenuClick={handleMenuClick} />
       <div className="content-area">
         <button
           className="toggle-sidebar-btn"
@@ -211,7 +135,6 @@ AdminDashboardLayoutComponent.propTypes = {
   children: PropTypes.node,
   childrenMiddleContentLower: PropTypes.node,
   rightChildren: PropTypes.node,
-  currentPath: PropTypes.string,
   currentPage: PropTypes.string,
 };
 
