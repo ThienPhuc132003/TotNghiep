@@ -1,3 +1,4 @@
+// src/redux/menuAdminSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Api from "../network/Api";
 import { METHOD_TYPE } from "../network/methodType";
@@ -25,7 +26,9 @@ const menuAdminSlice = createSlice({
       })
       .addCase(fetchMenuData.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.data = action.payload;
+        if (action.payload) {
+          state.data = action.payload;
+        }
       })
       .addCase(fetchMenuData.rejected, (state, action) => {
         state.status = "failed";

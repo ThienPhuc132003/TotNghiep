@@ -58,7 +58,7 @@ const AdminLoginPage = () => {
         },
       });
       const token = response.data.token;
-
+      console.log("Token:", token);
       if (token) {
         Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
         Cookies.set("role", "admin");

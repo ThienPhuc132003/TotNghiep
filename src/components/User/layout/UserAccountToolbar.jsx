@@ -17,10 +17,6 @@ const UserAccountToolbarComponent = ({ onEditProfile }) => {
   );
 };
 
-// UserAccountToolbarComponent.propTypes = {
-//   onEditProfile: PropTypes.func.isRequired,
-//   onLogout: PropTypes.func.isRequired,
-// };
 UserAccountToolbarComponent.propTypes = {
   onEditProfile: PropTypes.func,
 };

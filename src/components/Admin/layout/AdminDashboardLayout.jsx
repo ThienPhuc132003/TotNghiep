@@ -1,3 +1,4 @@
+// src/components/Admin/layout/AdminDashboardLayout.jsx
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
@@ -71,7 +72,7 @@ const AdminDashboardLayoutComponent = (props) => {
       setOpenMenus(savedOpenMenus);
     } else {
       const initialOpenMenus = {};
-      menuData.forEach((menu) => {
+      menuData?.forEach((menu) => {
         initialOpenMenus[menu.name_en] = false;
       });
       setOpenMenus(initialOpenMenus);
@@ -122,9 +123,7 @@ const AdminDashboardLayoutComponent = (props) => {
               </>
             )}
           </div>
-          {rightChildren && (
-            <div className="main-layout-right">{rightChildren}</div>
-          )}
+          <div className="main-layout-right">{rightChildren}</div>
         </div>
       </div>
     </div>

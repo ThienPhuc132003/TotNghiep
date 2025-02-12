@@ -50,7 +50,7 @@ const MicrosoftCallbackPage = () => {
       }
 
       Cookies.set("token", response.data.token);
-      console.log("Token:", response.data.token);
+
       Cookies.set("role", role);
 
       const profileResponse = await Api({
