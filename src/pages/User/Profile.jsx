@@ -118,7 +118,7 @@ const ProfilePage = () => {
   };
 
   const getAvatar = () => {
-    if (profileData.avatar) {
+    if (profileData && profileData.avatar) {
       return profileData.avatar;
     }
     return profileData.gender === "FEMALE" ? dfFemale : dfMale;
