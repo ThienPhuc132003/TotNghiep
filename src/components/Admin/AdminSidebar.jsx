@@ -1,4 +1,3 @@
-// src/components/Admin/AdminSidebar.jsx
 import React from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
@@ -23,41 +22,34 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
         ? removeDiacritics(item.name.toLowerCase().replace(/ /g, "-"))
         : "";
       const isActive = location.pathname.includes(itemPath);
-
+  
+      // Kiểm tra nếu có submenu nào đang active
       const hasActiveChild =
         item.children &&
         item.children.some((child) =>
           location.pathname.includes(
-            child.name
-              ? removeDiacritics(child.name.toLowerCase().replace(/ /g, "-"))
-              : ""
+            child.name ? removeDiacritics(child.name.toLowerCase().replace(/ /g, "-")) : ""
           )
         );
-
+  
       if (item.children) {
         return (
           <React.Fragment key={item.name}>
             <li
               key={`${item.name}-parent`}
-              className={`menu-item ${isActive ? "active" : ""} ${
-                hasActiveChild ? "parent-active" : ""
-              }`}
+              className={`menu-item ${isActive ? "active" : ""} ${hasActiveChild ? "parent-active" : ""}`}
               onClick={() => handleMenuClick(item.name)}
             >
               <a className="menu-item">
-                {item.icon && (
-                  <img src={item.icon} alt={itemName} className="menu-icon" />
-                )}
+                {item.icon && <img src={item.icon} alt={itemName} className="menu-icon" />}
                 <p className="menu-name">{itemName}</p>
               </a>
             </li>
-            {openMenus[item.name] && (
-              <ul className="submenu">{renderMenuItems(item.children)}</ul>
-            )}
+            {openMenus[item.name] && <ul className="submenu">{renderMenuItems(item.children)}</ul>}
           </React.Fragment>
         );
       }
-
+  
       return (
         <li key={item.name} className={`menu-item ${isActive ? "active" : ""}`}>
           <Link to={`/${itemPath}`}>
@@ -68,31 +60,28 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
       );
     });
   };
+  
 
   return (
     <div className="sidebar">
       <h1 className="main-logo">Admin</h1>
-      {menuData && menuData.length > 0 && (
-        <>
-          <nav className="primary-navigation">
-            <ul>
-              <li
-                className={`menu-item ${
-                  currentPath === "/admin/dashboard" ? "active" : ""
-                }`}
-              >
-                <Link to="/admin/dashboard">
-                  <i className="fa-solid fa-house"></i>{" "}
-                  <p className="menu-name">{t("menu.dashboard")}</p>
-                </Link>
-              </li>
-            </ul>
-          </nav>
-          <nav className="secondary-navigation">
-            <ul>{role === "admin" && renderMenuItems(menuData)}</ul>
-          </nav>
-        </>
-      )}
+      <nav className="primary-navigation">
+        <ul>
+          <li
+            className={`menu-item ${
+              currentPath === "/admin/dashboard" ? "active" : ""
+            }`}
+          >
+            <Link to="/admin/dashboard">
+              <i className="fa-solid fa-house"></i>{" "}
+              <p className="menu-name">{t("menu.dashboard")}</p>
+            </Link>
+          </li>
+        </ul>
+      </nav>
+      <nav className="secondary-navigation">
+        <ul>{role === "admin" && renderMenuItems(menuData)}</ul>
+      </nav>
     </div>
   );
 };
