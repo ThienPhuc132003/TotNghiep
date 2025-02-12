@@ -22,7 +22,7 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
         ? removeDiacritics(item.name.toLowerCase().replace(/ /g, "-"))
         : "";
       const isActive = location.pathname.includes(itemPath);
-  
+
       // Kiểm tra nếu có submenu nào đang active
       const hasActiveChild =
         item.children &&
@@ -31,7 +31,7 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
             child.name ? removeDiacritics(child.name.toLowerCase().replace(/ /g, "-")) : ""
           )
         );
-  
+
       if (item.children) {
         return (
           <React.Fragment key={item.name}>
@@ -49,7 +49,7 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
           </React.Fragment>
         );
       }
-  
+
       return (
         <li key={item.name} className={`menu-item ${isActive ? "active" : ""}`}>
           <Link to={`/${itemPath}`}>
@@ -79,9 +79,7 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
         </ul>
       </nav>
       <nav className="secondary-navigation">
-        {menuData.length === 0 ? (
-          <p>{t("menu.noData")}</p>
-        ) : (
+        {menuData && menuData.length > 0 && (
           <ul>{role === "admin" && renderMenuItems(menuData)}</ul>
         )}
       </nav>
