@@ -60,7 +60,6 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
       );
     });
   };
-  
 
   return (
     <div className="sidebar">
@@ -80,7 +79,11 @@ const AdminSidebarComponent = ({ currentPath, openMenus, handleMenuClick }) => {
         </ul>
       </nav>
       <nav className="secondary-navigation">
-        <ul>{role === "admin" && renderMenuItems(menuData)}</ul>
+        {menuData.length === 0 ? (
+          <p>{t("menu.noData")}</p>
+        ) : (
+          <ul>{role === "admin" && renderMenuItems(menuData)}</ul>
+        )}
       </nav>
     </div>
   );
