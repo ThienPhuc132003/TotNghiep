@@ -23,7 +23,7 @@ const AdminDashboardLayoutComponent = (props) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const menuStatus = useSelector((state) => state.menuAdmin.status);
-  const menuData = useSelector((state) => state.menuAdmin.data);
+  const menuData = useSelector((state) => state.menuAdmin.data) || [];
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
   const location = useLocation();
   const currentPath = location.pathname;
@@ -97,36 +97,44 @@ const AdminDashboardLayoutComponent = (props) => {
         isSidebarVisible ? "" : "sidebar-hidden"
       }`}
     >
-      <AdminSidebar currentPath={currentPath} openMenus={openMenus} handleMenuClick={handleMenuClick} />
-      <div className="content-area">
-        <button
-          className="toggle-sidebar-btn"
-          onClick={() => dispatch(toggleSidebar())}
-        >
-          {isSidebarVisible ? "⟨" : "⟩"}
-        </button>
-        <div className="main-layout-header">
-          <h1 className="current-page">{currentPage}</h1>
-          <AdminAccountToolbar currentPath={currentPath} />
-        </div>
-        <div className="main-layout-content">
-          <div className="main-layout-left">
-            {isLoading ? (
-              <p>{t("common.loading")}</p>
-            ) : error ? (
-              <p className="error-message">{error}</p>
-            ) : (
-              <>
-                {children}
-                {childrenMiddleContentLower}
-              </>
-            )}
+      {menuData.length > 0 ? (
+        <>
+          <AdminSidebar currentPath={currentPath} openMenus={openMenus} handleMenuClick={handleMenuClick} />
+          <div className="content-area">
+            <button
+              className="toggle-sidebar-btn"
+              onClick={() => dispatch(toggleSidebar())}
+            >
+              {isSidebarVisible ? "⟨" : "⟩"}
+            </button>
+            <div className="main-layout-header">
+              <h1 className="current-page">{currentPage}</h1>
+              <AdminAccountToolbar currentPath={currentPath} />
+            </div>
+            <div className="main-layout-content">
+              <div className="main-layout-left">
+                {isLoading ? (
+                  <p>{t("common.loading")}</p>
+                ) : error ? (
+                  <p className="error-message">{error}</p>
+                ) : (
+                  <>
+                    {children}
+                    {childrenMiddleContentLower}
+                  </>
+                )}
+              </div>
+              {rightChildren && (
+                <div className="main-layout-right">{rightChildren}</div>
+              )}
+            </div>
           </div>
-          {rightChildren && (
-            <div className="main-layout-right">{rightChildren}</div>
-          )}
+        </>
+      ) : (
+        <div className="no-menu-message">
+          <p>{t("common.noMenuAvailable")}</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

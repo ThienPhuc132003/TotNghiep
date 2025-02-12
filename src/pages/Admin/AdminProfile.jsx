@@ -90,7 +90,10 @@ const AdminProfilePage = () => {
 
   const handleCropSave = async () => {
     try {
-      const croppedImage = await getCroppedImg(selectedImage, croppedAreaPixels);
+      const croppedImage = await getCroppedImg(
+        selectedImage,
+        croppedAreaPixels
+      );
       const formData = new FormData();
       formData.append("avatar", croppedImage);
 
@@ -102,7 +105,9 @@ const AdminProfilePage = () => {
       });
 
       if (response.success === true) {
-        dispatch(setAdminProfile({ ...adminProfile, avatar: response.data.avatar }));
+        dispatch(
+          setAdminProfile({ ...adminProfile, avatar: response.data.avatar })
+        );
         setIsModalOpen(false);
         setSelectedImage(null);
         setIsCropping(false);
@@ -116,7 +121,7 @@ const AdminProfilePage = () => {
   };
 
   const getAvatar = () => {
-    if (profileData.avatar) {
+    if (profileData && profileData.avatar) {
       return profileData.avatar;
     }
     return profileData.gender === "FEMALE" ? dfFemale : dfMale;
