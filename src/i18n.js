@@ -12,6 +12,9 @@ import enAdmin from "./Language/English/enAdmin.json";
 import viAdmin from "./Language/Vietnamese/viAdmin.json";
 import enMajor from "./Language/English/enMajor.json";
 import viMajor from "./Language/Vietnamese/viMajor.json";
+import enMenu from "./Language/English/enMenu.json";
+import viMenu from "./Language/Vietnamese/viMenu.json";
+
 const enTranslate = {
   ...enLogin,
   ...enRegister,
@@ -19,6 +22,7 @@ const enTranslate = {
   ...enDashboard,
   ...enAdmin,
   ...enMajor,
+  ...enMenu,
 };
 
 const viTranslate = {
@@ -28,6 +32,7 @@ const viTranslate = {
   ...viDashboard,
   ...viAdmin,
   ...viMajor,
+  ...viMenu,
 };
 
 i18n.use(initReactI18next).init({

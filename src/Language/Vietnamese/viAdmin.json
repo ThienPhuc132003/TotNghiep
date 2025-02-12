@@ -1,16 +1,24 @@
 {
-    "admin": {
-      "management": "Quản Lý Admin",
-      "listTitle": "Danh Sách Admin",
-      "id": "ID",
-      "name": "Tên",
-      "phone": "Số Điện Thoại",
-      "email": "Email",
-      "idCard": "CMND",
-      "confirmDelete": "Bạn có chắc chắn muốn xóa admin này không?",
-      "status": "Trạng Thái",
-      "active": "Hoạt Động",
-      "inactive": "Không Hoạt Động",
-      "role": "Vai Trò"
-    }
+  "admin": {
+    "management": "Quản Lý Admin",
+    "listTitle": "Danh Sách Admin",
+    "name": "Tên",
+    "phone": "Số Điện Thoại",
+    "email": "Email",
+    "idCard": "CMND",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa admin này không?",
+    "status": "Trạng Thái",
+    "active": "Hoạt Động",
+    "inactive": "Không Hoạt Động",
+    "role": "Vai Trò",
+    "id": "Mã nhân viên",
+    "birthday": "Ngày Sinh",
+    "homeAddress": "Địa Chỉ",
+    "gender": "Giới Tính",
+    "password": "Mật Khẩu",
+    "confirmPassword": "Xác Nhận Mật Khẩu",
+    "best_admin": "Admin",
+    "other_role": "Nhân viên",
+    "workEmail": "Email Công Việc"
   }
+}

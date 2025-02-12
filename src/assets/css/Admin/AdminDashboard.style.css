@@ -1,5 +1,24 @@
 /* src/assets/css/Admin/AdminDashboard.style.css */
+.admin-dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
 .admin-dashboard-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard-lists {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -12,12 +31,6 @@
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.admin-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .admin-card h3 {
@@ -25,12 +38,17 @@
   color: #333;
 }
 
-.admin-card p {
+.title-card {
   color: #666;
 }
-
+.data-card{
+  font-weight: bold;
+  font-size: 30px;
+}
 @media (max-width: 768px) {
-  .admin-dashboard-content {
+  .admin-dashboard-content,
+  .admin-dashboard-charts,
+  .admin-dashboard-lists {
     flex-direction: column;
   }
 }

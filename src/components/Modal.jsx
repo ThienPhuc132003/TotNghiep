@@ -1,9 +1,8 @@
-// File: src/components/Modal.jsx
 import React from "react";
 import PropTypes from "prop-types";
 import "../assets/css/Modal.style.css";
 
-const ModalComponent = ({ isOpen, onClose, children }) => {
+const ModalComponent = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   const handleOverlayClick = (e) => {
@@ -18,6 +17,7 @@ const ModalComponent = ({ isOpen, onClose, children }) => {
         <button className="close-button" onClick={onClose}>
           &times;
         </button>
+        {title && <h2 className="modal-title">{title}</h2>}
         {children}
       </div>
     </div>
@@ -27,6 +27,7 @@ const ModalComponent = ({ isOpen, onClose, children }) => {
 ModalComponent.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  title: PropTypes.string,
   children: PropTypes.node.isRequired,
 };
 

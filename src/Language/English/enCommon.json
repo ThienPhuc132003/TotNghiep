@@ -15,6 +15,7 @@
     "status": "Status",
     "actions": "Actions",
     "save": "Save",
-    "close": "Close"
+    "close": "Close",
+    "noDataFound": "No data found."
   }
 }

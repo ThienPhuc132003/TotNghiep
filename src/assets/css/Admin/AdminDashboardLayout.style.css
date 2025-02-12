@@ -62,7 +62,7 @@
   position: fixed;
   top: 20px;
   left: 260px;
-  background-color: #ff5e3a;
+  background-color: rgba(229, 115, 115, 1);
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -83,7 +83,7 @@
   padding: 10px 50px 10px 0px;
   font-family: "Jacques Francois";
   font-size: 3em;
-  color: #ff5e3a;
+  color: rgba(229, 115, 115, 1);
 }
 
 nav ul {
@@ -94,14 +94,18 @@ nav ul {
 nav ul li {
   display: flex;
   align-items: center;
+  margin: 5px 20px;
   padding: 0 20px;
   font-size: 16px;
   height: 50px;
   width: auto;
+  border-radius: 25px;
+  
 }
 
 nav ul li.active {
   background-color: #272e4f;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 nav ul li:not(.active):hover {
@@ -125,19 +129,11 @@ nav ul li:hover a {
   color: #ffffff;
 }
 
-.main-layout-divider {
-  border: none;
-  border-top: 1px solid #ddd;
-  margin: 20px 0;
-}
-
 .main-layout-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f4f4f4;
   padding: 10px 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .main-content {
@@ -177,13 +173,14 @@ nav ul li:hover a {
 .sidebar-hidden .toggle-sidebar-btn {
   display: block;
 }
-
+.sidebar-hidden nav ul li {
+  justify-content: center;
+  margin: 5px;
+  padding: 0;
+  border-radius: 100%;
+}
 .sidebar-hidden .main-logo {
   display: none;
-}
-
-.sidebar-hidden .content-area {
-  margin-left: 50px;
 }
 
 .sidebar-hidden .sidebar {
@@ -202,10 +199,6 @@ nav ul li:hover a {
   left: 70px;
 }
 
-.sidebar-hidden .main-layout-content {
-  margin-left: 60px;
-}
-
 .sidebar-hidden .main-layout-left {
   margin-left: 60px;
 }
@@ -216,29 +209,42 @@ nav ul li:hover a {
 
 /* Submenu styling */
 .submenu {
-  padding-left: 20px;
-  background-color: #e9ecef;
-  border-left: 3px solid #007bff;
+  
+  margin-left: 45px;
+  border-left: 2px solid rgb(158, 158, 158);
 }
 
 .submenu li {
-  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
   font-size: 14px;
 }
 
-.submenu li a {
-  color: #007bff;
+.submenu li:not(.active):hover  {
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
-
-.submenu li:hover {
-  background-color: #d1e7ff;
+.submenu li:not(.active):hover a {
+  color: black;
 }
-
 .submenu li.active {
-  background-color: #007bff;
-  color: #ffffff;
+  background-color: rgb(255, 255, 255);
 }
 
 .submenu li.active a {
+  color: #000000;
+}
+.submenu li.active a p {
+  font-weight: 700;
+}
+/* Khi có submenu active, menu cha cũng có nền xanh */
+nav ul li.parent-active {
+  background-color: #272e4f;
+}
+
+/* Đảm bảo chữ của menu cha cũng chuyển thành màu trắng */
+nav ul li.parent-active a {
   color: #ffffff;
 }

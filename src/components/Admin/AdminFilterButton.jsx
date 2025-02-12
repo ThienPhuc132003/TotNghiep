@@ -33,38 +33,42 @@ const AdminFilterButtonComponent = ({ fields, onApply }) => {
       </Button>
       {isOpen && (
         <div className="filter-panel">
-          {fields.map((field) => (
-            <div key={field.key} className="filter-field">
-              <label>{field.label}</label>
-              {field.type === "select" ? (
-                <select
-                  name={field.key}
-                  value={filterValues[field.key] || ""}
-                  onChange={handleChange}
-                >
-                  <option value="">Select</option>
-                  {field.options.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  name={field.key}
-                  value={filterValues[field.key] || ""}
-                  onChange={handleChange}
-                />
-              )}
+          <div className="field-box">
+            {fields.map((field) => (
+              <div key={field.key} className="filter-field">
+                <label>{field.label}</label>
+                {field.type === "select" ? (
+                  <select
+                    name={field.key}
+                    value={filterValues[field.key] || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select</option>
+                    {field.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name={field.key}
+                    value={filterValues[field.key] || ""}
+                    onChange={handleChange}
+                  />
+                )}
+              </div>
+            ))}
+            <div className="apply-clear-container">
+              <Button onClick={handleClearFilters} className="clear-button">
+                Xóa
+              </Button>
+              <Button onClick={handleApply} className="apply-button">
+                Áp dụng
+              </Button>
             </div>
-          ))}
-          <Button onClick={handleApply} className="apply-button">
-            Apply
-          </Button>
-          <Button onClick={handleClearFilters} className="clear-button">
-            Clear Filters
-          </Button>
+          </div>
         </div>
       )}
     </div>

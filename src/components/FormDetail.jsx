@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import "../assets/css/FormDetail.style.css"; // Import the CSS file
 
-const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit, onClose }) => {
+const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit }) => {
   const { t } = useTranslation();
 
   const handleChange = (e) => {
@@ -18,13 +18,6 @@ const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit, onClo
 
   return (
     <div className="form-detail-container">
-      <h2>
-        {mode === "add"
-          ? t("admin.addTitle")
-          : mode === "edit"
-          ? t("admin.editTitle")
-          : t("admin.viewTitle")}
-      </h2>
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
           {fields.map((field) => (
@@ -63,9 +56,6 @@ const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit, onClo
               {t("common.save")}
             </button>
           )}
-          <button type="button" className="close-button" onClick={onClose}>
-            {t("common.close")}
-          </button>
         </div>
       </form>
     </div>
@@ -86,7 +76,6 @@ FormDetailComponent.propTypes = {
   mode: PropTypes.oneOf(["add", "edit", "view"]).isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
 };
 
 const FormDetail = React.memo(FormDetailComponent);

@@ -158,9 +158,7 @@ const ListOfMajorPage = () => {
 
   const pageCount = Math.ceil(totalItems / itemsPerPage);
 
-  const addFields = [
-    { key: "majorName", label: t("major.name") },
-  ];
+  const addFields = [{ key: "majorName", label: t("major.name") }];
 
   const editFields = [
     { key: "majorId", label: t("major.id"), readOnly: true },
@@ -227,7 +225,11 @@ const ListOfMajorPage = () => {
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
       {/* Major Modal */}
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={modalMode === "add" ? "Add Major" : "Edit Major"}
+      >
         <FormDetail
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
@@ -236,7 +238,6 @@ const ListOfMajorPage = () => {
             setModalData({ ...modalData, [name]: value })
           }
           onSubmit={modalMode === "add" ? handleCreateMajor : handleSave}
-          onClose={handleCloseModal}
         />
       </Modal>
     </AdminDashboardLayout>
