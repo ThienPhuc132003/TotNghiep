@@ -30,6 +30,7 @@ const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
 const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
+const ListOfRequest = lazy(() => import("./pages/Admin/ListOfRequest"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
             <Route path="admin/profile" element={<AdminProfile />} />
             <Route path="quan-ly-admin" element={<ListOfAdmin />} />
             <Route path="quan-ly-nganh" element={<ListOfMajor />} />
+            <Route path="quan-ly-request" element={<ListOfRequest />} />
           </Route>
         </Routes>
       </Suspense>

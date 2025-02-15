@@ -5,10 +5,51 @@ import ReactPaginate from "react-paginate";
 import { useTranslation } from "react-i18next";
 import "../assets/css/Table.style.css";
 import "../assets/css/Pagination.style.css";
-import Spinner from "./Spinner"; // Assuming you have a Spinner component
+import Spinner from "./Spinner";
 
 const getNestedValue = (obj, path) => {
-  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+};
+
+const TableHeader = React.memo(({ columns, requestSort, sortKey, sortDirection }) => {
+  return (
+    <thead>
+      <tr>
+        {columns.map((col) => (
+          <th
+            key={col.dataKey}
+            onClick={() => requestSort(col.dataKey)}
+            role="button"
+            tabIndex={0}
+            aria-sort={
+              sortKey === col.dataKey
+                ? sortDirection === "asc"
+                  ? "ascending"
+                  : "descending"
+                : "none"
+            }
+          >
+            {col.title}
+            {sortKey === col.dataKey && (
+              <span className="sort-indicator">
+                {sortDirection === "asc" ? "▲" : "▼"}
+              </span>
+            )}
+          </th>
+        ))}
+        <th>Actions</th>
+      </tr>
+    </thead>
+  );
+});
+
+TableHeader.displayName = "TableHeader";
+
+TableHeader.propTypes = {
+  columns: PropTypes.array.isRequired,
+  requestSort: PropTypes.func.isRequired,
+  sortKey: PropTypes.string,
+  sortDirection: PropTypes.string,
 };
 
 const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, onPageChange, forcePage, onSort }) => {
@@ -17,32 +58,24 @@ const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, on
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sortedData = useMemo(() => {
-    let sortableData = [...data];
-    if (sortConfig.key) {
-      sortableData.sort((a, b) => {
-        const aValue = getNestedValue(a, sortConfig.key);
-        const bValue = getNestedValue(b, sortConfig.key);
-        if (aValue < bValue) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return sortableData;
-  }, [data, sortConfig]);
-
   const requestSort = useCallback((key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
+    setSortConfig((prevConfig) => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === "asc" ? "desc" : "asc",
+    }));
     onSort(key);
-  }, [sortConfig, onSort]);
+  }, [onSort]);
+
+  const sortedData = useMemo(() => {
+    if (!sortConfig.key) return data;
+    return [...data].sort((a, b) => {
+      const aValue = getNestedValue(a, sortConfig.key);
+      const bValue = getNestedValue(b, sortConfig.key);
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'desc' ? -1 : 1;
+      return 0;
+    });
+  }, [data, sortConfig]);
 
   const handlePageChange = useCallback(async (selectedPage) => {
     setLoading(true);
@@ -59,21 +92,12 @@ const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, on
   return (
     <div className="table-container">
       <table className="custom-table" aria-label={t("common.table")}>
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={col.dataKey} onClick={() => requestSort(col.dataKey)} role="button" tabIndex={0} aria-sort={sortConfig.key === col.dataKey ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                {col.title}
-                {sortConfig.key === col.dataKey && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? '▲' : '▼'}
-                  </span>
-                )}
-              </th>
-            ))}
-            <th>{t("common.actions")}</th>
-          </tr>
-        </thead>
+        <TableHeader 
+          columns={columns} 
+          requestSort={requestSort} 
+          sortKey={sortConfig.key} 
+          sortDirection={sortConfig.direction} 
+        />
         <tbody>
           {loading ? (
             <tr>
@@ -138,6 +162,8 @@ const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, on
   );
 };
 
+const Table = React.memo(TableComponent);
+
 TableComponent.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
@@ -156,5 +182,4 @@ TableComponent.propTypes = {
   onSort: PropTypes.func.isRequired,
 };
 
-const Table = React.memo(TableComponent);
 export default Table;

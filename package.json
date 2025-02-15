@@ -16,6 +16,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@jitsi/react-sdk": "^1.4.0",
     "@reduxjs/toolkit": "^2.2.7",
+    "@tanstack/react-table": "^8.21.2",
     "@zoomus/websdk": "^2.18.3",
     "axios": "^1.7.2",
     "chart.js": "^4.4.7",

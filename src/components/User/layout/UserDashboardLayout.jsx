@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import "../../../assets/css/UserDashboardLayout.style.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../Button";
-import Cookies from "js-cookie";
 import UserAccountToolbar from "./UserAccountToolbar";
 import LoginZoomButton from "../../LoginZoomButton";
 
@@ -11,61 +10,48 @@ const UserDashboardLayoutComponent = (props) => {
   const { children = null } = props;
   const navigate = useNavigate();
   const location = useLocation();
-  const isAuth = Cookies.get("token");
   return (
     <div className="user-dashboard-layout">
       <header className="header">
         <h1>Online Tutor</h1>
         <nav>
           <ul>
-            {isAuth ? (
-              <>
-                <li>
-                  <Button
-                    onClick={() => navigate("/dashboard")}
-                    className={`custom-button ${
-                      location.pathname === "/dashboard" ? "active" : ""
-                    }`}
-                  >
-                    Dashboard
-                  </Button>
-                </li>
-                <li>
-                  <Button
-                    onClick={() => navigate("/register-tutor")}
-                    className={`custom-button ${
-                      location.pathname === "/register-tutor" ? "active" : ""
-                    }`}
-                  >
-                    Register as Tutor
-                  </Button>
-                </li>
-                <li>
-                  <LoginZoomButton />
-                </li>
-                <li>
-                  <Button
-                    onClick={() => navigate("/create-meeting")}
-                    className="custom-button"
-                  >
-                    Tạo phòng Zoom
-                  </Button>
-                </li>
-                <UserAccountToolbar
-                  onEditProfile={() => navigate("/user/profile")}
-  
-                />
-              </>
-            ) : (
+            <>
               <li>
                 <Button
-                  onClick={() => navigate("/login")}
-                  className="custom-button"
+                  onClick={() => navigate("/dashboard")}
+                  className={`custom-button ${
+                    location.pathname === "/dashboard" ? "active" : ""
+                  }`}
                 >
-                  Login
+                  Dashboard
                 </Button>
               </li>
-            )}
+              <li>
+                <Button
+                  onClick={() => navigate("/register-tutor")}
+                  className={`custom-button ${
+                    location.pathname === "/register-tutor" ? "active" : ""
+                  }`}
+                >
+                  Register as Tutor
+                </Button>
+              </li>
+              <li>
+                <LoginZoomButton />
+              </li>
+              <li>
+                <Button
+                  onClick={() => navigate("/create-meeting")}
+                  className="custom-button"
+                >
+                  Tạo phòng Zoom
+                </Button>
+              </li>
+              <UserAccountToolbar
+                onEditProfile={() => navigate("/user/profile")}
+              />
+            </>
           </ul>
         </nav>
       </header>

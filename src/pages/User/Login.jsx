@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Import Link
+import { useNavigate, Link } from "react-router-dom"; 
 import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setAdminProfile } from "../../redux/adminSlice"; // Correct import
+import { setAdminProfile } from "../../redux/adminSlice"; 
 import "../../assets/css/LoginLayout.style.css";
 
-const LoginPageComponent = () => {
+const SigninPageComponent = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +50,7 @@ const LoginPageComponent = () => {
     setIsSubmitting(true);
     try {
       const response = await Api({
-        endpoint: "admin/login",
+        endpoint: "user/login",
         method: METHOD_TYPE.POST,
         data: {
           emailOrPhoneNumber,
@@ -61,7 +61,7 @@ const LoginPageComponent = () => {
       console.log("Token:", token);
       if (token) {
         Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
-        Cookies.set("role", "admin");
+        Cookies.set("role", "user");
 
         if (rememberMe) {
           localStorage.setItem("emailOrPhoneNumber", emailOrPhoneNumber);
@@ -73,13 +73,13 @@ const LoginPageComponent = () => {
 
         try {
           const adminInfoResponse = await Api({
-            endpoint: "admin/get-profile",
+            endpoint: "user/get-profile",
             method: METHOD_TYPE.GET,
             token,
           });
           if (adminInfoResponse.success === true) {
             dispatch(setAdminProfile(adminInfoResponse.data));
-            navigate("/admin/dashboard");
+            navigate("/dashboard");
           }
         } catch (error) {
           setErrorMessage("Login failed: Invalid credentials");
@@ -115,7 +115,7 @@ const LoginPageComponent = () => {
   return (
     <LoginLayout>
       <div className="login-form">
-        <h1 className="login-title">Login</h1>
+        <h1 className="login-title">Đăng nhập GiaSuVLU</h1>
         <div className="social-login">
           <button
             onClick={handleMicrosoftLogin}
@@ -126,7 +126,7 @@ const LoginPageComponent = () => {
           </button>
         </div>
         <div className="divider">
-          <span>or</span>
+          <span>hoặc</span>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="login-form-container">
@@ -208,5 +208,5 @@ const LoginPageComponent = () => {
   );
 };
 
-const LoginPage = React.memo(LoginPageComponent);
-export default LoginPage;
+const SigninPage = React.memo(SigninPageComponent);
+export default SigninPage;

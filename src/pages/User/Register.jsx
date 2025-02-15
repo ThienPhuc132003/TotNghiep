@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import HoverForInfo from "../../components/HoverForInfo";
 import "../../assets/css/Register.style.css";
 
 const RegisterPage = () => {
@@ -27,8 +26,6 @@ const RegisterPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
-    // Clear the error message for the field being edited
     if (formErrors[name]) {
       setFormErrors({ ...formErrors, [name]: "" });
     }
@@ -39,7 +36,9 @@ const RegisterPage = () => {
     const errors = { ...formErrors };
 
     if (!value) {
-      errors[name] = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+      errors[name] = `${
+        name.charAt(0).toUpperCase() + name.slice(1)
+      } is required`;
     } else {
       delete errors[name];
     }
@@ -68,7 +67,8 @@ const RegisterPage = () => {
     if (!homeAddress) errors.homeAddress = "Home Address is required";
     if (!gender) errors.gender = "Gender is required";
     if (!password) errors.password = "Password is required";
-    if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match";
+    if (password !== confirmPassword)
+      errors.confirmPassword = "Passwords do not match";
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -127,7 +127,7 @@ const RegisterPage = () => {
   return (
     <LoginLayout>
       <div className="register-form">
-        <h1>{t("register.title")}</h1>
+        <h1>Đăng ký GiaSuVLU</h1>
         <div className="social-login">
           <button
             onClick={handleMicrosoftRegister}
@@ -137,32 +137,61 @@ const RegisterPage = () => {
             {t("register.registerWithMicrosoft")}
           </button>
         </div>
+        <div className="divider">
+          <span>hoặc</span>
+        </div>
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="fullName">{t("register.fullName")}</label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Trịnh Văn Thiên Phúc"
+              className={formErrors.fullName ? "error-border" : ""}
+            />
+            {formErrors.fullName && (
+              <p className="error-message">{formErrors.fullName}</p>
+            )}
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">{t("register.email")}</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="example@gmail.com"
+              className={formErrors.email ? "error-border" : ""}
+            />
+            {formErrors.email && (
+              <p className="error-message">{formErrors.email}</p>
+            )}
+          </div>
+          <div className="form-group">
+            <label htmlFor="homeAddress">{t("register.homeAddress")}</label>
+            <input
+              type="text"
+              id="homeAddress"
+              name="homeAddress"
+              value={formData.homeAddress}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="58a huỳnh văn bánh"
+              className={formErrors.homeAddress ? "error-border" : ""}
+            />
+            {formErrors.homeAddress && (
+              <p className="error-message">{formErrors.homeAddress}</p>
+            )}
+          </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="fullName">
-                {t("register.fullName")}{" "}
-                <HoverForInfo Text="Không có kí tự đặc biệt, không vợt 50 kí tự" />
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Trịnh Văn Thiên Phúc"
-                className={formErrors.fullName ? "error-border" : ""}
-              />
-              {formErrors.fullName && (
-                <p className="error-message">{formErrors.fullName}</p>
-              )}
-            </div>
-            <div className="form-group">
-              <label htmlFor="birthday">
-                {t("register.birthday")}{" "}
-                <HoverForInfo Text="Ngày tháng năm phù hợp" />
-              </label>
+              <label htmlFor="birthday">{t("register.birthday")}</label>
               <input
                 type="date"
                 id="birthday"
@@ -176,61 +205,6 @@ const RegisterPage = () => {
                 <p className="error-message">{formErrors.birthday}</p>
               )}
             </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="email">
-                {t("register.email")}{" "}
-                <HoverForInfo Text="Đúng định dạng têngmail@gmail.com" />
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="example@gmail.com"
-                className={formErrors.email ? "error-border" : ""}
-              />
-              {formErrors.email && (
-                <p className="error-message">{formErrors.email}</p>
-              )}
-            </div>
-            <div className="form-group">
-              <label htmlFor="phoneNumber">{t("register.phoneNumber")}</label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="0123456789"
-                className={formErrors.phoneNumber ? "error-border" : ""}
-              />
-              {formErrors.phoneNumber && (
-                <p className="error-message">{formErrors.phoneNumber}</p>
-              )}
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="homeAddress">{t("register.homeAddress")}</label>
-              <input
-                type="text"
-                id="homeAddress"
-                name="homeAddress"
-                value={formData.homeAddress}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="58a huỳnh văn bánh"
-                className={formErrors.homeAddress ? "error-border" : ""}
-              />
-              {formErrors.homeAddress && (
-                <p className="error-message">{formErrors.homeAddress}</p>
-              )}
-            </div>
             <div className="form-group">
               <label>{t("register.gender")}</label>
               <div className="gender-group">
@@ -242,6 +216,7 @@ const RegisterPage = () => {
                     checked={formData.gender === "MALE"}
                     onChange={handleChange}
                     onBlur={handleBlur}
+    
                   />
                   {t("register.male")}
                 </label>
@@ -264,13 +239,7 @@ const RegisterPage = () => {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="password">
-                {t("register.password")}{" "}
-                <HoverForInfo
-                  Text="Mật khẩu gồm tối thiểu 1 chữ in hoa, 
-                1 chữ cái thường, 1 ký tự đặc biệt và không được quá 12 ký tự"
-                />
-              </label>
+              <label htmlFor="password">{t("register.password")}</label>
               <input
                 type="password"
                 id="password"
@@ -286,10 +255,7 @@ const RegisterPage = () => {
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="confirmPassword">
-                {t("register.confirmPassword")}
-                <HoverForInfo />
-              </label>
+              <label htmlFor="confirmPassword">{t("register.confirmPassword")}</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -309,12 +275,6 @@ const RegisterPage = () => {
             {isSubmitting ? "Registering..." : t("register.registerButton")}
           </button>
         </form>
-        <div className="login-link">
-          <p>
-            {t("register.alreadyHaveAccount")}{" "}
-            <Link to="/login">{t("register.login")}</Link>
-          </p>
-        </div>
       </div>
     </LoginLayout>
   );

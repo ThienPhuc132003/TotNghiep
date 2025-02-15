@@ -32,7 +32,7 @@ const ListOfAdminPage = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const itemsPerPage = 5;
-  const currentPath = "/quan-ly-admin";
+  const currentPath = "/quan-ly-nganh";
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -128,6 +128,7 @@ const ListOfAdminPage = () => {
     });
     setIsModalOpen(true);
   };
+
   const handleView = (admin) => {
     setModalData({
       adminId: admin.adminId,
@@ -143,6 +144,7 @@ const ListOfAdminPage = () => {
     setModalMode("view");
     setIsModalOpen(true);
   };
+
   const handleEdit = (admin) => {
     setModalData({
       adminId: admin.adminId,
@@ -219,7 +221,6 @@ const ListOfAdminPage = () => {
     // Apply filter logic here
     console.log("Filter applied with values:", filterValues);
     // Update the search query or other state based on the filter values
-    // For example, you can update the searchQuery state with the filter values
     setSearchQuery(filterValues.fullname || "");
     setSortConfig({ key: "", direction: "asc" }); // Reset sort configuration
     setCurrentPage(0); // Reset to first page on filter apply
@@ -269,17 +270,15 @@ const ListOfAdminPage = () => {
   ];
 
   const columns = [
-    { title: t("admin.name"), dataKey: "fullname" },
-    { title: t("admin.role"), dataKey: "roleId" },
-    { title: t("admin.phone"), dataKey: "phoneNumber" },
-    { title: t("admin.email"), dataKey: "email" },
-    {
-      title: t("admin.idCard"),
-      dataKey: "identifyCardNumber",
-    },
+    { title: t("admin.id"), dataKey: "adminId", sortable: true },
+    { title: t("admin.name"), dataKey: "fullname", sortable: true },
+    { title: t("admin.role"), dataKey: "roleId", sortable: true },
+    { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
+    { title: t("admin.email"), dataKey: "email", sortable: true },
     {
       title: t("common.createdAt"),
       dataKey: "createdAt",
+      sortable: true,
       renderCell: (value) => {
         const timeZone =
           i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
@@ -290,10 +289,11 @@ const ListOfAdminPage = () => {
         );
       },
     },
-    { title: t("common.createdBy"), dataKey: "createdBy" },
+    { title: t("common.createdBy"), dataKey: "createdBy", sortable: true },
     {
       title: t("admin.status"),
       dataKey: "status",
+      sortable: true,
       renderCell: (value) => (
         <span className={`status ${value.toLowerCase()}`}>
           {t(`admin.${value.toLowerCase()}`)}
