@@ -11,6 +11,9 @@
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
-    "role": "Role"
+    "role": "Role",
+    "male": "male",
+    "female": "female",
+    "blocked": "Blocked"
   }
 }

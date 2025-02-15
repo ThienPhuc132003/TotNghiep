@@ -1,5 +1,5 @@
 // src/pages/Admin/ListOfMajor.jsx
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import Table from "../../components/Table";
@@ -10,7 +10,8 @@ import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal";
-import Spinner from "../../components/Spinner"; // Assuming you have a Spinner component
+import Spinner from "../../components/Spinner";
+import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 
 const ListOfMajorPage = () => {
   const { t } = useTranslation();
@@ -18,9 +19,11 @@ const ListOfMajorPage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
   const [modalData, setModalData] = useState({});
   const [modalMode, setModalMode] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -133,21 +136,27 @@ const ListOfMajorPage = () => {
   };
 
   const handleDelete = async (majorId) => {
-    if (window.confirm(t("major.confirmDelete"))) {
-      try {
-        const response = await Api({
-          endpoint: `major/${majorId}`,
-          method: METHOD_TYPE.DELETE,
-        });
+    setDeleteItemId(majorId);
+    setIsDeleteModalOpen(true);
+  };
 
-        if (response.success) {
-          fetchData(); // Refresh the data after deletion
-        } else {
-          console.log("Failed to delete major");
-        }
-      } catch (error) {
-        console.log("An error occurred while deleting major");
+  const confirmDelete = async () => {
+    try {
+      const response = await Api({
+        endpoint: `major/${deleteItemId}`,
+        method: METHOD_TYPE.DELETE,
+      });
+
+      if (response.success) {
+        fetchData(); // Refresh the data after deletion
+      } else {
+        console.log("Failed to delete major");
       }
+    } catch (error) {
+      console.log("An error occurred while deleting major");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteItemId(null);
     }
   };
 
@@ -240,6 +249,13 @@ const ListOfMajorPage = () => {
           onSubmit={modalMode === "add" ? handleCreateMajor : handleSave}
         />
       </Modal>
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        message="Are you sure you want to delete this major?"
+      />
     </AdminDashboardLayout>
   );
 };

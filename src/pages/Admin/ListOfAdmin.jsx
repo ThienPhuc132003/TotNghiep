@@ -1,3 +1,4 @@
+// src/pages/Admin/ListOfAdmin.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
@@ -8,10 +9,12 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
-import Modal from "../../components/Modal";
-import { formatInTimeZone } from "date-fns-tz";
 import i18n from "../../i18n";
+import Modal from "../../components/Modal";
 import Spinner from "../../components/Spinner";
+import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
+import { formatInTimeZone } from "date-fns-tz";
+import qs from "qs";
 
 const ListOfAdminPage = () => {
   const { t } = useTranslation();
@@ -19,13 +22,16 @@ const ListOfAdminPage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
   const [modalData, setModalData] = useState({});
   const [modalMode, setModalMode] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const itemsPerPage = 7;
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
+  const itemsPerPage = 5;
   const currentPath = "/quan-ly-admin";
 
   const fetchData = useCallback(async () => {
@@ -40,21 +46,33 @@ const ListOfAdminPage = () => {
       if (searchQuery) {
         query.filter = JSON.stringify([
           {
-            key: "adminId",
+            key: "adminProfile.fullname",
             operator: "like",
             value: searchQuery,
           },
         ]);
       }
 
+      if (sortConfig.key) {
+        query.sort = JSON.stringify([
+          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
+        ]);
+      }
+
+      const queryString = qs.stringify(query, { encode: false });
+
       const response = await Api({
-        endpoint: "admin/search",
+        endpoint: `admin/search?${queryString}`,
         method: METHOD_TYPE.GET,
-        query,
       });
 
-      if (response.success === true) {
-        setData(response.data.items);
+      if (response.success) {
+        setData(
+          response.data.items.map((item) => ({
+            ...item,
+            fullname: item.adminProfile.fullname,
+          }))
+        );
         setTotalItems(response.data.total);
       } else {
         setError(t("common.errorLoadingData"));
@@ -64,7 +82,7 @@ const ListOfAdminPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, searchQuery, t]);
+  }, [currentPage, searchQuery, sortConfig, t]);
 
   useEffect(() => {
     fetchData();
@@ -76,6 +94,7 @@ const ListOfAdminPage = () => {
 
   const handleSearch = () => {
     setSearchQuery(searchInput);
+    setSortConfig({ key: "", direction: "asc" }); // Reset sort configuration
     setCurrentPage(0); // Reset to first page on search
   };
 
@@ -83,6 +102,16 @@ const ListOfAdminPage = () => {
     if (e.key === "Enter") {
       handleSearch();
     }
+  };
+
+  const handleSort = (sortKey) => {
+    setSortConfig((prevConfig) => {
+      const newDirection =
+        prevConfig.key === sortKey && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc";
+      return { key: sortKey, direction: newDirection };
+    });
   };
 
   const handleAddAdmin = () => {
@@ -93,24 +122,37 @@ const ListOfAdminPage = () => {
       email: "",
       phoneNumber: "",
       homeAddress: "",
-      gender: "",
+      gender: "MALE", // Set default value for gender
       password: "",
       confirmPassword: "",
-      roleId: "",
     });
     setIsModalOpen(true);
   };
-
+  const handleView = (admin) => {
+    setModalData({
+      adminId: admin.adminId,
+      fullname: admin.fullname,
+      phoneNumber: admin.phoneNumber,
+      email: admin.email,
+      homeAddress: admin.homeAddress,
+      birthday: admin.birthday,
+      gender: admin.gender,
+      workEmail: admin.workEmail,
+      roleId: admin.roleId,
+    });
+    setModalMode("view");
+    setIsModalOpen(true);
+  };
   const handleEdit = (admin) => {
     setModalData({
       adminId: admin.adminId,
-      fullname: admin.adminProfile.fullname,
+      fullname: admin.fullname,
       phoneNumber: admin.phoneNumber,
       email: admin.email,
-      homeAddress: admin.adminProfile.homeAddress,
-      birthday: admin.adminProfile.birthday,
-      gender: admin.adminProfile.gender,
-      workEmail: admin.adminProfile.workEmail,
+      homeAddress: admin.homeAddress,
+      birthday: admin.birthday,
+      gender: admin.gender,
+      workEmail: admin.workEmail,
       roleId: admin.roleId,
     });
     setModalMode("edit");
@@ -133,7 +175,7 @@ const ListOfAdminPage = () => {
   const handleCreateAdmin = async (formData) => {
     try {
       const response = await Api({
-        endpoint: "admin",
+        endpoint: "admin/create-admin",
         method: METHOD_TYPE.POST,
         data: formData,
       });
@@ -141,38 +183,47 @@ const ListOfAdminPage = () => {
       if (response.success) {
         handleSave();
       } else {
-        console.log("Failed to create admin");
+        console.error("Failed to create admin:", response.message);
       }
     } catch (error) {
-      console.log("An error occurred while creating admin");
+      console.error("An error occurred while creating admin:", error.message);
     }
   };
 
   const handleDelete = async (adminId) => {
-    if (window.confirm(t("admin.confirmDelete"))) {
-      try {
-        const response = await Api({
-          endpoint: `admin/${adminId}`,
-          method: METHOD_TYPE.DELETE,
-        });
+    setDeleteItemId(adminId);
+    setIsDeleteModalOpen(true);
+  };
 
-        if (response.success) {
-          fetchData(); // Refresh the data after deletion
-        } else {
-          console.log("Failed to delete admin");
-        }
-      } catch (error) {
-        console.log("An error occurred while deleting admin");
+  const confirmDelete = async () => {
+    try {
+      const response = await Api({
+        endpoint: `admin/${deleteItemId}`,
+        method: METHOD_TYPE.DELETE,
+      });
+
+      if (response.success) {
+        fetchData(); // Refresh the data after deletion
+      } else {
+        console.log("Failed to delete admin");
       }
+    } catch (error) {
+      console.error("An error occurred while deleting admin:", error.message);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeleteItemId(null);
     }
   };
 
   const handleApplyFilter = (filterValues) => {
     // Apply filter logic here
     console.log("Filter applied with values:", filterValues);
+    // Update the search query or other state based on the filter values
+    // For example, you can update the searchQuery state with the filter values
+    setSearchQuery(filterValues.fullname || "");
+    setSortConfig({ key: "", direction: "asc" }); // Reset sort configuration
+    setCurrentPage(0); // Reset to first page on filter apply
   };
-
-  const pageCount = Math.ceil(totalItems / itemsPerPage);
 
   const addFields = [
     { key: "fullname", label: t("admin.name") },
@@ -196,39 +247,35 @@ const ListOfAdminPage = () => {
     },
   ];
 
-  const viewFields = [
-    { key: "adminId", label: t("admin.id") },
+  const editFields = [
+    { key: "adminId", label: t("admin.id"), readOnly: true },
     { key: "fullname", label: t("admin.name") },
-    { key: "phoneNumber", label: t("admin.phone") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
     { key: "email", label: t("admin.email") },
+    { key: "phoneNumber", label: t("admin.phone") },
     { key: "homeAddress", label: t("admin.homeAddress") },
-    { key: "birthday", label: t("admin.birthday") },
-    { key: "gender", label: t("admin.gender") },
-    { key: "workEmail", label: t("admin.workEmail") },
-    { key: "roleId", label: t("admin.role") },
+    {
+      key: "gender",
+      label: t("admin.gender"),
+      type: "select",
+      options: ["MALE", "FEMALE"],
+    },
+    {
+      key: "roleId",
+      label: t("admin.role"),
+      type: "select",
+      options: ["BEST_ADMIN", "OTHER_ROLE"],
+    },
   ];
 
-  const editFields = viewFields.map((field) => ({
-    ...field,
-    readOnly: ![
-      "fullname",
-      "birthday",
-      "phoneNumber",
-      "homeAddress",
-      "gender",
-      "roleId",
-    ].includes(field.key),
-  }));
-
   const columns = [
-    { title: t("admin.id"), dataKey: "adminId" },
-    { title: t("admin.name"), dataKey: "adminProfile.fullname" },
+    { title: t("admin.name"), dataKey: "fullname" },
     { title: t("admin.role"), dataKey: "roleId" },
     { title: t("admin.phone"), dataKey: "phoneNumber" },
     { title: t("admin.email"), dataKey: "email" },
     {
       title: t("admin.idCard"),
-      dataKey: "adminProfile.identifyCardNumber",
+      dataKey: "identifyCardNumber",
     },
     {
       title: t("common.createdAt"),
@@ -292,12 +339,13 @@ const ListOfAdminPage = () => {
           <Table
             columns={columns}
             data={combinedAdmins}
-            onView={handleEdit}
+            onView={handleView}
             onEdit={handleEdit}
             onDelete={(admin) => handleDelete(admin.adminId)}
-            pageCount={pageCount}
+            pageCount={Math.ceil(totalItems / itemsPerPage)}
             onPageChange={handlePageClick}
             forcePage={currentPage}
+            onSort={handleSort}
           />
         )}
       </div>
@@ -325,6 +373,13 @@ const ListOfAdminPage = () => {
           onSubmit={modalMode === "add" ? handleCreateAdmin : handleSave}
         />
       </Modal>
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        message="Are you sure you want to delete this admin?"
+      />
     </AdminDashboardLayout>
   );
 };

@@ -16,6 +16,7 @@
     "actions": "Hành động",
     "save": "Lưu",
     "close": "Đóng",
-    "noDataFound": "Không tìm thấy dữ liệu."
+    "noDataFound": "Không tìm thấy dữ liệu.",
+    "errorLoadingData": "Có lỗi xảy ra khi tải dữ liệu."
   }
 }

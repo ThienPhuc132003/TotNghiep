@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Import Link
 import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setUserProfile } from "../../redux/userSlice";
+import { setAdminProfile } from "../../redux/adminSlice"; // Correct import
 import "../../assets/css/LoginLayout.style.css";
 
-const LoginPage = () => {
+const LoginPageComponent = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,11 +32,10 @@ const LoginPage = () => {
   const validateFields = () => {
     const errors = {};
     if (!emailOrPhoneNumber) {
-      errors.emailOrPhoneNumber =
-        "Email hoặc số điện thoại không được để trống.";
+      errors.emailOrPhoneNumber = "Email or Phone Number is required";
     }
     if (!password) {
-      errors.password = "Mật khẩu không được để trống.";
+      errors.password = "Password is required";
     }
     return errors;
   };
@@ -51,7 +50,7 @@ const LoginPage = () => {
     setIsSubmitting(true);
     try {
       const response = await Api({
-        endpoint: "user/login",
+        endpoint: "admin/login",
         method: METHOD_TYPE.POST,
         data: {
           emailOrPhoneNumber,
@@ -59,10 +58,10 @@ const LoginPage = () => {
         },
       });
       const token = response.data.token;
-
+      console.log("Token:", token);
       if (token) {
         Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
-        Cookies.set("role", "user");
+        Cookies.set("role", "admin");
 
         if (rememberMe) {
           localStorage.setItem("emailOrPhoneNumber", emailOrPhoneNumber);
@@ -73,23 +72,23 @@ const LoginPage = () => {
         }
 
         try {
-          const userInfoResponse = await Api({
-            endpoint: "user/get-profile",
+          const adminInfoResponse = await Api({
+            endpoint: "admin/get-profile",
             method: METHOD_TYPE.GET,
             token,
           });
-          if (userInfoResponse.success === true) {
-            dispatch(setUserProfile(userInfoResponse.data));
-            navigate("/dashboard");
+          if (adminInfoResponse.success === true) {
+            dispatch(setAdminProfile(adminInfoResponse.data));
+            navigate("/admin/dashboard");
           }
         } catch (error) {
-          setErrorMessage("Đăng nhập thất bại: Thông tin không hợp lệ.");
+          setErrorMessage("Login failed: Invalid credentials");
         }
       } else {
-        setErrorMessage("Đăng nhập thất bại: Thông tin không hợp lệ.");
+        setErrorMessage("Login failed: Invalid credentials");
       }
     } catch (error) {
-      setErrorMessage("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.");
+      setErrorMessage("Login failed: Invalid credentials");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,33 +100,33 @@ const LoginPage = () => {
         endpoint: "user/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
       });
-
       const authUrl = response.data.authUrl;
+
       if (authUrl) {
-        window.location.href = `${authUrl}&state=user`;
+        window.location.href = authUrl;
       } else {
-        setErrorMessage("Microsoft Auth URL not found.");
+        console.error("Microsoft Auth URL not found.");
       }
-    } catch (error) {
-      setErrorMessage("Error fetching Microsoft Auth URL.");
-      console.error("Error:", error);
+    } catch (errors) {
+      console.error("Error fetching Microsoft Auth URL:", errors);
     }
   };
 
   return (
     <LoginLayout>
       <div className="login-form">
-        <h1 className="login-title">Đăng nhập </h1>
+        <h1 className="login-title">Login</h1>
         <div className="social-login">
           <button
             onClick={handleMicrosoftLogin}
             className="microsoft-login-button"
           >
-            <i className="fab fa-microsoft fa-xl"></i>Login with Microsoft
+            <i className="fab fa-microsoft  fa-xl"></i>
+            Đăng nhập với Microsoft
           </button>
         </div>
         <div className="divider">
-          <span>hoặc</span>
+          <span>or</span>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="login-form-container">
@@ -151,7 +150,7 @@ const LoginPage = () => {
             </div>
           </div>
           <div className="login-form-container">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mật khẩu</label>
             <div className="login-form-group">
               <input
                 type={showPassword ? "text" : "password"}
@@ -199,10 +198,15 @@ const LoginPage = () => {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
+        <div className="register-link">
+          <p>
+            Dont have an account? <Link to="/register">Register</Link>
+          </p>
+        </div>
       </div>
     </LoginLayout>
   );
 };
 
-const Login = React.memo(LoginPage);
-export default Login;
+const LoginPage = React.memo(LoginPageComponent);
+export default LoginPage;

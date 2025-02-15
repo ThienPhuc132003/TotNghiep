@@ -11,7 +11,7 @@ const getNestedValue = (obj, path) => {
   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
 };
 
-const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, onPageChange, forcePage }) => {
+const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, onPageChange, forcePage, onSort }) => {
   const { t } = useTranslation();
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [loading, setLoading] = useState(false);
@@ -36,12 +36,13 @@ const TableComponent = ({ columns, data, onView, onEdit, onDelete, pageCount, on
   }, [data, sortConfig]);
 
   const requestSort = useCallback((key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
-  }, [sortConfig]);
+    onSort(key);
+  }, [sortConfig, onSort]);
 
   const handlePageChange = useCallback(async (selectedPage) => {
     setLoading(true);
@@ -152,6 +153,7 @@ TableComponent.propTypes = {
   pageCount: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
   forcePage: PropTypes.number,
+  onSort: PropTypes.func.isRequired,
 };
 
 const Table = React.memo(TableComponent);

@@ -16,6 +16,7 @@
     "actions": "Actions",
     "save": "Save",
     "close": "Close",
-    "noDataFound": "No data found."
+    "noDataFound": "No data found.",
+    "errorLoadingData": "An error occurred while loading data."
   }
 }

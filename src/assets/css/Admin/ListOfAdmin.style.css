@@ -23,6 +23,7 @@
   border: 1px solid #ccc;
   border-radius: 50px;
   box-sizing: border-box;
+  gap: 5px;
 }
 
 .admin-search-button {
@@ -36,7 +37,7 @@
   transition: background 0.3s;
 }
 
-.admin-search i {
+.admin-search .fa-magnifying-glass {
   color: white;
 }
 
@@ -51,11 +52,35 @@
   outline: none;
 }
 
+.search-clear-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  visibility: hidden;
+}
+.admin-search:hover .search-clear-input {
+  visibility: visible;
+}
+
+.fa-xmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  background-color: rgb(48, 48, 48);
+  padding: 10px 6px;
+}
+.fa-xmark:hover {
+  background-color: #818181;
+}
 .filter-add-admin {
   display: flex;
   gap: 1rem;
 }
-.filter-button-container{
+.filter-button-container {
   display: flex;
 }
 .filter-add-admin .filter-button {
