@@ -122,7 +122,6 @@ const AdminLoginPage = () => {
             onClick={handleMicrosoftLogin}
             className="microsoft-login-button"
           >
-            {/* <img src={MicrosoftIcon} className="microsoft-icon" />Đăng nhập bằng Microsoft */}
             <i className="fab fa-microsoft fa-xl"></i>Đăng nhập với Microsoft
           </button>
         </div>

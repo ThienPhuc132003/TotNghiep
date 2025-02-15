@@ -19,6 +19,9 @@
     "confirmPassword": "Xác Nhận Mật Khẩu",
     "best_admin": "Admin",
     "other_role": "Nhân viên",
-    "workEmail": "Email Công Việc"
+    "workEmail": "Email Công Việc",
+    "male": "Nam",
+    "female": "Nữ",
+    "blocked": "Bị Khóa"
   }
 }

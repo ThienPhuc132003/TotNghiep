@@ -15,7 +15,7 @@
   background-color: #f4f4f4;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  transition: transform 0.3s ease;
+  transition: width 0.3s ease, transform 0.3s ease;
   z-index: 100;
   padding-bottom: 55px;
 }
@@ -43,6 +43,10 @@
 
 .sidebar-hidden .content-area {
   margin-left: 50px;
+}
+
+.sidebar-hidden .submenu {
+  display: none;
 }
 
 .sidebar .overlay {
@@ -100,7 +104,6 @@ nav ul li {
   height: 50px;
   width: auto;
   border-radius: 25px;
-  
 }
 
 nav ul li.active {
@@ -209,7 +212,6 @@ nav ul li:hover a {
 
 /* Submenu styling */
 .submenu {
-  
   margin-left: 45px;
   border-left: 2px solid rgb(158, 158, 158);
 }
@@ -222,7 +224,7 @@ nav ul li:hover a {
   font-size: 14px;
 }
 
-.submenu li:not(.active):hover  {
+.submenu li:not(.active):hover {
   background-color: rgb(255, 255, 255);
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
