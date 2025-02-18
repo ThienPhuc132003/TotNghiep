@@ -179,6 +179,7 @@ const ListOfMajorPage = () => {
   const handleAddMajor = () => {
     setModalMode("add");
     setModalData({
+      majorId: "",
       majorName: "",
     });
     setIsModalOpen(true);
@@ -218,7 +219,7 @@ const ListOfMajorPage = () => {
   const handleCreateMajor = async (formData) => {
     try {
       const response = await Api({
-        endpoint: "major",
+        endpoint: "major/create",
         method: METHOD_TYPE.POST,
         data: formData,
       });
@@ -256,7 +257,10 @@ const ListOfMajorPage = () => {
     { title: t("major.name"), dataKey: "majorName", sortable: true },
   ];
 
-  const addFields = [{ key: "majorName", label: t("major.name") }];
+  const addFields = [
+    { key: "majorId", label: t("major.id") },
+    { key: "majorName", label: t("major.name") },
+  ];
 
   const editFields = [
     { key: "majorId", label: t("major.id"), readOnly: true },

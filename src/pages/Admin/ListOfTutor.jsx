@@ -360,7 +360,7 @@ const ListOfTutorPage = () => {
             searchBarButtonClassName="admin-search-button"
             searchBarOnClick={handleSearch}
             onKeyPress={handleKeyPress}
-            placeholder={t("common.searchPlaceholder")}
+            placeholder="Tìm kiếm theo mã gia sư"
           />
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddTutor}>

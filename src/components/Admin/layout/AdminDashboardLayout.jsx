@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+} from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +31,7 @@ const AdminDashboardLayoutComponent = (props) => {
   const menuData = useSelector((state) => state.menuAdmin.data);
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
   const location = useLocation();
-  const currentPath = location.pathname;
+  const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
   const [openMenus, setOpenMenus] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -78,7 +83,7 @@ const AdminDashboardLayoutComponent = (props) => {
     }
   }, [menuData]);
 
-  const handleMenuClick = (menuName) => {
+  const handleMenuClick = useCallback((menuName) => {
     setOpenMenus((prevOpenMenus) => {
       const newOpenMenus = { ...prevOpenMenus };
       if (newOpenMenus[menuName]) {
@@ -89,7 +94,17 @@ const AdminDashboardLayoutComponent = (props) => {
       localStorage.setItem("openMenus", JSON.stringify(newOpenMenus));
       return newOpenMenus;
     });
-  };
+  }, []); // Empty dependency array
+
+  //Memoize giá trị openMenus
+
+  const memoizedOpenMenus = useMemo(() => {
+    return openMenus;
+  }, [openMenus]);
+
+  const memoizedMenuData = useMemo(() => {
+    return menuData;
+  }, [menuData]);
 
   return (
     <div
@@ -97,7 +112,12 @@ const AdminDashboardLayoutComponent = (props) => {
         isSidebarVisible ? "" : "sidebar-hidden"
       }`}
     >
-      <AdminSidebar currentPath={currentPath} openMenus={openMenus} handleMenuClick={handleMenuClick} />
+      <AdminSidebar
+        currentPath={currentPath}
+        openMenus={memoizedOpenMenus}
+        handleMenuClick={handleMenuClick}
+        menuData={memoizedMenuData}
+      />
       <div className="content-area">
         <button
           className="toggle-sidebar-btn"

@@ -239,6 +239,7 @@ const ListOfAdminPage = () => {
             gender: admin.adminProfile.gender,
             workEmail: admin.adminProfile.workEmail,
             roleId: admin.roleId,
+            status: admin.status,
         });
         setModalMode("view");
         setIsModalOpen(true);
@@ -255,6 +256,7 @@ const ListOfAdminPage = () => {
             gender: admin.adminProfile.gender,
             workEmail: admin.adminProfile.workEmail,
             roleId: admin.roleId,
+            status: admin.status,
         });
         setModalMode("edit");
         setIsModalOpen(true);
@@ -310,35 +312,42 @@ const ListOfAdminPage = () => {
     };
 
     const columns = [
-        { title: t("admin.id"), dataKey: "adminId", sortable: true },
+        { title: "Mã người nhân viên", dataKey: "adminId", sortable: true },
         {
-            title: t("admin.name"),
-            dataKey: "adminProfile.fullname",
-            sortable: true,
+          title: t("admin.name"),
+          dataKey: "adminProfile.fullname",
+          sortable: true,
         },
-        { title: t("admin.role"), dataKey: "roleId", sortable: true },
+        { title: t("admin.role"), dataKey: "roleId", sortable: true, renderCell: (value) => {
+            return value === "BEST_ADMIN" ? "ADMIN" : "Nhân viên";
+          }
+        },
         { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
         { title: t("admin.email"), dataKey: "email", sortable: true },
         {
-            title: t("common.createdAt"),
-            dataKey: "createdAt",
-            sortable: true,
-            renderCell: (value) => {
-                const timeZone =
-                    i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
-                return formatInTimeZone(
-                    new Date(value),
-                    timeZone,
-                    "yyyy-MM-dd HH:mm:ss"
-                );
-            },
+          title: t("common.createdAt"),
+          dataKey: "createdAt",
+          sortable: true,
+          renderCell: (value) => {
+            const timeZone =
+              i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
+            return formatInTimeZone(new Date(value), timeZone, "HH:mm:ss yyyy-MM-dd");
+          },
         },
         { title: t("common.createdBy"), dataKey: "createdBy", sortable: true },
-    ];
+        {
+          title: t("admin.status"),
+          dataKey: "status",
+          sortable: true,
+          renderCell: (value) => {
+            return value === "ACTIVE" ? "Đang hoạt động" : "Chặn";
+          },
+        },
+      ];
 
     const editFields = [
         { key: "adminId", label: t("admin.id"), type: "text", operator: "like" },
-        { key: "fullname", label: t("admin.name"), type: "text", operator: "like" },
+        { key: "fullname", label: t("admin.name"), type: "text", operator: "equal" },
         { key: "email", label: t("admin.email"), type: "text", operator: "like" },
         { key: "roleId", label: t("admin.role"), type: "select", operator: "equal", options: ["BEST_ADMIN", "OTHER_ROLE"] },
         { key: "status", label: t("admin.status"), type: "select", operator: "equal", options: ["ACTIVE", "INACTIVE", "PENDING"] },
@@ -357,7 +366,7 @@ const ListOfAdminPage = () => {
                         searchBarButtonClassName="admin-search-button"
                         searchBarOnClick={handleSearch}
                         onKeyPress={handleKeyPress}
-                        placeholder={t("common.searchPlaceholder")}
+                        placeholder="Tìm kiếm theo mã admin"
                     />
                     <div className="filter-add-admin">
                         <button className="add-admin-button" onClick={handleAddAdmin}>

@@ -90,7 +90,7 @@ const ListOfUserPage = () => {
       if (searchQuery) {
         query.filter = JSON.stringify([
           {
-            key: "email",
+            key: "userId",
             operator: "like",
             value: searchQuery,
           },
@@ -263,13 +263,22 @@ const ListOfUserPage = () => {
   };
 
   const handleUpdateUser = async (formData) => {
+    const dataToSend = {
+      fullname: formData.fullname,
+      birthday: formData.birthday,
+      phoneNumber: formData.phoneNumber,
+      workEmail: formData.workEmail,
+      homeAddress: formData.homeAddress,
+      gender: formData.gender,
+    };
+  
     try {
       const response = await Api({
-        endpoint: `user/update-user/${modalData.userId}`,
+        endpoint: `user/update-profile`,
         method: METHOD_TYPE.PUT,
-        data: formData,
+        data: dataToSend,
       });
-
+  
       if (response.success) {
         handleSave();
       } else {
@@ -367,7 +376,7 @@ const ListOfUserPage = () => {
             searchBarButtonClassName="admin-search-button"
             searchBarOnClick={handleSearch}
             onKeyPress={handleKeyPress}
-            placeholder={t("common.searchPlaceholder")}
+            placeholder="Tìm kiếm theo mã người dùng"
           />
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddUser}>

@@ -214,6 +214,10 @@ nav ul li:hover a {
 .submenu {
   margin-left: 45px;
   border-left: 2px solid rgb(158, 158, 158);
+  height: 0; /* Ẩn submenu mặc định */
+  overflow: hidden;
+  transition: height 0.3s ease, padding 0.3s ease; /* Thêm transition cho height và padding */
+  padding: 0; /* Loại bỏ padding mặc định */
 }
 
 .submenu li {
@@ -224,13 +228,20 @@ nav ul li:hover a {
   font-size: 14px;
 }
 
+.submenu.open {
+  height: auto; /* Hiển thị submenu khi có class "open" */
+  padding: 5px 0; /* Thêm padding khi submenu được mở */
+}
+
 .submenu li:not(.active):hover {
   background-color: rgb(255, 255, 255);
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
+
 .submenu li:not(.active):hover a {
   color: black;
 }
+
 .submenu li.active {
   background-color: rgb(255, 255, 255);
 }
@@ -238,9 +249,11 @@ nav ul li:hover a {
 .submenu li.active a {
   color: #000000;
 }
+
 .submenu li.active a p {
   font-weight: 700;
 }
+
 /* Khi có submenu active, menu cha cũng có nền xanh */
 nav ul li.parent-active {
   background-color: #272e4f;

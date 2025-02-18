@@ -99,7 +99,7 @@ const ListOfStudentPage = () => {
           ...JSON.parse(query.filter),
           {
             key: "userId",
-            operator: "like",
+            operator: "equal",
             value: searchQuery,
           },
         ]);
@@ -360,7 +360,7 @@ const ListOfStudentPage = () => {
             searchBarButtonClassName="admin-search-button"
             searchBarOnClick={handleSearch}
             onKeyPress={handleKeyPress}
-            placeholder={t("common.searchPlaceholder")}
+            placeholder="Tìm kiếm theo mã học viên"
           />
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddStudent}>
