@@ -1,4 +1,4 @@
-// src/pages/Admin/ListOfRequest.jsx
+// src/pages/Admin/ListOfTutor.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
@@ -10,15 +10,17 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
+import i18n from "../../i18n";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
-import { Alert } from "@mui/material";
+import { formatInTimeZone } from "date-fns-tz";
 import qs from "qs";
+import { Alert } from "@mui/material";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
-const ListOfRequestPage = () => {
+const ListOfTutorPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -34,7 +36,7 @@ const ListOfRequestPage = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const itemsPerPage = 5;
-  const currentPath = "/quan-ly-yeu-cau";
+  const currentPath = "/quan-ly-gia-su";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -48,6 +50,13 @@ const ListOfRequestPage = () => {
     const newUrl = `${currentPath}?${params.toString()}`;
     window.history.pushState({}, "", newUrl);
   }, [searchQuery, sortConfig, currentPage, currentPath]);
+
+  const resetState = () => {
+    setSearchInput("");
+    setSearchQuery("");
+    setSortConfig({ key: "", direction: "asc" });
+    setCurrentPage(0);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -76,10 +85,18 @@ const ListOfRequestPage = () => {
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
+        filter: JSON.stringify([
+          {
+            key: "roleId",
+            operator: "equal",
+            value: "TUTOR",
+          },
+        ]),
       };
 
       if (searchQuery) {
         query.filter = JSON.stringify([
+          ...JSON.parse(query.filter),
           {
             key: "email",
             operator: "like",
@@ -97,7 +114,7 @@ const ListOfRequestPage = () => {
       const queryString = qs.stringify(query, { encode: false });
 
       const response = await Api({
-        endpoint: `user/get-list/:REQUEST?${queryString}`,
+        endpoint: `user/search?${queryString}`,
         method: METHOD_TYPE.GET,
       });
 
@@ -150,67 +167,71 @@ const ListOfRequestPage = () => {
     setCurrentPage(0);
   };
 
-  const handleDelete = async (requestId) => {
-    setDeleteItemId(requestId);
+  const handleDelete = async (tutorId) => {
+    setDeleteItemId(tutorId);
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `request/${deleteItemId}`,
+        endpoint: `user/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
 
       if (response.success) {
         fetchData();
       } else {
-        console.log("Failed to delete request");
+        console.log("Failed to delete tutor");
       }
     } catch (error) {
-      console.error("An error occurred while deleting request:", error.message);
+      console.error("An error occurred while deleting tutor:", error.message);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
     }
   };
 
-  const handleAddRequest = () => {
+  const handleAddTutor = () => {
     setModalMode("add");
     setModalData({
+      fullname: "",
+      birthday: "",
       email: "",
       phoneNumber: "",
-      majorName: "",
-      univercity: "",
-      GPA: "",
-      dateTimeLearn: [],
+      homeAddress: "",
+      gender: "MALE",
+      password: "",
+      confirmPassword: "",
     });
     setIsModalOpen(true);
   };
 
-  const handleView = (request) => {
+  const handleView = (tutor) => {
     setModalData({
-      requestId: request.requestId,
-      email: request.email,
-      phoneNumber: request.phoneNumber,
-      majorName: request.tutorProfile.majorName,
-      univercity: request.tutorProfile.univercity,
-      GPA: request.tutorProfile.GPA,
-      dateTimeLearn: request.tutorProfile.dateTimeLearn,
+      userId: tutor.userId,
+      fullname: tutor.userProfile.fullname,
+      phoneNumber: tutor.phoneNumber,
+      email: tutor.email,
+      homeAddress: tutor.userProfile.homeAddress,
+      birthday: tutor.userProfile.birthday,
+      gender: tutor.userProfile.gender,
+      workEmail: tutor.userProfile.workEmail,
     });
     setModalMode("view");
     setIsModalOpen(true);
   };
 
-  const handleEdit = (request) => {
+  const handleEdit = (tutor) => {
     setModalData({
-      requestId: request.requestId,
-      email: request.email,
-      phoneNumber: request.phoneNumber,
-      majorName: request.tutorProfile.majorName,
-      univercity: request.tutorProfile.univercity,
-      GPA: request.tutorProfile.GPA,
-      dateTimeLearn: request.tutorProfile.dateTimeLearn,
+      userId: tutor.userId,
+      fullname: tutor.userProfile.fullname,
+      phoneNumber: tutor.phoneNumber,
+      email: tutor.email,
+      homeAddress: tutor.userProfile.homeAddress,
+      birthday: tutor.userProfile.birthday,
+      gender: tutor.userProfile.gender,
+      workEmail: tutor.userProfile.workEmail,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -229,10 +250,10 @@ const ListOfRequestPage = () => {
     setModalMode(null);
   };
 
-  const handleCreateRequest = async (formData) => {
+  const handleCreateTutor = async (formData) => {
     try {
       const response = await Api({
-        endpoint: "request",
+        endpoint: "user/create-user",
         method: METHOD_TYPE.POST,
         data: formData,
       });
@@ -240,17 +261,17 @@ const ListOfRequestPage = () => {
       if (response.success) {
         handleSave();
       } else {
-        console.error("Failed to create request:", response.message);
+        console.error("Failed to create tutor:", response.message);
       }
     } catch (error) {
-      console.error("An error occurred while creating request:", error.message);
+      console.error("An error occurred while creating tutor:", error.message);
     }
   };
 
-  const handleUpdateRequest = async (formData) => {
+  const handleUpdateTutor = async (formData) => {
     try {
       const response = await Api({
-        endpoint: `request/${modalData.requestId}`,
+        endpoint: `user/update-user/${modalData.userId}`,
         method: METHOD_TYPE.PUT,
         data: formData,
       });
@@ -258,66 +279,78 @@ const ListOfRequestPage = () => {
       if (response.success) {
         handleSave();
       } else {
-        console.error("Failed to update request:", response.message);
+        console.error("Failed to update tutor:", response.message);
       }
     } catch (error) {
-      console.error("An error occurred while updating request:", error.message);
+      console.error("An error occurred while updating tutor:", error.message);
     }
   };
 
   const columns = [
-    { title: t("request.id"), dataKey: "requestId", sortable: true },
-    { title: t("request.email"), dataKey: "email", sortable: true },
-    { title: t("request.phone"), dataKey: "phoneNumber", sortable: true },
-    { title: t("request.majorName"), dataKey: "tutorProfile.majorName", sortable: true },
-    { title: t("request.univercity"), dataKey: "tutorProfile.univercity", sortable: true },
-    { title: t("request.GPA"), dataKey: "tutorProfile.GPA", sortable: true },
+    { title: "Mã người dùng", dataKey: "userId", sortable: true },
     {
-      title: t("request.dateTimeLearn"),
-      dataKey: "tutorProfile.dateTimeLearn",
-      renderCell: (value) => (
-        <ul>
-          {value.map((item, index) => (
-            <li key={index}>
-              {item.day}: {item.times.join(", ")}
-            </li>
-          ))}
-        </ul>
-      ),
+      title: t("admin.name"),
+      dataKey: "userProfile.fullname",
+      sortable: true,
     },
+    { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
+    { title: t("admin.email"), dataKey: "email", sortable: true },
+    {
+      title: t("common.createdAt"),
+      dataKey: "createdAt",
+      sortable: true,
+      renderCell: (value) => {
+        const timeZone =
+          i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
+        return formatInTimeZone(
+          new Date(value),
+          timeZone,
+          "yyyy-MM-dd HH:mm:ss"
+        );
+      },
+    },
+    { title: t("common.createdBy"), dataKey: "createdBy", sortable: true },
   ];
 
   const addFields = [
-    { key: "email", label: t("request.email") },
-    { key: "phoneNumber", label: t("request.phone") },
-    { key: "majorName", label: t("request.majorName") },
-    { key: "univercity", label: t("request.univercity") },
-    { key: "GPA", label: t("request.GPA") },
+    { key: "fullname", label: t("admin.name") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
+    { key: "email", label: t("admin.email") },
+    { key: "phoneNumber", label: t("admin.phone") },
+    { key: "homeAddress", label: t("admin.homeAddress") },
     {
-      key: "dateTimeLearn",
-      label: t("request.dateTimeLearn"),
-      type: "date",
+      key: "gender",
+      label: t("admin.gender"),
+      type: "select",
+      options: ["MALE", "FEMALE"],
+    },
+    { key: "password", label: t("admin.password"), type: "password" },
+    {
+      key: "confirmPassword",
+      label: t("admin.confirmPassword"),
+      type: "password",
     },
   ];
 
   const editFields = [
-    { key: "requestId", label: t("request.id"), readOnly: true },
-    { key: "email", label: t("request.email") },
-    { key: "phoneNumber", label: t("request.phone") },
-    { key: "majorName", label: t("request.majorName") },
-    { key: "univercity", label: t("request.univercity") },
-    { key: "GPA", label: t("request.GPA") },
+    { key: "userId", label: "Mã người dùng", readOnly: true },
+    { key: "fullname", label: t("admin.name") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
+    { key: "email", label: t("admin.email"), readOnly: true },
+    { key: "phoneNumber", label: t("admin.phone") },
+    { key: "homeAddress", label: t("admin.homeAddress") },
     {
-      key: "dateTimeLearn",
-      label: t("request.dateTimeLearn"),
-      type: "date",
+      key: "gender",
+      label: t("admin.gender"),
+      type: "select",
+      options: ["MALE", "FEMALE"],
     },
   ];
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("request.listTitle")}</h2>
+        <h2 className="admin-list-title">{t("admin.listTitle")}</h2>
         <div className="admin-search-filter">
           <SearchBar
             value={searchInput}
@@ -330,10 +363,16 @@ const ListOfRequestPage = () => {
             placeholder={t("common.searchPlaceholder")}
           />
           <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddRequest}>
+            <button className="add-admin-button" onClick={handleAddTutor}>
               {t("common.addButton")}
             </button>
-            <button className="refresh-button" onClick={fetchData}>
+            <button
+              className="refresh-button"
+              onClick={() => {
+                resetState();
+                fetchData();
+              }}
+            >
               {t("common.refresh")}
             </button>
             <AdminFilterButton fields={editFields} onApply={handleApplyFilter} />
@@ -345,7 +384,7 @@ const ListOfRequestPage = () => {
           data={data}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={(request) => handleDelete(request.requestId)}
+          onDelete={(tutor) => handleDelete(tutor.userId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
           forcePage={currentPage}
@@ -365,7 +404,7 @@ const ListOfRequestPage = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        contentLabel={modalMode === "add" ? "Add Request" : "Edit Request"}
+        contentLabel={modalMode === "add" ? "Add Tutor" : "Edit Tutor"}
         className="modal"
         overlayClassName="overlay"
       >
@@ -376,18 +415,18 @@ const ListOfRequestPage = () => {
           onChange={(name, value) =>
             setModalData({ ...modalData, [name]: value })
           }
-          onSubmit={modalMode === "add" ? handleCreateRequest : handleUpdateRequest}
+          onSubmit={modalMode === "add" ? handleCreateTutor : handleUpdateTutor}
         />
       </Modal>
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa yêu cầu này?"
+        message="Bạn có chắc muốn xóa gia sư này?"
       />
     </AdminDashboardLayout>
   );
 };
 
-const ListOfRequest = React.memo(ListOfRequestPage);
-export default ListOfRequest;
+const ListOfTutor = React.memo(ListOfTutorPage);
+export default ListOfTutor;

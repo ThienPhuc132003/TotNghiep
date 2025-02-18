@@ -17,6 +17,7 @@
     "save": "Lưu",
     "close": "Đóng",
     "noDataFound": "Không tìm thấy dữ liệu.",
-    "errorLoadingData": "Có lỗi xảy ra khi tải dữ liệu."
+    "errorLoadingData": "Có lỗi xảy ra khi tải dữ liệu.",
+    "refresh": "Làm mới"
   }
 }

@@ -13,17 +13,35 @@ const AdminFilterButtonComponent = ({ fields, onApply }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFilterValues({ ...filterValues, [name]: value });
+    const field = fields.find((f) => f.key === name);
+    setFilterValues({
+      ...filterValues,
+      [name]: {
+        value: value,
+        operator: field.operator,
+      },
+    });
   };
 
   const handleApply = () => {
-    onApply(filterValues);
+    const filters = Object.entries(filterValues).map(([key, value]) => {
+      if (value.value !== "") {
+        return {
+          key: key,
+          operator: value.operator,
+          value: value.value,
+        };
+      }
+      return null;
+    }).filter(Boolean); // Remove null values
+
+    onApply(filters);
     setIsOpen(false);
   };
 
   const handleClearFilters = () => {
     setFilterValues({});
-    onApply({});
+    onApply([]);
   };
 
   return (
@@ -40,7 +58,7 @@ const AdminFilterButtonComponent = ({ fields, onApply }) => {
                 {field.type === "select" ? (
                   <select
                     name={field.key}
-                    value={filterValues[field.key] || ""}
+                    value={filterValues[field.key]?.value || ""}
                     onChange={handleChange}
                   >
                     <option value="">Select</option>
@@ -54,7 +72,7 @@ const AdminFilterButtonComponent = ({ fields, onApply }) => {
                   <input
                     type="text"
                     name={field.key}
-                    value={filterValues[field.key] || ""}
+                    value={filterValues[field.key]?.value || ""}
                     onChange={handleChange}
                   />
                 )}
@@ -80,6 +98,9 @@ AdminFilterButtonComponent.propTypes = {
     PropTypes.shape({
       key: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
+      type: PropTypes.oneOf(["text", "select", "date"]).isRequired,
+      operator: PropTypes.oneOf(["equal", "like", "in", "range", "greater", "less"]).isRequired,
+      options: PropTypes.arrayOf(PropTypes.string),
     })
   ).isRequired,
   onApply: PropTypes.func.isRequired,

@@ -31,6 +31,9 @@ const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
 const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
 const ListOfRequest = lazy(() => import("./pages/Admin/ListOfRequest"));
+const ListOfUser = lazy(() => import("./pages/Admin/ListOfUser"));
+const ListOfStudent = lazy(() => import("./pages/Admin/ListOfStudent"));
+const ListOfTutor = lazy(() => import("./pages/Admin/ListOfTutor"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -72,7 +75,10 @@ function App() {
             <Route path="admin/profile" element={<AdminProfile />} />
             <Route path="quan-ly-admin" element={<ListOfAdmin />} />
             <Route path="quan-ly-nganh" element={<ListOfMajor />} />
-            <Route path="quan-ly-request" element={<ListOfRequest />} />
+            <Route path="quan-ly-yeu-cau" element={<ListOfRequest />} />
+            <Route path="quan-ly-nguoi-dung" element={<ListOfUser />} />
+            <Route path="quan-ly-nguoi-hoc" element={<ListOfStudent />} />
+            <Route path="quan-ly-gia-su" element={<ListOfTutor />} />
           </Route>
         </Routes>
       </Suspense>

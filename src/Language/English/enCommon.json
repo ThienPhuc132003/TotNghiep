@@ -17,6 +17,7 @@
     "save": "Save",
     "close": "Close",
     "noDataFound": "No data found.",
-    "errorLoadingData": "An error occurred while loading data."
+    "errorLoadingData": "An error occurred while loading data.",
+    "refresh": "Refresh"
   }
 }

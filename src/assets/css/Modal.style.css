@@ -1,67 +1,24 @@
-/* Modal overlay styling */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Modal content styling */
-.modal-content {
-  position: relative;
-  background: #fff;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-  animation: slideIn 0.3s ease-out;
-}
-
-/* Modal title styling */
-.modal-title {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  text-align: center;
-}
-
-/* Close button styling */
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #333;
-  transition: color 0.3s;
-}
-
-
-/* Modal fade-in animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+/* src/assets/css/Modal.style.css */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure the modal is above other content */
+    max-width: 500px;
+    width: 100%;
   }
-  to {
-    opacity: 1;
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999; /* Ensure the overlay is below the modal but above other content */
   }
-}
-
-/* Modal slide-in animation */
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}

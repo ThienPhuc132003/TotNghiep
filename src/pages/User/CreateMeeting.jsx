@@ -4,8 +4,11 @@ import UserDashboardLayout from "../../components/User/layout/UserDashboardLayou
 import "../../assets/css/CreateMeeting.style.css";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import Modal from "../../components/Modal";
+import Modal from "react-modal";
 import FormDetail from "../../components/FormDetail";
+
+// Set the app element for accessibility
+Modal.setAppElement("#root");
 
 const CreateMeetingPage = () => {
   const [topic, setTopic] = useState("");
@@ -81,8 +84,10 @@ const CreateMeetingPage = () => {
       </div>
       <Modal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title="Meeting Details"
+        onRequestClose={handleCloseModal}
+        contentLabel="Meeting Details"
+        className="modal"
+        overlayClassName="overlay"
       >
         <FormDetail
           formData={modalData}
