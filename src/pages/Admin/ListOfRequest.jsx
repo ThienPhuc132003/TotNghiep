@@ -1,5 +1,5 @@
-// src/pages/Admin/ListOfMajor.jsx
-import React, { useState, useCallback, useEffect } from "react";
+// src/pages/Admin/ListOfRequest.jsx
+import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
@@ -18,7 +18,7 @@ import qs from "qs";
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
-const ListOfMajorPage = () => {
+const ListOfRequestPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -34,7 +34,7 @@ const ListOfMajorPage = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const itemsPerPage = 5;
-  const currentPath = "/quan-ly-nganh";
+  const currentPath = "/quan-ly-yeu-cau";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -70,8 +70,8 @@ const ListOfMajorPage = () => {
   }, [searchQuery, sortConfig, currentPage, updateUrl]);
 
   const fetchData = useCallback(async () => {
-    setError(null);
     setIsLoading(true);
+    setError(null);
     try {
       const query = {
         rpp: itemsPerPage,
@@ -81,7 +81,7 @@ const ListOfMajorPage = () => {
       if (searchQuery) {
         query.filter = JSON.stringify([
           {
-            key: "majorId",
+            key: "email",
             operator: "like",
             value: searchQuery,
           },
@@ -97,7 +97,7 @@ const ListOfMajorPage = () => {
       const queryString = qs.stringify(query, { encode: false });
 
       const response = await Api({
-        endpoint: `major?${queryString}`,
+        endpoint: `user/get-list/:REQUEST?${queryString}`,
         method: METHOD_TYPE.GET,
       });
 
@@ -134,7 +134,7 @@ const ListOfMajorPage = () => {
     }
   };
 
-  const handleSort = useCallback((sortKey) => {
+  const handleSort = (sortKey) => {
     setSortConfig((prevConfig) => {
       const newDirection =
         prevConfig.key === sortKey && prevConfig.direction === "asc"
@@ -142,65 +142,79 @@ const ListOfMajorPage = () => {
           : "asc";
       return { key: sortKey, direction: newDirection };
     });
-  }, []);
+  };
 
   const handleApplyFilter = (filterValues) => {
-    console.log("Filter applied with values:", filterValues);
-    setSearchQuery(filterValues.majorName || "");
+    setSearchQuery(filterValues.email || "");
     setSortConfig({ key: "", direction: "asc" });
     setCurrentPage(0);
   };
 
-  const handleDelete = useCallback(async (majorId) => {
-    setDeleteItemId(majorId);
+  const handleDelete = async (requestId) => {
+    setDeleteItemId(requestId);
     setIsDeleteModalOpen(true);
-  }, []);
+  };
 
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `major/${deleteItemId}`,
+        endpoint: `request/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
 
       if (response.success) {
         fetchData();
       } else {
-        console.log("Failed to delete major");
+        console.log("Failed to delete request");
       }
     } catch (error) {
-      console.error("An error occurred while deleting major:", error.message);
+      console.error("An error occurred while deleting request:", error.message);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
     }
   };
 
-  const handleAddMajor = () => {
+  const handleAddRequest = () => {
     setModalMode("add");
     setModalData({
+      email: "",
+      phoneNumber: "",
       majorName: "",
+      univercity: "",
+      GPA: "",
+      dateTimeLearn: [],
     });
     setIsModalOpen(true);
   };
 
-  const handleView = useCallback((major) => {
+  const handleView = (request) => {
     setModalData({
-      majorId: major.majorId,
-      majorName: major.majorName,
+      requestId: request.requestId,
+      email: request.email,
+      phoneNumber: request.phoneNumber,
+      majorName: request.tutorProfile.majorName,
+      univercity: request.tutorProfile.univercity,
+      GPA: request.tutorProfile.GPA,
+      dateTimeLearn: request.tutorProfile.dateTimeLearn,
     });
     setModalMode("view");
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleEdit = useCallback((major) => {
+  const handleEdit = (request) => {
     setModalData({
-      majorId: major.majorId,
-      majorName: major.majorName,
+      requestId: request.requestId,
+      email: request.email,
+      phoneNumber: request.phoneNumber,
+      majorName: request.tutorProfile.majorName,
+      univercity: request.tutorProfile.univercity,
+      GPA: request.tutorProfile.GPA,
+      dateTimeLearn: request.tutorProfile.dateTimeLearn,
     });
     setModalMode("edit");
     setIsModalOpen(true);
-  }, []);
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -215,10 +229,10 @@ const ListOfMajorPage = () => {
     setModalMode(null);
   };
 
-  const handleCreateMajor = async (formData) => {
+  const handleCreateRequest = async (formData) => {
     try {
       const response = await Api({
-        endpoint: "major",
+        endpoint: "request",
         method: METHOD_TYPE.POST,
         data: formData,
       });
@@ -226,17 +240,17 @@ const ListOfMajorPage = () => {
       if (response.success) {
         handleSave();
       } else {
-        console.log("Failed to create major");
+        console.error("Failed to create request:", response.message);
       }
     } catch (error) {
-      console.error("An error occurred while creating major:", error.message);
+      console.error("An error occurred while creating request:", error.message);
     }
   };
 
-  const handleUpdateMajor = async (formData) => {
+  const handleUpdateRequest = async (formData) => {
     try {
       const response = await Api({
-        endpoint: `major/${modalData.majorId}`,
+        endpoint: `request/${modalData.requestId}`,
         method: METHOD_TYPE.PUT,
         data: formData,
       });
@@ -244,29 +258,66 @@ const ListOfMajorPage = () => {
       if (response.success) {
         handleSave();
       } else {
-        console.log("Failed to update major");
+        console.error("Failed to update request:", response.message);
       }
     } catch (error) {
-      console.error("An error occurred while updating major:", error.message);
+      console.error("An error occurred while updating request:", error.message);
     }
   };
 
   const columns = [
-    { title: t("major.id"), dataKey: "majorId", sortable: true },
-    { title: t("major.name"), dataKey: "majorName", sortable: true },
+    { title: t("request.id"), dataKey: "requestId", sortable: true },
+    { title: t("request.email"), dataKey: "email", sortable: true },
+    { title: t("request.phone"), dataKey: "phoneNumber", sortable: true },
+    { title: t("request.majorName"), dataKey: "tutorProfile.majorName", sortable: true },
+    { title: t("request.univercity"), dataKey: "tutorProfile.univercity", sortable: true },
+    { title: t("request.GPA"), dataKey: "tutorProfile.GPA", sortable: true },
+    {
+      title: t("request.dateTimeLearn"),
+      dataKey: "tutorProfile.dateTimeLearn",
+      renderCell: (value) => (
+        <ul>
+          {value.map((item, index) => (
+            <li key={index}>
+              {item.day}: {item.times.join(", ")}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
   ];
 
-  const addFields = [{ key: "majorName", label: t("major.name") }];
+  const addFields = [
+    { key: "email", label: t("request.email") },
+    { key: "phoneNumber", label: t("request.phone") },
+    { key: "majorName", label: t("request.majorName") },
+    { key: "univercity", label: t("request.univercity") },
+    { key: "GPA", label: t("request.GPA") },
+    {
+      key: "dateTimeLearn",
+      label: t("request.dateTimeLearn"),
+      type: "date",
+    },
+  ];
 
   const editFields = [
-    { key: "majorId", label: t("major.id"), readOnly: true },
-    { key: "majorName", label: t("major.name") },
+    { key: "requestId", label: t("request.id"), readOnly: true },
+    { key: "email", label: t("request.email") },
+    { key: "phoneNumber", label: t("request.phone") },
+    { key: "majorName", label: t("request.majorName") },
+    { key: "univercity", label: t("request.univercity") },
+    { key: "GPA", label: t("request.GPA") },
+    {
+      key: "dateTimeLearn",
+      label: t("request.dateTimeLearn"),
+      type: "date",
+    },
   ];
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("major.listTitle")}</h2>
+        <h2 className="admin-list-title">{t("request.listTitle")}</h2>
         <div className="admin-search-filter">
           <SearchBar
             value={searchInput}
@@ -279,16 +330,13 @@ const ListOfMajorPage = () => {
             placeholder={t("common.searchPlaceholder")}
           />
           <div className="filter-add-admin">
+            <button className="add-admin-button" onClick={handleAddRequest}>
+              {t("common.addButton")}
+            </button>
             <button className="refresh-button" onClick={fetchData}>
               {t("common.refresh")}
             </button>
-            <button className="add-admin-button" onClick={handleAddMajor}>
-              {t("common.addButton")}
-            </button>
-            <AdminFilterButton
-              fields={editFields}
-              onApply={handleApplyFilter}
-            />
+            <AdminFilterButton fields={editFields} onApply={handleApplyFilter} />
           </div>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
@@ -297,7 +345,7 @@ const ListOfMajorPage = () => {
           data={data}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={(request) => handleDelete(request.requestId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
           forcePage={currentPage}
@@ -317,7 +365,7 @@ const ListOfMajorPage = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        contentLabel={modalMode === "add" ? "Add Major" : "Edit Major"}
+        contentLabel={modalMode === "add" ? "Add Request" : "Edit Request"}
         className="modal"
         overlayClassName="overlay"
       >
@@ -328,18 +376,18 @@ const ListOfMajorPage = () => {
           onChange={(name, value) =>
             setModalData({ ...modalData, [name]: value })
           }
-          onSubmit={modalMode === "add" ? handleCreateMajor : handleUpdateMajor}
+          onSubmit={modalMode === "add" ? handleCreateRequest : handleUpdateRequest}
         />
       </Modal>
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa ngành này?"
+        message="Bạn có chắc muốn xóa yêu cầu này?"
       />
     </AdminDashboardLayout>
   );
 };
 
-const ListOfMajor = React.memo(ListOfMajorPage);
-export default ListOfMajor;
+const ListOfRequest = React.memo(ListOfRequestPage);
+export default ListOfRequest;

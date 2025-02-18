@@ -9,8 +9,9 @@ import Api from "../../network/Api";
 import { setAdminProfile } from "../../redux/adminSlice";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../utils/cropImage";
-import Modal from "../../components/Modal";
+import Modal from "react-modal";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
+
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
@@ -90,10 +91,7 @@ const AdminProfilePage = () => {
 
   const handleCropSave = async () => {
     try {
-      const croppedImage = await getCroppedImg(
-        selectedImage,
-        croppedAreaPixels
-      );
+      const croppedImage = await getCroppedImg(selectedImage, croppedAreaPixels);
       const formData = new FormData();
       formData.append("avatar", croppedImage);
 
@@ -105,9 +103,7 @@ const AdminProfilePage = () => {
       });
 
       if (response.success === true) {
-        dispatch(
-          setAdminProfile({ ...adminProfile, avatar: response.data.avatar })
-        );
+        dispatch(setAdminProfile({ ...adminProfile, avatar: response.data.avatar }));
         setIsModalOpen(false);
         setSelectedImage(null);
         setIsCropping(false);
@@ -121,10 +117,10 @@ const AdminProfilePage = () => {
   };
 
   const getAvatar = () => {
-    if (profileData && profileData.avatar) {
-      return profileData.avatar;
+    if (adminProfile && adminProfile.avatar) {
+      return adminProfile.avatar;
     }
-    return profileData.gender === "FEMALE" ? dfFemale : dfMale;
+    return adminProfile.gender === "FEMALE" ? dfFemale : dfMale;
   };
 
   return (
@@ -148,8 +144,8 @@ const AdminProfilePage = () => {
           </div>
           <Modal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            title="Select and Crop Avatar"
+            onRequestClose={() => setIsModalOpen(false)}
+            contentLabel="Select and Crop Avatar"
             className="modal"
             overlayClassName="overlay"
           >

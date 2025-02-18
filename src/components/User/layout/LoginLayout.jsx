@@ -1,20 +1,35 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useLocation } from "react-router-dom";
 import "../../../assets/css/LoginLayout.style.css";
-import logo from "../../../assets/images/logoVLU.png";
+import HomePageLayout from "./HomePageLayout";
 
 const LoginLayoutComponent = (props) => {
   const { children = null } = props;
+  const location = useLocation();
+
+  const isAdminPath = location.pathname.startsWith("/admin");
+
   return (
-    <div className="login-layout">
-      <div className="gradient-layer"></div>
-      <div className="pattern-layer"></div>
-      <div className="glow-layer"></div>
-      <div className="login-container">
-        {/* <img src={logo} alt="logo" className="logo" /> */}
-        {children}
-      </div>
-    </div>
+    <>
+      {isAdminPath ? (
+        <div className="login-layout">
+          <div className="gradient-layer"></div>
+          <div className="pattern-layer"></div>
+          <div className="glow-layer"></div>
+          <div className="login-container">{children}</div>
+        </div>
+      ) : (
+        <HomePageLayout>
+          <div className="login-layout">
+            <div className="gradient-layer"></div>
+            <div className="pattern-layer"></div>
+            <div className="glow-layer"></div>
+            <div className="login-container">{children}</div>
+          </div>
+        </HomePageLayout>
+      )}
+    </>
   );
 };
 

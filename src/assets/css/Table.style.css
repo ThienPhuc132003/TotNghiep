@@ -33,6 +33,10 @@
   width: 150px; /* Set a fixed width for each column */
 }
 
+.custom-table tbody tr {
+  height: 50px; /* Set a fixed height for each row */
+}
+
 .custom-table tbody tr:hover {
   background-color: #f1f1f1;
 }
@@ -41,6 +45,9 @@
   padding: 10px;
   text-align: center;
   width: 150px; /* Set a fixed width for each column */
+  overflow: hidden; /* Ensure content does not overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  white-space: nowrap; /* Prevent text from wrapping */
 }
 
 .sort-indicator {
@@ -67,7 +74,9 @@
   text-align: center;
 }
 
-.loading, .error, .no-data {
+.loading,
+.error,
+.no-data {
   text-align: center;
   padding: 1rem;
   font-size: 1.25rem;
@@ -109,4 +118,13 @@
 
 .action-button.delete:hover {
   color: #ff4500;
+}
+
+.table-cell {
+  font-size: 14px; /* Adjust the font size as needed */
+  padding: 8px; /* Add padding to ensure proper spacing */
+}
+
+.table-cell-email {
+  word-break: break-all; /* Ensure long email addresses break into multiple lines */
 }

@@ -9,8 +9,9 @@ import Api from "../../network/Api";
 import { setUserProfile } from "../../redux/userSlice";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../utils/cropImage";
-import Modal from "../../components/Modal";
+import Modal from "react-modal";
 import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
+
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
@@ -145,8 +146,8 @@ const ProfilePage = () => {
           </div>
           <Modal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            title="Select and Crop Avatar"
+            onRequestClose={() => setIsModalOpen(false)}
+            contentLabel="Select and Crop Avatar"
             className="modal"
             overlayClassName="overlay"
           >

@@ -1,105 +1,117 @@
-/* src/assets/css/DeleteConfirmationModal.style.css */
-
-/* Modal overlay styling */
+/* Modal overlay */
 .delete-confirmation-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  /* Modal content styling */
-  .delete-confirmation-modal-content {
-    position: relative;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 100%;
-    animation: slideIn 0.3s ease-out;
-  }
-  
-  /* Modal title styling */
-  .delete-confirmation-modal-title {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    text-align: center;
-  }
-  
-  /* Close button styling */
-  .delete-confirmation-modal-close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-    transition: color 0.3s;
-  }
-  
-  /* Modal buttons styling */
-  .delete-confirmation-modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
-  
-  /* Cancel button styling */
-  .delete-confirmation-modal-cancel-button {
-    padding: 0.5rem 1rem;
-    background-color: #d9534f;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .delete-confirmation-modal-cancel-button:hover {
-    background-color: #c9302c;
-  }
-  
-  /* Confirm button styling */
-  .delete-confirmation-modal-confirm-button {
-    padding: 0.5rem 1rem;
-    background-color: #5cb85c;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .delete-confirmation-modal-confirm-button:hover {
-    background-color: #4cae4c;
-  }
-  
-  /* Modal fade-in animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  
-  /* Modal slide-in animation */
-  @keyframes slideIn {
-    from {
-      transform: translateY(-20px);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal content */
+.delete-confirmation-modal-content {
+  position: relative;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Header with icon */
+.delete-confirmation-modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.alert-icon {
+  font-size: 3rem;
+  color: #d9534f;
+  margin-bottom: 0.5rem;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-message {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Close button */
+.delete-confirmation-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.delete-confirmation-modal-close:hover {
+  color: #000;
+}
+
+/* Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.cancel-button {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #f5f5f5;
+}
+
+.delete-button {
+  padding: 0.5rem 1rem;
+  background-color: #d9534f;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.delete-button:hover {
+  background-color: #c9302c;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); }
+  to { transform: translateY(0); }
+}

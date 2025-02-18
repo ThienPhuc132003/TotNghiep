@@ -1,14 +1,8 @@
-// src/components/DeleteConfirmationModal.jsx
 import React from "react";
 import PropTypes from "prop-types";
 import "../assets/css/DeleteConfirmationModal.style.css";
 
-const DeleteConfirmationModalComponent = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  message = "Are you sure you want to delete this item?",
-}) => {
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, message = "Are you sure you want to delete this item?" }) => {
   if (!isOpen) return null;
 
   const handleOverlayClick = (e) => {
@@ -18,32 +12,28 @@ const DeleteConfirmationModalComponent = ({
   };
 
   return (
-    <div className="delete-confirmation-modal-overlay" onClick={handleOverlayClick}>
+    <div className="delete-confirmation-modal-overlay" onClick={handleOverlayClick} aria-modal="true" role="dialog">
       <div className="delete-confirmation-modal-content">
-        <button className="delete-confirmation-modal-close-button" onClick={onClose}>
-          &times;
-        </button>
-        <h2 className="delete-confirmation-modal-title">Confirm Delete</h2>
-        <p>{message}</p>
-        <div className="delete-confirmation-modal-buttons">
-          <button className="delete-confirmation-modal-cancel-button" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="delete-confirmation-modal-confirm-button" onClick={onConfirm}>
-            Confirm
-          </button>
+        <button className="delete-confirmation-modal-close" onClick={onClose} aria-label="Close">&times;</button>
+        <div className="delete-confirmation-modal-header">
+          <div className="alert-icon">&#9888;</div>
+          <h2 className="modal-title">Xóa vĩnh viễn</h2>
+        </div>
+        <p className="modal-message">{message} thao tác này không thể hoàn tác</p>
+        <div className="modal-buttons">
+          <button className="cancel-button" onClick={onClose}>Cancel</button>
+          <button className="delete-button" onClick={onConfirm}>Delete</button>
         </div>
       </div>
     </div>
   );
 };
 
-DeleteConfirmationModalComponent.propTypes = {
+DeleteConfirmationModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
   message: PropTypes.string,
 };
 
-const DeleteConfirmationModal = React.memo(DeleteConfirmationModalComponent);
-export default DeleteConfirmationModal;
+export default React.memo(DeleteConfirmationModal);
