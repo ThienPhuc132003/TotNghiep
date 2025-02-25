@@ -34,7 +34,7 @@ const ListOfRequestPage = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const itemsPerPage = 5;
-  const currentPath = "/quan-ly-yeu-cau";
+  const currentPath = "/yeu-cau";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -317,7 +317,7 @@ const ListOfRequestPage = () => {
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("request.listTitle")}</h2>
+        <h2 className="admin-list-title">Danh sách yêu cầu làm gia sư</h2>
         <div className="admin-search-filter">
           <SearchBar
             value={searchInput}

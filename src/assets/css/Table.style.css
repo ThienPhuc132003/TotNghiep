@@ -1,11 +1,15 @@
 /* src/assets/css/Table.style.css */
-.table-container {
+.main-table-container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 600px;
-  overflow-x: auto;
-  padding-bottom: 20px; /* Add padding to the bottom to ensure pagination is visible */
+  height: 600px; /* Set a fixed height */
+}
+
+.table-scrollable-container {
+  overflow-y: auto; /* Enable vertical scrolling */
+  height: calc(100% - 50px); /* Take all available height except pagination height */
+  margin-bottom: 10px; /* Add a small margin */
 }
 
 .custom-table {
@@ -27,10 +31,13 @@
   z-index: 1;
 }
 
+/* Center Align Headers */
 .custom-table thead th {
-  padding: 10px;
-  cursor: pointer;
-  width: 150px; /* Set a fixed width for each column */
+    padding: 10px;
+    cursor: pointer;
+    width: 150px;
+    /* Set a fixed width for each column */
+    text-align: center; /* Vertically center the content */
 }
 
 .custom-table tbody tr {

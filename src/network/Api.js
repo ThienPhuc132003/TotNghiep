@@ -1,7 +1,14 @@
 import { METHOD_TYPE } from "./methodType";
 import axiosClient from "./axiosClient";
-import qs from 'qs';
-const Api = async ({ domain = "https://giasuvlu.click/api/", endpoint, method = METHOD_TYPE.GET, data, query, isFormData = false }) => {
+import qs from "qs";
+const Api = async ({
+  domain = "https://giasuvlu.click/api/",
+  endpoint,
+  method = METHOD_TYPE.GET,
+  data,
+  query,
+  isFormData = false,
+}) => {
   let processedQuery = { ...query };
   if (processedQuery.filter && Array.isArray(processedQuery.filter)) {
     processedQuery.filter = JSON.stringify(processedQuery.filter);
@@ -9,11 +16,14 @@ const Api = async ({ domain = "https://giasuvlu.click/api/", endpoint, method = 
   if (processedQuery.sort && Array.isArray(processedQuery.sort)) {
     processedQuery.sort = JSON.stringify(processedQuery.sort);
   }
-  let queryString = qs.stringify(processedQuery, { encode: false, format: "RFC3986" });
+  let queryString = qs.stringify(processedQuery, {
+    encode: false,
+    format: "RFC3986",
+  });
   const url = `${domain}${endpoint}${queryString ? `?${queryString}` : ""}`;
-  
-  console.log("API URL (before request):", url);
 
+  console.log("API URL (before request):", url);
+  console.log("API Data (before request):", data);
   const config = { headers: {} };
 
   if (isFormData) {
@@ -33,7 +43,7 @@ const Api = async ({ domain = "https://giasuvlu.click/api/", endpoint, method = 
         response = await axiosClient.delete(url, { data, ...config });
         break;
       default:
-        response = await axiosClient.get(url, config); // Không dùng `params`
+        response = await axiosClient.get(url, config); 
         break;
     }
 

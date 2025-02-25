@@ -1,28 +1,51 @@
-/* src/assets/css/FilterButton.style.css */
+/* src/assets/css/AdminFilterButton.style.css */
 
+.filter-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-button {
+  padding: 0.75rem 1.5rem;
+  background: rgba(64, 104, 178, 1);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-button svg {
+  transition: transform 0.3s ease;
+}
+
+.filter-button.active svg {
+  transform: rotate(180deg);
+}
 
 .filter-panel {
   display: flex;
   flex-direction: column;
-  position: relative;
-  height: 100%;
-  margin-top: 10px;
-}
-.field-box {
-  display: grid;
-  flex: 1;
-  width: 350px;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
   position: absolute;
   top: 100%;
   right: 0;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
-  padding: 20px 20px 60px 20px;
+  padding: 10px; /* Reduced overall padding */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+}
+
+/* Added Scrollable Container */
+.filter-fields-container {
+  max-height: 300px; /* Maximum height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 0 10px;
 }
 
 .filter-field {
@@ -40,6 +63,17 @@
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.apply-clear-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1rem;
+  padding: 10px;
+  border-top: 1px solid #eee;
+  /* Separator for actions */
 }
 
 .apply-button {
@@ -58,20 +92,8 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-left: 10px;
 }
 
 .clear-button:hover {
   background-color: #ff6347;
-}
-.apply-clear-container {
-  display: flex;
-  position: absolute;
-  flex-direction: row;
-  justify-content: flex-end;
-  bottom: 0px;
-  right: 10px;
-  padding: 20px;
-  z-index: 1000;
-  gap: 10px;
 }

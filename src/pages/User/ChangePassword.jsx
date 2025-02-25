@@ -6,7 +6,7 @@ import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import "../../assets/css/FormFields.style.css";
+import "../../assets/css/ForgotPasswordFlow.style.css";
 
 const ChangePasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -21,7 +21,8 @@ const ChangePasswordPage = () => {
 
   const validateFields = useCallback(() => {
     const errors = {};
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (password === "") {
       errors.password = t("login.emptyNewPassword");
     } else if (!passwordRegex.test(password)) {
@@ -65,27 +66,41 @@ const ChangePasswordPage = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [password, confirmPassword, emailOrPhone, otp, validateFields, navigate, t]);
+  }, [
+    password,
+    confirmPassword,
+    emailOrPhone,
+    otp,
+    validateFields,
+    navigate,
+    t,
+  ]);
 
-  const handlePasswordChange = useCallback((e) => {
-    setPassword(e.target.value);
-    if (errorMessages.password) {
-      setErrorMessages((prevErrors) => ({
-        ...prevErrors,
-        password: "",
-      }));
-    }
-  }, [errorMessages.password]);
+  const handlePasswordChange = useCallback(
+    (e) => {
+      setPassword(e.target.value);
+      if (errorMessages.password) {
+        setErrorMessages((prevErrors) => ({
+          ...prevErrors,
+          password: "",
+        }));
+      }
+    },
+    [errorMessages.password]
+  );
 
-  const handleConfirmPasswordChange = useCallback((e) => {
-    setConfirmPassword(e.target.value);
-    if (errorMessages.confirmPassword) {
-      setErrorMessages((prevErrors) => ({
-        ...prevErrors,
-        confirmPassword: "",
-      }));
-    }
-  }, [errorMessages.confirmPassword]);
+  const handleConfirmPasswordChange = useCallback(
+    (e) => {
+      setConfirmPassword(e.target.value);
+      if (errorMessages.confirmPassword) {
+        setErrorMessages((prevErrors) => ({
+          ...prevErrors,
+          confirmPassword: "",
+        }));
+      }
+    },
+    [errorMessages.confirmPassword]
+  );
 
   const handleBackPage = () => {
     navigate("/otp-verify");
@@ -96,35 +111,47 @@ const ChangePasswordPage = () => {
       <div className="form-container">
         <h1 className="FormName">{t("login.changePasswordTitle")}</h1>
         <p className="description">{t("login.changePasswordSubtitle")}</p>
-        <InputField
-          type="password"
-          id="password"
-          value={password}
-          placeholder={t("login.newPasswordPlaceholder")}
-          errorMessage={errorMessages.password}
-          onChange={handlePasswordChange}
-          className={errorMessages.password ? "error-border" : "correct-border"}
-        />
-        <InputField
-          type="password"
-          id="confirmPassword"
-          value={confirmPassword}
-          placeholder={t("login.confirmPasswordPlaceholder")}
-          errorMessage={errorMessages.confirmPassword}
-          onChange={handleConfirmPasswordChange}
-          className={errorMessages.confirmPassword ? "error-border" : "correct-border"}
-        />
-        {successMessage && (
-          <p className="success-message">{successMessage}</p>
-        )}
-        <div className="submit-cancel">
-          <Button className="submit" onClick={handleChangePassword} disabled={isSubmitting}>
-            {isSubmitting ? t("common.sending") : t("common.confirm")}
-          </Button>
-          <Button className="cancel" onClick={handleBackPage}>
-            {t("common.cancel")}
-          </Button>
-        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleChangePassword();
+          }}
+          className="form-box"
+        >
+          <InputField
+            type="password"
+            id="password"
+            value={password}
+            placeholder={t("login.newPasswordPlaceholder")}
+            errorMessage={errorMessages.password}
+            onChange={handlePasswordChange}
+            className={`input-field ${
+              errorMessages.password ? "error-message" : ""
+            }`}
+          />
+          <InputField
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            placeholder={t("login.confirmPasswordPlaceholder")}
+            errorMessage={errorMessages.confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            className={`input-field ${
+              errorMessages.confirmPassword ? "error-message" : ""
+            }`}
+          />
+          {successMessage && (
+            <p className="success-message">{successMessage}</p>
+          )}
+          <div className="submit-cancel">
+            <Button className="submit" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? t("common.sending") : t("common.confirm")}
+            </Button>
+            <Button className="cancel" onClick={handleBackPage}>
+              {t("common.cancel")}
+            </Button>
+          </div>
+        </form>
       </div>
     </LoginLayout>
   );

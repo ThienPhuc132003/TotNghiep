@@ -108,105 +108,107 @@ const TableComponent = ({
     }, []);
 
     return (
-        <div className="table-container">
-            <table
-                className="custom-table"
-                aria-label={t("common.table")}
-                role="grid"
-            >
-                <TableHeader
-                    columns={columns}
-                    requestSort={requestSort}
-                    sortKey={sortConfig.key}
-                    sortDirection={sortConfig.direction}
-                />
-                <tbody role="rowgroup">
-                    {loading ? (
-                        skeletonRows.map((_, index) => (
-                            <tr key={index} role="row">
-                                {columns.map((col, colIndex) => (
-                                    <td key={colIndex} role="gridcell" className="table-cell">
-                                        <Skeleton height={20} />
+        <div className="main-table-container">
+            <div className="table-scrollable-container">
+                <table
+                    className="custom-table"
+                    aria-label={t("common.table")}
+                    role="grid"
+                >
+                    <TableHeader
+                        columns={columns}
+                        requestSort={requestSort}
+                        sortKey={sortConfig.key}
+                        sortDirection={sortConfig.direction}
+                    />
+                    <tbody role="rowgroup">
+                        {loading ? (
+                            skeletonRows.map((_, index) => (
+                                <tr key={index} role="row">
+                                    {columns.map((col, colIndex) => (
+                                        <td key={colIndex} role="gridcell" className="table-cell">
+                                            <Skeleton height={20} />
+                                        </td>
+                                    ))}
+                                    <td role="gridcell" className="action-buttons">
+                                        <Skeleton circle width={30} height={30} />
+                                        <Skeleton circle width={30} height={30} />
+                                        <Skeleton circle width={30} height={30} />
                                     </td>
-                                ))}
-                                <td role="gridcell" className="action-buttons">
-                                    <Skeleton circle width={30} height={30} />
-                                    <Skeleton circle width={30} height={30} />
-                                    <Skeleton circle width={30} height={30} />
+                                </tr>
+                            ))
+                        ) : error ? (
+                            <tr>
+                                <td
+                                    colSpan={columns.length + 1}
+                                    className="error"
+                                    role="gridcell"
+                                >
+                                    {error}
                                 </td>
                             </tr>
-                        ))
-                    ) : error ? (
-                        <tr>
-                            <td
-                                colSpan={columns.length + 1}
-                                className="error"
-                                role="gridcell"
-                            >
-                                {error}
-                            </td>
-                        </tr>
-                    ) : sortedData.length > 0 ? (
-                        sortedData.map((row, rowIndex) => (
-                            <tr
-                                key={rowIndex}
-                                className={rowIndex % 2 === 0 ? "row-even" : "row-odd"}
-                                onDoubleClick={() => onView(row)}
-                                role="row"
-                            >
-                                {columns.map((col, colIndex) => (
-                                    <td
-                                        key={colIndex}
-                                        className={`table-cell ${col.dataKey === "email" ? "table-cell-email" : ""
-                                            }`}
-                                        role="gridcell"
-                                    >
-                                        {col.renderCell
-                                            ? col.renderCell(getNestedValue(row, col.dataKey), row)
-                                            : getNestedValue(row, col.dataKey)}
+                        ) : sortedData.length > 0 ? (
+                            sortedData.map((row, rowIndex) => (
+                                <tr
+                                    key={rowIndex}
+                                    className={rowIndex % 2 === 0 ? "row-even" : "row-odd"}
+                                    onDoubleClick={() => onView(row)}
+                                    role="row"
+                                >
+                                    {columns.map((col, colIndex) => (
+                                        <td
+                                            key={colIndex}
+                                            className={`table-cell ${col.dataKey === "email" ? "table-cell-email" : ""
+                                                }`}
+                                            role="gridcell"
+                                        >
+                                            {col.renderCell
+                                                ? col.renderCell(getNestedValue(row, col.dataKey), row)
+                                                : getNestedValue(row, col.dataKey)}
+                                        </td>
+                                    ))}
+                                    <td className="action-buttons" role="gridcell">
+                                        <button
+                                            onClick={() => onView(row)}
+                                            title={t("common.view")}
+                                            className="action-button view"
+                                            aria-label={t("common.view")}
+                                        >
+                                            <i className="fa-regular fa-eye"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => onEdit(row)}
+                                            title={t("common.edit")}
+                                            className="action-button edit"
+                                            aria-label={t("common.edit")}
+                                        >
+                                            <i className="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => onDelete(row)}
+                                            title={t("common.delete")}
+                                            className="action-button delete"
+                                            aria-label={t("common.delete")}
+                                        >
+                                            <i className="fa-regular fa-trash-can"></i>
+                                        </button>
                                     </td>
-                                ))}
-                                <td className="action-buttons" role="gridcell">
-                                    <button
-                                        onClick={() => onView(row)}
-                                        title={t("common.view")}
-                                        className="action-button view"
-                                        aria-label={t("common.view")}
-                                    >
-                                        <i className="fa-regular fa-eye"></i>
-                                    </button>
-                                    <button
-                                        onClick={() => onEdit(row)}
-                                        title={t("common.edit")}
-                                        className="action-button edit"
-                                        aria-label={t("common.edit")}
-                                    >
-                                        <i className="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button
-                                        onClick={() => onDelete(row)}
-                                        title={t("common.delete")}
-                                        className="action-button delete"
-                                        aria-label={t("common.delete")}
-                                    >
-                                        <i className="fa-regular fa-trash-can"></i>
-                                    </button>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td
+                                    colSpan={columns.length + 1}
+                                    className="no-data"
+                                    role="gridcell"
+                                >
+                                    {t("common.noDataFound")}
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td
-                                colSpan={columns.length + 1}
-                                className="no-data"
-                                role="gridcell"
-                            >
-                                {t("common.noDataFound")}
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+                        )}
+                    </tbody>
+                </table>
+            </div>
             {pageCount > 1 && (
                 <div className="pagination-container">
                     <ReactPaginate

@@ -1,9 +1,10 @@
+// src/components/FormDetail.jsx
 import React from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import "../assets/css/FormDetail.style.css"; // Import the CSS file
 
-const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit }) => {
+const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit, title, onClose }) => {
   const { t } = useTranslation();
 
   const handleChange = (e) => {
@@ -18,8 +19,12 @@ const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit }) => 
 
   return (
     <div className="form-detail-container">
-      <form onSubmit={handleSubmit}>
-        <div className="form-grid">
+      <div className="form-header">
+        <h2>{title}</h2>
+        <button className="close-button" onClick={onClose}>×</button>
+      </div>
+      <div className="form-grid">
+        <form onSubmit={handleSubmit}>
           {fields.map((field) => (
             <div className="form-group" key={field.key}>
               <label>{t(field.label)}</label>
@@ -28,8 +33,8 @@ const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit }) => 
                   name={field.key}
                   value={formData[field.key] || ""}
                   onChange={handleChange}
-                  readOnly={mode === "view" || field.readOnly}
-                  className={mode === "view" || field.readOnly ? "non-fillable" : "fillable"}
+                  disabled={mode === "view" || field.readOnly}
+                  className={mode === "view" || field.readOnly ? "non-fillable" : ""}
                 >
                   {field.options.map((option) => (
                     <option key={option} value={option}>
@@ -44,20 +49,20 @@ const FormDetailComponent = ({ formData, fields, mode, onChange, onSubmit }) => 
                   value={formData[field.key] || ""}
                   onChange={handleChange}
                   readOnly={mode === "view" || field.readOnly}
-                  className={mode === "view" || field.readOnly ? "non-fillable" : "fillable"}
+                  className={mode === "view" || field.readOnly ? "non-fillable" : ""}
                 />
               )}
             </div>
           ))}
-        </div>
-        <div className="form-actions">
-          {mode !== "view" && (
-            <button type="submit" className="save-button">
-              {t("common.save")}
-            </button>
-          )}
-        </div>
-      </form>
+        </form>
+      </div>
+      <div className="form-actions">
+        {mode !== "view" && (
+          <button type="submit" className="save-button" onClick={handleSubmit}>
+            {t("common.save")}
+          </button>
+        )}
+      </div>
     </div>
   );
 };
@@ -76,6 +81,8 @@ FormDetailComponent.propTypes = {
   mode: PropTypes.oneOf(["add", "edit", "view"]).isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 const FormDetail = React.memo(FormDetailComponent);

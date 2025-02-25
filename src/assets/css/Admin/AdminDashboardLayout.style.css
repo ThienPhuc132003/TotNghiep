@@ -6,53 +6,6 @@
   flex-direction: row;
 }
 
-.sidebar {
-  width: 250px;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #f4f4f4;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  transition: width 0.3s ease, transform 0.3s ease;
-  z-index: 100;
-  padding-bottom: 55px;
-}
-
-.menu-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.menu-name {
-  transition: margin-left 0.3s ease;
-}
-
-.sidebar-hidden .sidebar {
-  width: 60px;
-}
-
-.sidebar-hidden .menu-name {
-  display: none;
-}
-
-.sidebar-hidden .main-logo {
-  display: none;
-}
-
-.sidebar-hidden .content-area {
-  margin-left: 50px;
-}
-
-.sidebar-hidden .submenu {
-  display: none;
-}
-
-.sidebar .overlay {
-  background-color: #969393;
-}
-
 .content-area {
   display: flex;
   flex-direction: column;
@@ -60,76 +13,6 @@
   flex: 1;
   margin-left: 250px;
   transition: margin-left 0.3s ease;
-}
-
-.toggle-sidebar-btn {
-  position: fixed;
-  top: 20px;
-  left: 260px;
-  background-color: rgba(229, 115, 115, 1);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  padding: 10px;
-  z-index: 1000;
-  transition: left 0.3s ease;
-}
-
-.sidebar-hidden .toggle-sidebar-btn {
-  left: 70px;
-}
-
-.main-logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 50px 10px 0px;
-  font-family: "Jacques Francois";
-  font-size: 3em;
-  color: rgba(229, 115, 115, 1);
-}
-
-nav ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-nav ul li {
-  display: flex;
-  align-items: center;
-  margin: 5px 20px;
-  padding: 0 20px;
-  font-size: 16px;
-  height: 50px;
-  width: auto;
-  border-radius: 25px;
-}
-
-nav ul li.active {
-  background-color: #272e4f;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-}
-
-nav ul li:not(.active):hover {
-  background-color: #272e4fe6;
-}
-
-nav ul li a {
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-nav ul li.active a {
-  color: #ffffff;
-}
-
-nav ul li:hover a {
-  color: #ffffff;
 }
 
 .main-layout-header {
@@ -151,7 +34,6 @@ nav ul li:hover a {
 
 .main-layout-left {
   flex: 2;
-  padding: 20px;
   overflow-y: auto;
 }
 
@@ -173,80 +55,3 @@ nav ul li:hover a {
   gap: 10px;
 }
 
-.sidebar-hidden .toggle-sidebar-btn {
-  display: block;
-}
-.sidebar-hidden nav ul li {
-  justify-content: center;
-  margin: 5px;
-  padding: 0;
-  border-radius: 100%;
-}
-.sidebar-hidden .main-logo {
-  display: none;
-}
-
-.sidebar-hidden .sidebar {
-  width: 60px;
-}
-
-.sidebar-hidden .menu-name {
-  display: none;
-}
-
-.sidebar-hidden .menu-icon {
-  margin-right: 0;
-}
-
-.sidebar-hidden .toggle-sidebar-btn {
-  left: 70px;
-}
-
-.sidebar-hidden .main-layout-left {
-  margin-left: 60px;
-}
-
-.sidebar-hidden .main-layout-right {
-  margin-left: 60px;
-}
-
-/* Submenu styling */
-.submenu {
-  margin-left: 45px;
-  border-left: 2px solid rgb(158, 158, 158);
-}
-
-.submenu li {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  font-size: 14px;
-}
-
-.submenu li:not(.active):hover {
-  background-color: rgb(255, 255, 255);
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-}
-.submenu li:not(.active):hover a {
-  color: black;
-}
-.submenu li.active {
-  background-color: rgb(255, 255, 255);
-}
-
-.submenu li.active a {
-  color: #000000;
-}
-.submenu li.active a p {
-  font-weight: 700;
-}
-/* Khi có submenu active, menu cha cũng có nền xanh */
-nav ul li.parent-active {
-  background-color: #272e4f;
-}
-
-/* Đảm bảo chữ của menu cha cũng chuyển thành màu trắng */
-nav ul li.parent-active a {
-  color: #ffffff;
-}

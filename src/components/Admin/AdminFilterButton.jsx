@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+// src/components/Admin/AdminFilterButton.jsx
+
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import "../../assets/css/Admin/AdminFilterButton.style.css";
 import Button from "../Button";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 const AdminFilterButtonComponent = ({ fields, onApply }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,19 +43,20 @@ const AdminFilterButtonComponent = ({ fields, onApply }) => {
     setIsOpen(false);
   };
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
+    // Clear filterValues and apply empty filters
     setFilterValues({});
     onApply([]);
-  };
+  }, [onApply]);
 
   return (
     <div className="filter-button-container">
       <Button onClick={toggleFilter} className="filter-button">
-        Lọc nâng cao
+        Lọc nâng cao <FontAwesomeIcon icon={faCaretDown} />
       </Button>
       {isOpen && (
         <div className="filter-panel">
-          <div className="field-box">
+          <div className="filter-fields-container">
             {fields.map((field) => (
               <div key={field.key} className="filter-field">
                 <label>{field.label}</label>
@@ -78,14 +83,15 @@ const AdminFilterButtonComponent = ({ fields, onApply }) => {
                 )}
               </div>
             ))}
-            <div className="apply-clear-container">
-              <Button onClick={handleClearFilters} className="clear-button">
-                Xóa
-              </Button>
-              <Button onClick={handleApply} className="apply-button">
-                Áp dụng
-              </Button>
-            </div>
+          </div>
+
+          <div className="apply-clear-container">
+            <Button onClick={handleClearFilters} className="clear-button">
+              Xóa
+            </Button>
+            <Button onClick={handleApply} className="apply-button">
+              Áp dụng
+            </Button>
           </div>
         </div>
       )}

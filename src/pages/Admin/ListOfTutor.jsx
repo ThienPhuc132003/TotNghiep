@@ -36,7 +36,7 @@ const ListOfTutorPage = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const itemsPerPage = 5;
-  const currentPath = "/quan-ly-gia-su";
+  const currentPath = "/gia-su";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -46,10 +46,7 @@ const ListOfTutorPage = () => {
       params.append("sortDirection", sortConfig.direction);
     }
     params.append("page", currentPage + 1);
-
-    const newUrl = `${currentPath}?${params.toString()}`;
-    window.history.pushState({}, "", newUrl);
-  }, [searchQuery, sortConfig, currentPage, currentPath]);
+  }, [searchQuery, sortConfig, currentPage]);
 
   const resetState = () => {
     setSearchInput("");
@@ -99,7 +96,7 @@ const ListOfTutorPage = () => {
           ...JSON.parse(query.filter),
           {
             key: "email",
-            operator: "like",
+            operator: "equal",
             value: searchQuery,
           },
         ]);
@@ -192,21 +189,6 @@ const ListOfTutorPage = () => {
     }
   };
 
-  const handleAddTutor = () => {
-    setModalMode("add");
-    setModalData({
-      fullname: "",
-      birthday: "",
-      email: "",
-      phoneNumber: "",
-      homeAddress: "",
-      gender: "MALE",
-      password: "",
-      confirmPassword: "",
-    });
-    setIsModalOpen(true);
-  };
-
   const handleView = (tutor) => {
     setModalData({
       userId: tutor.userId,
@@ -269,11 +251,27 @@ const ListOfTutorPage = () => {
   };
 
   const handleUpdateTutor = async (formData) => {
+    const allowedFields = [
+      "fullname",
+      "birthday",
+      "phoneNumber",
+      "workEmail",
+      "homeAddress",
+      "gender",
+    ];
+
+    const filteredData = Object.keys(formData)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = formData[key];
+        return obj;
+      }, {});
+
     try {
       const response = await Api({
         endpoint: `user/update-user/${modalData.userId}`,
         method: METHOD_TYPE.PUT,
-        data: formData,
+        data: filteredData,
       });
 
       if (response.success) {
@@ -350,22 +348,19 @@ const ListOfTutorPage = () => {
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("admin.listTitle")}</h2>
-        <div className="admin-search-filter">
-          <SearchBar
-            value={searchInput}
-            onChange={setSearchInput}
-            searchBarClassName="admin-search"
-            searchInputClassName="admin-search-input"
-            searchBarButtonClassName="admin-search-button"
-            searchBarOnClick={handleSearch}
-            onKeyPress={handleKeyPress}
-            placeholder={t("common.searchPlaceholder")}
-          />
-          <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddTutor}>
-              {t("common.addButton")}
-            </button>
+        <h2 className="admin-list-title">Danh sách gia sư</h2>
+        <div className="search-bar-filter-container">
+          <div className="search-bar-filter">
+            <SearchBar
+              value={searchInput}
+              onChange={setSearchInput}
+              searchBarClassName="admin-search"
+              searchInputClassName="admin-search-input"
+              searchBarButtonClassName="admin-search-button"
+              searchBarOnClick={handleSearch}
+              onKeyPress={handleKeyPress}
+              placeholder="Tìm kiếm theo mã gia sư"
+            />{" "}
             <button
               className="refresh-button"
               onClick={() => {
@@ -375,8 +370,12 @@ const ListOfTutorPage = () => {
             >
               {t("common.refresh")}
             </button>
-            <AdminFilterButton fields={editFields} onApply={handleApplyFilter} />
+            <AdminFilterButton
+              fields={editFields}
+              onApply={handleApplyFilter}
+            />
           </div>
+          <div className="filter-add-admin"></div>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
         <Table
@@ -412,10 +411,18 @@ const ListOfTutorPage = () => {
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"}
+          title={
+            modalMode === "add"
+              ? "Thêm gia sư"
+              : modalMode === "edit"
+              ? "Sửa thông tin gia sư"
+              : "Xem thông tin gia sư"
+          }
           onChange={(name, value) =>
             setModalData({ ...modalData, [name]: value })
           }
           onSubmit={modalMode === "add" ? handleCreateTutor : handleUpdateTutor}
+          onClose={handleCloseModal} // Pass handleCloseModal to FormDetail
         />
       </Modal>
       <DeleteConfirmationModal

@@ -4,7 +4,7 @@ import "../../../assets/css/UserDashboardLayout.style.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../Button";
 import UserAccountToolbar from "./UserAccountToolbar";
-import LoginZoomButton from "../../LoginZoomButton";
+
 
 const UserDashboardLayoutComponent = (props) => {
   const { children = null } = props;
@@ -37,9 +37,9 @@ const UserDashboardLayoutComponent = (props) => {
                   Register as Tutor
                 </Button>
               </li>
-              <li>
+              {/* <li>
                 <LoginZoomButton />
-              </li>
+              </li> */}
               <li>
                 <Button
                   onClick={() => navigate("/create-meeting")}

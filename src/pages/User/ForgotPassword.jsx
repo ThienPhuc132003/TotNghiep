@@ -6,7 +6,7 @@ import { METHOD_TYPE } from "../../network/methodType";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import LoginLayout from "../../components/User/layout/LoginLayout";
-import "../../assets/css/FormFields.style.css";
+import "../../assets/css/ForgotPasswordFlow.style.css";
 
 const ForgotPasswordPage = () => {
   const { t } = useTranslation();
@@ -39,6 +39,7 @@ const ForgotPasswordPage = () => {
       });
       if (response.success === true) {
         setSuccessMessage(t("login.resetLinkSent"));
+        navigate("/otp-verify", { state: { emailOrPhone } });
       } else {
         setErrorMessages({ email: t("login.emailNotFound") });
       }
@@ -47,7 +48,7 @@ const ForgotPasswordPage = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [emailOrPhone, validateFields, t]);
+  }, [emailOrPhone, validateFields, t, navigate]);
 
   const handleEmailChange = useCallback(
     (e) => {
@@ -72,29 +73,47 @@ const ForgotPasswordPage = () => {
       <div className="form-container">
         <h1 className="FormName">{t("login.forgotPasswordTitle")}</h1>
         <p className="description">{t("login.forgotPasswordSubtitle")}</p>
-        <InputField
-          type="email"
-          id="email"
-          value={emailOrPhone}
-          placeholder={t("login.emailOrPhonePlaceholder")}
-          errorMessage={errorMessages.email}
-          onChange={handleEmailChange}
-          className={errorMessages.email ? "error-border" : "correct-border"}
-        />
-        {errorMessages.email && (
-          <p className="error-message">{errorMessages.email}</p>
-        )}
-        {successMessage && (
-          <p className="success-message">{successMessage}</p>
-        )}
-        <div className="submit-cancel">
-          <Button className="submit" onClick={handleForgotPassword} disabled={isSubmitting}>
-            {isSubmitting ? t("common.sending") : t("common.confirm")}
-          </Button>
-          <Button className="cancel" onClick={handleBackPage}>
-            {t("common.cancel")}
-          </Button>
-        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleForgotPassword();
+          }}
+          className="form-box"
+        >
+          <div className="form-container">
+            <label htmlFor="emailOrPhone">
+              {t("login.emailOrPhoneNumber")}
+            </label>
+            <InputField
+              type="email"
+              id="email"
+              value={emailOrPhone}
+              placeholder={t("login.emailOrPhonePlaceholder")}
+              errorMessage={errorMessages.email}
+              onChange={handleEmailChange}
+              className={`input-field ${
+                errorMessages.email ? "error-message" : ""
+              }`}
+            />
+            {errorMessages.email && (
+              <p className="error-message">{errorMessages.email}</p>
+            )}
+          </div>
+          {successMessage && (
+            <p className="success-message">{successMessage}</p>
+          )}
+          <div className="submit-cancel">
+            <div className="submite-field">
+              <Button className="submit" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Đang xác nhận" : t("common.confirm")}
+              </Button>
+            </div>
+            <p className="cancel" onClick={handleBackPage}>
+              <i className="fa-solid fa-arrow-left"></i>
+              Quay về trang đăng nhập
+            </p>
+          </div>
+        </form>
       </div>
     </LoginLayout>
   );

@@ -1,163 +1,204 @@
-.profile-form {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem;
+/* src/assets/css/AdminProfile.style.css */
+
+/* Overall container */
+.profile-container {
+  max-width: 700px; /* Giảm kích thước container */
+  margin: 20px auto; /* Thêm margin trên và dưới */
+  padding: 1.5rem; /* Giảm padding */
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Nhẹ hơn */
 }
 
+/* Title */
+.profile-title {
+  text-align: center;
+  margin-bottom: 1.5rem; /* Giảm margin */
+  font-size: 1.75rem; /* Giảm kích thước chữ */
+  color: #333;
+}
+
+/* Form styling */
+.profileForm {
+  padding: 1.5rem; /* Giảm padding */
+}
+
+/* Form group */
+.formGroup {
+  margin-bottom: 0.75rem; /* Giảm margin */
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.3rem; /* Giảm margin */
+  font-weight: 500; /* Bớt đậm */
+  font-size: 0.9rem; /* Giảm kích thước chữ */
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 0.4rem; /* Giảm padding */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 0.9rem; /* Giảm kích thước chữ */
+}
+
+.formGroup input.readOnly {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+/* Gender group */
+.genderGroup {
+  display: flex;
+  gap: 0.75rem; /* Giảm gap */
+}
+
+.genderGroup label {
+  font-weight: normal; /* Bỏ đậm */
+  font-size: 0.9rem; /* Giảm kích thước chữ */
+}
+
+/* Avatar styling */
 .avatar-container {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem; /* Giảm gap */
+  margin-bottom: 1rem;
 }
 
 .avatar {
-  width: 100px;
-  height: 100px;
+  width: 75px; /* Giảm kích thước avatar */
+  height: 75px; /* Giảm kích thước avatar */
   border-radius: 50%;
   object-fit: cover;
 }
 
 .change-avatar-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
+  padding: 0.4rem 0.8rem; /* Giảm padding */
+  background-color: rgb(30, 76, 161); /* giữ màu */
   border: none;
   border-radius: 5px;
   color: white;
   cursor: pointer;
   transition: background 0.3s;
+  font-size: 0.85rem; /* Giảm kích thước chữ */
 }
 
 .change-avatar-button:hover {
-  background-color: #0056b3;
+    background-color: rgb(30, 76, 161); /* giữ màu */
 }
 
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input {
+/* Button */
+.profileButton {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-
-.gender-group {
-  display: flex;
-  gap: 1rem;
-}
-
-.profile-button {
-  width: 100%;
-  padding: 0.75rem;
-  background: #007bff;
+  padding: 0.6rem; /* Giảm padding */
+  background: rgb(30, 76, 161);
   border: none;
   border-radius: 5px;
   color: white;
-  font-size: 1rem;
+  font-size: 0.9rem; /* Giảm kích thước chữ */
   cursor: pointer;
   transition: background 0.3s;
 }
 
-.profile-button:hover {
-  background: #0056b3;
+.profileButton:hover {
+  background: rgb(30, 76, 161);
 }
 
-.success-message {
-  color: green;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+/* Messages */
+.successMessage {
+  color: rgb(76, 175, 80);
+  font-size: 0.9rem; /* Giảm kích thước chữ */
+  margin-bottom: 0.75rem; /* Giảm margin */
 }
 
-.error-message {
-  color: red;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+.errorMessage {
+  color: rgb(229, 115, 115);
+  font-size: 0.9rem; /* Giảm kích thước chữ */
+  margin-bottom: 0.75rem; /* Giảm margin */
 }
 
+/* Modal styling */
 .modal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 1);
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 1);
+    padding: 1.5rem; /* Giảm padding */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px; /* Giảm kích thước modal */
+    width: 100%;
 }
 
 .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .crop-container {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  background: #333;
-  margin-top: 1rem;
+    position: relative;
+    width: 100%;
+    height: 250px; /* Giảm chiều cao crop */
+    background: #333;
+    margin-top: 0.75rem; /* Giảm margin */
 }
 
 .file-input {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+    margin-top: 0.75rem; /* Giảm margin */
+    margin-bottom: 0.75rem; /* Giảm margin */
+    font-size: 0.85rem; /* Giảm kích thước chữ */
 }
 
 .modal-buttons {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 }
 
 .crop-save-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s;
+    padding: 0.4rem 0.8rem; /* Giảm padding */
+    background-color: rgb(30, 76, 161);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 0.8rem; /* Giảm kích thước chữ */
 }
 
 .crop-save-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 .crop-save-button:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: rgb(30, 76, 161);
 }
 
 .modal-close-button {
-  padding: 0.5rem 1rem;
-  background-color: #d9534f;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s;
+    padding: 0.4rem 0.8rem; /* Giảm padding */
+    background-color: rgb(229, 115, 115);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 0.8rem; /* Giảm kích thước chữ */
 }
 
 .modal-close-button:hover {
-  background-color: #c9302c;
+    background-color: rgb(229, 115, 115);
 }
 
 .modal-title {
-  text-align: center;
-  margin-bottom: 1rem;
+    text-align: center;
+    margin-bottom: 0.75rem; /* Giảm margin */
+    font-size: 1.25rem; /* Giảm kích thước chữ */
 }

@@ -72,3 +72,63 @@
 .custom-button.active {
   background-color: #a777e3;
 }
+.dashboard-container {
+  padding: 20px;
+}
+
+.welcome-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(300px, 1fr)
+  ); /* Responsive columns */
+  gap: 20px;
+}
+
+.card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upcoming-sessions ul,
+.tutor-list ul,
+.recent-activities ul {
+  list-style: none;
+  padding: 0;
+}
+
+.upcoming-sessions li,
+.tutor-list li,
+.recent-activities li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.upcoming-sessions li:last-child,
+.tutor-list li:last-child,
+.recent-activities li:last-child {
+  border-bottom: none;
+}
+
+.card button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.card button:hover {
+  background-color: #0056b3;
+}
