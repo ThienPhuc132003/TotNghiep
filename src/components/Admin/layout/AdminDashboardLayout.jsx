@@ -1,23 +1,18 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
+import React, { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import "../../../assets/css/Admin/AdminDashboardLayout.style.css";
 import AdminAccountToolbar from "./AdminAccountToolbar";
 import AdminSidebar from "../AdminSidebar";
-import { fetchMenuData } from "../../../redux/menuAdminSlice";
 import { useTranslation } from "react-i18next";
 import {
   setSidebarVisibility,
   toggleSidebar,
 } from "../../../redux/uiAdminSlice";
+import { fetchMenuData } from "../../../redux/menuAdminSlice"; // Import fetchMenuData
 
-const AdminDashboardLayoutComponent = (props) => {
+const AdminDashboardLayoutInner = (props) => {
   const {
     children = null,
     childrenMiddleContentLower = null,
@@ -27,15 +22,9 @@ const AdminDashboardLayoutComponent = (props) => {
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const menuStatus = useSelector((state) => state.menuAdmin.status);
-  const menuData = useSelector((state) => state.menuAdmin.data);
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
   const location = useLocation();
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
-
-  const [openMenus, setOpenMenus] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -59,52 +48,8 @@ const AdminDashboardLayoutComponent = (props) => {
   }, [location.pathname, dispatch]);
 
   useEffect(() => {
-    if (menuStatus === "idle") {
-      setIsLoading(true);
-      dispatch(fetchMenuData())
-        .then(() => setIsLoading(false))
-        .catch((err) => {
-          setError(err.message);
-          setIsLoading(false);
-        });
-    }
-  }, [menuStatus, dispatch]);
-
-  useEffect(() => {
-    const savedOpenMenus = JSON.parse(localStorage.getItem("openMenus"));
-    if (savedOpenMenus) {
-      setOpenMenus(savedOpenMenus);
-    } else {
-      const initialOpenMenus = {};
-      menuData.forEach((menu) => {
-        initialOpenMenus[menu.name_en] = false;
-      });
-      setOpenMenus(initialOpenMenus);
-    }
-  }, [menuData]);
-
-  const handleMenuClick = useCallback((menuName) => {
-    setOpenMenus((prevOpenMenus) => {
-      const newOpenMenus = { ...prevOpenMenus };
-      if (newOpenMenus[menuName]) {
-        delete newOpenMenus[menuName];
-      } else {
-        newOpenMenus[menuName] = true;
-      }
-      localStorage.setItem("openMenus", JSON.stringify(newOpenMenus));
-      return newOpenMenus;
-    });
-  }, []); // Empty dependency array
-
-  //Memoize giá trị openMenus
-
-  const memoizedOpenMenus = useMemo(() => {
-    return openMenus;
-  }, [openMenus]);
-
-  const memoizedMenuData = useMemo(() => {
-    return menuData;
-  }, [menuData]);
+    dispatch(fetchMenuData());
+  }, [dispatch]);
 
   return (
     <div
@@ -112,18 +57,13 @@ const AdminDashboardLayoutComponent = (props) => {
         isSidebarVisible ? "" : "sidebar-hidden"
       }`}
     >
-      <AdminSidebar
-        currentPath={currentPath}
-        openMenus={memoizedOpenMenus}
-        handleMenuClick={handleMenuClick}
-        menuData={memoizedMenuData}
-      />
+      <AdminSidebar currentPath={currentPath} />
       <div className="content-area">
         <button
           className="toggle-sidebar-btn"
           onClick={() => dispatch(toggleSidebar())}
         >
-          {isSidebarVisible ? "⟨" : "⟩"}
+          {isSidebarVisible ? "⟩" : "⟨"}
         </button>
         <div className="main-layout-header">
           <h1 className="current-page">{currentPage}</h1>
@@ -131,15 +71,13 @@ const AdminDashboardLayoutComponent = (props) => {
         </div>
         <div className="main-layout-content">
           <div className="main-layout-left">
-            {isLoading ? (
-              <p>{t("common.loading")}</p>
-            ) : error ? (
-              <p className="error-message">{error}</p>
-            ) : (
+            {children ? (
               <>
                 {children}
                 {childrenMiddleContentLower}
               </>
+            ) : (
+              <p>{t("common.noContent")}</p>
             )}
           </div>
           {rightChildren && (
@@ -151,12 +89,12 @@ const AdminDashboardLayoutComponent = (props) => {
   );
 };
 
-AdminDashboardLayoutComponent.propTypes = {
+AdminDashboardLayoutInner.propTypes = {
   children: PropTypes.node,
   childrenMiddleContentLower: PropTypes.node,
   rightChildren: PropTypes.node,
   currentPage: PropTypes.string,
 };
 
-const AdminDashboardLayout = React.memo(AdminDashboardLayoutComponent);
+const AdminDashboardLayout = React.memo(AdminDashboardLayoutInner);
 export default AdminDashboardLayout;

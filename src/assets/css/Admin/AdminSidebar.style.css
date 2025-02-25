@@ -1,0 +1,252 @@
+/* AdminSidebar.style.css */
+/* Sidebar chung */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #222;
+  color: #fff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  transition: width 0.3s ease, transform 0.3s ease;
+  z-index: 100;
+  padding-bottom: 55px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Menu Icon */
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+  object-fit: contain;
+  filter: invert(1);
+  display: block; /* Quan trọng: đảm bảo biểu tượng là một block */
+  margin: 0 auto; /* Căn giữa theo chiều ngang */
+}
+
+/* Tên Menu */
+.menu-name {
+  transition: margin-left 0.3s ease, color 0.2s ease, opacity 0.3s ease;
+  color: #eee;
+  white-space: nowrap;
+}
+
+.sidebar-hidden .menu-name {
+  opacity: 0;
+  transition: opacity 0.3s ease; /* Thêm hiệu ứng chuyển đổi */
+}
+
+/* .sidebar-hidden .main-logo {
+  display: none;
+} */
+
+.sidebar-hidden .content-area {
+  margin-left: 50px;
+}
+
+.sidebar-hidden .submenu {
+  display: none;
+}
+
+/* Toggle Sidebar Button */
+.toggle-sidebar-btn {
+  position: fixed;
+  top: 20px;
+  left: 260px;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 1000;
+  transition: left 0.3s ease, background-color 0.2s ease;
+}
+
+.toggle-sidebar-btn:hover {
+  background-color: #555;
+}
+
+.sidebar-hidden .toggle-sidebar-btn {
+  left: 60px;
+}
+
+/* Main Logo */
+.main-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 20px;
+  font-family: "Jacques Francois", sans-serif;
+  font-size: 2.2em;
+  color: #fff;
+}
+
+/* Navigation List */
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+/* Menu Item */
+nav ul li {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0;
+  padding: 10px 17px;
+  font-size: 15px;
+  height: auto;
+  border-radius: 10px; /* Giữ nguyên hình dạng */
+  width: auto; /* Giữ nguyên chiều rộng */
+  transition: background-color 0.2s ease;
+}
+
+/* Hover effect cho menu item (không active) */
+nav ul li:not(.active):hover {
+  background-color: #333;
+}
+
+/* Menu Item Active */
+nav ul li.active {
+  background-color: #444;
+}
+
+/* Link trong Menu Item */
+nav ul li a {
+  width: 100%;
+  justify-content: space-between;
+  text-decoration: none;
+  color: #eee;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: color 0.2s ease;
+}
+
+/* Link trong Menu Item Active */
+nav ul li.active a {
+  color: #fff;
+}
+
+/* Hover effect cho link */
+nav ul li:hover a {
+  color: #fff;
+}
+
+/* Sidebar Hidden Styles */
+.sidebar-hidden .sidebar {
+  width: 50px;
+}
+
+.sidebar-hidden .content-area {
+  margin-left: 50px;
+}
+
+.sidebar-hidden .submenu-arrow {
+  display: none;
+}
+.sidebar-hidden .submenu {
+  display: none;
+}
+
+.sidebar-hidden .toggle-sidebar-btn {
+  display: block;
+}
+
+.sidebar-hidden nav ul li {
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-hidden .menu-icon {
+  margin-right: 0;
+  width: 24px; /* Giữ nguyên kích thước biểu tượng */
+  height: 24px;
+  object-fit: contain; /* Đảm bảo biểu tượng không bị méo */
+}
+
+/* Submenu Styles */
+.submenu {
+  margin-left: 0;
+  border-left: none;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s ease, padding 0.3s ease;
+  padding: 0;
+}
+.menu-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.menu-item-content .menu-name {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.submenu-arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.submenu-arrow.open {
+  transform: rotate(180deg);
+}
+.submenu li {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.submenu.open {
+  height: auto;
+  padding: 5px 0;
+}
+
+.submenu li:not(.active):hover {
+  background-color: #444;
+}
+
+.submenu li.active {
+  background-color: #444;
+}
+
+.submenu li a {
+  color: #eee;
+  text-decoration: none;
+}
+
+.submenu li.active a {
+  font-weight: bold;
+}
+
+/* Parent Active Styles */
+nav ul li.parent-active {
+  background-color: #444;
+}
+
+nav ul li.parent-active a {
+  color: #fff;
+}
+
+/* Nút chuyển đổi chế độ sáng/tối */
+.dark-mode-toggle {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #eee;
+  cursor: pointer;
+}

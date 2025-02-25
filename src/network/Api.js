@@ -23,7 +23,7 @@ const Api = async ({
   const url = `${domain}${endpoint}${queryString ? `?${queryString}` : ""}`;
 
   console.log("API URL (before request):", url);
-
+  console.log("API Data (before request):", data);
   const config = { headers: {} };
 
   if (isFormData) {
@@ -43,7 +43,7 @@ const Api = async ({
         response = await axiosClient.delete(url, { data, ...config });
         break;
       default:
-        response = await axiosClient.get(url, config); // Không dùng `params`
+        response = await axiosClient.get(url, config); 
         break;
     }
 

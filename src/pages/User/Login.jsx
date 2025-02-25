@@ -198,6 +198,9 @@ const SigninPageComponent = () => {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
+        <div className="forgot-password-link">
+          <Link to="/forgot-password">Forgot Password?</Link>
+        </div>
         <div className="register-link">
           <p>
             Dont have an account? <Link to="/register">Register</Link>

@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
-import qs from "qs";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -33,8 +32,9 @@ const ListOfMajorPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 5;
-  const currentPath = "/quan-ly-nganh";
+  const itemsPerPage = 10;
+  const currentPath = "/nganh";
+  const [filters, setFilters] = useState([]);
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -44,10 +44,15 @@ const ListOfMajorPage = () => {
       params.append("sortDirection", sortConfig.direction);
     }
     params.append("page", currentPage + 1);
+  }, [searchQuery, sortConfig, currentPage]);
 
-    const newUrl = `${currentPath}?${params.toString()}`;
-    window.history.pushState({}, "", newUrl);
-  }, [searchQuery, sortConfig, currentPage, currentPath]);
+  const resetState = () => {
+    setSearchInput("");
+    setSearchQuery("");
+    setSortConfig({ key: "", direction: "asc" });
+    setCurrentPage(0);
+    setFilters([]);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -79,26 +84,29 @@ const ListOfMajorPage = () => {
       };
 
       if (searchQuery) {
-        query.filter = JSON.stringify([
+        query.filter = [
           {
             key: "majorId",
             operator: "like",
             value: searchQuery,
           },
-        ]);
+        ];
+      }
+
+      if (filters.length > 0) {
+        query.filter = [...(query.filter || []), ...filters];
       }
 
       if (sortConfig.key) {
-        query.sort = JSON.stringify([
+        query.sort = [
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ]);
+        ];
       }
 
-      const queryString = qs.stringify(query, { encode: false });
-
       const response = await Api({
-        endpoint: `major?${queryString}`,
+        endpoint: `major/search`,
         method: METHOD_TYPE.GET,
+        query: query,
       });
 
       if (response.success) {
@@ -112,7 +120,7 @@ const ListOfMajorPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchQuery, sortConfig, t]);
+  }, [currentPage, searchQuery, sortConfig, t, itemsPerPage, filters]);
 
   useEffect(() => {
     fetchData();
@@ -145,21 +153,24 @@ const ListOfMajorPage = () => {
   }, []);
 
   const handleApplyFilter = (filterValues) => {
-    console.log("Filter applied with values:", filterValues);
-    setSearchQuery(filterValues.majorName || "");
-    setSortConfig({ key: "", direction: "asc" });
+    const newFilters = Object.keys(filterValues).map((key) => ({
+      key,
+      operator: filterValues[key].operator,
+      value: filterValues[key].value,
+    }));
+    setFilters(newFilters);
     setCurrentPage(0);
   };
 
-  const handleDelete = useCallback(async (majorId) => {
+  const handleDelete = async (majorId) => {
     setDeleteItemId(majorId);
     setIsDeleteModalOpen(true);
-  }, []);
+  };
 
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `major/${deleteItemId}`,
+        endpoint: `major/delete/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
 
@@ -175,7 +186,6 @@ const ListOfMajorPage = () => {
       setDeleteItemId(null);
     }
   };
-
   const handleAddMajor = () => {
     setModalMode("add");
     setModalData({
@@ -235,11 +245,19 @@ const ListOfMajorPage = () => {
   };
 
   const handleUpdateMajor = async (formData) => {
+    const allowedFields = ["majorId", "majorName"];
+    const filteredData = Object.keys(formData)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = formData[key];
+        return obj;
+      }, {});
+
     try {
       const response = await Api({
-        endpoint: `major/${modalData.majorId}`,
+        endpoint: `major/update/${modalData.majorId}`,
         method: METHOD_TYPE.PUT,
-        data: formData,
+        data: filteredData,
       });
 
       if (response.success) {
@@ -251,7 +269,6 @@ const ListOfMajorPage = () => {
       console.error("An error occurred while updating major:", error.message);
     }
   };
-
   const columns = [
     { title: t("major.id"), dataKey: "majorId", sortable: true },
     { title: t("major.name"), dataKey: "majorName", sortable: true },
@@ -263,36 +280,44 @@ const ListOfMajorPage = () => {
   ];
 
   const editFields = [
-    { key: "majorId", label: t("major.id"), readOnly: true },
-    { key: "majorName", label: t("major.name") },
+    { key: "majorId", label: t("major.id"), type: "text", readOnly: true },
+    { key: "majorName", label: t("major.name"), type: "text" },
   ];
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
         <h2 className="admin-list-title">{t("major.listTitle")}</h2>
-        <div className="admin-search-filter">
-          <SearchBar
-            value={searchInput}
-            onChange={setSearchInput}
-            searchBarClassName="admin-search"
-            searchInputClassName="admin-search-input"
-            searchBarButtonClassName="admin-search-button"
-            searchBarOnClick={handleSearch}
-            onKeyPress={handleKeyPress}
-            placeholder={t("common.searchPlaceholder")}
-          />
-          <div className="filter-add-admin">
-            <button className="refresh-button" onClick={fetchData}>
+        <div className="search-bar-filter-container">
+          <div className="search-bar-filter">
+            <SearchBar
+              value={searchInput}
+              onChange={setSearchInput}
+              searchBarClassName="admin-search"
+              searchInputClassName="admin-search-input"
+              searchBarButtonClassName="admin-search-button"
+              searchBarOnClick={handleSearch}
+              onKeyPress={handleKeyPress}
+              placeholder={t("major.searchPlaceholder")}
+            />
+            <button
+              className="refresh-button"
+              onClick={() => {
+                resetState();
+                fetchData();
+              }}
+            >
               {t("common.refresh")}
-            </button>
-            <button className="add-admin-button" onClick={handleAddMajor}>
-              {t("common.addButton")}
             </button>
             <AdminFilterButton
               fields={editFields}
               onApply={handleApplyFilter}
             />
+          </div>
+          <div className="filter-add-admin">
+            <button className="add-admin-button" onClick={handleAddMajor}>
+              {t("common.addButton")}
+            </button>
           </div>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
@@ -321,7 +346,9 @@ const ListOfMajorPage = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        contentLabel={modalMode === "add" ? "Add Major" : "Edit Major"}
+        contentLabel={
+          modalMode === "add" ? t("major.addMajor") : t("major.editMajor")
+        }
         className="modal"
         overlayClassName="overlay"
       >
@@ -333,13 +360,21 @@ const ListOfMajorPage = () => {
             setModalData({ ...modalData, [name]: value })
           }
           onSubmit={modalMode === "add" ? handleCreateMajor : handleUpdateMajor}
+          title={
+            modalMode === "add"
+              ? t("major.addMajor")
+              : modalMode === "edit"
+              ? t("major.editMajor")
+              : t("major.viewMajor")
+          }
+          onClose={handleCloseModal}
         />
       </Modal>
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa ngành này?"
+        message={t("major.deleteConfirmation")}
       />
     </AdminDashboardLayout>
   );

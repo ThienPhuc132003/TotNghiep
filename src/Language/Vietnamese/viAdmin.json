@@ -22,6 +22,9 @@
     "workEmail": "Email Công Việc",
     "male": "Nam",
     "female": "Nữ",
-    "blocked": "Bị Khóa"
+    "blocked": "Bị Khóa",
+    "BEST_ADMIN": "Admin",
+    "admin": "Nhân viên",
+    "pending": "Chờ Duyệt"
   }
 }

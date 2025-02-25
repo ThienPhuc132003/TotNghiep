@@ -1,0 +1,178 @@
+/* src/assets/css/RegisterTutor.style.css */
+
+/* General Form Styling */
+.registerForm {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.registerForm h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+/* Form Group Styling (Labels & Inputs) */
+.formGroup {
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.625rem;
+  font-weight: 500;
+  color: #34495e;
+  font-size: 1rem;
+}
+
+/* General input styles */
+.registerForm .formGroup input[type="text"],
+.registerForm .formGroup input[type="number"],
+.registerForm .formGroup input[type="url"],
+.registerForm .formGroup textarea,
+.registerForm .formGroup select {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid #bdc3c7;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #34495e;
+  background-color: #ecf0f1;
+  transition: border-color 0.3s ease;
+  font-size: 1rem;
+  outline: none; /* Remove default outline */
+}
+
+/* Specific file input styles */
+.uploadField {
+  padding: 0.625rem;
+  border: 2px dashed #95a5a6;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 8px; /* Thêm border-radius cho file input */
+}
+
+/* Style to file input hovers*/
+.uploadField:hover {
+  background-color: #dce6f0;
+}
+
+/*Textarea styling */
+.registerForm .formGroup textarea {
+  resize: vertical;
+  height: 120px;
+}
+
+/* Error message */
+.errorMessage {
+  color: rgba(215, 33, 52, 1);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+/* checkbox container */
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+/* checkbox input */
+.checkboxInput {
+  margin-right: 0.625rem;
+  width: 1.25rem;
+  /* Increased checkbox size */
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+/* checkbox label */
+.checkboxLabel {
+  font-weight: 500;
+  color: #34495e; /* Correct label color */
+  font-size: 1rem;
+}
+
+/* Styling nút Submit */
+.submitButton {
+  width: 100%;
+  padding: 1rem;
+  background: #2ecc71;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 5px rgba(44, 62, 80, 0.3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Hover and active states for submit button */
+.submitButton:hover {
+  background: #27ae60;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
+}
+
+/* Styles for labels */
+.inputLabel,
+.selectLabel,
+.textareaLabel,
+.uploadLabel {
+  display: block;
+  margin-bottom: 0.625rem;
+  font-weight: 500;
+  color: #34495e;
+  font-size: 1rem;
+}
+
+/* DateTime Selector */
+.dayContainer {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.dayLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #34495e;
+}
+
+.timeInput {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
+  background-color: #fff;
+}
+
+.addTimeButton {
+  background-color: #5cb85c;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.addTimeButton:hover {
+  background-color: #449d44;
+}

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Api from "../network/Api";
 import { METHOD_TYPE } from "../network/methodType";
 import PropTypes from "prop-types";
+import Cookies from "js-cookie";
 const SettingButtonComponent = ({ endpoint, pathLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
         endpoint: endpoint,
         method: METHOD_TYPE.POST,
       });
+      Cookies.remove("token");
+      Cookies.remove("role")
       navigate(pathLogout);
     } catch (error) {
       console.error("Logout failed:", error);

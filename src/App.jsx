@@ -1,10 +1,13 @@
-import { lazy, Suspense } from "react";
+// App.jsx
+import{ lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor } from "./redux/Store"; // Import persistor
 import AdminPrivateRoutes from "./route/AdminPrivateRoutes";
 // import UserPrivateRoutes from "./route/UserPrivateRoutes";
 import OtpProtectedRoute from "./route/OtpProtectedRoute";
@@ -31,7 +34,6 @@ const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
 const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
 const ListOfRequest = lazy(() => import("./pages/Admin/ListOfRequest"));
-const ListOfUser = lazy(() => import("./pages/Admin/ListOfUser"));
 const ListOfStudent = lazy(() => import("./pages/Admin/ListOfStudent"));
 const ListOfTutor = lazy(() => import("./pages/Admin/ListOfTutor"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
@@ -40,47 +42,47 @@ function App() {
   return (
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/login" element={<UserLogin />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/otp-verify" element={<OtpVerify />} />
+        <PersistGate loading={null} persistor={persistor}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/login" element={<UserLogin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/otp-verify" element={<OtpVerify />} />
 
-          <Route path="/api/meeting/callback" element={<ZoomCallback />} />
+            <Route path="/api/meeting/callback" element={<ZoomCallback />} />
 
-          <Route path="/create-meeting" element={<CreateMeeting />} />
+            <Route path="/create-meeting" element={<CreateMeeting />} />
 
-          <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="payment" element={<PaymentPage />} />
-          <Route path="payment/success" element={<PaymentSuccess />} />
-          <Route path="payment/failed" element={<PaymentFailed />} />
+            <Route path="dashboard" element={<UserDashboard />} />
+            <Route path="payment" element={<PaymentPage />} />
+            <Route path="payment/success" element={<PaymentSuccess />} />
+            <Route path="payment/failed" element={<PaymentFailed />} />
 
-          <Route path="user/profile" element={<Profile />} />
-          <Route path="register-tutor" element={<RegisterTutor />} />
+            <Route path="user/profile" element={<Profile />} />
+            <Route path="register-tutor" element={<RegisterTutor />} />
 
-          {/* call back */}
-          <Route path="/admin/auth/callback" element={<MicrosoftCallback />} />
-          <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
- 
+            {/* call back */}
+            <Route path="/admin/auth/callback" element={<MicrosoftCallback />} />
+            <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
 
-          <Route element={<OtpProtectedRoute />}>
-            <Route path="/change-password" element={<ChangePassword />} />
-          </Route>
-          {/* user pages */}
-          <Route index element={<Navigate to="/dashboard" />} />
-          <Route path="/" element={<AdminPrivateRoutes />}>
-            <Route path="admin/dashboard" element={<AdminDashboard />} />
-            <Route path="admin/profile" element={<AdminProfile />} />
-            <Route path="quan-ly-admin" element={<ListOfAdmin />} />
-            <Route path="quan-ly-nganh" element={<ListOfMajor />} />
-            <Route path="quan-ly-yeu-cau" element={<ListOfRequest />} />
-            <Route path="quan-ly-nguoi-dung" element={<ListOfUser />} />
-            <Route path="quan-ly-nguoi-hoc" element={<ListOfStudent />} />
-            <Route path="quan-ly-gia-su" element={<ListOfTutor />} />
-          </Route>
-        </Routes>
+            <Route element={<OtpProtectedRoute />}>
+              <Route path="/change-password" element={<ChangePassword />} />
+            </Route>
+            {/* user pages */}
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="/admin/*" element={<AdminPrivateRoutes />}>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="profile" element={<AdminProfile />} />
+              <Route path="nhan-vien" element={<ListOfAdmin />} />
+              <Route path="nganh" element={<ListOfMajor />} />
+              <Route path="yeu-cau" element={<ListOfRequest />} />
+              <Route path="nguoi-hoc" element={<ListOfStudent />} />
+              <Route path="gia-su" element={<ListOfTutor />} />
+            </Route>
+          </Routes>
+        </PersistGate>
       </Suspense>
     </Router>
   );

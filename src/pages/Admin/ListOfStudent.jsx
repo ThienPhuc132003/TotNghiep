@@ -35,8 +35,8 @@ const ListOfStudentPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 5;
-  const currentPath = "/quan-ly-nguoi-hoc";
+  const itemsPerPage = 7;
+  const currentPath = "/nguoi-hoc";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -46,10 +46,7 @@ const ListOfStudentPage = () => {
       params.append("sortDirection", sortConfig.direction);
     }
     params.append("page", currentPage + 1);
-
-    const newUrl = `${currentPath}?${params.toString()}`;
-    window.history.pushState({}, "", newUrl);
-  }, [searchQuery, sortConfig, currentPage, currentPath]);
+  }, [searchQuery, sortConfig, currentPage]);
 
   const resetState = () => {
     setSearchInput("");
@@ -89,7 +86,7 @@ const ListOfStudentPage = () => {
           {
             key: "roleId",
             operator: "equal",
-            value: "STUDENT",
+            value: "USER",
           },
         ]),
       };
@@ -175,10 +172,9 @@ const ListOfStudentPage = () => {
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `user/${deleteItemId}`,
+        endpoint: `user/delete-user-by-id/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
-
       if (response.success) {
         fetchData();
       } else {
@@ -192,31 +188,16 @@ const ListOfStudentPage = () => {
     }
   };
 
-  const handleAddStudent = () => {
-    setModalMode("add");
-    setModalData({
-      fullname: "",
-      birthday: "",
-      email: "",
-      phoneNumber: "",
-      homeAddress: "",
-      gender: "MALE",
-      password: "",
-      confirmPassword: "",
-    });
-    setIsModalOpen(true);
-  };
-
   const handleView = (student) => {
     setModalData({
       userId: student.userId,
       fullname: student.userProfile.fullname,
+      email: student.userProfile.personalEmail,
       phoneNumber: student.phoneNumber,
-      email: student.email,
       homeAddress: student.userProfile.homeAddress,
       birthday: student.userProfile.birthday,
       gender: student.userProfile.gender,
-      workEmail: student.userProfile.workEmail,
+      status: student.status,
     });
     setModalMode("view");
     setIsModalOpen(true);
@@ -226,12 +207,12 @@ const ListOfStudentPage = () => {
     setModalData({
       userId: student.userId,
       fullname: student.userProfile.fullname,
+      email: student.userProfile.personalEmail,
       phoneNumber: student.phoneNumber,
-      email: student.email,
       homeAddress: student.userProfile.homeAddress,
       birthday: student.userProfile.birthday,
       gender: student.userProfile.gender,
-      workEmail: student.userProfile.workEmail,
+      status: student.status,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -269,11 +250,27 @@ const ListOfStudentPage = () => {
   };
 
   const handleUpdateStudent = async (formData) => {
+    const allowedFields = [
+      "fullname",
+      "birthday",
+      "phoneNumber",
+      "workEmail",
+      "homeAddress",
+      "gender",
+    ];
+
+    const filteredData = Object.keys(formData)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = formData[key];
+        return obj;
+      }, {});
+
     try {
       const response = await Api({
         endpoint: `user/update-user/${modalData.userId}`,
         method: METHOD_TYPE.PUT,
-        data: formData,
+        data: filteredData,
       });
 
       if (response.success) {
@@ -293,8 +290,12 @@ const ListOfStudentPage = () => {
       dataKey: "userProfile.fullname",
       sortable: true,
     },
+    {
+      title: t("admin.email"),
+      dataKey: "email",
+      sortable: true,
+    },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
-    { title: t("admin.email"), dataKey: "email", sortable: true },
     {
       title: t("common.createdAt"),
       dataKey: "createdAt",
@@ -314,58 +315,61 @@ const ListOfStudentPage = () => {
 
   const addFields = [
     { key: "fullname", label: t("admin.name") },
-    { key: "birthday", label: t("admin.birthday"), type: "date" },
     { key: "email", label: t("admin.email") },
     { key: "phoneNumber", label: t("admin.phone") },
     { key: "homeAddress", label: t("admin.homeAddress") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
     {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
       options: ["MALE", "FEMALE"],
     },
-    { key: "password", label: t("admin.password"), type: "password" },
     {
-      key: "confirmPassword",
-      label: t("admin.confirmPassword"),
-      type: "password",
+      key: "status",
+      label: t("admin.status"),
+      type: "select",
+      options: ["PENDING", "ACTIVE", "INACTIVE"],
     },
   ];
 
   const editFields = [
     { key: "userId", label: "Mã người dùng", readOnly: true },
     { key: "fullname", label: t("admin.name") },
-    { key: "birthday", label: t("admin.birthday"), type: "date" },
-    { key: "email", label: t("admin.email"), readOnly: true },
+    { key: "email", label: t("admin.email") },
     { key: "phoneNumber", label: t("admin.phone") },
     { key: "homeAddress", label: t("admin.homeAddress") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
     {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
       options: ["MALE", "FEMALE"],
     },
+    {
+      key: "status",
+      label: t("admin.status"),
+      type: "select",
+      options: ["PENDING", "ACTIVE", "INACTIVE"],
+    },
   ];
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("admin.listTitle")}</h2>
-        <div className="admin-search-filter">
-          <SearchBar
-            value={searchInput}
-            onChange={setSearchInput}
-            searchBarClassName="admin-search"
-            searchInputClassName="admin-search-input"
-            searchBarButtonClassName="admin-search-button"
-            searchBarOnClick={handleSearch}
-            onKeyPress={handleKeyPress}
-            placeholder="Tìm kiếm theo mã học viên"
-          />
-          <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddStudent}>
-              {t("common.addButton")}
-            </button>
+        <h2 className="admin-list-title">Danh sách người học</h2>
+        <div className="search-bar-filter-container">
+          <div className="search-bar-filter">
+            <SearchBar
+              value={searchInput}
+              onChange={setSearchInput}
+              searchBarClassName="admin-search"
+              searchInputClassName="admin-search-input"
+              searchBarButtonClassName="admin-search-button"
+              searchBarOnClick={handleSearch}
+              onKeyPress={handleKeyPress}
+              placeholder="Tìm kiếm theo mã người học"
+            />{" "}
             <button
               className="refresh-button"
               onClick={() => {
@@ -375,8 +379,12 @@ const ListOfStudentPage = () => {
             >
               {t("common.refresh")}
             </button>
-            <AdminFilterButton fields={editFields} onApply={handleApplyFilter} />
+            <AdminFilterButton
+              fields={editFields}
+              onApply={handleApplyFilter}
+            />
           </div>
+          <div className="filter-add-admin"></div>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
         <Table
@@ -412,10 +420,20 @@ const ListOfStudentPage = () => {
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"}
+          title={
+            modalMode === "add"
+              ? "Thêm người học"
+              : modalMode === "edit"
+              ? "Sửa thông tin người học"
+              : "Xem thông tin người học"
+          }
           onChange={(name, value) =>
             setModalData({ ...modalData, [name]: value })
           }
-          onSubmit={modalMode === "add" ? handleCreateStudent : handleUpdateStudent}
+          onSubmit={
+            modalMode === "add" ? handleCreateStudent : handleUpdateStudent
+          }
+          onClose={handleCloseModal} // Pass handleCloseModal to FormDetail
         />
       </Modal>
       <DeleteConfirmationModal
