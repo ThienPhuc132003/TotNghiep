@@ -7,8 +7,7 @@ import dfMale from "../../assets/images/df-male.png";
 import dfFemale from "../../assets/images/df-female.png";
 
 const UserComponent = () => {
-  const userInfo = useSelector((state) => state.user.userProfile);
-  console.log(userInfo);
+  const userInfo = useSelector((state) => state.user.userProfile) || {};
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -37,11 +36,10 @@ const UserComponent = () => {
           onClick={handleDoubleClick}
         />
         <div className="user-details" onClick={toggleDropdown}>
-          <span className="user-name">{userInfo.fullname}</span>
+          <span className="user-name">{userInfo.fullname || "User"}</span>
           <span className="user-role">Hoc vien</span>
         </div>
       </div>
-
     </div>
   );
 };

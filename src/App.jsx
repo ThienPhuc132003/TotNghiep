@@ -1,5 +1,5 @@
 // App.jsx
-import{ lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,6 +12,7 @@ import AdminPrivateRoutes from "./route/AdminPrivateRoutes";
 // import UserPrivateRoutes from "./route/UserPrivateRoutes";
 import OtpProtectedRoute from "./route/OtpProtectedRoute";
 // User
+const HomePage = lazy(() => import("./pages/User/HomePage"));
 const UserDashboard = lazy(() => import("./pages/User/Dashboard"));
 const UserLogin = lazy(() => import("./pages/User/Login"));
 const Register = lazy(() => import("./pages/User/Register"));
@@ -44,7 +45,7 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <PersistGate loading={null} persistor={persistor}>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/home" element={<HomePage />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
@@ -64,14 +65,17 @@ function App() {
             <Route path="register-tutor" element={<RegisterTutor />} />
 
             {/* call back */}
-            <Route path="/admin/auth/callback" element={<MicrosoftCallback />} />
+            <Route
+              path="/admin/auth/callback"
+              element={<MicrosoftCallback />}
+            />
             <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
 
             <Route element={<OtpProtectedRoute />}>
               <Route path="/change-password" element={<ChangePassword />} />
             </Route>
             {/* user pages */}
-            <Route index element={<Navigate to="/dashboard" />} />
+            <Route index element={<Navigate to="/home" />} />
             <Route path="/admin/*" element={<AdminPrivateRoutes />}>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="profile" element={<AdminProfile />} />
