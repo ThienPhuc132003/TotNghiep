@@ -1,0 +1,297 @@
+.home-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f9f9f9; /* Lighter background */
+}
+
+.home-page-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: linear-gradient(
+    to right,
+    rgba(45, 51, 77, 0.95),
+    rgba(215, 33, 52, 0.95)
+  ); /* Slightly stronger gradient */
+  transition: transform 0.3s ease;
+  backdrop-filter: blur(7px); /* Increased blur */
+  padding: 1.2rem 2.5rem; /* Adjusted padding */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25); /* More pronounced shadow */
+}
+
+.home-page-header.hidden {
+  transform: translateY(-100%);
+}
+
+.home-page-header.visible {
+  transform: translateY(0);
+}
+
+.logo {
+  width: 110px; /* Slightly larger logo */
+  transition: transform 0.3s ease, filter 0.3s ease; /* Added filter transition */
+}
+
+.logo:hover {
+  transform: scale(1.1);
+  filter: brightness(1.1); /* Slight brightness increase on hover */
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+}
+
+.home-page-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 30px; /* Increased margin */
+}
+
+.home-page-menu-item {
+  color: white;
+  text-decoration: none;
+  font-weight: 600; /* Semi-bold font */
+  padding: 0.8rem 1.6rem; /* Slightly larger buttons */
+  border-radius: 30px; /* More rounded corners */
+  position: relative;
+  transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease; /* Added color transition */
+}
+
+.home-page-menu-item::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 4px; /* Increased underline thickness */
+  bottom: 7px; /* Adjusted underline position */
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.9); /* Brighter underline */
+  transition: width 0.3s ease;
+}
+
+.home-page-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.25); /* Brighter hover */
+  transform: translateY(-3px); /* More pronounced hover effect */
+  color: #f0f0f0; /* Lighter text on hover */
+}
+
+.home-page-menu-item:hover::after {
+  width: 80%; /* Wider underline on hover */
+}
+
+.home-page-register-login {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-page-link {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.8rem 1.6rem; /* Adjusted link padding */
+  margin-right: 25px; /* Increased margin */
+  border: 2px solid white;
+  border-radius: 30px; /* More rounded corners */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.home-page-link:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.9); /* Stronger shadow */
+}
+
+/* Mobile menu styles */
+.mobile-menu-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem; /* Even larger mobile menu icon */
+  cursor: pointer;
+  display: none;
+  transition: transform 0.3s ease;
+}
+
+.mobile-menu-button:hover {
+  transform: scale(1.2);
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(45, 51, 77, 0.97); /* Even darker */
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 5rem; /* Increased padding */
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Custom easing function */
+  overflow: auto;
+}
+
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+.mobile-menu-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.mobile-menu-item {
+  color: white;
+  text-decoration: none;
+  font-size: 1.4rem; /* Adjusted font size */
+  margin: 1.2rem 0;
+  padding: 0.8rem 1.7rem; /* Adjusted padding */
+  border-radius: 12px; /* Softer corners */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Added transform */
+  width: 85%; /* Adjusted width */
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.mobile-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.25); /* Brighter hover */
+  transform: scale(1.05); /* Subtle scale-up on hover */
+}
+
+.mobile-menu-close-button {
+  position: absolute;
+  top: 1.5rem;
+  /* Adjusted button position */
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  /* Even larger close button */
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.mobile-menu-close-button:hover {
+  transform: scale(1.2);
+}
+
+/* Footer Styles */
+.home-page-footer {
+  background-color: rgba(45, 51, 77, 1);
+  color: white;
+  text-align: left;
+  padding: 3rem 2rem; /* Increased footer padding */
+  margin-top: auto;
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Subtle top shadow */
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-bottom: 1.5rem;
+}
+
+.footer-section {
+  width: 30%;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.footer-section h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.7rem;
+  color: rgba(215, 33, 52, 1);
+  /* Emphasize section titles */
+  border-bottom: 2px solid rgba(215, 33, 52, 0.5); /* Add a subtle underline */
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.footer-section p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center; /* Align icon and text vertically */
+  gap: 0.5rem; /* Space between icon and text */
+}
+
+.social-links {
+  display: flex;
+  justify-content: flex-start;
+  /* Align social links to the left */
+  gap: 1.2rem;
+}
+
+.social-links a {
+  color: white;
+  font-size: 1.7rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-links a:hover {
+  transform: translateY(-3px);
+  color: rgba(215, 33, 52, 1);
+  /* Change color on hover */
+}
+
+.footer-bottom {
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ddd;
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .home-page-menu,
+  .home-page-register-login {
+    display: none;
+    /* Hide on smaller screens */
+  }
+
+  .mobile-menu-button {
+    display: block;
+    /* Show on smaller screens */
+  }
+
+  .footer-content {
+    flex-direction: column;
+    /* Stack sections on top of each other */
+    align-items: center;
+    /* Center the sections */
+  }
+
+  .footer-section {
+    width: 100%;
+    /* Each section takes full width */
+    text-align: center;
+    /* Center text in sections */
+  }
+
+  .social-links {
+    justify-content: center;
+    /* Center social links */
+  }
+}
