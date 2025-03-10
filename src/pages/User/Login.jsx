@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom"; 
+import { useNavigate, Link } from "react-router-dom";
 import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setAdminProfile } from "../../redux/adminSlice"; 
+import { setAdminProfile } from "../../redux/adminSlice";
 import "../../assets/css/LoginLayout.style.css";
-
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
 const SigninPageComponent = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -32,10 +32,10 @@ const SigninPageComponent = () => {
   const validateFields = () => {
     const errors = {};
     if (!emailOrPhoneNumber) {
-      errors.emailOrPhoneNumber = "Email or Phone Number is required";
+      errors.emailOrPhoneNumber = "Email hoặc số điện thoại chưa được nhập";
     }
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Mật khẩu chưa được nhập";
     }
     return errors;
   };
@@ -82,13 +82,13 @@ const SigninPageComponent = () => {
             navigate("/dashboard");
           }
         } catch (error) {
-          setErrorMessage("Login failed: Invalid credentials");
+          setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
         }
       } else {
-        setErrorMessage("Login failed: Invalid credentials");
+        setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
       }
     } catch (error) {
-      setErrorMessage("Login failed: Invalid credentials");
+      setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
     } finally {
       setIsSubmitting(false);
     }
@@ -116,22 +116,14 @@ const SigninPageComponent = () => {
     <LoginLayout>
       <div className="login-form">
         <h1 className="login-title">Đăng nhập GiaSuVLU</h1>
-        <div className="social-login">
-          <button
-            onClick={handleMicrosoftLogin}
-            className="microsoft-login-button"
-          >
-            <i className="fab fa-microsoft  fa-xl"></i>
-            Đăng nhập với Microsoft
-          </button>
-        </div>
-        <div className="divider">
-          <span>hoặc</span>
-        </div>
-        <form onSubmit={handleSubmit}>
+        <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email hoặc số điện thoại</label>
-            <div className="login-form-group">
+            <div
+              className={`login-form-group ${
+                fieldErrors.emailOrPhoneNumber ? "error" : ""
+              }`}
+            >
               <input
                 type="text"
                 id="emailOrPhoneNumber"
@@ -142,16 +134,18 @@ const SigninPageComponent = () => {
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
               />
               <i className="fa-regular fa-user"></i>
-              {fieldErrors.emailOrPhoneNumber && (
-                <p className="error-message">
-                  {fieldErrors.emailOrPhoneNumber}
-                </p>
-              )}
             </div>
+            {fieldErrors.emailOrPhoneNumber && (
+              <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
+            )}
           </div>
           <div className="login-form-container">
             <label htmlFor="password">Mật khẩu</label>
-            <div className="login-form-group">
+            <div
+              className={`login-form-group ${
+                fieldErrors.password ? "error" : ""
+              }`}
+            >
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -177,7 +171,6 @@ const SigninPageComponent = () => {
               <p className="error-message">{fieldErrors.password}</p>
             )}
           </div>
-
           <div className="remember-me">
             <label>
               <input
@@ -186,7 +179,7 @@ const SigninPageComponent = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="checkbox-remember-me"
               />
-              Remember Me
+              Nhớ mật khẩu
             </label>
           </div>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -195,15 +188,27 @@ const SigninPageComponent = () => {
             className="login-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? "Đang xử lý" : "Đăng nhập"}
           </button>
+          <div className="divider">
+            <span>hoặc</span>
+          </div>
+          <div className="social-login">
+            <button
+              onClick={handleMicrosoftLogin}
+              className="microsoft-login-button"
+            >
+              <img src={MicrosoftLogo} alt="" />
+              Đăng nhập với Microsoft
+            </button>
+          </div>
         </form>
         <div className="forgot-password-link">
-          <Link to="/forgot-password">Forgot Password?</Link>
+          <Link to="/forgot-password">Quên mật khẩu?</Link>
         </div>
         <div className="register-link">
           <p>
-            Dont have an account? <Link to="/register">Register</Link>
+            Không có tài khoản? <Link to="/register">Đăng ký</Link>
           </p>
         </div>
       </div>

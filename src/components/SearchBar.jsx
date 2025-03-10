@@ -1,32 +1,31 @@
-// src/components/SearchBar.jsx
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 
 const SearchBarComponent = ({
-  value,
+  value = "", // Default parameter
   onChange,
   searchBarClassName,
   searchInputClassName,
-  searchBarButtonClassName,
-  searchBarOnClick,
+  placeholder = "", // Default parameter
   onKeyPress,
   ...rest
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
-  const handleSearch = () => {
-    searchBarOnClick();
-    setInputValue(""); // Clear the input value
-  };
+  const handleChange = useCallback(
+    (e) => {
+      const newInputValue = e.target.value;
+      setInputValue(newInputValue);
+      onChange(newInputValue); // Truyền giá trị mới trực tiếp
+    },
+    [onChange]
+  );
 
-  const handleChange = (e) => {
-    setInputValue(e.target.value);
-    onChange(e.target.value);
-  };
-  const handClearInput = () => {
+  const handClearInput = useCallback(() => {
     setInputValue("");
-    onChange("");
-  };
+    onChange(""); // Truyền giá trị rỗng
+  }, [onChange]);
+
   return (
     <div className={searchBarClassName}>
       <input
@@ -34,6 +33,7 @@ const SearchBarComponent = ({
         value={inputValue}
         onChange={handleChange}
         className={searchInputClassName}
+        placeholder={placeholder}
         onKeyDown={onKeyPress}
         {...rest}
       />
@@ -42,20 +42,16 @@ const SearchBarComponent = ({
           <i className="fa-solid fa-xmark fa-xs" onClick={handClearInput}></i>
         )}
       </div>
-      <div className={searchBarButtonClassName} onClick={handleSearch}>
-        <i className="fa-solid fa-magnifying-glass"></i>
-      </div>
     </div>
   );
 };
 
 SearchBarComponent.propTypes = {
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   searchBarClassName: PropTypes.string,
   searchInputClassName: PropTypes.string,
-  searchBarButtonClassName: PropTypes.string,
-  searchBarOnClick: PropTypes.func,
+  placeholder: PropTypes.string,
   onKeyPress: PropTypes.func,
 };
 

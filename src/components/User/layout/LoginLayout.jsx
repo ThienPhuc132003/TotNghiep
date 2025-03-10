@@ -5,8 +5,7 @@ import "../../../assets/css/LoginLayout.style.css";
 import vanlangBackground from "../../../assets/images/vanlang_background1.png";
 import HomePageLayout from "./HomePageLayout";
 
-const LoginLayoutComponent = (props) => {
-  const { children = null } = props;
+const LoginLayoutComponent = ({ children = null }) => {
   const location = useLocation();
 
   const isAdminPath = location.pathname.startsWith("/admin");
@@ -15,6 +14,8 @@ const LoginLayoutComponent = (props) => {
     <>
       {isAdminPath ? (
         <div className="login-layout">
+          {" "}
+          <div className="background-mask"></div>
           <img
             src={vanlangBackground}
             alt="background image"

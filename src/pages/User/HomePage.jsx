@@ -13,11 +13,13 @@ import {
   FaUserGraduate,
 } from "react-icons/fa";
 import HomePageLayout from "../../components/User/layout/HomePageLayout";
-
+import welcomeTheme from "../../assets/images/welcomeTheme.jpg";
+import subjectList from "../../assets/data/mayjorList.json";
 /* eslint-disable no-unused-vars */
 
 const HeroSection = () => (
   <section className="hero">
+    <img className="welcomeTheme" src={welcomeTheme} alt="welcomeTheme" />
     <div className="hero-content">
       <h1>Kết Nối Tri Thức - Mở Cánh Tương Lai</h1>
       <p>
@@ -35,10 +37,10 @@ const BenefitsSection = () => (
     <div className="benefits-grid">
       <div className="benefit">
         <FaCheckCircle className="benefit-icon" />
-        <h3>Gia Sư Chất Lượng</h3>
+        <h3>Gia Sư Đa Dạng, Thân Thiện</h3>
         <p>
-          Đội ngũ gia sư giỏi chuyên môn, giàu kinh nghiệm, được tuyển chọn kỹ
-          lưỡng.
+          Chủ yếu là các gia sư cũng là sinh viên, dễ dàng trao đổi với học
+          viên.
         </p>
       </div>
       <div className="benefit">
@@ -61,48 +63,26 @@ const BenefitsSection = () => (
   </section>
 );
 
-const PopularSubjectsSection = () => (
-  <section className="popular-subjects section">
-    <h2>Khám Phá Các Môn Học Được Yêu Thích Nhất</h2>
-    <div className="subjects-list">
-      <a href="/search?subject=toan-cao-cap">
-        <img
-          src="https://images.unsplash.com/photo-1628155330495-31ca6f494c31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80"
-          alt="Toán Cao Cấp"
-        />
-        Toán Cao Cấp
-      </a>
-      <a href="/search?subject=dai-so-tuyen-tinh">
-        <img
-          src="https://images.unsplash.com/photo-1587278672078-7572342d798c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80"
-          alt="Đại Số Tuyến Tính"
-        />
-        Đại Số Tuyến Tính
-      </a>
-      <a href="/search?subject=giai-tich">
-        <img
-          src="https://images.unsplash.com/photo-1635372774955-64b2e5163149?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-          alt="Giải Tích"
-        />
-        Giải Tích
-      </a>
-      <a href="/search?subject=triet-hoc-mac-lenin">
-        <img
-          src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-          alt="Triết Học Mác-Lênin"
-        />
-        Triết Học Mác-Lênin
-      </a>
-      <a href="/search?subject=tieng-anh-chuyen-nganh">
-        <img
-          src="https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2160&q=80"
-          alt="Tiếng Anh Chuyên Ngành"
-        />
-        Tiếng Anh Chuyên Ngành
-      </a>
-    </div>
-  </section>
-);
+const PopularSubjectsSection = () => {
+  const topSubjects = subjectList.slice(0, 10); // Get the top 10 subjects
+
+  return (
+    <section className="popular-subjects section">
+      <h2>Các Ngành Được Học Nhiều Nhất</h2>
+      <div className="subjects-grid">
+        {topSubjects.map((subject, index) => (
+          <a
+            key={index}
+            href={`/search?subject=${subject.major_name}`}
+            className="subject-item"
+          >
+            {subject.major_name}
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+};
 
 const HowItWorksSection = () => (
   <section className="how-it-works section">
@@ -120,8 +100,8 @@ const HowItWorksSection = () => (
       </div>
       <div className="step">
         <FaClock className="step-icon" />
-        <h3>Liên Hệ & Học Tập</h3>
-        <p>Trao đổi với gia sư và bắt đầu buổi học đầu tiên!</p>
+        <h3>Lên Lịch Học</h3>
+        <p>Thống nhất lịch học và bắt đầu buổi học đầu tiên!</p>
       </div>
     </div>
   </section>
@@ -173,16 +153,16 @@ const TutorFilterSection = () => {
       <h2>Tìm Gia Sư Theo Tiêu Chí Của Bạn</h2>
       <form onSubmit={handleSearch}>
         <div className="filter-group">
-          <label htmlFor="subject">Môn Học:</label>
+          <label htmlFor="subject">Ngành học</label>
           <select
             id="subject"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
           >
             <option value="">Tất cả</option>
-            <option value="toan-cao-cap">Toán Cao Cấp</option>
-            <option value="dai-so-tuyen-tinh">Đại Số Tuyến Tính</option>
-            <option value="giai-tich">Giải Tích</option>
+            <option value="cong-nghe-thong-tin">Công nghệ thông tin</option>
+            <option value="thiet-ke-noi-that">Thiết kế nội thất</option>
+            <option value="ke-toan">Kế toán</option>
             {/* Add more subjects */}
           </select>
         </div>

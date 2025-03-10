@@ -103,11 +103,10 @@ const ForgotPasswordPage = () => {
             <p className="success-message">{successMessage}</p>
           )}
           <div className="submit-cancel">
-            <div className="submite-field">
-              <Button className="submit" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Đang xác nhận" : t("common.confirm")}
-              </Button>
-            </div>
+            <Button className="submit" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Đang xác nhận" : t("common.confirm")}
+            </Button>
+
             <p className="cancel" onClick={handleBackPage}>
               <i className="fa-solid fa-arrow-left"></i>
               Quay về trang đăng nhập

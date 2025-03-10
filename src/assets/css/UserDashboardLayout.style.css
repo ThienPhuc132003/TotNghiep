@@ -30,11 +30,6 @@
   text-decoration: none;
 }
 
-.main-content {
-  flex: 1;
-  padding: 2rem;
-}
-
 .footer {
   background-color: #6e8efb;
   color: white;

@@ -20,6 +20,7 @@ const RegisterTutor = lazy(() => import("./pages/User/RegisterTutor"));
 const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
+const OtpVerifyRegister = lazy(() => import("./pages/User/OtpVerifyRegister"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
 
@@ -51,7 +52,10 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/otp-verify" element={<OtpVerify />} />
-
+            <Route
+              path="/otp-verify-register"
+              element={<OtpVerifyRegister />}
+            />
             <Route path="/api/meeting/callback" element={<ZoomCallback />} />
 
             <Route path="/create-meeting" element={<CreateMeeting />} />

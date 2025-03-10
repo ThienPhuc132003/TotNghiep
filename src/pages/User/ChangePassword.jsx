@@ -103,7 +103,7 @@ const ChangePasswordPage = () => {
   );
 
   const handleBackPage = () => {
-    navigate("/otp-verify");
+    navigate("/login");
   };
 
   return (

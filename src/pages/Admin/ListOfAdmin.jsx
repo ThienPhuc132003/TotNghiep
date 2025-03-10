@@ -1,11 +1,10 @@
-// src/pages/Admin/ListOfAdmin.jsx
+/* eslint-disable no-undef */
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
-import AdminFilterButton from "../../components/Admin/AdminFilterButton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
@@ -15,16 +14,16 @@ import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { formatInTimeZone } from "date-fns-tz";
 import { Alert } from "@mui/material";
-
+import unidecode from "unidecode";
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
 const ListOfAdminPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
+  const [filteredData, setFilteredData] = useState([]); // Thêm state này
+  const [totalItems, setTotalItems] = useState(0); // Giữ lại totalItems
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
@@ -34,74 +33,30 @@ const ListOfAdminPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Giá trị mặc định
   const currentPath = "/nhan-vien";
   const [filters, setFilters] = useState([]);
-
-  const updateUrl = useCallback(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
-      params.append("sortDirection", sortConfig.direction);
-    }
-    params.append("page", currentPage + 1);
-
-    // const newUrl = `${currentPath}?${params.toString()}`;
-    // window.history.pushState({}, "", newUrl);
-  }, [searchQuery, sortConfig, currentPage]);
+  const [pageCount, setPageCount] = useState(1);
 
   const resetState = () => {
     setSearchInput("");
-    setSearchQuery("");
-    setSortConfig({ key: "", direction: "asc" });
     setCurrentPage(0);
     setFilters([]); // Reset filters
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialSearchQuery = params.get("searchQuery") || "";
-    const initialSortKey = params.get("sortKey") || "";
-    const initialSortDirection = params.get("sortDirection") || "asc";
-    const initialPage = parseInt(params.get("page") || "1", 10) - 1;
-
-    setSearchQuery(initialSearchQuery);
-    setSortConfig({
-      key: initialSortKey,
-      direction: initialSortDirection,
-    });
-    setCurrentPage(initialPage);
-    setSearchInput(initialSearchQuery);
-  }, []);
-
-  useEffect(() => {
-    updateUrl();
-  }, [searchQuery, sortConfig, currentPage, updateUrl]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const query = {
-        rpp: itemsPerPage,
+        rpp: itemsPerPage, // Sử dụng itemsPerPage state
         page: currentPage + 1,
       };
-  
-      if (searchQuery) {
-        query.filter = [
-          {
-            key: "adminId",
-            operator: "like",
-            value: searchQuery,
-          },
-        ];
-      }
-  
+
       if (filters.length > 0) {
-        query.filter = [...(query.filter || []), ...filters];
+        query.filter = filters;
       }
-  
+
       if (sortConfig.key) {
         query.sort = [
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
@@ -116,7 +71,9 @@ const ListOfAdminPage = () => {
 
       if (response.success) {
         setData(response.data.items);
-        setTotalItems(response.data.total);
+        setFilteredData(response.data.items); // Lưu trữ dữ liệu vào state mới
+        setTotalItems(response.data.total); // Giữ lại totalItems
+        setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
       } else {
         setError(response.message || t("common.errorLoadingData"));
       }
@@ -125,26 +82,14 @@ const ListOfAdminPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchQuery, sortConfig, t, itemsPerPage, filters]);
+  }, [currentPage, sortConfig, t, itemsPerPage, filters]);
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, fetchData]);
+  }, [fetchData]);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
-  };
-
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
-    setSortConfig({ key: "", direction: "asc" });
-    setCurrentPage(0);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   const handleSort = (sortKey) => {
@@ -155,16 +100,6 @@ const ListOfAdminPage = () => {
           : "asc";
       return { key: sortKey, direction: newDirection };
     });
-  };
-
-  const handleApplyFilter = (filterValues) => {
-    const newFilters = Object.keys(filterValues).map((key) => ({
-      key,
-      operator: filterValues[key].operator,
-      value: filterValues[key].value,
-    }));
-    setFilters(newFilters);
-    setCurrentPage(0);
   };
 
   const handleDelete = async (adminId) => {
@@ -191,6 +126,7 @@ const ListOfAdminPage = () => {
       setDeleteItemId(null);
     }
   };
+
   const addFields = [
     { key: "fullname", label: t("admin.name") },
     { key: "birthday", label: t("admin.birthday"), type: "date" },
@@ -341,7 +277,12 @@ const ListOfAdminPage = () => {
   };
 
   const columns = [
-    { title: "Mã người nhân viên", dataKey: "adminId", sortable: true },
+    {
+      title: "Mã NV",
+      dataKey: "adminId",
+      sortable: true,
+      tooltip: "Mã người nhân viên",
+    },
     {
       title: t("admin.name"),
       dataKey: "adminProfile.fullname",
@@ -352,7 +293,7 @@ const ListOfAdminPage = () => {
       dataKey: "roleId",
       sortable: true,
       renderCell: (value) => {
-        return value === "BEST_ADMIN" ? "ADMIN" : "Nhân viên";
+        return value === "BEST_ADMIN" ? "Quản trị viên" : "Nhân viên";
       },
     },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
@@ -408,64 +349,104 @@ const ListOfAdminPage = () => {
     },
   ];
 
-  const childrenMiddleContentLower = (
-    <>
-      <div className="admin-content">
-        <h2 className="admin-list-title">{t("admin.listTitle")}</h2>
-        <div className="search-bar-filter-container">
-          <div className="search-bar-filter">
-            <SearchBar
-              value={searchInput}
-              onChange={setSearchInput}
-              searchBarClassName="admin-search"
-              searchInputClassName="admin-search-input"
-              searchBarButtonClassName="admin-search-button"
-              searchBarOnClick={handleSearch}
-              onKeyPress={handleKeyPress}
-              placeholder="Tìm kiếm theo mã admin"
-            />{" "}
-            <button
-              className="refresh-button"
-              onClick={() => {
-                resetState();
-                fetchData();
-              }}
-            >
-              {t("common.refresh")}
-            </button>
-            <AdminFilterButton
-              fields={editFields}
-              onApply={handleApplyFilter}
-            />
-          </div>
-          <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddAdmin}>
-              {t("common.addButton")}
-            </button>
-          </div>
-        </div>
-        {error && <Alert severity="error">{error}</Alert>}
-        <Table
-          columns={columns}
-          data={data}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={(admin) => handleDelete(admin.adminId)}
-          pageCount={Math.ceil(totalItems / itemsPerPage)}
-          onPageChange={handlePageClick}
-          forcePage={currentPage}
-          onSort={handleSort}
-          loading={isLoading}
-          error={error}
-        />
-      </div>
-    </>
-  );
+  const handleSearchInputChange = (query) => {
+    setSearchInput(query);
+    const normalizedQuery = unidecode(query.toLowerCase());
+    const collator = new Intl.Collator("vi", { sensitivity: "base" });
+
+    const filtered = data.filter((item) => {
+      const searchValues = {
+        adminId: item.adminId,
+        fullname: item.adminProfile?.fullname || "",
+        roleId:
+          item.roleId === "BEST_ADMIN"
+            ? "Quản trị viên"
+            : item.roleId === "ADMIN"
+            ? "Nhân viên"
+            : "Không xác định",
+        phoneNumber: item.phoneNumber,
+        email: item.email,
+        status: item.status === "ACTIVE" ? "Đang hoạt động" : "Khóa",
+      };
+
+      return Object.values(searchValues).some((value) => {
+        if (value) {
+          const stringValue = value.toString().toLowerCase();
+          const normalizedValue = unidecode(stringValue);
+
+          // Tạo biểu thức chính quy
+          const regex = new RegExp(normalizedQuery, "i");
+
+          return (
+            collator.compare(normalizedValue, normalizedQuery) === 0 ||
+            normalizedValue.includes(normalizedQuery) ||
+            regex.test(normalizedValue)
+          );
+        }
+        return false;
+      });
+    });
+
+    setFilteredData(filtered);
+  };
+
+  const handleItemsPerPageChange = (newPageSize) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(0); // Reset về trang đầu tiên
+  };
 
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
-      childrenMiddleContentLower={childrenMiddleContentLower}
+      childrenMiddleContentLower={
+        <>
+          <div className="admin-content">
+            <h2 className="admin-list-title">Danh sách nhân viên</h2>
+            <div className="search-bar-filter-container">
+              <div className="search-bar-filter">
+                <SearchBar
+                  value={searchInput}
+                  onChange={handleSearchInputChange}
+                  searchBarClassName="admin-search"
+                  searchInputClassName="admin-search-input"
+                  placeholder="Tìm kiếm nhân viên"
+                />
+                <button
+                  className="refresh-button"
+                  onClick={() => {
+                    resetState();
+                    fetchData();
+                  }}
+                >
+                  <i className="fa-solid fa-rotate"></i>
+                </button>
+              </div>
+              <div className="filter-add-admin">
+                <button className="add-admin-button" onClick={handleAddAdmin}>
+                  {t("common.addButton")}
+                </button>
+              </div>
+            </div>
+            {error && <Alert severity="error">{error}</Alert>}
+            <Table
+              columns={columns}
+              data={filteredData} // Sử dụng filteredData thay vì data
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={(admin) => handleDelete(admin.adminId)}
+              pageCount={pageCount} // Truyền pageCount
+              onPageChange={handlePageClick}
+              forcePage={currentPage}
+              onSort={handleSort}
+              loading={isLoading}
+              error={error}
+              itemsPerPage={itemsPerPage} // Truyền itemsPerPage
+              onItemsPerPageChange={handleItemsPerPageChange} // Truyền callback
+            />
+            <p>Tổng số nhân viên: {totalItems}</p> {/* Hiện thị totalItems */}
+          </div>
+        </>
+      }
     >
       <Modal
         isOpen={isModalOpen}

@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/Register.style.css";
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
 
 const RegisterPage = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    fullName: "",
+    fullname: "",
     birthday: "",
     email: "",
     phoneNumber: "",
@@ -31,76 +32,91 @@ const RegisterPage = () => {
     }
   };
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    const errors = { ...formErrors };
+  const validateFields = () => {
+    const errors = {};
 
-    if (!value) {
-      errors[name] = `${
-        name.charAt(0).toUpperCase() + name.slice(1)
-      } is required`;
-    } else {
-      delete errors[name];
+    if (!formData.fullname) {
+      errors.fullname = "Vui lòng nhập họ và tên.";
     }
 
-    setFormErrors(errors);
+    if (!formData.birthday) {
+      errors.birthday = "Vui lòng chọn ngày sinh.";
+    }
+
+    if (!formData.email) {
+      errors.email = "Vui lòng nhập địa chỉ email.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Địa chỉ email không hợp lệ.";
+    }
+
+    if (!formData.phoneNumber) {
+      errors.phoneNumber = "Vui lòng nhập số điện thoại.";
+    } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = "Số điện thoại không hợp lệ (10 chữ số).";
+    }
+
+    if (!formData.homeAddress) {
+      errors.homeAddress = "Vui lòng nhập địa chỉ nhà.";
+    }
+
+    if (!formData.gender) {
+      errors.gender = "Vui lòng chọn giới tính.";
+    }
+
+    if (!formData.password) {
+      errors.password = "Vui lòng nhập mật khẩu.";
+    } else if (formData.password.length < 6) {
+      errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+    }
+
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = "Vui lòng xác nhận mật khẩu.";
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Mật khẩu không khớp.";
+    }
+
+    return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {
-      fullName,
-      birthday,
-      email,
-      phoneNumber,
-      homeAddress,
-      gender,
-      password,
-      confirmPassword,
-    } = formData;
 
-    const errors = {};
-    if (!fullName) errors.fullName = "Full Name is required";
-    if (!birthday) errors.birthday = "Birthday is required";
-    if (!email) errors.email = "Email is required";
-    if (!phoneNumber) errors.phoneNumber = "Phone Number is required";
-    if (!homeAddress) errors.homeAddress = "Home Address is required";
-    if (!gender) errors.gender = "Gender is required";
-    if (!password) errors.password = "Password is required";
-    if (password !== confirmPassword)
-      errors.confirmPassword = "Passwords do not match";
+    const errors = validateFields();
+    setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
       return;
     }
 
     setIsSubmitting(true);
 
     const data = {
-      fullname: fullName,
-      birthday: birthday,
-      email: email,
-      phoneNumber: phoneNumber,
-      homeAddress: homeAddress,
-      gender: gender.toUpperCase(),
-      password: password,
-      confirmPassword: confirmPassword,
+      fullname: formData.fullname,
+      birthday: formData.birthday,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      homeAddress: formData.homeAddress,
+      gender: formData.gender,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
     };
 
     try {
       const response = await Api({
-        endpoint: "user/register",
+        endpoint: "user/send-otp",
         method: METHOD_TYPE.POST,
         data: data,
       });
+
       if (response.success === true) {
-        navigate("/login");
+        navigate("/otp-verify-register", { state: { email: formData.email } });
       } else {
-        console.error("Registration failed:", response.message);
+        console.error("Failed to send OTP:", response.message);
+        setFormErrors({ register: "Gửi OTP thất bại. Vui lòng thử lại." });
       }
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error("Failed to send OTP:", error);
+      setFormErrors({ register: "Đã có lỗi xảy ra. Vui lòng thử lại." });
     } finally {
       setIsSubmitting(false);
     }
@@ -118,9 +134,15 @@ const RegisterPage = () => {
         window.location.href = authUrl;
       } else {
         console.error("Microsoft Auth URL not found.");
+        setFormErrors({
+          microsoft: "Không thể kết nối với Microsoft. Vui lòng thử lại sau.",
+        });
       }
     } catch (errors) {
       console.error("Error fetching Microsoft Auth URL:", errors);
+      setFormErrors({
+        microsoft: "Không thể kết nối với Microsoft. Vui lòng thử lại sau.",
+      });
     }
   };
 
@@ -128,33 +150,20 @@ const RegisterPage = () => {
     <LoginLayout>
       <div className="register-form">
         <h1>Đăng ký GiaSuVLU</h1>
-        <div className="social-login">
-          <button
-            onClick={handleMicrosoftRegister}
-            className="microsoft-login-button"
-          >
-            <i className="fab fa-microsoft"></i>
-            {t("register.registerWithMicrosoft")}
-          </button>
-        </div>
-        <div className="divider">
-          <span>hoặc</span>
-        </div>
-        <form onSubmit={handleSubmit}>
+        <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="fullName">{t("register.fullName")}</label>
+            <label htmlFor="fullname">{t("register.fullName")}</label>
             <input
               type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              id="fullname"
+              name="fullname"
+              value={formData.fullname}
               onChange={handleChange}
-              onBlur={handleBlur}
               placeholder="Trịnh Văn Thiên Phúc"
-              className={formErrors.fullName ? "error-border" : ""}
+              className={formErrors.fullname ? "error-border" : ""}
             />
-            {formErrors.fullName && (
-              <p className="error-message">{formErrors.fullName}</p>
+            {formErrors.fullname && (
+              <p className="error-message">{formErrors.fullname}</p>
             )}
           </div>
           <div className="form-group">
@@ -165,12 +174,26 @@ const RegisterPage = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              onBlur={handleBlur}
               placeholder="example@gmail.com"
               className={formErrors.email ? "error-border" : ""}
             />
             {formErrors.email && (
               <p className="error-message">{formErrors.email}</p>
+            )}
+          </div>
+          <div className="form-group">
+            <label htmlFor="phoneNumber">{t("register.phoneNumber")}</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              placeholder="0912345678"
+              className={formErrors.phoneNumber ? "error-border" : ""}
+            />
+            {formErrors.phoneNumber && (
+              <p className="error-message">{formErrors.phoneNumber}</p>
             )}
           </div>
           <div className="form-group">
@@ -181,8 +204,7 @@ const RegisterPage = () => {
               name="homeAddress"
               value={formData.homeAddress}
               onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="58a huỳnh văn bánh"
+              placeholder="58a Huỳnh Văn Bánh"
               className={formErrors.homeAddress ? "error-border" : ""}
             />
             {formErrors.homeAddress && (
@@ -198,7 +220,6 @@ const RegisterPage = () => {
                 name="birthday"
                 value={formData.birthday}
                 onChange={handleChange}
-                onBlur={handleBlur}
                 className={formErrors.birthday ? "error-border" : ""}
               />
               {formErrors.birthday && (
@@ -215,8 +236,6 @@ const RegisterPage = () => {
                     value="MALE"
                     checked={formData.gender === "MALE"}
                     onChange={handleChange}
-                    onBlur={handleBlur}
-    
                   />
                   {t("register.male")}
                 </label>
@@ -227,7 +246,6 @@ const RegisterPage = () => {
                     value="FEMALE"
                     checked={formData.gender === "FEMALE"}
                     onChange={handleChange}
-                    onBlur={handleBlur}
                   />
                   {t("register.female")}
                 </label>
@@ -246,8 +264,7 @@ const RegisterPage = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Example@123"
+                placeholder="Nhập mật khẩu"
                 className={formErrors.password ? "error-border" : ""}
               />
               {formErrors.password && (
@@ -255,15 +272,16 @@ const RegisterPage = () => {
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="confirmPassword">{t("register.confirmPassword")}</label>
+              <label htmlFor="confirmPassword">
+                {t("register.confirmPassword")}
+              </label>
               <input
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Example@123"
+                placeholder="Xác nhận mật khẩu"
                 className={formErrors.confirmPassword ? "error-border" : ""}
               />
               {formErrors.confirmPassword && (
@@ -271,10 +289,37 @@ const RegisterPage = () => {
               )}
             </div>
           </div>
-          <button type="submit" className="register-button" disabled={isSubmitting}>
-            {isSubmitting ? "Registering..." : t("register.registerButton")}
+          <div className="divider">
+            <span>hoặc</span>
+          </div>
+          <div className="social-login">
+            <button
+              onClick={handleMicrosoftRegister}
+              className="microsoft-login-button"
+            >
+              <img src={MicrosoftLogo} alt="" />
+              {t("register.registerWithMicrosoft")}
+            </button>
+          </div>
+          {formErrors.register && (
+            <p className="error-message">{formErrors.register}</p>
+          )}
+          {formErrors.microsoft && (
+            <p className="error-message">{formErrors.microsoft}</p>
+          )}
+          <button
+            type="submit"
+            className="register-button"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Đang đăng ký..." : t("register.registerButton")}
           </button>
         </form>
+        <div className="register-link">
+          <p>
+            Bạn đã có tài khoản? <Link to="/login">Đăng nhập</Link>
+          </p>
+        </div>
       </div>
     </LoginLayout>
   );

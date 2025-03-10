@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { setAdminProfile } from "../../redux/adminSlice";
 import "../../assets/css/Admin/AdminLogin.style.css";
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
 // import MicrosoftIcon from "../../assets/images/microsoft.png";
 const AdminLoginPage = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
@@ -117,19 +118,7 @@ const AdminLoginPage = () => {
     <LoginLayout>
       <div className="admin-form">
         <h1 className="login-title">Quản lý GiaSuVLU</h1>
-        <div className="social-login">
-          <button
-            onClick={handleMicrosoftLogin}
-            className="microsoft-login-button"
-          >
-            <i className="fab fa-microsoft fa-xl"></i>Đăng nhập với Microsoft
-          </button>
-        </div>
-        {/* devider */}
-        <div className="divider">
-          <span>hoặc</span>
-        </div>
-        <form onSubmit={handleSubmit}>
+        <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
             <div className="login-form-group">
@@ -198,6 +187,19 @@ const AdminLoginPage = () => {
           >
             {isSubmitting ? "Đăng nhập thành công" : "Đăng nhập"}
           </button>
+          {/* devider */}
+          <div className="divider">
+            <span>hoặc</span>
+          </div>
+          <div className="social-login">
+            <button
+              onClick={handleMicrosoftLogin}
+              className="microsoft-login-button"
+            >
+              <img src={MicrosoftLogo} alt="" />
+              Đăng nhập với Microsoft
+            </button>
+          </div>
         </form>
       </div>
     </LoginLayout>

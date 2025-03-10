@@ -21,8 +21,8 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, message = "Are yo
         </div>
         <p className="modal-message">{message} thao tác này không thể hoàn tác</p>
         <div className="modal-buttons">
-          <button className="cancel-button" onClick={onClose}>Cancel</button>
-          <button className="delete-button" onClick={onConfirm}>Delete</button>
+          <button className="cancel-button" onClick={onClose}>Hủy</button>
+          <button className="delete-button" onClick={onConfirm}>Xóa</button>
         </div>
       </div>
     </div>

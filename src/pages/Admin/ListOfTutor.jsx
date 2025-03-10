@@ -5,7 +5,6 @@ import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
-import AdminFilterButton from "../../components/Admin/AdminFilterButton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
@@ -23,6 +22,7 @@ Modal.setAppElement("#root");
 const ListOfTutorPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,24 +34,26 @@ const ListOfTutorPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 5;
+  const [sortKey, setSortKey] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [itemsPerPage, setItemsPerPage] = useState(7);
   const currentPath = "/gia-su";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
-      params.append("sortDirection", sortConfig.direction);
+    if (sortKey) {
+      params.append("sortKey", sortKey);
+      params.append("sortDirection", sortDirection);
     }
     params.append("page", currentPage + 1);
-  }, [searchQuery, sortConfig, currentPage]);
+  }, [searchQuery, sortKey, sortDirection, currentPage]);
 
   const resetState = () => {
     setSearchInput("");
     setSearchQuery("");
-    setSortConfig({ key: "", direction: "asc" });
+    setSortKey("");
+    setSortDirection("asc");
     setCurrentPage(0);
   };
 
@@ -63,17 +65,15 @@ const ListOfTutorPage = () => {
     const initialPage = parseInt(params.get("page") || "1", 10) - 1;
 
     setSearchQuery(initialSearchQuery);
-    setSortConfig({
-      key: initialSortKey,
-      direction: initialSortDirection,
-    });
+    setSortKey(initialSortKey);
+    setSortDirection(initialSortDirection);
     setCurrentPage(initialPage);
     setSearchInput(initialSearchQuery);
   }, []);
 
   useEffect(() => {
     updateUrl();
-  }, [searchQuery, sortConfig, currentPage, updateUrl]);
+  }, [searchQuery, sortKey, sortDirection, currentPage, updateUrl]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -91,20 +91,9 @@ const ListOfTutorPage = () => {
         ]),
       };
 
-      if (searchQuery) {
-        query.filter = JSON.stringify([
-          ...JSON.parse(query.filter),
-          {
-            key: "email",
-            operator: "equal",
-            value: searchQuery,
-          },
-        ]);
-      }
-
-      if (sortConfig.key) {
+      if (sortKey) {
         query.sort = JSON.stringify([
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
+          { key: sortKey, type: sortDirection.toUpperCase() },
         ]);
       }
 
@@ -117,6 +106,7 @@ const ListOfTutorPage = () => {
 
       if (response.success) {
         setData(response.data.items);
+        setFilteredData(response.data.items);
         setTotalItems(response.data.total);
       } else {
         setError(response.message || t("common.errorLoadingData"));
@@ -126,7 +116,7 @@ const ListOfTutorPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchQuery, sortConfig, t]);
+  }, [currentPage, sortKey, sortDirection, itemsPerPage, t]);
 
   useEffect(() => {
     fetchData();
@@ -137,8 +127,13 @@ const ListOfTutorPage = () => {
   };
 
   const handleSearch = () => {
-    setSearchQuery(searchInput);
-    setSortConfig({ key: "", direction: "asc" });
+    const query = searchInput.toLowerCase();
+    const filtered = data.filter((item) =>
+      Object.values(item).some(
+        (value) => value && value.toString().toLowerCase().includes(query)
+      )
+    );
+    setFilteredData(filtered);
     setCurrentPage(0);
   };
 
@@ -148,20 +143,13 @@ const ListOfTutorPage = () => {
     }
   };
 
-  const handleSort = (sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
-        prevConfig.key === sortKey && prevConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
-  };
-
-  const handleApplyFilter = (filterValues) => {
-    setSearchQuery(filterValues.email || "");
-    setSortConfig({ key: "", direction: "asc" });
-    setCurrentPage(0);
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortKey === key && sortDirection === "asc") {
+      direction = "desc";
+    }
+    setSortKey(key);
+    setSortDirection(direction);
   };
 
   const handleDelete = async (tutorId) => {
@@ -172,10 +160,9 @@ const ListOfTutorPage = () => {
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `user/${deleteItemId}`,
+        endpoint: `user/delete-user-by-id/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
-
       if (response.success) {
         fetchData();
       } else {
@@ -193,12 +180,12 @@ const ListOfTutorPage = () => {
     setModalData({
       userId: tutor.userId,
       fullname: tutor.userProfile.fullname,
+      email: tutor.userProfile.personalEmail,
       phoneNumber: tutor.phoneNumber,
-      email: tutor.email,
       homeAddress: tutor.userProfile.homeAddress,
       birthday: tutor.userProfile.birthday,
       gender: tutor.userProfile.gender,
-      workEmail: tutor.userProfile.workEmail,
+      status: tutor.status,
     });
     setModalMode("view");
     setIsModalOpen(true);
@@ -208,12 +195,12 @@ const ListOfTutorPage = () => {
     setModalData({
       userId: tutor.userId,
       fullname: tutor.userProfile.fullname,
+      email: tutor.userProfile.personalEmail,
       phoneNumber: tutor.phoneNumber,
-      email: tutor.email,
       homeAddress: tutor.userProfile.homeAddress,
       birthday: tutor.userProfile.birthday,
       gender: tutor.userProfile.gender,
-      workEmail: tutor.userProfile.workEmail,
+      status: tutor.status,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -269,7 +256,7 @@ const ListOfTutorPage = () => {
 
     try {
       const response = await Api({
-        endpoint: `user/update-user/${modalData.userId}`,
+        endpoint: `user/update-user-by-id/${modalData.userId}`,
         method: METHOD_TYPE.PUT,
         data: filteredData,
       });
@@ -291,8 +278,12 @@ const ListOfTutorPage = () => {
       dataKey: "userProfile.fullname",
       sortable: true,
     },
+    {
+      title: t("admin.email"),
+      dataKey: "email",
+      sortable: true,
+    },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
-    { title: t("admin.email"), dataKey: "email", sortable: true },
     {
       title: t("common.createdAt"),
       dataKey: "createdAt",
@@ -312,36 +303,42 @@ const ListOfTutorPage = () => {
 
   const addFields = [
     { key: "fullname", label: t("admin.name") },
-    { key: "birthday", label: t("admin.birthday"), type: "date" },
     { key: "email", label: t("admin.email") },
     { key: "phoneNumber", label: t("admin.phone") },
     { key: "homeAddress", label: t("admin.homeAddress") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
     {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
       options: ["MALE", "FEMALE"],
     },
-    { key: "password", label: t("admin.password"), type: "password" },
     {
-      key: "confirmPassword",
-      label: t("admin.confirmPassword"),
-      type: "password",
+      key: "status",
+      label: t("admin.status"),
+      type: "select",
+      options: ["PENDING", "ACTIVE", "INACTIVE"],
     },
   ];
 
   const editFields = [
     { key: "userId", label: "Mã người dùng", readOnly: true },
     { key: "fullname", label: t("admin.name") },
-    { key: "birthday", label: t("admin.birthday"), type: "date" },
-    { key: "email", label: t("admin.email"), readOnly: true },
+    { key: "email", label: t("admin.email") },
     { key: "phoneNumber", label: t("admin.phone") },
     { key: "homeAddress", label: t("admin.homeAddress") },
+    { key: "birthday", label: t("admin.birthday"), type: "date" },
     {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
       options: ["MALE", "FEMALE"],
+    },
+    {
+      key: "status",
+      label: t("admin.status"),
+      type: "select",
+      options: ["PENDING", "ACTIVE", "INACTIVE"],
     },
   ];
 
@@ -368,19 +365,15 @@ const ListOfTutorPage = () => {
                 fetchData();
               }}
             >
-              {t("common.refresh")}
+              <i className="fa-solid fa-rotate fa-lg"></i>
             </button>
-            <AdminFilterButton
-              fields={editFields}
-              onApply={handleApplyFilter}
-            />
           </div>
           <div className="filter-add-admin"></div>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
         <Table
           columns={columns}
-          data={data}
+          data={filteredData}
           onView={handleView}
           onEdit={handleEdit}
           onDelete={(tutor) => handleDelete(tutor.userId)}
@@ -390,6 +383,8 @@ const ListOfTutorPage = () => {
           onSort={handleSort}
           loading={isLoading}
           error={error}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
         />
       </div>
     </>

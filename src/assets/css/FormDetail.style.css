@@ -14,7 +14,7 @@
   position: relative;
   background: #fff;
   border-radius: 12px;
-  max-width: 700px;
+  max-width: 900px; /* Tăng chiều rộng tối đa */
   width: 90%;
   margin: 20px auto;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -37,7 +37,7 @@
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 1.5rem;
-    padding: 1rem 1.5rem;
+  padding: 1rem 1.5rem;
 }
 
 /*form header */
@@ -76,11 +76,10 @@
 .form-grid {
   padding: 1rem 1.5rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  /* Cột tự động có kích thước */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Mỗi hàng có 2 field */
   gap: 1rem;
-    overflow-y: auto;
-    max-height: 400px; /* Adjust to control the scrollable area */
+  overflow-y: auto;
+  max-height: 400px; /* Adjust to control the scrollable area */
 }
 
 /*form group */
