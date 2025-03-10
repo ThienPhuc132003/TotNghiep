@@ -212,7 +212,9 @@ nav ul li:hover a {
   height: auto;
   padding: 5px 0;
 }
-
+.submenu li {
+  padding: 10px 50px;
+}
 .submenu li:not(.active):hover {
   background-color: #444;
 }

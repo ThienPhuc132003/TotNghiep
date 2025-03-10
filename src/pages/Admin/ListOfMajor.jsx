@@ -1,11 +1,8 @@
-// src/pages/Admin/ListOfMajor.jsx
 import React, { useState, useCallback, useEffect } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
 import Table from "../../components/Table";
-import SearchBar from "../../components/SearchBar";
-import AdminFilterButton from "../../components/Admin/AdminFilterButton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
@@ -31,25 +28,27 @@ const ListOfMajorPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 10;
+  const [sortKey, setSortKey] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const currentPath = "/nganh";
   const [filters, setFilters] = useState([]);
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
-      params.append("sortDirection", sortConfig.direction);
+    if (sortKey) {
+      params.append("sortKey", sortKey);
+      params.append("sortDirection", sortDirection);
     }
     params.append("page", currentPage + 1);
-  }, [searchQuery, sortConfig, currentPage]);
+  }, [searchQuery, sortKey, sortDirection, currentPage]);
 
   const resetState = () => {
     setSearchInput("");
     setSearchQuery("");
-    setSortConfig({ key: "", direction: "asc" });
+    setSortKey("");
+    setSortDirection("asc");
     setCurrentPage(0);
     setFilters([]);
   };
@@ -62,17 +61,15 @@ const ListOfMajorPage = () => {
     const initialPage = parseInt(params.get("page") || "1", 10) - 1;
 
     setSearchQuery(initialSearchQuery);
-    setSortConfig({
-      key: initialSortKey,
-      direction: initialSortDirection,
-    });
+    setSortKey(initialSortKey);
+    setSortDirection(initialSortDirection);
     setCurrentPage(initialPage);
     setSearchInput(initialSearchQuery);
   }, []);
 
   useEffect(() => {
     updateUrl();
-  }, [searchQuery, sortConfig, currentPage, updateUrl]);
+  }, [searchQuery, sortKey, sortDirection, currentPage, updateUrl]);
 
   const fetchData = useCallback(async () => {
     setError(null);
@@ -97,10 +94,8 @@ const ListOfMajorPage = () => {
         query.filter = [...(query.filter || []), ...filters];
       }
 
-      if (sortConfig.key) {
-        query.sort = [
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ];
+      if (sortKey) {
+        query.sort = [{ key: sortKey, type: sortDirection.toUpperCase() }];
       }
 
       const response = await Api({
@@ -120,7 +115,15 @@ const ListOfMajorPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchQuery, sortConfig, t, itemsPerPage, filters]);
+  }, [
+    currentPage,
+    searchQuery,
+    sortKey,
+    sortDirection,
+    t,
+    itemsPerPage,
+    filters,
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -132,7 +135,8 @@ const ListOfMajorPage = () => {
 
   const handleSearch = () => {
     setSearchQuery(searchInput);
-    setSortConfig({ key: "", direction: "asc" });
+    setSortKey("");
+    setSortDirection("asc");
     setCurrentPage(0);
   };
 
@@ -142,24 +146,13 @@ const ListOfMajorPage = () => {
     }
   };
 
-  const handleSort = useCallback((sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
-        prevConfig.key === sortKey && prevConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
-  }, []);
-
-  const handleApplyFilter = (filterValues) => {
-    const newFilters = Object.keys(filterValues).map((key) => ({
-      key,
-      operator: filterValues[key].operator,
-      value: filterValues[key].value,
-    }));
-    setFilters(newFilters);
-    setCurrentPage(0);
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortKey === key && sortDirection === "asc") {
+      direction = "desc";
+    }
+    setSortKey(key);
+    setSortDirection(direction);
   };
 
   const handleDelete = async (majorId) => {
@@ -186,6 +179,7 @@ const ListOfMajorPage = () => {
       setDeleteItemId(null);
     }
   };
+
   const handleAddMajor = () => {
     setModalMode("add");
     setModalData({
@@ -195,23 +189,23 @@ const ListOfMajorPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleView = useCallback((major) => {
+  const handleView = (major) => {
     setModalData({
       majorId: major.majorId,
       majorName: major.majorName,
     });
     setModalMode("view");
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleEdit = useCallback((major) => {
+  const handleEdit = (major) => {
     setModalData({
       majorId: major.majorId,
       majorName: major.majorName,
     });
     setModalMode("edit");
     setIsModalOpen(true);
-  }, []);
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -269,14 +263,20 @@ const ListOfMajorPage = () => {
       console.error("An error occurred while updating major:", error.message);
     }
   };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(0); // Reset to the first page when items per page changes
+  };
+
   const columns = [
-    { title: t("major.id"), dataKey: "majorId", sortable: true },
+    { title: "Tên viết tắt", dataKey: "majorId", sortable: true },
     { title: t("major.name"), dataKey: "majorName", sortable: true },
   ];
 
   const addFields = [
-    { key: "majorId", label: t("major.id") },
-    { key: "majorName", label: t("major.name") },
+    { key: "majorId", label: "Tên viết tắt" },
+    { key: "majorName", label: "Tên ngành" },
   ];
 
   const editFields = [
@@ -298,7 +298,7 @@ const ListOfMajorPage = () => {
               searchBarButtonClassName="admin-search-button"
               searchBarOnClick={handleSearch}
               onKeyPress={handleKeyPress}
-              placeholder={t("major.searchPlaceholder")}
+              placeholder="Tìm kiếm ngành"
             />
             <button
               className="refresh-button"
@@ -307,12 +307,8 @@ const ListOfMajorPage = () => {
                 fetchData();
               }}
             >
-              {t("common.refresh")}
+              <i className="fa-solid fa-rotate fa-lg"></i>
             </button>
-            <AdminFilterButton
-              fields={editFields}
-              onApply={handleApplyFilter}
-            />
           </div>
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddMajor}>
@@ -326,13 +322,15 @@ const ListOfMajorPage = () => {
           data={data}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={(major) => handleDelete(major.majorId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
           loading={isLoading}
           error={error}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
         />
       </div>
     </>
@@ -362,10 +360,10 @@ const ListOfMajorPage = () => {
           onSubmit={modalMode === "add" ? handleCreateMajor : handleUpdateMajor}
           title={
             modalMode === "add"
-              ? t("major.addMajor")
+              ? t("Thêm ngành")
               : modalMode === "edit"
-              ? t("major.editMajor")
-              : t("major.viewMajor")
+              ? "Chỉnh sửa ngành"
+              : "Xem ngành"
           }
           onClose={handleCloseModal}
         />
@@ -374,7 +372,7 @@ const ListOfMajorPage = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message={t("major.deleteConfirmation")}
+        message="Bạn có chắc chắn muốn xóa ngành này?"
       />
     </AdminDashboardLayout>
   );

@@ -5,11 +5,12 @@
   height: 100vh;
   background: linear-gradient(135deg, #ff7e5f, #feb47b);
 }
-
+.form-above-container{
+  
+}
 .login-sub-title {
   margin-bottom: 1rem;
 }
-
 
 .admin-logo {
   width: 100px;
@@ -17,6 +18,8 @@
 }
 
 .admin-form {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
@@ -37,7 +40,7 @@
   border-radius: 16px;
   box-sizing: border-box;
 }
-.admin-form-group input::placeholder{
+.admin-form-group input::placeholder {
   color: #888;
   font-style: italic;
   opacity: 1;

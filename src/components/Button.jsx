@@ -8,9 +8,9 @@ const ButtonComponent = (props) => {
     ...rest
   } = props;
   return (
-    <button onClick={onClick} onChange={onChange} {...rest}>
+    <div onClick={onClick} onChange={onChange} {...rest}>
       {children}
-    </button>
+    </div>
   );
 };
 const Button = React.memo(ButtonComponent);

@@ -152,9 +152,7 @@ const AdminSidebarComponent = ({ currentPath }) => {
   }, [menuData, pathname]);
 
   return (
-    <div
-      className={`sidebar ${!isSidebarVisible ? "sidebar-hidden" : ""}`}
-    >
+    <div className={`sidebar ${!isSidebarVisible ? "sidebar-hidden" : ""}`}>
       <h1 className="main-logo">GiaSuVLU</h1>
       <nav className="primary-navigation">
         <ul>

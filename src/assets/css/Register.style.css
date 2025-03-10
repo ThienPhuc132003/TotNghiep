@@ -10,7 +10,6 @@
 }
 
 .register-form .form-group {
-  margin-bottom: 1rem;
   text-align: left;
 }
 
@@ -65,7 +64,7 @@
 }
 
 .register-link a {
-  color: rgba(30, 76, 161, 1);
+  color: rgb(82, 141, 252);
   text-decoration: none;
 }
 

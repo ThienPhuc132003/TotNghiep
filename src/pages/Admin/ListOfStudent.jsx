@@ -5,7 +5,6 @@ import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
-import AdminFilterButton from "../../components/Admin/AdminFilterButton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
@@ -23,6 +22,7 @@ Modal.setAppElement("#root");
 const ListOfStudentPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,24 +34,26 @@ const ListOfStudentPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 7;
+  const [sortKey, setSortKey] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [itemsPerPage, setItemsPerPage] = useState(7);
   const currentPath = "/nguoi-hoc";
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
-      params.append("sortDirection", sortConfig.direction);
+    if (sortKey) {
+      params.append("sortKey", sortKey);
+      params.append("sortDirection", sortDirection);
     }
     params.append("page", currentPage + 1);
-  }, [searchQuery, sortConfig, currentPage]);
+  }, [searchQuery, sortKey, sortDirection, currentPage]);
 
   const resetState = () => {
     setSearchInput("");
     setSearchQuery("");
-    setSortConfig({ key: "", direction: "asc" });
+    setSortKey("");
+    setSortDirection("asc");
     setCurrentPage(0);
   };
 
@@ -63,17 +65,15 @@ const ListOfStudentPage = () => {
     const initialPage = parseInt(params.get("page") || "1", 10) - 1;
 
     setSearchQuery(initialSearchQuery);
-    setSortConfig({
-      key: initialSortKey,
-      direction: initialSortDirection,
-    });
+    setSortKey(initialSortKey);
+    setSortDirection(initialSortDirection);
     setCurrentPage(initialPage);
     setSearchInput(initialSearchQuery);
   }, []);
 
   useEffect(() => {
     updateUrl();
-  }, [searchQuery, sortConfig, currentPage, updateUrl]);
+  }, [searchQuery, sortKey, sortDirection, currentPage, updateUrl]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -91,20 +91,9 @@ const ListOfStudentPage = () => {
         ]),
       };
 
-      if (searchQuery) {
-        query.filter = JSON.stringify([
-          ...JSON.parse(query.filter),
-          {
-            key: "userId",
-            operator: "equal",
-            value: searchQuery,
-          },
-        ]);
-      }
-
-      if (sortConfig.key) {
+      if (sortKey) {
         query.sort = JSON.stringify([
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
+          { key: sortKey, type: sortDirection.toUpperCase() },
         ]);
       }
 
@@ -117,6 +106,7 @@ const ListOfStudentPage = () => {
 
       if (response.success) {
         setData(response.data.items);
+        setFilteredData(response.data.items);
         setTotalItems(response.data.total);
       } else {
         setError(response.message || t("common.errorLoadingData"));
@@ -126,7 +116,7 @@ const ListOfStudentPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchQuery, sortConfig, t]);
+  }, [currentPage, sortKey, sortDirection, itemsPerPage, t]);
 
   useEffect(() => {
     fetchData();
@@ -137,8 +127,13 @@ const ListOfStudentPage = () => {
   };
 
   const handleSearch = () => {
-    setSearchQuery(searchInput);
-    setSortConfig({ key: "", direction: "asc" });
+    const query = searchInput.toLowerCase();
+    const filtered = data.filter((item) =>
+      Object.values(item).some(
+        (value) => value && value.toString().toLowerCase().includes(query)
+      )
+    );
+    setFilteredData(filtered);
     setCurrentPage(0);
   };
 
@@ -148,20 +143,13 @@ const ListOfStudentPage = () => {
     }
   };
 
-  const handleSort = (sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
-        prevConfig.key === sortKey && prevConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
-  };
-
-  const handleApplyFilter = (filterValues) => {
-    setSearchQuery(filterValues.email || "");
-    setSortConfig({ key: "", direction: "asc" });
-    setCurrentPage(0);
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortKey === key && sortDirection === "asc") {
+      direction = "desc";
+    }
+    setSortKey(key);
+    setSortDirection(direction);
   };
 
   const handleDelete = async (studentId) => {
@@ -268,7 +256,7 @@ const ListOfStudentPage = () => {
 
     try {
       const response = await Api({
-        endpoint: `user/update-user/${modalData.userId}`,
+        endpoint: `user/update-user-by-id/${modalData.userId}`,
         method: METHOD_TYPE.PUT,
         data: filteredData,
       });
@@ -377,19 +365,15 @@ const ListOfStudentPage = () => {
                 fetchData();
               }}
             >
-              {t("common.refresh")}
+              <i className="fa-solid fa-rotate fa-lg"></i>
             </button>
-            <AdminFilterButton
-              fields={editFields}
-              onApply={handleApplyFilter}
-            />
           </div>
           <div className="filter-add-admin"></div>
         </div>
         {error && <Alert severity="error">{error}</Alert>}
         <Table
           columns={columns}
-          data={data}
+          data={filteredData}
           onView={handleView}
           onEdit={handleEdit}
           onDelete={(student) => handleDelete(student.userId)}
@@ -399,6 +383,8 @@ const ListOfStudentPage = () => {
           onSort={handleSort}
           loading={isLoading}
           error={error}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
         />
       </div>
     </>

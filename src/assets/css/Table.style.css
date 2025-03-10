@@ -3,23 +3,36 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 600px; /* Set a fixed height */
+  height: 600px; /* Chiều cao cố định cho toàn bộ container */
+  margin-top: 15px;
 }
 
 .table-scrollable-container {
   overflow-y: auto; /* Enable vertical scrolling */
-  height: calc(100% - 50px); /* Take all available height except pagination height */
-  margin-bottom: 10px; /* Add a small margin */
+  flex: 1; /* Cho phép container chiếm hết không gian còn lại */
+  border-radius: 8px;
+  position: relative; /* Cần thiết cho position: sticky */
 }
 
 .custom-table {
   width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
-  border: 1px solid #ddd;
-  border-radius: 30px 30px 0 0;
+  table-layout: fixed; /* Quan trọng để các cột thẳng hàng */
+  margin-top: 0rem;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 10px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #ddd;
   overflow: hidden;
-  table-layout: fixed; /* Add this line to fix the table layout */
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .custom-table thead {
@@ -28,33 +41,41 @@
   height: 50px;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
 }
 
-/* Center Align Headers */
 .custom-table thead th {
-    padding: 10px;
-    cursor: pointer;
-    width: 150px;
-    /* Set a fixed width for each column */
-    text-align: center; /* Vertically center the content */
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.9em;
 }
 
-.custom-table tbody tr {
-  height: 50px; /* Set a fixed height for each row */
+.custom-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 .custom-table tbody tr:hover {
-  background-color: #f1f1f1;
+  background-color: #eaeaea;
+  transition: background-color 0.2s ease;
 }
 
-.custom-table tbody td {
-  padding: 10px;
-  text-align: center;
-  width: 150px; /* Set a fixed width for each column */
-  overflow: hidden; /* Ensure content does not overflow */
-  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-  white-space: nowrap; /* Prevent text from wrapping */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  min-height: 50px; /* Đặt chiều cao tối thiểu */
+}
+
+.action-buttons button {
+  padding: 5px 8px; /* Giảm padding */
+  font-size: 0.7em; /* Giảm font size */
+  line-height: 1.5; /* Đặt line-height */
+}
+
+.custom-table tbody td.action-buttons {
+  min-height: 50px; /* Đặt chiều cao tối thiểu */
 }
 
 .sort-indicator {
@@ -62,76 +83,130 @@
   font-size: 12px;
 }
 
-.custom-table thead th:first-child {
-  border-top-left-radius: 8px;
-  font-size: 14px;
+.custom-table tbody td {
+  /* Áp dụng cho các ô data */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.custom-table thead th:last-child {
-  border-top-right-radius: 8px;
-}
-
-.row-even {
-  background-color: #f9fafb;
-  text-align: center;
-}
-
-.row-odd {
-  background-color: rgba(242, 242, 240, 1);
-  text-align: center;
-}
-
-.loading,
-.error,
-.no-data {
-  text-align: center;
+/* src/assets/css/Table.style.css */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
   padding: 1rem;
-  font-size: 1.25rem;
-  color: #007bff;
+  border-top: 1px solid #ddd;
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  flex-wrap: wrap; /* Cho phép các phần tử xuống hàng khi không đủ không gian */
+}
+.total-item-show {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
 }
 
-.action-buttons {
-  gap: 0.5rem;
+.total-item-show label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  color: #333;
 }
 
-.action-button {
-  background: none;
-  border: none;
+.total-item-show select {
+  /* Thay đổi thành select */
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.total-item-show p {
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0; /* Loại bỏ margin mặc định */
+}
+
+.pagination li {
+  margin: 0 5px;
+}
+
+.pagination li a {
+  padding: 8px 12px;
   cursor: pointer;
-  font-size: 1.25rem;
-  padding: 0.25rem;
-  transition: color 0.3s ease;
-}
-
-.action-button.view {
-  color: rgba(255, 94, 58, 1);
-}
-
-.action-button.view:hover {
-  color: rgb(51, 61, 107);
-}
-
-.action-button.edit {
+  color: #007bff;
+  text-decoration: none;
+  background-color: rgba(242, 242, 240, 1);
   color: rgba(39, 46, 79, 1);
+  border-radius: 20px;
+  font-weight: 1000;
 }
 
-.action-button.edit:hover {
-  color: #ff4500;
+.pagination li a:hover {
+  background-color: #f1f1f1;
 }
 
-.action-button.delete {
-  color: rgba(39, 46, 79, 1);
+.pagination li.active a {
+  background-color: rgba(39, 46, 79, 1);
+  color: white;
+  pointer-events: none;
 }
 
-.action-button.delete:hover {
-  color: #ff4500;
+.pagination li.disabled a {
+  background-color: #ccc;
+  color: #999;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
-.table-cell {
-  font-size: 14px; /* Adjust the font size as needed */
-  padding: 8px; /* Add padding to ensure proper spacing */
-}
+@media (max-width: 768px) {
+  .admin-list-title {
+    font-size: 1.5rem;
+  }
 
-.table-cell-email {
-  word-break: break-all; /* Ensure long email addresses break into multiple lines */
+  .search-bar-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-search {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .admin-search-input {
+    padding: 0.3rem;
+  }
+
+  .add-admin-button,
+  .refresh-button,
+  .filter-button {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .action-button {
+    font-size: 1rem;
+    padding: 0.15rem;
+  }
 }
