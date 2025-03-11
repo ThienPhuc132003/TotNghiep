@@ -9,12 +9,13 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
-import i18n from "../../i18n";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
-import { formatInTimeZone } from "date-fns-tz";
 import qs from "qs";
 import { Alert } from "@mui/material";
+import unidecode from "unidecode";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -34,26 +35,26 @@ const ListOfStudentPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sortKey, setSortKey] = useState("");
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" }); // Use object for sort config
   const [itemsPerPage, setItemsPerPage] = useState(7);
   const currentPath = "/nguoi-hoc";
+  const [formErrors, setFormErrors] = useState({});
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortKey) {
-      params.append("sortKey", sortKey);
-      params.append("sortDirection", sortDirection);
+    if (sortConfig.key) {
+      params.append("sortKey", sortConfig.key);
+      params.append("sortDirection", sortConfig.direction);
     }
     params.append("page", currentPage + 1);
-  }, [searchQuery, sortKey, sortDirection, currentPage]);
+    window.history.pushState({}, "", `?${params.toString()}`);
+  }, [searchQuery, sortConfig, currentPage]);
 
   const resetState = () => {
     setSearchInput("");
     setSearchQuery("");
-    setSortKey("");
-    setSortDirection("asc");
+    setSortConfig({ key: "", direction: "asc" });
     setCurrentPage(0);
   };
 
@@ -65,15 +66,14 @@ const ListOfStudentPage = () => {
     const initialPage = parseInt(params.get("page") || "1", 10) - 1;
 
     setSearchQuery(initialSearchQuery);
-    setSortKey(initialSortKey);
-    setSortDirection(initialSortDirection);
+    setSortConfig({ key: initialSortKey, direction: initialSortDirection });
     setCurrentPage(initialPage);
     setSearchInput(initialSearchQuery);
   }, []);
 
   useEffect(() => {
     updateUrl();
-  }, [searchQuery, sortKey, sortDirection, currentPage, updateUrl]);
+  }, [updateUrl]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -91,9 +91,9 @@ const ListOfStudentPage = () => {
         ]),
       };
 
-      if (sortKey) {
+      if (sortConfig.key) {
         query.sort = JSON.stringify([
-          { key: sortKey, type: sortDirection.toUpperCase() },
+          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
         ]);
       }
 
@@ -116,40 +116,49 @@ const ListOfStudentPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, sortKey, sortDirection, itemsPerPage, t]);
+  }, [currentPage, sortConfig, itemsPerPage, t]);
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, fetchData]);
+  }, [fetchData]);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
   };
 
-  const handleSearch = () => {
-    const query = searchInput.toLowerCase();
-    const filtered = data.filter((item) =>
-      Object.values(item).some(
-        (value) => value && value.toString().toLowerCase().includes(query)
-      )
-    );
-    setFilteredData(filtered);
-    setCurrentPage(0);
+  const handleSearchInputChange = (query) => {
+    setSearchInput(query);
+    setSearchQuery(query);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
+  useEffect(() => {
+    const normalizedQuery = unidecode(searchQuery.toLowerCase());
+    const filtered = data.filter((item) => {
+      const fullname = item.userProfile?.fullname || "";
+      const email = item.email || "";
+      const phoneNumber = item.phoneNumber || "";
+
+      const normalizedFullname = unidecode(fullname.toLowerCase());
+      const normalizedEmail = unidecode(email.toLowerCase());
+      const normalizedPhoneNumber = unidecode(phoneNumber.toLowerCase());
+
+      return (
+        normalizedFullname.includes(normalizedQuery) ||
+        normalizedEmail.includes(normalizedQuery) ||
+        normalizedPhoneNumber.includes(normalizedQuery)
+      );
+    });
+    setFilteredData(filtered);
+  }, [searchQuery, data]);
 
   const handleSort = (key) => {
-    let direction = "asc";
-    if (sortKey === key && sortDirection === "asc") {
-      direction = "desc";
-    }
-    setSortKey(key);
-    setSortDirection(direction);
+    setSortConfig((prevConfig) => {
+      const newDirection =
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc";
+      return { key: key, direction: newDirection };
+    });
   };
 
   const handleDelete = async (studentId) => {
@@ -165,11 +174,14 @@ const ListOfStudentPage = () => {
       });
       if (response.success) {
         fetchData();
+        toast.success(t("student.deleteSuccess"));
       } else {
         console.log("Failed to delete student");
+        toast.error(t("student.deleteFailed"));
       }
     } catch (error) {
       console.error("An error occurred while deleting student:", error.message);
+      toast.error(t("student.deleteFailed"));
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -179,12 +191,12 @@ const ListOfStudentPage = () => {
   const handleView = (student) => {
     setModalData({
       userId: student.userId,
-      fullname: student.userProfile.fullname,
-      email: student.userProfile.personalEmail,
+      fullname: student.userProfile?.fullname || "",
+      email: student.email,
       phoneNumber: student.phoneNumber,
-      homeAddress: student.userProfile.homeAddress,
-      birthday: student.userProfile.birthday,
-      gender: student.userProfile.gender,
+      homeAddress: student.userProfile?.homeAddress || "",
+      birthday: student.userProfile?.birthday || "",
+      gender: student.userProfile?.gender || "",
       status: student.status,
     });
     setModalMode("view");
@@ -192,24 +204,27 @@ const ListOfStudentPage = () => {
   };
 
   const handleEdit = (student) => {
+    const status = student.checkActive === "ACTIVE" ? "Hoạt động" : "Khóa";
     setModalData({
       userId: student.userId,
-      fullname: student.userProfile.fullname,
-      email: student.userProfile.personalEmail,
+      fullname: student.userProfile?.fullname || "",
+      email: student.email,
       phoneNumber: student.phoneNumber,
-      homeAddress: student.userProfile.homeAddress,
-      birthday: student.userProfile.birthday,
-      gender: student.userProfile.gender,
-      status: student.status,
+      homeAddress: student.userProfile?.homeAddress || "",
+      birthday: student.userProfile?.birthday || "",
+      gender: student.userProfile?.gender || "",
+      status: status,
     });
     setModalMode("edit");
     setIsModalOpen(true);
+    setFormErrors({});
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setModalData({});
     setModalMode(null);
+    setFormErrors({});
   };
 
   const handleSave = async () => {
@@ -217,6 +232,7 @@ const ListOfStudentPage = () => {
     setIsModalOpen(false);
     setModalData({});
     setModalMode(null);
+    setFormErrors({});
   };
 
   const handleCreateStudent = async (formData) => {
@@ -229,45 +245,40 @@ const ListOfStudentPage = () => {
 
       if (response.success) {
         handleSave();
+        toast.success(t("student.createSuccess"));
       } else {
         console.error("Failed to create student:", response.message);
+        toast.error(t("student.createFailed"));
       }
     } catch (error) {
       console.error("An error occurred while creating student:", error.message);
+      toast.error(t("student.createFailed"));
     }
   };
 
   const handleUpdateStudent = async (formData) => {
-    const allowedFields = [
-      "fullname",
-      "birthday",
-      "phoneNumber",
-      "workEmail",
-      "homeAddress",
-      "gender",
-    ];
-
-    const filteredData = Object.keys(formData)
-      .filter((key) => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = formData[key];
-        return obj;
-      }, {});
+    // Only allow status updates
+    const updateData = {
+      checkActive: formData.status === "Hoạt động" ? "ACTIVE" : "BLOCKED",
+    };
 
     try {
       const response = await Api({
         endpoint: `user/update-user-by-id/${modalData.userId}`,
         method: METHOD_TYPE.PUT,
-        data: filteredData,
+        data: updateData,
       });
 
       if (response.success) {
         handleSave();
+        toast.success("Cập nhật thành công");
       } else {
         console.error("Failed to update student:", response.message);
+        toast.error(t("student.updateFailed"));
       }
     } catch (error) {
       console.error("An error occurred while updating student:", error.message);
+      toast.error(t("student.updateFailed"));
     }
   };
 
@@ -285,20 +296,25 @@ const ListOfStudentPage = () => {
     },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
     {
-      title: t("common.createdAt"),
-      dataKey: "createdAt",
+      title: "trình độ học vấn",
+      dataKey: "degree",
+      sortable: true,
+    },
+    {
+      title: "Chuyên ngành",
+      dataKey: "userProfile.major",
+      sortable: true,
+    },
+    {
+      title: t("admin.status"),
+      dataKey: "checkActive",
       sortable: true,
       renderCell: (value) => {
-        const timeZone =
-          i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
-        return formatInTimeZone(
-          new Date(value),
-          timeZone,
-          "yyyy-MM-dd HH:mm:ss"
-        );
+        if (value === "ACTIVE") return "Hoạt động";
+        if (value === "BLOCKED") return "Khóa";
+        return "Chưa biết";
       },
     },
-    { title: t("common.createdBy"), dataKey: "createdBy", sortable: true },
   ];
 
   const addFields = [
@@ -324,24 +340,16 @@ const ListOfStudentPage = () => {
   const editFields = [
     { key: "userId", label: "Mã người dùng", readOnly: true },
     { key: "fullname", label: t("admin.name") },
-    { key: "email", label: t("admin.email") },
     { key: "phoneNumber", label: t("admin.phone") },
-    { key: "homeAddress", label: t("admin.homeAddress") },
-    { key: "birthday", label: t("admin.birthday"), type: "date" },
-    {
-      key: "gender",
-      label: t("admin.gender"),
-      type: "select",
-      options: ["MALE", "FEMALE"],
-    },
+    { key: "degree", label: "trình độ học vấn" },
+    { key: "userProfile.major", label: "Chuyên ngành" },
     {
       key: "status",
       label: t("admin.status"),
       type: "select",
-      options: ["PENDING", "ACTIVE", "INACTIVE"],
+      options: ["Hoạt động", "Khóa"],
     },
   ];
-
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
@@ -350,14 +358,11 @@ const ListOfStudentPage = () => {
           <div className="search-bar-filter">
             <SearchBar
               value={searchInput}
-              onChange={setSearchInput}
+              onChange={handleSearchInputChange}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              searchBarButtonClassName="admin-search-button"
-              searchBarOnClick={handleSearch}
-              onKeyPress={handleKeyPress}
-              placeholder="Tìm kiếm theo mã người học"
-            />{" "}
+              placeholder="Tìm kiếm người học"
+            />
             <button
               className="refresh-button"
               onClick={() => {
@@ -413,13 +418,14 @@ const ListOfStudentPage = () => {
               ? "Sửa thông tin người học"
               : "Xem thông tin người học"
           }
-          onChange={(name, value) =>
-            setModalData({ ...modalData, [name]: value })
-          }
+          onChange={(name, value) => {
+            setModalData({ ...modalData, [name]: value });
+          }}
           onSubmit={
             modalMode === "add" ? handleCreateStudent : handleUpdateStudent
           }
           onClose={handleCloseModal} // Pass handleCloseModal to FormDetail
+          errors={formErrors}
         />
       </Modal>
       <DeleteConfirmationModal
@@ -427,6 +433,18 @@ const ListOfStudentPage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         message="Bạn có chắc muốn xóa người học này?"
+      />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
       />
     </AdminDashboardLayout>
   );

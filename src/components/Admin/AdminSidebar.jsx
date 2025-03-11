@@ -7,7 +7,7 @@ import "../../assets/css/Admin/AdminSidebar.style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMenuData } from "../../redux/menuAdminSlice"; // Import fetchMenuData
 import { setSidebarVisibility, toggleSubmenu } from "../../redux/uiAdminSlice";
-
+import Logo from "../../assets/images/logo.webp";
 const removeDiacritics = (str) => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
@@ -153,7 +153,10 @@ const AdminSidebarComponent = ({ currentPath }) => {
 
   return (
     <div className={`sidebar ${!isSidebarVisible ? "sidebar-hidden" : ""}`}>
-      <h1 className="main-logo">GiaSuVLU</h1>
+      <div className="logo-container">
+        <img src={Logo} alt="Logo" className="sidebar-logo" />
+        <h1 className="main-logo">GiaSuVLU</h1>
+      </div>
       <nav className="primary-navigation">
         <ul>
           <li

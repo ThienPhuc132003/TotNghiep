@@ -20,8 +20,7 @@
   color: white;
 }
 
-.register-form .form-group input,
-.register-form .form-group select {
+.register-form .form-group input {
   width: 100%;
   padding: 0.5rem;
   border: 2px solid #ffffff;
@@ -152,6 +151,16 @@
   outline: none;
 }
 
+
+.register-form .form-group select option {
+  background-color: white; /* Màu nền trắng cho các lựa chọn */
+  color: black; /* Màu chữ đen cho các lựa chọn */
+}
+
+.register-form .form-group select {
+  max-height: 200px; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Thêm scroll nếu danh sách quá dài */
+}
 .register-form .form-group input:-webkit-autofill,
 .register-form .form-group input:-webkit-autofill:hover,
 .register-form .form-group input:-webkit-autofill:focus,

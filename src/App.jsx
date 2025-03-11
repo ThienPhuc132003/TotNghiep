@@ -38,6 +38,8 @@ const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
 const ListOfRequest = lazy(() => import("./pages/Admin/ListOfRequest"));
 const ListOfStudent = lazy(() => import("./pages/Admin/ListOfStudent"));
 const ListOfTutor = lazy(() => import("./pages/Admin/ListOfTutor"));
+const ListOfTutorLevel = lazy(() => import("./pages/Admin/ListOfTutorLevel"));
+const ListOfSubject = lazy(() => import("./pages/Admin/ListOfSubject"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -88,6 +90,8 @@ function App() {
               <Route path="yeu-cau" element={<ListOfRequest />} />
               <Route path="nguoi-hoc" element={<ListOfStudent />} />
               <Route path="gia-su" element={<ListOfTutor />} />
+              <Route path="hang-gia-su" element={<ListOfTutorLevel />} />
+              <Route path="mon-hoc" element={<ListOfSubject />} />
             </Route>
           </Routes>
         </PersistGate>

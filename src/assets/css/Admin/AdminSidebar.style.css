@@ -6,9 +6,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #222;
-  color: #fff;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  background-color: rgba(199, 199, 199, 0.411);
+  border: 0.5px solid rgba(245, 239, 235, 1);
   overflow-y: auto;
   transition: width 0.3s ease, transform 0.3s ease;
   z-index: 100;
@@ -31,7 +30,6 @@
 /* Tên Menu */
 .menu-name {
   transition: margin-left 0.3s ease, color 0.2s ease, opacity 0.3s ease;
-  color: #eee;
   white-space: nowrap;
 }
 
@@ -39,10 +37,6 @@
   opacity: 0;
   transition: opacity 0.3s ease; /* Thêm hiệu ứng chuyển đổi */
 }
-
-/* .sidebar-hidden .main-logo {
-  display: none;
-} */
 
 .sidebar-hidden .content-area {
   margin-left: 50px;
@@ -76,14 +70,45 @@
 }
 
 /* Main Logo */
-.main-logo {
+.logo-container {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 20px 20px;
+  padding: 20px;
+  overflow: hidden; /* Ẩn nội dung vượt quá kích thước container */
+  transition: width 0.3s ease; /* Thêm transition cho chiều rộng */
+  width: 100%; /* Đảm bảo logo container chiếm toàn bộ chiều rộng sidebar */
+}
+
+.sidebar-hidden .logo-container {
+  width: 50px; /* Khi sidebar ẩn, logo container chỉ rộng 50px */
+}
+
+.sidebar-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px; /* Khoảng cách giữa logo và chữ */
+  transition: margin-left 0.3s ease, opacity 0.3s ease; /* Thêm transition cho margin và opacity */
+  opacity: 0; /* Ẩn logo khi sidebar rộng */
+  margin-left: -30px; /* Đẩy logo ra khỏi khung nhìn ban đầu */
+}
+
+.sidebar-hidden .sidebar-logo {
+  opacity: 1; /* Hiện logo khi sidebar ẩn */
+  margin-left: -6px;
+}
+
+.main-logo {
   font-family: "Jacques Francois", sans-serif;
   font-size: 2.2em;
-  color: #fff;
+  color: #242220;
+  white-space: nowrap; /* Ngăn chữ xuống dòng */
+  transition: margin-left 0.3s ease, opacity 0.3s ease; /* Thêm transition cho margin và opacity */
+  margin-left: 0; /* Đảm bảo chữ bắt đầu từ bên trái */
+}
+
+.sidebar-hidden .main-logo {
+  opacity: 0; /* Ẩn chữ khi sidebar ẩn */
+  margin-left: -100px; /* Đẩy chữ ra khỏi khung nhìn */
 }
 
 /* Navigation List */
@@ -108,20 +133,23 @@ nav ul li {
 
 /* Hover effect cho menu item (không active) */
 nav ul li:not(.active):hover {
-  background-color: #333;
+  background-color: rgb(218, 218, 218);
 }
 
 /* Menu Item Active */
 nav ul li.active {
-  background-color: #444;
+  background-color: rgba(190, 190, 190, 0.48);
 }
-
+nav ul li.active .menu-name {
+  font-weight: bold;
+  color: rgba(36, 34, 32, 1);
+}
 /* Link trong Menu Item */
 nav ul li a {
   width: 100%;
   justify-content: space-between;
   text-decoration: none;
-  color: #eee;
+  color: rgba(36, 34, 32, 0.56);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -131,12 +159,14 @@ nav ul li a {
 
 /* Link trong Menu Item Active */
 nav ul li.active a {
-  color: #fff;
+  color: rgba(36, 34, 32, 1);
 }
-
+nav ul li.active p {
+  color: rgba(36, 34, 32, 1);
+}
 /* Hover effect cho link */
 nav ul li:hover a {
-  color: #fff;
+  color: rgba(36, 34, 32, 1);
 }
 
 /* Sidebar Hidden Styles */
@@ -188,10 +218,13 @@ nav ul li:hover a {
 }
 
 .menu-item-content .menu-name {
+  color: rgba(36, 34, 32, 0.56);
   flex-grow: 1;
   margin-left: 10px;
 }
-
+.menu-item-content .menu-name.active {
+  color: rgb(0, 0, 0);
+}
 .submenu-arrow {
   margin-left: auto;
   transition: transform 0.3s ease;
@@ -216,11 +249,7 @@ nav ul li:hover a {
   padding: 10px 50px;
 }
 .submenu li:not(.active):hover {
-  background-color: #444;
-}
-
-.submenu li.active {
-  background-color: #444;
+  background-color: rgba(218, 218, 218, 0.48);
 }
 
 .submenu li a {
@@ -234,11 +263,14 @@ nav ul li:hover a {
 
 /* Parent Active Styles */
 nav ul li.parent-active {
-  background-color: #444;
+  background-color: rgba(190, 190, 190, 0.48);
 }
-
+nav ul li.parent-active .menu-name {
+  font-weight: bold;
+  color: rgba(36, 34, 32, 1);
+}
 nav ul li.parent-active a {
-  color: #fff;
+  color: rgba(36, 34, 32, 1);
 }
 
 /* Nút chuyển đổi chế độ sáng/tối */
