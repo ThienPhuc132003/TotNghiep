@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
@@ -10,16 +10,16 @@ import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
+import qs from "qs";
 import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import qs from "qs"; // Import qs
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
-const ListOfMajorPage = () => {
+const ListOfTutorLevelPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -35,9 +35,8 @@ const ListOfMajorPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const currentPath = "/nganh";
-  const [filters, setFilters] = useState([]);
+  const [itemsPerPage, setItemsPerPage] = useState(7);
+  const currentPath = "/hang-gia-su";
   const [formErrors, setFormErrors] = useState({});
 
   const updateUrl = useCallback(() => {
@@ -56,7 +55,6 @@ const ListOfMajorPage = () => {
     setSearchQuery("");
     setSortConfig({ key: "", direction: "asc" });
     setCurrentPage(0);
-    setFilters([]);
   };
 
   useEffect(() => {
@@ -77,28 +75,24 @@ const ListOfMajorPage = () => {
   }, [updateUrl]);
 
   const fetchData = useCallback(async () => {
-    setError(null);
     setIsLoading(true);
+    setError(null);
     try {
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
       };
 
-      if (filters.length > 0) {
-        query.filter = filters;
-      }
-
       if (sortConfig.key) {
-        query.sort = [
+        query.sort = JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ];
+        ]);
       }
 
       const queryString = qs.stringify(query, { encode: false });
 
       const response = await Api({
-        endpoint: `major/search?${queryString}`,
+        endpoint: `tutor-level/search?${queryString}`,
         method: METHOD_TYPE.GET,
       });
 
@@ -114,7 +108,7 @@ const ListOfMajorPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, sortConfig, t, itemsPerPage, filters]);
+  }, [currentPage, sortConfig, itemsPerPage, t]);
 
   useEffect(() => {
     fetchData();
@@ -132,16 +126,15 @@ const ListOfMajorPage = () => {
   useEffect(() => {
     const normalizedQuery = unidecode(searchQuery.toLowerCase());
     const filtered = data.filter((item) => {
-      if (!item) return false;
-      const majorId = item.majorId || "";
-      const majorName = item.majorName || "";
+      const levelName = item.levelName || "";
+      const description = item.description || "";
 
-      const normalizedMajorId = unidecode(majorId.toLowerCase());
-      const normalizedMajorName = unidecode(majorName.toLowerCase());
+      const normalizedLevelName = unidecode(levelName.toLowerCase());
+      const normalizedDescription = unidecode(description.toLowerCase());
 
       return (
-        normalizedMajorId.includes(normalizedQuery) ||
-        normalizedMajorName.includes(normalizedQuery)
+        normalizedLevelName.includes(normalizedQuery) ||
+        normalizedDescription.includes(normalizedQuery)
       );
     });
     setFilteredData(filtered);
@@ -157,59 +150,53 @@ const ListOfMajorPage = () => {
     });
   };
 
-  const handleDelete = async (majorId) => {
-    setDeleteItemId(majorId);
+  const handleDelete = async (tutorLevelId) => {
+    setDeleteItemId(tutorLevelId);
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `major/delete/${deleteItemId}`,
+        endpoint: `tutor-level/delete/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
-
       if (response.success) {
         fetchData();
-        toast.success("Xóa thành công");
+        toast.success("Xóa thành công");
       } else {
-        console.log("Failed to delete major");
-        toast.error("Xóa không thành công");
+        console.log("Failed to delete tutor level");
+        toast.error("Xóa thất bại");
       }
     } catch (error) {
-      console.error("An error occurred while deleting major:", error.message);
-      toast.error("Xóa không thành công");
+      console.error(
+        "An error occurred while deleting tutor level:",
+        error.message
+      );
+      toast.error("Xóa thất bại");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
     }
   };
 
-  const handleAddMajor = () => {
-    setModalMode("add");
+  const handleView = (tutorLevel) => {
     setModalData({
-      sumName: "",
-      majorName: "",
-    });
-    setIsModalOpen(true);
-    setFormErrors({});
-  };
-
-  const handleView = (major) => {
-    setModalData({
-      majorId: major.majorId,
-      sumName: major.sumName,
-      majorName: major.majorName,
+      tutorLevelId: tutorLevel.tutorLevelId,
+      levelName: tutorLevel.levelName,
+      salary: tutorLevel.salary,
+      description: tutorLevel.description,
     });
     setModalMode("view");
     setIsModalOpen(true);
   };
 
-  const handleEdit = (major) => {
+  const handleEdit = (tutorLevel) => {
     setModalData({
-      majorId: major.majorId,
-      sumName: major.sumName,
-      majorName: major.majorName,
+      tutorLevelId: tutorLevel.tutorLevelId,
+      levelName: tutorLevel.levelName,
+      salary: tutorLevel.salary,
+      description: tutorLevel.description,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -222,6 +209,7 @@ const ListOfMajorPage = () => {
     setModalMode(null);
     setFormErrors({});
   };
+
   const handleSave = async () => {
     fetchData();
     setIsModalOpen(false);
@@ -230,10 +218,10 @@ const ListOfMajorPage = () => {
     setFormErrors({});
   };
 
-  const handleCreateMajor = async (formData) => {
+  const handleCreateTutorLevel = async (formData) => {
     try {
       const response = await Api({
-        endpoint: "major/create",
+        endpoint: "tutor-level/create",
         method: METHOD_TYPE.POST,
         data: formData,
       });
@@ -241,78 +229,67 @@ const ListOfMajorPage = () => {
       if (response.success) {
         handleSave();
         toast.success("Thêm thành công");
-        // Thêm ngành mới vào đầu danh sách
-        const newMajor = response.data;
-        setData((prevData) => [newMajor, ...prevData]);
-        setFilteredData((prevData) => [newMajor, ...prevData]);
       } else {
-        console.log("Failed to create major");
-        toast.error("Thêm không thành công");
+        console.error("Failed to create tutor level:", response.message);
+        toast.error("Thêm thất bại");
       }
     } catch (error) {
-      console.error("An error occurred while creating major:", error.message);
-      toast.error("Thêm không thành công");
+      console.error(
+        "An error occurred while creating tutor level:",
+        error.message
+      );
+      toast.error("Thêm thất bại");
     }
   };
 
-  const handleUpdateMajor = async (formData) => {
+  const handleUpdateTutorLevel = async (formData) => {
     try {
       const response = await Api({
-        endpoint: `major/update/${modalData.majorId}`,
+        endpoint: `tutor-level/update/${modalData.tutorLevelId}`,
         method: METHOD_TYPE.PUT,
         data: formData,
       });
 
       if (response.success) {
         handleSave();
-        toast.success(t("major.updateSuccess"));
-        // Cập nhật danh sách sau khi chỉnh sửa
-        setData((prevData) =>
-          prevData.map((item) =>
-            item.majorId === modalData.majorId ? { ...item, ...formData } : item
-          )
-        );
-        setFilteredData((prevData) =>
-          prevData.map((item) =>
-            item.majorId === modalData.majorId ? { ...item, ...formData } : item
-          )
-        );
+        toast.success("Cập nhật thành công");
       } else {
-        console.log("Failed to update major");
-        toast.error(t("major.updateFailed"));
+        console.error("Failed to update tutor level:", response.message);
+        toast.error(t("tutorLevel.updateFailed"));
       }
     } catch (error) {
-      console.error("An error occurred while updating major:", error.message);
-      toast.error(t("major.updateFailed"));
+      console.error(
+        "An error occurred while updating tutor level:",
+        error.message
+      );
+      toast.error(t("tutorLevel.updateFailed"));
     }
   };
 
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(0); // Reset to the first page when items per page changes
-  };
-
   const columns = [
-    { title: "Mã ngành", dataKey: "majorId", sortable: true },
-    { title: "Tên viết tắt", dataKey: "sumName", sortable: true },
-    { title: t("major.name"), dataKey: "majorName", sortable: true },
+    { title: "Mã cấp độ", dataKey: "tutorLevelId", sortable: true },
+    { title: "Tên cấp độ", dataKey: "levelName", sortable: true },
+    { title: "Lương", dataKey: "salary", sortable: true },
+    { title: "Mô tả", dataKey: "description", sortable: true },
   ];
 
   const addFields = [
-    { key: "sumName", label: "Tên viết tắt" },
-    { key: "majorName", label: "Tên ngành" },
+    { key: "levelName", label: "Tên cấp độ" },
+    { key: "salary", label: "Lương" },
+    { key: "description", label: "Mô tả" },
   ];
 
   const editFields = [
-    { key: "majorId", label: "ID", type: "text", readOnly: true },
-    { key: "sumName", label: "Tên viết tắt", type: "text" },
-    { key: "majorName", label: t("major.name"), type: "text" },
+    { key: "tutorLevelId", label: "Mã cấp độ", readOnly: true },
+    { key: "levelName", label: "Tên cấp độ" },
+    { key: "salary", label: "Lương" },
+    { key: "description", label: "Mô tả" },
   ];
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("major.listTitle")}</h2>
+        <h2 className="admin-list-title">Danh sách cấp độ gia sư</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
             <SearchBar
@@ -320,7 +297,7 @@ const ListOfMajorPage = () => {
               onChange={handleSearchInputChange}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm kiếm ngành"
+              placeholder="Tìm kiếm cấp độ gia sư"
             />
             <button
               className="refresh-button"
@@ -333,7 +310,13 @@ const ListOfMajorPage = () => {
             </button>
           </div>
           <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddMajor}>
+            <button
+              className="add-admin-button"
+              onClick={() => {
+                setModalMode("add");
+                setIsModalOpen(true); // Thêm dòng này để mở modal
+              }}
+            >
               {t("common.addButton")}
             </button>
           </div>
@@ -344,7 +327,7 @@ const ListOfMajorPage = () => {
           data={filteredData}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={(major) => handleDelete(major.majorId)}
+          onDelete={(tutorLevel) => handleDelete(tutorLevel.tutorLevelId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
           forcePage={currentPage}
@@ -352,7 +335,7 @@ const ListOfMajorPage = () => {
           loading={isLoading}
           error={error}
           itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={handleItemsPerPageChange}
+          onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
         />
       </div>
     </>
@@ -366,7 +349,9 @@ const ListOfMajorPage = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        contentLabel={modalMode === "add" ? "Thêm ngành" : "Chỉnh sửa nghành"}
+        contentLabel={
+          modalMode === "add" ? "Add Tutor Level" : "Edit Tutor Level"
+        }
         className="modal"
         overlayClassName="overlay"
       >
@@ -374,16 +359,20 @@ const ListOfMajorPage = () => {
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"}
-          onChange={(name, value) =>
-            setModalData({ ...modalData, [name]: value })
-          }
-          onSubmit={modalMode === "add" ? handleCreateMajor : handleUpdateMajor}
           title={
             modalMode === "add"
-              ? "Thêm ngành"
+              ? "Thêm hạng gia sư"
               : modalMode === "edit"
-              ? "Chỉnh sửa ngành"
-              : "Xem thông tin ngành"
+              ? "Sửa thông tin hạng gia sư"
+              : "Xem thông tin hạng gia sư"
+          }
+          onChange={(name, value) => {
+            setModalData({ ...modalData, [name]: value });
+          }}
+          onSubmit={
+            modalMode === "add"
+              ? handleCreateTutorLevel
+              : handleUpdateTutorLevel
           }
           onClose={handleCloseModal}
           errors={formErrors}
@@ -393,7 +382,7 @@ const ListOfMajorPage = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc chắn muốn xóa ngành này?"
+        message="Bạn có chắc muốn xóa cấp độ gia sư này?"
       />
       <ToastContainer
         position="top-right"
@@ -411,5 +400,5 @@ const ListOfMajorPage = () => {
   );
 };
 
-const ListOfMajor = React.memo(ListOfMajorPage);
-export default ListOfMajor;
+const ListOfTutorLevel = React.memo(ListOfTutorLevelPage);
+export default ListOfTutorLevel;

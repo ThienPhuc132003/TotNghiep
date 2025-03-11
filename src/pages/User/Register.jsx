@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
@@ -18,11 +18,33 @@ const RegisterPage = () => {
     gender: "",
     password: "",
     confirmPassword: "",
+    majorId: "", // Thêm majorId vào formData
   });
 
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [majors, setMajors] = useState([]); // State để lưu danh sách chuyên ngành
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMajors = async () => {
+      try {
+        const response = await Api({
+          endpoint: "major",
+          method: METHOD_TYPE.GET,
+        });
+        if (response.success) {
+          setMajors(response.data.items);
+        } else {
+          console.error("Failed to fetch majors:", response.message);
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching majors:", error);
+      }
+    };
+
+    fetchMajors();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,6 +97,10 @@ const RegisterPage = () => {
       errors.confirmPassword = "Mật khẩu không khớp.";
     }
 
+    if (!formData.majorId) {
+      errors.majorId = "Vui lòng chọn chuyên ngành.";
+    }
+
     return errors;
   };
 
@@ -99,6 +125,7 @@ const RegisterPage = () => {
       gender: formData.gender,
       password: formData.password,
       confirmPassword: formData.confirmPassword,
+      majorId: formData.majorId, // Thêm majorId vào data gửi lên server
     };
 
     try {
@@ -149,7 +176,7 @@ const RegisterPage = () => {
   return (
     <LoginLayout>
       <div className="register-form">
-        <h1>Đăng ký GiaSuVLU</h1>
+        <h1 className="login-title">Đăng ký GiaSuVLU</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="fullname">{t("register.fullName")}</label>
@@ -209,6 +236,26 @@ const RegisterPage = () => {
             />
             {formErrors.homeAddress && (
               <p className="error-message">{formErrors.homeAddress}</p>
+            )}
+          </div>
+          <div className="form-group">
+            <label htmlFor="majorId">Chuyên ngành</label>
+            <select
+              id="majorId"
+              name="majorId"
+              value={formData.majorId}
+              onChange={handleChange}
+              className={formErrors.majorId ? "error-border" : ""}
+            >
+              <option value="">Chọn chuyên ngành</option>
+              {majors.map((major) => (
+                <option key={major.majorId} value={major.majorId}>
+                  {major.majorName}
+                </option>
+              ))}
+            </select>
+            {formErrors.majorId && (
+              <p className="error-message">{formErrors.majorId}</p>
             )}
           </div>
           <div className="form-row">

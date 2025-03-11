@@ -15,6 +15,8 @@ import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { formatInTimeZone } from "date-fns-tz";
 import { Alert } from "@mui/material";
 import unidecode from "unidecode";
+import { toast, ToastContainer } from "react-toastify"; // Import toast và ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toastify
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
@@ -37,6 +39,7 @@ const ListOfAdminPage = () => {
   const currentPath = "/nhan-vien";
   const [filters, setFilters] = useState([]);
   const [pageCount, setPageCount] = useState(1);
+  const [formErrors, setFormErrors] = useState({}); // Thêm state để lưu trữ lỗi
 
   const resetState = () => {
     setSearchInput("");
@@ -137,13 +140,13 @@ const ListOfAdminPage = () => {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
-      options: ["MALE", "FEMALE"],
+      options: ["nam", "nữ"],
     },
     {
       key: "roleId",
-      label: t("admin.role"),
+      label: "Vai trò",
       type: "select",
-      options: ["BEST_ADMIN", "OTHER_ROLE"],
+      options: ["Quản trị viên", "Nhân viên", "Chưa biết"],
     },
     { key: "password", label: t("admin.password"), type: "password" },
     {
@@ -166,6 +169,7 @@ const ListOfAdminPage = () => {
       confirmPassword: "",
     });
     setIsModalOpen(true);
+    setFormErrors({}); // Reset lỗi khi mở modal
   };
 
   const handleView = (admin) => {
@@ -195,17 +199,19 @@ const ListOfAdminPage = () => {
       birthday: admin.adminProfile.birthday,
       gender: admin.adminProfile.gender,
       workEmail: admin.adminProfile.workEmail,
-      roleId: admin.roleId === "BEST_ADMIN" ? "Admin" : "Nhân viên",
+      roleId: admin.roleId === "BEST_ADMIN" ? "Quản trị viên" : "Nhân viên",
       status: admin.status,
     });
     setModalMode("edit");
     setIsModalOpen(true);
+    setFormErrors({}); // Reset lỗi khi mở modal
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setModalData({});
     setModalMode(null);
+    setFormErrors({}); // Reset lỗi khi đóng modal
   };
 
   const handleSave = async () => {
@@ -213,9 +219,25 @@ const ListOfAdminPage = () => {
     setIsModalOpen(false);
     setModalData({});
     setModalMode(null);
+    setFormErrors({}); // Reset lỗi sau khi lưu
   };
 
   const handleCreateAdmin = async (formData) => {
+    const errors = validateAdminForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    // Chuyển đổi giá trị roleId trước khi gửi lên server
+    if (formData.roleId === "Quản trị viên") {
+      formData.roleId = "BEST_ADMIN";
+    } else if (formData.roleId === "Nhân viên") {
+      formData.roleId = "ADMIN";
+    } else {
+      formData.roleId = "UNKNOWN";
+    }
+
     try {
       const response = await Api({
         endpoint: "admin/create-admin",
@@ -224,7 +246,13 @@ const ListOfAdminPage = () => {
       });
 
       if (response.success) {
+        // Thêm nhân viên mới vào đầu danh sách
+        const newAdmin = response.data;
+        setData((prevData) => [newAdmin, ...prevData]);
+        setFilteredData((prevData) => [newAdmin, ...prevData]);
+
         handleSave();
+        toast.success("Thêm thành công"); // Hiển thị thông báo thành công
       } else {
         console.error("Failed to create admin:", response.message);
       }
@@ -234,6 +262,22 @@ const ListOfAdminPage = () => {
   };
 
   const handleUpdateAdmin = async (formData) => {
+    const errors = validateAdminForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    // So sánh formData với modalData để xem có thay đổi không
+    const hasChanges = Object.keys(formData).some((key) => {
+      return formData[key] !== modalData[key];
+    });
+
+    if (!hasChanges) {
+      toast.warn("Không có thay đổi nào được thực hiện"); // Hiển thị thông báo nếu không có thay đổi
+      return;
+    }
+
     const allowedFields = [
       "fullname",
       "birthday",
@@ -253,10 +297,24 @@ const ListOfAdminPage = () => {
       }, {});
 
     // Chuyển đổi giá trị roleId trước khi gửi lên server
-    if (filteredData.roleId === "Admin") {
+    if (filteredData.roleId === "Quản trị viên") {
       filteredData.roleId = "BEST_ADMIN";
     } else if (filteredData.roleId === "Nhân viên") {
       filteredData.roleId = "ADMIN";
+    }
+
+    // Chuyển đổi giá trị status trước khi gửi lên server
+    if (filteredData.status === "Đang hoạt động") {
+      filteredData.status = "ACTIVE";
+    } else if (filteredData.status === "Khóa") {
+      filteredData.status = "BLOCKED";
+    }
+
+    // Chuyển đổi giá trị gender trước khi gửi lên server
+    if (filteredData.gender === "nam") {
+      filteredData.gender = "MALE";
+    } else if (filteredData.gender === "nữ") {
+      filteredData.gender = "FEMALE";
     }
 
     try {
@@ -268,6 +326,7 @@ const ListOfAdminPage = () => {
 
       if (response.success) {
         handleSave();
+        toast.success("cập nhật thành công"); // Hiển thị thông báo thành công
       } else {
         console.error("Failed to update admin:", response.message);
       }
@@ -275,13 +334,12 @@ const ListOfAdminPage = () => {
       console.error("An error occurred while updating admin:", error.message);
     }
   };
-
   const columns = [
     {
       title: "Mã NV",
       dataKey: "adminId",
       sortable: true,
-      tooltip: "Mã người nhân viên",
+      tooltip: "Mã nhân viên",
     },
     {
       title: t("admin.name"),
@@ -293,7 +351,9 @@ const ListOfAdminPage = () => {
       dataKey: "roleId",
       sortable: true,
       renderCell: (value) => {
-        return value === "BEST_ADMIN" ? "Quản trị viên" : "Nhân viên";
+        if (value === "BEST_ADMIN") return "Quản trị viên";
+        if (value === "ADMIN") return "Nhân viên";
+        return "Chưa biết";
       },
     },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
@@ -333,21 +393,66 @@ const ListOfAdminPage = () => {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
-      options: ["MALE", "FEMALE"],
+      options: ["nam", "nữ"],
     },
     {
       key: "status",
       label: t("admin.status"),
       type: "select",
-      options: ["ACTIVE", "BLOCKED"],
+      options: ["Đang hoạt động", "Khóa"],
     },
     {
       key: "roleId",
       label: t("admin.role"),
       type: "select",
-      options: ["BEST_ADMIN", "ADMIN"],
+      options: ["Quản trị viên", "Nhân viên"],
     },
   ];
+  const validateAdminForm = (formData) => {
+    const errors = {};
+
+    if (!formData.fullname) {
+      errors.fullname = "Vui lòng nhập họ và tên.";
+    }
+
+    if (!formData.birthday) {
+      errors.birthday = "Vui lòng chọn ngày sinh.";
+    }
+
+    if (!formData.email) {
+      errors.email = "Vui lòng nhập địa chỉ email.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Địa chỉ email không hợp lệ.";
+    }
+
+    if (!formData.phoneNumber) {
+      errors.phoneNumber = "Vui lòng nhập số điện thoại.";
+    } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = "Số điện thoại không hợp lệ (10 chữ số).";
+    }
+
+    if (!formData.homeAddress) {
+      errors.homeAddress = "Vui lòng nhập địa chỉ nhà.";
+    }
+
+    if (!formData.gender) {
+      errors.gender = "Vui lòng chọn giới tính.";
+    }
+
+    if (!formData.password && modalMode === "add") {
+      errors.password = "Vui lòng nhập mật khẩu.";
+    } else if (formData.password && formData.password.length < 6) {
+      errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+    }
+
+    if (!formData.confirmPassword && modalMode === "add") {
+      errors.confirmPassword = "Vui lòng xác nhận mật khẩu.";
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Mật khẩu không khớp.";
+    }
+
+    return errors;
+  };
 
   const handleSearchInputChange = (query) => {
     setSearchInput(query);
@@ -459,18 +564,20 @@ const ListOfAdminPage = () => {
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"}
-          onChange={(name, value) =>
-            setModalData({ ...modalData, [name]: value })
-          }
+          onChange={(name, value) => {
+            setModalData({ ...modalData, [name]: value });
+            setFormErrors({ ...formErrors, [name]: "" }); // Xóa lỗi khi người dùng nhập
+          }}
           onSubmit={modalMode === "add" ? handleCreateAdmin : handleUpdateAdmin}
           title={
             modalMode === "add"
-              ? "Thêm Admin"
+              ? "Thêm nhân viên"
               : modalMode === "edit"
               ? "Sửa thông tin nhân viên"
-              : "Xem Admin"
+              : "Xem thông tin nhân viên"
           }
           onClose={handleCloseModal}
+          errors={formErrors} // Truyền errors cho FormDetail
         />
       </Modal>
       <DeleteConfirmationModal
@@ -478,6 +585,18 @@ const ListOfAdminPage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         message="Bạn có chắc muốn xóa admin này?"
+      />
+      <ToastContainer // Thêm ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
       />
     </AdminDashboardLayout>
   );

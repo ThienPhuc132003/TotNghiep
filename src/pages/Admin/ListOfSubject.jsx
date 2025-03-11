@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
@@ -14,12 +14,12 @@ import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import qs from "qs"; // Import qs
+import qs from "qs";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
-const ListOfMajorPage = () => {
+const ListOfSubjectPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -36,9 +36,10 @@ const ListOfMajorPage = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const currentPath = "/nganh";
+  const currentPath = "/mon-hoc";
   const [filters, setFilters] = useState([]);
   const [formErrors, setFormErrors] = useState({});
+  const [majors, setMajors] = useState([]); // State to store majors data
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -77,8 +78,8 @@ const ListOfMajorPage = () => {
   }, [updateUrl]);
 
   const fetchData = useCallback(async () => {
-    setError(null);
     setIsLoading(true);
+    setError(null);
     try {
       const query = {
         rpp: itemsPerPage,
@@ -98,7 +99,7 @@ const ListOfMajorPage = () => {
       const queryString = qs.stringify(query, { encode: false });
 
       const response = await Api({
-        endpoint: `major/search?${queryString}`,
+        endpoint: `subject/search?${queryString}`,
         method: METHOD_TYPE.GET,
       });
 
@@ -116,9 +117,38 @@ const ListOfMajorPage = () => {
     }
   }, [currentPage, sortConfig, t, itemsPerPage, filters]);
 
+  const fetchMajors = useCallback(async (search = "") => {
+    try {
+      const query = {
+        rpp: 100, // Lấy tối đa 100 ngành học
+        page: 1,
+        filter: search
+          ? JSON.stringify([
+              { key: "majorName", operator: "like", value: search },
+            ])
+          : undefined,
+      };
+      const queryString = qs.stringify(query, { encode: false });
+
+      const response = await Api({
+        endpoint: `major/search?${queryString}`,
+        method: METHOD_TYPE.GET,
+      });
+
+      if (response.success) {
+        setMajors(response.data.items);
+      } else {
+        console.error("Failed to fetch majors:", response.message);
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching majors:", error.message);
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchMajors();
+  }, [fetchData, fetchMajors]);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
@@ -132,16 +162,21 @@ const ListOfMajorPage = () => {
   useEffect(() => {
     const normalizedQuery = unidecode(searchQuery.toLowerCase());
     const filtered = data.filter((item) => {
-      if (!item) return false;
-      const majorId = item.majorId || "";
-      const majorName = item.majorName || "";
+      const subjectId = item.subjectId || "";
+      const subjectName = item.subjectName || "";
+      const majorName = item.major?.majorName || "";
+      const majorIdValue = item.major?.majorId || "";
 
-      const normalizedMajorId = unidecode(majorId.toLowerCase());
+      const normalizedSubjectId = unidecode(subjectId.toLowerCase());
+      const normalizedSubjectName = unidecode(subjectName.toLowerCase());
       const normalizedMajorName = unidecode(majorName.toLowerCase());
+      const normalizedMajorId = unidecode(majorIdValue.toLowerCase());
 
       return (
-        normalizedMajorId.includes(normalizedQuery) ||
-        normalizedMajorName.includes(normalizedQuery)
+        normalizedSubjectId.includes(normalizedQuery) ||
+        normalizedSubjectName.includes(normalizedQuery) ||
+        normalizedMajorName.includes(normalizedQuery) ||
+        normalizedMajorId.includes(normalizedQuery)
       );
     });
     setFilteredData(filtered);
@@ -157,15 +192,15 @@ const ListOfMajorPage = () => {
     });
   };
 
-  const handleDelete = async (majorId) => {
-    setDeleteItemId(majorId);
+  const handleDelete = async (subjectId) => {
+    setDeleteItemId(subjectId);
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     try {
       const response = await Api({
-        endpoint: `major/delete/${deleteItemId}`,
+        endpoint: `subject/delete/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
 
@@ -173,47 +208,51 @@ const ListOfMajorPage = () => {
         fetchData();
         toast.success("Xóa thành công");
       } else {
-        console.log("Failed to delete major");
-        toast.error("Xóa không thành công");
+        console.log("Failed to delete subject");
+        toast.error("Xóa thất bại");
       }
     } catch (error) {
-      console.error("An error occurred while deleting major:", error.message);
-      toast.error("Xóa không thành công");
+      console.error("An error occurred while deleting subject:", error.message);
+      toast.error("Xóa thất bại");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
     }
   };
 
-  const handleAddMajor = () => {
+  const handleAddSubject = () => {
     setModalMode("add");
     setModalData({
-      sumName: "",
-      majorName: "",
+      subjectName: "",
+      majorId: "",
     });
     setIsModalOpen(true);
     setFormErrors({});
+    fetchMajors(); // Load majors when adding
   };
 
-  const handleView = (major) => {
+  const handleView = (subject) => {
     setModalData({
-      majorId: major.majorId,
-      sumName: major.sumName,
-      majorName: major.majorName,
+      subjectId: subject.subjectId,
+      subjectName: subject.subjectName,
+      majorId: subject.major?.majorId || "",
+      majorName: subject.major?.majorName || "",
     });
     setModalMode("view");
     setIsModalOpen(true);
   };
 
-  const handleEdit = (major) => {
+  const handleEdit = (subject) => {
     setModalData({
-      majorId: major.majorId,
-      sumName: major.sumName,
-      majorName: major.majorName,
+      subjectId: subject.subjectId,
+      subjectName: subject.subjectName,
+      majorId: subject.major?.majorId || "",
+      majorName: subject.major?.majorName || "",
     });
     setModalMode("edit");
     setIsModalOpen(true);
     setFormErrors({});
+    fetchMajors(); // Load majors when editing
   };
 
   const handleCloseModal = () => {
@@ -222,6 +261,7 @@ const ListOfMajorPage = () => {
     setModalMode(null);
     setFormErrors({});
   };
+
   const handleSave = async () => {
     fetchData();
     setIsModalOpen(false);
@@ -230,60 +270,77 @@ const ListOfMajorPage = () => {
     setFormErrors({});
   };
 
-  const handleCreateMajor = async (formData) => {
+  const handleCreateSubject = async (formData) => {
     try {
       const response = await Api({
-        endpoint: "major/create",
+        endpoint: "subject/create",
         method: METHOD_TYPE.POST,
-        data: formData,
+        data: {
+          ...formData,
+        },
       });
 
       if (response.success) {
         handleSave();
-        toast.success("Thêm thành công");
-        // Thêm ngành mới vào đầu danh sách
-        const newMajor = response.data;
-        setData((prevData) => [newMajor, ...prevData]);
-        setFilteredData((prevData) => [newMajor, ...prevData]);
+        toast.success("Thêm thành công");
+        // Thêm môn học mới vào đầu danh sách
+        const newSubject = response.data;
+        setData((prevData) => [newSubject, ...prevData]);
+        setFilteredData((prevData) => [newSubject, ...prevData]);
       } else {
-        console.log("Failed to create major");
-        toast.error("Thêm không thành công");
+        console.log("Failed to create subject");
+        toast.error("Thêm thất bại");
       }
     } catch (error) {
-      console.error("An error occurred while creating major:", error.message);
-      toast.error("Thêm không thành công");
+      console.error("An error occurred while creating subject:", error.message);
+      toast.error("Thêm thất bại");
     }
   };
 
-  const handleUpdateMajor = async (formData) => {
+  const handleUpdateSubject = async (formData) => {
     try {
       const response = await Api({
-        endpoint: `major/update/${modalData.majorId}`,
+        endpoint: `subject/update/${modalData.subjectId}`,
         method: METHOD_TYPE.PUT,
-        data: formData,
+        data: {
+          ...formData,
+        },
       });
 
       if (response.success) {
         handleSave();
-        toast.success(t("major.updateSuccess"));
+        toast.success(t("subject.updateSuccess"));
         // Cập nhật danh sách sau khi chỉnh sửa
         setData((prevData) =>
           prevData.map((item) =>
-            item.majorId === modalData.majorId ? { ...item, ...formData } : item
+            item.subjectId === modalData.subjectId
+              ? { ...item, ...formData }
+              : item
           )
         );
         setFilteredData((prevData) =>
           prevData.map((item) =>
-            item.majorId === modalData.majorId ? { ...item, ...formData } : item
+            item.subjectId === modalData.subjectId
+              ? { ...item, ...formData }
+              : item
           )
         );
       } else {
-        console.log("Failed to update major");
-        toast.error(t("major.updateFailed"));
+        console.log("Failed to update subject");
+        toast.error("Chỉnh sửa thất bại");
       }
     } catch (error) {
-      console.error("An error occurred while updating major:", error.message);
-      toast.error(t("major.updateFailed"));
+      console.error("An error occurred while updating subject:", error.message);
+      toast.error("Chỉnh sửa thất bại");
+    }
+  };
+
+  const handleFormSubmit = async (formData) => {
+    // Now, majorId is directly available in formData
+    if (modalMode === "add") {
+      handleCreateSubject(formData);
+    } else if (modalMode === "edit") {
+      handleUpdateSubject(formData);
     }
   };
 
@@ -293,26 +350,45 @@ const ListOfMajorPage = () => {
   };
 
   const columns = [
-    { title: "Mã ngành", dataKey: "majorId", sortable: true },
-    { title: "Tên viết tắt", dataKey: "sumName", sortable: true },
-    { title: t("major.name"), dataKey: "majorName", sortable: true },
+    { title: "Mã môn học", dataKey: "subjectId", sortable: true },
+    { title: "Tên môn học", dataKey: "subjectName", sortable: true },
+    { title: "Tên ngành", dataKey: "major.majorName", sortable: true },
+    { title: "Mã ngành", dataKey: "major.majorId", sortable: true },
   ];
 
   const addFields = [
-    { key: "sumName", label: "Tên viết tắt" },
-    { key: "majorName", label: "Tên ngành" },
+    { key: "subjectName", label: "Tên môn học" },
+    {
+      key: "majorId",
+      label: "Mã ngành",
+      type: "select",
+      options: majors.map((major) => major.majorId),
+      renderOption: (option) => {
+        const major = majors.find((major) => major.majorId === option);
+        return major ? major.majorName : option;
+      },
+    },
   ];
 
   const editFields = [
-    { key: "majorId", label: "ID", type: "text", readOnly: true },
-    { key: "sumName", label: "Tên viết tắt", type: "text" },
-    { key: "majorName", label: t("major.name"), type: "text" },
+    { key: "subjectId", label: "Mã môn học", type: "text", readOnly: true },
+    { key: "subjectName", label: t("subject.name"), type: "text" },
+    {
+      key: "majorId",
+      label: "Mã ngành",
+      type: "select",
+      options: majors.map((major) => major.majorId),
+      renderOption: (option) => {
+        const major = majors.find((major) => major.majorId === option);
+        return major ? major.majorName : option;
+      },
+    },
   ];
 
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">{t("major.listTitle")}</h2>
+        <h2 className="admin-list-title">Danh sách môn học</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
             <SearchBar
@@ -320,7 +396,7 @@ const ListOfMajorPage = () => {
               onChange={handleSearchInputChange}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm kiếm ngành"
+              placeholder="Tìm kiếm môn học"
             />
             <button
               className="refresh-button"
@@ -333,7 +409,7 @@ const ListOfMajorPage = () => {
             </button>
           </div>
           <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddMajor}>
+            <button className="add-admin-button" onClick={handleAddSubject}>
               {t("common.addButton")}
             </button>
           </div>
@@ -344,7 +420,7 @@ const ListOfMajorPage = () => {
           data={filteredData}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={(major) => handleDelete(major.majorId)}
+          onDelete={(subject) => handleDelete(subject.subjectId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
           forcePage={currentPage}
@@ -366,7 +442,9 @@ const ListOfMajorPage = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        contentLabel={modalMode === "add" ? "Thêm ngành" : "Chỉnh sửa nghành"}
+        contentLabel={
+          modalMode === "add" ? "Thêm môn học" : "Chỉnh sửa thông tin môn học"
+        }
         className="modal"
         overlayClassName="overlay"
       >
@@ -377,23 +455,24 @@ const ListOfMajorPage = () => {
           onChange={(name, value) =>
             setModalData({ ...modalData, [name]: value })
           }
-          onSubmit={modalMode === "add" ? handleCreateMajor : handleUpdateMajor}
+          onSubmit={handleFormSubmit}
           title={
             modalMode === "add"
-              ? "Thêm ngành"
+              ? "Thêm môn học"
               : modalMode === "edit"
-              ? "Chỉnh sửa ngành"
-              : "Xem thông tin ngành"
+              ? "Chỉnh sửa thông tin môn học"
+              : "Xem thông tin môn học"
           }
           onClose={handleCloseModal}
           errors={formErrors}
+          majors={majors}
         />
       </Modal>
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc chắn muốn xóa ngành này?"
+        message="Bạn có chắc chắn muốn xóa môn học này?"
       />
       <ToastContainer
         position="top-right"
@@ -411,5 +490,5 @@ const ListOfMajorPage = () => {
   );
 };
 
-const ListOfMajor = React.memo(ListOfMajorPage);
-export default ListOfMajor;
+const ListOfSubject = React.memo(ListOfSubjectPage);
+export default ListOfSubject;

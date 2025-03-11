@@ -76,7 +76,10 @@
 .form-grid {
   padding: 1rem 1.5rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Mỗi hàng có 2 field */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(300px, 1fr)
+  ); /* Mỗi hàng có 2 field */
   gap: 1rem;
   overflow-y: auto;
   max-height: 400px; /* Adjust to control the scrollable area */
@@ -150,4 +153,11 @@
   background: #27ae60;
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
+} /* src/assets/css/FormDetail.style.css */
+
+/* Error message styling */
+.error-message {
+  color: var(--error-color);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
 }
