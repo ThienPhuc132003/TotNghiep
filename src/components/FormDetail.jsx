@@ -12,7 +12,7 @@ const FormDetailComponent = ({
   title,
   onClose,
   errors,
-  majors, // Receive majors as a prop
+  majors = [], // Add a default value for majors
 }) => {
   const { t } = useTranslation();
 
@@ -116,5 +116,4 @@ FormDetailComponent.propTypes = {
   majors: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-const FormDetail = React.memo(FormDetailComponent);
-export default FormDetail;
+export default React.memo(FormDetailComponent);

@@ -24,6 +24,7 @@
     "country-flag-icons": "^1.5.13",
     "date-fns-tz": "^3.2.0",
     "i18next": "^23.16.4",
+    "intl": "^1.2.5",
     "js-cookie": "^3.0.5",
     "lib-jitsi-meet": "^1.0.6",
     "lodash": "^4.17.21",

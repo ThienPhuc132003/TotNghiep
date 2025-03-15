@@ -1,16 +1,13 @@
 /* AdminSidebar.style.css */
 /* Sidebar chung */
 .sidebar {
+  position: relative;
   width: 250px;
   height: 100vh;
-  position: fixed;
   top: 0;
   left: 0;
-  background-color: rgba(199, 199, 199, 0.411);
-  border: 0.5px solid rgba(245, 239, 235, 1);
   overflow-y: auto;
   transition: width 0.3s ease, transform 0.3s ease;
-  z-index: 100;
   padding-bottom: 55px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -73,6 +70,7 @@
 .logo-container {
   display: flex;
   align-items: center;
+  height: 120px;
   padding: 20px;
   overflow: hidden; /* Ẩn nội dung vượt quá kích thước container */
   transition: width 0.3s ease; /* Thêm transition cho chiều rộng */
@@ -88,19 +86,13 @@
   height: 24px;
   margin-right: 10px; /* Khoảng cách giữa logo và chữ */
   transition: margin-left 0.3s ease, opacity 0.3s ease; /* Thêm transition cho margin và opacity */
-  opacity: 0; /* Ẩn logo khi sidebar rộng */
-  margin-left: -30px; /* Đẩy logo ra khỏi khung nhìn ban đầu */
-}
-
-.sidebar-hidden .sidebar-logo {
-  opacity: 1; /* Hiện logo khi sidebar ẩn */
-  margin-left: -6px;
+  margin-left: -8px;
 }
 
 .main-logo {
   font-family: "Jacques Francois", sans-serif;
   font-size: 2.2em;
-  color: #242220;
+  color: #ffffff;
   white-space: nowrap; /* Ngăn chữ xuống dòng */
   transition: margin-left 0.3s ease, opacity 0.3s ease; /* Thêm transition cho margin và opacity */
   margin-left: 0; /* Đảm bảo chữ bắt đầu từ bên trái */
@@ -123,17 +115,17 @@ nav ul li {
   justify-content: flex-start;
   align-items: center;
   margin: 0;
-  padding: 10px 17px;
+  padding: 10px 16px;
   font-size: 15px;
   height: auto;
-  border-radius: 10px; /* Giữ nguyên hình dạng */
-  width: auto; /* Giữ nguyên chiều rộng */
+  width: auto;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 /* Hover effect cho menu item (không active) */
 nav ul li:not(.active):hover {
-  background-color: rgb(218, 218, 218);
+  background-color: rgba(197, 197, 197, 0.6);
 }
 
 /* Menu Item Active */
@@ -142,14 +134,14 @@ nav ul li.active {
 }
 nav ul li.active .menu-name {
   font-weight: bold;
-  color: rgba(36, 34, 32, 1);
+  color: rgb(255, 255, 255);
 }
 /* Link trong Menu Item */
 nav ul li a {
   width: 100%;
   justify-content: space-between;
   text-decoration: none;
-  color: rgba(36, 34, 32, 0.56);
+  color: rgba(255, 255, 255, 0.56);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -159,14 +151,14 @@ nav ul li a {
 
 /* Link trong Menu Item Active */
 nav ul li.active a {
-  color: rgba(36, 34, 32, 1);
+  color: rgb(255, 255, 255);
 }
 nav ul li.active p {
   color: rgba(36, 34, 32, 1);
 }
 /* Hover effect cho link */
 nav ul li:hover a {
-  color: rgba(36, 34, 32, 1);
+  color: rgb(255, 255, 255, 0.8);
 }
 
 /* Sidebar Hidden Styles */
@@ -190,7 +182,6 @@ nav ul li:hover a {
 }
 
 .sidebar-hidden nav ul li {
-  height: 40px;
   transition: all 0.3s ease;
 }
 
@@ -218,7 +209,7 @@ nav ul li:hover a {
 }
 
 .menu-item-content .menu-name {
-  color: rgba(36, 34, 32, 0.56);
+  color: rgba(255, 255, 255, 0.8);
   flex-grow: 1;
   margin-left: 10px;
 }
@@ -236,9 +227,10 @@ nav ul li:hover a {
 .submenu li {
   display: flex;
   align-items: center;
-  padding: 10px 20px;
   font-size: 14px;
   transition: background-color 0.2s ease;
+  border-left: 2px solid rgb(255, 255, 255, 0.5);
+  margin-left: 20px;
 }
 
 .submenu.open {
@@ -267,10 +259,10 @@ nav ul li.parent-active {
 }
 nav ul li.parent-active .menu-name {
   font-weight: bold;
-  color: rgba(36, 34, 32, 1);
+  color: rgb(255, 254, 254, 0.8);
 }
 nav ul li.parent-active a {
-  color: rgba(36, 34, 32, 1);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Nút chuyển đổi chế độ sáng/tối */
@@ -283,4 +275,27 @@ nav ul li.parent-active a {
   gap: 10px;
   color: #eee;
   cursor: pointer;
+}
+.SideBarBackGround {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  object-fit: cover;
+}
+.BlurMask {
+  position: absolute;
+  background: linear-gradient(
+    to top,
+    rgba(45, 51, 77, 0.95),
+    rgba(215, 33, 52, 0.95)
+  );
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
 }
