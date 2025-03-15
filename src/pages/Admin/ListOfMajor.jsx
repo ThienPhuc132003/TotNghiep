@@ -43,13 +43,13 @@ const ListOfMajorPage = () => {
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
+    if (sortConfig.key) params.append("sortKey", sortConfig.key);
+    if (sortConfig.direction)
       params.append("sortDirection", sortConfig.direction);
-    }
     params.append("page", currentPage + 1);
+    params.append("rpp", itemsPerPage);
     window.history.pushState({}, "", `?${params.toString()}`);
-  }, [searchQuery, sortConfig, currentPage]);
+  }, [searchQuery, sortConfig, currentPage, itemsPerPage]);
 
   const resetState = () => {
     setSearchInput("");
@@ -65,11 +65,13 @@ const ListOfMajorPage = () => {
     const initialSortKey = params.get("sortKey") || "";
     const initialSortDirection = params.get("sortDirection") || "asc";
     const initialPage = parseInt(params.get("page") || "1", 10) - 1;
+    const initialItemsPerPage = parseInt(params.get("rpp") || "10", 10);
 
     setSearchQuery(initialSearchQuery);
     setSortConfig({ key: initialSortKey, direction: initialSortDirection });
     setCurrentPage(initialPage);
     setSearchInput(initialSearchQuery);
+    setItemsPerPage(initialItemsPerPage);
   }, []);
 
   useEffect(() => {
@@ -86,13 +88,13 @@ const ListOfMajorPage = () => {
       };
 
       if (filters.length > 0) {
-        query.filter = filters;
+        query.filter = JSON.stringify(filters);
       }
 
       if (sortConfig.key) {
-        query.sort = [
+        query.sort = JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ];
+        ]);
       }
 
       const queryString = qs.stringify(query, { encode: false });
@@ -155,6 +157,7 @@ const ListOfMajorPage = () => {
           : "asc";
       return { key: key, direction: newDirection };
     });
+    setCurrentPage(0);
   };
 
   const handleDelete = async (majorId) => {
@@ -265,7 +268,7 @@ const ListOfMajorPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success(t("major.updateSuccess"));
+        toast.success("Cập nhật thành công");
         // Cập nhật danh sách sau khi chỉnh sửa
         setData((prevData) =>
           prevData.map((item) =>
@@ -279,11 +282,11 @@ const ListOfMajorPage = () => {
         );
       } else {
         console.log("Failed to update major");
-        toast.error(t("major.updateFailed"));
+        toast.error("Cập nhật không thành công");
       }
     } catch (error) {
       console.error("An error occurred while updating major:", error.message);
-      toast.error(t("major.updateFailed"));
+      toast.error("Cập nhật không thành công");
     }
   };
 
@@ -304,7 +307,7 @@ const ListOfMajorPage = () => {
   ];
 
   const editFields = [
-    { key: "majorId", label: "ID", type: "text", readOnly: true },
+    { key: "majorId", label: "Mã ngành", type: "text", readOnly: true },
     { key: "sumName", label: "Tên viết tắt", type: "text" },
     { key: "majorName", label: t("major.name"), type: "text" },
   ];

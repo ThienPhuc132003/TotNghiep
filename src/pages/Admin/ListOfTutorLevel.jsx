@@ -15,6 +15,7 @@ import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Intl } from "intl";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -267,21 +268,28 @@ const ListOfTutorLevelPage = () => {
   };
 
   const columns = [
-    { title: "Mã cấp độ", dataKey: "tutorLevelId", sortable: true },
-    { title: "Tên cấp độ", dataKey: "levelName", sortable: true },
-    { title: "Lương", dataKey: "salary", sortable: true },
+    { title: "Mã hạng", dataKey: "tutorLevelId", sortable: true },
+    { title: "Tên hạng", dataKey: "levelName", sortable: true },
+    {
+      title: "Lương",
+      dataKey: "salary",
+      sortable: true,
+      renderCell: (value) => {
+        return new Intl.NumberFormat("vi-VN").format(value) + " đồng";
+      },
+    },
     { title: "Mô tả", dataKey: "description", sortable: true },
   ];
 
   const addFields = [
-    { key: "levelName", label: "Tên cấp độ" },
+    { key: "levelName", label: "Tên hạng" },
     { key: "salary", label: "Lương" },
     { key: "description", label: "Mô tả" },
   ];
 
   const editFields = [
-    { key: "tutorLevelId", label: "Mã cấp độ", readOnly: true },
-    { key: "levelName", label: "Tên cấp độ" },
+    { key: "tutorLevelId", label: "Mã hạng", readOnly: true },
+    { key: "levelName", label: "Tên hạng" },
     { key: "salary", label: "Lương" },
     { key: "description", label: "Mô tả" },
   ];
@@ -289,7 +297,7 @@ const ListOfTutorLevelPage = () => {
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
-        <h2 className="admin-list-title">Danh sách cấp độ gia sư</h2>
+        <h2 className="admin-list-title">Danh sách hạng gia sư</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
             <SearchBar
@@ -297,7 +305,7 @@ const ListOfTutorLevelPage = () => {
               onChange={handleSearchInputChange}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm kiếm cấp độ gia sư"
+              placeholder="Tìm kiếm hạng gia sư"
             />
             <button
               className="refresh-button"
@@ -382,7 +390,7 @@ const ListOfTutorLevelPage = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa cấp độ gia sư này?"
+        message="Bạn có chắc muốn xóa hạng gia sư này?"
       />
       <ToastContainer
         position="top-right"

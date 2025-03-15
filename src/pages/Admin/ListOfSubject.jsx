@@ -87,13 +87,13 @@ const ListOfSubjectPage = () => {
       };
 
       if (filters.length > 0) {
-        query.filter = filters;
+        query.filter = JSON.stringify(filters);
       }
 
       if (sortConfig.key) {
-        query.sort = [
+        query.sort = JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ];
+        ]);
       }
 
       const queryString = qs.stringify(query, { encode: false });
@@ -190,6 +190,7 @@ const ListOfSubjectPage = () => {
           : "asc";
       return { key: key, direction: newDirection };
     });
+    setCurrentPage(0);
   };
 
   const handleDelete = async (subjectId) => {
@@ -309,7 +310,7 @@ const ListOfSubjectPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success(t("subject.updateSuccess"));
+        toast.success("Cập nhật thành công");
         // Cập nhật danh sách sau khi chỉnh sửa
         setData((prevData) =>
           prevData.map((item) =>
@@ -336,7 +337,6 @@ const ListOfSubjectPage = () => {
   };
 
   const handleFormSubmit = async (formData) => {
-    // Now, majorId is directly available in formData
     if (modalMode === "add") {
       handleCreateSubject(formData);
     } else if (modalMode === "edit") {
@@ -353,7 +353,6 @@ const ListOfSubjectPage = () => {
     { title: "Mã môn học", dataKey: "subjectId", sortable: true },
     { title: "Tên môn học", dataKey: "subjectName", sortable: true },
     { title: "Tên ngành", dataKey: "major.majorName", sortable: true },
-    { title: "Mã ngành", dataKey: "major.majorId", sortable: true },
   ];
 
   const addFields = [
@@ -372,7 +371,7 @@ const ListOfSubjectPage = () => {
 
   const editFields = [
     { key: "subjectId", label: "Mã môn học", type: "text", readOnly: true },
-    { key: "subjectName", label: t("subject.name"), type: "text" },
+    { key: "subjectName", label: "Tên môn học", type: "text" },
     {
       key: "majorId",
       label: "Mã ngành",
@@ -458,10 +457,10 @@ const ListOfSubjectPage = () => {
           onSubmit={handleFormSubmit}
           title={
             modalMode === "add"
-              ? "Thêm môn học"
+              ? t("subject.addSubject")
               : modalMode === "edit"
-              ? "Chỉnh sửa thông tin môn học"
-              : "Xem thông tin môn học"
+              ? t("subject.editSubject")
+              : t("subject.viewSubject")
           }
           onClose={handleCloseModal}
           errors={formErrors}
