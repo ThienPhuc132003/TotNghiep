@@ -15,6 +15,25 @@ const MicrosoftCallbackPage = () => {
 
   const handleMicrosoftCallback = useCallback(async () => {
     try {
+      const token = Cookies.get("token");
+      const role = Cookies.get("role");
+
+      if (token && role) {
+        const profileResponse = await Api({
+          endpoint: `${role}/get-profile`,
+          method: METHOD_TYPE.GET,
+        });
+
+        if (profileResponse.success) {
+          role === "admin"
+            ? dispatch(setAdminProfile(profileResponse.data))
+            : dispatch(setUserProfile(profileResponse.data));
+
+          setSuccessMessage("Authentication successful.");
+          return navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
+        }
+      }
+
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
       const code = params.get("code");
@@ -25,8 +44,10 @@ const MicrosoftCallbackPage = () => {
       }
 
       const path = url.pathname;
-      const role = path.includes("/admin/auth/callback") ? "admin" : "user";
-      const apiUrl = `${role}/auth/callback`;
+      const roleFromPath = path.includes("/admin/auth/callback")
+        ? "admin"
+        : "user";
+      const apiUrl = `${roleFromPath}/auth/callback`;
 
       const response = await Api({
         endpoint: apiUrl,
@@ -40,20 +61,20 @@ const MicrosoftCallbackPage = () => {
       }
 
       Cookies.set("token", response.data.token);
-      Cookies.set("role", role);
+      Cookies.set("role", roleFromPath);
 
       const profileResponse = await Api({
-        endpoint: `${role}/get-profile`,
+        endpoint: `${roleFromPath}/get-profile`,
         method: METHOD_TYPE.GET,
       });
 
       if (profileResponse.success) {
-        role === "admin"
+        roleFromPath === "admin"
           ? dispatch(setAdminProfile(profileResponse.data))
           : dispatch(setUserProfile(profileResponse.data));
 
         setSuccessMessage("Authentication successful.");
-        navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
+        navigate(roleFromPath === "admin" ? "/admin/dashboard" : "/dashboard");
       } else {
         setErrorMessage("Error fetching profile data.");
       }
@@ -63,8 +84,15 @@ const MicrosoftCallbackPage = () => {
   }, [navigate, dispatch]);
 
   useEffect(() => {
-    handleMicrosoftCallback();
-  }, [handleMicrosoftCallback]);
+    const token = Cookies.get("token");
+    const role = Cookies.get("role");
+
+    if (token && role) {
+      navigate(role === "admin" ? "/admin/dashboard" : "/dashboard");
+    } else {
+      handleMicrosoftCallback();
+    }
+  }, [handleMicrosoftCallback, navigate]);
 
   return (
     <div>

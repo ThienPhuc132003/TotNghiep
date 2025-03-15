@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Api from "../../network/Api";
-import LoginLayout from "../../components/User/layout/LoginLayout";
-import { METHOD_TYPE } from "../../network/methodType";
-import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
+import Cookies from "js-cookie";
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
 import { setAdminProfile } from "../../redux/adminSlice";
 import "../../assets/css/Admin/AdminLogin.style.css";
 import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
-// import MicrosoftIcon from "../../assets/images/microsoft.png";
+import LoginLayout from "../../components/User/layout/LoginLayout";
+
 const AdminLoginPage = () => {
-  const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const savedEmailOrPhoneNumber = localStorage.getItem("emailOrPhoneNumber");
@@ -33,10 +33,10 @@ const AdminLoginPage = () => {
   const validateFields = () => {
     const errors = {};
     if (!emailOrPhoneNumber) {
-      errors.emailOrPhoneNumber = "Email or Phone Number is required";
+      errors.emailOrPhoneNumber = "Email hoặc số điện thoại chưa được nhập";
     }
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Mật khẩu chưa được nhập";
     }
     return errors;
   };
@@ -59,7 +59,6 @@ const AdminLoginPage = () => {
         },
       });
       const token = response.data.token;
-      console.log("Token:", token);
       if (token) {
         Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
         Cookies.set("role", "admin");
@@ -83,13 +82,13 @@ const AdminLoginPage = () => {
             navigate("/admin/dashboard");
           }
         } catch (error) {
-          setErrorMessage("Login failed: Invalid credentials");
+          setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
         }
       } else {
-        setErrorMessage("Login failed: Invalid credentials");
+        setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
       }
     } catch (error) {
-      setErrorMessage("Login failed: Invalid credentials");
+      setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +120,11 @@ const AdminLoginPage = () => {
         <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
-            <div className="login-form-group">
+            <div
+              className={`login-form-group ${
+                fieldErrors.emailOrPhoneNumber ? "error" : ""
+              }`}
+            >
               <input
                 type="text"
                 id="emailOrPhoneNumber"
@@ -132,16 +135,18 @@ const AdminLoginPage = () => {
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
               />
               <i className="fa-regular fa-user"></i>
-              {fieldErrors.emailOrPhoneNumber && (
-                <p className="error-message">
-                  {fieldErrors.emailOrPhoneNumber}
-                </p>
-              )}
             </div>
-          </div>
+          </div>{" "}
+          {fieldErrors.emailOrPhoneNumber && (
+            <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
+          )}
           <div className="login-form-container">
             <label htmlFor="password">Mật khẩu</label>
-            <div className="login-form-group">
+            <div
+              className={`login-form-group ${
+                fieldErrors.password ? "error" : ""
+              }`}
+            >
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -167,7 +172,6 @@ const AdminLoginPage = () => {
               <p className="error-message">{fieldErrors.password}</p>
             )}
           </div>
-
           <div className="remember-me">
             <label>
               <input
@@ -185,9 +189,8 @@ const AdminLoginPage = () => {
             className="admin-login-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đăng nhập thành công" : "Đăng nhập"}
+            {isSubmitting ? "Đang xử lý" : "Đăng nhập"}
           </button>
-          {/* devider */}
           <div className="divider">
             <span>hoặc</span>
           </div>
