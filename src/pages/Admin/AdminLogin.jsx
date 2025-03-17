@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
@@ -112,6 +112,50 @@ const AdminLoginPage = () => {
       console.error("Error:", error);
     }
   };
+
+  const handleMicrosoftCallback = useCallback(async () => {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const code = params.get("code");
+
+    if (!code) {
+      return;
+    }
+
+    try {
+      const response = await Api({
+        endpoint: "admin/auth/callback",
+        method: METHOD_TYPE.POST,
+        data: { code },
+      });
+
+      if (!response || !response.data?.token) {
+        setErrorMessage("Authentication failed: No token received.");
+        return;
+      }
+
+      Cookies.set("token", response.data.token);
+      Cookies.set("role", "admin");
+
+      const profileResponse = await Api({
+        endpoint: "admin/get-profile",
+        method: METHOD_TYPE.GET,
+      });
+
+      if (profileResponse.success) {
+        dispatch(setAdminProfile(profileResponse.data));
+        navigate("/admin/dashboard");
+      } else {
+        setErrorMessage("Error fetching profile data.");
+      }
+    } catch (error) {
+      setErrorMessage("Authentication failed.");
+    }
+  }, [navigate, dispatch]);
+
+  useEffect(() => {
+    handleMicrosoftCallback();
+  }, [handleMicrosoftCallback]);
 
   return (
     <LoginLayout>
