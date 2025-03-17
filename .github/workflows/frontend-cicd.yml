@@ -13,6 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up environment
+        run: |
+          echo "HOST=${{ secrets.FRONTEND_SERVER_HOST }}"
+          echo "USERNAME=${{ secrets.FRONTEND_SERVER_USER }}"
+          echo "SOURCE=./*"
+          echo "TARGET=/root/DAKL/FE"
+          echo "PORT=22"
+
       - name: Copy source code to server
         uses: appleboy/scp-action@v0.1.1
         with:
@@ -20,7 +28,15 @@ jobs:
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
-          target : "/root/DAKL/FE"
+          target: "/root/DAKL/FE"
+        env:
+          HOST: ${{ secrets.FRONTEND_SERVER_HOST }}
+          USERNAME: ${{ secrets.FRONTEND_SERVER_USER }}
+          PASSWORD: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
+          SOURCE: "./*"
+          TARGET: "/root/DAKL/FE"
+          PORT: 22
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
         with:
