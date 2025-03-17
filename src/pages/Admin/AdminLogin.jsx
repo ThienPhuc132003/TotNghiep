@@ -19,7 +19,6 @@ const AdminLoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoadingMicrosoftLogin, setIsLoadingMicrosoftLogin] = useState(false);
 
   useEffect(() => {
     const savedEmailOrPhoneNumber = localStorage.getItem("emailOrPhoneNumber");
@@ -95,27 +94,8 @@ const AdminLoginPage = () => {
     }
   };
 
-  const generateRandomString = (length) => {
-    let result = "";
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  };
-
   const handleMicrosoftLogin = async () => {
-    setIsLoadingMicrosoftLogin(true);
     try {
-      // Generate a random state for CSRF protection
-      const state = generateRandomString(20);
-      Cookies.set("microsoft_auth_state", state, {
-        httpOnly: true,
-        secure: true,
-      }); // Secure and HttpOnly
-
       const response = await Api({
         endpoint: "admin/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
@@ -123,15 +103,13 @@ const AdminLoginPage = () => {
 
       const authUrl = response.data.authUrl;
       if (authUrl) {
-        window.location.href = `${authUrl}&state=${state}`;
+        window.location.href = `${authUrl}&state=admin`;
       } else {
         setErrorMessage("Microsoft Auth URL not found.");
       }
     } catch (error) {
-      console.error("Error fetching Microsoft Auth URL:", error);
       setErrorMessage("Error fetching Microsoft Auth URL.");
-    } finally {
-      setIsLoadingMicrosoftLogin(false);
+      console.error("Error:", error);
     }
   };
 
@@ -139,31 +117,16 @@ const AdminLoginPage = () => {
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
     const code = params.get("code");
-    const state = params.get("state");
 
     if (!code) {
-      const error = params.get("error");
-      if (error) {
-        setErrorMessage(`Microsoft login failed: ${error}`);
-      }
       return;
     }
 
-    // Verify state for CSRF protection
-    const storedState = Cookies.get("microsoft_auth_state");
-    Cookies.remove("microsoft_auth_state"); // Remove state after verification
-
-    if (!storedState || state !== storedState) {
-      setErrorMessage("CSRF detected: Invalid state.");
-      return;
-    }
-
-    setIsLoadingMicrosoftLogin(true);
     try {
       const response = await Api({
         endpoint: "admin/auth/callback",
         method: METHOD_TYPE.POST,
-        data: { code }, // Send the code in the request body
+        data: { code },
       });
 
       if (!response || !response.data?.token) {
@@ -171,8 +134,8 @@ const AdminLoginPage = () => {
         return;
       }
 
-      Cookies.set("token", response.data.token, { expires: 7 });
-      Cookies.set("role", "admin", { expires: 7 });
+      Cookies.set("token", response.data.token);
+      Cookies.set("role", "admin");
 
       const profileResponse = await Api({
         endpoint: "admin/get-profile",
@@ -186,13 +149,7 @@ const AdminLoginPage = () => {
         setErrorMessage("Error fetching profile data.");
       }
     } catch (error) {
-      console.error("Microsoft Authentication failed:", error);
-      setErrorMessage(
-        "Microsoft Authentication failed: " +
-          (error.response?.data?.message || error.message)
-      );
-    } finally {
-      setIsLoadingMicrosoftLogin(false);
+      setErrorMessage("Authentication failed.");
     }
   }, [navigate, dispatch]);
 
@@ -285,16 +242,9 @@ const AdminLoginPage = () => {
             <button
               onClick={handleMicrosoftLogin}
               className="microsoft-login-button"
-              disabled={isLoadingMicrosoftLogin}
             >
-              {isLoadingMicrosoftLogin ? (
-                "Đang xử lý..."
-              ) : (
-                <>
-                  <img src={MicrosoftLogo} alt="" />
-                  Đăng nhập với Microsoft
-                </>
-              )}
+              <img src={MicrosoftLogo} alt="" />
+              Đăng nhập với Microsoft
             </button>
           </div>
         </form>
