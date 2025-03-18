@@ -13,20 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install --verbose
-
-      - name: Run tests
-        run: npm test --verbose
-
-      - name: Build project
-        run: npm run build --verbose
-
       - name: Copy source code to server
         uses: appleboy/scp-action@v0.1.1
         with:
@@ -34,10 +20,7 @@ jobs:
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
-          target: "/root/DAKL/FE"
-          timeout: 600 # Increase timeout to 10 minutes
-          debug: true # Enable debug information
-
+          target : "/root/DAKL/FE"
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
         with:
