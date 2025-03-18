@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
@@ -15,7 +16,8 @@ import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Intl } from "intl";
+import numeral from "numeral"; // Import numeral
+import "numeral/locales/vi"; // Import locale nếu cần
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -39,6 +41,8 @@ const ListOfTutorLevelPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(7);
   const currentPath = "/hang-gia-su";
   const [formErrors, setFormErrors] = useState({});
+  const [filters, setFilters] = useState([]);
+  const [pageCount, setPageCount] = useState(1);
 
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -56,6 +60,7 @@ const ListOfTutorLevelPage = () => {
     setSearchQuery("");
     setSortConfig({ key: "", direction: "asc" });
     setCurrentPage(0);
+    setFilters([]); // Reset filters
   };
 
   useEffect(() => {
@@ -84,6 +89,10 @@ const ListOfTutorLevelPage = () => {
         page: currentPage + 1,
       };
 
+      if (filters.length > 0) {
+        query.filter = JSON.stringify(filters);
+      }
+
       if (sortConfig.key) {
         query.sort = JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
@@ -101,6 +110,7 @@ const ListOfTutorLevelPage = () => {
         setData(response.data.items);
         setFilteredData(response.data.items);
         setTotalItems(response.data.total);
+        setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
       } else {
         setError(response.message || t("common.errorLoadingData"));
       }
@@ -109,11 +119,15 @@ const ListOfTutorLevelPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, sortConfig, itemsPerPage, t]);
+  }, [currentPage, sortConfig, itemsPerPage, t, filters]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    numeral.locale("vi"); // Set locale nếu cần
+  }, []);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
@@ -122,24 +136,28 @@ const ListOfTutorLevelPage = () => {
   const handleSearchInputChange = (query) => {
     setSearchInput(query);
     setSearchQuery(query);
-  };
 
-  useEffect(() => {
-    const normalizedQuery = unidecode(searchQuery.toLowerCase());
+    const normalizedQuery = unidecode(query.toLowerCase());
     const filtered = data.filter((item) => {
-      const levelName = item.levelName || "";
-      const description = item.description || "";
+      const searchValues = {
+        tutorLevelId: item.tutorLevelId,
+        levelName: item.levelName || "",
+        salary: item.salary || "",
+        description: item.description || "",
+      };
 
-      const normalizedLevelName = unidecode(levelName.toLowerCase());
-      const normalizedDescription = unidecode(description.toLowerCase());
+      return Object.values(searchValues).some((value) => {
+        if (value) {
+          const stringValue = value.toString().toLowerCase();
+          const normalizedValue = unidecode(stringValue);
 
-      return (
-        normalizedLevelName.includes(normalizedQuery) ||
-        normalizedDescription.includes(normalizedQuery)
-      );
+          return normalizedValue.includes(normalizedQuery);
+        }
+        return false;
+      });
     });
     setFilteredData(filtered);
-  }, [searchQuery, data]);
+  };
 
   const handleSort = (key) => {
     setSortConfig((prevConfig) => {
@@ -220,6 +238,11 @@ const ListOfTutorLevelPage = () => {
   };
 
   const handleCreateTutorLevel = async (formData) => {
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
     try {
       const response = await Api({
         endpoint: "tutor-level/create",
@@ -230,6 +253,10 @@ const ListOfTutorLevelPage = () => {
       if (response.success) {
         handleSave();
         toast.success("Thêm thành công");
+        // Thêm nhân viên mới vào đầu danh sách
+        const newTutorLevel = response.data;
+        setData((prevData) => [newTutorLevel, ...prevData]);
+        setFilteredData((prevData) => [newTutorLevel, ...prevData]);
       } else {
         console.error("Failed to create tutor level:", response.message);
         toast.error("Thêm thất bại");
@@ -244,6 +271,11 @@ const ListOfTutorLevelPage = () => {
   };
 
   const handleUpdateTutorLevel = async (formData) => {
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
     try {
       const response = await Api({
         endpoint: `tutor-level/update/${modalData.tutorLevelId}`,
@@ -267,15 +299,40 @@ const ListOfTutorLevelPage = () => {
     }
   };
 
+  const validateForm = (formData) => {
+    let errors = {};
+
+    if (!formData.levelName) {
+      errors.levelName = "Vui lòng nhập tên hạng.";
+    }
+
+    if (!formData.salary) {
+      errors.salary = "Vui lòng nhập lương.";
+    } else if (isNaN(Number(formData.salary))) {
+      errors.salary = "Lương phải là một số.";
+    }
+
+    if (!formData.description) {
+      errors.description = "Vui lòng nhập mô tả.";
+    }
+
+    return errors;
+  };
+
   const columns = [
-    { title: "Mã hạng", dataKey: "tutorLevelId", sortable: true },
+    {
+      title: "Mã hạng",
+      dataKey: "tutorLevelId",
+      sortable: true,
+      tooltip: "Mã hạng gia sư",
+    },
     { title: "Tên hạng", dataKey: "levelName", sortable: true },
     {
       title: "Lương",
       dataKey: "salary",
       sortable: true,
       renderCell: (value) => {
-        return new Intl.NumberFormat("vi-VN").format(value) + " đồng";
+        return numeral(value).format("0,0") + " đồng";
       },
     },
     { title: "Mô tả", dataKey: "description", sortable: true },
@@ -293,6 +350,11 @@ const ListOfTutorLevelPage = () => {
     { key: "salary", label: "Lương" },
     { key: "description", label: "Mô tả" },
   ];
+
+  const handleItemsPerPageChange = (newPageSize) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(0); // Reset về trang đầu tiên
+  };
 
   const childrenMiddleContentLower = (
     <>
@@ -336,15 +398,16 @@ const ListOfTutorLevelPage = () => {
           onView={handleView}
           onEdit={handleEdit}
           onDelete={(tutorLevel) => handleDelete(tutorLevel.tutorLevelId)}
-          pageCount={Math.ceil(totalItems / itemsPerPage)}
+          pageCount={pageCount} // Truyền pageCount
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
           loading={isLoading}
           error={error}
           itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
+          onItemsPerPageChange={handleItemsPerPageChange}
         />
+        <p>Tổng số hạng gia sư: {totalItems}</p>
       </div>
     </>
   );
@@ -376,6 +439,7 @@ const ListOfTutorLevelPage = () => {
           }
           onChange={(name, value) => {
             setModalData({ ...modalData, [name]: value });
+            setFormErrors({ ...formErrors, [name]: "" });
           }}
           onSubmit={
             modalMode === "add"

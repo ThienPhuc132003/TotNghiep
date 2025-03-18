@@ -309,7 +309,7 @@ const ListOfMajorPage = () => {
   const editFields = [
     { key: "majorId", label: "Mã ngành", type: "text", readOnly: true },
     { key: "sumName", label: "Tên viết tắt", type: "text" },
-    { key: "majorName", label: t("major.name"), type: "text" },
+    { key: "majorName", label: "Tên ngành", type: "text" },
   ];
 
   const childrenMiddleContentLower = (

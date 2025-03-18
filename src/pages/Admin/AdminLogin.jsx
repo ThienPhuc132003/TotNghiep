@@ -124,12 +124,7 @@ const AdminLoginPage = () => {
       const authUrl = response.data.authUrl;
       if (authUrl) {
         window.location.href = `${authUrl}&state=${state}`;
-      } else {
-        setErrorMessage("Microsoft Auth URL not found.");
       }
-    } catch (error) {
-      console.error("Error fetching Microsoft Auth URL:", error);
-      setErrorMessage("Error fetching Microsoft Auth URL.");
     } finally {
       setIsLoadingMicrosoftLogin(false);
     }

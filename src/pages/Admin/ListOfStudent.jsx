@@ -16,6 +16,7 @@ import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { format } from "date-fns";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -174,14 +175,14 @@ const ListOfStudentPage = () => {
       });
       if (response.success) {
         fetchData();
-        toast.success(t("student.deleteSuccess"));
+        toast.success("Xóa thành công");
       } else {
-        console.log("Failed to delete student");
-        toast.error(t("student.deleteFailed"));
+        console.log("Xóa thất bại");
+        toast.error(t("Xóa thất bại"));
       }
     } catch (error) {
       console.error("An error occurred while deleting student:", error.message);
-      toast.error(t("student.deleteFailed"));
+      toast.error("Xóa thất bại");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -245,14 +246,14 @@ const ListOfStudentPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success(t("student.createSuccess"));
+        toast.success("Thêm thành công");
       } else {
         console.error("Failed to create student:", response.message);
-        toast.error(t("student.createFailed"));
+        toast.error("Thêm thất bại");
       }
     } catch (error) {
       console.error("An error occurred while creating student:", error.message);
-      toast.error(t("student.createFailed"));
+      toast.error("Thêm thất bại");
     }
   };
 
@@ -274,46 +275,34 @@ const ListOfStudentPage = () => {
         toast.success("Cập nhật thành công");
       } else {
         console.error("Failed to update student:", response.message);
-        toast.error(t("student.updateFailed"));
+        toast.error("Cập nhật thất bại");
       }
     } catch (error) {
       console.error("An error occurred while updating student:", error.message);
-      toast.error(t("student.updateFailed"));
+      toast.error("Cập nhật thất bại");
     }
   };
 
   const columns = [
     { title: "Mã người dùng", dataKey: "userId", sortable: true },
+    { title: "Tên", dataKey: "userProfile.fullname", sortable: true },
     {
-      title: t("admin.name"),
-      dataKey: "userProfile.fullname",
+      title: "Ngày sinh",
+      dataKey: "userProfile.birthday",
       sortable: true,
+      renderCell: (value) => format(new Date(value), "dd/MM/yyyy"),
     },
     {
-      title: t("admin.email"),
-      dataKey: "email",
+      title: "Giới tính",
+      dataKey: "userProfile.gender",
       sortable: true,
-    },
-    { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
-    {
-      title: "trình độ học vấn",
-      dataKey: "degree",
-      sortable: true,
+      renderCell: (value) => (value === "MALE" ? "Nam" : "Nữ"),
     },
     {
-      title: "Chuyên ngành",
-      dataKey: "userProfile.major",
+      title: "Ngành",
+      dataKey: "userProfile.major.majorName",
       sortable: true,
-    },
-    {
-      title: t("admin.status"),
-      dataKey: "checkActive",
-      sortable: true,
-      renderCell: (value) => {
-        if (value === "ACTIVE") return "Hoạt động";
-        if (value === "BLOCKED") return "Khóa";
-        return "Chưa biết";
-      },
+      renderCell: (value) => (value ? value : "Không có ngành"),
     },
   ];
 

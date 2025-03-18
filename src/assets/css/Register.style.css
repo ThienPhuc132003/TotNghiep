@@ -15,7 +15,6 @@
 
 .register-form .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
   font-weight: bold;
   color: white;
 }
@@ -119,7 +118,6 @@
 
 .gender-group {
   display: flex;
-  padding-top: 5px;
   align-items: center;
   gap: 1rem; /* Add spacing between the radio buttons */
 }
@@ -140,6 +138,7 @@
 }
 .register-form .form-group input,
 .register-form .form-group select {
+  height: 39px;
   width: 100%;
   padding: 0.5rem;
   border: 2px solid #ffffff;
@@ -150,7 +149,6 @@
   color: white;
   outline: none;
 }
-
 
 .register-form .form-group select option {
   background-color: white; /* Màu nền trắng cho các lựa chọn */
@@ -172,4 +170,25 @@
   color: white !important;
   caret-color: white !important; /* Cursor color */
   transition: background-color 5000s ease-in-out 0s; /* Forces autofill transparency */
+}
+.form-columns {
+  display: flex;
+  gap: 2rem; /* Khoảng cách giữa hai cột */
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+}
+
+.gender-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
 }
