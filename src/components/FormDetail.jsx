@@ -59,10 +59,8 @@ const FormDetailComponent = ({
                   )}
                   {field.options &&
                     field.options.map((option) => (
-                      <option key={option} value={option}>
-                        {field.renderOption
-                          ? field.renderOption(option)
-                          : option}
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
                     ))}
                 </select>
@@ -107,11 +105,16 @@ FormDetailComponent.propTypes = {
       key: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       type: PropTypes.string,
-      options: PropTypes.arrayOf(PropTypes.string), // Thay đổi kiểu dữ liệu của options thành mảng string
+      options: PropTypes.arrayOf(
+        PropTypes.shape({
+          label: PropTypes.string.isRequired,
+          value: PropTypes.string.isRequired,
+        })
+      ),
       readOnly: PropTypes.bool,
-      required: PropTypes.bool, // Add required field
-      renderOption: PropTypes.func, // Thêm renderOption
+      required: PropTypes.bool,
       getValue: PropTypes.func, // Thêm getValue
+      renderOption: PropTypes.func, // Thêm renderOption
     })
   ).isRequired,
   mode: PropTypes.oneOf(["add", "edit", "view"]).isRequired,

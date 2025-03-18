@@ -175,14 +175,14 @@ const ListOfStudentPage = () => {
       });
       if (response.success) {
         fetchData();
-        toast.success(t("student.deleteSuccess"));
+        toast.success("Xóa thành công");
       } else {
-        console.log("Failed to delete student");
-        toast.error(t("student.deleteFailed"));
+        console.log("Xóa thất bại");
+        toast.error(t("Xóa thất bại"));
       }
     } catch (error) {
       console.error("An error occurred while deleting student:", error.message);
-      toast.error(t("student.deleteFailed"));
+      toast.error("Xóa thất bại");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -246,14 +246,14 @@ const ListOfStudentPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success(t("student.createSuccess"));
+        toast.success("Thêm thành công");
       } else {
         console.error("Failed to create student:", response.message);
-        toast.error(t("student.createFailed"));
+        toast.error("Thêm thất bại");
       }
     } catch (error) {
       console.error("An error occurred while creating student:", error.message);
-      toast.error(t("student.createFailed"));
+      toast.error("Thêm thất bại");
     }
   };
 
@@ -275,11 +275,11 @@ const ListOfStudentPage = () => {
         toast.success("Cập nhật thành công");
       } else {
         console.error("Failed to update student:", response.message);
-        toast.error(t("student.updateFailed"));
+        toast.error("Cập nhật thất bại");
       }
     } catch (error) {
       console.error("An error occurred while updating student:", error.message);
-      toast.error(t("student.updateFailed"));
+      toast.error("Cập nhật thất bại");
     }
   };
 

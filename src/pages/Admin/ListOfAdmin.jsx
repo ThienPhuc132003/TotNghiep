@@ -45,45 +45,52 @@ const ListOfAdminPage = () => {
     setFilters([]); // Reset filters
   };
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const query = {
-        rpp: itemsPerPage, // Sử dụng itemsPerPage state
-        page: currentPage + 1,
-      };
+  const fetchData = useCallback(
+    async (sortConfigOverride = sortConfig) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const query = {
+          rpp: itemsPerPage, // Sử dụng itemsPerPage state
+          page: currentPage + 1,
+        };
 
-      if (filters.length > 0) {
-        query.filter = filters;
-      }
+        if (filters.length > 0) {
+          query.filter = filters;
+        }
 
-      if (sortConfig.key) {
+        let sortToUse = sortConfigOverride;
+
+        if (!sortToUse.key) {
+          sortToUse = { key: "createdAt", direction: "desc" };
+        }
+
         query.sort = [
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
+          { key: sortToUse.key, type: sortToUse.direction.toUpperCase() },
         ];
-      }
 
-      const response = await Api({
-        endpoint: `admin/search`,
-        method: METHOD_TYPE.GET,
-        query: query,
-      });
+        const response = await Api({
+          endpoint: `admin/search`,
+          method: METHOD_TYPE.GET,
+          query: query,
+        });
 
-      if (response.success) {
-        setData(response.data.items);
-        setFilteredData(response.data.items); // Lưu trữ dữ liệu vào state mới
-        setTotalItems(response.data.total); // Giữ lại totalItems
-        setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
-      } else {
-        setError(response.message || t("common.errorLoadingData"));
+        if (response.success) {
+          setData(response.data.items);
+          setFilteredData(response.data.items); // Lưu trữ dữ liệu vào state mới
+          setTotalItems(response.data.total); // Giữ lại totalItems
+          setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
+        } else {
+          setError(response.message || t("common.errorLoadingData"));
+        }
+      } catch (error) {
+        setError(t("common.errorLoadingData"));
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      setError(t("common.errorLoadingData"));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentPage, sortConfig, t, itemsPerPage, filters]);
+    },
+    [currentPage, sortConfig, t, itemsPerPage, filters]
+  );
 
   useEffect(() => {
     fetchData();
@@ -138,13 +145,22 @@ const ListOfAdminPage = () => {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
-      options: ["nam", "nữ"],
+      options: [
+        { label: "nam", value: "MALE" },
+        { label: "nữ", value: "FEMALE" },
+      ],
+      getValue: (option) => option, // Trả về value khi submit form
     },
     {
       key: "roleId",
       label: "Vai trò",
       type: "select",
-      options: ["Quản trị viên", "Nhân viên", "Chưa biết"],
+      options: [
+        { label: "Quản trị viên", value: "BEST_ADMIN" },
+        { label: "Nhân viên", value: "ADMIN" },
+        { label: "Chưa biết", value: "UNKNOWN" },
+      ],
+      getValue: (option) => option, // Trả về value khi submit form
     },
     { key: "password", label: t("admin.password"), type: "password" },
     {
@@ -244,13 +260,10 @@ const ListOfAdminPage = () => {
       });
 
       if (response.success) {
-        // Thêm nhân viên mới vào đầu danh sách
-        const newAdmin = response.data;
-        setData((prevData) => [newAdmin, ...prevData]);
-        setFilteredData((prevData) => [newAdmin, ...prevData]);
-
-        handleSave();
         toast.success("Thêm thành công"); // Hiển thị thông báo thành công
+        // Gọi lại fetchData với sort createdAt giảm dần
+        fetchData({ key: "createdAt", direction: "desc" });
+        handleSave();
       } else {
         console.error("Failed to create admin:", response.message);
       }
@@ -376,19 +389,31 @@ const ListOfAdminPage = () => {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
-      options: ["nam", "nữ"],
+      options: [
+        { label: "nam", value: "MALE" },
+        { label: "nữ", value: "FEMALE" },
+      ],
+      getValue: (option) => option, 
     },
     {
       key: "status",
       label: t("admin.status"),
       type: "select",
-      options: ["Đang hoạt động", "Khóa"],
+      options: [
+        { label: "Đang hoạt động", value: "ACTIVE" },
+        { label: "Khóa", value: "BLOCKED" },
+      ],
+      getValue: (option) => option, 
     },
     {
       key: "roleId",
       label: t("admin.role"),
       type: "select",
-      options: ["Quản trị viên", "Nhân viên"],
+      options: [
+        { label: "Quản trị viên", value: "BEST_ADMIN" },
+        { label: "Nhân viên", value: "ADMIN" },
+      ],
+      getValue: (option) => option, 
     },
   ];
   const validateAdminForm = (formData) => {
