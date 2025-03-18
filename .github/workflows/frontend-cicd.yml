@@ -21,6 +21,9 @@ jobs:
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
           target : "/root/DAKL/FE"
+          timeout: 600 # Tăng thời gian chờ lên 10 phút
+          debug: true # Bật thông tin gỡ lỗi
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
         with:
