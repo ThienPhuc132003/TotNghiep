@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
@@ -162,10 +163,10 @@ const ListOfSubjectPage = () => {
   useEffect(() => {
     const normalizedQuery = unidecode(searchQuery.toLowerCase());
     const filtered = data.filter((item) => {
-      const subjectId = item.subjectId || "";
-      const subjectName = item.subjectName || "";
-      const majorName = item.major?.majorName || "";
-      const majorIdValue = item.major?.majorId || "";
+      const subjectId = item?.subjectId || "";
+      const subjectName = item?.subjectName || "";
+      const majorName = item && item.major ? item.major.majorName || "" : "";
+      const majorIdValue = item && item.major ? item.major.majorId || "" : "";
 
       const normalizedSubjectId = unidecode(subjectId.toLowerCase());
       const normalizedSubjectName = unidecode(subjectName.toLowerCase());
@@ -226,6 +227,7 @@ const ListOfSubjectPage = () => {
     setModalData({
       subjectName: "",
       majorId: "",
+      major: null,
     });
     setIsModalOpen(true);
     setFormErrors({});
@@ -278,6 +280,7 @@ const ListOfSubjectPage = () => {
         method: METHOD_TYPE.POST,
         data: {
           ...formData,
+          majorId: formData.majorId, // Gửi majorId lên server
         },
       });
 
@@ -305,6 +308,7 @@ const ListOfSubjectPage = () => {
         method: METHOD_TYPE.PUT,
         data: {
           ...formData,
+          majorId: formData.majorId, // Gửi majorId lên server
         },
       });
 
@@ -359,13 +363,15 @@ const ListOfSubjectPage = () => {
     { key: "subjectName", label: "Tên môn học" },
     {
       key: "majorId",
-      label: "Mã ngành",
+      label: "Ngành", // Thay đổi label
       type: "select",
       options: majors.map((major) => major.majorId),
       renderOption: (option) => {
+        // Hiển thị majorName trong dropdown
         const major = majors.find((major) => major.majorId === option);
         return major ? major.majorName : option;
       },
+      getValue: (option) => option, // Trả về majorId khi submit form
     },
   ];
 
@@ -374,13 +380,15 @@ const ListOfSubjectPage = () => {
     { key: "subjectName", label: "Tên môn học", type: "text" },
     {
       key: "majorId",
-      label: "Mã ngành",
+      label: "Ngành", // Thay đổi label
       type: "select",
       options: majors.map((major) => major.majorId),
       renderOption: (option) => {
+        // Hiển thị majorName trong dropdown
         const major = majors.find((major) => major.majorId === option);
         return major ? major.majorName : option;
       },
+      getValue: (option) => option, // Trả về majorId khi submit form
     },
   ];
 
@@ -457,14 +465,13 @@ const ListOfSubjectPage = () => {
           onSubmit={handleFormSubmit}
           title={
             modalMode === "add"
-              ? t("subject.addSubject")
+              ? "Thêm môn học"
               : modalMode === "edit"
-              ? t("subject.editSubject")
-              : t("subject.viewSubject")
+              ? "Chỉnh sửa môn học"
+              : "Xem môn học"
           }
           onClose={handleCloseModal}
           errors={formErrors}
-          majors={majors}
         />
       </Modal>
       <DeleteConfirmationModal

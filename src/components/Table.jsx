@@ -87,23 +87,34 @@ const TableComponent = ({
               {columns.map((col) => (
                 <th
                   key={col.dataKey}
+                  className="sortable-header"
                   onClick={() => requestSort(col.dataKey)}
                   role="columnheader"
                   tabIndex={0}
-                  aria-sort={
-                    sortConfig.key === col.dataKey
-                      ? sortConfig.direction === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
                 >
                   {col.title}
-                  {sortConfig.key === col.dataKey && (
-                    <span className="sort-indicator">
-                      {sortConfig.direction === "asc" ? "▲" : "▼"}
+                  <div className="sort-arrows">
+                    <span
+                      className={
+                        sortConfig.key === col.dataKey &&
+                        sortConfig.direction === "asc"
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      ▲
                     </span>
-                  )}
+                    <span
+                      className={
+                        sortConfig.key === col.dataKey &&
+                        sortConfig.direction === "desc"
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      ▼
+                    </span>
+                  </div>
                 </th>
               ))}
               <th role="columnheader"></th>
@@ -235,6 +246,7 @@ TableComponent.propTypes = {
       title: PropTypes.string.isRequired,
       dataKey: PropTypes.string.isRequired,
       renderCell: PropTypes.func,
+      sortable: PropTypes.bool, // Thêm sortable
     })
   ).isRequired,
   data: PropTypes.array.isRequired,

@@ -104,11 +104,9 @@ const SigninPageComponent = () => {
 
       if (authUrl) {
         window.location.href = authUrl;
-      } else {
-        console.error("Microsoft Auth URL not found.");
       }
-    } catch (errors) {
-      console.error("Error fetching Microsoft Auth URL:", errors);
+    } finally {
+      // No error handling needed
     }
   };
 

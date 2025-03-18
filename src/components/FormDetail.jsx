@@ -12,7 +12,6 @@ const FormDetailComponent = ({
   title,
   onClose,
   errors,
-  majors = [], // Add a default value for majors
 }) => {
   const { t } = useTranslation();
 
@@ -23,7 +22,13 @@ const FormDetailComponent = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const submitData = {};
+    fields.forEach((field) => {
+      submitData[field.key] = field.getValue
+        ? field.getValue(formData[field.key])
+        : formData[field.key];
+    });
+    onSubmit(submitData);
   };
 
   return (
@@ -49,12 +54,17 @@ const FormDetailComponent = ({
                     mode === "view" || field.readOnly ? "non-fillable" : ""
                   }
                 >
-                  <option value="">Chọn ngành</option>
-                  {majors.map((major) => (
-                    <option key={major.majorId} value={major.majorId}>
-                      {major.majorName}
-                    </option>
-                  ))}
+                  {mode !== "edit" && (
+                    <option value="">Chọn</option>
+                  )}
+                  {field.options &&
+                    field.options.map((option) => (
+                      <option key={option} value={option}>
+                        {field.renderOption
+                          ? field.renderOption(option)
+                          : option}
+                      </option>
+                    ))}
                 </select>
               ) : (
                 <input
@@ -97,14 +107,11 @@ FormDetailComponent.propTypes = {
       key: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       type: PropTypes.string,
-      options: PropTypes.arrayOf(
-        PropTypes.shape({
-          value: PropTypes.string.isRequired,
-          label: PropTypes.string.isRequired,
-        })
-      ),
+      options: PropTypes.arrayOf(PropTypes.string), // Thay đổi kiểu dữ liệu của options thành mảng string
       readOnly: PropTypes.bool,
       required: PropTypes.bool, // Add required field
+      renderOption: PropTypes.func, // Thêm renderOption
+      getValue: PropTypes.func, // Thêm getValue
     })
   ).isRequired,
   mode: PropTypes.oneOf(["add", "edit", "view"]).isRequired,
@@ -113,7 +120,6 @@ FormDetailComponent.propTypes = {
   title: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   errors: PropTypes.object,
-  majors: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 export default React.memo(FormDetailComponent);

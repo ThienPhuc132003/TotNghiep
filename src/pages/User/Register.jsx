@@ -178,175 +178,167 @@ const RegisterPage = () => {
       <div className="register-form">
         <h1 className="login-title">Đăng ký GiaSuVLU</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="fullname">{t("register.fullName")}</label>
-            <input
-              type="text"
-              id="fullname"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleChange}
-              placeholder="Trịnh Văn Thiên Phúc"
-              className={formErrors.fullname ? "error-border" : ""}
-            />
-            {formErrors.fullname && (
-              <p className="error-message">{formErrors.fullname}</p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">{t("register.email")}</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="example@gmail.com"
-              className={formErrors.email ? "error-border" : ""}
-            />
-            {formErrors.email && (
-              <p className="error-message">{formErrors.email}</p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="phoneNumber">{t("register.phoneNumber")}</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="0912345678"
-              className={formErrors.phoneNumber ? "error-border" : ""}
-            />
-            {formErrors.phoneNumber && (
-              <p className="error-message">{formErrors.phoneNumber}</p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="homeAddress">{t("register.homeAddress")}</label>
-            <input
-              type="text"
-              id="homeAddress"
-              name="homeAddress"
-              value={formData.homeAddress}
-              onChange={handleChange}
-              placeholder="58a Huỳnh Văn Bánh"
-              className={formErrors.homeAddress ? "error-border" : ""}
-            />
-            {formErrors.homeAddress && (
-              <p className="error-message">{formErrors.homeAddress}</p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="majorId">Chuyên ngành</label>
-            <select
-              id="majorId"
-              name="majorId"
-              value={formData.majorId}
-              onChange={handleChange}
-              className={formErrors.majorId ? "error-border" : ""}
-            >
-              <option value="">Chọn chuyên ngành</option>
-              {majors.map((major) => (
-                <option key={major.majorId} value={major.majorId}>
-                  {major.majorName}
-                </option>
-              ))}
-            </select>
-            {formErrors.majorId && (
-              <p className="error-message">{formErrors.majorId}</p>
-            )}
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="birthday">{t("register.birthday")}</label>
-              <input
-                type="date"
-                id="birthday"
-                name="birthday"
-                value={formData.birthday}
-                onChange={handleChange}
-                className={formErrors.birthday ? "error-border" : ""}
-              />
-              {formErrors.birthday && (
-                <p className="error-message">{formErrors.birthday}</p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>{t("register.gender")}</label>
-              <div className="gender-group">
-                <label className="gender-label">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="MALE"
-                    checked={formData.gender === "MALE"}
-                    onChange={handleChange}
-                  />
-                  {t("register.male")}
-                </label>
-                <label className="gender-label">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="FEMALE"
-                    checked={formData.gender === "FEMALE"}
-                    onChange={handleChange}
-                  />
-                  {t("register.female")}
-                </label>
+          <div className="form-columns">
+            <div className="form-column">
+              <div className="form-group">
+                <label htmlFor="fullname">{t("register.fullName")}</label>
+                <input
+                  type="text"
+                  id="fullname"
+                  name="fullname"
+                  value={formData.fullname}
+                  onChange={handleChange}
+                  placeholder="Trịnh Văn Thiên Phúc"
+                  className={formErrors.fullname ? "error-border" : ""}
+                />
+                {formErrors.fullname && (
+                  <p className="error-message">{formErrors.fullname}</p>
+                )}
               </div>
-              {formErrors.gender && (
-                <p className="error-message">{formErrors.gender}</p>
-              )}
+              <div className="form-group">
+                <label htmlFor="email">{t("register.email")}</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="example@gmail.com"
+                  className={formErrors.email ? "error-border" : ""}
+                />
+                {formErrors.email && (
+                  <p className="error-message">{formErrors.email}</p>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="phoneNumber">{t("register.phoneNumber")}</label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="0912345678"
+                  className={formErrors.phoneNumber ? "error-border" : ""}
+                />
+                {formErrors.phoneNumber && (
+                  <p className="error-message">{formErrors.phoneNumber}</p>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="homeAddress">{t("register.homeAddress")}</label>
+                <input
+                  type="text"
+                  id="homeAddress"
+                  name="homeAddress"
+                  value={formData.homeAddress}
+                  onChange={handleChange}
+                  placeholder="58a Huỳnh Văn Bánh"
+                  className={formErrors.homeAddress ? "error-border" : ""}
+                />
+                {formErrors.homeAddress && (
+                  <p className="error-message">{formErrors.homeAddress}</p>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="password">{t("register.password")}</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Nhập mật khẩu"
-                className={formErrors.password ? "error-border" : ""}
-              />
-              {formErrors.password && (
-                <p className="error-message">{formErrors.password}</p>
-              )}
+            <div className="form-column">
+              <div className="form-group">
+                <label htmlFor="majorId">Chuyên ngành</label>
+                <select
+                  id="majorId"
+                  name="majorId"
+                  value={formData.majorId}
+                  onChange={handleChange}
+                  className={formErrors.majorId ? "error-border" : ""}
+                >
+                  <option value="">Chọn chuyên ngành</option>
+                  {majors.map((major) => (
+                    <option key={major.majorId} value={major.majorId}>
+                      {major.majorName}
+                    </option>
+                  ))}
+                </select>
+                {formErrors.majorId && (
+                  <p className="error-message">{formErrors.majorId}</p>
+                )}
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="birthday">{t("register.birthday")}</label>
+                  <input
+                    type="date"
+                    id="birthday"
+                    name="birthday"
+                    value={formData.birthday}
+                    onChange={handleChange}
+                    className={formErrors.birthday ? "error-border" : ""}
+                  />
+                  {formErrors.birthday && (
+                    <p className="error-message">{formErrors.birthday}</p>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>{t("register.gender")}</label>
+                  <div className="gender-group">
+                    <label className="gender-label">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="MALE"
+                        checked={formData.gender === "MALE"}
+                        onChange={handleChange}
+                      />
+                      {t("register.male")}
+                    </label>
+                    <label className="gender-label">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="FEMALE"
+                        checked={formData.gender === "FEMALE"}
+                        onChange={handleChange}
+                      />
+                      {t("register.female")}
+                    </label>
+                  </div>
+                  {formErrors.gender && (
+                    <p className="error-message">{formErrors.gender}</p>
+                  )}
+                </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">{t("register.password")}</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Nhập mật khẩu"
+                  className={formErrors.password ? "error-border" : ""}
+                />
+                {formErrors.password && (
+                  <p className="error-message">{formErrors.password}</p>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirmPassword">
+                  {t("register.confirmPassword")}
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Xác nhận mật khẩu"
+                  className={formErrors.confirmPassword ? "error-border" : ""}
+                />
+                {formErrors.confirmPassword && (
+                  <p className="error-message">{formErrors.confirmPassword}</p>
+                )}
+              </div>
             </div>
-            <div className="form-group">
-              <label htmlFor="confirmPassword">
-                {t("register.confirmPassword")}
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Xác nhận mật khẩu"
-                className={formErrors.confirmPassword ? "error-border" : ""}
-              />
-              {formErrors.confirmPassword && (
-                <p className="error-message">{formErrors.confirmPassword}</p>
-              )}
-            </div>
-          </div>
-          <div className="divider">
-            <span>hoặc</span>
-          </div>
-          <div className="social-login">
-            <button
-              onClick={handleMicrosoftRegister}
-              className="microsoft-login-button"
-            >
-              <img src={MicrosoftLogo} alt="" />
-              {t("register.registerWithMicrosoft")}
-            </button>
           </div>
           {formErrors.register && (
             <p className="error-message">{formErrors.register}</p>
@@ -361,6 +353,18 @@ const RegisterPage = () => {
           >
             {isSubmitting ? "Đang đăng ký..." : t("register.registerButton")}
           </button>
+          <div className="divider">
+            <span>hoặc</span>
+          </div>
+          <div className="social-login">
+            <button
+              onClick={handleMicrosoftRegister}
+              className="microsoft-login-button"
+            >
+              <img src={MicrosoftLogo} alt="" />
+              {t("register.registerWithMicrosoft")}
+            </button>
+          </div>
         </form>
         <div className="register-link">
           <p>

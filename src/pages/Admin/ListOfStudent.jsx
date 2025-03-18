@@ -16,6 +16,7 @@ import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { format } from "date-fns";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -284,36 +285,24 @@ const ListOfStudentPage = () => {
 
   const columns = [
     { title: "Mã người dùng", dataKey: "userId", sortable: true },
+    { title: "Tên", dataKey: "userProfile.fullname", sortable: true },
     {
-      title: t("admin.name"),
-      dataKey: "userProfile.fullname",
+      title: "Ngày sinh",
+      dataKey: "userProfile.birthday",
       sortable: true,
+      renderCell: (value) => format(new Date(value), "dd/MM/yyyy"),
     },
     {
-      title: t("admin.email"),
-      dataKey: "email",
+      title: "Giới tính",
+      dataKey: "userProfile.gender",
       sortable: true,
-    },
-    { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
-    {
-      title: "trình độ học vấn",
-      dataKey: "degree",
-      sortable: true,
+      renderCell: (value) => (value === "MALE" ? "Nam" : "Nữ"),
     },
     {
-      title: "Chuyên ngành",
-      dataKey: "userProfile.major",
+      title: "Ngành",
+      dataKey: "userProfile.major.majorName",
       sortable: true,
-    },
-    {
-      title: t("admin.status"),
-      dataKey: "checkActive",
-      sortable: true,
-      renderCell: (value) => {
-        if (value === "ACTIVE") return "Hoạt động";
-        if (value === "BLOCKED") return "Khóa";
-        return "Chưa biết";
-      },
+      renderCell: (value) => (value ? value : "Không có ngành"),
     },
   ];
 

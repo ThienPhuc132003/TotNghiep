@@ -9,10 +9,8 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
-import i18n from "../../i18n";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
-import { formatInTimeZone } from "date-fns-tz";
 import { Alert } from "@mui/material";
 import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify"; // Import toast và ToastContainer
@@ -358,21 +356,6 @@ const ListOfAdminPage = () => {
     },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
     { title: t("admin.email"), dataKey: "email", sortable: true },
-    {
-      title: t("common.createdAt"),
-      dataKey: "createdAt",
-      sortable: true,
-      renderCell: (value) => {
-        const timeZone =
-          i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
-        return formatInTimeZone(
-          new Date(value),
-          timeZone,
-          "HH:mm:ss yyyy-MM-dd"
-        );
-      },
-    },
-    { title: t("common.createdBy"), dataKey: "createdBy", sortable: true },
     {
       title: t("admin.status"),
       dataKey: "status",

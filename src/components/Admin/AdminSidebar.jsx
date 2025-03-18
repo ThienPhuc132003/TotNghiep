@@ -22,7 +22,7 @@ const MenuItem = React.memo(function MenuItem({ item, pathname }) {
   }, [item.name]);
 
   const isActive = useMemo(
-    () => pathname.includes(itemPath),
+    () => pathname === `/admin/${itemPath}`, // Thay đổi logic kiểm tra active
     [pathname, itemPath]
   );
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const MenuItem = React.memo(function MenuItem({ item, pathname }) {
       const childPath = child.name
         ? removeDiacritics(child.name.toLowerCase().replace(/ /g, "-"))
         : "";
-      return pathname.includes(childPath);
+      return pathname === `/admin/${childPath}`; // Thay đổi logic kiểm tra active
     });
   }, [item.children, pathname]);
 
@@ -157,7 +157,7 @@ const AdminSidebarComponent = ({ currentPath }) => {
     <div className={`sidebar ${!isSidebarVisible ? "sidebar-hidden" : ""}`}>
       {" "}
       <img className="SideBarBackGround" src={SideBarBackGround} />
-      <div className="BlurMask"/>
+      <div className="BlurMask" />
       <div className="logo-container">
         <img src={Logo} alt="Logo" className="sidebar-logo" />
         <h1 className="main-logo">GiaSuVLU</h1>

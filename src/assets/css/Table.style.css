@@ -191,7 +191,30 @@
   cursor: not-allowed;
   pointer-events: none;
 }
+.sortable-header {
+  cursor: pointer;
+  position: relative;
+  padding-right: 25px; /* Để có không gian cho mũi tên */
+}
 
+.sortable-header .sort-arrows {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 5px;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7em;
+  color: #aaa; /* Màu mặc định */
+}
+
+.sortable-header .sort-arrows span {
+  cursor: pointer;
+}
+
+.sortable-header .sort-arrows .active {
+  color: white; /* Màu khi sort active */
+}
 @media (max-width: 768px) {
   .admin-list-title {
     font-size: 1.5rem;
