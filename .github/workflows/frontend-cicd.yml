@@ -13,6 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
       - name: Copy source code to server
         uses: appleboy/scp-action@v0.1.1
         with:
@@ -20,9 +34,9 @@ jobs:
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
-          target : "/root/DAKL/FE"
-          timeout: 600 # Tăng thời gian chờ lên 10 phút
-          debug: true # Bật thông tin gỡ lỗi
+          target: "/root/DAKL/FE"
+          timeout: 600 # Increase timeout to 10 minutes
+          debug: true # Enable debug information
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
