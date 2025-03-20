@@ -174,14 +174,14 @@ const ListOfTutorPage = () => {
       });
       if (response.success) {
         fetchData();
-        toast.success(t("tutor.deleteSuccess"));
+        toast.success("Xóa thành công");
       } else {
         console.log("Failed to delete tutor");
-        toast.error(t("tutor.deleteFailed"));
+        toast.error("Xóa thất bại");
       }
     } catch (error) {
       console.error("An error occurred while deleting tutor:", error.message);
-      toast.error(t("tutor.deleteFailed"));
+      toast.error("Xóa thất bại");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -255,14 +255,14 @@ const ListOfTutorPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success(t("tutor.createSuccess"));
+        toast.success("Thêm thành công");
       } else {
         console.error("Failed to create tutor:", response.message);
-        toast.error(t("tutor.createFailed"));
+        toast.error("Thêm thất bại");
       }
     } catch (error) {
       console.error("An error occurred while creating tutor:", error.message);
-      toast.error(t("tutor.createFailed"));
+      toast.error("Thêm thất bại");
     }
   };
 
@@ -281,14 +281,14 @@ const ListOfTutorPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success(t("tutor.updateSuccess"));
+        toast.success("Cập nhật thành công");
       } else {
         console.error("Failed to update tutor:", response.message);
-        toast.error(t("tutor.updateFailed"));
+        toast.error("Cập nhật thất bại");
       }
     } catch (error) {
       console.error("An error occurred while updating tutor:", error.message);
-      toast.error(t("tutor.updateFailed"));
+      toast.error("Cập nhật thất bại");
     }
   };
 
@@ -356,6 +356,10 @@ const ListOfTutorPage = () => {
 
   const editFields = [
     { key: "userId", label: "Mã người dùng", readOnly: true },
+    { key: "majorName", label: "Ngành dạy", readOnly: true }, // Thêm ngành dạy
+    { key: "GPA", label: "Điểm số tổng thể", readOnly: true }, // Thêm điểm số tổng thể
+    { key: "univercity", label: "Trường đại học", readOnly: true }, // Thêm trường đại học
+    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true }, // Thêm chứng chỉ
     {
       key: "status",
       label: t("admin.status"),
@@ -365,10 +369,6 @@ const ListOfTutorPage = () => {
         { label: "Khóa", value: "BLOCKED" },
       ],
     },
-    { key: "majorName", label: "Ngành dạy", readOnly: true }, // Thêm ngành dạy
-    { key: "GPA", label: "Điểm số tổng thể", readOnly: true }, // Thêm điểm số tổng thể
-    { key: "univercity", label: "Trường đại học", readOnly: true }, // Thêm trường đại học
-    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true }, // Thêm chứng chỉ
   ];
 
   const childrenMiddleContentLower = (
