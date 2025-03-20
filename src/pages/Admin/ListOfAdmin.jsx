@@ -158,7 +158,6 @@ const ListOfAdminPage = () => {
       options: [
         { label: "Quản trị viên", value: "BEST_ADMIN" },
         { label: "Nhân viên", value: "ADMIN" },
-        { label: "Chưa biết", value: "UNKNOWN" },
       ],
       getValue: (option) => option, // Trả về value khi submit form
     },
@@ -213,7 +212,7 @@ const ListOfAdminPage = () => {
       birthday: admin.adminProfile.birthday,
       gender: admin.adminProfile.gender,
       workEmail: admin.adminProfile.workEmail,
-      roleId: admin.roleId === "BEST_ADMIN" ? "Quản trị viên" : "Nhân viên",
+      roleId: admin.roleId,
       status: admin.status,
     });
     setModalMode("edit");
@@ -237,16 +236,16 @@ const ListOfAdminPage = () => {
   };
 
   const handleCreateAdmin = async (formData) => {
-    const errors = validateAdminForm(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
+    // const errors = validateAdminForm(formData);
+    // if (Object.keys(errors).length > 0) {
+    //   setFormErrors(errors);
+    //   return;
+    // }
 
     // Chuyển đổi giá trị roleId trước khi gửi lên server
-    if (formData.roleId === "Quản trị viên") {
+    if (formData.roleId === "BEST_ADMIN") {
       formData.roleId = "BEST_ADMIN";
-    } else if (formData.roleId === "Nhân viên") {
+    } else if (formData.roleId === "ADMIN") {
       formData.roleId = "ADMIN";
     } else {
       formData.roleId = "UNKNOWN";
@@ -273,21 +272,11 @@ const ListOfAdminPage = () => {
   };
 
   const handleUpdateAdmin = async (formData) => {
-    const errors = validateAdminForm(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    // So sánh formData với modalData để xem có thay đổi không
-    const hasChanges = Object.keys(formData).some((key) => {
-      return formData[key] !== modalData[key];
-    });
-
-    if (!hasChanges) {
-      toast.warn("Không có thay đổi nào được thực hiện"); // Hiển thị thông báo nếu không có thay đổi
-      return;
-    }
+    // const errors = validateAdminForm(formData);
+    // if (Object.keys(errors).length > 0) {
+    //   setFormErrors(errors);
+    //   return;
+    // }
 
     const allowedFields = [
       "fullname",
@@ -297,7 +286,6 @@ const ListOfAdminPage = () => {
       "gender",
       "status",
       "roleId",
-      // ...
     ];
 
     const filteredData = Object.keys(formData)
@@ -308,25 +296,27 @@ const ListOfAdminPage = () => {
       }, {});
 
     // Chuyển đổi giá trị roleId trước khi gửi lên server
-    if (filteredData.roleId === "Quản trị viên") {
+    if (filteredData.roleId === "BEST_ADMIN") {
       filteredData.roleId = "BEST_ADMIN";
-    } else if (filteredData.roleId === "Nhân viên") {
+    } else if (filteredData.roleId === "ADMIN") {
       filteredData.roleId = "ADMIN";
     }
 
     // Chuyển đổi giá trị status trước khi gửi lên server
-    if (filteredData.status === "Đang hoạt động") {
+    if (filteredData.status === "ACTIVE") {
       filteredData.status = "ACTIVE";
-    } else if (filteredData.status === "Khóa") {
+    } else if (filteredData.status === "BLOCKED") {
       filteredData.status = "BLOCKED";
     }
 
     // Chuyển đổi giá trị gender trước khi gửi lên server
-    if (filteredData.gender === "nam") {
+    if (filteredData.gender === "MALE") {
       filteredData.gender = "MALE";
-    } else if (filteredData.gender === "nữ") {
+    } else if (filteredData.gender === "FEMALE") {
       filteredData.gender = "FEMALE";
     }
+
+    console.log("Updating admin with data:", filteredData);
 
     try {
       const response = await Api({
@@ -337,7 +327,7 @@ const ListOfAdminPage = () => {
 
       if (response.success) {
         handleSave();
-        toast.success("cập nhật thành công"); // Hiển thị thông báo thành công
+        toast.success("cập nhật thành công");
       } else {
         console.error("Failed to update admin:", response.message);
       }
@@ -345,6 +335,7 @@ const ListOfAdminPage = () => {
       console.error("An error occurred while updating admin:", error.message);
     }
   };
+
   const columns = [
     {
       title: "Mã NV",
@@ -380,7 +371,6 @@ const ListOfAdminPage = () => {
   ];
 
   const editFields = [
-    { key: "adminId", label: t("admin.id"), type: "text", readOnly: true },
     { key: "fullname", label: t("admin.name"), type: "text" },
     { key: "email", label: t("admin.email"), type: "text" },
     { key: "homeAddress", label: t("admin.homeAddress"), type: "text" },
@@ -393,7 +383,7 @@ const ListOfAdminPage = () => {
         { label: "nam", value: "MALE" },
         { label: "nữ", value: "FEMALE" },
       ],
-      getValue: (option) => option, 
+      getValue: (option) => option,
     },
     {
       key: "status",
@@ -403,7 +393,7 @@ const ListOfAdminPage = () => {
         { label: "Đang hoạt động", value: "ACTIVE" },
         { label: "Khóa", value: "BLOCKED" },
       ],
-      getValue: (option) => option, 
+      getValue: (option) => option,
     },
     {
       key: "roleId",
@@ -413,7 +403,7 @@ const ListOfAdminPage = () => {
         { label: "Quản trị viên", value: "BEST_ADMIN" },
         { label: "Nhân viên", value: "ADMIN" },
       ],
-      getValue: (option) => option, 
+      getValue: (option) => option,
     },
   ];
   const validateAdminForm = (formData) => {
@@ -433,12 +423,6 @@ const ListOfAdminPage = () => {
       errors.email = "Địa chỉ email không hợp lệ.";
     }
 
-    if (!formData.phoneNumber) {
-      errors.phoneNumber = "Vui lòng nhập số điện thoại.";
-    } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
-      errors.phoneNumber = "Số điện thoại không hợp lệ (10 chữ số).";
-    }
-
     if (!formData.homeAddress) {
       errors.homeAddress = "Vui lòng nhập địa chỉ nhà.";
     }
@@ -447,16 +431,12 @@ const ListOfAdminPage = () => {
       errors.gender = "Vui lòng chọn giới tính.";
     }
 
-    if (!formData.password && modalMode === "add") {
-      errors.password = "Vui lòng nhập mật khẩu.";
-    } else if (formData.password && formData.password.length < 6) {
-      errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+    if (!formData.status) {
+      errors.status = "Vui lòng chọn trạng thái.";
     }
 
-    if (!formData.confirmPassword && modalMode === "add") {
-      errors.confirmPassword = "Vui lòng xác nhận mật khẩu.";
-    } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "Mật khẩu không khớp.";
+    if (!formData.roleId) {
+      errors.roleId = "Vui lòng chọn vai trò.";
     }
 
     return errors;

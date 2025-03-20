@@ -9,10 +9,8 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
-import i18n from "../../i18n";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
-import { formatInTimeZone } from "date-fns-tz";
 import qs from "qs";
 import { Alert } from "@mui/material";
 import unidecode from "unidecode";
@@ -200,13 +198,18 @@ const ListOfTutorPage = () => {
       birthday: tutor.userProfile?.birthday || "",
       gender: tutor.userProfile?.gender || "",
       status: tutor.checkActive === "ACTIVE" ? "Hoạt động" : "Khóa",
+      majorName: tutor.userProfile?.major?.majorName || "", // Thêm ngành dạy
+      GPA: tutor.tutorProfile?.GPA || "", // Thêm điểm số tổng thể
+      univercity: tutor.tutorProfile?.univercity || "", // Thêm trường đại học
+      educationalCertification:
+        tutor.tutorProfile?.educationalCertification || "", // Thêm chứng chỉ
     });
     setModalMode("view");
     setIsModalOpen(true);
   };
 
   const handleEdit = (tutor) => {
-    const status = tutor.checkActive === "ACTIVE" ? "Hoạt động" : "Khóa";
+    const status = tutor.checkActive; // Lấy trực tiếp giá trị checkActive
     setModalData({
       userId: tutor.userId,
       fullname: tutor.userProfile?.fullname || "",
@@ -215,7 +218,12 @@ const ListOfTutorPage = () => {
       homeAddress: tutor.userProfile?.homeAddress || "",
       birthday: tutor.userProfile?.birthday || "",
       gender: tutor.userProfile?.gender || "",
-      status: status,
+      status: status, // Gán giá trị checkActive cho status
+      majorName: tutor.userProfile?.major?.majorName || "", // Thêm ngành dạy
+      GPA: tutor.tutorProfile?.GPA || "", // Thêm điểm số tổng thể
+      univercity: tutor.tutorProfile?.univercity || "", // Thêm trường đại học
+      educationalCertification:
+        tutor.tutorProfile?.educationalCertification || "", // Thêm chứng chỉ
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -261,7 +269,7 @@ const ListOfTutorPage = () => {
   const handleUpdateTutor = async (formData) => {
     // Only allow status updates
     const updateData = {
-      checkActive: formData.status === "Hoạt động" ? "ACTIVE" : "BLOCKED",
+      checkActive: formData.status, // Lấy giá trị status trực tiếp từ form
     };
 
     try {
@@ -285,7 +293,6 @@ const ListOfTutorPage = () => {
   };
 
   const columns = [
-    { title: "Mã người dùng", dataKey: "userId", sortable: true },
     {
       title: t("admin.name"),
       dataKey: "userProfile.fullname",
@@ -298,20 +305,19 @@ const ListOfTutorPage = () => {
     },
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
     {
-      title: t("common.createdAt"),
-      dataKey: "createdAt",
+      title: "Giới tính",
+      dataKey: "userProfile.gender",
       sortable: true,
       renderCell: (value) => {
-        const timeZone =
-          i18n.language === "vi" ? "Asia/Ho_Chi_Minh" : "America/New_York";
-        return formatInTimeZone(
-          new Date(value),
-          timeZone,
-          "ss:mm:HH dd-MM-yyyy"
-        );
+        if (value === "MALE") return "Nam";
+        if (value === "FEMALE") return "Nữ";
       },
     },
-    { title: t("common.createdBy"), dataKey: "createdBy", sortable: true },
+    {
+      title: "Hạng gia sư",
+      dataKey: "tutorProfile.tutorLevel.levelName",
+      sortable: true,
+    },
     {
       title: t("admin.status"),
       dataKey: "checkActive",
@@ -342,6 +348,10 @@ const ListOfTutorPage = () => {
       type: "select",
       options: ["PENDING", "ACTIVE", "INACTIVE"],
     },
+    { key: "majorName", label: "Ngành dạy", readOnly: true }, // Thêm ngành dạy
+    { key: "GPA", label: "Điểm số tổng thể", readOnly: true }, // Thêm điểm số tổng thể
+    { key: "univercity", label: "Trường đại học", readOnly: true }, // Thêm trường đại học
+    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true }, // Thêm chứng chỉ
   ];
 
   const editFields = [
@@ -350,8 +360,15 @@ const ListOfTutorPage = () => {
       key: "status",
       label: t("admin.status"),
       type: "select",
-      options: ["Hoạt động", "Khóa"],
+      options: [
+        { label: "Hoạt động", value: "ACTIVE" },
+        { label: "Khóa", value: "BLOCKED" },
+      ],
     },
+    { key: "majorName", label: "Ngành dạy", readOnly: true }, // Thêm ngành dạy
+    { key: "GPA", label: "Điểm số tổng thể", readOnly: true }, // Thêm điểm số tổng thể
+    { key: "univercity", label: "Trường đại học", readOnly: true }, // Thêm trường đại học
+    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true }, // Thêm chứng chỉ
   ];
 
   const childrenMiddleContentLower = (

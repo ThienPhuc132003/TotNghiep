@@ -45,10 +45,9 @@ const ListOfSubjectPage = () => {
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
+    if (sortConfig.key) params.append("sortKey", sortConfig.key);
+    if (sortConfig.direction)
       params.append("sortDirection", sortConfig.direction);
-    }
     params.append("page", currentPage + 1);
     window.history.pushState({}, "", `?${params.toString()}`);
   }, [searchQuery, sortConfig, currentPage]);
@@ -63,15 +62,13 @@ const ListOfSubjectPage = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const initialSearchQuery = params.get("searchQuery") || "";
-    const initialSortKey = params.get("sortKey") || "";
-    const initialSortDirection = params.get("sortDirection") || "asc";
-    const initialPage = parseInt(params.get("page") || "1", 10) - 1;
-
-    setSearchQuery(initialSearchQuery);
-    setSortConfig({ key: initialSortKey, direction: initialSortDirection });
-    setCurrentPage(initialPage);
-    setSearchInput(initialSearchQuery);
+    setSearchQuery(params.get("searchQuery") || "");
+    setSortConfig({
+      key: params.get("sortKey") || "",
+      direction: params.get("sortDirection") || "asc",
+    });
+    setCurrentPage(parseInt(params.get("page") || "1", 10) - 1);
+    setSearchInput(params.get("searchQuery") || "");
   }, []);
 
   useEffect(() => {
@@ -121,7 +118,7 @@ const ListOfSubjectPage = () => {
   const fetchMajors = useCallback(async (search = "") => {
     try {
       const query = {
-        rpp: 100, // Lấy tối đa 100 ngành học
+        rpp: 100,
         page: 1,
         filter: search
           ? JSON.stringify([
@@ -138,6 +135,7 @@ const ListOfSubjectPage = () => {
 
       if (response.success) {
         setMajors(response.data.items);
+        console.log("Majors fetched successfully:", response.data.items); // Kiểm tra dữ liệu trả về
       } else {
         console.error("Failed to fetch majors:", response.message);
       }
@@ -165,8 +163,8 @@ const ListOfSubjectPage = () => {
     const filtered = data.filter((item) => {
       const subjectId = item?.subjectId || "";
       const subjectName = item?.subjectName || "";
-      const majorName = item && item.major ? item.major.majorName || "" : "";
-      const majorIdValue = item && item.major ? item.major.majorId || "" : "";
+      const majorName = item?.major?.majorName || "";
+      const majorIdValue = item?.major?.majorId || "";
 
       const normalizedSubjectId = unidecode(subjectId.toLowerCase());
       const normalizedSubjectName = unidecode(subjectName.toLowerCase());
@@ -227,7 +225,6 @@ const ListOfSubjectPage = () => {
     setModalData({
       subjectName: "",
       majorId: "",
-      major: null,
     });
     setIsModalOpen(true);
     setFormErrors({});
@@ -365,7 +362,10 @@ const ListOfSubjectPage = () => {
       key: "majorId",
       label: "Ngành", // Thay đổi label
       type: "select",
-      options: majors.map((major) => major.majorId),
+      options: majors.map((major) => ({
+        label: major.majorName,
+        value: major.majorId,
+      })),
       renderOption: (option) => {
         // Hiển thị majorName trong dropdown
         const major = majors.find((major) => major.majorId === option);
@@ -382,7 +382,10 @@ const ListOfSubjectPage = () => {
       key: "majorId",
       label: "Ngành", // Thay đổi label
       type: "select",
-      options: majors.map((major) => major.majorId),
+      options: majors.map((major) => ({
+        label: major.majorName,
+        value: major.majorId,
+      })),
       renderOption: (option) => {
         // Hiển thị majorName trong dropdown
         const major = majors.find((major) => major.majorId === option);

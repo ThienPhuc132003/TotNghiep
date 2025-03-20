@@ -45,6 +45,7 @@ const FormDetailComponent = ({
             <div className="form-group" key={field.key}>
               <label>{t(field.label)}</label>
               {field.type === "select" ? (
+                // Hiển thị select box, nhưng disable nếu là chế độ view
                 <select
                   name={field.key}
                   value={formData[field.key] || ""}
@@ -54,9 +55,6 @@ const FormDetailComponent = ({
                     mode === "view" || field.readOnly ? "non-fillable" : ""
                   }
                 >
-                  {mode !== "edit" && (
-                    <option value="">Chọn</option>
-                  )}
                   {field.options &&
                     field.options.map((option) => (
                       <option key={option.value} value={option.value}>

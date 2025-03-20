@@ -205,7 +205,6 @@ const ListOfStudentPage = () => {
   };
 
   const handleEdit = (student) => {
-    const status = student.checkActive === "ACTIVE" ? "Hoạt động" : "Khóa";
     setModalData({
       userId: student.userId,
       fullname: student.userProfile?.fullname || "",
@@ -214,7 +213,9 @@ const ListOfStudentPage = () => {
       homeAddress: student.userProfile?.homeAddress || "",
       birthday: student.userProfile?.birthday || "",
       gender: student.userProfile?.gender || "",
-      status: status,
+      roleId: student.roleId,
+      status: student.status,
+      checkActive: student.checkActive,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -258,9 +259,11 @@ const ListOfStudentPage = () => {
   };
 
   const handleUpdateStudent = async (formData) => {
-    // Only allow status updates
+    // Only allow status, roleId and checkActive updates
     const updateData = {
-      checkActive: formData.status === "Hoạt động" ? "ACTIVE" : "BLOCKED",
+      roleId: formData.roleId,
+      status: formData.status,
+      checkActive: formData.checkActive,
     };
 
     try {
@@ -328,15 +331,40 @@ const ListOfStudentPage = () => {
 
   const editFields = [
     { key: "userId", label: "Mã người dùng", readOnly: true },
-    { key: "fullname", label: t("admin.name") },
-    { key: "phoneNumber", label: t("admin.phone") },
-    { key: "degree", label: "trình độ học vấn" },
-    { key: "userProfile.major", label: "Chuyên ngành" },
+    { key: "fullname", label: "Tên", readOnly: true },
+    { key: "email", label: "Email", readOnly: true },
+    { key: "phoneNumber", label: "Số điện thoại", readOnly: true },
+    { key: "homeAddress", label: "Địa chỉ", readOnly: true },
+    { key: "birthday", label: "Ngày sinh", readOnly: true },
+    { key: "gender", label: "Giới tính", readOnly: true },
+    {
+      key: "roleId",
+      label: "Loại tài khoản",
+      type: "select",
+      options: [
+        { label: "Người dùng", value: "USER" },
+        { label: "Gia sư", value: "TUTOR" },
+      ],
+    },
     {
       key: "status",
-      label: t("admin.status"),
+      label: "Trạng thái",
       type: "select",
-      options: ["Hoạt động", "Khóa"],
+      options: [
+        { label: "Chờ duyệt", value: "PENDING" },
+        { label: "Yêu cầu", value: "REQUEST" },
+        { label: "Chấp nhận", value: "ACCEPT" },
+        { label: "Từ chối", value: "REFUSE" },
+      ],
+    },
+    {
+      key: "checkActive",
+      label: "Kích hoạt",
+      type: "select",
+      options: [
+        { label: "Hoạt động", value: "ACTIVE" },
+        { label: "Khóa", value: "BLOCKED" },
+      ],
     },
   ];
   const childrenMiddleContentLower = (
