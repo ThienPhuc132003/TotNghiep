@@ -22,6 +22,10 @@ const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const OtpVerifyRegister = lazy(() => import("./pages/User/OtpVerifyRegister"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
+const AboutUs = lazy(() => import("./pages/User/AboutUs"));
+const TutorSearch = lazy(() => import("./pages/User/TutorSearch"));
+
+const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
 
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
@@ -39,6 +43,7 @@ const ListOfStudent = lazy(() => import("./pages/Admin/ListOfStudent"));
 const ListOfTutor = lazy(() => import("./pages/Admin/ListOfTutor"));
 const ListOfTutorLevel = lazy(() => import("./pages/Admin/ListOfTutorLevel"));
 const ListOfSubject = lazy(() => import("./pages/Admin/ListOfSubject"));
+const ListOfCurriculumn = lazy(() => import("./pages/Admin/ListOfCurriculumn"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -48,11 +53,18 @@ function App() {
         <PersistGate loading={null} persistor={persistor}>
           <Routes>
             <Route path="/home" element={<HomePage />} />
+            <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/otp-verify" element={<OtpVerify />} />
+            <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
+            <Route
+              path="/admin/auth/callback"
+              element={<MicrosoftCallback />}
+            />
             <Route
               path="/otp-verify-register"
               element={<OtpVerifyRegister />}
@@ -84,6 +96,7 @@ function App() {
               <Route path="gia-su" element={<ListOfTutor />} />
               <Route path="hang-gia-su" element={<ListOfTutorLevel />} />
               <Route path="mon-hoc" element={<ListOfSubject />} />
+              <Route path="giao-trinh" element={<ListOfCurriculumn />} />
             </Route>
           </Routes>
         </PersistGate>

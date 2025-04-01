@@ -1,4 +1,3 @@
-// src/pages/Admin/ListOfTutor.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
@@ -187,7 +186,6 @@ const ListOfTutorPage = () => {
       setDeleteItemId(null);
     }
   };
-
   const handleView = (tutor) => {
     setModalData({
       userId: tutor.userId,
@@ -197,38 +195,39 @@ const ListOfTutorPage = () => {
       homeAddress: tutor.userProfile?.homeAddress || "",
       birthday: tutor.userProfile?.birthday || "",
       gender: tutor.userProfile?.gender || "",
-      status: tutor.checkActive === "ACTIVE" ? "Hoạt động" : "Khóa",
-      majorName: tutor.userProfile?.major?.majorName || "", // Thêm ngành dạy
-      GPA: tutor.tutorProfile?.GPA || "", // Thêm điểm số tổng thể
-      univercity: tutor.tutorProfile?.univercity || "", // Thêm trường đại học
+      checkActive: tutor.checkActive === "ACTIVE" ? "Hoạt động" : "Khóa",
+      majorName: tutor.userProfile?.major?.majorName || "",
+      GPA: tutor.tutorProfile?.GPA || "",
+      univercity: tutor.tutorProfile?.univercity || "",
       educationalCertification:
-        tutor.tutorProfile?.educationalCertification || "", // Thêm chứng chỉ
+        tutor.tutorProfile?.educationalCertification || "",
+      status: tutor.status, // Thêm status
+      roleId: tutor.roleId, // Thêm roleId
     });
     setModalMode("view");
     setIsModalOpen(true);
   };
-
-  const handleEdit = (tutor) => {
-    const status = tutor.checkActive; // Lấy trực tiếp giá trị checkActive
-    setModalData({
-      userId: tutor.userId,
-      fullname: tutor.userProfile?.fullname || "",
-      email: tutor.email,
-      phoneNumber: tutor.phoneNumber,
-      homeAddress: tutor.userProfile?.homeAddress || "",
-      birthday: tutor.userProfile?.birthday || "",
-      gender: tutor.userProfile?.gender || "",
-      status: status, // Gán giá trị checkActive cho status
-      majorName: tutor.userProfile?.major?.majorName || "", // Thêm ngành dạy
-      GPA: tutor.tutorProfile?.GPA || "", // Thêm điểm số tổng thể
-      univercity: tutor.tutorProfile?.univercity || "", // Thêm trường đại học
-      educationalCertification:
-        tutor.tutorProfile?.educationalCertification || "", // Thêm chứng chỉ
-    });
-    setModalMode("edit");
-    setIsModalOpen(true);
-    setFormErrors({});
-  };
+  // const handleEdit = (tutor) => {
+  //   const status = tutor.checkActive;
+  //   setModalData({
+  //     userId: tutor.userId,
+  //     fullname: tutor.userProfile?.fullname || "",
+  //     email: tutor.email,
+  //     phoneNumber: tutor.phoneNumber,
+  //     homeAddress: tutor.userProfile?.homeAddress || "",
+  //     birthday: tutor.userProfile?.birthday || "",
+  //     gender: tutor.gender || "",
+  //     status: status,
+  //     majorName: tutor.userProfile?.major?.majorName || "",
+  //     GPA: tutor.tutorProfile?.GPA || "",
+  //     univercity: tutor.tutorProfile?.univercity || "",
+  //     educationalCertification:
+  //       tutor.tutorProfile?.educationalCertification || "",
+  //   });
+  //   setModalMode("edit");
+  //   setIsModalOpen(true);
+  //   setFormErrors({});
+  // };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -267,9 +266,8 @@ const ListOfTutorPage = () => {
   };
 
   const handleUpdateTutor = async (formData) => {
-    // Only allow status updates
     const updateData = {
-      checkActive: formData.status, // Lấy giá trị status trực tiếp từ form
+      checkActive: formData.status,
     };
 
     try {
@@ -291,7 +289,49 @@ const ListOfTutorPage = () => {
       toast.error("Cập nhật thất bại");
     }
   };
+  const handleLock = async (tutor) => {
+    const newCheckActive =
+      tutor.checkActive === "ACTIVE" ? "BLOCKED" : "ACTIVE";
 
+    try {
+      const response = await Api({
+        endpoint: `user/update-user-by-id/${tutor.userId}`,
+        method: METHOD_TYPE.PUT,
+        data: { checkActive: newCheckActive },
+      });
+
+      if (response.success) {
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.userId === tutor.userId
+              ? { ...item, checkActive: newCheckActive }
+              : item
+          )
+        );
+        setFilteredData((prevFilteredData) =>
+          prevFilteredData.map((item) =>
+            item.userId === tutor.userId
+              ? { ...item, checkActive: newCheckActive }
+              : item
+          )
+        );
+
+        toast.success(
+          `Gia sư ${tutor.userProfile?.fullname} đã được ${
+            newCheckActive === "ACTIVE" ? "mở khóa" : "khóa"
+          } thành công!`
+        );
+      } else {
+        toast.error(
+          `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
+        );
+        console.error("Failed to update tutor:", response.message);
+      }
+    } catch (error) {
+      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
+      console.error("An error occurred while updating tutor:", error.message);
+    }
+  };
   const columns = [
     {
       title: t("admin.name"),
@@ -331,16 +371,22 @@ const ListOfTutorPage = () => {
   ];
 
   const addFields = [
-    { key: "fullname", label: t("admin.name") },
-    { key: "email", label: t("admin.email") },
-    { key: "phoneNumber", label: t("admin.phone") },
-    { key: "homeAddress", label: t("admin.homeAddress") },
-    { key: "birthday", label: t("admin.birthday"), type: "date" },
+    { key: "fullname", label: t("admin.name"), readOnly: true },
+    { key: "email", label: t("admin.email"), readOnly: true },
+    { key: "phoneNumber", label: t("admin.phone"), readOnly: true },
+    { key: "homeAddress", label: t("admin.homeAddress"), readOnly: true },
+    {
+      key: "birthday",
+      label: t("admin.birthday"),
+      type: "date",
+      readOnly: true,
+    },
     {
       key: "gender",
       label: t("admin.gender"),
       type: "select",
       options: ["MALE", "FEMALE"],
+      readOnly: true,
     },
     {
       key: "status",
@@ -348,29 +394,39 @@ const ListOfTutorPage = () => {
       type: "select",
       options: ["PENDING", "ACTIVE", "INACTIVE"],
     },
-    { key: "majorName", label: "Ngành dạy", readOnly: true }, // Thêm ngành dạy
-    { key: "GPA", label: "Điểm số tổng thể", readOnly: true }, // Thêm điểm số tổng thể
-    { key: "univercity", label: "Trường đại học", readOnly: true }, // Thêm trường đại học
-    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true }, // Thêm chứng chỉ
+    { key: "majorName", label: "Ngành dạy", readOnly: true },
+    { key: "GPA", label: "Điểm số tổng thể", readOnly: true },
+    { key: "univercity", label: "Trường đại học", readOnly: true },
+    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true },
   ];
 
   const editFields = [
     { key: "userId", label: "Mã người dùng", readOnly: true },
-    { key: "majorName", label: "Ngành dạy", readOnly: true }, // Thêm ngành dạy
-    { key: "GPA", label: "Điểm số tổng thể", readOnly: true }, // Thêm điểm số tổng thể
-    { key: "univercity", label: "Trường đại học", readOnly: true }, // Thêm trường đại học
-    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true }, // Thêm chứng chỉ
+    { key: "fullname", label: t("admin.name"), readOnly: true },
+    { key: "email", label: t("admin.email"), readOnly: true },
+    { key: "phoneNumber", label: t("admin.phone"), readOnly: true },
+    { key: "homeAddress", label: t("admin.homeAddress"), readOnly: true },
     {
-      key: "status",
-      label: t("admin.status"),
+      key: "birthday",
+      label: t("admin.birthday"),
+      type: "date",
+      readOnly: true,
+    },
+    {
+      key: "gender",
+      label: t("admin.gender"),
       type: "select",
       options: [
-        { label: "Hoạt động", value: "ACTIVE" },
-        { label: "Khóa", value: "BLOCKED" },
+        { label: "Nam", value: "MALE" },
+        { label: "Nữ", value: "FEMALE" },
       ],
+      readOnly: true,
     },
+    { key: "majorName", label: "Ngành dạy", readOnly: true },
+    { key: "GPA", label: "Điểm số tổng thể", readOnly: true },
+    { key: "univercity", label: "Trường đại học", readOnly: true },
+    { key: "educationalCertification", label: "Chứng chỉ", readOnly: true },
   ];
-
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
@@ -401,7 +457,6 @@ const ListOfTutorPage = () => {
           columns={columns}
           data={filteredData}
           onView={handleView}
-          onEdit={handleEdit}
           onDelete={(tutor) => handleDelete(tutor.userId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
@@ -411,6 +466,9 @@ const ListOfTutorPage = () => {
           error={error}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
+          onLock={handleLock}
+          showLock={true}
+          statusKey="checkActive"
         />
       </div>
     </>

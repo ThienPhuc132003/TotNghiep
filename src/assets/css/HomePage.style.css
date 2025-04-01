@@ -1,57 +1,132 @@
-/* Reset CSS to ensure consistency across browsers */
+/* Reset CSS */
 body,
 h1,
 h2,
 h3,
 p,
 ul,
-li {
+li,
+figure,
+blockquote,
+button,
+input,
+select,
+textarea {
   margin: 0;
   padding: 0;
   border: 0;
   font-size: 100%;
   font: inherit;
   vertical-align: baseline;
+  box-sizing: border-box; /* Nhất quán box-sizing */
 }
-
-/* Màu chủ đạo: rgba(215, 33, 52, 1), Đen, Trắng */
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: "";
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+} /* Thêm svg */
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+} /* Reset button */
+a {
+  text-decoration: none;
+  color: inherit;
+} /* Reset link */
+input,
+select,
+textarea {
+  outline: none;
+} /* Bỏ outline mặc định */
 
 /* Base Styles */
-.home-page {
+body {
   font-family: "Roboto", sans-serif;
-  /* Modern font */
-  color: rgba(45, 51, 77, 1);
-  line-height: 1.7; /* Improved line height */
-  overflow-x: hidden;
+  color: #333;
+  line-height: 1.6;
+  background-color: #f8f9fa; /* Màu nền sáng hơn một chút */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .home-page-content {
-  margin: 0 auto;
+  overflow-x: hidden;
 }
 
 /* General Section Styling */
 .section {
+  padding: 4rem 1rem;
+  margin: 0 auto;
+  text-align: center;
   background-color: #fff;
-  border-radius: 15px;
-  padding: 3rem;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
-  transition: box-shadow 0.3s ease;
+  border-bottom: 1px solid #eee; /* Thêm đường kẻ mỏng giữa các section */
+}
+.section:last-of-type {
+  border-bottom: none; /* Bỏ border cho section cuối */
 }
 
-.section:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+/* Section Titles */
+.section h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  color: rgba(215, 33, 52, 1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+.section h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background-color: rgba(215, 33, 52, 0.5);
+  border-radius: 2px;
 }
 
-/* Hero Section */
+/* --- Hero Section --- */
 .hero {
-  background-size: cover;
-  background-position: center;
   color: white;
-  padding: 12.8rem 0;
+  padding: 6rem 1rem;
   position: relative;
   width: 100%;
-  z-index: 2;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background-color: #333; /* Màu nền dự phòng nếu ảnh không tải được */
+  border-bottom: none; /* Hero không cần border bottom */
 }
+
 .welcomeTheme {
   position: absolute;
   top: 0;
@@ -59,8 +134,9 @@ li {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1; /* Đặt hình ảnh phía sau nội dung */
+  z-index: 1; /* Ảnh nền nằm dưới lớp phủ */
 }
+
 .hero::before {
   content: "";
   position: absolute;
@@ -70,514 +146,820 @@ li {
   height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(45, 51, 77, 0.2),
-    rgba(45, 51, 77, 0.6)
-  ); /* Gradient overlay */
-  z-index: 1;
+    rgba(45, 51, 77, 0.4),
+    rgba(45, 51, 77, 0.7)
+  );
+  z-index: 2; /* Lớp phủ nằm trên ảnh nền */
 }
 
 .hero-content {
-  max-width: 900px;
-  padding: 0 2rem;
+  max-width: 1200px;
+  padding: 0 1rem;
   position: relative;
-  z-index: 2;
-  margin-left: 76px;
+  z-index: 3; /* Nội dung nằm trên lớp phủ */
+  width: 100%;
 }
 
 .hero h1 {
-  font-weight: bold;
-  font-size: 4.5rem;
-  margin-bottom: 1.5rem;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+  font-weight: 700;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
 }
 
 .hero p {
-  font-weight: bold;
-  font-size: 1.7rem;
-  line-height: 2;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  margin-bottom: 2.5rem; /* Tăng khoảng cách */
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.cta-button,
-.view-all-tutors,
-.tutor-filter button[type="submit"] {
-  background-color: rgba(215, 33, 52, 1);
-  /* Main Red Color */
-  color: white;
-  padding: 1.3rem 3rem;
+/* --- Search Form Styles --- */
+.search-form {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.search-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.97); /* Nền trắng hơn chút */
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12); /* Shadow rõ hơn */
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #d1d5db; /* Màu border xám nhẹ mặc định */
+  border-radius: 30px;
+  padding: 0 1rem 0 2.8rem; /* Tăng padding trái */
+  height: 50px;
+  flex: 1 1 200px;
+  min-width: 180px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Thêm transition shadow */
+}
+
+/* Style focus-within chung (Sẽ bị ghi đè bởi rule bên dưới nếu có class js-no-focus-highlight) */
+.search-input-wrapper:focus-within {
+  border-color: rgba(215, 33, 52, 1); /* Viền đỏ khi focus */
+  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.2); /* Shadow đỏ mờ */
+}
+
+/* Ghi đè style focus-within cho tất cả wrapper có class js-no-focus-highlight */
+.search-input-wrapper.js-no-focus-highlight:focus-within {
+  border-color: #d1d5db; /* Trả lại màu border mặc định */
+  box-shadow: none; /* Loại bỏ box-shadow */
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 1.1rem; /* Điều chỉnh vị trí icon */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280; /* Màu icon xám đậm hơn */
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.search-input-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  height: 100%;
+  padding: 0 2rem 0 0; /* Tăng padding phải cho mũi tên */
   border: none;
-  border-radius: 40px;
-  /* Even more rounded corners */
-  font-size: 1.4rem;
+  background-color: transparent;
+  font-size: 1rem;
+  color: #374151; /* Màu text đậm hơn */
+  cursor: pointer;
+}
+/* Mũi tên dropdown tùy chỉnh */
+.search-input-wrapper::after {
+  content: "\f078"; /* Font Awesome down arrow */
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 1.2rem; /* Điều chỉnh vị trí mũi tên */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af; /* Màu mũi tên */
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+
+.search-inputs button[type="submit"] {
+  background-color: rgba(45, 51, 77, 1);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  height: 50px;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.search-inputs button[type="submit"]:hover {
+  background-color: rgba(215, 33, 52, 1);
+  transform: scale(1.1);
+}
+
+/* --- CTA Button (Hero & View All Tutors) --- */
+.cta-button,
+.view-all-tutors {
+  background-color: rgba(215, 33, 52, 1);
+  color: white;
+  padding: 0.9rem 2.5rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease,
     box-shadow 0.3s ease;
-  /* Add box-shadow transition */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-  /* Add a subtle shadow */
-  margin-top: 2rem;
-}
-
-.cta-button:hover,
-.view-all-tutors:hover,
-.tutor-filter button[type="submit"]:hover {
-  background-color: rgba(45, 51, 77, 1);
-  /* Dark Blue Color on Hover */
-  transform: scale(1.07);
-  /* Slight scale-up on hover */
-  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.4);
-  /* Increase shadow on hover */
-}
-
-.hero-image img {
-  display: none;
-  /* Hide the image for a cleaner look */
-}
-
-/* Benefits Section */
-.benefits {
-  text-align: center;
-  padding: 5rem 0;
-}
-
-.benefits h2 {
-  font-size: 3.5rem;
-  margin-bottom: 4rem;
-  color: rgba(215, 33, 52, 1);
-  /* Emphasize section title */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow nhẹ hơn */
+  margin-top: 2.5rem;
+  display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+}
+.cta-button:hover,
+.view-all-tutors:hover {
+  background-color: rgba(190, 28, 45, 1); /* Màu đỏ đậm hơn khi hover */
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
 }
 
+/* --- Benefits Section --- */
+.benefits {
+  background-color: #f9fafb;
+  padding: 4rem 1rem;
+}
 .benefits-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 3rem;
-  padding: 0 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-
 .benefit {
-  padding: 3rem;
-  border-radius: 18px;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.benefit:hover {
-  transform: translateY(-7px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.benefit-icon {
-  font-size: 6rem;
-  color: rgba(215, 33, 52, 1);
-  margin-bottom: 2rem;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.benefit h3 {
-  font-size: 2.2rem;
-  margin-bottom: 1.2rem;
-  color: rgba(45, 51, 77, 1);
-}
-
-.benefit p {
-  font-size: 1.3rem;
-  line-height: 1.9;
-}
-
-/* Popular Subjects Section */
-.popular-subjects {
   display: flex;
   flex-direction: column;
-  
-  background-color: #f9f9f9;
-}
-
-.popular-subjects h2 {
-  font-size: 3.5rem;
-  margin-bottom: 4rem;
-  color: rgba(215, 33, 52, 1);
-  /* Emphasize section title */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.subject-item:hover {
-  background-color: #ddd;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  /* Slight lift and shadow increase on hover */
-}
-
-/* How It Works Section */
-.how-it-works {
+  align-items: center;
   text-align: center;
-}
-
-.how-it-works h2 {
-  font-size: 3.5rem;
-  margin-bottom: 4rem;
-  color: rgba(215, 33, 52, 1);
-  /* Emphasize section title */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 4rem;
-  padding: 0 3rem;
-}
-
-.step {
-  padding: 4rem;
-  border-radius: 20px;
-  text-align: center;
+  padding: 2.5rem 1.5rem; /* Tăng padding */
+  border-radius: 15px;
+  background-color: #fff;
+  box-shadow: 0 6px 15px rgba(45, 51, 77, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* Add box-shadow transition */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.07);
-  /* Subtle shadow */
+  flex: 1 1 300px;
+  max-width: 350px;
 }
-
-.step:hover {
-  transform: translateY(-7px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  /* Increase shadow on hover */
+.benefit:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(45, 51, 77, 0.12); /* Shadow rõ hơn khi hover */
 }
-
-.step-icon {
-  font-size: 7rem;
-  color: rgba(215, 33, 52, 1);
-  margin-bottom: 2rem;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.step h3 {
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  color: rgba(45, 51, 77, 1);
-}
-
-.step p {
-  font-size: 1.3rem;
-  line-height: 1.9;
-}
-
-/* Tutor Filter Section */
-.tutor-filter {
-  background-color: #f9f9f9;
-  padding: 4rem;
-  border-radius: 20px;
-}
-
-.tutor-filter h2 {
-  font-size: 2.5rem;
-  margin-bottom: 2.5rem;
-  color: rgba(45, 51, 77, 1);
-  text-align: center; /* Center the heading */
-}
-
-.filter-group {
-  margin-bottom: 2rem;
-}
-
-.filter-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: rgba(45, 51, 77, 1);
-  font-size: 1.2rem;
-}
-
-.filter-group select {
-  width: 100%;
-  padding: 1.2rem;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  font-size: 1.2rem;
-  color: rgba(45, 51, 77, 1);
-  background-color: white;
-  transition: border-color 0.3s ease;
-}
-
-.filter-group select:focus {
-  border-color: rgba(215, 33, 52, 1);
-  /* Highlight color on focus */
-  outline: none;
-  /* Remove default focus outline */
-}
-
-/* Testimonials Section */
-.testimonials {
-  padding: 5rem 0;
-  text-align: center;
-  background-color: #f0f0f0;
-}
-
-.testimonials h2 {
+.benefit-icon {
   font-size: 3.5rem;
-  margin-bottom: 4rem;
+  margin-bottom: 1.5rem;
   color: rgba(215, 33, 52, 1);
-  /* Emphasize section title */
-  text-transform: uppercase;
-  letter-spacing: 1px;
+}
+.benefit h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: rgba(45, 51, 77, 1);
+}
+.benefit p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #555;
 }
 
-.testimonial {
-  max-width: 900px;
+/* --- Popular Subjects Section --- */
+.popular-subjects {
+  background-color: rgba(24, 61, 129, 1);
+  padding: 4rem 0;
+}
+.popular-subjects h2 {
+  color: white;
+}
+.popular-subjects h2::after {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.subjects-slider {
+  padding: 0 3rem;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 4rem;
-  background-color: white;
-  border-radius: 20px;
-  font-style: italic;
-  margin-bottom: 4rem;
-  text-align: left;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
-  /* Add subtle shadow */
-  transition: transform 0.3s ease;
 }
-
-.testimonial:hover {
-  transform: translateY(-7px);
+.subject-slide {
+  padding: 0 0.5rem;
 }
-
-.testimonial img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
+.subject-item {
+  height: 220px;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* Tăng shadow */
+  cursor: pointer; /* Thêm cursor nếu đây là link */
+}
+.subject-item:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+.subject-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  margin-bottom: 1rem;
-  margin-right: 1rem;
-  float: left;
+  z-index: 1;
+  transition: transform 0.4s ease;
+}
+.subject-item:hover .subject-img {
+  transform: scale(1.1);
+}
+.subject-img-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+  z-index: 2;
+}
+.subject-item p {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  color: white;
+  font-size: 1.1rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-.testimonial p {
-  text-align: left;
-  font-size: 1.3rem;
-  line-height: 2;
+/* --- Slick Slider Arrows (Chung cho các slider) --- */
+.custom-slick-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9); /* Nền trắng hơn */
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Tăng shadow */
+  border: none;
+  color: rgba(45, 51, 77, 0.9); /* Màu icon đậm hơn */
+  font-size: 1.2rem;
 }
-
-.testimonial p:last-child {
-  text-align: right;
-  font-style: normal;
-  font-weight: bold;
-  color: rgba(45, 51, 77, 1);
-}
-
-/* Tutor Profiles Section */
-.tutor-profiles {
-  text-align: center;
-  padding: 5rem 0;
-}
-
-.tutor-profiles h2 {
-  font-size: 3.5rem;
-  margin-bottom: 4rem;
+.custom-slick-arrow:hover {
+  background: white;
   color: rgba(215, 33, 52, 1);
-  /* Emphasize section title */
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.custom-slick-arrow.slick-disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+.custom-slick-prev {
+  left: -15px;
+}
+.custom-slick-next {
+  right: -15px;
 }
 
+/* --- Tutor Profiles Section --- */
+.tutor-profiles {
+  background-color: #fff;
+  padding: 4rem 0;
+}
 .tutor-slider {
-  padding: 0 4rem;
+  padding: 0 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-
 .tutor-slide {
-  padding: 0 1.5rem;
-  transition: transform 0.3s ease;
+  padding: 0 0.75rem;
 }
-
 .tutor {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2.5rem;
-  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  border-radius: 15px;
   text-align: center;
+  background-color: #f9fafb;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* Add box-shadow transition */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.07);
-  /* Subtle shadow */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); /* Tăng shadow */
+  height: 100%;
+  min-height: 380px; /* Đảm bảo chiều cao tối thiểu */
 }
-
 .tutor:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  /* Increase shadow on hover */
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(45, 51, 77, 0.12);
 }
-
 .tutor img {
-  width: 170px;
-  height: 170px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 1.2rem;
-  transition: transform 0.3s ease;
+  border: 4px solid white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
-
 .tutor h3 {
-  font-size: 1.7rem;
-  margin-bottom: 0.7rem;
-  transition: color 0.3s ease;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
   color: rgba(45, 51, 77, 1);
 }
-
 .tutor-info {
-  font-size: 1.1rem;
-  color: #777;
-  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
 }
-
-.view-all-tutors,
-.view-profile-button {
-  margin-top: 2.5rem;
+.tutor-info:last-of-type {
+  margin-bottom: 1.2rem; /* Tăng khoảng cách trước nút */
 }
-
 .view-profile-button {
   background-color: rgba(45, 51, 77, 1);
   color: white;
-  padding: 1rem 2rem;
+  padding: 0.7rem 1.5rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  font-size: 1.1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: auto;
 }
-
 .view-profile-button:hover {
   background-color: rgba(215, 33, 52, 1);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+}
+.view-all-tutors {
+  margin-top: 3rem;
 }
 
-/* FAQ Section */
-.faq {
-  text-align: center;
-  padding: 5rem 0;
-  background-color: #f9f9f9;
+/* --- Testimonials Section --- */
+.testimonials {
+  position: relative;
+  overflow: hidden;
+  padding: 5rem 1rem;
+  color: white;
+  background-color: #444; /* Màu nền dự phòng */
+  border-bottom: none; /* Bỏ border */
 }
-
-.faq h2 {
-  font-size: 3.5rem;
-  margin-bottom: 4rem;
-  color: rgba(215, 33, 52, 1);
-  /* Emphasize section title */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.faq-item {
-  max-width: 900px;
+.testimonials-overlay {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(45, 51, 77, 0.8);
+  z-index: 1;
+} /* Tăng độ đậm lớp phủ */
+.testimonials-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 3rem;
-  border-bottom: 1px solid #ddd;
-  transition: background-color 0.3s ease;
+}
+.testimonials h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 3rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+}
+.testimonials h2::after {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.testimonials-slider {
+  width: 100%;
+}
+.student-review {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 2rem;
+}
+.student-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.5);
 }
 
+.student-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #fff;
+}
+.student-major {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1.5rem;
+}
+.student-quote {
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.95);
+  max-width: 600px;
+  margin: 0 auto;
+}
+.student-quote::before,
+.student-quote::after {
+  content: '"';
+  font-size: 1.5em;
+  opacity: 0.5;
+  margin: 0 5px;
+}
+.testimonials-slider .slick-dots {
+  bottom: -25px;
+}
+.testimonials-slider .slick-dots li button:before {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+  transition: color 0.3s ease;
+}
+.testimonials-slider .slick-dots li button:hover:before {
+  color: rgba(255, 255, 255, 0.7);
+}
+.testimonials-slider .slick-dots li.slick-active button:before {
+  color: white;
+}
+
+/* --- FAQ Section --- */
+.faq {
+  background-color: #fff;
+  padding: 4rem 1rem;
+  border-bottom: none; /* Section cuối không cần border */
+}
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  border-top: 1px solid #eee; /* Thêm border top để tách biệt */
+}
+.faq-item {
+  border-bottom: 1px solid #eee;
+}
 .faq-item:last-child {
   border-bottom: none;
 }
-
-.faq-item:hover {
-  background-color: #f0f0f0;
-}
-
-.faq-item h3 {
+.faq-question {
+  /* Sử dụng button nên không cần cursor: pointer */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  padding: 1.2rem 0;
-  font-size: 1.3rem;
+  width: 100%; /* Đảm bảo button chiếm đủ rộng */
+  padding: 1.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
   color: rgba(45, 51, 77, 1);
+  transition: color 0.2s ease;
+  text-align: left; /* Canh trái text */
 }
-
-.faq-item p {
-  padding: 1.2rem 0;
-  margin-top: 0;
+.faq-question:hover,
+.faq-question:focus {
+  color: rgba(215, 33, 52, 1);
+  outline: none; /* Bỏ outline mặc định của button */
+}
+.faq-question span {
+  flex-grow: 1;
+  margin-right: 1rem;
+}
+.faq-question svg {
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+.faq-answer {
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.35s ease-in-out, padding-top 0.35s ease-in-out,
+    padding-bottom 0.35s ease-in-out;
   max-height: 0;
-  font-size: 1.2rem;
-  line-height: 1.8;
+  padding: 0; /* Đặt padding về 0 khi đóng */
+}
+.faq-answer[hidden="false"] {
+  padding-top: 0.5rem;
+  padding-bottom: 1.5rem;
+} /* Thêm padding khi mở */
+.faq-answer p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #555;
   text-align: left;
 }
 
-/* Popular Subjects Section */
-.popular-subjects {
-  text-align: center;
-  padding: 5rem 0;
-  background-color: #f9f9f9;
-}
-
-.popular-subjects h2 {
-  font-size: 3.5rem;
-  margin-bottom: 4rem;
-  color: rgba(215, 33, 52, 1);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.subjects-grid {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 50px;
-  gap: 2rem;
-}
-
-.subject-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  color: rgba(45, 51, 77, 1);
-  padding: 1.2rem 2rem;
-  border-radius: 35px;
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.3s ease, transform 0.3s ease,
-    box-shadow 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07);
-  font-size: 1.1rem;
-}
-
-.subject-item:hover {
-  background-color: #ddd;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Media Queries for Responsive Design */
-@media (max-width: 768px) {
-  .hero {
-    padding: 7rem 0;
+/* --- Media Queries --- */
+@media (max-width: 992px) {
+  .section h2 {
+    font-size: 2.2rem;
   }
-
   .hero h1 {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
   }
-
   .hero p {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
-
+  .search-inputs {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+  .search-input-wrapper {
+    flex-basis: auto;
+    min-width: 0;
+  } /* Sửa min-width */
+  .search-inputs button[type="submit"] {
+    align-self: center;
+    margin-top: 0.5rem;
+  }
   .benefits-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
   }
+  .benefit {
+    flex-basis: calc(50% - 1rem);
+    max-width: none;
+  }
+  .subjects-slider {
+    padding: 0 2rem;
+  }
+  .custom-slick-prev {
+    left: -5px;
+  } /* Điều chỉnh vị trí nút */
+  .custom-slick-next {
+    right: -5px;
+  }
+  .tutor-slider {
+    padding: 0 2rem;
+  }
+  .tutor-slide {
+    padding: 0 0.5rem;
+  }
+  .tutor img {
+    width: 120px;
+    height: 120px;
+  }
+  .tutor h3 {
+    font-size: 1.2rem;
+  }
+  .tutor-info {
+    font-size: 0.9rem;
+  }
+  .view-profile-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 1.2rem;
+  }
+  .testimonials h2 {
+    font-size: 2.2rem;
+  }
+  .student-review {
+    padding: 1rem;
+  }
+  .student-name {
+    font-size: 1.3rem;
+  }
+  .student-major {
+    font-size: 0.9rem;
+  }
+  .student-quote {
+    font-size: 1rem;
+  }
+  .faq-list {
+    max-width: 90%;
+  }
+  .faq-question {
+    font-size: 1rem;
+  }
+  .faq-answer p {
+    font-size: 0.95rem;
+  }
+}
 
-  .tutor-profiles {
-    padding: 4rem 0;
+@media (max-width: 768px) {
+  .section {
+    padding: 3rem 1rem;
   }
+  .section h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .hero {
+    padding: 5rem 1rem;
+    min-height: 70vh;
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  .hero p {
+    font-size: 1.1rem;
+  }
+  .cta-button,
+  .view-all-tutors {
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+  }
+  .benefits-grid {
+    flex-direction: column;
+    gap: 1.5rem;
+  } /* Tăng gap */
+  .benefit {
+    flex-basis: auto;
+    max-width: 95%;
+  } /* Chiếm gần hết chiều rộng */
+  .benefit h3 {
+    font-size: 1.3rem;
+  }
+  .benefit p {
+    font-size: 0.95rem;
+  }
+  .benefit-icon {
+    font-size: 3rem;
+  }
+  .subjects-slider {
+    padding: 0 1rem;
+  }
+  .custom-slick-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  .custom-slick-prev {
+    left: 5px;
+  }
+  .custom-slick-next {
+    right: 5px;
+  }
+  .subject-item p {
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+  }
+  .tutor-slider {
+    padding: 0 1rem;
+  }
+  .tutor img {
+    width: 110px;
+    height: 110px;
+  }
+  .tutor {
+    min-height: auto;
+  } /* Bỏ min-height trên mobile */
+  .testimonials {
+    padding: 4rem 1rem;
+  }
+  .testimonials h2 {
+    font-size: 2rem;
+  }
+  .student-image {
+    width: 80px;
+    height: 80px;
+  }
+  .student-name {
+    font-size: 1.2rem;
+  }
+  .student-major {
+    font-size: 0.85rem;
+  }
+  .student-quote {
+    font-size: 0.95rem;
+  }
+  .testimonials-slider .slick-dots {
+    bottom: -20px;
+  }
+  .faq-question {
+    padding: 1.2rem 0;
+  }
+  .faq-answer[hidden="false"] {
+    padding: 0.5rem 0 1rem 0;
+  }
+}
 
-  .steps {
-    grid-template-columns: 1fr;
-    /* Single column on smaller screens */
+@media (max-width: 576px) {
+  .section h2 {
+    font-size: 1.8rem;
   }
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .search-input-wrapper {
+    padding: 0 0.8rem 0 2.5rem;
+  } /* Tăng padding trái */
+  .search-input-wrapper .search-icon {
+    left: 0.9rem;
+  }
+  .search-input-wrapper::after {
+    right: 0.8rem;
+  }
+  .benefit {
+    padding: 1.5rem 1rem;
+  }
+  .tutor img {
+    width: 100px;
+    height: 100px;
+  }
+  .tutor h3 {
+    font-size: 1.1rem;
+  }
+  .tutor-info {
+    font-size: 0.85rem;
+  }
+  .view-profile-button {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+  .testimonials h2 {
+    font-size: 1.8rem;
+  }
+  .student-image {
+    width: 70px;
+    height: 70px;
+  }
+  .student-name {
+    font-size: 1.1rem;
+  }
+  .student-quote {
+    font-size: 0.9rem;
+  }
+  .faq-question {
+    font-size: 0.95rem;
+  }
+  .faq-answer p {
+    font-size: 0.9rem;
+  }
+}
 
-  .testimonial {
-    padding: 2.5rem;
-  }
+/* Focus Visible */
+*:focus-visible {
+  outline: 2px solid rgba(215, 33, 52, 0.6);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15);
+}
+/* Ghi đè focus-visible cho search wrapper chung */
+.search-input-wrapper:focus-within {
+  /* border-color đã được xử lý bởi rule :focus-within chung */
+  box-shadow: none; /* Bỏ shadow mặc định khi focus-visible áp dụng */
+}
+/* Ghi đè focus-visible cho wrapper không cần highlight */
+.search-input-wrapper.js-no-focus-highlight:focus-within {
+  border-color: #d1d5db;
+  box-shadow: none;
+}
+/* Bỏ outline cho select bên trong wrapper không cần highlight */
+.search-input-wrapper.js-no-focus-highlight *:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Bỏ outline button FAQ khi có focus-visible */
+.faq-question:focus {
+  outline: none;
+}
+/* Style focus-visible riêng cho button FAQ nếu muốn */
+.faq-question:focus-visible {
+  background-color: rgba(215, 33, 52, 0.05); /* Ví dụ: thêm nền nhẹ */
+  border-radius: 4px; /* Ví dụ: bo góc nhẹ */
 }
