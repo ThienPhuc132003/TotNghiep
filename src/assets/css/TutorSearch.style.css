@@ -1,0 +1,651 @@
+/* ==================== General Page & Layout ==================== */
+.tutor-search-page {
+    background-color: #f8f9fa; /* Màu nền trang nhẹ nhàng hơn */
+    min-height: 80vh;
+  }
+  
+  /* --- Layout 2 Cột --- */
+  .layout-2-columns {
+    display: flex;
+    flex-wrap: wrap; /* Xuống dòng trên mobile */
+    max-width: 1600px; /* Tăng max-width để rộng rãi hơn */
+    margin: 1.5rem auto; /* Căn giữa và tạo khoảng cách */
+    padding: 0 1rem; /* Padding hai bên */
+    gap: 2rem; /* Khoảng cách giữa sidebar và main content */
+  }
+  
+  /* ==================== Sidebar (Cột lọc bên trái) ==================== */
+  .search-sidebar {
+    flex: 0 0 280px; /* Chiều rộng cố định cho sidebar */
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    height: fit-content; /* Chỉ cao bằng nội dung */
+    border: 1px solid #e5e7eb;
+  }
+  
+  .search-sidebar h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  /* --- Filter Group trong Sidebar --- */
+  .sidebar-filter {
+    margin-bottom: 1.5rem;
+  }
+  
+  .sidebar-filter label:not(:has(input[type="checkbox"])):not(:has(input[type="radio"])) {
+    /* Style cho label của select/input thường */
+    display: block; /* Để chiếm cả dòng */
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    color: #374151;
+  }
+  
+  .sidebar-filter select {
+    width: 100%;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .sidebar-filter select:focus {
+    outline: none;
+    border-color: #b41e2d;
+    box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.15);
+  }
+  
+  /* --- Reset Button trong Sidebar --- */
+  .sidebar-reset-btn {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    margin-top: 1rem; /* Khoảng cách với bộ lọc cuối */
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    color: #4b5563;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .sidebar-reset-btn:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+  }
+  
+  
+  /* ==================== Main Content (Cột nội dung bên phải) ==================== */
+  .search-main-content {
+    flex: 1; /* Chiếm phần không gian còn lại */
+    min-width: 0; /* Quan trọng cho flex item để tránh tràn */
+  }
+  
+  /* --- Thanh Search & Sort trên cùng --- */
+  .top-search-sort-bar {
+    display: flex;
+    flex-wrap: wrap; /* Xuống dòng nếu không đủ chỗ */
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+     border: 1px solid #e5e7eb;
+  }
+  
+  .search-input-container {
+    position: relative;
+    flex-grow: 1; /* Chiếm nhiều không gian hơn */
+  }
+  
+  .search-input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 1rem;
+    pointer-events: none; /* Không bắt sự kiện click vào icon */
+  }
+  
+  .main-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.8rem; /* Padding trái cho icon */
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .main-search-input:focus {
+    outline: none;
+    border-color: #b41e2d;
+    box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.15);
+  }
+  
+  .sort-by-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0; /* Không bị co lại */
+  }
+  .sort-by-container label {
+      font-size: 0.9rem;
+      color: #4b5563;
+      white-space: nowrap; /* Không xuống dòng */
+  }
+  
+  .sort-by-container select {
+    padding: 0.7rem 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    min-width: 180px; /* Đảm bảo đủ rộng */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .sort-by-container select:focus {
+      outline: none;
+      border-color: #b41e2d;
+      box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.15);
+  }
+  
+  /* --- Phần kết quả tìm kiếm --- */
+  .results-header {
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem; /* Căn lề nhẹ cho count */
+  }
+  
+  .results-count {
+    font-size: 1rem;
+    color: #4b5563;
+    font-weight: 500;
+  }
+  
+  /* ==================== Tutor List ==================== */
+  .tutor-list.redesigned-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Khoảng cách giữa các card */
+  }
+  
+  /* ================== Loading & No Results ================== */
+  .loading-indicator,
+  .no-results {
+    text-align: center;
+    color: #6b7280;
+    font-size: 1.1rem;
+    padding: 4rem 1rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px dashed #d1d5db; /* Viền đứt */
+    margin-top: 1rem; /* Thêm khoảng cách trên */
+  }
+  
+  /*
+  ============================================================
+                 CSS CHO TUTOR CARD REDESIGNED
+  ============================================================
+  */
+  
+  .tutor-card.redesigned {
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative; /* Cho badge */
+  }
+  
+  .tutor-card.redesigned:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* --- Phần Ảnh bên Trái --- */
+  .tutor-card-left {
+    flex: 0 0 120px; /* Chiều rộng cố định cho cột ảnh */
+    display: flex;
+    justify-content: center;
+    padding: 1.2rem 0.5rem 1.2rem 1.2rem; /* Padding xung quanh ảnh */
+  }
+  
+  .avatar-container {
+      position: relative;
+      width: 90px; /* Kích thước container */
+      height: 90px;
+  }
+  
+  .tutor-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff; /* Viền trắng nhỏ */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #e5e7eb; /* Màu nền tạm thời khi ảnh chưa load */
+  }
+  
+  .verified-badge-avatar {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background-color: #10b981; /* Màu xanh lá cây */
+    color: white;
+    width: 24px; /* Kích thước badge */
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    border: 2px solid #fff; /* Viền trắng */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  
+  /* --- Phần Thông tin bên Phải --- */
+  .tutor-card-right {
+    flex: 1; /* Chiếm phần còn lại */
+    padding: 1.2rem 1.2rem 1.2rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Đẩy footer xuống dưới */
+    min-width: 0; /* Quan trọng */
+  }
+  
+  .tutor-card-header-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+  }
+  
+  .tutor-name {
+    font-size: 1.2rem; /* Tăng nhẹ size */
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0; /* Bỏ margin bottom */
+    margin-right: 0.5rem;
+  }
+  
+  .tutor-actions .action-btn {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.2rem;
+      transition: color 0.2s ease;
+  }
+  .tutor-actions .action-btn:hover {
+      color: #d72134;
+  }
+  
+  .tutor-info-row {
+    display: flex;
+    align-items: flex-start; /* Canh icon với dòng đầu text */
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 0.6rem;
+  }
+  .info-icon {
+    color: #9ca3af;
+    margin-top: 2px; /* Căn chỉnh icon */
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  
+  .tutor-subjects {
+     /* Giới hạn dòng nếu cần */
+     display: -webkit-box;
+     -webkit-line-clamp: 1; /* Chỉ hiển thị 1 dòng môn học trên card list */
+     line-clamp: 1;
+     -webkit-box-orient: vertical;
+     overflow: hidden;
+     text-overflow: ellipsis;
+  }
+  
+  .tutor-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin-bottom: 0.8rem;
+  }
+  .star-icon { font-size: 0.9rem; }
+  .star-icon.filled { color: #facc15; } /* Vàng */
+  .star-icon.empty { color: #e5e7eb; } /* Xám */
+  .rating-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #374151;
+    margin-left: 0.3rem;
+  }
+  .review-count {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-left: 0.4rem;
+  }
+  
+  .tutor-description {
+    font-size: 0.9rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn 2 dòng mô tả */
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* --- Phần Footer của Card --- */
+  .tutor-card-footer-info {
+      display: flex;
+      flex-wrap: wrap; /* Xuống dòng nếu cần */
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem; /* Khoảng cách giữa giá và nút */
+      margin-top: auto; /* Đẩy footer xuống */
+      padding-top: 0.8rem;
+      border-top: 1px solid #f3f4f6;
+  }
+  
+  .tutor-price {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.1rem; /* Tăng size giá */
+    font-weight: 600;
+    color: #d72134; /* Màu đỏ Văn Lang */
+  }
+  .price-icon {
+    color: #d72134;
+    font-size: 1.1rem;
+  }
+  
+  .footer-buttons {
+      display: flex;
+      gap: 0.8rem;
+  }
+  
+  .footer-buttons .action-btn { /* Style chung cho nút nhỏ nếu có (vd: nhắn tin) */
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: #fff;
+      color: #4b5563;
+      display: inline-flex; /* Để căn giữa icon và text */
+      align-items: center;
+      gap: 0.4rem;
+  }
+  .footer-buttons .action-btn:hover {
+      background-color: #f3f4f6;
+      border-color: #9ca3af;
+  }
+  .footer-buttons .action-btn svg {
+      font-size: 0.9rem;
+  }
+  
+  .view-profile-btn {
+    background-color: #d72134; /* Màu đỏ Văn Lang */
+    color: white;
+    padding: 0.6rem 1.3rem; /* Tăng padding */
+    border: none;
+    border-radius: 20px;
+    font-size: 0.9rem; /* Tăng size chữ */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    white-space: nowrap; /* Không xuống dòng */
+  }
+  
+  .view-profile-btn:hover {
+    background-color: #b41e2d; /* Đỏ đậm hơn */
+    transform: translateY(-1px);
+  }
+  
+  
+  /*
+  ============================================================
+                 CSS CHO PAGINATION
+  ============================================================
+  */
+  .pagination-nav {
+      margin-top: 2.5rem; /* Khoảng cách với danh sách gia sư */
+      display: flex;
+      justify-content: center; /* Căn giữa pagination */
+      padding-bottom: 1rem; /* Khoảng cách với đáy */
+  }
+  
+  .pagination {
+      display: flex;
+      flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+      justify-content: center; /* Căn giữa các nút khi xuống dòng */
+      padding-left: 0;
+      list-style: none;
+      border-radius: 0.375rem; /* Bo góc nhẹ */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      background-color: #fff; /* Nền trắng cho container pagination */
+      padding: 0.3rem; /* Padding nhỏ xung quanh các nút */
+      border: 1px solid #e5e7eb;
+  }
+  
+  .page-item {
+     margin: 0.2rem; /* Khoảng cách nhỏ giữa các nút */
+  }
+  
+  .page-link {
+      position: relative;
+      display: block;
+      padding: 0.6rem 1rem; /* Kích thước nút */
+      line-height: 1.25;
+      color: #d72134; /* Màu chữ nút (màu Văn Lang) */
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      cursor: pointer;
+      transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      font-weight: 500;
+      font-size: 0.9rem;
+      user-select: none; /* Không cho chọn text */
+      border-radius: 0.25rem; /* Bo góc từng nút */
+  }
+  .page-link:not(:disabled):hover {
+      z-index: 2;
+      color: #b41e2d;
+      background-color: #f8f9fa; /* Nền nhạt khi hover */
+      border-color: #adb5bd;
+  }
+  .page-link:focus {
+      z-index: 3;
+      outline: 0;
+       box-shadow: 0 0 0 0.2rem rgba(215, 33, 52, 0.15); /* Shadow đỏ nhạt khi focus */
+  }
+  
+  /* --- Nút Trước/Sau --- */
+  .page-link.prev-next {
+      display: inline-flex; /* Để căn giữa icon và text */
+      align-items: center;
+      gap: 0.4rem;
+  }
+  .page-link.prev-next svg {
+      font-size: 0.8em;
+  }
+  
+  /* --- Dấu ... --- */
+  .page-item.dots .page-link {
+      border-color: transparent;
+      background-color: transparent;
+      color: #6c757d;
+      cursor: default;
+      box-shadow: none;
+  }
+  .page-item.dots .page-link:hover {
+      background-color: transparent; /* Không thay đổi nền khi hover dots */
+      color: #6c757d;
+  }
+  
+  
+  /* --- Nút trang hiện tại (Active) --- */
+  .page-item.active .page-link {
+      z-index: 3;
+      color: #fff;
+      background-color: #d72134; /* Nền đỏ cho trang active */
+      border-color: #d72134;
+  }
+  .page-item.active .page-link:hover {
+      color: #fff; /* Giữ màu chữ trắng khi hover nút active */
+      background-color: #b41e2d; /* Đậm hơn chút khi hover active */
+      border-color: #b41e2d;
+  }
+  
+  /* --- Nút bị vô hiệu hóa (Disabled) --- */
+  .page-item.disabled .page-link:not(.dots *) { /* Áp dụng cho nút prev/next disabled, trừ dấu ... */
+      color: #adb5bd; /* Màu xám nhạt hơn */
+      pointer-events: none;
+      cursor: default;
+      background-color: #fff;
+      border-color: #dee2e6;
+      opacity: 0.6;
+      box-shadow: none;
+  }
+  
+  /* ==================== Responsive Adjustments ==================== */
+  @media (max-width: 992px) {
+      .layout-2-columns {
+          gap: 1.5rem;
+      }
+      .search-sidebar {
+          flex-basis: 250px; /* Giảm nhẹ chiều rộng sidebar */
+      }
+  }
+  
+  @media (max-width: 768px) {
+    .layout-2-columns {
+        flex-direction: column; /* Chuyển thành 1 cột */
+        padding: 0 0.8rem; /* Giảm padding */
+        margin: 1rem auto;
+    }
+    .search-sidebar {
+        flex-basis: auto; /* Chiều rộng tự động */
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+     .top-search-sort-bar {
+         padding: 1rem;
+         gap: 1rem;
+     }
+     .sort-by-container select {
+         min-width: 150px;
+     }
+    .tutor-card-left {
+        flex-basis: 100px; /* Giảm size cột ảnh */
+        padding: 1rem 0.3rem 1rem 1rem;
+    }
+     .avatar-container {
+         width: 75px;
+         height: 75px;
+     }
+     .verified-badge-avatar {
+         width: 20px;
+         height: 20px;
+         font-size: 0.7rem;
+     }
+     .tutor-card-right {
+         padding: 1rem 1rem 1rem 0.5rem;
+     }
+     .tutor-name { font-size: 1.1rem; }
+     .tutor-info-row, .tutor-description, .rating-value, .review-count { font-size: 0.85rem; }
+     .tutor-price { font-size: 1rem; }
+     .view-profile-btn { font-size: 0.85rem; padding: 0.5rem 1.1rem; }
+     .results-count { font-size: 0.95rem; } /* Giảm cỡ chữ count */
+  
+  }
+  
+  @media (max-width: 576px) {
+      .top-search-sort-bar {
+          flex-direction: column; /* Search và Sort xếp dọc */
+          align-items: stretch;
+      }
+      .sort-by-container {
+          justify-content: space-between; /* Đẩy label và select ra 2 bên */
+      }
+       .tutor-card.redesigned {
+          flex-direction: column; /* Chuyển card sang layout dọc hoàn toàn */
+          align-items: center; /* Căn giữa nội dung card */
+          text-align: center;
+      }
+       .tutor-card-left {
+          flex-basis: auto;
+          width: 100%;
+          padding: 1rem 1rem 0 1rem; /* Chỉ padding trên */
+          align-items: center; /* Căn avatar giữa */
+           border-bottom: 1px solid #f3f4f6; /* Thêm đường kẻ */
+      }
+      .avatar-container {
+          width: 90px; /* Quay lại size lớn hơn */
+          height: 90px;
+          margin-bottom: 1rem;
+      }
+       .tutor-card-right {
+          padding: 1rem;
+          width: 100%;
+          align-items: center;
+      }
+      .tutor-card-header-info {
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.8rem;
+      }
+      .tutor-info-row { justify-content: center; } /* Căn giữa info */
+      .tutor-rating { justify-content: center; }
+      .tutor-description { text-align: center; -webkit-line-clamp: 3; line-clamp: 3; } /* Tăng số dòng mô tả */
+      .tutor-card-footer-info {
+          flex-direction: column; /* Giá và nút xếp dọc */
+          align-items: center;
+          width: 100%;
+          padding-top: 1rem;
+      }
+      .footer-buttons {
+          width: 100%;
+          justify-content: center; /* Căn giữa nút */
+      }
+      .view-profile-btn {
+          width: 80%; /* Nút rộng hơn */
+          max-width: 250px;
+      }
+      /* Responsive Pagination */
+      .pagination {
+          padding: 0.2rem;
+      }
+      .page-link {
+          padding: 0.5rem 0.75rem; /* Giảm padding nút trên mobile */
+          font-size: 0.85rem;
+      }
+      .page-link.prev-next span {
+          display: none; /* Ẩn chữ Trước/Sau, chỉ để lại icon */
+      }
+       .page-link.prev-next {
+          gap: 0; /* Bỏ gap khi chỉ có icon */
+      }
+  }

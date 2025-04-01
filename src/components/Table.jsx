@@ -10,7 +10,6 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 const getNestedValue = (obj, path) => {
   const value = path.split(".").reduce((acc, part) => acc && acc[part], obj);
-  // console.log(`Path: ${path}, Value: ${value}`); // Thêm dòng này
   return value;
 };
 
@@ -24,10 +23,13 @@ const TableComponent = ({
   onPageChange,
   forcePage,
   onSort,
-  loading, // Nhận prop loading từ bên ngoài
-  error, // Nhận prop error từ bên ngoài
+  loading,
+  error,
   itemsPerPage,
   onItemsPerPageChange,
+  onLock,
+  showLock = false,
+  statusKey = "status",
 }) => {
   const { t } = useTranslation();
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -162,30 +164,56 @@ const TableComponent = ({
                     </td>
                   ))}
                   <td className="action-buttons" role="gridcell">
-                    <button
-                      onClick={() => onView(row)}
-                      title={t("common.view")}
-                      className="action-button view"
-                      aria-label={t("common.view")}
-                    >
-                      <i className="fa-regular fa-eye"></i>
-                    </button>
-                    <button
-                      onClick={() => onEdit(row)}
-                      title={t("common.edit")}
-                      className="action-button edit"
-                      aria-label={t("common.edit")}
-                    >
-                      <i className="fa-solid fa-pen"></i>
-                    </button>
-                    <button
-                      onClick={() => onDelete(row)}
-                      title={t("common.delete")}
-                      className="action-button delete"
-                      aria-label={t("common.delete")}
-                    >
-                      <i className="fa-regular fa-trash-can"></i>
-                    </button>
+                    {onView && (
+                      <button
+                        onClick={() => onView(row)}
+                        title={t("common.view")}
+                        className="action-button view"
+                        aria-label={t("common.view")}
+                      >
+                        <i className="fa-regular fa-eye"></i>
+                      </button>
+                    )}
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(row)}
+                        title={t("common.edit")}
+                        className="action-button edit"
+                        aria-label={t("common.edit")}
+                      >
+                        <i className="fa-solid fa-pen"></i>
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(row)}
+                        title={t("common.delete")}
+                        className="action-button delete"
+                        aria-label={t("common.delete")}
+                      >
+                        <i className="fa-regular fa-trash-can"></i>
+                      </button>
+                    )}
+                    {showLock && (
+                      <button
+                        onClick={() => onLock(row)}
+                        title={row[statusKey] === "ACTIVE" ? "Khóa" : "Mở khóa"}
+                        className={`action-button lock ${
+                          row[statusKey] === "ACTIVE" ? "unlocked" : "locked"
+                        }`}
+                        aria-label={
+                          row[statusKey] === "ACTIVE" ? "Khóa" : "Mở khóa"
+                        }
+                      >
+                        <i
+                          className={
+                            row[statusKey] === "ACTIVE"
+                              ? "fa-solid fa-lock-open"
+                              : "fa-solid fa-lock"
+                          }
+                        />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
@@ -246,21 +274,24 @@ TableComponent.propTypes = {
       title: PropTypes.string.isRequired,
       dataKey: PropTypes.string.isRequired,
       renderCell: PropTypes.func,
-      sortable: PropTypes.bool, // Thêm sortable
+      sortable: PropTypes.bool,
     })
   ).isRequired,
   data: PropTypes.array.isRequired,
-  onView: PropTypes.func.isRequired,
-  onEdit: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
+  onView: PropTypes.func, // Optional
+  onEdit: PropTypes.func, // Optional
+  onDelete: PropTypes.func, // Optional
   pageCount: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
   forcePage: PropTypes.number,
   onSort: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired, // Thêm prop loading
-  error: PropTypes.string, // Thêm prop error
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
   itemsPerPage: PropTypes.number.isRequired,
   onItemsPerPageChange: PropTypes.func.isRequired,
+  onLock: PropTypes.func,
+  showLock: PropTypes.bool,
+  statusKey: PropTypes.string,
 };
 
 export default React.memo(TableComponent);

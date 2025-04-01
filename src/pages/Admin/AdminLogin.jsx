@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react"; // Bỏ import React nếu không dùng
+import { useNavigate } from "react-router-dom"; // Bỏ Link nếu không dùng
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import Api from "../../network/Api";
-import { METHOD_TYPE } from "../../network/methodType";
-import { setAdminProfile } from "../../redux/adminSlice";
-import "../../assets/css/Admin/AdminLogin.style.css";
-import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
-import LoginLayout from "../../components/User/layout/LoginLayout";
+import Api from "../../network/Api"; // Đảm bảo đường dẫn đúng
+import { METHOD_TYPE } from "../../network/methodType"; // Đảm bảo đường dẫn đúng
+import { setAdminProfile } from "../../redux/adminSlice"; // Đảm bảo đường dẫn đúng
+import "../../assets/css/Admin/AdminLogin.style.css"; // Đảm bảo đường dẫn CSS đúng
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg"; // Đảm bảo đường dẫn đúng
+import LoginLayout from "../../components/User/layout/LoginLayout"; // Xem xét Layout riêng cho Admin nếu cần
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -22,8 +22,10 @@ const AdminLoginPage = () => {
   const [isLoadingMicrosoftLogin, setIsLoadingMicrosoftLogin] = useState(false);
 
   useEffect(() => {
-    const savedEmailOrPhoneNumber = localStorage.getItem("emailOrPhoneNumber");
-    const savedPassword = localStorage.getItem("password");
+    const savedEmailOrPhoneNumber = localStorage.getItem(
+      "admin_emailOrPhoneNumber"
+    );
+    const savedPassword = localStorage.getItem("admin_password");
     if (savedEmailOrPhoneNumber && savedPassword) {
       setEmailOrPhoneNumber(savedEmailOrPhoneNumber);
       setPassword(savedPassword);
@@ -50,46 +52,71 @@ const AdminLoginPage = () => {
       return;
     }
     setIsSubmitting(true);
+    setErrorMessage("");
     try {
       const response = await Api({
-        endpoint: "admin/login",
+        endpoint: "admin/login", // Endpoint admin login
         method: METHOD_TYPE.POST,
         data: {
           emailOrPhoneNumber,
           password,
         },
       });
-      const token = response.data.token;
-      if (token) {
+
+      if (response.success && response.data?.token) {
+        const token = response.data.token;
         Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
-        Cookies.set("role", "admin");
+        Cookies.set("role", "admin", { expires: rememberMe ? 7 : undefined });
 
         if (rememberMe) {
-          localStorage.setItem("emailOrPhoneNumber", emailOrPhoneNumber);
-          localStorage.setItem("password", password);
+          localStorage.setItem("admin_emailOrPhoneNumber", emailOrPhoneNumber);
+          localStorage.setItem("admin_password", password);
         } else {
-          localStorage.removeItem("emailOrPhoneNumber");
-          localStorage.removeItem("password");
+          localStorage.removeItem("admin_emailOrPhoneNumber");
+          localStorage.removeItem("admin_password");
         }
 
         try {
           const adminInfoResponse = await Api({
-            endpoint: "admin/get-profile",
+            endpoint: "admin/get-profile", // Endpoint admin profile
             method: METHOD_TYPE.GET,
-            token,
           });
-          if (adminInfoResponse.success === true) {
+
+          if (adminInfoResponse.success && adminInfoResponse.data) {
             dispatch(setAdminProfile(adminInfoResponse.data));
-            navigate("/admin/dashboard");
+            navigate("/admin/dashboard"); // Chuyển hướng admin dashboard
+          } else {
+            console.error(
+              "Login successful but failed to fetch admin profile:",
+              adminInfoResponse.message
+            );
+            setErrorMessage(
+              "Đăng nhập thành công nhưng không thể tải dữ liệu quản trị viên."
+            );
+            navigate("/admin/dashboard"); // Tạm thời vẫn chuyển hướng
           }
-        } catch (error) {
-          setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
+        } catch (profileError) {
+          console.error(
+            "Error fetching admin profile after login:",
+            profileError
+          );
+          setErrorMessage(
+            profileError.response?.data?.message ||
+              "Lỗi khi tải thông tin quản trị viên."
+          );
+          navigate("/admin/dashboard"); // Tạm thời vẫn chuyển hướng
         }
       } else {
-        setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
+        setErrorMessage(
+          response.message || "Tài khoản hoặc mật khẩu không đúng."
+        );
       }
     } catch (error) {
-      setErrorMessage("Tài khoản hoặc mật khẩu không đúng");
+      console.error("Admin login error:", error);
+      setErrorMessage(
+        error.response?.data?.message ||
+          "Đã xảy ra lỗi trong quá trình đăng nhập."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -108,98 +135,48 @@ const AdminLoginPage = () => {
 
   const handleMicrosoftLogin = async () => {
     setIsLoadingMicrosoftLogin(true);
+    setErrorMessage("");
     try {
-      // Generate a random state for CSRF protection
       const state = generateRandomString(20);
       Cookies.set("microsoft_auth_state", state, {
-        httpOnly: true,
         secure: true,
-      }); // Secure and HttpOnly
+        sameSite: "Lax",
+        expires: 1 / 24 / 6,
+      }); // 10 phút
 
       const response = await Api({
-        endpoint: "admin/auth/get-uri-microsoft",
+        endpoint: "admin/auth/get-uri-microsoft", // Endpoint lấy URI cho admin
         method: METHOD_TYPE.GET,
       });
 
-      const authUrl = response.data.authUrl;
-      if (authUrl) {
-        window.location.href = `${authUrl}&state=${state}`;
+      if (response.success && response.data?.authUrl) {
+        const authUrl = `${response.data.authUrl}&state=${state}`;
+        console.log("Redirecting to Microsoft for admin login:", authUrl);
+        window.location.href = authUrl;
+      } else {
+        setErrorMessage(
+          "Không thể lấy được địa chỉ đăng nhập Microsoft. Vui lòng thử lại."
+        );
+        setIsLoadingMicrosoftLogin(false);
       }
-    } finally {
+    } catch (error) {
+      console.error("Error initiating Microsoft admin login:", error);
+      setErrorMessage(
+        error.response?.data?.message ||
+          "Đã xảy ra lỗi khi bắt đầu đăng nhập Microsoft."
+      );
       setIsLoadingMicrosoftLogin(false);
     }
   };
 
-  const handleMicrosoftCallback = useCallback(async () => {
-    const url = new URL(window.location.href);
-    const params = new URLSearchParams(url.search);
-    const code = params.get("code");
-    const state = params.get("state");
-
-    if (!code) {
-      const error = params.get("error");
-      if (error) {
-        setErrorMessage(`Microsoft login failed: ${error}`);
-      }
-      return;
-    }
-
-    // Verify state for CSRF protection
-    const storedState = Cookies.get("microsoft_auth_state");
-    Cookies.remove("microsoft_auth_state"); // Remove state after verification
-
-    if (!storedState || state !== storedState) {
-      setErrorMessage("CSRF detected: Invalid state.");
-      return;
-    }
-
-    setIsLoadingMicrosoftLogin(true);
-    try {
-      const response = await Api({
-        endpoint: "admin/auth/callback",
-        method: METHOD_TYPE.POST,
-        data: { code }, // Send the code in the request body
-      });
-
-      if (!response || !response.data?.token) {
-        setErrorMessage("Authentication failed: No token received.");
-        return;
-      }
-
-      Cookies.set("token", response.data.token, { expires: 7 });
-      Cookies.set("role", "admin", { expires: 7 });
-
-      const profileResponse = await Api({
-        endpoint: "admin/get-profile",
-        method: METHOD_TYPE.GET,
-      });
-
-      if (profileResponse.success) {
-        dispatch(setAdminProfile(profileResponse.data));
-        navigate("/admin/dashboard");
-      } else {
-        setErrorMessage("Error fetching profile data.");
-      }
-    } catch (error) {
-      console.error("Microsoft Authentication failed:", error);
-      setErrorMessage(
-        "Microsoft Authentication failed: " +
-          (error.response?.data?.message || error.message)
-      );
-    } finally {
-      setIsLoadingMicrosoftLogin(false);
-    }
-  }, [navigate, dispatch]);
-
-  useEffect(() => {
-    handleMicrosoftCallback();
-  }, [handleMicrosoftCallback]);
-
   return (
     <LoginLayout>
+      {" "}
+      {/* Cân nhắc Layout riêng cho Admin */}
       <div className="admin-form">
         <h1 className="login-title">Quản lý GiaSuVLU</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
+          {/* Input Email/Số điện thoại */}
           <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
             <div
@@ -218,10 +195,12 @@ const AdminLoginPage = () => {
               />
               <i className="fa-regular fa-user"></i>
             </div>
-          </div>{" "}
-          {fieldErrors.emailOrPhoneNumber && (
-            <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
-          )}
+            {fieldErrors.emailOrPhoneNumber && (
+              <p className="error-message">{fieldErrors.emailOrPhoneNumber}</p>
+            )}
+          </div>
+
+          {/* Input Mật khẩu */}
           <div className="login-form-container">
             <label htmlFor="password">Mật khẩu</label>
             <div
@@ -254,6 +233,8 @@ const AdminLoginPage = () => {
               <p className="error-message">{fieldErrors.password}</p>
             )}
           </div>
+
+          {/* Checkbox Nhớ mật khẩu */}
           <div className="remember-me">
             <label>
               <input
@@ -265,19 +246,27 @@ const AdminLoginPage = () => {
               Nhớ mật khẩu
             </label>
           </div>
+
+          {/* Hiển thị lỗi chung */}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+          {/* Nút Đăng nhập thường */}
           <button
             type="submit"
-            className="admin-login-button"
+            className="admin-login-button" // Class riêng nếu cần
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đang xử lý" : "Đăng nhập"}
+            {isSubmitting ? "Đang xử lý..." : "Đăng nhập"}
           </button>
+
           <div className="divider">
             <span>hoặc</span>
           </div>
+
+          {/* Nút Đăng nhập Microsoft */}
           <div className="social-login">
             <button
+              type="button" // Quan trọng
               onClick={handleMicrosoftLogin}
               className="microsoft-login-button"
               disabled={isLoadingMicrosoftLogin}
@@ -286,7 +275,8 @@ const AdminLoginPage = () => {
                 "Đang xử lý..."
               ) : (
                 <>
-                  <img src={MicrosoftLogo} alt="" />
+                  <img src={MicrosoftLogo} alt="Microsoft logo" />{" "}
+                  {/* Thêm alt text */}
                   Đăng nhập với Microsoft
                 </>
               )}
@@ -298,5 +288,4 @@ const AdminLoginPage = () => {
   );
 };
 
-const AdminLogin = React.memo(AdminLoginPage);
-export default AdminLogin;
+export default AdminLoginPage;

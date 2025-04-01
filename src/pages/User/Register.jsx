@@ -176,7 +176,7 @@ const RegisterPage = () => {
   return (
     <LoginLayout>
       <div className="register-form">
-        <h1 className="login-title">Đăng ký GiaSuVLU</h1>
+        <h1 className="login-title">Đăng ký tài khoản</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="form-columns">
             <div className="form-column">
@@ -243,7 +243,7 @@ const RegisterPage = () => {
             </div>
             <div className="form-column">
               <div className="form-group">
-                <label htmlFor="majorId">Chuyên ngành</label>
+                <label htmlFor="majorId">Ngành</label>
                 <select
                   id="majorId"
                   name="majorId"
@@ -251,7 +251,7 @@ const RegisterPage = () => {
                   onChange={handleChange}
                   className={formErrors.majorId ? "error-border" : ""}
                 >
-                  <option value="">Chọn chuyên ngành</option>
+                  <option value="">Ngành</option>
                   {majors.map((major) => (
                     <option key={major.majorId} value={major.majorId}>
                       {major.majorName}

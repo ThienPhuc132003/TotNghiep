@@ -18,7 +18,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format } from "date-fns";
 
-// Set the app element for accessibility
 Modal.setAppElement("#root");
 
 const ListOfStudentPage = () => {
@@ -36,7 +35,7 @@ const ListOfStudentPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" }); // Use object for sort config
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
   const [itemsPerPage, setItemsPerPage] = useState(7);
   const currentPath = "/nguoi-hoc";
   const [formErrors, setFormErrors] = useState({});
@@ -199,27 +198,10 @@ const ListOfStudentPage = () => {
       birthday: student.userProfile?.birthday || "",
       gender: student.userProfile?.gender || "",
       status: student.status,
+      checkActive: student.checkActive, // Ensure checkActive is included
     });
     setModalMode("view");
     setIsModalOpen(true);
-  };
-
-  const handleEdit = (student) => {
-    setModalData({
-      userId: student.userId,
-      fullname: student.userProfile?.fullname || "",
-      email: student.email,
-      phoneNumber: student.phoneNumber,
-      homeAddress: student.userProfile?.homeAddress || "",
-      birthday: student.userProfile?.birthday || "",
-      gender: student.userProfile?.gender || "",
-      roleId: student.roleId,
-      status: student.status,
-      checkActive: student.checkActive,
-    });
-    setModalMode("edit");
-    setIsModalOpen(true);
-    setFormErrors({});
   };
 
   const handleCloseModal = () => {
@@ -259,7 +241,6 @@ const ListOfStudentPage = () => {
   };
 
   const handleUpdateStudent = async (formData) => {
-    // Only allow status, roleId and checkActive updates
     const updateData = {
       roleId: formData.roleId,
       status: formData.status,
@@ -286,6 +267,50 @@ const ListOfStudentPage = () => {
     }
   };
 
+  const handleLock = async (student) => {
+    const newCheckActive =
+      student.checkActive === "ACTIVE" ? "BLOCKED" : "ACTIVE";
+
+    try {
+      const response = await Api({
+        endpoint: `user/update-user-by-id/${student.userId}`,
+        method: METHOD_TYPE.PUT,
+        data: { checkActive: newCheckActive },
+      });
+
+      if (response.success) {
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.userId === student.userId
+              ? { ...item, checkActive: newCheckActive }
+              : item
+          )
+        );
+        setFilteredData((prevFilteredData) =>
+          prevFilteredData.map((item) =>
+            item.userId === student.userId
+              ? { ...item, checkActive: newCheckActive }
+              : item
+          )
+        );
+
+        toast.success(
+          `Người dùng ${student.userProfile?.fullname} đã được ${
+            newCheckActive === "ACTIVE" ? "mở khóa" : "khóa"
+          } thành công!`
+        );
+      } else {
+        toast.error(
+          `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
+        );
+        console.error("Failed to update student:", response.message);
+      }
+    } catch (error) {
+      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
+      console.error("An error occurred while updating student:", error.message);
+    }
+  };
+
   const columns = [
     { title: "Mã người dùng", dataKey: "userId", sortable: true },
     { title: "Tên", dataKey: "userProfile.fullname", sortable: true },
@@ -306,6 +331,16 @@ const ListOfStudentPage = () => {
       dataKey: "userProfile.major.majorName",
       sortable: true,
       renderCell: (value) => (value ? value : "Không có ngành"),
+    },
+    {
+      title: "Trạng thái",
+      dataKey: "checkActive",
+      sortable: true,
+      renderCell: (value) => {
+        if (value === "ACTIVE") return "Hoạt động";
+        if (value === "BLOCKED") return "Khóa";
+        return "Chưa biết";
+      },
     },
   ];
 
@@ -346,27 +381,8 @@ const ListOfStudentPage = () => {
         { label: "Gia sư", value: "TUTOR" },
       ],
     },
-    {
-      key: "status",
-      label: "Trạng thái",
-      type: "select",
-      options: [
-        { label: "Chờ duyệt", value: "PENDING" },
-        { label: "Yêu cầu", value: "REQUEST" },
-        { label: "Chấp nhận", value: "ACCEPT" },
-        { label: "Từ chối", value: "REFUSE" },
-      ],
-    },
-    {
-      key: "checkActive",
-      label: "Kích hoạt",
-      type: "select",
-      options: [
-        { label: "Hoạt động", value: "ACTIVE" },
-        { label: "Khóa", value: "BLOCKED" },
-      ],
-    },
   ];
+
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
@@ -397,7 +413,6 @@ const ListOfStudentPage = () => {
           columns={columns}
           data={filteredData}
           onView={handleView}
-          onEdit={handleEdit}
           onDelete={(student) => handleDelete(student.userId)}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
@@ -407,6 +422,9 @@ const ListOfStudentPage = () => {
           error={error}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
+          onLock={handleLock}
+          showLock={true}
+          statusKey="checkActive"
         />
       </div>
     </>

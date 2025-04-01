@@ -149,7 +149,7 @@ const ListOfAdminPage = () => {
         { label: "nam", value: "MALE" },
         { label: "nữ", value: "FEMALE" },
       ],
-      getValue: (option) => option, // Trả về value khi submit form
+      getValue: (option) => option, 
     },
     {
       key: "roleId",
@@ -195,8 +195,7 @@ const ListOfAdminPage = () => {
       birthday: admin.adminProfile.birthday,
       gender: admin.adminProfile.gender,
       workEmail: admin.adminProfile.workEmail,
-      roleId: admin.roleId === "BEST_ADMIN" ? "Admin" : "Nhân viên",
-      status: admin.status,
+      roleId: admin.roleId,
     });
     setModalMode("view");
     setIsModalOpen(true);
@@ -213,7 +212,6 @@ const ListOfAdminPage = () => {
       gender: admin.adminProfile.gender,
       workEmail: admin.adminProfile.workEmail,
       roleId: admin.roleId,
-      status: admin.status,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -236,21 +234,6 @@ const ListOfAdminPage = () => {
   };
 
   const handleCreateAdmin = async (formData) => {
-    // const errors = validateAdminForm(formData);
-    // if (Object.keys(errors).length > 0) {
-    //   setFormErrors(errors);
-    //   return;
-    // }
-
-    // Chuyển đổi giá trị roleId trước khi gửi lên server
-    if (formData.roleId === "BEST_ADMIN") {
-      formData.roleId = "BEST_ADMIN";
-    } else if (formData.roleId === "ADMIN") {
-      formData.roleId = "ADMIN";
-    } else {
-      formData.roleId = "UNKNOWN";
-    }
-
     try {
       const response = await Api({
         endpoint: "admin/create-admin",
@@ -272,19 +255,12 @@ const ListOfAdminPage = () => {
   };
 
   const handleUpdateAdmin = async (formData) => {
-    // const errors = validateAdminForm(formData);
-    // if (Object.keys(errors).length > 0) {
-    //   setFormErrors(errors);
-    //   return;
-    // }
-
     const allowedFields = [
       "fullname",
       "birthday",
       "email",
       "homeAddress",
       "gender",
-      "status",
       "roleId",
     ];
 
@@ -294,29 +270,6 @@ const ListOfAdminPage = () => {
         obj[key] = formData[key];
         return obj;
       }, {});
-
-    // Chuyển đổi giá trị roleId trước khi gửi lên server
-    if (filteredData.roleId === "BEST_ADMIN") {
-      filteredData.roleId = "BEST_ADMIN";
-    } else if (filteredData.roleId === "ADMIN") {
-      filteredData.roleId = "ADMIN";
-    }
-
-    // Chuyển đổi giá trị status trước khi gửi lên server
-    if (filteredData.status === "ACTIVE") {
-      filteredData.status = "ACTIVE";
-    } else if (filteredData.status === "BLOCKED") {
-      filteredData.status = "BLOCKED";
-    }
-
-    // Chuyển đổi giá trị gender trước khi gửi lên server
-    if (filteredData.gender === "MALE") {
-      filteredData.gender = "MALE";
-    } else if (filteredData.gender === "FEMALE") {
-      filteredData.gender = "FEMALE";
-    }
-
-    console.log("Updating admin with data:", filteredData);
 
     try {
       const response = await Api({
@@ -332,6 +285,49 @@ const ListOfAdminPage = () => {
         console.error("Failed to update admin:", response.message);
       }
     } catch (error) {
+      console.error("An error occurred while updating admin:", error.message);
+    }
+  };
+
+  const handleLock = async (admin) => {
+    const newStatus = admin.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
+
+    try {
+      const response = await Api({
+        endpoint: `admin/update-admin-by-id/${admin.adminId}`,
+        method: METHOD_TYPE.PUT,
+        data: { status: newStatus },
+      });
+
+      if (response.success) {
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.adminId === admin.adminId
+              ? { ...item, status: newStatus }
+              : item
+          )
+        );
+        setFilteredData((prevFilteredData) =>
+          prevFilteredData.map((item) =>
+            item.adminId === admin.adminId
+              ? { ...item, status: newStatus }
+              : item
+          )
+        );
+
+        toast.success(
+          `Nhân viên ${admin.adminProfile?.fullname} đã được ${
+            newStatus === "ACTIVE" ? "mở khóa" : "khóa"
+          } thành công!`
+        );
+      } else {
+        toast.error(
+          `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
+        );
+        console.error("Failed to update admin:", response.message);
+      }
+    } catch (error) {
+      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
       console.error("An error occurred while updating admin:", error.message);
     }
   };
@@ -361,11 +357,13 @@ const ListOfAdminPage = () => {
     { title: t("admin.phone"), dataKey: "phoneNumber", sortable: true },
     { title: t("admin.email"), dataKey: "email", sortable: true },
     {
-      title: t("admin.status"),
+      title: "Trạng thái",
       dataKey: "status",
       sortable: true,
       renderCell: (value) => {
-        return value === "ACTIVE" ? "Đang hoạt động" : "Khóa";
+        if (value === "ACTIVE") return "Hoạt động";
+        if (value === "BLOCKED") return "Khóa";
+        return "Chưa biết";
       },
     },
   ];
@@ -382,16 +380,6 @@ const ListOfAdminPage = () => {
       options: [
         { label: "nam", value: "MALE" },
         { label: "nữ", value: "FEMALE" },
-      ],
-      getValue: (option) => option,
-    },
-    {
-      key: "status",
-      label: t("admin.status"),
-      type: "select",
-      options: [
-        { label: "Đang hoạt động", value: "ACTIVE" },
-        { label: "Khóa", value: "BLOCKED" },
       ],
       getValue: (option) => option,
     },
@@ -431,10 +419,6 @@ const ListOfAdminPage = () => {
       errors.gender = "Vui lòng chọn giới tính.";
     }
 
-    if (!formData.status) {
-      errors.status = "Vui lòng chọn trạng thái.";
-    }
-
     if (!formData.roleId) {
       errors.roleId = "Vui lòng chọn vai trò.";
     }
@@ -459,7 +443,6 @@ const ListOfAdminPage = () => {
             : "Không xác định",
         phoneNumber: item.phoneNumber,
         email: item.email,
-        status: item.status === "ACTIVE" ? "Đang hoạt động" : "Khóa",
       };
 
       return Object.values(searchValues).some((value) => {
@@ -523,7 +506,7 @@ const ListOfAdminPage = () => {
             {error && <Alert severity="error">{error}</Alert>}
             <Table
               columns={columns}
-              data={filteredData} // Sử dụng filteredData thay vì data
+              data={filteredData}
               onView={handleView}
               onEdit={handleEdit}
               onDelete={(admin) => handleDelete(admin.adminId)}
@@ -533,8 +516,11 @@ const ListOfAdminPage = () => {
               onSort={handleSort}
               loading={isLoading}
               error={error}
-              itemsPerPage={itemsPerPage} // Truyền itemsPerPage
-              onItemsPerPageChange={handleItemsPerPageChange} // Truyền callback
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+              onLock={handleLock} // Thêm hàm xử lý khóa/mở khóa
+              showLock={true} // Hiển thị nút khóa/mở khóa
+              statusKey="status" // Khóa theo trường status
             />
             <p>Tổng số nhân viên: {totalItems}</p> {/* Hiện thị totalItems */}
           </div>
@@ -550,7 +536,10 @@ const ListOfAdminPage = () => {
       >
         <FormDetail
           formData={modalData}
-          fields={modalMode === "add" ? addFields : editFields}
+          fields={editFields.map((field) => ({
+            ...field,
+            readOnly: modalMode === "view",
+          }))}
           mode={modalMode || "view"}
           onChange={(name, value) => {
             setModalData({ ...modalData, [name]: value });
