@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
-import Cookies from "js-cookie"; // Import js-cookie
+// import Cookies from "js-cookie"; // Không cần import Cookies ở đây nữa
+import { useSelector } from "react-redux"; // <-- Import useSelector
 import logo from "../../../assets/images/logo_white.webp";
 import "../../../assets/css/HomePageLayout.style.css";
 import { FaBars, FaTimes, FaEnvelope, FaPhone } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-
-// Giả sử bạn đã import UserAccountToolbar đúng đường dẫn
 import UserAccountToolbar from "./UserAccountToolbar";
 
 const HomePageLayoutComponent = ({ children }) => {
@@ -19,19 +18,19 @@ const HomePageLayoutComponent = ({ children }) => {
   const today = new Date();
   const thisYear = today.getFullYear();
 
-  // --- START: Thêm state và effect để kiểm tra đăng nhập ---
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // --- START: Lấy trạng thái xác thực từ Redux store ---
+  // Giả sử state user profile của bạn nằm trong state.user.profile
+  // và có trường userId (hoặc email, id, ...) để xác định đã đăng nhập
+  const userProfile = useSelector((state) => state.user.profile); // <-- Sử dụng useSelector
+  const isAuthenticated = !!userProfile?.userId; // <-- Xác định đăng nhập dựa trên profile từ Redux
+  // (Hoặc dùng userProfile?.id, userProfile?.email tùy cấu trúc data)
 
-  useEffect(() => {
-    // Kiểm tra sự tồn tại của cookie 'token' (hoặc tên cookie bạn dùng)
-    const token = Cookies.get("token");
-    setIsAuthenticated(!!token); // Chuyển đổi sự tồn tại của token thành boolean
-
-    // Nếu bạn dùng Redux hoặc Context, bạn có thể lấy trạng thái từ đó thay vì cookie
-    // ví dụ: const userInfo = useSelector(state => state.user.userProfile);
-    // setIsAuthenticated(!!userInfo?.id); // hoặc kiểm tra trường khác
-  }, []); // Chạy một lần khi component mount
-  // --- END: Thêm state và effect ---
+  // Bỏ useEffect kiểm tra cookie ở đây
+  // useEffect(() => {
+  //   const token = Cookies.get("token");
+  //   setIsAuthenticated(!!token);
+  // }, []);
+  // --- END: Lấy trạng thái xác thực từ Redux store ---
 
   const handleScroll = () => {
     // ... (code xử lý scroll giữ nguyên)
@@ -80,16 +79,20 @@ const HomePageLayoutComponent = ({ children }) => {
           <Link to="/" className="logo-link">
             <img src={logo} alt="Gia Sư VLU Logo" className="logo" />
           </Link>
-          <Link to="/trang-chu" className="home-page-menu-item" href="/trang-chu">
+          <Link
+            to="/trang-chu"
+            className="home-page-menu-item"
+            href="/trang-chu"
+          >
             Trang chủ
           </Link>
           <Link to="/about" className="home-page-menu-item" href="/about">
             Về chúng tôi
           </Link>
-          {/* --- START: Thêm link Đăng ký làm gia sư (chỉ khi đã đăng nhập) --- */}
+          {/* --- Hiển thị link dựa trên isAuthenticated từ Redux --- */}
           {isAuthenticated && (
             <Link
-              to="/dang-ky-gia-su"
+              to="/dang-ky-gia-su" // Đảm bảo route này tồn tại
               className="home-page-menu-item"
               href="/dang-ky-gia-su"
             >
@@ -105,7 +108,7 @@ const HomePageLayoutComponent = ({ children }) => {
           </Link>
         </nav>
 
-        {/* --- START: Render có điều kiện cho Đăng nhập/Đăng ký và User Toolbar --- */}
+        {/* --- Render có điều kiện dựa trên isAuthenticated từ Redux --- */}
         {!isAuthenticated ? (
           // Hiển thị khi chưa đăng nhập
           <div className="home-page-register-login">
@@ -156,10 +159,10 @@ const HomePageLayoutComponent = ({ children }) => {
           >
             Về chúng tôi
           </Link>
-          {/* --- START: Thêm link Đăng ký làm gia sư (chỉ khi đã đăng nhập) - Mobile --- */}
+          {/* --- Render có điều kiện dựa trên isAuthenticated từ Redux - Mobile --- */}
           {isAuthenticated && (
             <Link
-              to="/tutor-registration"
+              to="/dang-ky-gia-su" // Đảm bảo route này tồn tại
               className="mobile-menu-item"
               onClick={closeMobileMenu}
             >
@@ -183,7 +186,7 @@ const HomePageLayoutComponent = ({ children }) => {
           </Link>
           <hr className="mobile-menu-divider" />
 
-          {/* --- START: Render có điều kiện cho Đăng nhập/Đăng ký và User Toolbar - Mobile --- */}
+          {/* --- Render có điều kiện dựa trên isAuthenticated từ Redux - Mobile --- */}
           {!isAuthenticated ? (
             // Hiển thị khi chưa đăng nhập - Mobile
             <>
@@ -204,10 +207,7 @@ const HomePageLayoutComponent = ({ children }) => {
             </>
           ) : (
             // Hiển thị khi đã đăng nhập - Mobile
-            // Lưu ý: UserAccountToolbar có thể cần điều chỉnh CSS để hiển thị tốt trong mobile menu
             <div className="mobile-user-toolbar-wrapper">
-              {" "}
-              {/* Thêm wrapper nếu cần style riêng */}
               <UserAccountToolbar />
             </div>
           )}
@@ -302,5 +302,6 @@ HomePageLayoutComponent.propTypes = {
   children: PropTypes.node,
 };
 
+// Sử dụng React.memo nếu bạn muốn tối ưu hóa, nhưng không bắt buộc
 const HomePageLayout = React.memo(HomePageLayoutComponent);
 export default HomePageLayout;
