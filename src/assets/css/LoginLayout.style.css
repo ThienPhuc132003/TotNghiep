@@ -124,7 +124,6 @@
 
 .register-link {
   align-self: center;
-  margin-top: 1rem;
 }
 .register-link p {
   color: white;
@@ -139,6 +138,7 @@
 }
 .forgot-password-link {
   align-self: flex-end;
+  margin: 10px 0;
 }
 .error-message {
   color: rgba(215, 33, 52, 1);

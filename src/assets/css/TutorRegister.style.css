@@ -1,0 +1,488 @@
+/* TutorRegistrationForm.style.css */
+
+/* === Container Chính === */
+.tutor-registration-container {
+  max-width: 950px;
+  margin: 2rem auto;
+  background-color: #f4f6f9;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+/* === Tiêu đề chính của Form (H2) === */
+.tutor-registration-container h2 {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/* === Styling cho mỗi Section để tạo hiệu ứng Card === */
+.tutor-registration-form .form-section {
+  background-color: #ffffff;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.tutor-registration-form .form-section:last-of-type {
+  margin-bottom: 0;
+}
+
+/* === Tiêu đề Section (H3) === */
+.tutor-registration-form h3 {
+  font-size: 1.5rem;
+  color: #b41e2d;
+  margin-bottom: 2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid #b41e2d;
+  display: inline-block;
+  margin-top: 0;
+  font-weight: 600;
+}
+
+/* === Grid Layout cho các Section === */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem 2.5rem;
+}
+
+/* === Styling chung cho các Form Group === */
+.form-group {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* === Label === */
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+/* === Input, Select, Textarea === */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group input[type="file"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  color: #495057;
+  background-color: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Input bị disable */
+.form-group input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #b41e2d;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(180, 30, 45, 0.25);
+}
+
+.form-group input[type="file"] {
+  padding: 0.6rem;
+  cursor: pointer;
+}
+.form-group input[type="file"]::file-selector-button {
+  padding: 0.6rem 1rem;
+  margin-right: 1rem;
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.form-group input[type="file"]::file-selector-button:hover {
+  background-color: #dee2e6;
+}
+
+.file-name {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* === Radio Button === */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.3rem;
+}
+.radio-group label {
+  margin-bottom: 0;
+  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: #495057;
+}
+.radio-group input[type="radio"] {
+  margin-right: 0.5rem;
+  accent-color: #b41e2d;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* === Subject Section Specific Styles === */
+.subject-item {
+  border: 1px solid #e9ecef;
+  background-color: #fdfdfd;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  position: relative;
+}
+
+.subject-item h4 {
+  grid-column: 1 / -1;
+  margin-bottom: 1.5rem;
+  color: #343a40;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed #ced4da;
+}
+
+/* === Availability Section Specific Styles === */
+.availability-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(150px, 1fr)
+  ); /* Rộng hơn chút cho input time */
+  gap: 1.2rem;
+}
+
+.day-column {
+  border: 1px solid #dee2e6;
+  padding: 1rem;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.day-column.selected {
+  background-color: #e8f5e9;
+  border-color: #a5d6a7;
+  box-shadow: 0 0 8px rgba(165, 214, 167, 0.3);
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+  user-select: none;
+}
+.day-header input[type="checkbox"] {
+  margin-right: 0.6rem;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #b41e2d;
+}
+.day-header label {
+  font-weight: 600;
+  color: #495057;
+  cursor: pointer;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.time-slots {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Tăng khoảng cách giữa các slot */
+  flex-grow: 1;
+  justify-content: flex-start;
+}
+
+.time-slot-item {
+  display: flex;
+  flex-wrap: wrap; /* Cho phép xuống dòng */
+  align-items: center;
+  gap: 0.5rem 0.8rem; /* Khoảng cách hàng và cột */
+  position: relative; /* Cho message lỗi */
+}
+.time-slot-item input[type="time"] {
+  padding: 0.5rem 0.7rem; /* Điều chỉnh padding */
+  font-size: 0.95rem; /* Tăng nhẹ size chữ */
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  /* max-width: 110px; */ /* Bỏ max-width để linh hoạt hơn */
+  flex-grow: 1; /* Cho input chiếm phần lớn không gian */
+  min-width: 100px; /* Chiều rộng tối thiểu */
+  color: #495057;
+}
+.time-slot-item span:not(.time-slot-error-message) {
+  /* Text (Bắt đầu) */
+  font-size: 0.85rem;
+  color: #6c757d;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* === Nút Thêm / Xóa === */
+.add-button,
+.add-time-button {
+  background-color: #28a745;
+  border: none;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+}
+.add-button:hover,
+.add-time-button:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+}
+.add-time-button {
+  margin-top: auto;
+  align-self: center;
+  padding: 0.5rem 1rem;
+}
+
+.remove-button,
+.remove-time-button {
+  background-color: #dc3545;
+  border: none;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  line-height: 1.2; /* Điều chỉnh line-height */
+  flex-shrink: 0; /* Không co lại */
+  height: fit-content; /* Cho chiều cao vừa đủ */
+}
+.remove-button:hover,
+.remove-time-button:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+.remove-time-button {
+  margin-left: auto; /* Đẩy nút xóa giờ về cuối */
+}
+
+/* === Khu vực nút Submit và Thông báo === */
+.form-actions {
+  margin-top: 2.5rem;
+  padding: 1.5rem 0 0.5rem 0; /* Giảm padding dưới */
+  text-align: center;
+}
+
+.form-actions button[type="submit"] {
+  background-color: #b41e2d;
+  color: white;
+  padding: 0.9rem 2.5rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.form-actions button[type="submit"]:hover {
+  background-color: #901724;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.form-actions button[type="submit"]:disabled {
+  background-color: #ccc;
+  color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.error-message,
+.success-message {
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  padding: 0.8rem 1.2rem;
+  border-radius: 5px;
+  text-align: left;
+  font-size: 0.95rem;
+}
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+.error-message.specific-error {
+  margin-top: 1rem;
+  text-align: center;
+  margin-bottom: 0;
+}
+.success-message {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.terms {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.5;
+}
+.terms a {
+  color: #b41e2d;
+  text-decoration: none;
+  font-weight: 600;
+}
+.terms a:hover {
+  text-decoration: underline;
+}
+
+/* === Styles cho lỗi thời gian === */
+.time-slot-item input[type="time"].time-input-error {
+  border-color: #dc3545; /* Viền đỏ */
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Shadow đỏ nhạt */
+}
+
+.time-slot-error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
+  display: block;
+  width: 100%; /* Chiếm hết chiều rộng */
+  text-align: left;
+  flex-basis: 100%; /* Đảm bảo xuống dòng riêng */
+}
+.note {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 768px) {
+  .tutor-registration-container {
+    padding: 1rem;
+  }
+  .tutor-registration-form .form-section {
+    padding: 1.5rem;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem 0;
+  }
+  .availability-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  } /* Giữ hoặc điều chỉnh */
+  .form-actions button[type="submit"] {
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+  }
+  .tutor-registration-container h2 {
+    font-size: 1.6rem;
+  }
+  .tutor-registration-form h3 {
+    font-size: 1.4rem;
+  }
+  .subject-item h4 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tutor-registration-container {
+    padding: 0.8rem;
+  } /* Tăng nhẹ padding */
+  .tutor-registration-form .form-section {
+    padding: 1.2rem;
+  } /* Tăng nhẹ padding */
+  .availability-grid {
+    grid-template-columns: 1fr;
+  } /* 1 cột trên mobile nhỏ */
+  .day-column {
+    padding: 1rem;
+  } /* Tăng padding cột ngày */
+  .time-slot-item {
+    gap: 0.5rem;
+  }
+  .time-slot-item input[type="time"] {
+    min-width: 90px;
+    flex-grow: 0;
+  } /* Cho input nhỏ lại */
+  .remove-time-button {
+    padding: 0.3rem 0.6rem;
+  }
+  .add-time-button {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  .form-actions button[type="submit"] {
+    font-size: 0.95rem;
+    padding: 0.7rem 1.8rem;
+  }
+  .error-message,
+  .success-message {
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
+  }
+}

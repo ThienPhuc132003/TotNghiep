@@ -1,23 +1,24 @@
-import { useState, useRef } from "react";
-// Bạn vẫn cần import file CSS ở đây trong dự án thực tế
+import { useState, useRef, useEffect } from "react"; 
+import { useLocation, useNavigate } from "react-router-dom"; // Thêm useLocation, useNavigate
+import Cookies from "js-cookie"; // Thêm Cookies
+import { useDispatch } from "react-redux"; // Thêm useDispatch
+// import { AuthContext } from '../context/AuthContext'; // Bỏ comment nếu dùng Context thay Redux
+
 import "../../assets/css/HomePage.style.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; 
-import welcomeTheme from "../../assets/images/vanlang_background3.webp"; 
-import vlubackground4 from "../../assets/images/vanlang_background4.webp"; 
-import subjectList from "../../assets/data/mayjorList.json"; 
-import tutorLevel from "../../assets/data/tutorLevel.json"; 
+import HomePageLayout from "../../components/User/layout/HomePageLayout";
+import welcomeTheme from "../../assets/images/vanlang_background3.webp";
+import vlubackground4 from "../../assets/images/vanlang_background4.webp";
+import subjectList from "../../assets/data/mayjorList.json";
+import tutorLevel from "../../assets/data/tutorLevel.json";
 import PropTypes from "prop-types";
 
 import person1 from "../../assets/images/person_1.png";
 import person2 from "../../assets/images/person_2.png";
 import person3 from "../../assets/images/person_3.png";
 import person4 from "../../assets/images/person_4.png";
-// import person5 from "../../assets/images/person_5.png";
-// import person6 from "../../assets/images/person_6.png";
-// import person7 from "../../assets/images/person_7.png";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -38,10 +39,16 @@ import {
   FaMinus,
 } from "react-icons/fa";
 
+// --- Import các thành phần mạng và Redux ---
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import { setUserProfile } from "../../redux/userSlice"; // <-- Import action Redux
+
 /* eslint-disable react/prop-types */
 
-// --- Hero Section ---
+// --- Hero Section (Giữ nguyên) ---
 const HeroSection = ({ onSearch }) => {
+  // ... (code HeroSection giữ nguyên) ...
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -162,41 +169,45 @@ const HeroSection = ({ onSearch }) => {
 };
 HeroSection.propTypes = { onSearch: PropTypes.func.isRequired };
 
-// --- Benefits Section ---
-const BenefitsSection = () => (
-  <section className="benefits section">
-    <h2>Tại Sao Nên Chọn Gia Sư Văn Lang?</h2>
-    <div className="benefits-grid">
-      <div className="benefit">
-        <FaCheckCircle className="benefit-icon" aria-hidden="true" />
-        <h3>Gia Sư Đa Dạng, Thân Thiện</h3>
-        <p>
-          Chủ yếu là các gia sư cũng là sinh viên, dễ dàng trao đổi với học
-          viên.
-        </p>
+// --- Benefits Section (Giữ nguyên) ---
+const BenefitsSection = () => {
+  // ... (code BenefitsSection giữ nguyên) ...
+  return (
+    <section className="benefits section">
+      <h2>Tại Sao Nên Chọn Gia Sư Văn Lang?</h2>
+      <div className="benefits-grid">
+        <div className="benefit">
+          <FaCheckCircle className="benefit-icon" aria-hidden="true" />
+          <h3>Gia Sư Đa Dạng, Thân Thiện</h3>
+          <p>
+            Chủ yếu là các gia sư cũng là sinh viên, dễ dàng trao đổi với học
+            viên.
+          </p>
+        </div>
+        <div className="benefit">
+          <FaClock className="benefit-icon" aria-hidden="true" />
+          <h3>Linh Hoạt Tuyệt Đối</h3>
+          <p>
+            Tự do lựa chọn thời gian, địa điểm và hình thức học phù hợp với lịch
+            trình của bạn.
+          </p>
+        </div>
+        <div className="benefit">
+          <FaChartLine className="benefit-icon" aria-hidden="true" />
+          <h3>Tiết Kiệm Chi Phí</h3>
+          <p>
+            Mức giá cạnh tranh, nhiều ưu đãi hấp dẫn dành riêng cho sinh viên
+            Văn Lang.
+          </p>
+        </div>
       </div>
-      <div className="benefit">
-        <FaClock className="benefit-icon" aria-hidden="true" />
-        <h3>Linh Hoạt Tuyệt Đối</h3>
-        <p>
-          Tự do lựa chọn thời gian, địa điểm và hình thức học phù hợp với lịch
-          trình của bạn.
-        </p>
-      </div>
-      <div className="benefit">
-        <FaChartLine className="benefit-icon" aria-hidden="true" />
-        <h3>Tiết Kiệm Chi Phí</h3>
-        <p>
-          Mức giá cạnh tranh, nhiều ưu đãi hấp dẫn dành riêng cho sinh viên Văn
-          Lang.
-        </p>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
-// --- Arrow Components ---
+// --- Arrow Components (Giữ nguyên) ---
 function SampleNextArrow(props) {
+  // ... (code SampleNextArrow giữ nguyên) ...
   const { className, style, onClick } = props;
   return (
     <button
@@ -216,8 +227,8 @@ SampleNextArrow.propTypes = {
   style: PropTypes.object,
   onClick: PropTypes.func,
 };
-
 function SamplePrevArrow(props) {
+  // ... (code SamplePrevArrow giữ nguyên) ...
   const { className, style, onClick } = props;
   return (
     <button
@@ -238,8 +249,9 @@ SamplePrevArrow.propTypes = {
   onClick: PropTypes.func,
 };
 
-// --- Popular Subjects Section ---
+// --- Popular Subjects Section (Giữ nguyên) ---
 const PopularSubjectsSection = () => {
+  // ... (code PopularSubjectsSection giữ nguyên) ...
   const sliderRef = useRef(null);
   const slidesToShow = 4;
   const settings = {
@@ -303,8 +315,9 @@ const PopularSubjectsSection = () => {
   );
 };
 
-// --- Testimonials Section ---
+// --- Testimonials Section (Giữ nguyên) ---
 const TestimonialsSection = () => {
+  // ... (code TestimonialsSection giữ nguyên) ...
   const studentReviews = [
     {
       id: 1,
@@ -383,8 +396,9 @@ const TestimonialsSection = () => {
   );
 };
 
-// --- Tutor Profiles Section ---
+// --- Tutor Profiles Section (Giữ nguyên) ---
 const TutorProfilesSection = () => {
+  // ... (code TutorProfilesSection giữ nguyên) ...
   const [isPaused, setIsPaused] = useState(false);
   const sliderRef = useRef(null);
   const tutors = [
@@ -519,8 +533,9 @@ const TutorProfilesSection = () => {
   );
 };
 
-// --- FAQ Section ---
+// --- FAQ Section (Giữ nguyên) ---
 const FAQSection = () => {
+  // ... (code FAQSection giữ nguyên) ...
   const [activeQuestion, setActiveQuestion] = useState(null);
   const toggleQuestion = (index) => {
     setActiveQuestion(activeQuestion === index ? null : index);
@@ -593,7 +608,7 @@ const FAQSection = () => {
   );
 };
 
-// --- HomePage Content Wrapper ---
+// --- HomePage Content Wrapper (Giữ nguyên) ---
 const HomePageContent = ({ onSearch }) => (
   <div className="home-page-content">
     <HeroSection onSearch={onSearch} />
@@ -608,13 +623,171 @@ HomePageContent.propTypes = { onSearch: PropTypes.func.isRequired };
 
 // --- Main HomePage Component ---
 const HomePage = () => {
+  const location = useLocation(); // Hook để lấy thông tin URL
+  const navigate = useNavigate(); // Hook để điều hướng
+  const dispatch = useDispatch(); // Hook để dispatch action Redux
+  // const { login } = useContext(AuthContext); // Bỏ comment nếu dùng Context
+
+  // State cho quá trình xử lý OAuth callback
+  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
+  const [oauthError, setOauthError] = useState(null);
+
+  // --- Logic xử lý OAuth Callback ---
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+
+    // Chỉ xử lý nếu có cả 'code' và 'state' trên URL
+    if (code && state) {
+      setIsProcessingOAuth(true); // Bắt đầu xử lý
+      setOauthError(null); // Reset lỗi cũ
+
+      const storedState = Cookies.get("microsoft_auth_state"); // Lấy state từ cookie (như trang Login)
+
+      // 1. Kiểm tra State chống CSRF
+      if (!storedState || state !== storedState) {
+        console.error(
+          "Lỗi bảo mật OAuth: Tham số 'state' không khớp hoặc không tồn tại."
+        );
+        setOauthError(
+          "Lỗi bảo mật trong quá trình xác thực. Vui lòng thử đăng nhập lại."
+        );
+        Cookies.remove("microsoft_auth_state"); // Xóa state cookie (nếu có)
+        // Làm sạch URL ngay lập tức
+        navigate(location.pathname, { replace: true });
+        setIsProcessingOAuth(false); // Kết thúc xử lý
+        return; // Dừng thực thi
+      }
+
+      // State hợp lệ, xóa cookie state
+      Cookies.remove("microsoft_auth_state");
+
+      // 2. Định nghĩa và gọi hàm trao đổi code lấy token
+      const exchangeCodeForToken = async (authCode) => {
+        try {
+          // Gọi API backend để đổi code lấy token
+          const response = await Api({
+            endpoint: "user/auth/callback", // Endpoint callback backend
+            method: METHOD_TYPE.POST,
+            data: { code: authCode },
+          });
+
+          // Làm sạch URL ngay sau khi gửi yêu cầu (hoặc trong finally)
+          // navigate(location.pathname, { replace: true });
+
+          if (response.success && response.data?.token) {
+            const { token } = response.data;
+            console.log("OAuth Login Success - User Token:", token);
+
+            // 3. Lưu token vào cookie (giống trang Login)
+            // Quyết định xem có cần "rememberMe" ở đây không, mặc định là session cookie
+            Cookies.set("token", token); // Lưu token vào cookie
+            Cookies.set("role", "user"); // Lưu role (nếu cần)
+
+            // 4. (Tùy chọn nhưng nên có) Lấy thông tin profile và cập nhật Redux
+            try {
+              const userInfoResponse = await Api({
+                endpoint: "user/get-profile",
+                method: METHOD_TYPE.GET,
+                // Api helper sẽ tự động đọc token từ cookie
+              });
+
+              if (userInfoResponse.success && userInfoResponse.data) {
+                dispatch(setUserProfile(userInfoResponse.data)); // Cập nhật profile vào Redux store
+                console.log(
+                  "User profile fetched and updated via OAuth callback."
+                );
+              } else {
+                console.error(
+                  "OAuth login successful but failed to fetch user profile:",
+                  userInfoResponse.message
+                );
+                setOauthError(
+                  "Đăng nhập thành công nhưng không thể tải dữ liệu người dùng."
+                );
+              }
+            } catch (profileError) {
+              console.error(
+                "Error fetching user profile after OAuth login:",
+                profileError
+              );
+              setOauthError(
+                profileError.response?.data?.message ||
+                  "Lỗi khi tải thông tin người dùng sau OAuth."
+              );
+            }
+
+            // Nếu dùng Context:
+            // if (typeof login === 'function') {
+            //    login(token, userId);
+            // }
+          } else {
+            // Lỗi từ API callback (vd: code hết hạn, không hợp lệ)
+            throw new Error(
+              response.message || "Không thể đổi mã xác thực lấy token."
+            );
+          }
+        } catch (err) {
+          console.error("Lỗi trong quá trình callback OAuth:", err);
+          setOauthError(
+            err.message || "Đã có lỗi xảy ra trong quá trình đăng nhập OAuth."
+          );
+        } finally {
+          // Luôn làm sạch URL và kết thúc trạng thái xử lý
+          navigate(location.pathname, { replace: true });
+          setIsProcessingOAuth(false);
+        }
+      };
+
+      // Gọi hàm xử lý
+      exchangeCodeForToken(code);
+    }
+    // Dependency: chỉ chạy khi query string thay đổi
+    // Thêm navigate, dispatch nếu cần để ổn định
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, navigate, dispatch]); // Bỏ dispatch nếu không dùng Redux
+
+  // --- Phần xử lý tìm kiếm ban đầu ---
   const handleSearch = (searchParams) => {
     console.log("Tìm kiếm với các tham số:", searchParams);
     // Xử lý logic tìm kiếm hoặc chuyển trang
   };
+
+  // --- Render Component ---
   return (
     <HomePageLayout>
-      <HomePageContent onSearch={handleSearch} />
+      {/* Hiển thị loading hoặc lỗi nếu đang xử lý OAuth */}
+      {isProcessingOAuth && (
+        <div className="oauth-processing-overlay">
+          {" "}
+          {/* Tạo style cho lớp này nếu muốn */}
+          <p>Đang xử lý đăng nhập...</p>
+          {/* Có thể thêm Spinner ở đây */}
+        </div>
+      )}
+      {oauthError && (
+        <div
+          style={{
+            color: "red",
+            border: "1px solid red",
+            padding: "10px",
+            margin: "10px auto",
+            textAlign: "center",
+            maxWidth: "80%",
+          }}
+        >
+          <strong>Lỗi đăng nhập OAuth:</strong> {oauthError}
+        </div>
+      )}
+
+      {/* Render nội dung chính của trang chủ */}
+      {/* Chỉ render nội dung chính nếu không đang xử lý OAuth HOẶC bạn muốn hiển thị nó bên dưới thông báo loading */}
+      {/* Ví dụ: ẩn nội dung chính khi đang xử lý */}
+      {!isProcessingOAuth && <HomePageContent onSearch={handleSearch} />}
+
+      {/* Hoặc luôn render nội dung chính, thông báo loading/error sẽ hiện đè lên nếu có */}
+      {/* <HomePageContent onSearch={handleSearch} /> */}
     </HomePageLayout>
   );
 };

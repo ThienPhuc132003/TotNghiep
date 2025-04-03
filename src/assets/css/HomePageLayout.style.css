@@ -245,7 +245,6 @@
 .main-content {
   padding-top: 75px;
   flex: 1;
-  padding-bottom: 3rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -400,7 +399,88 @@
   color: #ffffff;
   text-decoration: underline;
 }
+/* ============================================ */
+/* Styles for UserAccountToolbar inside HomePageLayout */
+/* ============================================ */
 
+/* Đổi màu icon Setting (bánh răng) thành trắng */
+.home-page-header .user-account-toolbar .setting-button .fa-gear {
+  color: white; /* Hoặc một màu trắng nhạt hơn như #f0f0f0 nếu muốn */
+  transition: color 0.3s ease; /* Thêm transition cho mượt */
+}
+
+/* Tùy chọn: Đổi màu icon Setting khi hover (nếu cần) */
+.home-page-header .user-account-toolbar .setting-button:hover .fa-gear {
+  color: #e0e0e0; /* Màu trắng hơi xám khi hover */
+}
+
+/* Đổi màu chữ User Name thành trắng */
+.home-page-header .user-account-toolbar .user-dropdown .user-name {
+  color: white;
+  font-weight: 600; /* Có thể tăng độ đậm nếu muốn */
+}
+
+/* Đổi màu chữ User Role thành màu sáng hơn (ví dụ: xám nhạt) */
+.home-page-header .user-account-toolbar .user-dropdown .user-role {
+  color: #cccccc; /* Màu xám nhạt, dễ đọc trên nền tối */
+}
+
+/* Đổi màu viền avatar (nếu muốn) */
+.home-page-header .user-account-toolbar .user-avatar-square {
+  border-color: rgba(255, 255, 255, 0.5); /* Viền trắng mờ */
+}
+.home-page-header .user-account-toolbar .user-avatar-square:hover {
+  border-color: white; /* Viền trắng rõ khi hover */
+}
+
+/* --- THÊM CHO CÁC ICON KHÁC (NotifiButton, HelpButton) --- */
+/* Giả sử NotifiButton và HelpButton cũng dùng icon FontAwesome bên trong một button */
+
+/* Đổi màu icon Notification */
+.home-page-header .user-account-toolbar .notification-button i {
+  /* Thay .notification-button và i bằng selector thực tế */
+  color: white;
+}
+.home-page-header .user-account-toolbar .notification-button:hover i {
+  color: #e0e0e0;
+}
+
+/* Đổi màu icon Help */
+.home-page-header .user-account-toolbar .help-button i {
+  /* Thay .help-button và i bằng selector thực tế */
+  color: white;
+}
+.home-page-header .user-account-toolbar .help-button:hover i {
+  color: #e0e0e0;
+}
+
+/* --- CSS cho UserAccountToolbar trong Mobile Menu (Nếu cần) --- */
+/* Nếu UserAccountToolbar cũng hiển thị trong mobile menu và cần style khác */
+.mobile-menu
+  .mobile-user-toolbar-wrapper
+  .user-account-toolbar
+  .setting-button
+  .fa-gear {
+  /* Style riêng cho icon setting trong mobile menu nếu cần */
+  color: white; /* Ví dụ */
+}
+
+.mobile-menu .mobile-user-toolbar-wrapper .user-account-toolbar .user-name {
+  /* Style riêng cho user name trong mobile menu nếu cần */
+  color: white;
+}
+.home-page-header .user-account-toolbar .notifi-button i {
+  /* Selector chung cho thẻ <i> */
+  /* hoặc dùng: .home-page-header .user-account-toolbar .notifi-button .fa-bell { */
+  color: white; /* Đổi thành màu trắng */
+  transition: color 0.3s ease;
+}
+
+/* Tùy chọn: Đổi màu icon Notification khi hover */
+.home-page-header .user-account-toolbar .notifi-button:hover i {
+  /* hoặc dùng: .home-page-header .user-account-toolbar .notifi-button:hover .fa-bell { */
+  color: #e0e0e0; /* Màu trắng hơi xám khi hover */
+}
 /* ==================== Responsive Styles ==================== */
 
 /* Tablets và Desktop nhỏ ( <= 992px) */

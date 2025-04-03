@@ -1,11 +1,10 @@
-// src/pages/Admin/ListOfRequest.jsx
+/* eslint-disable no-undef */
 import React, { useCallback, useEffect, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
-import AdminFilterButton from "../../components/Admin/AdminFilterButton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
@@ -13,17 +12,18 @@ import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
-import qs from "qs";
-
+import unidecode from "unidecode";
+import { toast, ToastContainer } from "react-toastify"; // Import toast và ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toastify
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
 const ListOfRequestPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
+  const [filteredData, setFilteredData] = useState([]); // Thêm state này
+  const [totalItems, setTotalItems] = useState(0); // Giữ lại totalItems
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
@@ -33,105 +33,71 @@ const ListOfRequestPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Giá trị mặc định
   const currentPath = "/yeu-cau";
+  const [filters, setFilters] = useState([]);
+  const [pageCount, setPageCount] = useState(1);
+  const [formErrors, setFormErrors] = useState({}); // Thêm state để lưu trữ lỗi
 
-  const updateUrl = useCallback(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
-      params.append("sortDirection", sortConfig.direction);
-    }
-    params.append("page", currentPage + 1);
+  const resetState = () => {
+    setSearchInput("");
+    setCurrentPage(0);
+    setFilters([]); // Reset filters
+  };
 
-    const newUrl = `${currentPath}?${params.toString()}`;
-    window.history.pushState({}, "", newUrl);
-  }, [searchQuery, sortConfig, currentPage, currentPath]);
+  const fetchData = useCallback(
+    async (sortConfigOverride = sortConfig) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const query = {
+          rpp: itemsPerPage, // Sử dụng itemsPerPage state
+          page: currentPage + 1,
+        };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialSearchQuery = params.get("searchQuery") || "";
-    const initialSortKey = params.get("sortKey") || "";
-    const initialSortDirection = params.get("sortDirection") || "asc";
-    const initialPage = parseInt(params.get("page") || "1", 10) - 1;
+        if (filters.length > 0) {
+          query.filter = filters;
+        }
 
-    setSearchQuery(initialSearchQuery);
-    setSortConfig({
-      key: initialSortKey,
-      direction: initialSortDirection,
-    });
-    setCurrentPage(initialPage);
-    setSearchInput(initialSearchQuery);
-  }, []);
+        let sortToUse = sortConfigOverride;
 
-  useEffect(() => {
-    updateUrl();
-  }, [searchQuery, sortConfig, currentPage, updateUrl]);
+        if (!sortToUse.key) {
+          sortToUse = { key: "createdAt", direction: "desc" };
+        }
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const query = {
-        rpp: itemsPerPage,
-        page: currentPage + 1,
-      };
+        query.sort = [
+          { key: sortToUse.key, type: sortToUse.direction.toUpperCase() },
+        ];
 
-      if (searchQuery) {
-        query.filter = JSON.stringify([
-          {
-            key: "email",
-            operator: "like",
-            value: searchQuery,
-          },
-        ]);
+        const response = await Api({
+          endpoint: `user/get-list/:REQUEST`,
+          method: METHOD_TYPE.GET,
+          query: query,
+        });
+
+        if (response.success) {
+          setData(response.data.items);
+          setFilteredData(response.data.items); // Lưu trữ dữ liệu vào state mới
+          setTotalItems(response.data.total); // Giữ lại totalItems
+          setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
+        } else {
+          setError(response.message || t("common.errorLoadingData"));
+        }
+      } catch (error) {
+        setError(t("common.errorLoadingData"));
+      } finally {
+        setIsLoading(false);
       }
-
-      if (sortConfig.key) {
-        query.sort = JSON.stringify([
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ]);
-      }
-
-      const queryString = qs.stringify(query, { encode: false });
-
-      const response = await Api({
-        endpoint: `user/get-list/:REQUEST?${queryString}`,
-        method: METHOD_TYPE.GET,
-      });
-
-      if (response.success) {
-        setData(response.data.items);
-        setTotalItems(response.data.total);
-      } else {
-        setError(response.message || t("common.errorLoadingData"));
-      }
-    } catch (error) {
-      setError(t("common.errorLoadingData"));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentPage, searchQuery, sortConfig, t]);
+    },
+    [currentPage, sortConfig, t, itemsPerPage, filters]
+  );
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, fetchData]);
+  }, [fetchData]);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
-  };
-
-  const handleSearch = () => {
-    setSearchQuery(searchInput);
-    setSortConfig({ key: "", direction: "asc" });
-    setCurrentPage(0);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   const handleSort = (sortKey) => {
@@ -142,12 +108,6 @@ const ListOfRequestPage = () => {
           : "asc";
       return { key: sortKey, direction: newDirection };
     });
-  };
-
-  const handleApplyFilter = (filterValues) => {
-    setSearchQuery(filterValues.email || "");
-    setSortConfig({ key: "", direction: "asc" });
-    setCurrentPage(0);
   };
 
   const handleDelete = async (requestId) => {
@@ -164,10 +124,15 @@ const ListOfRequestPage = () => {
 
       if (response.success) {
         fetchData();
+        toast.success("Xóa thành công!");
       } else {
+        toast.error(
+          `Xóa thất bại: ${response.message || "Lỗi không xác định"}`
+        );
         console.log("Failed to delete request");
       }
     } catch (error) {
+      toast.error(`Xóa thất bại: ${error.message || "Lỗi mạng"}`);
       console.error("An error occurred while deleting request:", error.message);
     } finally {
       setIsDeleteModalOpen(false);
@@ -186,6 +151,7 @@ const ListOfRequestPage = () => {
       dateTimeLearn: [],
     });
     setIsModalOpen(true);
+    setFormErrors({}); // Reset lỗi khi mở modal
   };
 
   const handleView = (request) => {
@@ -214,12 +180,14 @@ const ListOfRequestPage = () => {
     });
     setModalMode("edit");
     setIsModalOpen(true);
+    setFormErrors({}); // Reset lỗi khi mở modal
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setModalData({});
     setModalMode(null);
+    setFormErrors({}); // Reset lỗi khi đóng modal
   };
 
   const handleSave = async () => {
@@ -227,6 +195,7 @@ const ListOfRequestPage = () => {
     setIsModalOpen(false);
     setModalData({});
     setModalMode(null);
+    setFormErrors({}); // Reset lỗi sau khi lưu
   };
 
   const handleCreateRequest = async (formData) => {
@@ -238,11 +207,18 @@ const ListOfRequestPage = () => {
       });
 
       if (response.success) {
+        toast.success("Thêm mới thành công!"); // Hiển thị thông báo thành công
+        // Gọi lại fetchData với sort createdAt giảm dần
+        fetchData({ key: "createdAt", direction: "desc" });
         handleSave();
       } else {
+        toast.error(
+          `Thêm mới thất bại: ${response.message || "Lỗi không xác định"}`
+        );
         console.error("Failed to create request:", response.message);
       }
     } catch (error) {
+      toast.error(`Thêm mới thất bại: ${error.message || "Lỗi mạng"}`);
       console.error("An error occurred while creating request:", error.message);
     }
   };
@@ -256,11 +232,16 @@ const ListOfRequestPage = () => {
       });
 
       if (response.success) {
+        toast.success("Cập nhật thành công!");
         handleSave();
       } else {
+        toast.error(
+          `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
+        );
         console.error("Failed to update request:", response.message);
       }
     } catch (error) {
+      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
       console.error("An error occurred while updating request:", error.message);
     }
   };
@@ -269,8 +250,16 @@ const ListOfRequestPage = () => {
     { title: t("request.id"), dataKey: "requestId", sortable: true },
     { title: t("request.email"), dataKey: "email", sortable: true },
     { title: t("request.phone"), dataKey: "phoneNumber", sortable: true },
-    { title: t("request.majorName"), dataKey: "tutorProfile.majorName", sortable: true },
-    { title: t("request.univercity"), dataKey: "tutorProfile.univercity", sortable: true },
+    {
+      title: t("request.majorName"),
+      dataKey: "tutorProfile.majorName",
+      sortable: true,
+    },
+    {
+      title: t("request.univercity"),
+      dataKey: "tutorProfile.univercity",
+      sortable: true,
+    },
     { title: t("request.GPA"), dataKey: "tutorProfile.GPA", sortable: true },
     {
       title: t("request.dateTimeLearn"),
@@ -314,53 +303,99 @@ const ListOfRequestPage = () => {
     },
   ];
 
-  const childrenMiddleContentLower = (
-    <>
-      <div className="admin-content">
-        <h2 className="admin-list-title">Danh sách yêu cầu làm gia sư</h2>
-        <div className="admin-search-filter">
-          <SearchBar
-            value={searchInput}
-            onChange={setSearchInput}
-            searchBarClassName="admin-search"
-            searchInputClassName="admin-search-input"
-            searchBarButtonClassName="admin-search-button"
-            searchBarOnClick={handleSearch}
-            onKeyPress={handleKeyPress}
-            placeholder={t("common.searchPlaceholder")}
-          />
-          <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddRequest}>
-              {t("common.addButton")}
-            </button>
-            <button className="refresh-button" onClick={fetchData}>
-              {t("common.refresh")}
-            </button>
-            <AdminFilterButton fields={editFields} onApply={handleApplyFilter} />
-          </div>
-        </div>
-        {error && <Alert severity="error">{error}</Alert>}
-        <Table
-          columns={columns}
-          data={data}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={(request) => handleDelete(request.requestId)}
-          pageCount={Math.ceil(totalItems / itemsPerPage)}
-          onPageChange={handlePageClick}
-          forcePage={currentPage}
-          onSort={handleSort}
-          loading={isLoading}
-          error={error}
-        />
-      </div>
-    </>
-  );
+  const handleSearchInputChange = (query) => {
+    setSearchInput(query);
+    const normalizedQuery = unidecode(query.toLowerCase());
+    const collator = new Intl.Collator("vi", { sensitivity: "base" });
+
+    const filtered = data.filter((item) => {
+      const searchValues = {
+        requestId: item.requestId,
+        email: item.email,
+        phoneNumber: item.phoneNumber,
+        majorName: item.tutorProfile?.majorName || "",
+        univercity: item.tutorProfile?.univercity || "",
+        gpa: item.tutorProfile?.GPA || "",
+      };
+
+      return Object.values(searchValues).some((value) => {
+        if (value) {
+          const stringValue = value.toString().toLowerCase();
+          const normalizedValue = unidecode(stringValue);
+
+          // Tạo biểu thức chính quy
+          const regex = new RegExp(normalizedQuery, "i");
+
+          return (
+            collator.compare(normalizedValue, normalizedQuery) === 0 ||
+            normalizedValue.includes(normalizedQuery) ||
+            regex.test(normalizedValue)
+          );
+        }
+        return false;
+      });
+    });
+
+    setFilteredData(filtered);
+  };
+
+  const handleItemsPerPageChange = (newPageSize) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(0); // Reset về trang đầu tiên
+  };
 
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
-      childrenMiddleContentLower={childrenMiddleContentLower}
+      childrenMiddleContentLower={
+        <>
+          <div className="admin-content">
+            <h2 className="admin-list-title">Danh sách yêu cầu làm gia sư</h2>
+            <div className="search-bar-filter-container">
+              <div className="search-bar-filter">
+                <SearchBar
+                  value={searchInput}
+                  onChange={handleSearchInputChange}
+                  searchBarClassName="admin-search"
+                  searchInputClassName="admin-search-input"
+                  placeholder="Tìm kiếm yêu cầu"
+                />
+                <button
+                  className="refresh-button"
+                  onClick={() => {
+                    resetState();
+                    fetchData();
+                  }}
+                >
+                  <i className="fa-solid fa-rotate"></i>
+                </button>
+              </div>
+              <div className="filter-add-admin">
+                <button className="add-admin-button" onClick={handleAddRequest}>
+                  {t("common.addButton")}
+                </button>
+              </div>
+            </div>
+            {error && <Alert severity="error">{error}</Alert>}
+            <Table
+              columns={columns}
+              data={filteredData}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={(request) => handleDelete(request.requestId)}
+              pageCount={pageCount} // Truyền pageCount
+              onPageChange={handlePageClick}
+              forcePage={currentPage}
+              onSort={handleSort}
+              loading={isLoading}
+              error={error}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+            <p>Tổng số yêu cầu: {totalItems}</p> {/* Hiện thị totalItems */}
+          </div>
+        </>
+      }
     >
       <Modal
         isOpen={isModalOpen}
@@ -373,10 +408,15 @@ const ListOfRequestPage = () => {
           formData={modalData}
           fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"}
-          onChange={(name, value) =>
-            setModalData({ ...modalData, [name]: value })
+          onChange={(name, value) => {
+            setModalData({ ...modalData, [name]: value });
+            setFormErrors({ ...formErrors, [name]: "" }); // Xóa lỗi khi người dùng nhập
+          }}
+          onSubmit={
+            modalMode === "add" ? handleCreateRequest : handleUpdateRequest
           }
-          onSubmit={modalMode === "add" ? handleCreateRequest : handleUpdateRequest}
+          onClose={handleCloseModal}
+          errors={formErrors} // Truyền errors cho FormDetail
         />
       </Modal>
       <DeleteConfirmationModal
@@ -384,6 +424,18 @@ const ListOfRequestPage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         message="Bạn có chắc muốn xóa yêu cầu này?"
+      />
+      <ToastContainer // Thêm ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
       />
     </AdminDashboardLayout>
   );

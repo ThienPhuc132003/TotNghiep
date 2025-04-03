@@ -91,7 +91,7 @@ const SigninPageComponent = () => {
 
           if (userInfoResponse.success && userInfoResponse.data) {
             dispatch(setUserProfile(userInfoResponse.data)); // <-- Sửa thành setUserProfile
-            navigate("/dashboard"); // Chuyển hướng đến user dashboard
+            navigate("/tim-kiem-gia-su");
           } else {
             console.error(
               "Login successful but failed to fetch user profile:",
@@ -101,7 +101,7 @@ const SigninPageComponent = () => {
               "Đăng nhập thành công nhưng không thể tải dữ liệu người dùng."
             );
             // Quyết định: vẫn chuyển hướng hoặc ở lại trang login với lỗi
-            navigate("/dashboard"); // Tạm thời vẫn chuyển hướng
+            navigate("/login");
           }
         } catch (profileError) {
           console.error(
@@ -112,7 +112,7 @@ const SigninPageComponent = () => {
             profileError.response?.data?.message ||
               "Lỗi khi tải thông tin người dùng."
           );
-          navigate("/dashboard"); // Tạm thời vẫn chuyển hướng
+          navigate("/login"); // Tạm thời vẫn chuyển hướng
         }
       } else {
         // Login API không thành công hoặc không trả về token
