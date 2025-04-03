@@ -28,7 +28,10 @@ const NotifiButtonComponent = () => {
         } else if (response.data === null) {
           console.error("Expected response.data to be an array, but got null");
         } else {
-          console.error("Expected response.data to be an array, but got:", response.data);
+          console.error(
+            "Expected response.data to be an array, but got:",
+            response.data
+          );
         }
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -36,9 +39,9 @@ const NotifiButtonComponent = () => {
         setIsLoading(false);
       }
     };
-  
+
     fetchNotifications(page);
-  }, [page]);
+  }, []);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
