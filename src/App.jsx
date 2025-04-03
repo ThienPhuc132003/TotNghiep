@@ -24,7 +24,7 @@ const OtpVerifyRegister = lazy(() => import("./pages/User/OtpVerifyRegister"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 const AboutUs = lazy(() => import("./pages/User/AboutUs"));
 const TutorSearch = lazy(() => import("./pages/User/TutorSearch"));
-
+const TutorRegister = lazy(() => import("./pages/User/TutorRegister"));
 const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
 
 import ZoomCallback from "./pages/User/ZoomCallback";
@@ -52,8 +52,9 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <PersistGate loading={null} persistor={persistor}>
           <Routes>
-            <Route path="/home" element={<HomePage />} />
+            <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
+            <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />

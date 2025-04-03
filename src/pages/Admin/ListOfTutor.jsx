@@ -203,6 +203,7 @@ const ListOfTutorPage = () => {
         tutor.tutorProfile?.educationalCertification || "",
       status: tutor.status, // Thêm status
       roleId: tutor.roleId, // Thêm roleId
+      certificates: tutor.tutorProfile?.certificates || [], // Lấy danh sách chứng chỉ
     });
     setModalMode("view");
     setIsModalOpen(true);
@@ -501,8 +502,9 @@ const ListOfTutorPage = () => {
             setModalData({ ...modalData, [name]: value });
           }}
           onSubmit={modalMode === "add" ? handleCreateTutor : handleUpdateTutor}
-          onClose={handleCloseModal} // Pass handleCloseModal to FormDetail
+          onClose={handleCloseModal}
           errors={formErrors}
+          showFileManagement={true} // Kích hoạt chức năng quản lý file
         />
       </Modal>
       <DeleteConfirmationModal

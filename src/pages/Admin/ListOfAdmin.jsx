@@ -149,7 +149,7 @@ const ListOfAdminPage = () => {
         { label: "nam", value: "MALE" },
         { label: "nữ", value: "FEMALE" },
       ],
-      getValue: (option) => option, 
+      getValue: (option) => option,
     },
     {
       key: "roleId",
@@ -536,10 +536,7 @@ const ListOfAdminPage = () => {
       >
         <FormDetail
           formData={modalData}
-          fields={editFields.map((field) => ({
-            ...field,
-            readOnly: modalMode === "view",
-          }))}
+          fields={modalMode === "add" ? addFields : editFields}
           mode={modalMode || "view"}
           onChange={(name, value) => {
             setModalData({ ...modalData, [name]: value });
