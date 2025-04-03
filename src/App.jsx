@@ -52,6 +52,7 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <PersistGate loading={null} persistor={persistor}>
           <Routes>
+            <Route index element={<Navigate to="/trang-chu" />} />
             <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
             <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
@@ -85,8 +86,9 @@ function App() {
             <Route element={<OtpProtectedRoute />}>
               <Route path="/change-password" element={<ChangePassword />} />
             </Route>
-            {/* user pages */}
-            <Route index element={<Navigate to="/home" />} />
+
+            {/* admin pages */}
+
             <Route path="/admin/*" element={<AdminPrivateRoutes />}>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="profile" element={<AdminProfile />} />

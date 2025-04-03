@@ -91,7 +91,7 @@ const SigninPageComponent = () => {
 
           if (userInfoResponse.success && userInfoResponse.data) {
             dispatch(setUserProfile(userInfoResponse.data)); // <-- Sửa thành setUserProfile
-            navigate("/tim-kiem-gia-su");
+            navigate("/trang-chu");
           } else {
             console.error(
               "Login successful but failed to fetch user profile:",
