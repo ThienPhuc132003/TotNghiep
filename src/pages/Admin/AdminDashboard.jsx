@@ -12,8 +12,6 @@ import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLa
 import ChartComponent from "../../components/Chart"; // <-- Đường dẫn đúng
 import AdminCard from "../../components/Admin/AdminCard"; // <-- Đường dẫn đúng
 import "../../assets/css/Admin/AdminDashboard.style.css"; // <-- Đường dẫn đúng
-import "../../assets/css/Admin/AdminOAuthOverlay.style.css"; // <-- Đường dẫn đúng
-
 const AdminDashboardPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
