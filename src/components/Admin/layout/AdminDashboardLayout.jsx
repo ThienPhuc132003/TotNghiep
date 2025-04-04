@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom"; // Thêm Link nếu cần
 import { useDispatch, useSelector } from "react-redux";
@@ -12,46 +12,52 @@ import {
 } from "../../../redux/uiAdminSlice"; // Đảm bảo slice này tồn tại
 import { fetchMenuData } from "../../../redux/menuAdminSlice"; // Đảm bảo slice này tồn tại
 
+// Không dùng React.memo ở đây nữa để đảm bảo nó luôn re-render khi Redux thay đổi
 const AdminDashboardLayoutInner = (props) => {
   const {
     children = null,
     childrenMiddleContentLower = null,
     rightChildren = null,
-    currentPage, // Nhận currentPage từ props
+    currentPage,
   } = props;
 
-  const { t } = useTranslation(); // Nếu dùng i18n
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
   const location = useLocation();
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
-  // --- Lấy trạng thái xác thực Admin từ Redux store ---
-  // Đảm bảo state.admin.profile là đường dẫn đúng trong store của bạn
+  // Lấy trạng thái xác thực Admin CHỈ từ Redux store
   const adminProfile = useSelector((state) => state.admin.profile);
-  // Kiểm tra một trường cụ thể trong profile, ví dụ: id, adminId, email
-  const isAdminAuthenticated = !!adminProfile?.id; // Thay 'id' bằng trường định danh thực tế
+  // Kiểm tra trường định danh thực tế trong profile của bạn (ví dụ: id, adminId, email)
+  const isAdminAuthenticated = !!adminProfile?.id; // <<< !!! QUAN TRỌNG: Thay 'id' bằng key đúng !!!
 
   useEffect(() => {
     const handleResize = () => {
       dispatch(setSidebarVisibility(window.innerWidth > 1024));
     };
-    handleResize(); // Gọi lần đầu
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [dispatch]);
 
   useEffect(() => {
-    // Tự động ẩn sidebar trên mobile khi chuyển trang
     if (window.innerWidth <= 1024) {
       dispatch(setSidebarVisibility(false));
     }
   }, [location.pathname, dispatch]);
 
   useEffect(() => {
-    // Fetch menu data nếu cần
     dispatch(fetchMenuData());
   }, [dispatch]);
+
+  // Log trạng thái xác thực mỗi khi layout render lại
+  console.log(
+    "AdminDashboardLayout Rendering - isAdminAuthenticated:",
+    isAdminAuthenticated,
+    "Profile:",
+    adminProfile
+  );
 
   return (
     <div
@@ -59,11 +65,8 @@ const AdminDashboardLayoutInner = (props) => {
         isSidebarVisible ? "" : "sidebar-hidden"
       }`}
     >
-      {/* Sidebar luôn hiển thị trên desktop nếu isSidebarVisible, ẩn hoàn toàn trên mobile nếu false */}
       <AdminSidebar currentPath={currentPath} />
-
       <div className="content-area">
-        {/* Nút toggle sidebar chỉ hiển thị trên mobile hoặc khi sidebar ẩn */}
         <button
           className="toggle-sidebar-btn"
           onClick={() => dispatch(toggleSidebar())}
@@ -75,9 +78,7 @@ const AdminDashboardLayoutInner = (props) => {
             }`}
           ></i>
         </button>
-
         <div className="main-layout-header">
-          {/* Hiển thị currentPage được truyền vào */}
           <h1 className="current-page">
             {currentPage || t("common.dashboard", "Dashboard")}
           </h1>
@@ -86,10 +87,9 @@ const AdminDashboardLayoutInner = (props) => {
           {
             isAdminAuthenticated ? (
               <AdminAccountToolbar currentPath={currentPath} />
-            ) : null // Không hiển thị gì nếu chưa đăng nhập trên dashboard
+            ) : null // Không hiển thị gì nếu chưa đăng nhập
           }
         </div>
-
         <div className="main-layout-content">
           <div className="main-layout-left">
             {children || <p>{t("common.noContent", "Không có nội dung")}</p>}
@@ -108,8 +108,9 @@ AdminDashboardLayoutInner.propTypes = {
   children: PropTypes.node,
   childrenMiddleContentLower: PropTypes.node,
   rightChildren: PropTypes.node,
-  currentPage: PropTypes.string, // Thêm propType
+  currentPage: PropTypes.string,
 };
 
-const AdminDashboardLayout = React.memo(AdminDashboardLayoutInner);
-export default AdminDashboardLayout;
+// Bỏ React.memo để đảm bảo re-render khi Redux thay đổi trong quá trình debug
+// const AdminDashboardLayout = React.memo(AdminDashboardLayoutInner);
+export default AdminDashboardLayoutInner; // Xuất trực tiếp component
