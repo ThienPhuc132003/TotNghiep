@@ -1,15 +1,18 @@
+// src/pages/Admin/AdminDashboardPage.jsx
+
 import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import Api from "../../network/Api";
-import { METHOD_TYPE } from "../../network/methodType";
-import { setAdminProfile } from "../../redux/adminSlice";
+import Api from "../../network/Api"; // <-- Đường dẫn đúng
+import { METHOD_TYPE } from "../../network/methodType"; // <-- Đường dẫn đúng
+import { setAdminProfile } from "../../redux/adminSlice"; // <-- Đường dẫn đúng
 
-import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
-import ChartComponent from "../../components/Chart";
-import AdminCard from "../../components/Admin/AdminCard";
-import "../../assets/css/Admin/AdminDashboard.style.css";
+import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout"; // <-- Đường dẫn đúng
+import ChartComponent from "../../components/Chart"; // <-- Đường dẫn đúng
+import AdminCard from "../../components/Admin/AdminCard"; // <-- Đường dẫn đúng
+import "../../assets/css/Admin/AdminDashboard.style.css"; // <-- Đường dẫn đúng
+import "../../assets/css/Admin/AdminOAuthOverlay.style.css"; // <-- Đường dẫn đúng
 
 const AdminDashboardPage = () => {
   const location = useLocation();
@@ -20,42 +23,36 @@ const AdminDashboardPage = () => {
   const oauthProcessingRef = useRef(null);
 
   useEffect(() => {
-    let isMounted = true; // Cờ unmount
+    let isMounted = true;
     const searchParams = new URLSearchParams(location.search);
     const code = searchParams.get("code");
     const state = searchParams.get("state");
 
     if (code && state) {
-      // Chỉ set loading nếu component còn mounted
       if (isMounted) {
         setIsProcessingOAuth(true);
         setOauthError(null);
       }
       window.scrollTo(0, 0);
-
-      // Đặt focus sau khi DOM cập nhật
       const focusTimeout = setTimeout(() => {
         if (isMounted) oauthProcessingRef.current?.focus();
       }, 0);
-
       const storedState = Cookies.get("microsoft_auth_state");
 
       if (!storedState || state !== storedState) {
-        console.error("AdminDashboard OAuth Error: State mismatch.");
-        if (isMounted)
-          setOauthError(
-            "Lỗi bảo mật xác thực (state). Vui lòng đăng nhập lại."
-          );
-        Cookies.remove("microsoft_auth_state");
-        if (isMounted) navigate("/admin/dashboard", { replace: true }); // Chỉ làm sạch URL
-        if (isMounted) setIsProcessingOAuth(false);
-        return; // Dừng sớm
+        if (isMounted) {
+          setOauthError("Lỗi bảo mật (state).");
+          Cookies.remove("microsoft_auth_state");
+          navigate("/admin/dashboard", { replace: true });
+          setIsProcessingOAuth(false);
+        }
+        return;
       }
-
       Cookies.remove("microsoft_auth_state");
 
       const exchangeAdminCodeForToken = async (authCode) => {
         try {
+          console.log("AdminDashboard OAuth: Exchanging code for token...");
           const response = await Api({
             endpoint: "admin/auth/callback",
             method: METHOD_TYPE.POST,
@@ -63,12 +60,17 @@ const AdminDashboardPage = () => {
           });
 
           if (response.success && response.data?.token) {
-            const { token } = response.data;
-            // Set cookie trước khi fetch profile
-            Cookies.set("token", token);
-            Cookies.set("role", "admin");
+            const { token, adminId: callbackAdminId } = response.data;
+            Cookies.set("token", token, { secure: true, sameSite: "Lax" }); // Set cookie an toàn
+            Cookies.set("role", "admin", { secure: true, sameSite: "Lax" });
+            console.log(
+              "AdminDashboard OAuth: Token received. Callback adminId:",
+              callbackAdminId
+            );
 
+            // Fetch full profile sau khi có token
             try {
+              console.log("AdminDashboard OAuth: Fetching full profile...");
               const adminInfoResponse = await Api({
                 endpoint: "admin/get-profile",
                 method: METHOD_TYPE.GET,
@@ -79,17 +81,29 @@ const AdminDashboardPage = () => {
                 adminInfoResponse.data &&
                 isMounted
               ) {
-                dispatch(setAdminProfile(adminInfoResponse.data));
-                console.log(
-                  "AdminDashboard OAuth: Profile fetched & dispatched."
-                );
+                // Kiểm tra adminId trong profile trả về
+                if (adminInfoResponse.data.adminId) {
+                  console.log(
+                    "AdminDashboard OAuth: Full profile received:",
+                    adminInfoResponse.data
+                  );
+                  dispatch(setAdminProfile(adminInfoResponse.data));
+                } else {
+                  console.error(
+                    "AdminDashboard OAuth: Full profile missing adminId!",
+                    adminInfoResponse.data
+                  );
+                  setOauthError("Dữ liệu profile Admin không hợp lệ.");
+                  Cookies.remove("token");
+                  Cookies.remove("role"); // Xóa token nếu profile không hợp lệ
+                }
               } else if (isMounted) {
                 console.error(
                   "AdminDashboard OAuth: Failed fetch profile.",
                   adminInfoResponse?.message
                 );
                 setOauthError("Đăng nhập thành công, lỗi tải thông tin Admin.");
-                // Không xóa token ở đây, để PrivateRoute xử lý nếu cần
+                // Vẫn giữ token để PrivateRoute kiểm tra lại
               }
             } catch (profileError) {
               if (isMounted) {
@@ -101,49 +115,38 @@ const AdminDashboardPage = () => {
                   profileError.response?.data?.message ||
                     "Lỗi mạng khi tải thông tin Admin."
                 );
-                // Không xóa token ở đây
+                // Vẫn giữ token
               }
             }
           } else {
-            // Nếu callback API thất bại
             throw new Error(response?.message || "Lỗi đổi mã xác thực Admin.");
           }
         } catch (err) {
           if (isMounted) {
             console.error("AdminDashboard OAuth Callback Error:", err);
             setOauthError(err.message || "Lỗi xử lý đăng nhập Admin.");
-            // Xóa cookie nếu callback thất bại hoàn toàn
             Cookies.remove("token");
-            Cookies.remove("role");
+            Cookies.remove("role"); // Xóa token nếu callback lỗi
           }
         } finally {
           if (isMounted) {
-            // Luôn làm sạch URL và kết thúc loading ở đây
-            navigate("/admin/dashboard", { replace: true });
-            setIsProcessingOAuth(false);
+            navigate("/admin/dashboard", { replace: true }); // Luôn làm sạch URL
+            setIsProcessingOAuth(false); // Luôn kết thúc loading
+            console.log("AdminDashboard OAuth: Finished processing.");
           }
         }
       };
-
       exchangeAdminCodeForToken(code);
-
-      // Cleanup timeout khi unmount
       return () => {
         clearTimeout(focusTimeout);
         isMounted = false;
-        console.log(
-          "AdminDashboardPage unmounting or dependencies changed during OAuth process."
-        );
       };
     } else {
-      // Nếu vào dashboard mà không có code/state, không làm gì cả ở đây
-      // PrivateRoute sẽ xử lý việc kiểm tra token/profile
-      console.log("AdminDashboardPage loaded without OAuth code/state.");
+      console.log("AdminDashboardPage loaded without OAuth params.");
     }
-    // Chỉ chạy lại khi search params thay đổi
   }, [location.search, navigate, dispatch]);
 
-  // --- Dữ liệu và options cho charts (Giữ nguyên hoặc fetch) ---
+  // --- Dữ liệu charts (Placeholder) ---
   const userData = {
     labels: ["T1", "T2", "T3"],
     datasets: [{ label: "Users", data: [10, 20, 15] }],
@@ -160,22 +163,18 @@ const AdminDashboardPage = () => {
 
   return (
     <AdminDashboardLayout currentPage="Bảng Điều Khiển">
-      {/* Overlay xử lý OAuth */}
       {isProcessingOAuth && (
         <div
           ref={oauthProcessingRef}
           className="oauth-processing-overlay admin-overlay"
           tabIndex="-1"
-          role="status" // Role status phù hợp hơn cho loading
+          role="status"
           aria-live="assertive"
           aria-label="Đang xử lý đăng nhập Admin"
         >
           <p>Đang xử lý đăng nhập Admin...</p>
-          {/* Thêm Spinner component nếu có */}
         </div>
       )}
-
-      {/* Thông báo lỗi OAuth */}
       {oauthError && (
         <div
           className="oauth-error-message admin-error"
@@ -192,8 +191,6 @@ const AdminDashboardPage = () => {
           <strong>Lỗi đăng nhập OAuth Admin:</strong> {oauthError}
         </div>
       )}
-
-      {/* Nội dung chính của Dashboard (Ẩn khi đang xử lý OAuth) */}
       {!isProcessingOAuth && (
         <>
           <div className="admin-dashboard-content">
@@ -201,19 +198,19 @@ const AdminDashboardPage = () => {
               title="Gia sư"
               iconAdminCard={<i className="fa-solid fa-graduation-cap"></i>}
             >
-              <p className="data-card">150</p>
+              <p className="data-card">...</p>
             </AdminCard>
             <AdminCard
               title="Học viên"
               iconAdminCard={<i className="fa-solid fa-user-group"></i>}
             >
-              <p className="data-card">1200</p>
+              <p className="data-card">...</p>
             </AdminCard>
             <AdminCard
               title="Lớp hoạt động"
               iconAdminCard={<i className="fa-solid fa-chalkboard-user"></i>}
             >
-              <p className="data-card">75</p>
+              <p className="data-card">...</p>
             </AdminCard>
             <AdminCard
               title="Giao dịch"
@@ -221,7 +218,7 @@ const AdminDashboardPage = () => {
                 <i className="fa-solid fa-money-bill-transfer"></i>
               }
             >
-              <p className="data-card">500</p>
+              <p className="data-card">...</p>
             </AdminCard>
           </div>
           <div className="admin-dashboard-charts">
@@ -239,13 +236,10 @@ const AdminDashboardPage = () => {
               />
             </AdminCard>
           </div>
-          {/* ... các phần khác của dashboard ... */}
         </>
       )}
     </AdminDashboardLayout>
   );
 };
 
-// Bỏ React.memo để debug dễ hơn
-// const AdminDashboard = React.memo(AdminDashboardPage);
 export default AdminDashboardPage;
