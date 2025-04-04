@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import { setAdminProfile } from "../redux/adminSlice"; // <-- Đảm bảo đường dẫn đúng
-import Api from "../network/Api"; // <-- Đảm bảo đường dẫn đúng
-import { METHOD_TYPE } from "../network/methodType"; // <-- Đảm bảo đường dẫn đúng
+import { setAdminProfile } from "../redux/adminSlice"; // <-- Đường dẫn đúng
+import Api from "../network/Api"; // <-- Đường dẫn đúng
+import { METHOD_TYPE } from "../network/methodType"; // <-- Đường dẫn đúng
+
 
 function AdminPrivateRoutes() {
   const dispatch = useDispatch();
@@ -16,10 +17,10 @@ function AdminPrivateRoutes() {
   const token = Cookies.get("token");
   const userRole = Cookies.get("role");
 
+  // State để quản lý việc kiểm tra/load profile ban đầu
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Log trạng thái đầu vào mỗi khi component render hoặc state/props thay đổi
   console.log(
     "AdminPrivateRoutes Render - Token:",
     token,
@@ -40,30 +41,24 @@ function AdminPrivateRoutes() {
     const checkAuthentication = async () => {
       console.log("AdminPrivateRoutes: Starting auth check...");
 
-      // Case 1: Đã có profile + đúng role
-      // <<< !!! QUAN TRỌNG: Thay 'id' bằng key định danh thực tế trong profile admin của bạn (vd: _id, adminId, email) !!! >>>
-      if (adminProfile?.id && userRole === "admin") {
-        console.log("AdminPrivateRoutes: Case 1 - Profile in Redux & role OK.");
+      // Case 1: Đã có profile + đúng role (sử dụng adminId)
+      if (adminProfile?.adminId && userRole === "admin") {
+        console.log(
+          "AdminPrivateRoutes: Case 1 - Profile in Redux (adminId check) & role OK."
+        );
         if (isMounted) {
           setIsAuthenticated(true);
-          setIsCheckingAuth(false); // Kết thúc kiểm tra ngay
+          setIsCheckingAuth(false);
         }
         return;
       }
 
-      // Case 2: Có token + đúng role, nhưng chưa có profile
-      // <<< !!! QUAN TRỌNG: Thay 'id' bằng key định danh thực tế !!! >>>
-      if (token && userRole === "admin" && !adminProfile?.id) {
+      // Case 2: Có token + đúng role, nhưng chưa có profile (sử dụng adminId)
+      if (token && userRole === "admin" && !adminProfile?.adminId) {
         console.log(
-          "AdminPrivateRoutes: Case 2 - Token/Role OK, profile missing. Fetching profile..."
+          "AdminPrivateRoutes: Case 2 - Token/Role OK, profile missing (adminId check). Fetching profile..."
         );
-        // Chỉ fetch nếu component còn mounted
-        if (!isMounted) {
-          console.log(
-            "AdminPrivateRoutes: Component unmounted before fetching profile."
-          );
-          return;
-        }
+        if (!isMounted) return;
         try {
           const response = await Api({
             endpoint: "admin/get-profile",
@@ -71,18 +66,16 @@ function AdminPrivateRoutes() {
           });
 
           if (response.success && response.data && isMounted) {
-            // <<< !!! QUAN TRỌNG: Thay 'id' bằng key định danh thực tế !!! >>>
-            // Kiểm tra xem data trả về có key định danh không
-            if (response.data.id) {
+            // Kiểm tra adminId trong data trả về
+            if (response.data.adminId) {
               dispatch(setAdminProfile(response.data));
-              setIsAuthenticated(true); // Xác thực thành công sau khi fetch
+              setIsAuthenticated(true);
               console.log(
-                "AdminPrivateRoutes: Case 2 - Profile fetched & dispatched successfully."
+                "AdminPrivateRoutes: Case 2 - Profile fetched & dispatched successfully (checked adminId)."
               );
             } else {
-              // Dữ liệu profile trả về không hợp lệ
               console.error(
-                "AdminPrivateRoutes: Case 2 - Fetched profile data is invalid (missing ID). Clearing cookies.",
+                "AdminPrivateRoutes: Case 2 - Fetched profile data missing adminId. Clearing cookies.",
                 response.data
               );
               Cookies.remove("token");
@@ -90,9 +83,8 @@ function AdminPrivateRoutes() {
               setIsAuthenticated(false);
             }
           } else if (isMounted) {
-            // Fetch thất bại (vd: token hết hạn)
             console.error(
-              "AdminPrivateRoutes: Case 2 - Failed to fetch profile, clearing cookies.",
+              "AdminPrivateRoutes: Case 2 - Failed fetch profile, clearing cookies.",
               response?.message
             );
             Cookies.remove("token");
@@ -102,7 +94,7 @@ function AdminPrivateRoutes() {
         } catch (error) {
           if (isMounted) {
             console.error(
-              "AdminPrivateRoutes: Case 2 - Network/other error fetching profile:",
+              "AdminPrivateRoutes: Case 2 - Error fetching profile:",
               error
             );
             Cookies.remove("token");
@@ -112,41 +104,34 @@ function AdminPrivateRoutes() {
         } finally {
           if (isMounted) {
             console.log("AdminPrivateRoutes: Case 2 - Finished fetch attempt.");
-            setIsCheckingAuth(false); // Kết thúc kiểm tra sau khi fetch
+            setIsCheckingAuth(false);
           }
         }
         return;
       }
 
-      // Case 3: Không có token / sai role / profile đã fetch nhưng không hợp lệ
-      console.log(
-        "AdminPrivateRoutes: Case 3 - No token, wrong role, or invalid fetched profile."
-      );
+      // Case 3: Không hợp lệ
+      console.log("AdminPrivateRoutes: Case 3 - Conditions not met.");
       if (isMounted) {
-        // Đảm bảo xóa cookie nếu không hợp lệ
         if (!token || userRole !== "admin") {
           Cookies.remove("token");
           Cookies.remove("role");
         }
-        setIsAuthenticated(false); // Không xác thực
-        setIsCheckingAuth(false); // Kết thúc kiểm tra
+        setIsAuthenticated(false);
+        setIsCheckingAuth(false);
       }
     };
 
-    // Chỉ bắt đầu kiểm tra nếu isCheckingAuth đang là true (tránh gọi lại liên tục)
+    // Chỉ bắt đầu kiểm tra nếu isCheckingAuth đang là true
     if (isCheckingAuth) {
       checkAuthentication();
     }
 
     return () => {
       isMounted = false;
-      console.log(
-        "AdminPrivateRoutes: Cleanup - Component unmounting or dependencies changed."
-      );
+      console.log("AdminPrivateRoutes: Cleanup.");
     };
-    // Chạy lại khi các giá trị cốt lõi thay đổi.
-    // Việc thêm adminProfile vào đây là then chốt để nó phản ứng khi Redux cập nhật.
-  }, [token, userRole, adminProfile, dispatch, isCheckingAuth]); // Thêm isCheckingAuth để tránh gọi lại checkAuthentication không cần thiết
+  }, [token, userRole, adminProfile, dispatch, isCheckingAuth]);
 
   // --- Logic Render ---
   if (isCheckingAuth) {
@@ -162,7 +147,7 @@ function AdminPrivateRoutes() {
           color: "#555",
         }}
       >
-        Đang kiểm tra quyền truy cập...
+        Đang kiểm tra quyền truy cập Admin...
       </div>
     );
   }
@@ -174,13 +159,13 @@ function AdminPrivateRoutes() {
     console.log(
       "AdminPrivateRoutes: Rendering Navigate to /admin/login (Not Authenticated)."
     );
-    // Xóa cookie lần nữa cho chắc chắn trước khi redirect
     Cookies.remove("token");
     Cookies.remove("role");
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 }
 
-// AdminPrivateRoutes.propTypes = { ... }; // Thêm propTypes nếu cần
+// Thêm PropTypes nếu component cha truyền props (hiện tại không có)
+// AdminPrivateRoutes.propTypes = {};
 
 export default AdminPrivateRoutes;

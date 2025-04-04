@@ -1,13 +1,15 @@
+// src/pages/Admin/AdminLoginPage.jsx
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import Api from "../../network/Api";
-import { METHOD_TYPE } from "../../network/methodType";
-import { setAdminProfile } from "../../redux/adminSlice";
-import "../../assets/css/Admin/AdminLogin.style.css";
-import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
-import LoginLayout from "../../components/User/layout/LoginLayout";
+import Api from "../../network/Api"; // <-- Đường dẫn đúng
+import { METHOD_TYPE } from "../../network/methodType"; // <-- Đường dẫn đúng
+import { setAdminProfile } from "../../redux/adminSlice"; // <-- Đường dẫn đúng
+import "../../assets/css/Admin/AdminLogin.style.css"; // <-- Đường dẫn đúng
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg"; // <-- Đường dẫn đúng
+import LoginLayout from "../../components/User/layout/LoginLayout"; // <-- Đường dẫn đúng
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -22,22 +24,19 @@ const AdminLoginPage = () => {
   const [isLoadingMicrosoftLogin, setIsLoadingMicrosoftLogin] = useState(false);
 
   useEffect(() => {
-    const savedEmailOrPhoneNumber = localStorage.getItem(
-      "admin_emailOrPhoneNumber"
-    );
-    const savedPassword = localStorage.getItem("admin_password");
-    if (savedEmailOrPhoneNumber && savedPassword) {
-      setEmailOrPhoneNumber(savedEmailOrPhoneNumber);
-      setPassword(savedPassword);
+    const savedEmail = localStorage.getItem("admin_emailOrPhoneNumber");
+    const savedPass = localStorage.getItem("admin_password");
+    if (savedEmail && savedPass) {
+      setEmailOrPhoneNumber(savedEmail);
+      setPassword(savedPass);
       setRememberMe(true);
     }
   }, []);
 
   const validateFields = () => {
     const errors = {};
-    if (!emailOrPhoneNumber)
-      errors.emailOrPhoneNumber = "Email hoặc số điện thoại chưa được nhập";
-    if (!password) errors.password = "Mật khẩu chưa được nhập";
+    if (!emailOrPhoneNumber) errors.emailOrPhoneNumber = "Email/SĐT chưa nhập";
+    if (!password) errors.password = "Mật khẩu chưa nhập";
     return errors;
   };
 
@@ -76,46 +75,38 @@ const AdminLoginPage = () => {
 
         // Fetch và Dispatch Profile TRƯỚC KHI Navigate
         try {
-          console.log(
-            "Admin Login: Fetching profile after successful login..."
-          );
+          console.log("Admin Login: Fetching profile...");
           const adminInfoResponse = await Api({
             endpoint: "admin/get-profile",
             method: METHOD_TYPE.GET,
           });
 
           if (adminInfoResponse.success && adminInfoResponse.data) {
-            // <<< !!! QUAN TRỌNG: Kiểm tra key định danh trước khi dispatch !!! >>>
-            // Thay 'id' bằng key thực tế
-            if (adminInfoResponse.data.id) {
+            // Kiểm tra adminId trước khi dispatch
+            if (adminInfoResponse.data.adminId) {
               console.log(
-                "Admin Login: Profile data received:",
+                "Admin Login: Profile data with adminId received:",
                 adminInfoResponse.data
               );
               dispatch(setAdminProfile(adminInfoResponse.data));
-              console.log(
-                "Admin Login: Profile dispatched. Navigating to dashboard..."
-              );
-              navigate("/admin/dashboard"); // Navigate ngay sau khi dispatch
+              console.log("Admin Login: Profile dispatched. Navigating...");
+              navigate("/admin/dashboard");
             } else {
               console.error(
-                "Admin Login: Fetched profile data is invalid (missing ID):",
+                "Admin Login: Fetched profile missing adminId:",
                 adminInfoResponse.data
               );
-              setErrorMessage(
-                "Dữ liệu quản trị viên không hợp lệ nhận được từ máy chủ."
-              );
-              // Không navigate nếu profile không hợp lệ
-              Cookies.remove("token"); // Xóa token vì profile không dùng được
+              setErrorMessage("Dữ liệu quản trị viên không hợp lệ.");
+              Cookies.remove("token");
               Cookies.remove("role");
             }
           } else {
             console.error(
-              "Admin Login: Failed to fetch profile:",
+              "Admin Login: Failed fetch profile:",
               adminInfoResponse.message
             );
-            setErrorMessage("Đăng nhập thành công, lỗi tải profile Admin.");
-            Cookies.remove("token"); // Xóa token vì không lấy được profile
+            setErrorMessage("Đăng nhập OK, lỗi tải profile Admin.");
+            Cookies.remove("token");
             Cookies.remove("role");
           }
         } catch (profileError) {
@@ -124,7 +115,7 @@ const AdminLoginPage = () => {
             profileError.response?.data?.message ||
               "Lỗi mạng khi tải profile Admin."
           );
-          Cookies.remove("token"); // Xóa token
+          Cookies.remove("token");
           Cookies.remove("role");
         }
       } else {
@@ -150,7 +141,6 @@ const AdminLoginPage = () => {
   };
 
   const handleMicrosoftLogin = async () => {
-    // ... (Logic này giữ nguyên) ...
     setIsLoadingMicrosoftLogin(true);
     setErrorMessage("");
     try {
@@ -168,14 +158,12 @@ const AdminLoginPage = () => {
         const authUrl = `${response.data.authUrl}&state=${state}`;
         window.location.href = authUrl;
       } else {
-        setErrorMessage(
-          response.message || "Không thể lấy URI đăng nhập Microsoft."
-        );
+        setErrorMessage(response.message || "Không thể lấy URI MS.");
         setIsLoadingMicrosoftLogin(false);
       }
     } catch (error) {
       setErrorMessage(
-        error.response?.data?.message || "Lỗi bắt đầu đăng nhập Microsoft."
+        error.response?.data?.message || "Lỗi bắt đầu đăng nhập MS."
       );
       setIsLoadingMicrosoftLogin(false);
     }
@@ -186,8 +174,6 @@ const AdminLoginPage = () => {
       <div className="admin-form">
         <h1 className="login-title">Quản lý GiaSuVLU</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
-          {/* ... Các input fields và nút ... */}
-          {/* Input Email/Số điện thoại */}
           <div className="login-form-container">
             <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
             <div
@@ -198,9 +184,7 @@ const AdminLoginPage = () => {
               <input
                 type="text"
                 id="emailOrPhoneNumber"
-                name="emailOrPhoneNumber"
                 value={emailOrPhoneNumber}
-                placeholder="nhập email hoặc số điện thoại"
                 onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
                 aria-invalid={!!fieldErrors.emailOrPhoneNumber}
@@ -216,8 +200,6 @@ const AdminLoginPage = () => {
               </p>
             )}
           </div>
-
-          {/* Input Mật khẩu */}
           <div className="login-form-container">
             <label htmlFor="password">Mật khẩu</label>
             <div
@@ -228,9 +210,7 @@ const AdminLoginPage = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                name="password"
                 value={password}
-                placeholder="nhập mật khẩu"
                 onChange={(e) => setPassword(e.target.value)}
                 className={fieldErrors.password ? "error-border" : ""}
                 aria-invalid={!!fieldErrors.password}
@@ -257,8 +237,6 @@ const AdminLoginPage = () => {
               </p>
             )}
           </div>
-
-          {/* Checkbox Nhớ mật khẩu */}
           <div className="remember-me">
             <label>
               <input
@@ -266,17 +244,13 @@ const AdminLoginPage = () => {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="checkbox-remember-me"
-              />
+              />{" "}
               Nhớ mật khẩu
             </label>
           </div>
-
-          {/* Hiển thị lỗi chung */}
           {errorMessage && (
             <p className="error-message general-error">{errorMessage}</p>
           )}
-
-          {/* Nút Đăng nhập thường */}
           <button
             type="submit"
             className="admin-login-button"
@@ -284,12 +258,9 @@ const AdminLoginPage = () => {
           >
             {isSubmitting ? "Đang xử lý..." : "Đăng nhập"}
           </button>
-
           <div className="divider">
             <span>hoặc</span>
           </div>
-
-          {/* Nút Đăng nhập Microsoft */}
           <div className="social-login">
             <button
               type="button"
