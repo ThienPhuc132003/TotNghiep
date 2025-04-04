@@ -1,18 +1,17 @@
 import { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
-import { useLocation } from "react-router-dom"; // Thêm Link nếu cần
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import "../../../assets/css/Admin/AdminDashboardLayout.style.css"; // Đảm bảo CSS tồn tại
-import AdminAccountToolbar from "./AdminAccountToolbar"; // Đảm bảo component này tồn tại
-import AdminSidebar from "../AdminSidebar"; // Đảm bảo component này tồn tại
-import { useTranslation } from "react-i18next"; // Nếu dùng i18n
+import "../../../assets/css/Admin/AdminDashboardLayout.style.css";
+import AdminAccountToolbar from "./AdminAccountToolbar";
+import AdminSidebar from "../AdminSidebar";
+import { useTranslation } from "react-i18next";
 import {
   setSidebarVisibility,
   toggleSidebar,
-} from "../../../redux/uiAdminSlice"; // Đảm bảo slice này tồn tại
-import { fetchMenuData } from "../../../redux/menuAdminSlice"; // Đảm bảo slice này tồn tại
+} from "../../../redux/uiAdminSlice";
+import { fetchMenuData } from "../../../redux/menuAdminSlice";
 
-// Không dùng React.memo ở đây nữa để đảm bảo nó luôn re-render khi Redux thay đổi
 const AdminDashboardLayoutInner = (props) => {
   const {
     children = null,
@@ -27,10 +26,21 @@ const AdminDashboardLayoutInner = (props) => {
   const location = useLocation();
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
-  // Lấy trạng thái xác thực Admin CHỈ từ Redux store
+  // --- Lấy và Log Profile ---
   const adminProfile = useSelector((state) => state.admin.profile);
-  // Kiểm tra trường định danh thực tế trong profile của bạn (ví dụ: id, adminId, email)
-  const isAdminAuthenticated = !!adminProfile?.id; // <<< !!! QUAN TRỌNG: Thay 'id' bằng key đúng !!!
+  // <<< !!! QUAN TRỌNG: Thay 'id' bằng key định danh thực tế (vd: _id, adminId, email) !!! >>>
+  const adminIdFromProfile = adminProfile?.id;
+  const isAdminAuthenticated = !!adminIdFromProfile;
+
+  console.log(
+    "AdminDashboardLayout Rendering - isAdminAuthenticated:",
+    isAdminAuthenticated,
+    "- Profile from Redux:",
+    adminProfile,
+    "- Extracted ID:",
+    adminIdFromProfile
+  );
+  // ---
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,14 +60,6 @@ const AdminDashboardLayoutInner = (props) => {
   useEffect(() => {
     dispatch(fetchMenuData());
   }, [dispatch]);
-
-  // Log trạng thái xác thực mỗi khi layout render lại
-  console.log(
-    "AdminDashboardLayout Rendering - isAdminAuthenticated:",
-    isAdminAuthenticated,
-    "Profile:",
-    adminProfile
-  );
 
   return (
     <div
@@ -84,11 +86,15 @@ const AdminDashboardLayoutInner = (props) => {
           </h1>
 
           {/* Render AdminAccountToolbar dựa trên state Redux */}
-          {
-            isAdminAuthenticated ? (
-              <AdminAccountToolbar currentPath={currentPath} />
-            ) : null // Không hiển thị gì nếu chưa đăng nhập
-          }
+          {isAdminAuthenticated ? (
+            <AdminAccountToolbar currentPath={currentPath} />
+          ) : (
+            // Thêm log ở đây để biết tại sao không render
+            (console.log(
+              "AdminDashboardLayout: Toolbar NOT rendered because isAdminAuthenticated is false."
+            ),
+            null)
+          )}
         </div>
         <div className="main-layout-content">
           <div className="main-layout-left">
@@ -111,6 +117,5 @@ AdminDashboardLayoutInner.propTypes = {
   currentPage: PropTypes.string,
 };
 
-// Bỏ React.memo để đảm bảo re-render khi Redux thay đổi trong quá trình debug
-// const AdminDashboardLayout = React.memo(AdminDashboardLayoutInner);
-export default AdminDashboardLayoutInner; // Xuất trực tiếp component
+// Xuất trực tiếp component (không dùng memo để debug)
+export default AdminDashboardLayoutInner;
