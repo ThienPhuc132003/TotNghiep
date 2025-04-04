@@ -10,7 +10,6 @@ import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLa
 import ChartComponent from "../../components/Chart";
 import AdminCard from "../../components/Admin/AdminCard";
 import "../../assets/css/Admin/AdminDashboard.style.css";
-import "../../assets/css/Admin/AdminOAuthOverlay.style.css"; // CSS cho overlay
 
 const AdminDashboardPage = () => {
   const location = useLocation();
