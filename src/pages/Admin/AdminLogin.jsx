@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react"; // Bỏ import React nếu không dùng
-import { useNavigate } from "react-router-dom"; // Bỏ Link nếu không dùng
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import Api from "../../network/Api"; // Đảm bảo đường dẫn đúng
-import { METHOD_TYPE } from "../../network/methodType"; // Đảm bảo đường dẫn đúng
-import { setAdminProfile } from "../../redux/adminSlice"; // Đảm bảo đường dẫn đúng
-import "../../assets/css/Admin/AdminLogin.style.css"; // Đảm bảo đường dẫn CSS đúng
-import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg"; // Đảm bảo đường dẫn đúng
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import { setAdminProfile } from "../../redux/adminSlice";
+import "../../assets/css/Admin/AdminLogin.style.css";
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
 import LoginLayout from "../../components/User/layout/LoginLayout"; // Xem xét Layout riêng cho Admin nếu cần
 
 const AdminLoginPage = () => {
@@ -93,7 +93,8 @@ const AdminLoginPage = () => {
             setErrorMessage(
               "Đăng nhập thành công nhưng không thể tải dữ liệu quản trị viên."
             );
-            navigate("/admin/dashboard"); // Tạm thời vẫn chuyển hướng
+            // Không nên chuyển hướng nếu lỗi profile, để admin biết
+            // navigate("/admin/dashboard");
           }
         } catch (profileError) {
           console.error(
@@ -104,7 +105,8 @@ const AdminLoginPage = () => {
             profileError.response?.data?.message ||
               "Lỗi khi tải thông tin quản trị viên."
           );
-          navigate("/admin/dashboard"); // Tạm thời vẫn chuyển hướng
+          // Không nên chuyển hướng nếu lỗi profile
+          // navigate("/admin/dashboard");
         }
       } else {
         setErrorMessage(
@@ -138,11 +140,13 @@ const AdminLoginPage = () => {
     setErrorMessage("");
     try {
       const state = generateRandomString(20);
+      // Đặt tên cookie state rõ ràng hơn cho admin nếu cần phân biệt
       Cookies.set("microsoft_auth_state", state, {
-        secure: true,
-        sameSite: "Lax",
-        expires: 1 / 24 / 6,
-      }); // 10 phút
+        // Vẫn dùng chung key nếu luồng xử lý state ở backend giống nhau
+        secure: true, // Chỉ gửi qua HTTPS
+        sameSite: "Lax", // Chống CSRF cơ bản
+        expires: 1 / 24 / 6, // Hết hạn sau 10 phút
+      });
 
       const response = await Api({
         endpoint: "admin/auth/get-uri-microsoft", // Endpoint lấy URI cho admin
@@ -152,10 +156,11 @@ const AdminLoginPage = () => {
       if (response.success && response.data?.authUrl) {
         const authUrl = `${response.data.authUrl}&state=${state}`;
         console.log("Redirecting to Microsoft for admin login:", authUrl);
-        window.location.href = authUrl;
+        window.location.href = authUrl; // Chuyển hướng người dùng
       } else {
         setErrorMessage(
-          "Không thể lấy được địa chỉ đăng nhập Microsoft. Vui lòng thử lại."
+          response.message ||
+            "Không thể lấy được địa chỉ đăng nhập Microsoft. Vui lòng thử lại."
         );
         setIsLoadingMicrosoftLogin(false);
       }
@@ -167,12 +172,11 @@ const AdminLoginPage = () => {
       );
       setIsLoadingMicrosoftLogin(false);
     }
+    // Không cần finally false ở đây vì nếu thành công đã chuyển trang
   };
 
   return (
     <LoginLayout>
-      {" "}
-      {/* Cân nhắc Layout riêng cho Admin */}
       <div className="admin-form">
         <h1 className="login-title">Quản lý GiaSuVLU</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
@@ -221,6 +225,7 @@ const AdminLoginPage = () => {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 {showPassword ? (
                   <i className="fa-regular fa-eye-slash"></i>
@@ -275,8 +280,7 @@ const AdminLoginPage = () => {
                 "Đang xử lý..."
               ) : (
                 <>
-                  <img src={MicrosoftLogo} alt="Microsoft logo" />{" "}
-                  {/* Thêm alt text */}
+                  <img src={MicrosoftLogo} alt="Microsoft logo" />
                   Đăng nhập với Microsoft
                 </>
               )}
