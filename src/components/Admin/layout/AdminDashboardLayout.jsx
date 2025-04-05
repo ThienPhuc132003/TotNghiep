@@ -16,50 +16,40 @@ import { fetchMenuData } from "../../../redux/menuAdminSlice"; // <-- Đường 
 
 // Bỏ React.memo để debug
 const AdminDashboardLayoutInner = (props) => {
-  const {
-    children = null,
-    childrenMiddleContentLower = null,
-    rightChildren = null,
-    currentPage,
-  } = props;
-
+  const { children = null, currentPage } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
   const location = useLocation();
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
-  // Lấy và Log Profile (sử dụng adminId)
+  // Lấy profile và kiểm tra adminId
   const adminProfile = useSelector((state) => state.admin.profile);
-  const adminIdFromProfile = adminProfile?.adminId; // <<< SỬA Ở ĐÂY >>>
+  const adminIdFromProfile = adminProfile?.adminId; // <<< Sử dụng adminId >>>
   const isAdminAuthenticated = !!adminIdFromProfile;
 
   console.log(
     "AdminDashboardLayout Rendering - isAdminAuthenticated:",
     isAdminAuthenticated,
-    "- Profile from Redux:",
-    adminProfile,
-    "- Extracted adminId:",
-    adminIdFromProfile
+    "Profile:",
+    adminProfile
   );
 
-  // Effect xử lý resize
+  // Các useEffect khác giữ nguyên
   useEffect(() => {
+    /* resize */
     const handleResize = () =>
       dispatch(setSidebarVisibility(window.innerWidth > 1024));
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [dispatch]);
-
-  // Effect ẩn sidebar mobile khi chuyển trang
   useEffect(() => {
-    if (window.innerWidth <= 1024) dispatch(setSidebarVisibility(false));
+    /* mobile path change */ if (window.innerWidth <= 1024)
+      dispatch(setSidebarVisibility(false));
   }, [location.pathname, dispatch]);
-
-  // Effect fetch menu data
   useEffect(() => {
-    dispatch(fetchMenuData());
+    /* fetch menu */ dispatch(fetchMenuData());
   }, [dispatch]);
 
   return (
@@ -73,7 +63,7 @@ const AdminDashboardLayoutInner = (props) => {
         <button
           className="toggle-sidebar-btn"
           onClick={() => dispatch(toggleSidebar())}
-          aria-label={isSidebarVisible ? "Ẩn thanh bên" : "Hiện thanh bên"}
+          aria-label={isSidebarVisible ? "Ẩn" : "Hiện"}
         >
           <i
             className={`fa-solid ${
@@ -85,25 +75,17 @@ const AdminDashboardLayoutInner = (props) => {
           <h1 className="current-page">
             {currentPage || t("common.dashboard", "Dashboard")}
           </h1>
-
-          {/* Render Toolbar dựa trên state Redux (đã kiểm tra adminId) */}
           {isAdminAuthenticated ? (
             <AdminAccountToolbar currentPath={currentPath} />
           ) : (
             (console.log(
-              "AdminDashboardLayout: Toolbar NOT rendered because isAdminAuthenticated is false (checked adminId)."
+              "AdminDashboardLayout: Toolbar NOT rendered (checked adminId)."
             ),
             null)
           )}
         </div>
         <div className="main-layout-content">
-          <div className="main-layout-left">
-            {children || <p>{t("common.noContent", "Không có nội dung")}</p>}
-            {childrenMiddleContentLower}
-          </div>
-          {rightChildren && (
-            <div className="main-layout-right">{rightChildren}</div>
-          )}
+          {children || <p>{t("common.noContent", "Không có nội dung")}</p>}
         </div>
       </div>
     </div>
@@ -112,8 +94,6 @@ const AdminDashboardLayoutInner = (props) => {
 
 AdminDashboardLayoutInner.propTypes = {
   children: PropTypes.node,
-  childrenMiddleContentLower: PropTypes.node,
-  rightChildren: PropTypes.node,
   currentPage: PropTypes.string,
 };
 
