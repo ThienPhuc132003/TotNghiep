@@ -73,7 +73,6 @@ const AdminLoginPage = () => {
           localStorage.removeItem("admin_password");
         }
 
-        // Fetch và Dispatch Profile TRƯỚC KHI Navigate
         try {
           console.log("Admin Login: Fetching profile...");
           const adminInfoResponse = await Api({
@@ -82,10 +81,10 @@ const AdminLoginPage = () => {
           });
 
           if (adminInfoResponse.success && adminInfoResponse.data) {
-            // Kiểm tra adminId trước khi dispatch
             if (adminInfoResponse.data.adminId) {
+              // <<< KIỂM TRA adminId >>>
               console.log(
-                "Admin Login: Profile data with adminId received:",
+                "Admin Login: Profile received:",
                 adminInfoResponse.data
               );
               dispatch(setAdminProfile(adminInfoResponse.data));
@@ -131,12 +130,10 @@ const AdminLoginPage = () => {
 
   const generateRandomString = (length = 20) => {
     let result = "";
-    const characters =
+    const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < length; i++)
-      result += characters.charAt(
-        Math.floor(Math.random() * characters.length)
-      );
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     return result;
   };
 
@@ -175,7 +172,7 @@ const AdminLoginPage = () => {
         <h1 className="login-title">Quản lý GiaSuVLU</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="login-form-container">
-            <label htmlFor="emailOrPhoneNumber">Email hoặc Số điện thoại</label>
+            <label htmlFor="emailOrPhoneNumber">Email/SĐT</label>
             <div
               className={`login-form-group ${
                 fieldErrors.emailOrPhoneNumber ? "error" : ""
@@ -222,7 +219,7 @@ const AdminLoginPage = () => {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                aria-label={showPassword ? "Ẩn" : "Hiện"}
               >
                 <i
                   className={`fa-regular ${
@@ -272,7 +269,7 @@ const AdminLoginPage = () => {
                 "Đang xử lý..."
               ) : (
                 <>
-                  <img src={MicrosoftLogo} alt="Microsoft logo" /> Đăng nhập với
+                  <img src={MicrosoftLogo} alt="MS logo" /> Đăng nhập với
                   Microsoft
                 </>
               )}
