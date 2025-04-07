@@ -1,55 +1,159 @@
 /* src/assets/css/Admin/AdminDashboardLayout.style.css */
+
+/* Biến màu và kích thước (Ví dụ - bạn có thể điều chỉnh) */
+:root {
+  --admin-sidebar-width: 250px; /* Chiều rộng sidebar */
+  --admin-header-height: 60px; /* Chiều cao header */
+  --admin-border-color: #e3e6f0; /* Màu viền */
+  --admin-bg-light: #f8f9fc; /* Màu nền sáng */
+  --admin-text-dark-gray: #5a5c69;
+  --admin-primary-color: #4e73df; /* Màu dùng cho nút toggle */
+  --admin-text-light: #ffffff;
+}
+
 .admin-dashboard-layout {
   display: flex;
-  height: 100vh;
-  transition: margin-left 0.3s ease;
-  flex-direction: row;
+  height: 100vh; /* Chiếm toàn bộ chiều cao viewport */
+  overflow: hidden; /* Ngăn cuộn ở cấp cao nhất */
+  position: relative; /* Cần thiết cho việc định vị nút toggle tuyệt đối */
 }
 
+/* --- Sidebar Styling (Giả định sidebar có width cố định) --- */
+/* CSS cho AdminSidebar nên được đặt trong file riêng của nó, */
+/* nhưng layout này cần biết chiều rộng của nó */
+.admin-dashboard-layout .admin-sidebar {
+  /* Giả sử component sidebar có class này */
+  width: var(--admin-sidebar-width);
+  flex-shrink: 0; /* Không cho sidebar co lại */
+  transition: width 0.3s ease, margin-left 0.3s ease; /* Hiệu ứng ẩn/hiện */
+  /* Thêm các style khác của sidebar ở đây hoặc file riêng */
+  background-color: #222d32; /* Ví dụ màu nền sidebar */
+  z-index: 1000; /* Đảm bảo sidebar ở trên nếu có overlay */
+}
+
+/* Style khi sidebar ẩn (ví dụ ẩn bằng cách thu nhỏ width) */
+.admin-dashboard-layout.sidebar-hidden .admin-sidebar {
+  width: 0;
+  /* Hoặc ẩn hoàn toàn nếu muốn */
+  /* margin-left: calc(-1 * var(--admin-sidebar-width)); */
+  overflow: hidden;
+}
+
+/* --- Content Area Styling --- */
 .content-area {
-  display: flex;
+  display: flex; /* Sắp xếp header và content-body theo cột */
   flex-direction: column;
-  width: 100%;
-  flex: 1;
-  transition: margin-left 0.3s ease;
+  flex: 1; /* Quan trọng: Chiếm không gian còn lại */
+  overflow: hidden; /* Ngăn tràn và cuộn ở cấp này */
+  /* Không cần transition ở đây nếu sidebar thay đổi width */
+  background-color: var(--admin-bg-light); /* Màu nền nhẹ cho khu vực content */
+  position: relative; /* Để nút toggle có thể định vị tương đối */
 }
 
+/* --- Header Styling --- */
 .main-layout-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
-}
-
-.main-content {
-  display: flex;
-  flex: 1;
-}
-
-.main-layout-content {
-  display: flex;
-  flex-direction: row;
-}
-
-.main-layout-left {
-  flex: 2;
-  overflow-y: auto;
-}
-
-.main-layout-right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
+  padding: 0 20px; /* Chỉ padding ngang */
+  height: var(--admin-header-height); /* Chiều cao cố định */
+  flex-shrink: 0; /* Không cho header co lại */
+  background-color: #fff; /* Nền trắng cho header */
+  border-bottom: 1px solid var(--admin-border-color); /* Đường kẻ dưới header */
+  z-index: 10; /* Đảm bảo header chồng lên trên nếu cần */
+  position: relative; /* Để nút toggle có thể định vị */
 }
 
 .current-page {
-  display: flex;
-  margin-left: 50px;
+  margin: 0; /* Reset margin */
+  margin-left: 45px; /* Khoảng cách với nút toggle (nếu nút ở góc trái) */
+  font-size: 1.4rem; /* Kích thước tiêu đề */
+  font-weight: 600; /* Đậm hơn một chút */
+  color: var(--admin-text-dark-gray);
+  white-space: nowrap; /* Ngăn xuống dòng */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-account-toolbar {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  align-items: center; /* Căn giữa các item theo chiều dọc */
+  gap: 20px; /* Tăng khoảng cách */
+}
+
+/* --- Main Content Body Styling --- */
+.main-layout-content {
+  display: flex;
+  flex-direction: row; /* Sắp xếp cột trái và phải */
+  flex-grow: 1; /* Quan trọng: Chiếm hết chiều cao còn lại dưới header */
+  overflow: hidden; /* Ngăn cuộn ở đây, để cuộn bên trong cột con */
+  /* Có thể cần height: 0; hoặc min-height: 0; trong một số trường hợp flex phức tạp */
+}
+
+/* --- Left Column (Main Content) --- */
+.main-layout-left {
+  flex-grow: 1; /* Cho phép cột trái chiếm không gian chính */
+  min-width: 0; /* Quan trọng: Ngăn nội dung đẩy cột rộng ra */
+  height: 100%; /* Chiếm toàn bộ chiều cao của cha (.main-layout-content) */
+  overflow-y: auto; /* Quan trọng: Cho phép cuộn nội dung chỉ trong cột này */
+  /* Padding nên được đặt BÊN TRONG component con (vd: .admin-dashboard-page-content) */
+  /* padding: 20px; */ /* Bỏ padding ở đây */
+}
+
+/* --- Right Column (Optional Sidebar/Info) --- */
+.main-layout-right {
+  flex-shrink: 0; /* Không cho cột phải co lại */
+  width: 300px; /* Chiều rộng cố định cho cột phải (ví dụ) */
+  height: 100%; /* Chiếm chiều cao */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung cột phải dài */
+  padding: 20px; /* Giữ padding cho cột phải */
+  border-left: 1px solid var(--admin-border-color); /* Thêm đường kẻ ngăn cách (tùy chọn) */
+  background-color: #fff; /* Nền trắng (tùy chọn) */
+}
+
+/* --- Toggle Sidebar Button Styling --- */
+.toggle-sidebar-btn {
+  position: absolute;
+  top: 12px; /* Căn giữa với header (60px/2 - 15px) */
+  /* left: calc(var(--admin-sidebar-width) + 10px); */ /* Đặt bên phải sidebar khi hiện */
+  left: 10px; /* Hoặc đặt cố định ở góc trái header */
+  z-index: 1031; /* Cao hơn sidebar và header một chút */
+  background: var(--admin-primary-color);
+  color: var(--admin-text-light);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 0.8rem; /* Kích thước icon nhỏ hơn */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease; /* Hiệu ứng di chuyển nút */
+}
+
+/* Style khi sidebar ẩn */
+.admin-dashboard-layout.sidebar-hidden .toggle-sidebar-btn {
+  /* Di chuyển nút về sát lề trái khi sidebar ẩn */
+  left: 10px;
+}
+
+/* --- Responsive Adjustments (Ví dụ) --- */
+@media (max-width: 1024px) {
+  /* Trên mobile/tablet, sidebar có thể ẩn mặc định hoặc chiếm toàn màn hình */
+  /* CSS này giả định sidebar ẩn mặc định và nút toggle luôn hiện */
+
+  .current-page {
+    margin-left: 50px; /* Giữ khoảng cách nếu nút toggle luôn ở left: 10px */
+  }
+  .main-layout-content {
+    flex-direction: column; /* Xếp chồng cột trên mobile nếu có cột phải */
+  }
+  .main-layout-right {
+    width: 100%; /* Cột phải chiếm toàn bộ chiều rộng */
+    height: auto; /* Chiều cao tự động */
+    border-left: none;
+    border-top: 1px solid var(--admin-border-color);
+  }
 }

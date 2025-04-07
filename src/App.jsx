@@ -58,7 +58,6 @@ function App() {
             <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<UserLogin />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/otp-verify" element={<OtpVerify />} />
@@ -86,11 +85,10 @@ function App() {
             <Route element={<OtpProtectedRoute />}>
               <Route path="/change-password" element={<ChangePassword />} />
             </Route>
-
+            <Route path="/admin/login" element={<AdminLogin />} />
             {/* admin pages */}
-
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/*" element={<AdminPrivateRoutes />}>
-              <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="profile" element={<AdminProfile />} />
               <Route path="nhan-vien" element={<ListOfAdmin />} />
               <Route path="nganh" element={<ListOfMajor />} />
