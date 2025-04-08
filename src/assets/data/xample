@@ -1,0 +1,34 @@
+{
+"avatar": "https://example.com/avatar.jpg" ( file được lấy từ api upload-media),
+"fullname": "Đặng Phương Nam" ( tên text),
+"majorId": "M0002" ( id của ngành học, sẽ có api nhưng hiển thị tên ngành học),
+"birthday": "2003-09-21" ( ngày tháng năm sinh),
+"gender": "MALE" ( giới tính, hiển thị là Nam và Nữ những truyền MALE và FEMALE),
+"bankNumber": "123456789" ( số tài khoản),
+"bankName": "Viettinbank" ( tên ngân hàng, có api lấy tên ngân hàng sau),
+"subjectId": "S0001" ( truyền mã môn học, sẽ có api nhưng hiển thị tên môn học),
+"evidenceOfSubject": "tệp" ( file cũng được lấy từ api upload-media),
+"descriptionOfSubject": "Quản trị mạng" ( truyền text mô tả môn học),
+"subjectId2": "S0006",
+"evidenceOfSubject2": "tệp",
+"descriptionOfSubject2": "Công nghệ phần mêm",
+"univercity": "Đại học Bách Khoa" ( tên trường đang học hoặc đã học),
+"GPA": 3.8 ( điểm trung bình tính đến thời điểm hiện tại), 
+"evidenceOfGPA": "tệp"( minh chứng cho điểm gpa ) ,
+"teachingTime": 10 ( sẽ đặt trên dateTimeLearn, đây là só giờ dạy trong 1 tiết của gia sư, ví dụ là 1:00 trong 1 tiết thì phần times của dateTimeLearn những giờ dạy phải cách nhau 1 tiếng, chọn cách ít hơn 1 tiếng sẽ báo lỗi ),
+"dateTimeLearn": [
+  {
+    "day": "Monday",
+    "times": ["08:00", "10:00"]
+  },
+  {
+    "day": "Wednesday",
+    "times": ["14:00", "16:00"]
+  }
+],
+"description": "Tôi có 3 năm kinh nghiệm giảng dạy toán học." ( mô tả về gia sư),
+"videoUrl": "https://example.com/intro-video.mp4" (link video giới thiệu gia sư ( youtube),
+"teachingMethod": "ONLINE"( có 3 option là ONLINE, OFFLINE và BOTH, nhưng hiển thị là trực tuyến, tại nhà và cả hai),
+"teachingPlace": "địa chỉ nhà" ( nếu chọn cả hai hoặc tại nhà),
+"isUseCurriculumn": true ( có sử dụng giáo trình của trang cung cấp hay không, cho ô tích),
+}

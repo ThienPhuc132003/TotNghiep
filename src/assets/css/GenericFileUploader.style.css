@@ -1,0 +1,129 @@
+/* src/components/Common/GenericFileUploader.css */
+.generic-file-uploader {
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  
+  .gfu-label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    transition: color 0.2s ease-in-out;
+  }
+  .required-asterisk {
+    color: #dc3545;
+    margin-left: 2px;
+  }
+  
+  .gfu-input-area {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap; /* Cho phép xuống dòng */
+  }
+  
+  .gfu-button {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    color: #495057;
+    transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem; /* Khoảng cách giữa icon và text */
+    white-space: nowrap; /* Không xuống dòng text trong nút */
+  }
+  
+  .gfu-button:hover:not(:disabled) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+  }
+  
+  .gfu-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+  .gfu-file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: #fff; /* Nền trắng để nổi bật */
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da; /* Viền giống input */
+    flex-grow: 1; /* Chiếm không gian còn lại */
+    min-width: 150px; /* Chiều rộng tối thiểu */
+    overflow: hidden; /* Tránh tràn nội dung */
+  }
+  
+  .gfu-file-name {
+    font-size: 0.88rem; /* Kích thước chữ tên file */
+    color: #495057;
+    overflow: hidden; /* Ẩn phần thừa */
+    text-overflow: ellipsis; /* Hiển thị '...' */
+    white-space: nowrap; /* Không xuống dòng */
+    flex-grow: 1; /* Ưu tiên chiếm không gian */
+  }
+  /* Link xem file */
+  .gfu-file-name a {
+    color: #0d6efd; /* Màu link Bootstrap */
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex; /* Để icon link nằm cùng hàng */
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .gfu-file-name a:hover {
+    text-decoration: underline;
+    color: #0a58ca;
+  }
+  .gfu-file-name a i {
+    font-size: 0.8em; /* Icon link nhỏ hơn */
+    opacity: 0.8;
+  }
+  
+  
+  .gfu-remove-button {
+    background: none;
+    border: none;
+    color: #dc3545; /* Màu đỏ cảnh báo */
+    font-size: 1.3rem; /* Kích thước nút xóa */
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 0.4rem; /* Tăng vùng click */
+    line-height: 1;
+    margin-left: auto; /* Đẩy về cuối */
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+  .gfu-remove-button:hover {
+    opacity: 1;
+    color: #a71d2a; /* Đậm hơn khi hover */
+  }
+  
+  /* Trạng thái Loading */
+  .generic-file-uploader.is-loading .gfu-button {
+      opacity: 0.8;
+  }
+
+  
+  /* Thông báo lỗi */
+  .gfu-error-message {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+    font-weight: 500;
+  }
+  /* Style khi có lỗi */
+  .generic-file-uploader.has-error .gfu-label {
+    color: #dc3545;
+  }
+  .generic-file-uploader.has-error .gfu-button,
+  .generic-file-uploader.has-error .gfu-file-info {
+    border-color: #f1ae B5; /* Viền đỏ nhạt hơn */
+  }

@@ -1,204 +1,146 @@
-/* src/assets/css/AdminProfile.style.css */
+/* src/assets/css/Admin/AdminProfile.style.css */
 
 /* Overall container */
 .profile-container {
-  max-width: 700px; /* Giảm kích thước container */
-  margin: 20px auto; /* Thêm margin trên và dưới */
-  padding: 1.5rem; /* Giảm padding */
+  max-width: 700px;
+  margin: 2rem auto; /* Tăng margin trên dưới */
+  padding: 2rem; /* Tăng padding */
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Nhẹ hơn */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Shadow rõ hơn chút */
 }
 
 /* Title */
 .profile-title {
   text-align: center;
-  margin-bottom: 1.5rem; /* Giảm margin */
-  font-size: 1.75rem; /* Giảm kích thước chữ */
+  margin-bottom: 2rem; /* Tăng margin */
+  font-size: 1.8rem; /* Tăng size */
   color: #333;
+  padding-bottom: 1rem; /* Thêm padding dưới */
+  border-bottom: 1px solid #eee; /* Thêm border dưới */
 }
 
-/* Form styling */
-.profileForm {
-  padding: 1.5rem; /* Giảm padding */
+/* --- Section cho Avatar Uploader --- */
+.avatar-upload-section {
+  display: flex; /* Cho phép căn giữa hoặc thêm loading bên cạnh */
+  justify-content: center; /* Căn giữa uploader */
+  flex-direction: column; /* Xếp chồng loading indicator (nếu có) */
+  align-items: center;
+  margin-bottom: 2rem; /* Khoảng cách với form dưới */
+  padding-bottom: 1.5rem; /* Khoảng cách dưới */
+  border-bottom: 1px solid #eee; /* Phân tách với form */
 }
+
+/* Loading indicator cho avatar */
+.avatar-loading {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* Form styling (Giữ nguyên hoặc điều chỉnh từ CSS bạn cung cấp) */
 
 /* Form group */
 .formGroup {
-  margin-bottom: 0.75rem; /* Giảm margin */
+  margin-bottom: 1.2rem; /* Tăng nhẹ margin */
 }
 
 .formGroup label {
   display: block;
-  margin-bottom: 0.3rem; /* Giảm margin */
-  font-weight: 500; /* Bớt đậm */
-  font-size: 0.9rem; /* Giảm kích thước chữ */
+  margin-bottom: 0.5rem; /* Tăng nhẹ */
+  font-weight: 600; /* Đậm hơn */
+  font-size: 0.9rem;
+  color: #495057; /* Màu label chuẩn hơn */
 }
 
-.formGroup input {
+.formGroup input,
+.formGroup select {
+  /* Thêm select nếu có */
   width: 100%;
-  padding: 0.4rem; /* Giảm padding */
+  padding: 0.7rem 0.9rem; /* Tăng padding input */
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 6px; /* Bo góc nhiều hơn */
   box-sizing: border-box;
-  font-size: 0.9rem; /* Giảm kích thước chữ */
+  font-size: 0.95rem; /* Tăng size chữ input */
+}
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: #1e4ca1; /* Màu xanh dương khi focus (ví dụ) */
+  box-shadow: 0 0 0 0.2rem rgba(30, 76, 161, 0.2);
+  outline: none;
 }
 
 .formGroup input.readOnly {
-  background-color: #f0f0f0;
+  background-color: #e9ecef; /* Màu disable chuẩn hơn */
   cursor: not-allowed;
+  opacity: 0.8;
 }
 
 /* Gender group */
 .genderGroup {
   display: flex;
-  gap: 0.75rem; /* Giảm gap */
+  gap: 1.5rem; /* Tăng gap */
+  margin-top: 0.5rem; /* Thêm margin top */
 }
-
+/* Label cho radio button */
 .genderGroup label {
-  font-weight: normal; /* Bỏ đậm */
-  font-size: 0.9rem; /* Giảm kích thước chữ */
-}
-
-/* Avatar styling */
-.avatar-container {
-  display: flex;
+  font-weight: normal;
+  font-size: 0.95rem;
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem; /* Giảm gap */
-  margin-bottom: 1rem;
-}
-
-.avatar {
-  width: 75px; /* Giảm kích thước avatar */
-  height: 75px; /* Giảm kích thước avatar */
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.change-avatar-button {
-  padding: 0.4rem 0.8rem; /* Giảm padding */
-  background-color: rgb(30, 76, 161); /* giữ màu */
-  border: none;
-  border-radius: 5px;
-  color: white;
   cursor: pointer;
-  transition: background 0.3s;
-  font-size: 0.85rem; /* Giảm kích thước chữ */
+}
+.genderGroup input[type="radio"] {
+  margin-right: 0.5rem;
+  accent-color: rgb(30, 76, 161); /* Màu primary */
+  cursor: pointer;
 }
 
-.change-avatar-button:hover {
-    background-color: rgb(30, 76, 161); /* giữ màu */
-}
+/* --- Bỏ CSS cho .avatar-container, .avatar, .change-avatar-button cũ --- */
+/* .avatar-container { ... } */
+/* .avatar { ... } */
+/* .change-avatar-button { ... } */
 
-/* Button */
+/* Button submit form chính */
 .profileButton {
   width: 100%;
-  padding: 0.6rem; /* Giảm padding */
+  padding: 0.8rem 1.5rem; /* Tăng padding */
   background: rgb(30, 76, 161);
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   color: white;
-  font-size: 0.9rem; /* Giảm kích thước chữ */
+  font-size: 1rem; /* Tăng size chữ */
+  font-weight: 600; /* Đậm hơn */
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s ease;
+  margin-top: 1rem; /* Thêm margin top */
 }
-
-.profileButton:hover {
-  background: rgb(30, 76, 161);
+.profileButton:hover:not(:disabled) {
+  background: rgb(25, 63, 134); /* Đậm hơn khi hover */
+}
+.profileButton:disabled {
+  background-color: #adb5bd; /* Màu xám khi disable */
+  cursor: not-allowed;
 }
 
 /* Messages */
-.successMessage {
-  color: rgb(76, 175, 80);
-  font-size: 0.9rem; /* Giảm kích thước chữ */
-  margin-bottom: 0.75rem; /* Giảm margin */
+.success-message,
+.error-message {
+  padding: 0.8rem 1rem; /* Tăng padding */
+  margin-bottom: 1.5rem; /* Tăng margin */
+  border-radius: 6px;
+  font-size: 0.95rem; /* Tăng size chữ */
+  text-align: center; /* Căn giữa */
+  border: 1px solid transparent;
 }
-
-.errorMessage {
-  color: rgb(229, 115, 115);
-  font-size: 0.9rem; /* Giảm kích thước chữ */
-  margin-bottom: 0.75rem; /* Giảm margin */
+.success-message {
+  color: #0f5132;
+  background-color: #d1e7dd;
+  border-color: #badbcc;
 }
-
-/* Modal styling */
-.modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 1);
-    padding: 1.5rem; /* Giảm padding */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 400px; /* Giảm kích thước modal */
-    width: 100%;
-}
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.crop-container {
-    position: relative;
-    width: 100%;
-    height: 250px; /* Giảm chiều cao crop */
-    background: #333;
-    margin-top: 0.75rem; /* Giảm margin */
-}
-
-.file-input {
-    margin-top: 0.75rem; /* Giảm margin */
-    margin-bottom: 0.75rem; /* Giảm margin */
-    font-size: 0.85rem; /* Giảm kích thước chữ */
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: space-between;
-}
-
-.crop-save-button {
-    padding: 0.4rem 0.8rem; /* Giảm padding */
-    background-color: rgb(30, 76, 161);
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-    font-size: 0.8rem; /* Giảm kích thước chữ */
-}
-
-.crop-save-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.crop-save-button:hover:not(:disabled) {
-  background-color: rgb(30, 76, 161);
-}
-
-.modal-close-button {
-    padding: 0.4rem 0.8rem; /* Giảm padding */
-    background-color: rgb(229, 115, 115);
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-    font-size: 0.8rem; /* Giảm kích thước chữ */
-}
-
-.modal-close-button:hover {
-    background-color: rgb(229, 115, 115);
-}
-
-.modal-title {
-    text-align: center;
-    margin-bottom: 0.75rem; /* Giảm margin */
-    font-size: 1.25rem; /* Giảm kích thước chữ */
+.error-message {
+  color: #842029;
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
 }

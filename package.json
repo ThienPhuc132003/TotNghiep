@@ -19,10 +19,11 @@
     "@reduxjs/toolkit": "^2.2.7",
     "@tanstack/react-table": "^8.21.2",
     "@zoomus/websdk": "^2.18.3",
-    "axios": "^1.7.2",
+    "axios": "^1.8.4",
     "chart.js": "^4.4.7",
     "country-flag-icons": "^1.5.13",
     "date-fns-tz": "^3.2.0",
+    "formik": "^2.4.6",
     "i18next": "^23.16.4",
     "intl": "^1.2.5",
     "js-cookie": "^3.0.5",
@@ -36,6 +37,7 @@
     "react-easy-crop": "^5.1.0",
     "react-i18next": "^15.1.0",
     "react-icons": "^5.5.0",
+    "react-image-crop": "^11.0.7",
     "react-loading-skeleton": "^3.5.0",
     "react-modal": "^3.16.3",
     "react-paginate": "^8.2.0",
@@ -50,7 +52,8 @@
     "redux-persist": "^6.0.0",
     "remove-accents": "^0.5.0",
     "slick-carousel": "^1.8.1",
-    "unidecode": "^1.1.0"
+    "unidecode": "^1.1.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
