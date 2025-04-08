@@ -1,229 +1,252 @@
-/* TutorRegistrationForm.style.css */
+/* src/assets/css/TutorRegister.style.css */
 
-/* === Container Chính === */
+/* === General Page/Container Styles === */
 .tutor-registration-container {
-  max-width: 950px;
-  margin: 2rem auto;
-  background-color: #f4f6f9;
-  padding: 1.5rem;
-  border-radius: 10px;
+  max-width: 1000px; /* Max width of the form container */
+  margin: 2rem auto 4rem auto; /* Top, horizontal auto, bottom margin */
+  padding: 2rem 2.5rem; /* Inner padding */
+  background-color: #f8f9fa; /* Light background for the container */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08); /* Subtle shadow */
   box-sizing: border-box;
 }
 
-/* === Tiêu đề chính của Form (H2) === */
+/* Main heading (H2) */
 .tutor-registration-container h2 {
   text-align: center;
-  margin-bottom: 2.5rem;
-  color: #333;
-  font-size: 1.8rem;
-  font-weight: 600;
+  margin-bottom: 3rem;
+  color: #b41e2d; /* Primary color */
+  font-size: 2rem;
+  font-weight: 700;
+  border-bottom: 1px solid #dee2e6; /* Light bottom border */
+  padding-bottom: 1.5rem;
 }
 
-/* === Styling cho mỗi Section để tạo hiệu ứng Card === */
+/* === Form Section Styling === */
 .tutor-registration-form .form-section {
-  background-color: #ffffff;
-  padding: 2rem 2.5rem;
-  margin-bottom: 2.5rem;
-  border-radius: 8px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e9ecef;
+  background-color: #ffffff; /* White background for sections */
+  padding: 2.5rem 3rem; /* Padding inside sections */
+  margin-bottom: 3rem; /* Space between sections */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Lighter shadow for sections */
+  border: 1px solid #e9ecef; /* Light border */
 }
-
+/* Optional top border for separation */
+/* .tutor-registration-form .form-section:not(:first-child) {
+    border-top: 1px solid #f1f1f1;
+    padding-top: 3rem;
+} */
 .tutor-registration-form .form-section:last-of-type {
-  margin-bottom: 0;
+  margin-bottom: 0; /* No bottom margin for the last section */
 }
 
-/* === Tiêu đề Section (H3) === */
+/* Section headings (H3) */
 .tutor-registration-form h3 {
-  font-size: 1.5rem;
-  color: #b41e2d;
-  margin-bottom: 2rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 3px solid #b41e2d;
-  display: inline-block;
+  font-size: 1.7rem;
+  color: #343a40; /* Dark grey heading */
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #b41e2d; /* Primary color underline */
+  display: inline-block; /* Make underline fit content */
   margin-top: 0;
   font-weight: 600;
 }
 
-/* === Grid Layout cho các Section === */
+/* === Grid Layout === */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem 2.5rem;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(300px, 1fr)
+  ); /* Responsive columns */
+  gap: 2rem 3rem; /* Row and column gap */
 }
 
-/* === Styling chung cho các Form Group === */
+/* === Form Group Styling === */
 .form-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.8rem; /* Space below each form group */
   display: flex;
   flex-direction: column;
+  position: relative; /* For potential absolute positioned elements like error icons */
 }
-
 .form-group.full-width {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1; /* Span full width in grid */
 }
 
-/* === Label === */
-.form-group label {
+/* === Labels === */
+/* Exclude labels within radio/checkbox groups */
+.form-group label:not(.checkbox-label):not(.radio-group label) {
   display: block;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
   font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
+  color: #495057; /* Standard label color */
+  font-size: 0.95rem;
+}
+/* Style for the required asterisk */
+.form-group label .required-asterisk {
+  color: #dc3545; /* Red color for asterisk */
+  margin-left: 3px;
+  font-weight: bold;
 }
 
-/* === Input, Select, Textarea === */
+/* === Inputs, Selects, Textareas === */
 .form-group input[type="text"],
-.form-group input[type="email"],
+.form-group input[type="email"], /* Although email is removed, keep style for consistency */
 .form-group input[type="date"],
 .form-group input[type="number"],
-.form-group input[type="file"],
+.form-group input[type="url"],
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #ced4da;
-  border-radius: 5px;
-  font-size: 0.95rem;
+  padding: 0.9rem 1.2rem; /* Inner padding */
+  border: 1px solid #ced4da; /* Default border */
+  border-radius: 6px; /* Rounded corners */
+  font-size: 1rem; /* Input font size */
   color: #495057;
   background-color: #fff;
   box-sizing: border-box;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-
-/* Input bị disable */
-.form-group input:disabled {
-  background-color: #e9ecef;
-  cursor: not-allowed;
-}
-
+/* Focus state */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #b41e2d;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(180, 30, 45, 0.25);
+  border-color: #b41e2d; /* Highlight border on focus */
+  outline: 0; /* Remove default outline */
+  box-shadow: 0 0 0 0.25rem rgba(180, 30, 45, 0.2); /* Focus shadow */
 }
-
-.form-group input[type="file"] {
-  padding: 0.6rem;
-  cursor: pointer;
+/* Disabled state */
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background-color: #e9ecef; /* Grey background */
+  cursor: not-allowed;
+  opacity: 0.7;
 }
-.form-group input[type="file"]::file-selector-button {
-  padding: 0.6rem 1rem;
-  margin-right: 1rem;
-  background-color: #e9ecef;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  color: #495057;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.form-group input[type="file"]::file-selector-button:hover {
-  background-color: #dee2e6;
-}
-
-.file-name {
-  font-size: 0.85rem;
-  color: #6c757d;
-  margin-top: 0.5rem;
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .form-group textarea {
-  resize: vertical;
-  min-height: 100px;
+  resize: vertical; /* Allow vertical resize */
+  min-height: 120px; /* Minimum height */
+}
+/* Helper text/note below inputs */
+.note {
+  font-size: 0.85rem;
+  color: #6c757d; /* Grey color for notes */
+  margin-top: 0.6rem;
+  line-height: 1.5;
 }
 
-/* === Radio Button === */
+/* === Radio Buttons & Checkbox === */
 .radio-group {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.5rem;
-  margin-top: 0.3rem;
+  gap: 1rem 2rem;
+  margin-top: 0.5rem;
 }
-.radio-group label {
+.radio-group label,
+.checkbox-label {
   margin-bottom: 0;
   font-weight: normal;
   display: inline-flex;
   align-items: center;
   cursor: pointer;
   color: #495057;
+  font-size: 0.95rem;
 }
-.radio-group input[type="radio"] {
-  margin-right: 0.5rem;
+.radio-group input[type="radio"],
+.checkbox-label input[type="checkbox"] {
+  margin-right: 0.7rem;
   accent-color: #b41e2d;
   cursor: pointer;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+.checkbox-label {
+  margin-top: 0.5rem; /* Space above standalone checkbox */
+}
+.checkbox-label span {
+  line-height: 1.3;
 }
 
-/* === Subject Section Specific Styles === */
+/* === Subject Section Styling === */
 .subject-item {
   border: 1px solid #e9ecef;
-  background-color: #fdfdfd;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-radius: 6px;
+  background-color: #ffffff;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
   position: relative;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
 }
-
+.subject-item:last-of-type {
+  margin-bottom: 1.5rem;
+} /* Reduce margin for last item before button */
 .subject-item h4 {
   grid-column: 1 / -1;
-  margin-bottom: 1.5rem;
-  color: #343a40;
+  margin-bottom: 2rem;
+  color: #495057;
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.15rem;
+  gap: 1rem;
+  font-size: 1.3rem;
   font-weight: 600;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px dashed #ced4da;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #dee2e6;
 }
 
-/* === Availability Section Specific Styles === */
+/* === Availability Section Styling === */
+/* Input for teachingTime (moved here) */
+.teaching-time-group {
+  max-width: 280px;
+  margin-bottom: 2.5rem;
+}
+.availability-note {
+  margin-bottom: 1.8rem;
+  font-weight: 500;
+} /* Make note slightly bolder */
+
 .availability-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(150px, 1fr)
-  ); /* Rộng hơn chút cho input time */
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.8rem;
 }
-
 .day-column {
   border: 1px solid #dee2e6;
-  padding: 1rem;
-  border-radius: 6px;
+  padding: 1.3rem;
+  border-radius: 8px;
   background-color: #f8f9fa;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  min-height: 160px;
 }
 .day-column.selected {
-  background-color: #e8f5e9;
+  background-color: #f0f7f1;
   border-color: #a5d6a7;
-  box-shadow: 0 0 8px rgba(165, 214, 167, 0.3);
+  box-shadow: 0 2px 8px rgba(165, 214, 167, 0.2);
 }
-
+.day-column.has-error {
+  border-color: #f5c6cb !important;
+  background-color: #f8d7da !important;
+}
+.day-column.has-error .day-header label {
+  color: #721c24;
+  font-weight: bold;
+}
 .day-header {
   display: flex;
   align-items: center;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
   cursor: pointer;
   user-select: none;
 }
 .day-header input[type="checkbox"] {
-  margin-right: 0.6rem;
+  margin-right: 0.8rem;
   cursor: pointer;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   accent-color: #b41e2d;
 }
 .day-header label {
@@ -232,86 +255,95 @@
   cursor: pointer;
   margin: 0;
   flex-grow: 1;
+  font-size: 1.05rem;
 }
-
 .time-slots {
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Tăng khoảng cách giữa các slot */
+  gap: 1.3rem;
   flex-grow: 1;
   justify-content: flex-start;
 }
-
 .time-slot-item {
   display: flex;
-  flex-wrap: wrap; /* Cho phép xuống dòng */
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.8rem; /* Khoảng cách hàng và cột */
-  position: relative; /* Cho message lỗi */
+  gap: 0.6rem 0.9rem;
+  position: relative;
 }
 .time-slot-item input[type="time"] {
-  padding: 0.5rem 0.7rem; /* Điều chỉnh padding */
-  font-size: 0.95rem; /* Tăng nhẹ size chữ */
-  border-radius: 4px;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  border-radius: 5px;
   border: 1px solid #ced4da;
   background-color: #fff;
-  /* max-width: 110px; */ /* Bỏ max-width để linh hoạt hơn */
-  flex-grow: 1; /* Cho input chiếm phần lớn không gian */
-  min-width: 100px; /* Chiều rộng tối thiểu */
+  flex-grow: 1;
+  min-width: 110px;
   color: #495057;
 }
 .time-slot-item span:not(.time-slot-error-message) {
-  /* Text (Bắt đầu) */
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #6c757d;
   white-space: nowrap;
-  flex-shrink: 0;
+}
+.time-slot-item input[type="time"].time-input-error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+}
+.time-slot-error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 0.3rem;
+  display: block;
+  width: 100%;
+  text-align: left;
+  flex-basis: 100%;
 }
 
-/* === Nút Thêm / Xóa === */
+/* === Add/Remove Buttons === */
 .add-button,
 .add-time-button {
-  background-color: #28a745;
+  background-color: #198754;
   border: none;
   color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-  font-size: 0.9rem;
-  margin-top: 1rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-size: 0.95rem;
+  margin-top: 1.8rem;
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   font-weight: 500;
 }
 .add-button:hover,
 .add-time-button:hover {
-  background-color: #218838;
+  background-color: #157347;
   transform: translateY(-1px);
 }
 .add-time-button {
   margin-top: auto;
   align-self: center;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
 }
-
 .remove-button,
 .remove-time-button {
   background-color: #dc3545;
   border: none;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: bold;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-  line-height: 1.2; /* Điều chỉnh line-height */
-  flex-shrink: 0; /* Không co lại */
-  height: fit-content; /* Cho chiều cao vừa đủ */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  line-height: 1.2;
+  flex-shrink: 0;
+  height: fit-content;
 }
 .remove-button:hover,
 .remove-time-button:hover {
@@ -319,72 +351,107 @@
   transform: translateY(-1px);
 }
 .remove-time-button {
-  margin-left: auto; /* Đẩy nút xóa giờ về cuối */
-}
+  margin-left: auto;
+  font-size: 1.3rem;
+  padding: 0.1rem 0.6rem;
+  line-height: 1;
+} /* Style for 'X' button */
 
-/* === Khu vực nút Submit và Thông báo === */
+/* === Submit Actions & Messages === */
 .form-actions {
-  margin-top: 2.5rem;
-  padding: 1.5rem 0 0.5rem 0; /* Giảm padding dưới */
-  text-align: center;
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  /* text-align: center; */ /* Bỏ căn giữa mặc định */
+  border-top: 1px solid #e9ecef;
+  display: flex; /* <<< Kích hoạt Flexbox */
+  justify-content: space-between; /* <<< Đẩy các items ra 2 đầu */
+  align-items: center; /* <<< Căn giữa theo chiều dọc */
+  flex-wrap: wrap; /* <<< Cho phép xuống dòng trên màn hình hẹp */
+  gap: 1rem 1.5rem; /* <<< Khoảng cách khi xuống dòng */
 }
 
+/* Nút Submit */
 .form-actions button[type="submit"] {
+  /* Các style cũ giữ nguyên: background-color, color, padding, border-radius, etc. */
   background-color: #b41e2d;
   color: white;
-  padding: 0.9rem 2.5rem;
+  padding: 1rem 3rem; /* Giữ hoặc điều chỉnh padding */
   border: none;
   border-radius: 50px;
-  font-size: 1.1rem;
+  font-size: 1.15rem; /* Giữ hoặc điều chỉnh */
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease,
-    box-shadow 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(180, 30, 45, 0.25);
+  order: 2; /* <<< Đặt nút ở vị trí thứ 2 (bên phải) */
+  /* Có thể thêm margin-left: auto nếu chỉ có 2 phần tử và muốn đẩy nút sang phải tuyệt đối */
+  /* margin-left: auto; */
 }
-.form-actions button[type="submit"]:hover {
+/* Hover/disabled states giữ nguyên */
+.form-actions button[type="submit"]:hover:not(:disabled) {
   background-color: #901724;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(180, 30, 45, 0.3);
 }
 .form-actions button[type="submit"]:disabled {
-  background-color: #ccc;
+  background-color: #ced4da;
   color: #6c757d;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
+.form-actions .error-message,
+.form-actions .success-message {
+  order: 0; /* <<< Luôn nằm ở đầu */
+  width: 100%; /* Chiếm toàn bộ chiều rộng */
+  text-align: center; /* Căn giữa message */
+  margin-bottom: 1.5rem; /* Khoảng cách dưới message */
+}
 
+/* General error/success messages */
 .error-message,
 .success-message {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   font-weight: 500;
-  padding: 0.8rem 1.2rem;
-  border-radius: 5px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  border: 1px solid transparent;
 }
 .error-message {
-  color: #721c24;
+  color: #842029;
   background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-}
-.error-message.specific-error {
-  margin-top: 1rem;
-  text-align: center;
-  margin-bottom: 0;
+  border-color: #f5c2c7;
 }
 .success-message {
-  color: #155724;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
+  color: #0f5132;
+  background-color: #d1e7dd;
+  border-color: #badbcc;
 }
-
-.terms {
-  margin-top: 1.5rem;
+/* Specific field error message */
+.field-error-message {
+  color: #dc3545;
   font-size: 0.85rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+  display: block;
+}
+/* Terms link */
+.terms {
+  /* margin-top: 2.5rem; */ /* Bỏ margin top vì flexbox đã căn chỉnh */
+  margin-top: 0; /* Reset margin top */
+  font-size: 0.9rem;
   color: #6c757d;
-  line-height: 1.5;
+  line-height: 1.6;
+  text-align: left; /* <<< Căn chữ sang trái */
+  order: 1; /* <<< Đặt text ở vị trí thứ 1 (bên trái) */
+  flex-basis: auto; /* Cho phép co giãn */
+  /* Giới hạn chiều rộng để không chiếm quá nhiều khi màn hình rộng */
+  max-width: calc(
+    100% - 250px
+  ); /* Ví dụ: trừ đi khoảng chiều rộng của nút + gap */
 }
 .terms a {
   color: #b41e2d;
@@ -395,94 +462,71 @@
   text-decoration: underline;
 }
 
-/* === Styles cho lỗi thời gian === */
-.time-slot-item input[type="time"].time-input-error {
-  border-color: #dc3545; /* Viền đỏ */
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Shadow đỏ nhạt */
-}
-
-.time-slot-error-message {
-  color: #dc3545;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-top: 0.2rem;
-  display: block;
-  width: 100%; /* Chiếm hết chiều rộng */
-  text-align: left;
-  flex-basis: 100%; /* Đảm bảo xuống dòng riêng */
-}
-.note {
-  font-size: 0.85rem;
-  color: #6c757d;
-  margin: 0.5rem 0;
-  line-height: 1.4;
-}
-
-/* === Responsive Adjustments === */
-@media (max-width: 768px) {
+/* === Responsive === */
+@media (max-width: 992px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1.8rem 0;
+  }
   .tutor-registration-container {
-    padding: 1rem;
+    padding: 1.5rem 2rem;
+  }
+  .tutor-registration-form .form-section {
+    padding: 2rem 2.5rem;
+  }
+}
+@media (max-width: 576px) {
+  .tutor-registration-container {
+    padding: 1rem 1.5rem;
   }
   .tutor-registration-form .form-section {
     padding: 1.5rem;
   }
   .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem 0;
+    gap: 1.5rem 0;
   }
   .availability-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1rem;
-  } /* Giữ hoặc điều chỉnh */
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .day-column {
+    padding: 1.2rem;
+    min-height: auto;
+  }
+  .form-actions {
+    flex-direction: column; /* Xếp chồng lên nhau */
+    align-items: center; /* Căn giữa khi xếp chồng */
+    gap: 1.5rem; /* Khoảng cách khi xếp chồng */
+  }
   .form-actions button[type="submit"] {
-    font-size: 1rem;
-    padding: 0.8rem 2rem;
+    order: 1; /* Nút submit ở trên */
+    width: 100%; /* Chiếm hết chiều rộng */
+    max-width: 300px; /* Giới hạn chiều rộng nút */
   }
   .tutor-registration-container h2 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
   }
   .tutor-registration-form h3 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
   }
   .subject-item h4 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
   }
-}
-
-@media (max-width: 480px) {
-  .tutor-registration-container {
-    padding: 0.8rem;
-  } /* Tăng nhẹ padding */
-  .tutor-registration-form .form-section {
-    padding: 1.2rem;
-  } /* Tăng nhẹ padding */
-  .availability-grid {
-    grid-template-columns: 1fr;
-  } /* 1 cột trên mobile nhỏ */
-  .day-column {
-    padding: 1rem;
-  } /* Tăng padding cột ngày */
-  .time-slot-item {
-    gap: 0.5rem;
+  .form-group {
+    margin-bottom: 1.5rem;
   }
-  .time-slot-item input[type="time"] {
-    min-width: 90px;
-    flex-grow: 0;
-  } /* Cho input nhỏ lại */
-  .remove-time-button {
-    padding: 0.3rem 0.6rem;
+  .terms {
+    order: 2; /* Text điều khoản ở dưới */
+    text-align: center; /* Căn giữa text */
+    max-width: 100%; /* Chiếm hết chiều rộng */
   }
-  .add-time-button {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.85rem;
-  }
-  .form-actions button[type="submit"] {
-    font-size: 0.95rem;
-    padding: 0.7rem 1.8rem;
-  }
-  .error-message,
-  .success-message {
-    font-size: 0.9rem;
-    padding: 0.7rem 1rem;
+  .form-actions .error-message,
+  .form-actions .success-message {
+    order: 0;
+    text-align: left; /* Căn trái message lỗi/thành công */
   }
 }
