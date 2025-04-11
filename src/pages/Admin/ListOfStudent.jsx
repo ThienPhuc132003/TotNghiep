@@ -196,7 +196,7 @@ const ListOfStudentPage = () => {
       phoneNumber: student.phoneNumber,
       homeAddress: student.userProfile?.homeAddress || "",
       birthday: student.userProfile?.birthday || "",
-      gender: student.userProfile?.gender || "",
+      gender: student.userProfile?.gender === "MALE" ? "Nam" : "Nữ", 
       status: student.status,
       checkActive: student.checkActive, // Ensure checkActive is included
     });

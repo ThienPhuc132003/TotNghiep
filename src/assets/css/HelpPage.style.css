@@ -1,0 +1,444 @@
+/* src/assets/css/HelpPage.style.css */
+
+.help-page-wrapper {
+    width: 100%;
+    background-color: #fff; /* Nền trắng chủ đạo */
+  }
+  
+  /* Kế thừa style section chung nếu cần, hoặc định nghĩa riêng */
+  .help-page-wrapper .section {
+    padding: 4rem 1rem;
+    margin: 0 auto;
+    text-align: center;
+    max-width: 1200px; /* Giới hạn chiều rộng nội dung */
+  }
+  .help-page-wrapper .section:nth-child(odd) {
+     background-color: #f9fafb; /* Xen kẽ màu nền section */
+  }
+  
+  
+  .help-page-wrapper .section h2 {
+    font-size: 2.2rem; /* Giảm kích thước H2 một chút so với trang chủ */
+    font-weight: 700;
+    margin-bottom: 3rem;
+    color: rgba(215, 33, 52, 1); /* Màu đỏ Văn Lang */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  /* Gạch chân tiêu đề */
+  .help-page-wrapper .section h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: rgba(215, 33, 52, 0.5);
+    border-radius: 2px;
+  }
+  
+  /* --- Help Hero Section --- */
+  .help-hero {
+    background: linear-gradient(rgba(45, 51, 77, 0.8), rgba(45, 51, 77, 0.8)),
+                url('../../assets/images/vanlang_background3.webp') center center/cover no-repeat; /* Tái sử dụng ảnh nền Hero nhưng phủ màu đậm hơn */
+    color: white;
+    padding: 5rem 1rem;
+    text-align: center;
+  }
+  
+  .help-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .help-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .help-hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+  }
+  
+  .help-search-form {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .help-search-form .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 1.1rem;
+  }
+  
+  .help-search-form input[type="search"] {
+    width: 100%;
+    padding: 15px 50px 15px 50px; /* Tăng padding */
+    border-radius: 30px;
+    border: 1px solid transparent;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .help-search-form input[type="search"]:focus {
+    outline: none;
+    border-color: rgba(215, 33, 52, 0.5);
+    box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15), 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .help-search-form button[type="submit"] {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    bottom: 5px;
+    padding: 0 25px;
+    border-radius: 25px;
+    background-color: rgba(215, 33, 52, 1);
+    color: white;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .help-search-form button[type="submit"]:hover {
+    background-color: rgba(190, 28, 45, 1);
+  }
+  
+  /* --- Help Categories Section --- */
+  .help-categories {
+     background-color: #fff; /* Đảm bảo nền trắng */
+  }
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 1.5rem; /* Khoảng cách giữa các card */
+    margin-top: 2rem;
+  }
+  
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 15px;
+    background-color: #f9fafb; /* Nền xám nhạt cho card */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    border: 1px solid transparent;
+    overflow: hidden;
+  }
+  
+  .category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(45, 51, 77, 0.1);
+    border-color: rgba(215, 33, 52, 0.2);
+  }
+  
+  .category-icon-wrapper {
+    background-color: rgba(215, 33, 52, 0.1); /* Vòng tròn màu đỏ nhạt */
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .category-card:hover .category-icon-wrapper {
+     background-color: rgba(215, 33, 52, 0.2);
+  }
+  
+  .category-icon {
+    font-size: 2rem;
+    color: rgba(215, 33, 52, 1); /* Màu đỏ VLU */
+  }
+  
+  .category-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: rgba(45, 51, 77, 1);
+  }
+  
+  .category-card p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1.5rem; /* Khoảng cách trước mũi tên */
+  }
+  
+  .category-card .arrow-icon {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-size: 1rem;
+    color: #ccc;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+  .category-card:hover .arrow-icon {
+    color: rgba(215, 33, 52, 1);
+    transform: translateX(3px);
+  }
+  
+  
+  /* --- Help FAQ Section --- */
+  .help-faq {
+    background-color: #fff; /* Đảm bảo nền trắng */
+    max-width: 900px; /* Thu hẹp FAQ list một chút */
+  }
+  
+  /* Tái sử dụng style FAQ từ HomePage.style.css nếu giống hệt */
+  /* Hoặc định nghĩa lại nếu có khác biệt */
+  .help-page-wrapper .faq-list {
+    max-width: 100%; /* Reset max-width từ trang chủ nếu cần */
+    margin: 2rem auto 0 auto;
+    /* border-top: 1px solid #eee; Bỏ border top nếu section đã có background */
+  }
+  .help-page-wrapper .faq-item {
+    border-bottom: 1px solid #eee;
+  }
+  /* .help-page-wrapper .faq-item:first-child { */
+     /* border-top: 1px solid #eee; Bỏ border top nếu section đã có background */
+  /* } */
+  .help-page-wrapper .faq-item:last-child {
+    border-bottom: none;
+  }
+  .help-page-wrapper .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: rgba(45, 51, 77, 1);
+    transition: color 0.2s ease;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .help-page-wrapper .faq-question:hover,
+  .help-page-wrapper .faq-question:focus-visible {
+    color: rgba(215, 33, 52, 1);
+  }
+  .help-page-wrapper .faq-question span {
+    flex-grow: 1;
+    margin-right: 1rem;
+  }
+  .help-page-wrapper .faq-question svg {
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: #9ca3af; /* Màu icon +/- xám hơn */
+  }
+  .help-page-wrapper .faq-question:hover svg {
+     color: rgba(215, 33, 52, 1);
+  }
+  
+  .help-page-wrapper .faq-answer {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease-out, padding-top 0.35s ease-out, padding-bottom 0.35s ease-out;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .help-page-wrapper .faq-answer.active {
+    max-height: 500px;
+    padding-top: 0.5rem;
+    padding-bottom: 1.5rem;
+  }
+  .help-page-wrapper .faq-answer p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+    text-align: left;
+    margin: 0;
+    padding-left: 10px; /* Thêm thụt lề nhẹ cho câu trả lời */
+  }
+  
+  
+  /* --- Contact Support Section --- */
+  .contact-support {
+    background-color: rgba(45, 51, 77, 1); /* Nền xanh đậm */
+    color: #e5e7eb; /* Chữ màu xám nhạt */
+    padding: 4rem 1rem;
+  }
+  .contact-support h2 {
+    color: white; /* Tiêu đề màu trắng */
+  }
+  .contact-support h2::after {
+     background-color: rgba(255, 255, 255, 0.5); /* Gạch chân trắng mờ */
+  }
+  
+  .contact-support p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+  }
+  
+  .contact-info {
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+  }
+  .contact-info p {
+     margin-bottom: 0.8rem;
+     font-size: 1.1rem; /* Giữ kích thước */
+     line-height: 1.6;
+  }
+  .contact-info strong {
+    color: white;
+  }
+  .contact-info a {
+    color: #a5b4fc; /* Màu link sáng hơn */
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  .contact-info a:hover {
+    color: white;
+    text-decoration: underline;
+  }
+  
+  .contact-button {
+    background-color: rgba(215, 33, 52, 1);
+    color: white;
+    padding: 0.9rem 2.5rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+  }
+  .contact-button:hover {
+    background-color: rgba(190, 28, 45, 1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+  }
+  
+  
+  /* --- Media Queries --- */
+  @media (max-width: 992px) {
+    .help-page-wrapper .section h2 {
+      font-size: 2rem;
+    }
+    .help-hero h1 {
+      font-size: 2.5rem;
+    }
+    .help-hero p {
+      font-size: 1.1rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .help-page-wrapper .section {
+      padding: 3rem 1rem;
+    }
+    .help-page-wrapper .section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 2.5rem;
+    }
+    .help-hero h1 {
+      font-size: 2.2rem;
+    }
+    .categories-grid {
+      grid-template-columns: 1fr; /* 1 cột trên mobile */
+      gap: 1rem;
+    }
+    .category-card {
+       padding: 2rem 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+     .help-hero h1 {
+        font-size: 2rem;
+     }
+     .help-hero p {
+        font-size: 1rem;
+     }
+     .help-search-form input[type="search"] {
+        padding: 12px 45px 12px 45px;
+        font-size: 0.95rem;
+     }
+     .help-search-form .search-icon {
+        left: 15px;
+        font-size: 1rem;
+     }
+      .help-search-form button[type="submit"] {
+        padding: 0 20px;
+        font-size: 0.95rem;
+        right: 4px;
+        top: 4px;
+        bottom: 4px;
+     }
+     .contact-support p {
+        font-size: 1rem;
+     }
+     .contact-info {
+        font-size: 1rem;
+     }
+     .contact-info p {
+        font-size: 1rem;
+     }
+     .contact-button {
+        font-size: 1rem;
+        padding: 0.8rem 2rem;
+     }
+  }
+  
+  /* Focus visible styles */
+  .help-page-wrapper *:focus-visible {
+    outline: 3px solid rgba(215, 33, 52, 0.5);
+    outline-offset: 2px;
+  }
+  .help-page-wrapper *:focus {
+    outline: none;
+  }
+  .help-page-wrapper .help-search-form input[type="search"]:focus-visible {
+     outline: none; /* Đã có border + shadow */
+  }
+  .help-page-wrapper .help-search-form button:focus-visible,
+  .help-page-wrapper .category-card:focus-visible,
+  .help-page-wrapper .faq-question:focus-visible,
+  .help-page-wrapper .contact-button:focus-visible,
+  .help-page-wrapper .contact-info a:focus-visible {
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15); /* Shadow thay thế */
+  }
+  /* Điều chỉnh cho category card khi focus */
+  .help-page-wrapper .category-card:focus-visible {
+      border-color: rgba(215, 33, 52, 0.3);
+      box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  /* Điều chỉnh cho câu hỏi FAQ khi focus */
+  .help-page-wrapper .faq-question:focus-visible {
+      color: rgba(215, 33, 52, 1);
+      background-color: rgba(215, 33, 52, 0.05);
+      border-radius: 4px;
+      box-shadow: none; /* Không cần shadow */
+  }

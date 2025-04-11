@@ -1,16 +1,10 @@
 /* src/assets/css/HomePage.style.css */
 
-/* !!! LƯU Ý: KHÔNG đặt các rules reset CSS global (body, h1, p,...) ở đây !!! */
-/* Chuyển chúng ra file CSS global như index.css hoặc App.css */
-
 /* --- Styles cho Wrapper và Container chính --- */
 .home-page-wrapper {
   width: 100%;
   overflow-x: hidden; /* Ngăn cuộn ngang không mong muốn */
 }
-
-/* Không cần style đặc biệt cho .home-page-content nữa nếu đã có wrapper */
-/* .home-page-wrapper .home-page-content { } */
 
 /* --- Styles chung cho các Section trong HomePage --- */
 .home-page-wrapper .section {
@@ -169,8 +163,8 @@
   outline: none;
 }
 .home-page-wrapper .search-input-wrapper::after {
-  content: "\f078";
-  font-family: "Font Awesome 5 Free";
+  content: "\f078"; /* Font Awesome down arrow */
+  font-family: "Font Awesome 5 Free", "Font Awesome 6 Free"; /* Add both families for wider compatibility */
   font-weight: 900;
   position: absolute;
   right: 1.2rem;
@@ -276,7 +270,7 @@
 
 /* --- Popular Subjects Section --- */
 .home-page-wrapper .popular-subjects {
-  background-color: rgba(24, 61, 129, 1);
+  background-color: rgba(24, 61, 129, 1); /* Màu xanh đậm VLU */
   padding: 4rem 0;
 }
 .home-page-wrapper .popular-subjects h2 {
@@ -342,8 +336,7 @@
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-/* --- Slick Slider Arrows (Global hoặc Prefixed) --- */
-/* Giữ nguyên style cho các nút arrow của slider */
+/* --- Slick Slider Arrows --- */
 .custom-slick-arrow {
   position: absolute;
   top: 50%;
@@ -353,7 +346,7 @@
   border-radius: 50%;
   width: 45px;
   height: 45px;
-  display: flex !important;
+  display: flex !important; /* Override slick default */
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -374,10 +367,10 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 .custom-slick-prev {
-  left: -15px;
+  left: -15px; /* Điều chỉnh vị trí nếu cần */
 }
 .custom-slick-next {
-  right: -15px;
+  right: -15px; /* Điều chỉnh vị trí nếu cần */
 }
 
 /* --- Tutor Profiles Section --- */
@@ -403,8 +396,8 @@
   background-color: #f9fafb;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-  height: 100%;
-  min-height: 380px;
+  height: 100%; /* Giúp các thẻ trong slide bằng nhau nếu nội dung khác nhau */
+  /* min-height: 380px; /* Hoặc giữ min-height nếu muốn chiều cao cố định tối thiểu */
 }
 .home-page-wrapper .tutor:hover {
   transform: translateY(-8px);
@@ -432,7 +425,7 @@
   line-height: 1.5;
 }
 .home-page-wrapper .tutor-info:last-of-type {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.2rem; /* Khoảng cách trước nút */
 }
 .home-page-wrapper .view-profile-button {
   background-color: rgba(45, 51, 77, 1);
@@ -444,13 +437,13 @@
   transition: background-color 0.3s ease, transform 0.2s ease;
   font-size: 0.9rem;
   font-weight: 500;
-  margin-top: auto;
+  margin-top: auto; /* Đẩy nút xuống dưới cùng */
 }
 .home-page-wrapper .view-profile-button:hover {
   background-color: rgba(215, 33, 52, 1);
   transform: translateY(-2px);
 }
-/* .view-all-tutors đã được prefix ở phần CTA Button */
+/* .view-all-tutors đã được định nghĩa ở phần CTA Button */
 
 /* --- Testimonials Section --- */
 .home-page-wrapper .testimonials {
@@ -458,7 +451,9 @@
   overflow: hidden;
   padding: 5rem 1rem;
   color: white;
-  background-color: #444;
+  background-color: #444; /* Màu nền dự phòng */
+  background-size: cover; /* Đảm bảo ảnh nền che phủ */
+  background-position: center;
   border-bottom: none;
 }
 .home-page-wrapper .testimonials-overlay {
@@ -468,7 +463,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(45, 51, 77, 0.8);
+  background-color: rgba(45, 51, 77, 0.8); /* Lớp phủ màu */
   z-index: 1;
 }
 .home-page-wrapper .testimonials-content {
@@ -492,7 +487,7 @@
   width: 100%;
 }
 .home-page-wrapper .student-review {
-  display: flex !important;
+  display: flex !important; /* Override slick */
   flex-direction: column;
   align-items: center;
   text-align: center;
@@ -524,16 +519,28 @@
   color: rgba(255, 255, 255, 0.95);
   max-width: 600px;
   margin: 0 auto;
+  position: relative; /* Cần thiết cho pseudo-elements */
 }
-.home-page-wrapper .student-quote::before,
+/* Sử dụng pseudo-elements cho dấu ngoặc kép */
+.home-page-wrapper .student-quote::before {
+  content: "\201C"; /* Left double quotation mark */
+  font-size: 2em; /* Kích thước lớn hơn */
+  opacity: 0.6;
+  position: absolute;
+  left: -0.6em; /* Điều chỉnh vị trí */
+  top: -0.2em;
+}
 .home-page-wrapper .student-quote::after {
-  content: '"';
-  font-size: 1.5em;
-  opacity: 0.5;
-  margin: 0 5px;
+  content: "\201D"; /* Right double quotation mark */
+  font-size: 2em;
+  opacity: 0.6;
+  position: absolute;
+  right: -0.6em; /* Điều chỉnh vị trí */
+  bottom: -0.3em;
 }
+/* Điều chỉnh Slick dots */
 .home-page-wrapper .testimonials-slider .slick-dots {
-  bottom: -25px;
+  bottom: -30px; /* Đẩy dots xuống dưới */
 }
 .home-page-wrapper .testimonials-slider .slick-dots li button:before {
   font-size: 12px;
@@ -541,7 +548,8 @@
   opacity: 1;
   transition: color 0.3s ease;
 }
-.home-page-wrapper .testimonials-slider .slick-dots li button:hover:before {
+.home-page-wrapper .testimonials-slider .slick-dots li button:hover:before,
+.home-page-wrapper .testimonials-slider .slick-dots li button:focus:before {
   color: rgba(255, 255, 255, 0.7);
 }
 .home-page-wrapper
@@ -549,10 +557,10 @@
   .slick-dots
   li.slick-active
   button:before {
-  color: white;
+  color: white; /* Màu dot active */
 }
 
-/* --- FAQ Section --- */
+/* --- FAQ Section (Updated Animation) --- */
 .home-page-wrapper .faq {
   background-color: #fff;
   padding: 4rem 1rem;
@@ -561,10 +569,12 @@
 .home-page-wrapper .faq-list {
   max-width: 800px;
   margin: 0 auto;
-  border-top: 1px solid #eee;
 }
 .home-page-wrapper .faq-item {
   border-bottom: 1px solid #eee;
+}
+.home-page-wrapper .faq-item:first-child {
+  border-top: 1px solid #eee; /* Thêm border top cho item đầu */
 }
 .home-page-wrapper .faq-item:last-child {
   border-bottom: none;
@@ -576,7 +586,7 @@
   width: 100%;
   padding: 1.5rem 0;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 500; /* Giảm độ đậm một chút so với h3 */
   color: rgba(45, 51, 77, 1);
   transition: color 0.2s ease;
   text-align: left;
@@ -585,9 +595,9 @@
   cursor: pointer;
 }
 .home-page-wrapper .faq-question:hover,
-.home-page-wrapper .faq-question:focus {
+.home-page-wrapper .faq-question:focus-visible {
+  /* Sử dụng focus-visible */
   color: rgba(215, 33, 52, 1);
-  outline: none;
 }
 .home-page-wrapper .faq-question span {
   flex-grow: 1;
@@ -598,25 +608,72 @@
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
+/* Style cho icon khi mở (Nếu cần xoay) */
+/* .home-page-wrapper .faq-question[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+} */
+
 .home-page-wrapper .faq-answer {
   overflow: hidden;
-  transition: max-height 0.35s ease-in-out, padding-top 0.35s ease-in-out,
-    padding-bottom 0.35s ease-in-out;
   max-height: 0;
-  padding: 0;
+  /* Thêm transition cho cả padding và margin */
+  transition: max-height 0.35s ease-out, padding-top 0.35s ease-out,
+    padding-bottom 0.35s ease-out, margin-top 0.35s ease-out;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
 }
-.home-page-wrapper .faq-answer[hidden="false"] {
+/* Sử dụng class .active được thêm từ JS */
+.home-page-wrapper .faq-answer.active {
+  max-height: 500px; /* Đảm bảo đủ lớn để chứa nội dung */
   padding-top: 0.5rem;
   padding-bottom: 1.5rem;
+  /* margin-top: 5px; /* Thêm khoảng cách nhỏ nếu muốn */
 }
+
 .home-page-wrapper .faq-answer p {
   font-size: 1rem;
   line-height: 1.7;
   color: #555;
   text-align: left;
+  margin: 0; /* Reset margin mặc định của p */
 }
 
-/* --- Media Queries (Prefixed) --- */
+/* --- Style cho overlay và error message (Updated Error Message) --- */
+.home-page-wrapper .oauth-processing-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  text-align: center;
+}
+.home-page-wrapper .oauth-processing-overlay p {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.home-page-wrapper .oauth-error-message {
+  color: #d8000c; /* Error red color */
+  background-color: #ffd2d2; /* Light red background */
+  border: 1px solid #d8000c;
+  border-radius: 8px; /* Bo tròn góc */
+  padding: 15px 20px; /* Tăng padding */
+  margin: 25px auto; /* Tăng margin và căn giữa */
+  text-align: center;
+  max-width: 600px; /* Giới hạn chiều rộng */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ */
+  font-size: 1rem; /* Kích thước chữ phù hợp */
+}
+.home-page-wrapper .oauth-error-message strong {
+  font-weight: 600; /* In đậm phần tiêu đề lỗi */
+  display: block; /* Cho tiêu đề xuống dòng riêng nếu cần */
+  margin-bottom: 5px;
+}
+
+/* --- Media Queries --- */
 @media (max-width: 992px) {
   .home-page-wrapper .section h2 {
     font-size: 2.2rem;
@@ -639,25 +696,26 @@
   .home-page-wrapper .search-inputs button[type="submit"] {
     align-self: center;
     margin-top: 0.5rem;
+    width: 55px; /* Có thể tăng kích thước nút tìm kiếm */
+    height: 55px;
   }
   .home-page-wrapper .benefits-grid {
     gap: 1.5rem;
   }
   .home-page-wrapper .benefit {
-    flex-basis: calc(50% - 1rem);
+    flex-basis: calc(50% - 1rem); /* 2 cột */
     max-width: none;
   }
   .home-page-wrapper .subjects-slider,
   .home-page-wrapper .tutor-slider {
-    padding: 0 2rem;
+    padding: 0 2rem; /* Giảm padding cho slider */
   }
-  .home-page-wrapper .custom-slick-prev {
+  .custom-slick-prev {
     left: -5px;
   }
-  .home-page-wrapper .custom-slick-next {
+  .custom-slick-next {
     right: -5px;
   }
-  /* ... other prefixed styles for 992px ... */
 }
 
 @media (max-width: 768px) {
@@ -668,30 +726,59 @@
     font-size: 2rem;
     margin-bottom: 2rem;
   }
-  /* ... */
+  .home-page-wrapper .hero h1 {
+    font-size: 2.2rem;
+  }
+  .home-page-wrapper .hero p {
+    font-size: 1.1rem;
+  }
   .home-page-wrapper .benefits-grid {
-    flex-direction: column;
+    flex-direction: column; /* Chuyển thành 1 cột */
+    align-items: center;
     gap: 1.5rem;
   }
   .home-page-wrapper .benefit {
-    max-width: 95%;
+    max-width: 90%; /* Giới hạn chiều rộng */
+    flex-basis: auto;
   }
-  /* ... other prefixed styles for 768px ... */
-  .home-page-wrapper .custom-slick-prev {
+  .home-page-wrapper .subjects-slider,
+  .home-page-wrapper .tutor-slider {
+    padding: 0 1rem; /* Giảm padding hơn nữa */
+  }
+  /* Di chuyển mũi tên vào trong trên mobile nhỏ */
+  .custom-slick-prev {
     left: 5px;
   }
-  .home-page-wrapper .custom-slick-next {
+  .custom-slick-next {
     right: 5px;
+  }
+  .custom-slick-arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  .home-page-wrapper .testimonials-content {
+    max-width: 90%;
+  }
+  .home-page-wrapper .student-quote::before,
+  .home-page-wrapper .student-quote::after {
+    font-size: 1.5em; /* Giảm kích thước dấu ngoặc kép */
+  }
+  .home-page-wrapper .faq-list {
+    max-width: 100%;
   }
 }
 
 @media (max-width: 576px) {
-  /* ... other prefixed styles for 576px ... */
+  .home-page-wrapper .section h2 {
+    font-size: 1.8rem;
+  }
   .home-page-wrapper .hero h1 {
     font-size: 1.8rem;
   }
   .home-page-wrapper .hero p {
     font-size: 1rem;
+    margin-bottom: 2rem;
   }
   .home-page-wrapper .search-input-wrapper {
     padding: 0 0.8rem 0 2.5rem;
@@ -699,54 +786,74 @@
   .home-page-wrapper .search-input-wrapper .search-icon {
     left: 0.9rem;
   }
+  .home-page-wrapper .cta-button,
+  .home-page-wrapper .view-all-tutors {
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+  }
+  .home-page-wrapper .benefit {
+    padding: 2rem 1rem;
+  }
+  .home-page-wrapper .benefit-icon {
+    font-size: 3rem;
+  }
+  .home-page-wrapper .tutor img {
+    width: 120px;
+    height: 120px;
+  }
+  .home-page-wrapper .student-image {
+    width: 80px;
+    height: 80px;
+  }
+  .home-page-wrapper .student-quote {
+    font-size: 1rem;
+  }
+  .home-page-wrapper .faq-question {
+    font-size: 1rem;
+    padding: 1.2rem 0;
+  }
+  .home-page-wrapper .faq-answer p {
+    font-size: 0.95rem;
+  }
 }
 
-/* --- Focus Visible (Prefixed) --- */
+/* --- Focus Visible --- */
+/* Áp dụng focus ring chuẩn cho các element tương tác */
 .home-page-wrapper *:focus-visible {
-  outline: 2px solid rgba(215, 33, 52, 0.6);
+  outline: 3px solid rgba(215, 33, 52, 0.5); /* Màu đỏ VLU với độ mờ */
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15);
+  box-shadow: none; /* Không cần thêm box-shadow nếu outline đủ rõ */
 }
-.home-page-wrapper .search-input-wrapper:focus-within {
-  box-shadow: none;
-}
-.home-page-wrapper .search-input-wrapper.js-no-focus-highlight:focus-within {
-  border-color: #d1d5db;
-  box-shadow: none;
-}
-.home-page-wrapper .search-input-wrapper.js-no-focus-highlight *:focus-visible {
+/* Loại bỏ outline mặc định khi focus-visible được hỗ trợ */
+.home-page-wrapper *:focus {
   outline: none;
-  box-shadow: none;
-}
-.home-page-wrapper .faq-question:focus {
-  outline: none;
-}
-.home-page-wrapper .faq-question:focus-visible {
-  background-color: rgba(215, 33, 52, 0.05);
-  border-radius: 4px;
 }
 
-/* --- Style cho overlay và error message (Prefixed) --- */
-.home-page-wrapper .oauth-processing-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  text-align: center;
+/* Xử lý đặc biệt cho các trường hợp không muốn focus ring */
+.home-page-wrapper .search-input-wrapper:focus-within {
+  /* Giữ lại border color thay đổi khi focus vào wrapper */
+  border-color: rgba(215, 33, 52, 1);
+  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.2);
+  /* Bỏ outline cho wrapper */
+  outline: none;
 }
-.home-page-wrapper .oauth-processing-overlay p {
-  font-size: 1.2rem;
-  font-weight: 500;
+/* Bỏ focus ring cho select bên trong wrapper đã có hiệu ứng focus */
+.home-page-wrapper .search-input-wrapper select:focus-visible {
+  outline: none;
 }
-.home-page-wrapper .oauth-error-message {
-  color: red;
-  border: 1px solid red;
-  padding: 10px;
-  margin: 10px auto;
-  text-align: center;
-  max-width: 80%;
-  background-color: #fff5f5;
+/* Loại bỏ focus ring cho nút FAQ vì đã có hiệu ứng hover/focus-visible đổi màu chữ */
+.home-page-wrapper .faq-question:focus-visible {
+  background-color: rgba(215, 33, 52, 0.05); /* Thêm background nhẹ khi focus */
+  border-radius: 4px;
+  outline: none; /* Bỏ outline */
+}
+/* Bỏ focus ring cho các nút slick slider vì đã có hiệu ứng hover */
+.home-page-wrapper .custom-slick-arrow:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(45, 51, 77, 0.2); /* Thêm shadow nhẹ thay outline */
+}
+/* Bỏ focus ring cho các nút trong thẻ (ví dụ: Xem hồ sơ) vì đã có hover */
+.home-page-wrapper .view-profile-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(45, 51, 77, 0.2); /* Thêm shadow nhẹ thay outline */
 }

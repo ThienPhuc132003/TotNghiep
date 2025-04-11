@@ -1,145 +1,230 @@
-/* AvatarUploader.css */
+/* src/assets/css/AvatarUploader.style.css */
+
 .avatar-uploader {
-  margin-bottom: 1.5rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  background-color: #f9f9f9;
-  max-width: 450px; /* Giới hạn chiều rộng nếu cần */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Căn giữa toàn bộ component nếu cần */
+  width: fit-content; /* Chỉ chiếm độ rộng cần thiết */
+  margin: 0 auto; /* Căn giữa nếu component cha là block */
+  position: relative; /* Cho các yếu tố con position absolute nếu cần */
 }
 
 .avatar-uploader-label {
-  display: block;
-  margin-bottom: 0.8rem;
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.95rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 1rem;
+  align-self: flex-start; /* Căn trái label nếu uploader căn giữa */
 }
 
 .avatar-uploader-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 15px; /* Khoảng cách giữa khu vực hiển thị và nút/lỗi */
+  width: 100%; /* Chiếm toàn bộ độ rộng của .avatar-uploader */
 }
 
+/* --- Khu vực hiển thị chính (Hình tròn) --- */
 .avatar-display-area {
-  width: 200px; /* Kích thước cố định cho khu vực hiển thị */
-  height: 200px;
-  border-radius: 50%; /* Bo tròn cho avatar */
-  overflow: hidden; /* Ẩn phần thừa khi crop */
-  background-color: #e9ecef;
-  display: flex;
+  width: 160px; /* Kích thước hình tròn */
+  height: 160px;
+  border-radius: 50%; /* Quan trọng: Tạo hình tròn */
+  overflow: hidden; /* Quan trọng: Cắt bỏ phần thừa ngoài hình tròn */
+  border: 3px solid #e0e0e0; /* Viền nhẹ */
+  position: relative; /* Cần thiết cho nút overlay và căn giữa placeholder */
+  background-color: #f8f9fa; /* Màu nền nhẹ cho placeholder */
+  display: flex; /* Dùng flex để căn giữa nội dung bên trong (placeholder) */
   justify-content: center;
   align-items: center;
-  border: 2px dashed #ced4da;
-  position: relative; /* Để chứa ảnh crop */
+  cursor: pointer; /* Biến khu vực thành con trỏ tay khi không crop */
+  transition: border-color 0.2s ease;
+}
+.avatar-display-area:hover:not(:has(.crop-ui-container)) {
+  /* Hover khi không crop */
+  border-color: #007bff;
 }
 
-/* CSS cho ReactCrop */
-.crop-ui-container {
+/* --- Placeholder (Khi chưa có ảnh) --- */
+.avatar-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #6c757d; /* Màu xám mờ */
   width: 100%;
   height: 100%;
-  position: relative; /* Cần thiết cho ReactCrop */
 }
 
-.ReactCrop {
-  position: absolute !important; /* Ghi đè để chiếm toàn bộ container */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: 100%;
-  max-height: 100%;
+.placeholder-icon {
+  font-size: 4rem; /* Icon lớn hơn */
+  margin-bottom: 10px;
+  color: #adb5bd;
 }
-.ReactCrop__image {
-  max-width: 100%; /* Đảm bảo ảnh không vượt quá container */
-  max-height: 100%;
-  object-fit: contain; /* Hiển thị toàn bộ ảnh để crop */
+
+.placeholder-text {
+  font-size: 0.9rem;
+  margin-bottom: 15px; /* Khoảng cách với nút */
+}
+
+/* Nút chọn ảnh bên trong placeholder */
+.select-button-placeholder {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+/* --- Ảnh đại diện cuối cùng --- */
+.final-avatar-container {
+  width: 100%;
+  height: 100%;
+  position: relative; /* Cho nút overlay */
 }
 
 .final-avatar-preview {
+  display: block; /* Xóa khoảng trắng thừa dưới ảnh */
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Zoom ảnh để vừa khung tròn */
+  object-fit: cover; /* Đảm bảo ảnh phủ kín hình tròn mà không bị méo */
+}
+
+/* Nút camera overlay */
+.change-button.overlay-button {
+  position: absolute;
+  bottom: 8px; /* Vị trí nút */
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.65); /* Nền bán trong */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px; /* Kích thước nút tròn */
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem; /* Kích thước icon */
+  cursor: pointer;
+  opacity: 0; /* Ẩn mặc định */
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  z-index: 10; /* Nằm trên ảnh */
+  pointer-events: auto; /* Đảm bảo nhận click */
+}
+
+.final-avatar-container:hover .change-button.overlay-button {
+  opacity: 1; /* Hiện khi hover vào container ảnh */
+}
+.change-button.overlay-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* --- Giao diện Crop --- */
+.crop-ui-container {
+  /* Nó sẽ nằm trong display-area, nên không cần style kích thước ở đây */
+  /* Chỉ cần style cho ReactCrop */
+  width: 100%; /* Chiếm toàn bộ display area */
+  height: 100%;
+  display: flex; /* Giúp định vị ReactCrop nếu cần */
+  justify-content: center;
+  align-items: center;
+  /* Quan trọng: Ghi đè lại style của avatar-display-area khi crop */
+  border-radius: 0; /* Bỏ border-radius của cha */
+  border: none; /* Bỏ border của cha */
+  overflow: visible; /* Cho phép crop handle hiển thị ra ngoài */
+  cursor: default; /* Con trỏ bình thường khi crop */
+  background-color: transparent; /* Nền trong suốt */
+}
+
+/* Style ReactCrop và ảnh bên trong */
+.ReactCrop {
+  /* position: static !important; */ /* Ghi đè nếu cần */
+  max-width: 100%;
+  max-height: 450px; /* Giới hạn chiều cao tối đa của khu vực crop */
+  /* background: #eee; */ /* Nền mờ cho khu vực ngoài crop */
+}
+
+/* Bo tròn vùng chọn crop để khớp với circularCrop */
+.ReactCrop .ReactCrop__crop-selection {
+  border-radius: 50%;
+  /* border: 1px dashed rgba(255, 255, 255, 0.7); */ /* Viền nét đứt nếu muốn */
+  /* box-shadow: 0 0 0 9999em rgba(0, 0, 0, 0.5); */ /* Lớp phủ tối bên ngoài */
+}
+
+/* Ảnh đang được crop */
+.crop-image-preview {
   display: block;
+  max-width: 100%;
+  max-height: 400px; /* Giới hạn chiều cao ảnh preview */
+  /* Không nên đặt object-fit ở đây, để crop tự xử lý */
 }
 
-.avatar-placeholder {
-  text-align: center;
-  color: #6c757d;
-}
-.placeholder-icon {
-  color: #adb5bd;
-  margin-bottom: 0.5rem;
-}
-.avatar-placeholder p {
-  font-size: 0.9rem;
-  margin: 0;
-}
-
+/* --- Khu vực nút bấm và lỗi --- */
 .avatar-uploader-actions {
   display: flex;
-  gap: 0.8rem;
   justify-content: center;
-  flex-wrap: wrap; /* Cho phép xuống dòng nếu không đủ chỗ */
+  gap: 10px; /* Khoảng cách giữa các nút */
+  width: 100%; /* Chiếm đủ rộng */
+  margin-top: 10px; /* Khoảng cách với khu vực hiển thị/crop */
+}
+/* Nút bấm riêng cho giao diện crop */
+.crop-actions {
+  margin-top: 15px; /* Tăng khoảng cách cho nút crop */
 }
 
+/* Style chung cho các nút */
 .uploader-button {
-  padding: 0.6rem 1.2rem;
+  padding: 8px 16px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease,
+    box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* Khoảng cách icon và text */
+  text-decoration: none; /* Bỏ gạch chân nếu là link */
+  white-space: nowrap; /* Ngăn text xuống dòng */
+}
+
+.uploader-button:focus {
+  outline: none; /* Bỏ outline mặc định */
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5); /* Thêm hiệu ứng focus */
 }
 
 .uploader-button:disabled {
-  opacity: 0.6;
   cursor: not-allowed;
+  opacity: 0.65;
 }
 
-.select-button {
-  background-color: #007bff;
+/* Nút Lưu/Xác nhận/Chọn */
+.uploader-button.save-button,
+.uploader-button.select-button-placeholder {
+  background-color: #28a745; /* Màu xanh lá */
   color: white;
 }
-.select-button:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.save-button {
-  background-color: #28a745;
-  color: white;
-}
-.save-button:hover:not(:disabled) {
+.uploader-button.save-button:hover:not(:disabled),
+.uploader-button.select-button-placeholder:hover:not(:disabled) {
   background-color: #218838;
 }
 
-.cancel-button {
-  background-color: #dc3545;
+/* Nút Hủy bỏ */
+.uploader-button.cancel-button {
+  background-color: #6c757d; /* Màu xám */
   color: white;
 }
-.cancel-button:hover:not(:disabled) {
-  background-color: #c82333;
+.uploader-button.cancel-button:hover:not(:disabled) {
+  background-color: #5a6268;
 }
 
+/* Nút Camera Overlay đã được style ở trên */
+
+/* --- Thông báo lỗi --- */
 .uploader-error-message {
-  color: #dc3545;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
+  color: #dc3545; /* Màu đỏ cho lỗi */
+  font-size: 0.875rem;
+  margin-top: 8px; /* Khoảng cách với các nút */
   text-align: center;
-  font-weight: 500;
-}
-
-/* Responsive cho ReactCrop nếu cần */
-@media (max-width: 480px) {
-  .avatar-display-area {
-    width: 150px;
-    height: 150px;
-  }
-  .uploader-button {
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-  }
+  width: 100%;
 }

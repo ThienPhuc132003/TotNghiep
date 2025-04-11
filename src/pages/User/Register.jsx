@@ -30,7 +30,7 @@ const RegisterPage = () => {
     const fetchMajors = async () => {
       try {
         const response = await Api({
-          endpoint: "major",
+          endpoint: "major/search",
           method: METHOD_TYPE.GET,
         });
         if (response.success) {

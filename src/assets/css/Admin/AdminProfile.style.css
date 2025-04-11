@@ -1,146 +1,257 @@
 /* src/assets/css/Admin/AdminProfile.style.css */
 
-/* Overall container */
-.profile-container {
-  max-width: 700px;
-  margin: 2rem auto; /* Tăng margin trên dưới */
-  padding: 2rem; /* Tăng padding */
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Shadow rõ hơn chút */
+/* Container chính bao bọc nội dung profile, nằm trong layout dashboard */
+.admin-profile-container-original {
+  max-width: 750px; /* Giới hạn chiều rộng */
+  margin: 2rem auto; /* Căn giữa và tạo khoảng cách */
+  padding: 2.5rem; /* Padding bên trong */
+  background-color: #fff; /* Nền trắng */
+  border-radius: 8px; /* Bo góc nhẹ */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); /* Bóng đổ nhẹ */
 }
 
-/* Title */
-.profile-title {
+/* Tiêu đề trang */
+.admin-profile-title-original {
   text-align: center;
-  margin-bottom: 2rem; /* Tăng margin */
-  font-size: 1.8rem; /* Tăng size */
+  margin-bottom: 1.5rem;
+  font-size: 1.7rem;
   color: #333;
-  padding-bottom: 1rem; /* Thêm padding dưới */
-  border-bottom: 1px solid #eee; /* Thêm border dưới */
+  font-weight: 600;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0; /* Đường kẻ phân cách mỏng */
 }
 
-/* --- Section cho Avatar Uploader --- */
-.avatar-upload-section {
-  display: flex; /* Cho phép căn giữa hoặc thêm loading bên cạnh */
-  justify-content: center; /* Căn giữa uploader */
-  flex-direction: column; /* Xếp chồng loading indicator (nếu có) */
+/* Alert messages */
+.admin-alert {
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  text-align: center;
+}
+.admin-alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.admin-alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+/* Phần chứa Avatar */
+.admin-avatar-box {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  background-color: #f8f9fa; /* Nền hơi xám nhẹ */
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem; /* Khoảng cách với form dưới */
-  padding-bottom: 1.5rem; /* Khoảng cách dưới */
-  border-bottom: 1px solid #eee; /* Phân tách với form */
 }
 
-/* Loading indicator cho avatar */
-.avatar-loading {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
+.admin-avatar-label {
+  font-weight: 600;
+  font-size: 0.95rem;
   color: #555;
-  font-style: italic;
+  margin-bottom: 1rem;
 }
 
-/* Form styling (Giữ nguyên hoặc điều chỉnh từ CSS bạn cung cấp) */
-
-/* Form group */
-.formGroup {
-  margin-bottom: 1.2rem; /* Tăng nhẹ margin */
+/* --- Styling MẪU cho AvatarUploader --- */
+/* !!! THAY THẾ CÁC CLASS DƯỚI ĐÂY BẰNG CLASS THỰC TẾ CỦA COMPONENT AvatarUploader !!! */
+.avatar-uploader-container {
+  /* Giả sử đây là class gốc của component */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.formGroup label {
-  display: block;
-  margin-bottom: 0.5rem; /* Tăng nhẹ */
-  font-weight: 600; /* Đậm hơn */
-  font-size: 0.9rem;
-  color: #495057; /* Màu label chuẩn hơn */
+.avatar-uploader-container .current-avatar {
+  /* Class cho ảnh/placeholder */
+  width: 110px; /* Kích thước giống hình hơn */
+  height: 110px;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0; /* Viền xám nhẹ */
+  box-shadow: none; /* Bỏ shadow */
+  object-fit: cover;
+  background-color: #e9ecef; /* Màu nền placeholder */
+  margin-bottom: 1rem;
+  display: flex; /* Để căn giữa icon placeholder */
+  justify-content: center;
+  align-items: center;
+  color: #adb5bd; /* Màu icon placeholder */
 }
 
-.formGroup input,
-.formGroup select {
-  /* Thêm select nếu có */
+.avatar-uploader-container .current-avatar img {
+  /* Style riêng cho thẻ img nếu có */
   width: 100%;
-  padding: 0.7rem 0.9rem; /* Tăng padding input */
-  border: 1px solid #ccc;
-  border-radius: 6px; /* Bo góc nhiều hơn */
-  box-sizing: border-box;
-  font-size: 0.95rem; /* Tăng size chữ input */
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
-.formGroup input:focus,
-.formGroup select:focus {
-  border-color: #1e4ca1; /* Màu xanh dương khi focus (ví dụ) */
-  box-shadow: 0 0 0 0.2rem rgba(30, 76, 161, 0.2);
+
+.avatar-uploader-container .placeholder-icon svg {
+  /* Giả sử icon là SVG */
+  font-size: 2.5rem; /* Kích thước icon */
+}
+
+.avatar-uploader-container .upload-button {
+  /* Class cho nút "Chọn ảnh" */
+  padding: 0.5rem 1.2rem; /* Padding nút */
+  background-color: #007bff; /* Màu nút xanh dương */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85rem; /* Chữ nhỏ hơn */
+  transition: background-color 0.2s ease;
+}
+
+.avatar-uploader-container .upload-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.avatar-uploader-container .upload-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.avatar-uploader-container .loading-indicator {
+  /* Class cho text loading */
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+/* --- Hết Styling AvatarUploader --- */
+
+/* Đường kẻ phân cách */
+.admin-profile-divider-original {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 2rem 0;
+}
+
+/* --- Styling cho Form (target class gốc của component AdminProfileForm) --- */
+/* !!! THAY THẾ '.admin-profile-form-original' BẰNG CLASS THỰC TẾ NẾU CẦN !!! */
+
+/* --- Styling cho các element BÊN TRONG AdminProfileForm --- */
+
+/* Target class thực tế của thẻ div bọc mỗi cặp label/input */
+/* !!! THAY THẾ '.form-group' BẰNG CLASS THỰC TẾ !!! */
+.admin-profile-form-original .form-group {
+  margin-bottom: 1rem; /* Khoảng cách giữa các trường */
+}
+
+/* Target class thực tế của thẻ label */
+/* !!! THAY THẾ '.form-label' BẰNG CLASS THỰC TẾ !!! */
+.admin-profile-form-original .form-group .form-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+/* Target class thực tế của thẻ input, select */
+/* !!! THAY THẾ '.form-control' BẰNG CLASS THỰC TẾ !!! */
+.admin-profile-form-original .form-group .form-control {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ced4da; /* Viền xám */
+  border-radius: 4px; /* Bo góc nhẹ */
+  box-sizing: border-box;
+  font-size: 0.9rem; /* Chữ nhỏ */
+  color: #495057;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* Target class thực tế của thẻ select (nếu khác input) */
+
+
+/* Style khi focus */
+.admin-profile-form-original .form-group .form-control:focus {
+  border-color: #80bdff; /* Xanh dương nhạt */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   outline: none;
 }
 
-.formGroup input.readOnly {
-  background-color: #e9ecef; /* Màu disable chuẩn hơn */
+/* Style cho input chỉ đọc */
+.admin-profile-form-original .form-group input[readonly].form-control,
+.admin-profile-form-original .form-group input.readonly.form-control /* Hoặc nếu có class readonly */ {
+  background-color: #e9ecef; /* Xám nhạt */
+  color: #6c757d;
   cursor: not-allowed;
-  opacity: 0.8;
+  border-color: #ced4da;
+}
+.admin-profile-form-original .form-group input[readonly].form-control:focus {
+  border-color: #ced4da;
+  box-shadow: none;
 }
 
-/* Gender group */
-.genderGroup {
+/* Gender Group */
+/* !!! THAY THẾ '.gender-group' BẰNG CLASS THỰC TẾ !!! */
+.admin-profile-form-original .gender-group {
   display: flex;
-  gap: 1.5rem; /* Tăng gap */
-  margin-top: 0.5rem; /* Thêm margin top */
+  gap: 1rem;
+  margin-top: 0.3rem;
 }
-/* Label cho radio button */
-.genderGroup label {
+/* !!! THAY THẾ '.gender-label' BẰNG CLASS THỰC TẾ !!! */
+.admin-profile-form-original .gender-group .gender-label {
   font-weight: normal;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+  color: #495057;
 }
-.genderGroup input[type="radio"] {
-  margin-right: 0.5rem;
-  accent-color: rgb(30, 76, 161); /* Màu primary */
+.admin-profile-form-original .gender-group input[type="radio"] {
+  margin-right: 0.4rem;
+  accent-color: #007bff; /* Màu xanh dương cho radio */
   cursor: pointer;
+  width: 14px;
+  height: 14px;
+}
+.admin-profile-form-original .gender-group input[type="radio"]:focus-visible {
+  outline: 2px solid #80bdff;
+  outline-offset: 1px;
 }
 
-/* --- Bỏ CSS cho .avatar-container, .avatar, .change-avatar-button cũ --- */
-/* .avatar-container { ... } */
-/* .avatar { ... } */
-/* .change-avatar-button { ... } */
-
-/* Button submit form chính */
-.profileButton {
+/* Nút Submit */
+/* !!! THAY THẾ '.submit-button' BẰNG CLASS THỰC TẾ !!! */
+.admin-profile-form-original .submit-button {
   width: 100%;
-  padding: 0.8rem 1.5rem; /* Tăng padding */
-  background: rgb(30, 76, 161);
+  padding: 0.75rem 1.5rem;
+  background: #007bff; /* Xanh dương */
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   color: white;
-  font-size: 1rem; /* Tăng size chữ */
-  font-weight: 600; /* Đậm hơn */
+  font-size: 0.95rem;
+  font-weight: 500; /* Bỏ đậm */
   cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 1rem; /* Thêm margin top */
+  transition: background-color 0.3s ease;
+  margin-top: 1.5rem;
 }
-.profileButton:hover:not(:disabled) {
-  background: rgb(25, 63, 134); /* Đậm hơn khi hover */
+.admin-profile-form-original .submit-button:hover:not(:disabled) {
+  background: #0056b3; /* Đậm hơn */
 }
-.profileButton:disabled {
-  background-color: #adb5bd; /* Màu xám khi disable */
+.admin-profile-form-original .submit-button:disabled {
+  background-color: #adb5bd; /* Xám disable */
   cursor: not-allowed;
 }
 
-/* Messages */
-.success-message,
-.error-message {
-  padding: 0.8rem 1rem; /* Tăng padding */
-  margin-bottom: 1.5rem; /* Tăng margin */
-  border-radius: 6px;
-  font-size: 0.95rem; /* Tăng size chữ */
-  text-align: center; /* Căn giữa */
-  border: 1px solid transparent;
-}
-.success-message {
-  color: #0f5132;
-  background-color: #d1e7dd;
-  border-color: #badbcc;
-}
-.error-message {
-  color: #842029;
-  background-color: #f8d7da;
-  border-color: #f5c2c7;
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-profile-container-original {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  .admin-profile-title-original {
+    font-size: 1.5rem;
+  }
+  .admin-avatar-box {
+    padding: 1rem;
+  }
+  /* Có thể thêm các điều chỉnh khác cho mobile */
 }

@@ -17,7 +17,7 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
         method: METHOD_TYPE.POST,
       });
       Cookies.remove("token");
-      Cookies.remove("role")
+      Cookies.remove("role");
       navigate(pathLogout);
     } catch (error) {
       console.error("Logout failed:", error);
@@ -27,7 +27,12 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-
+  const handleUserInfo = () => {
+    navigate("/user/profile");
+  };
+  const handleWallet = () => {
+    navigate("/user/wallet");
+  };
   return (
     <div className="setting-button-container">
       <Button className="setting-button" onClick={toggleDropdown}>
@@ -38,7 +43,9 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
         ></i>
       </Button>
       <div className={`setting-dropdown-menu ${isDropdownOpen ? "open" : ""}`}>
-        <button onClick={handleLogout}>Logout</button>
+        <button onClick={handleUserInfo}>Trang cá nhân</button>
+        <button onClick={handleWallet}>Ví cá nhân</button>
+        <button onClick={handleLogout}>Đăng xuất</button>
       </div>
     </div>
   );

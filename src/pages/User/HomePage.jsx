@@ -1,13 +1,8 @@
-// src/pages/User/HomePage.jsx
-
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-// import { AuthContext } from '../context/AuthContext'; // Uncomment if using Context
-
-// --- CSS và Components ---
-import "../../assets/css/HomePage.style.css"; // Import CSS (đã prefix)
+import "../../assets/css/HomePage.style.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -63,7 +58,10 @@ const HeroSection = ({ onSearch }) => {
     };
     onSearch(searchParams);
   };
-
+  const navigate = useNavigate();
+  const FindTutor = () => {
+    navigate("/tim-kiem-gia-su");
+  };
   return (
     <section className="hero">
       <img
@@ -157,7 +155,7 @@ const HeroSection = ({ onSearch }) => {
             </button>
           </div>
         </form>
-        <button type="button" className="cta-button">
+        <button type="button" className="cta-button" onClick={FindTutor}>
           Bắt Đầu Ngay
         </button>
       </div>
@@ -242,7 +240,7 @@ SamplePrevArrow.propTypes = {
 // --- Popular Subjects Section Component ---
 const PopularSubjectsSection = () => {
   const sliderRef = useRef(null);
-  const slidesToShow = 4;
+  const slidesToShow = 4; // Số lượng slide hiển thị mặc định
   const settings = {
     dots: false,
     infinite: subjectList.length > slidesToShow,
@@ -307,7 +305,7 @@ const PopularSubjectsSection = () => {
   );
 };
 
-// --- Testimonials Section Component ---
+// --- Testimonials Section Component (Updated Content) ---
 const TestimonialsSection = () => {
   const studentReviews = [
     {
@@ -315,21 +313,24 @@ const TestimonialsSection = () => {
       name: "Hồ Đăng Khôi Nguyên",
       major: "Khoa Công Nghệ Thông Tin",
       image: person1,
-      quote: "...",
+      quote:
+        "Nhờ có GiaSuVLU, mình đã tìm được một bạn gia sư CNTT cùng trường rất nhiệt tình. Bạn ấy không chỉ giúp mình qua môn Lập trình Web mà còn chia sẻ nhiều kinh nghiệm thực tế hữu ích.",
     },
     {
       id: 2,
-      name: "Nguyễn Thị B",
+      name: "Nguyễn Thị Bích Trâm",
       major: "Khoa Quản Trị Kinh Doanh",
       image: person2,
-      quote: "...",
+      quote:
+        "Lịch học của mình khá bận, nhưng mình vẫn dễ dàng sắp xếp được buổi học với gia sư Quản trị nhờ tính năng linh hoạt của nền tảng. Gia sư rất kiên nhẫn và giải thích dễ hiểu.",
     },
     {
       id: 3,
       name: "Tiêu Thị Ngọc Mai",
       major: "Khoa Quan Hệ Công Chúng",
       image: person4,
-      quote: "...",
+      quote:
+        "Ban đầu mình hơi lo lắng về việc tìm gia sư online, nhưng trải nghiệm trên GiaSuVLU rất tuyệt vời. Gia sư Quan hệ công chúng của mình rất thân thiện và chuyên nghiệp. Mình cảm thấy tự tin hơn hẳn!",
     },
   ];
   const settings = {
@@ -366,7 +367,7 @@ const TestimonialsSection = () => {
                   <h3 className="student-name">{student.name}</h3>
                   <p className="student-major">{student.major}</p>
                   <blockquote className="student-quote">
-                    {student.quote}
+                    <p>“{student.quote}”</p>
                   </blockquote>
                 </figcaption>
               </figure>
@@ -410,8 +411,16 @@ const TutorProfilesSection = () => {
       ielts: "7.5",
       image: person4,
     },
+    // Thêm gia sư nếu cần
+    {
+      id: 5,
+      name: "Hoàng Văn G",
+      major: "Khoa Mỹ Thuật Công Nghiệp",
+      skill: "Vẽ tay, Photoshop",
+      image: person1, // Thay ảnh nếu có
+    },
   ];
-  const slidesToShow = 4;
+  const slidesToShow = 4; // Số lượng slide hiển thị mặc định
   const settings = {
     dots: false,
     infinite: tutors.length > slidesToShow,
@@ -441,7 +450,7 @@ const TutorProfilesSection = () => {
         },
       },
       {
-        breakpoint: 768,
+        breakpoint: 768, // Điều chỉnh breakpoint nếu cần
         settings: {
           slidesToShow: 2,
           infinite: tutors.length > 2,
@@ -495,7 +504,7 @@ const TutorProfilesSection = () => {
   );
 };
 
-// --- FAQ Section Component ---
+// --- FAQ Section Component (Updated Content) ---
 const FAQSection = () => {
   const [activeQuestion, setActiveQuestion] = useState(null);
   const toggleQuestion = (index) => {
@@ -505,27 +514,32 @@ const FAQSection = () => {
     {
       id: "faq1",
       question: "Làm thế nào để tìm gia sư phù hợp?",
-      answer: "...",
+      answer:
+        "Bạn có thể sử dụng bộ lọc tìm kiếm trên trang chủ để chọn trình độ, ngành học, hình thức học (online/offline) và ngày học mong muốn. Hãy xem kỹ hồ sơ của gia sư, bao gồm kinh nghiệm, thành tích và đánh giá (nếu có) để đưa ra lựa chọn tốt nhất.",
     },
     {
       id: "faq2",
       question: "Gia sư trên GiaSuVLU có đáng tin cậy không?",
-      answer: "...",
+      answer:
+        "Chúng tôi ưu tiên kết nối bạn với các gia sư là sinh viên hoặc cựu sinh viên Đại học Văn Lang, tạo sự gần gũi và am hiểu chương trình học. Bạn nên xem xét kỹ hồ sơ và có thể yêu cầu buổi học thử (nếu gia sư đồng ý) để đảm bảo sự phù hợp.",
     },
     {
       id: "faq3",
       question: "Làm sao để trở thành gia sư trên GiaSuVLU?",
-      answer: "...",
+      answer:
+        "Bạn cần đăng ký tài khoản dành cho gia sư, sau đó hoàn thiện hồ sơ cá nhân một cách chi tiết nhất, bao gồm thông tin học vấn (ưu tiên sinh viên VLU), kinh nghiệm giảng dạy/thành tích, các môn/kỹ năng bạn muốn dạy và mức phí mong muốn. Hồ sơ của bạn sẽ được duyệt trước khi hiển thị công khai.",
     },
     {
       id: "faq4",
       question: "Hình thức thanh toán như thế nào?",
-      answer: "...",
+      answer:
+        "Hiện tại, việc thanh toán học phí thường được thỏa thuận và thực hiện trực tiếp giữa học viên và gia sư. GiaSuVLU đóng vai trò là nền tảng kết nối. Hãy trao đổi rõ ràng về phương thức và thời gian thanh toán với gia sư trước khi bắt đầu.",
     },
     {
       id: "faq5",
       question: "Chi phí thuê gia sư là bao nhiêu?",
-      answer: "...",
+      answer:
+        "Mức học phí sẽ khác nhau tùy thuộc vào trình độ của gia sư (sinh viên năm mấy, đã tốt nghiệp, thành tích...), môn học/kỹ năng, thời lượng buổi học và hình thức học (online thường có chi phí thấp hơn offline). Bạn có thể tham khảo mức phí đề xuất trên hồ sơ của từng gia sư.",
     },
   ];
   return (
@@ -550,10 +564,11 @@ const FAQSection = () => {
             </button>
             <div
               id={item.id}
-              className="faq-answer"
+              className={`faq-answer ${
+                activeQuestion === index ? "active" : ""
+              }`}
               role="region"
               hidden={activeQuestion !== index}
-              style={{ maxHeight: activeQuestion === index ? "500px" : "0" }}
             >
               <p>{item.answer}</p>
             </div>
@@ -595,34 +610,48 @@ const HomePage = () => {
       let isMounted = true;
       setIsProcessingOAuth(true);
       setOauthError(null);
+      // Focus after render to ensure element exists
       setTimeout(() => {
         if (isMounted) oauthProcessingRef.current?.focus();
       }, 0);
+
       const storedState = Cookies.get("microsoft_auth_state");
       if (!storedState || state !== storedState) {
         if (isMounted) {
-          setOauthError("Lỗi bảo mật (state).");
-          navigate(location.pathname, { replace: true });
+          setOauthError(
+            "Lỗi bảo mật (state không khớp). Vui lòng thử đăng nhập lại."
+          );
+          Cookies.remove("microsoft_auth_state"); // Clean up invalid state
+          navigate(location.pathname, { replace: true }); // Remove code/state from URL
           setIsProcessingOAuth(false);
         }
         return;
       }
-      Cookies.remove("microsoft_auth_state");
+      Cookies.remove("microsoft_auth_state"); // State matched, remove it
+
       const exchangeCodeForToken = async (authCode) => {
         try {
           const response = await Api({
-            endpoint: "user/auth/callback",
+            endpoint: "user/auth/callback", // Make sure this endpoint is correct
             method: METHOD_TYPE.POST,
             data: { code: authCode },
           });
+
           if (response.success && response.data?.token && isMounted) {
-            Cookies.set("token", response.data.token);
-            Cookies.set("role", "user");
+            Cookies.set("token", response.data.token, {
+              secure: true,
+              sameSite: "Lax",
+            }); // Add security flags
+            Cookies.set("role", "user", { secure: true, sameSite: "Lax" }); // Assume 'user' role for now
+
+            // Fetch user profile after successful login
             try {
               const userInfoResponse = await Api({
-                endpoint: "user/get-profile",
+                endpoint: "user/get-profile", // Make sure this endpoint is correct
                 method: METHOD_TYPE.GET,
+                // No need to pass token in data, Api function should handle Authorization header
               });
+
               if (
                 userInfoResponse.success &&
                 userInfoResponse.data &&
@@ -630,73 +659,100 @@ const HomePage = () => {
               ) {
                 dispatch(setUserProfile(userInfoResponse.data));
               } else if (isMounted) {
-                setOauthError("Lỗi tải profile.");
+                // Handle profile fetch error - maybe log user in but show error fetching profile?
+                setOauthError(
+                  "Đăng nhập thành công nhưng không thể tải thông tin hồ sơ."
+                );
+                console.error("Profile fetch error:", userInfoResponse.message);
               }
             } catch (profileError) {
               if (isMounted) {
-                setOauthError("Lỗi tải profile.");
+                setOauthError(
+                  "Đăng nhập thành công nhưng có lỗi khi tải hồ sơ."
+                );
+                console.error("Error fetching user profile:", profileError);
               }
             }
           } else if (isMounted) {
-            throw new Error(response.message || "Lỗi đổi code.");
+            // Throw specific error from backend if available
+            throw new Error(
+              response.message || "Không thể đổi mã xác thực lấy token."
+            );
           }
         } catch (err) {
           if (isMounted) {
-            setOauthError(err.message || "Lỗi OAuth.");
+            setOauthError(
+              `Lỗi xử lý đăng nhập: ${
+                err.message || "Đã xảy ra lỗi không xác định."
+              }`
+            );
+            console.error("OAuth Callback Error:", err);
           }
         } finally {
           if (isMounted) {
-            navigate(location.pathname, { replace: true });
+            navigate(location.pathname, { replace: true }); // Remove code/state from URL regardless of success/failure
             setIsProcessingOAuth(false);
           }
         }
       };
+
       exchangeCodeForToken(code);
+
+      // Cleanup function for useEffect
       return () => {
         isMounted = false;
       };
     }
+    // Only run when location.search changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search, navigate, dispatch]);
 
   // --- Search Handler ---
   const handleSearch = (searchParams) => {
-    console.log("Searching:", searchParams); /* TODO: Navigate */
+    console.log("Searching with params:", searchParams);
+    // TODO: Implement navigation to search results page
+    // Example: navigate(`/search?level=${searchParams.level}&major=${searchParams.major}...`);
+    const query = new URLSearchParams(searchParams).toString();
+    navigate(`/search-results?${query}`); // Navigate to a hypothetical search results page
   };
 
   // --- Render ---
   return (
     <HomePageLayout>
-      {/* Added Wrapper Div for CSS Scoping */}
+      {/* Added Wrapper Div for CSS Scoping and potential styling */}
       <div className="home-page-wrapper">
         {isProcessingOAuth && (
           <div
             ref={oauthProcessingRef}
             className="oauth-processing-overlay"
-            tabIndex="-1"
+            tabIndex="-1" // Make it focusable
             role="region"
-            aria-live="assertive"
-            aria-label="Đang xử lý đăng nhập"
+            aria-live="assertive" // Announce changes to screen readers
+            aria-label="Đang xử lý đăng nhập qua Microsoft"
           >
             <p>Đang xử lý đăng nhập...</p>
+            {/* Optional: Add a spinner */}
           </div>
         )}
         {oauthError && (
           <div
             className="oauth-error-message"
+            role="alert" // Important for accessibility
             style={{
-              color: "red",
-              border: "1px solid red",
-              padding: "10px",
-              margin: "10px auto",
+              color: "#D8000C", // Error red color
+              backgroundColor: "#FFD2D2", // Light red background
+              border: "1px solid #D8000C",
+              borderRadius: "4px",
+              padding: "10px 15px",
+              margin: "20px auto", // Center it a bit
               textAlign: "center",
-              maxWidth: "80%",
+              maxWidth: "600px", // Limit width
             }}
           >
-            <strong>Lỗi đăng nhập OAuth:</strong> {oauthError}
+            <strong>Lỗi Đăng Nhập:</strong> {oauthError}
           </div>
         )}
-        {/* Render main content inside the wrapper */}
+        {/* Render main content only when not processing OAuth */}
         {!isProcessingOAuth && <HomePageContent onSearch={handleSearch} />}
       </div>
     </HomePageLayout>
