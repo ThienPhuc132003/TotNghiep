@@ -282,6 +282,12 @@ const ListOfCurriculumnPage = () => {
   };
 
   const columns = [
+    {
+      title: "Số thứ tự",
+      dataKey: "index",
+      renderCell: (_, __, rowIndex) =>
+        currentPage * itemsPerPage + rowIndex + 1,
+    },
     { title: "Tên giáo trình", dataKey: "curriculumnName", sortable: true },
     { title: "Ngành", dataKey: "curriculumnMajor", sortable: true },
     {
@@ -321,7 +327,10 @@ const ListOfCurriculumnPage = () => {
       }
     } catch (error) {
       toast.error(`Thêm giáo trình thất bại: ${error.message}`);
-      console.error("An error occurred while creating curriculumn:", error.message);
+      console.error(
+        "An error occurred while creating curriculumn:",
+        error.message
+      );
     }
   };
 
@@ -338,7 +347,8 @@ const ListOfCurriculumnPage = () => {
       key: "curriculumnMajor",
       label: "Ngành",
       type: "select",
-      options: majors.map((major) => ({ // Sửa ở đây
+      options: majors.map((major) => ({
+        // Sửa ở đây
         label: major.majorName,
         value: major.majorName,
       })),
@@ -413,10 +423,18 @@ const ListOfCurriculumnPage = () => {
           onChange={(name, value) =>
             setModalData({ ...modalData, [name]: value })
           }
-          onSubmit={modalMode === "add" ? handleCreateCurriculumn : handleUpdateCurriculumn}
+          onSubmit={
+            modalMode === "add"
+              ? handleCreateCurriculumn
+              : handleUpdateCurriculumn
+          }
           onClose={handleCloseModal}
           title={
-            modalMode === "add" ? "Thêm giáo trình" :  modalMode === "edit" ? "Chỉnh sửa giáo trình" : "Xem giáo trình"
+            modalMode === "add"
+              ? "Thêm giáo trình"
+              : modalMode === "edit"
+              ? "Chỉnh sửa giáo trình"
+              : "Xem giáo trình"
           }
         />
       </Modal>

@@ -1,15 +1,29 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+// CSS cho react-image-crop là bắt buộc
 import "react-image-crop/dist/ReactCrop.css";
-import Api from "../network/Api";
-import { METHOD_TYPE } from "../network/methodType";
-import "../assets/css/AvatarUploader.style.css";
+// Giả sử bạn đã import Api và METHOD_TYPE ở nơi khác hoặc sẽ cung cấp chúng
+import Api from "../network/Api"; // <- Đường dẫn tới file Api của bạn
+import { METHOD_TYPE } from "../network/methodType"; // <- Đường dẫn methodType của bạn
+// Import CSS riêng cho component này
+import "../assets/css/AvatarUploader.style.css"; // <- CSS cho component này
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faSpinner,
+  faCamera,
+  faUpload,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 
-// --- Hàm tiện ích tạo Blob từ ảnh đã crop ---
-// (Lưu ý: Hàm này hoạt động phía client, vẽ lên canvas)
-function getCroppedImgBlob(image, pixelCrop) {
+// --- Hàm tiện ích tạo Blob từ ảnh đã crop (Giữ nguyên từ trước) ---
+async function getCroppedImgBlob(image, pixelCrop) {
   const canvas = document.createElement("canvas");
+  if (!pixelCrop || pixelCrop.width === 0 || pixelCrop.height === 0) {
+    console.error("Invalid pixelCrop dimensions:", pixelCrop);
+    return Promise.reject(new Error("Kích thước vùng cắt không hợp lệ."));
+  }
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
   const ctx = canvas.getContext("2d");
@@ -17,46 +31,86 @@ function getCroppedImgBlob(image, pixelCrop) {
   if (!ctx) {
     return Promise.reject(new Error("Không thể lấy context 2D cho canvas."));
   }
+  if (!image.naturalWidth || !image.naturalHeight || !image.complete) {
+    console.error("Original image not ready:", image);
+    return Promise.reject(
+      new Error("Ảnh gốc chưa sẵn sàng hoặc không hợp lệ.")
+    );
+  }
 
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
-  const pixelRatio = window.devicePixelRatio || 1; // Để nét hơn trên màn hình retina
+  const pixelRatio = window.devicePixelRatio || 1;
 
   canvas.width = Math.floor(pixelCrop.width * scaleX * pixelRatio);
   canvas.height = Math.floor(pixelCrop.height * scaleY * pixelRatio);
+
+  if (canvas.width <= 0 || canvas.height <= 0) {
+    console.error("Calculated canvas dimensions are zero or negative:", {
+      width: canvas.width,
+      height: canvas.height,
+    });
+    return Promise.reject(
+      new Error("Kích thước canvas không hợp lệ sau khi tính toán.")
+    );
+  }
 
   ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   ctx.imageSmoothingQuality = "high";
 
   const cropX = pixelCrop.x * scaleX;
   const cropY = pixelCrop.y * scaleY;
+  const cropWidth = pixelCrop.width * scaleX;
+  const cropHeight = pixelCrop.height * scaleY;
 
-  ctx.drawImage(
-    image,
-    cropX,
-    cropY,
-    pixelCrop.width * scaleX,
-    pixelCrop.height * scaleY,
-    0,
-    0,
-    pixelCrop.width * scaleX,
-    pixelCrop.height * scaleY
-  );
+  if (
+    cropX < 0 ||
+    cropY < 0 ||
+    cropWidth <= 0 ||
+    cropHeight <= 0 ||
+    Math.round(cropX + cropWidth) > image.naturalWidth ||
+    Math.round(cropY + cropHeight) > image.naturalHeight
+  ) {
+    console.error("Invalid crop parameters for drawing:", {
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+    });
+    return Promise.reject(new Error("Thông số vùng cắt không hợp lệ để vẽ."));
+  }
+
+  try {
+    ctx.drawImage(
+      image,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      canvas.width / pixelRatio,
+      canvas.height / pixelRatio
+    );
+  } catch (drawError) {
+    console.error("Error drawing image onto canvas:", drawError);
+    return Promise.reject(new Error("Không thể vẽ ảnh lên canvas."));
+  }
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (!blob) {
-          console.error("Canvas trống sau khi crop.");
+          console.error("Canvas is empty after drawing.");
           reject(new Error("Không thể tạo Blob từ canvas."));
           return;
         }
-        // Gán tên file cho Blob nếu cần (không bắt buộc khi dùng FormData)
-        // blob.name = fileName;
         resolve(blob);
       },
-      "image/jpeg", // Định dạng ảnh
-      0.9 // Chất lượng (0-1)
+      "image/jpeg",
+      0.9
     );
   });
 }
@@ -65,65 +119,88 @@ function getCroppedImgBlob(image, pixelCrop) {
 const AvatarUploader = ({
   mediaCategory,
   initialImageUrl,
-  onUploadComplete,
-  label = "Ảnh đại diện",
+  onUploadComplete, // Callback trả về URL media sau khi upload thành công
+  onError = (msg) => console.error("Avatar Upload Error:", msg), // Callback khi có lỗi
+  label = "Ảnh đại diện", // Nhãn tùy chọn
 }) => {
   const [imageSrc, setImageSrc] = useState(null); // Data URL ảnh gốc để crop
-  const imgRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const imgRef = useRef(null); // Ref cho thẻ img trong ReactCrop
+  const fileInputRef = useRef(null); // Ref cho input file ẩn
   const [crop, setCrop] = useState(); // State điều khiển crop (%)
   const [completedCrop, setCompletedCrop] = useState(null); // State lưu crop pixel hoàn chỉnh
-  const [finalAvatarUrl, setFinalAvatarUrl] = useState(initialImageUrl || null); // URL cuối cùng
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [displayImageUrl, setDisplayImageUrl] = useState(
+    initialImageUrl || null
+  ); // URL hiển thị (ảnh gốc hoặc ảnh mới sau upload)
+  const [isLoading, setIsLoading] = useState(false); // Loading chỉ cho quá trình upload media
+  const [error, setError] = useState(""); // Lỗi hiển thị trên UI
 
-  // --- Xử lý khi có ảnh ban đầu ---
+  // Cập nhật ảnh hiển thị nếu initialImageUrl thay đổi từ bên ngoài
   useEffect(() => {
-    setFinalAvatarUrl(initialImageUrl || null);
-  }, [initialImageUrl]);
+    if (initialImageUrl !== displayImageUrl && !imageSrc) {
+      setDisplayImageUrl(initialImageUrl || null);
+    }
+  }, [initialImageUrl, displayImageUrl, imageSrc]);
 
   // --- Xử lý chọn file ---
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined); // Reset crop
+      const file = e.target.files[0];
+      setCrop(undefined);
       setCompletedCrop(null);
       setError("");
-      setFinalAvatarUrl(null); // Xóa ảnh cũ khi chọn ảnh mới
+
       const reader = new FileReader();
       reader.addEventListener("load", () => {
-        setImageSrc(reader.result?.toString() || "");
+        setImageSrc(reader.result?.toString() || ""); // Hiển thị crop UI
+        setDisplayImageUrl(null); // Ẩn ảnh cũ khi bắt đầu crop
       });
-      reader.readAsDataURL(e.target.files[0]);
+      reader.onerror = (readError) => {
+        console.error("FileReader error:", readError);
+        const msg = "Không thể đọc file ảnh. Vui lòng thử lại.";
+        setError(msg);
+        onError(msg);
+        setImageSrc(null);
+      };
+      reader.readAsDataURL(file);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+      }
     }
-    // Reset input để có thể chọn lại cùng file
-    e.target.value = null;
   };
 
   // --- Xử lý khi ảnh load vào thẻ img để đặt crop mặc định ---
-  const onImageLoad = useCallback((e) => {
-    const { width, height } = e.currentTarget;
-    if (width === 0 || height === 0) return; // Tránh lỗi khi ảnh chưa load xong hẳn
-    const initialCrop = centerCrop(
-      makeAspectCrop(
-        {
-          unit: "%",
-          width: 90, // Bắt đầu crop 90% giữa ảnh
-        },
-        1, // Aspect ratio 1:1
+  const onImageLoad = useCallback(
+    (e) => {
+      const { naturalWidth: width, naturalHeight: height } = e.currentTarget;
+      if (width === 0 || height === 0) {
+        const msg = "Ảnh không hợp lệ hoặc không thể tải để cắt.";
+        setError(msg);
+        onError(msg);
+        setImageSrc(null);
+        setDisplayImageUrl(initialImageUrl || null);
+        return;
+      }
+      const initialCrop = centerCrop(
+        makeAspectCrop({ unit: "%", width: 90 }, 1, width, height),
         width,
         height
-      ),
-      width,
-      height
-    );
-    setCrop(initialCrop);
-    setCompletedCrop(null); // Reset completed crop khi ảnh mới load
-  }, []);
+      );
+      setCrop(initialCrop);
+      setCompletedCrop(null);
+      setError("");
+    },
+    [initialImageUrl, onError]
+  );
 
-  // --- Hàm xử lý upload (Core Logic) ---
-  const handleUploadCroppedImage = async () => {
+  // --- Hàm xử lý crop và upload LÊN MEDIA SERVICE ---
+  const handleSaveCroppedImage = async () => {
     if (!completedCrop || !imgRef.current || !imageSrc) {
-      setError("Vui lòng chọn vùng ảnh cần cắt.");
+      setError("Vui lòng chọn và cắt ảnh trước khi lưu.");
+      return;
+    }
+    if (completedCrop.width === 0 || completedCrop.height === 0) {
+      setError("Vùng cắt không hợp lệ, vui lòng thử lại.");
       return;
     }
 
@@ -131,197 +208,218 @@ const AvatarUploader = ({
     setError("");
 
     try {
-      // 1. Lấy Blob ảnh đã crop
       const croppedBlob = await getCroppedImgBlob(
         imgRef.current,
         completedCrop
       );
-
-      // 2. Gọi API lấy fileName
-      console.log(`Calling API to get filename for category: ${mediaCategory}`);
       const fileNameResponse = await Api({
         endpoint: "media/media-url",
-        query: { mediaCategory: mediaCategory }, // Truyền category
+        query: { mediaCategory },
         method: METHOD_TYPE.GET,
       });
-      console.log("Filename Response:", fileNameResponse);
-
-      if (!fileNameResponse?.data?.fileName) {
-        throw new Error("Không lấy được tên file từ server.");
-      }
-      const fileName = fileNameResponse.data.fileName;
-      console.log(`Got filename: ${fileName}`);
-
-      // 3. Tạo FormData và Upload ảnh đã crop
-      const uploadFormData = new FormData();
-      uploadFormData.append("file", croppedBlob, `${fileName}.jpeg`); // Tên field thường là 'file'
-      console.log(
-        `Uploading file with category=${mediaCategory} and fileName=${fileName}`
-      );
-
-      const uploadResponse = await Api({
-        endpoint: `media/upload-media`,
-        query: { mediaCategory: mediaCategory, fileName: fileName }, // Truyền cả 2 query params
-        method: METHOD_TYPE.POST,
-        data: uploadFormData, // Truyền FormData
-        // Không cần isFormData=true nếu Api.js đã được sửa để không set Content-Type
-      });
-      console.log("Upload Response:", uploadResponse);
-
-      if (!uploadResponse?.data?.mediaUrl) {
+      if (!fileNameResponse?.success || !fileNameResponse?.data?.fileName) {
         throw new Error(
-          uploadResponse?.data?.message ||
-            "Upload ảnh thất bại hoặc không nhận được URL."
+          fileNameResponse?.message || "Không lấy được định danh file."
         );
       }
+      const fileName = fileNameResponse.data.fileName;
 
-      // 4. Thành công: Lưu URL, gọi callback, reset state
-      const receivedUrl = uploadResponse.data.mediaUrl;
-      console.log(`Upload successful. Media URL: ${receivedUrl}`);
-      setFinalAvatarUrl(receivedUrl);
-      onUploadComplete(receivedUrl); // Thông báo cho component cha
-      setImageSrc(null); // Ẩn giao diện crop
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", croppedBlob, `${fileName}.jpeg`);
+      const uploadResponse = await Api({
+        endpoint: `media/upload-media`,
+        query: { mediaCategory, fileName },
+        method: METHOD_TYPE.POST,
+        data: uploadFormData,
+      });
+      if (!uploadResponse?.success || !uploadResponse?.data?.mediaUrl) {
+        throw new Error(uploadResponse?.message || "Upload media thất bại.");
+      }
+      const finalUrl = uploadResponse.data.mediaUrl;
+
+      // Upload media thành công:
+      setDisplayImageUrl(finalUrl); // Cập nhật ảnh hiển thị
+      setImageSrc(null); // Ẩn crop UI
       setCrop(undefined);
       setCompletedCrop(null);
+      onUploadComplete(finalUrl); // Báo URL mới cho cha
     } catch (err) {
-      console.error("Lỗi trong quá trình upload avatar:", err);
+      console.error(`Avatar upload media error (${mediaCategory}):`, err);
       const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Có lỗi xảy ra khi tải ảnh lên.";
+        err.response?.data?.message || err.message || "Lỗi xử lý ảnh.";
       setError(message);
+      onError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- Hàm kích hoạt input file ---
+  // --- Kích hoạt input file ---
   const triggerFileInput = () => {
-    if (fileInputRef.current) {
+    if (!isLoading && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // --- Hàm hủy bỏ crop / Chọn lại ảnh ---
+  // --- Hủy bỏ crop ---
   const handleCancelCrop = () => {
     setImageSrc(null);
     setCrop(undefined);
     setCompletedCrop(null);
     setError("");
-    // Nếu có ảnh cũ thì hiển thị lại
-    if (initialImageUrl) {
-      setFinalAvatarUrl(initialImageUrl);
-    }
-    // Có thể trigger chọn file mới luôn nếu muốn
-    // triggerFileInput();
+    setDisplayImageUrl(initialImageUrl || null);
   };
 
   return (
     <div className="avatar-uploader">
-      <label className="avatar-uploader-label">{label}</label>
+      {/* Nhãn tùy chọn */}
+      {label && <label className="avatar-uploader-label">{label}</label>}
       <div className="avatar-uploader-content">
-        {/* --- Phần hiển thị Crop hoặc Ảnh cuối cùng --- */}
+        {/* --- Khu vực hiển thị chính --- */}
         <div className="avatar-display-area">
-          {imageSrc &&
-            !finalAvatarUrl && ( // Đang trong quá trình crop
-              <div className="crop-ui-container">
-                <ReactCrop
-                  crop={crop}
-                  onChange={(_, percentCrop) => setCrop(percentCrop)}
-                  onComplete={(c) => setCompletedCrop(c)}
-                  aspect={1}
-                  minWidth={50} // Kích thước crop tối thiểu
-                  minHeight={50}
-                  circularCrop={true} // Hiển thị vòng tròn crop
-                  keepSelection={true}
-                >
-                  <img
-                    ref={imgRef}
-                    alt="Crop me"
-                    src={imageSrc}
-                    onLoad={onImageLoad}
-                    className="crop-image-preview"
-                  />
-                </ReactCrop>
-              </div>
-            )}
+          {/* 1. Giao diện Crop */}
+          {imageSrc && (
+            <div className="crop-ui-container">
+              <ReactCrop
+                crop={crop}
+                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={1}
+                minWidth={50}
+                minHeight={50}
+                circularCrop={true}
+                keepSelection={true}
+              >
+                <img
+                  ref={imgRef}
+                  alt="Ảnh cắt"
+                  src={imageSrc}
+                  onLoad={onImageLoad}
+                  onError={(e) => {
+                    console.error("Failed to load image for cropping.", e);
+                    const msg = "Không thể tải ảnh để cắt.";
+                    setError(msg);
+                    onError(msg);
+                    setImageSrc(null);
+                    setDisplayImageUrl(initialImageUrl || null);
+                  }}
+                  className="crop-image-preview"
+                />
+              </ReactCrop>
+            </div>
+          )}
 
-          {finalAvatarUrl &&
-            !imageSrc && ( // Đã upload xong hoặc có ảnh ban đầu
+          {/* 2. Ảnh cuối cùng (khi không crop) */}
+          {!imageSrc && displayImageUrl && (
+            <div className="final-avatar-container">
               <img
-                src={finalAvatarUrl}
+                src={displayImageUrl}
                 alt="Ảnh đại diện"
                 className="final-avatar-preview"
+                onError={() => {
+                  setDisplayImageUrl(null);
+                }}
               />
-            )}
+              {/* Nút thay đổi ảnh dạng overlay */}
+              <button
+                type="button"
+                onClick={triggerFileInput}
+                className="uploader-button change-button overlay-button"
+                disabled={isLoading}
+                aria-label="Thay đổi ảnh đại diện"
+                title="Thay đổi ảnh đại diện"
+              >
+                <FontAwesomeIcon icon={faCamera} />
+              </button>
+            </div>
+          )}
 
-          {!imageSrc &&
-            !finalAvatarUrl && ( // Trạng thái chưa chọn gì
-              <div className="avatar-placeholder">
-                <i className="fas fa-user fa-3x placeholder-icon"></i>{" "}
-                {/* Ví dụ dùng Font Awesome */}
-                <p>Chưa có ảnh</p>
-              </div>
-            )}
-        </div>
-
-        {/* --- Input File ẩn --- */}
+          {/* 3. Placeholder (khi không crop và không có ảnh) */}
+          {!imageSrc && !displayImageUrl && (
+            <div
+              className="avatar-placeholder"
+              onClick={triggerFileInput}
+              role="button"
+              tabIndex="0"
+              aria-label="Chọn ảnh đại diện"
+            >
+              <FontAwesomeIcon icon={faUser} className="placeholder-icon" />
+              <p className="placeholder-text">Chưa có ảnh</p>
+              {/* Nút chọn ảnh trong placeholder */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  triggerFileInput();
+                }}
+                className="uploader-button select-button-placeholder" // Class riêng
+                disabled={isLoading}
+                aria-label="Chọn ảnh đại diện"
+              >
+                <FontAwesomeIcon icon={faCamera} /> Chọn ảnh
+              </button>
+            </div>
+          )}
+        </div>{" "}
+        {/* Kết thúc avatar-display-area */}
+        {/* --- Khu vực nút bấm và lỗi --- */}
+        {/* Nút bấm khi đang crop */}
+        {imageSrc && (
+          <div className="avatar-uploader-actions crop-actions">
+            <button
+              type="button"
+              onClick={handleSaveCroppedImage}
+              className="uploader-button save-button"
+              disabled={
+                isLoading || !completedCrop?.width || !completedCrop?.height
+              }
+              aria-label="Xác nhận cắt và tải ảnh lên media service"
+            >
+              {isLoading ? (
+                <>
+                  <FontAwesomeIcon icon={faSpinner} spin /> Đang tải lên...
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faUpload} /> Xác nhận ảnh
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleCancelCrop}
+              className="uploader-button cancel-button"
+              disabled={isLoading}
+              aria-label="Hủy bỏ cắt ảnh"
+            >
+              <FontAwesomeIcon icon={faTimes} /> Hủy bỏ
+            </button>
+          </div>
+        )}
+        {/* Input File ẩn */}
         <input
           type="file"
           accept="image/png, image/jpeg, image/jpg"
           onChange={handleFileChange}
           ref={fileInputRef}
           style={{ display: "none" }}
+          aria-hidden="true"
           disabled={isLoading}
         />
-
-        {/* --- Các nút điều khiển --- */}
-        <div className="avatar-uploader-actions">
-          {!imageSrc && ( // Chưa chọn file hoặc đã upload xong
-            <button
-              type="button"
-              onClick={triggerFileInput}
-              className="uploader-button select-button"
-              disabled={isLoading}
-            >
-              {finalAvatarUrl ? "Thay đổi ảnh" : "Chọn ảnh"}
-            </button>
-          )}
-
-          {imageSrc && ( // Đang trong quá trình crop
-            <>
-              <button
-                type="button"
-                onClick={handleUploadCroppedImage}
-                className="uploader-button save-button"
-                disabled={isLoading || !completedCrop}
-              >
-                {isLoading ? "Đang tải lên..." : "Lưu ảnh"}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelCrop}
-                className="uploader-button cancel-button"
-                disabled={isLoading}
-              >
-                Hủy bỏ
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* --- Thông báo lỗi --- */}
+        {/* Hiển thị lỗi chung */}
         {error && <p className="uploader-error-message">{error}</p>}
-      </div>
-    </div>
+      </div>{" "}
+      {/* Kết thúc avatar-uploader-content */}
+    </div> // Kết thúc avatar-uploader
   );
 };
 
 AvatarUploader.propTypes = {
-  mediaCategory: PropTypes.string.isRequired, // Bắt buộc phải có category
-  initialImageUrl: PropTypes.string, // URL ảnh ban đầu (không bắt buộc)
-  onUploadComplete: PropTypes.func.isRequired, // Callback khi upload xong (bắt buộc)
-  label: PropTypes.string, // Nhãn cho component (không bắt buộc)
+  mediaCategory: PropTypes.string.isRequired,
+  initialImageUrl: PropTypes.string,
+  onUploadComplete: PropTypes.func.isRequired,
+  onError: PropTypes.func,
+  label: PropTypes.string,
 };
 
 export default AvatarUploader;

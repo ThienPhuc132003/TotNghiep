@@ -1,0 +1,577 @@
+/* src/assets/css/Wallet.style.css */
+
+.wallet-page-wrapper {
+  padding: 3rem 1rem;
+  background-color: #f9fafb; /* Nền xám nhạt */
+  min-height: calc(
+    100vh - 160px
+  ); /* Chiều cao tối thiểu đảm bảo footer không bị đẩy lên */
+}
+
+.wallet-container {
+  max-width: 1000px; /* Có thể rộng hơn trang profile một chút */
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  padding: 2rem 2.5rem; /* Padding bên trong */
+}
+
+.wallet-container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(45, 51, 77, 1); /* Màu xanh đậm VLU */
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+.wallet-container h1 svg {
+  color: #facc15; /* Màu vàng cho icon coin */
+}
+
+/* --- Alert Messages --- */
+.wallet-container .alert {
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: 1px solid transparent;
+  text-align: center;
+}
+.wallet-container .alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+.wallet-container .alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+/* --- Section Styling --- */
+.wallet-page-wrapper .section {
+  padding: 2.5rem 0; /* Padding trên dưới cho các section con */
+  margin: 0 auto;
+  text-align: left; /* Reset text-align */
+  border-bottom: 1px solid #f0f0f0;
+}
+.wallet-page-wrapper .section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0; /* Bỏ padding dưới cho section cuối */
+}
+
+.wallet-page-wrapper .section h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1.8rem;
+  color: rgba(45, 51, 77, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.wallet-page-wrapper .section h2 svg {
+  color: rgba(215, 33, 52, 1); /* Màu đỏ VLU cho icon tiêu đề section */
+  font-size: 1.3em; /* Icon lớn hơn chữ một chút */
+}
+
+/* --- Wallet Balance Section --- */
+.wallet-balance-section {
+  padding-bottom: 2rem; /* Thêm padding dưới */
+  border-bottom: 1px solid #eee;
+  margin-bottom: 2rem;
+}
+
+.balance-card {
+  background: linear-gradient(
+    135deg,
+    rgba(45, 51, 77, 1) 0%,
+    rgba(65, 71, 97, 1) 100%
+  ); /* Gradient xanh đậm */
+  color: white;
+  padding: 2rem 2.5rem;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 10px 20px rgba(45, 51, 77, 0.2);
+}
+
+.balance-icon {
+  font-size: 3.5rem;
+  color: #facc15; /* Vàng */
+  opacity: 0.8;
+}
+
+.balance-details {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.balance-label {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.balance-vnd-equivalent {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}
+
+/* --- Wallet TopUp Section --- */
+
+.topup-form {
+  max-width: 700px; /* Tăng chiều rộng form để chứa nút quick topup tốt hơn */
+  margin: 0 auto; /* Căn giữa form */
+}
+
+.topup-form .form-group {
+  margin-bottom: 1.8rem;
+}
+
+.topup-form label {
+  /* Label chung */
+  display: block;
+  margin-bottom: 0.8rem; /* Tăng khoảng cách dưới label */
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* --- Quick Topup Styles --- */
+.quick-topup-group {
+  margin-bottom: 2rem; /* Khoảng cách với ô nhập tay */
+}
+
+.quick-topup-options {
+  display: grid;
+  /* 3 cột trên desktop, tự động xuống dòng */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Tăng minmax */
+  gap: 1rem; /* Tăng khoảng cách giữa các nút */
+}
+
+.quick-topup-button {
+  display: flex;
+  flex-direction: column; /* Xếp chữ Coin và VND xuống dòng */
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 0.5rem; /* Tăng padding */
+  border: 1px solid #ddd; /* Viền xám nhạt */
+  border-radius: 8px; /* Bo góc */
+  background-color: #fff;
+  color: rgba(45, 51, 77, 1); /* Màu chữ xanh đậm */
+  font-size: 1.1rem; /* Font lớn hơn cho số Coin */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.3;
+}
+.quick-topup-button .coin-suffix {
+  font-size: 0.8em; /* Chữ Coin nhỏ hơn */
+  font-weight: 500;
+  opacity: 0.9;
+}
+.quick-topup-button .vnd-suffix {
+  font-size: 0.85rem; /* Font nhỏ hơn cho VND */
+  font-weight: 400;
+  color: #555;
+  margin-top: 3px; /* Khoảng cách với dòng trên */
+}
+
+.quick-topup-button:hover:not(:disabled) {
+  border-color: rgba(215, 33, 52, 0.5);
+  background-color: #fef2f2; /* Nền hồng rất nhạt */
+}
+
+.quick-topup-button.active {
+  border-color: rgba(215, 33, 52, 1); /* Viền đỏ đậm */
+  background-color: rgba(215, 33, 52, 0.08); /* Nền đỏ nhạt hơn */
+  color: rgba(215, 33, 52, 1); /* Chữ đỏ */
+  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.1); /* Shadow nhẹ */
+}
+.quick-topup-button.active .vnd-suffix {
+  color: rgba(190, 28, 45, 1); /* Màu VND đậm hơn khi active */
+}
+
+.quick-topup-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #f8f8f8;
+}
+.quick-topup-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15); /* Shadow focus */
+}
+
+/* --- Manual Amount Input --- */
+.topup-amount-group label {
+  margin-bottom: 0.6rem;
+}
+
+.amount-input-wrapper {
+  position: relative;
+}
+.amount-input-wrapper input {
+  width: 100%;
+  padding: 0.8rem 4.5rem 0.8rem 1rem; /* Padding để chứa đơn vị Coin */
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1.1rem; /* Font lớn hơn cho số tiền */
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.amount-input-wrapper input:focus {
+  outline: none;
+  border-color: rgba(215, 33, 52, 0.5);
+  box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.1);
+}
+.amount-input-wrapper .coin-unit {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.vnd-equivalent-note {
+  font-size: 0.95rem;
+  color: #555;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+.input-error-message {
+  color: #dc3545; /* Màu đỏ lỗi */
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+/* --- Payment Method --- */
+.payment-method-group label {
+  /* Label cho cả group */
+  margin-bottom: 1rem;
+}
+
+.payment-options {
+  display: flex;
+  flex-wrap: wrap; /* Cho phép xuống dòng nếu nhiều lựa chọn */
+  gap: 1rem;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  flex: 1; /* Để các option cố gắng bằng nhau */
+  min-width: 150px; /* Chiều rộng tối thiểu */
+}
+.payment-option.selected {
+  border-color: rgba(215, 33, 52, 0.7);
+  background-color: rgba(215, 33, 52, 0.05);
+}
+.payment-option:hover:not(.selected) {
+  border-color: #ccc;
+}
+
+.payment-option input[type="radio"] {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.payment-option img {
+  height: 24px; /* Kích thước logo */
+  width: auto;
+  object-fit: contain; /* Đảm bảo logo không bị méo */
+}
+.payment-option svg {
+  font-size: 1.5rem;
+  color: #0d6efd; /* Màu xanh dương cho icon bank */
+}
+.payment-option span {
+  font-weight: 500;
+  color: #333;
+}
+
+/* --- Submit Button --- */
+.topup-submit-button {
+  width: 100%; /* Nút full width */
+  padding: 0.9rem 1.5rem;
+  background: rgba(215, 33, 52, 1); /* Màu đỏ VLU */
+  border: none;
+  border-radius: 8px; /* Bo góc vừa phải */
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem; /* Thêm khoảng cách trên nút submit */
+}
+.topup-submit-button:hover:not(:disabled) {
+  background: rgba(190, 28, 45, 1);
+}
+.topup-submit-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+.topup-submit-button svg {
+  font-size: 1.2em; /* Icon lớn hơn chữ */
+}
+
+
+.transaction-list-container {
+  width: 100%;
+  overflow-x: auto; /* Cho phép cuộn ngang trên mobile nếu bảng quá rộng */
+  margin-top: 1rem;
+  min-height: 150px; /* Chiều cao tối thiểu để hiển thị loading/empty */
+  position: relative;
+}
+/* Style cho placeholder khi loading hoặc empty */
+.loading-placeholder,
+.empty-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #6c757d; /* Màu xám */
+}
+.loading-placeholder svg {
+  margin-bottom: 1rem;
+  color: rgba(45, 51, 77, 0.8);
+}
+.loading-placeholder p,
+.empty-placeholder p {
+  font-size: 1rem;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse; /* Gộp đường viền */
+  font-size: 0.95rem;
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 0.9rem 1rem; /* Padding ô */
+  text-align: left;
+  border-bottom: 1px solid #eee; /* Đường kẻ ngang */
+  vertical-align: middle; /* Căn giữa theo chiều dọc */
+}
+
+.transaction-table thead th {
+  background-color: #f9fafb; /* Nền xám nhẹ cho header */
+  font-weight: 600;
+  color: #4b5563; /* Màu chữ header */
+  white-space: nowrap; /* Ngăn xuống dòng tiêu đề */
+  position: sticky; /* Giữ header cố định khi cuộn nếu cần */
+  top: 0;
+  z-index: 1;
+}
+
+.transaction-table tbody tr:hover {
+  background-color: #f8f9fa; /* Highlight nhẹ hơn */
+}
+
+.transaction-table .type-col {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+}
+.transaction-table .type-col svg {
+  font-size: 1.2em;
+  min-width: 20px; /* Đảm bảo icon có không gian */
+  text-align: center;
+}
+.icon-credit {
+  color: #198754;
+} /* Màu xanh lá đậm hơn */
+.icon-debit {
+  color: #dc3545;
+} /* Màu đỏ */
+.icon-neutral {
+  color: #6c757d;
+} /* Màu xám cho loại khác */
+
+.transaction-table .amount-col {
+  text-align: right; /* Căn phải số tiền */
+  font-weight: 500;
+  white-space: nowrap;
+}
+.amount-col.positive {
+  color: #198754;
+}
+.amount-col.negative {
+  color: #dc3545;
+}
+
+/* Style cho ô chứa span trạng thái */
+.transaction-table .status-cell {
+  text-align: center; /* Căn giữa ô */
+}
+/* Style cho span trạng thái */
+.transaction-table .status-col {
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 15px; /* Bo tròn trạng thái */
+  padding: 0.3rem 0.8rem; /* Tăng padding ngang */
+  font-size: 0.85rem;
+  display: inline-block; /* Để padding và radius hoạt động tốt */
+  min-width: 90px; /* Chiều rộng tối thiểu */
+  text-align: center; /* Căn giữa text trong span */
+}
+/* Màu nền và chữ cho các trạng thái (sử dụng class thân thiện hơn) */
+/* Ví dụ: status="Hoàn thành" -> class="status-hoan-thanh" */
+.status-hoan-thanh {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+.status-dang-xu-ly {
+  background-color: #fff3cd;
+  color: #664d03;
+  border: 1px solid #ffecb5;
+}
+.status-that-bai {
+  background-color: #f8d7da;
+  color: #58151c;
+  border: 1px solid #f1aeb5;
+}
+.status-da-huy {
+  background-color: #e2e3e5;
+  color: #41464b;
+  border: 1px solid #d3d6d8;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .wallet-container {
+    padding: 1.5rem;
+  }
+  .wallet-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .wallet-page-wrapper .section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .balance-card {
+    flex-direction: column;
+    align-items: flex-start; /* Căn trái trên mobile */
+    padding: 1.5rem;
+    text-align: left;
+  }
+  .balance-icon {
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+  }
+  .balance-amount {
+    font-size: 2rem;
+  }
+  .topup-form {
+    padding: 0; /* Bỏ padding nền form nếu có */
+    max-width: 100%; /* Form full width */
+  }
+  .quick-topup-options {
+    /* 2 cột trên tablet nhỏ */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .payment-options {
+    /* Vẫn giữ flex-wrap, nhưng có thể muốn chúng full width hơn */
+    gap: 0.8rem;
+  }
+  .payment-option {
+    min-width: calc(50% - 0.4rem); /* 2 cột */
+  }
+  .transaction-table {
+    font-size: 0.9rem; /* Giảm font chữ bảng */
+  }
+  .transaction-table th,
+  .transaction-table td {
+    padding: 0.7rem 0.5rem; /* Giảm padding ô */
+  }
+  /* Cân nhắc ẩn cột ít quan trọng hơn nếu bảng quá rộng */
+  /* .transaction-table th:nth-child(3), .transaction-table td:nth-child(3) { display: none; } */ /* Ẩn cột Chi tiết */
+}
+
+@media (max-width: 576px) {
+  .wallet-container h1 {
+    font-size: 1.6rem;
+  }
+  .balance-amount {
+    font-size: 1.8rem;
+  }
+  .wallet-page-wrapper .section h2 {
+    font-size: 1.3rem;
+  }
+  .quick-topup-options {
+    /* 2 cột trên mobile */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+  .quick-topup-button {
+    font-size: 1rem;
+    padding: 0.7rem 0.4rem;
+  }
+  .quick-topup-button .vnd-suffix {
+    font-size: 0.8rem;
+  }
+  .payment-option {
+    min-width: 100%; /* 1 cột */
+  }
+  .transaction-table {
+    font-size: 0.85rem;
+  }
+}
+
+/* --- Focus Visible --- */
+.wallet-page-wrapper *:focus-visible {
+  outline: 3px solid rgba(215, 33, 52, 0.5);
+  outline-offset: 2px;
+}
+.wallet-page-wrapper *:focus {
+  outline: none;
+}
+/* Áp dụng shadow thay thế cho outline */
+.wallet-page-wrapper .amount-input-wrapper input:focus-visible,
+.wallet-page-wrapper .topup-submit-button:focus-visible,
+.wallet-page-wrapper .quick-topup-button:focus-visible,
+.wallet-page-wrapper .payment-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15);
+}
+/* Style riêng cho focus vào payment option */
+.wallet-page-wrapper .payment-option:focus-visible {
+  border-color: rgba(215, 33, 52, 0.5);
+}

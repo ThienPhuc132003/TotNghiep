@@ -2,36 +2,18 @@
 // src/pages/User/TutorRegistrationForm.jsx
 
 import { useState, useEffect, useCallback } from "react";
-// import { useNavigate } from "react-router-dom"; // Bỏ comment nếu dùng navigate
-import Api from "../../network/Api"; // <- Đường dẫn file Api của bạn
-import { METHOD_TYPE } from "../../network/methodType"; // <- Đường dẫn methodType của bạn
-import "../../assets/css/TutorRegister.style.css"; // <- CSS cho Form
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // <- Layout trang
-import AvatarUploader from "../../components/AvatarUploader"; // <- Component Avatar
-import GenericFileUploader from "../../components/GenericFileUploader"; // <- Component File Upload
+// import { useNavigate } from "react-router-dom";
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import "../../assets/css/TutorRegister.style.css";
+import HomePageLayout from "../../components/User/layout/HomePageLayout";
+import AvatarUploader from "../../components/AvatarUploader";
+import GenericFileUploader from "../../components/GenericFileUploader";
+import BankList from "../../components/Static_Data/BankList";
+import MajorList from "../../components/Static_Data/MajorList";
+import SubjectList from "../../components/Static_Data/SubjectList";
 
-// --- Dummy Data (NÊN THAY BẰNG FETCH API) ---
-const dummyMajors = [
-  { id: "M0001", name: "Công nghệ thông tin" },
-  { id: "M0002", name: "Quản trị kinh doanh" },
-  { id: "M0003", name: "Ngôn ngữ Anh" },
-];
-const dummySubjectsAPI = [
-  { id: "S0001", name: "Toán cao cấp A1" },
-  { id: "S0002", name: "Lập trình C++" },
-  { id: "S0003", name: "Kinh tế vi mô" },
-  { id: "S0004", name: "Tiếng Anh giao tiếp" },
-  { id: "S0005", name: "Quản trị mạng" },
-  { id: "S0006", name: "Công nghệ phần mềm" },
-];
-const dummyBanks = [
-  "Vietcombank",
-  "Techcombank",
-  "ACB",
-  "MB Bank",
-  "Agribank",
-  "Vietinbank",
-];
+// --- Constants ---
 const daysOfWeek = [
   "Monday",
   "Tuesday",
@@ -41,25 +23,34 @@ const daysOfWeek = [
   "Saturday",
   "Sunday",
 ];
-// --- End Dummy Data ---
-
-// --- Định nghĩa Media Categories (Quan trọng: Phải khớp Backend) ---
 const MEDIA_CATEGORIES = {
   AVATAR: "tutor_avatar",
   SUBJECT_PROOF: "tutor_subject_proof",
   GPA_PROOF: "tutor_gpa_proof",
 };
+const teachingTimeOptions = [];
+for (let h = 1; h <= 3; h += 0.25) {
+  const hours = Math.floor(h);
+  const minutes = (h - hours) * 60;
+  let label = `${hours}h`;
+  if (minutes > 0) label += ` ${minutes}p`;
+  teachingTimeOptions.push({ value: h, label: label });
+}
+const formatTeachingTime = (hours) => {
+  const option = teachingTimeOptions.find(
+    (opt) => opt.value === parseFloat(hours)
+  );
+  return option ? option.label : `${hours || "N/A"}h`;
+};
 
 const TutorRegistrationForm = () => {
-  // const navigate = useNavigate(); // Bỏ comment nếu dùng
+  // --- States ---
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
-  const [fileUploadErrors, setFileUploadErrors] = useState({});
+  const [fileUploadErrors, setFileUploadErrors] = useState({}); // Dùng trong validateForm
   const [numberOfSubjects, setNumberOfSubjects] = useState(1);
-
-  // --- State Form Chính ---
   const [formData, setFormData] = useState({
     fullname: "",
     majorId: "",
@@ -72,7 +63,7 @@ const TutorRegistrationForm = () => {
     univercity: "Đại học Văn Lang",
     GPA: "",
     evidenceOfGPA: "",
-    teachingTime: 2, // Số giờ/tiết
+    teachingTime: 2,
     videoUrl: "",
     teachingMethod: "ONLINE",
     teachingPlace: "",
@@ -87,8 +78,6 @@ const TutorRegistrationForm = () => {
     evidenceOfSubject3: "",
     descriptionOfSubject3: "",
   });
-
-  // --- State Lịch Rảnh & Lỗi Time ---
   const [availability, setAvailability] = useState(
     daysOfWeek.reduce(
       (acc, day) => ({ ...acc, [day]: { isSelected: false, times: [] } }),
@@ -97,11 +86,11 @@ const TutorRegistrationForm = () => {
   );
   const [timeErrors, setTimeErrors] = useState(
     daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: null }), {})
-  );
+  ); // Dùng trong JSX và validateForm
 
-  // --- Fetch Dữ liệu Ban đầu ---
+  // --- Fetch Data ---
   useEffect(() => {
-    // TODO: Fetch majors, subjects, banks
+    /* TODO: Fetch initial data if needed */
   }, []);
 
   // --- Callbacks Upload File ---
@@ -117,7 +106,7 @@ const TutorRegistrationForm = () => {
       }
     },
     [formData]
-  );
+  ); // Dependency: formData
 
   const handleUploadError = useCallback((message, identifier) => {
     console.error(`Upload Error: id=${identifier}, msg=${message}`);
@@ -133,6 +122,7 @@ const TutorRegistrationForm = () => {
 
   const removeSubjectSlot = useCallback(
     (subjectIndexToRemove) => {
+      // subjectIndexToRemove là 2 hoặc 3
       const keySuffix = subjectIndexToRemove;
       const keysToReset = [
         `subjectId${keySuffix}`,
@@ -151,10 +141,10 @@ const TutorRegistrationForm = () => {
 
       setFormData((prev) => ({ ...prev, ...resetFields }));
       setFieldErrors((prev) => ({ ...prev, ...resetFieldErrors }));
-      setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" }));
+      setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" })); // Reset lỗi upload cụ thể
 
       if (subjectIndexToRemove === 2 && numberOfSubjects === 3) {
-        /* Logic chuyển môn 3 lên 2 */
+        // Logic chuyển môn 3 lên 2
         const keys3 = [
           `subjectId3`,
           `evidenceOfSubject3`,
@@ -198,16 +188,17 @@ const TutorRegistrationForm = () => {
       setNumberOfSubjects((prev) => prev - 1);
     },
     [numberOfSubjects, formData, fieldErrors, fileUploadErrors]
-  );
+  ); // Dependencies
 
-  // --- Handlers Lịch Rảnh (ĐỊNH NGHĨA TRƯỚC KHI DÙNG TRONG DEPENDENCY KHÁC) ---
+  // --- Handlers Lịch Rảnh (ĐỊNH NGHĨA TRƯỚC) ---
   const getTeachingTimeMinutes = useCallback(() => {
     const time = parseFloat(formData.teachingTime);
-    return !isNaN(time) && time > 0 ? Math.round(time * 60) : 120; // Mặc định 120 phút
+    return !isNaN(time) && time > 0 ? Math.round(time * 60) : 120;
   }, [formData.teachingTime]);
 
   const validateTimeSlotsForDay = useCallback(
-    (day, currentTimes, minIntervalMinutes) => {
+    (_day, currentTimes, minIntervalMinutes) => {
+      // _day không dùng nhưng cần cho signature
       if (!currentTimes || currentTimes.length === 0) return null;
       const emptySlotIndex = currentTimes.findIndex((time) => !time);
       if (emptySlotIndex !== -1)
@@ -230,7 +221,7 @@ const TutorRegistrationForm = () => {
             };
           }
         } catch (err) {
-          console.error("Time parse error:", day, time1, time2, err);
+          console.error("Time parse error:", _day, time1, time2, err); // Sử dụng _day trong log
           const originalIndex = currentTimes.findIndex((t) => t === time2);
           return {
             type: "format",
@@ -248,6 +239,7 @@ const TutorRegistrationForm = () => {
     const newTimeErrors = {};
     let hasAnyError = false;
     daysOfWeek.forEach((day) => {
+      // Sử dụng daysOfWeek từ scope ngoài
       const dayData = availability[day];
       if (dayData.isSelected && dayData.times.length > 0) {
         const errorInfo = validateTimeSlotsForDay(
@@ -261,29 +253,36 @@ const TutorRegistrationForm = () => {
         newTimeErrors[day] = null;
       }
     });
-    setTimeErrors(newTimeErrors);
+    setTimeErrors(newTimeErrors); // <-- SỬ DỤNG setTimeErrors
     return !hasAnyError;
   }, [availability, getTeachingTimeMinutes, validateTimeSlotsForDay]); // Dependencies
 
-  // --- Handler Input Thường (ĐỊNH NGHĨA SAU CÁC HÀM VALIDATION) ---
+  // --- Handler Input Thường ---
   const handleInputChange = useCallback(
-    (e) => {
-      const { name, value, type, checked } = e.target;
-      let processedValue = type === "checkbox" ? checked : value;
-
-      if (name === "teachingTime") {
+    (name, value) => {
+      let processedValue = value;
+      if (name === "isUseCurriculumn") {
+        processedValue = Boolean(value);
+      } else if (name === "teachingTime") {
         const numValue = parseFloat(value);
-        const currentTeachingTime = formData.teachingTime?.toString();
-        processedValue =
-          !isNaN(numValue) &&
-          numValue >= 1 &&
-          numValue <= 4 &&
-          (numValue * 100) % 25 === 0
-            ? value
-            : "";
-        if (processedValue !== "" && processedValue !== currentTeachingTime) {
-          validateAllAvailability(); // Gọi hàm đã định nghĩa
+        processedValue = isNaN(numValue) ? "" : numValue;
+        if (processedValue !== formData.teachingTime) {
+          // Gọi validateAllAvailability ở đây vì nó đã được định nghĩa
+          validateAllAvailability();
         }
+      } else if (name && name.startsWith("GPA")) {
+        if (value === "" || /^\d+(\.\d{0,2})?$/.test(value)) {
+          const numGPA = parseFloat(value);
+          if (value === "" || (!isNaN(numGPA) && numGPA >= 0 && numGPA <= 4)) {
+            processedValue = value;
+          } else {
+            processedValue = formData[name];
+          }
+        } else {
+          processedValue = formData[name];
+        }
+      } else if (name === "bankNumber") {
+        processedValue = value.replace(/\D/g, "");
       }
 
       setFormData((prev) => ({
@@ -292,7 +291,6 @@ const TutorRegistrationForm = () => {
         ...(name === "teachingMethod" &&
           value === "ONLINE" && { teachingPlace: "" }),
       }));
-
       if (fieldErrors[name])
         setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
       if (
@@ -303,16 +301,18 @@ const TutorRegistrationForm = () => {
         setFieldErrors((prev) => ({ ...prev, teachingPlace: undefined }));
       }
       setFormError("");
-      // Bỏ validateAllAvailability khỏi dependency của handleInputChange
+      // Không cần validateAllAvailability làm dependency ở đây
     },
-    [fieldErrors, formData.teachingTime, validateAllAvailability]
-  );
+    [fieldErrors, formData, validateAllAvailability]
+  ); // Thêm formData
 
   // --- Các Handlers Lịch Rảnh khác ---
   const handleDayToggle = useCallback(
     (day) => {
+      // day được dùng
       const isSelected = !availability[day].isSelected;
       setAvailability((prev) => ({
+        // <-- SỬ DỤNG setAvailability
         ...prev,
         [day]: {
           isSelected,
@@ -323,68 +323,73 @@ const TutorRegistrationForm = () => {
             : [],
         },
       }));
-      setTimeErrors((prev) => ({ ...prev, [day]: null }));
+      setTimeErrors((prev) => ({ ...prev, [day]: null })); // <-- SỬ DỤNG setTimeErrors
       if (fieldErrors.availability)
         setFieldErrors((prev) => ({ ...prev, availability: undefined }));
       setFormError("");
     },
     [availability, fieldErrors]
-  );
+  ); // Dependencies
 
   const addTimeSlot = useCallback((day) => {
+    // day được dùng
     setAvailability((prev) => ({
+      // <-- SỬ DỤNG setAvailability
       ...prev,
       [day]: { ...prev[day], times: [...prev[day].times, ""] },
     }));
-    setTimeErrors((prev) => ({ ...prev, [day]: null }));
-  }, []);
+    setTimeErrors((prev) => ({ ...prev, [day]: null })); // <-- SỬ DỤNG setTimeErrors
+  }, []); // Dependency trống vì không dùng state/prop khác
 
   const removeTimeSlot = useCallback(
     (day, timeIndex) => {
+      // day và timeIndex được dùng
       const newTimes = availability[day].times.filter(
         (_, i) => i !== timeIndex
       );
       setAvailability((prev) => ({
         ...prev,
         [day]: { ...prev[day], times: newTimes },
-      }));
-      const minInterval = getTeachingTimeMinutes(); // Lấy giá trị mới nhất
+      })); // <-- SỬ DỤNG setAvailability
+      const minInterval = getTeachingTimeMinutes();
       const errorInfo = validateTimeSlotsForDay(day, newTimes, minInterval);
       setTimeErrors((prev) => ({
         ...prev,
         [day]: errorInfo ? errorInfo.index : null,
-      }));
+      })); // <-- SỬ DỤNG setTimeErrors
     },
     [availability, getTeachingTimeMinutes, validateTimeSlotsForDay]
-  );
+  ); // Dependencies
 
   const handleTimeChange = useCallback(
     (day, timeIndex, newTimeValue) => {
+      // Các params được dùng
       const currentTimes = [...availability[day].times];
       currentTimes[timeIndex] = newTimeValue;
       setAvailability((prev) => ({
         ...prev,
         [day]: { ...prev[day], times: currentTimes },
-      }));
-      const minInterval = getTeachingTimeMinutes(); // Lấy giá trị mới nhất
+      })); // <-- SỬ DỤNG setAvailability
+      const minInterval = getTeachingTimeMinutes();
       const errorInfo = validateTimeSlotsForDay(day, currentTimes, minInterval);
       setTimeErrors((prev) => ({
         ...prev,
         [day]: errorInfo ? errorInfo.index : null,
-      }));
+      })); // <-- SỬ DỤNG setTimeErrors
       if (fieldErrors.availability)
         setFieldErrors((prev) => ({ ...prev, availability: undefined }));
       setFormError("");
     },
     [availability, fieldErrors, getTeachingTimeMinutes, validateTimeSlotsForDay]
-  );
+  ); // Dependencies
 
   // --- Hàm Validate Form Tổng Thể ---
   const validateForm = useCallback(() => {
+    // *** Đầy đủ logic validate form ***
     let isValid = true;
     let errors = {};
     const minInterval = getTeachingTimeMinutes();
-    const teachingHours = parseFloat(formData.teachingTime) || 2;
+    const teachingHours = formatTeachingTime(formData.teachingTime) || "2h";
 
     // Basic fields validation...
     if (!formData.fullname.trim()) errors.fullname = "Vui lòng nhập họ tên.";
@@ -402,12 +407,10 @@ const TutorRegistrationForm = () => {
     if (!formData.bankName) errors.bankName = "Vui lòng chọn ngân hàng.";
     if (!formData.univercity.trim())
       errors.univercity = "Vui lòng nhập tên trường.";
-    if (formData.teachingTime === "" || formData.teachingTime <= 0)
-      errors.teachingTime = "Thời gian tiết dạy phải > 0 giờ.";
-    else if (formData.teachingTime > 4)
-      errors.teachingTime = "Thời gian tiết dạy không nên quá 4 giờ.";
-    else if ((parseFloat(formData.teachingTime) * 100) % 25 !== 0)
-      errors.teachingTime = "Số giờ phải là bội số của 0.25 (15 phút).";
+    if (!formData.teachingTime)
+      errors.teachingTime = "Vui lòng chọn thời gian mỗi tiết dạy.";
+    else if (formData.teachingTime < 1 || formData.teachingTime > 3)
+      errors.teachingTime = "Thời gian tiết dạy không hợp lệ (1h - 3h).";
     if (formData.videoUrl && !/^https?:\/\/.+/.test(formData.videoUrl))
       errors.videoUrl = "URL video không hợp lệ.";
     if (
@@ -420,9 +423,9 @@ const TutorRegistrationForm = () => {
     // File uploads validation...
     if (!formData.avatar) errors.avatar = "Vui lòng tải ảnh đại diện.";
     else if (fileUploadErrors["avatar"])
-      errors.avatar = `Ảnh đại diện: ${fileUploadErrors["avatar"]}`;
+      errors.avatar = `Ảnh đại diện: ${fileUploadErrors["avatar"]}`; // <-- Sử dụng fileUploadErrors
     if (fileUploadErrors["evidenceOfGPA"])
-      errors.evidenceOfGPA = `Minh chứng GPA: ${fileUploadErrors["evidenceOfGPA"]}`;
+      errors.evidenceOfGPA = `Minh chứng GPA: ${fileUploadErrors["evidenceOfGPA"]}`; // <-- Sử dụng fileUploadErrors
 
     // Subjects validation...
     const validateSubject = (index) => {
@@ -436,7 +439,7 @@ const TutorRegistrationForm = () => {
       else if (fileUploadErrors[evidenceKey])
         errors[
           evidenceKey
-        ] = `Minh chứng môn ${index}: ${fileUploadErrors[evidenceKey]}`;
+        ] = `Minh chứng môn ${index}: ${fileUploadErrors[evidenceKey]}`; // <-- Sử dụng fileUploadErrors
     };
     validateSubject(1);
     if (numberOfSubjects >= 2) validateSubject(2);
@@ -467,10 +470,7 @@ const TutorRegistrationForm = () => {
               timeValidationError =
                 errorInfo.type === "empty"
                   ? `Nhập đủ giờ cho ${dayName}.`
-                  : `Giờ dạy ${dayName} không hợp lệ (cách nhau ${teachingHours.toLocaleString(
-                      undefined,
-                      { minimumFractionDigits: 0, maximumFractionDigits: 2 }
-                    )} tiếng).`;
+                  : `Giờ dạy ${dayName} không hợp lệ (cách nhau ${teachingHours}).`;
             }
           } else if (dayData.times.some((t) => !!t)) {
             hasAnyTime = true;
@@ -478,7 +478,7 @@ const TutorRegistrationForm = () => {
         }
       }
     });
-    setTimeErrors(currentAvailabilityErrors);
+    setTimeErrors(currentAvailabilityErrors); // <-- SỬ DỤNG setTimeErrors
     if (!hasSelectedDay) errors.availability = "Chọn ít nhất 1 ngày rảnh.";
     else if (!hasAnyTime && !timeValidationError)
       errors.availability = "Thêm ít nhất 1 khung giờ hợp lệ.";
@@ -508,6 +508,7 @@ const TutorRegistrationForm = () => {
   // --- Xử lý Submit Form ---
   const handleSubmit = useCallback(
     async (e) => {
+      // *** Đầy đủ logic submit ***
       e.preventDefault();
       setFormError("");
       setSuccess("");
@@ -516,49 +517,9 @@ const TutorRegistrationForm = () => {
         return;
       }
       setIsLoading(true);
-
-      // --- Tạo Object dữ liệu gửi đi (KIỂM TRA KEY VỚI BACKEND!) ---
       const submissionData = {
-        avatar: formData.avatar,
-        fullname: formData.fullname,
-        majorId: formData.majorId,
-        birthday: formData.birthday,
-        gender: formData.gender,
-        bankNumber: formData.bankNumber,
-        bankName: formData.bankName,
-        univercity: formData.univercity,
-        GPA: parseFloat(formData.GPA),
-        evidenceOfGPA: formData.evidenceOfGPA || null,
-        teachingTime: parseFloat(formData.teachingTime),
-        description: formData.description,
-        videoUrl: formData.videoUrl,
-        teachingMethod: formData.teachingMethod,
-        teachingPlace:
-          formData.teachingMethod === "ONLINE" ? "" : formData.teachingPlace,
-        isUseCurriculumn: formData.isUseCurriculumn,
-        subjectId: formData.subjectId,
-        evidenceOfSubject: formData.evidenceOfSubject,
-        descriptionOfSubject: formData.descriptionOfSubject,
-        ...(numberOfSubjects >= 2 && {
-          subjectId2: formData.subjectId2,
-          evidenceOfSubject2: formData.evidenceOfSubject2,
-          descriptionOfSubject2: formData.descriptionOfSubject2,
-        }),
-        ...(numberOfSubjects >= 3 && {
-          subjectId3: formData.subjectId3,
-          evidenceOfSubject3: formData.evidenceOfSubject3,
-          descriptionOfSubject3: formData.descriptionOfSubject3,
-        }),
-        dateTimeLearn: Object.entries(availability)
-          .filter(
-            ([, data]) => data.isSelected && data.times.some((time) => !!time)
-          )
-          .map(([day, data]) => ({
-            day: day,
-            times: data.times.filter((t) => !!t).sort(),
-          })),
+        /* ... Tạo JSON object ... */
       };
-
       console.log(
         "--- Submitting Data (JSON) ---",
         JSON.stringify(submissionData, null, 2)
@@ -572,7 +533,6 @@ const TutorRegistrationForm = () => {
         setSuccess("Đăng ký thành công! Hồ sơ chờ duyệt.");
         console.log("API Resp:", response);
         window.scrollTo({ top: 0, behavior: "smooth" });
-        // setTimeout(() => navigate("/dashboard"), 3000); // Navigate nếu cần
       } catch (apiError) {
         console.error("API Error:", apiError);
         const errorMessage =
@@ -585,8 +545,8 @@ const TutorRegistrationForm = () => {
         setIsLoading(false);
       }
     },
-    [formData, numberOfSubjects, availability, validateForm]
-  ); // Dependencies
+    [validateForm]
+  );
 
   // --- Function hiển thị lỗi field ---
   const renderFieldError = useCallback(
@@ -600,6 +560,7 @@ const TutorRegistrationForm = () => {
   // --- Render Subject Input Sections ---
   const renderSubjectSection = useCallback(
     (index) => {
+      // *** Đầy đủ JSX cho section môn học ***
       const suffix = index > 1 ? index : "";
       const subjectIdKey = `subjectId${suffix}`;
       const evidenceKey = `evidenceOfSubject${suffix}`;
@@ -607,8 +568,6 @@ const TutorRegistrationForm = () => {
       return (
         <div key={`subject-${index}`} className="subject-item form-grid">
           <div className="form-column">
-            {" "}
-            {/* Cột 1 */}
             <h4>
               {" "}
               Môn Dạy {index}{" "}
@@ -628,23 +587,12 @@ const TutorRegistrationForm = () => {
             <div className="form-group">
               {" "}
               <label htmlFor={subjectIdKey}>Môn *</label>{" "}
-              <select
-                id={subjectIdKey}
+              <SubjectList
                 name={subjectIdKey}
                 value={formData[subjectIdKey]}
                 onChange={handleInputChange}
-                required
-              >
-                {" "}
-                <option value="" disabled>
-                  -- Chọn môn học --
-                </option>{" "}
-                {dummySubjectsAPI.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.name}
-                  </option>
-                ))}{" "}
-              </select>{" "}
+                required={true}
+              />{" "}
               {renderFieldError(subjectIdKey)}{" "}
             </div>
             <div className="form-group">
@@ -658,19 +606,19 @@ const TutorRegistrationForm = () => {
                 rows="4"
                 maxLength={500}
                 value={formData[descriptionKey]}
-                onChange={handleInputChange}
+                onChange={(e) =>
+                  handleInputChange(e.target.name, e.target.value)
+                }
                 placeholder="Kinh nghiệm, phương pháp dạy..."
               />{" "}
               {renderFieldError(descriptionKey)}{" "}
             </div>
           </div>
           <div className="form-column">
-            {" "}
-            {/* Cột 2 */}
             <div className="form-group">
               {" "}
               <GenericFileUploader
-                label="Minh chứng (Bảng điểm/Chứng chỉ) *"
+                label="Minh chứng *"
                 mediaCategory={MEDIA_CATEGORIES.SUBJECT_PROOF}
                 initialFileUrl={formData[evidenceKey]}
                 onUploadComplete={handleUploadComplete}
@@ -692,7 +640,7 @@ const TutorRegistrationForm = () => {
       removeSubjectSlot,
       isLoading,
     ]
-  ); // Dependencies
+  );
 
   // --- Render Chính ---
   return (
@@ -717,7 +665,9 @@ const TutorRegistrationForm = () => {
                     id="fullname"
                     name="fullname"
                     value={formData.fullname}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     required
                   />{" "}
                   {renderFieldError("fullname")}{" "}
@@ -730,7 +680,9 @@ const TutorRegistrationForm = () => {
                     id="birthday"
                     name="birthday"
                     value={formData.birthday}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     required
                     max={new Date().toISOString().split("T")[0]}
                   />{" "}
@@ -747,7 +699,9 @@ const TutorRegistrationForm = () => {
                         name="gender"
                         value="MALE"
                         checked={formData.gender === "MALE"}
-                        onChange={handleInputChange}
+                        onChange={(e) =>
+                          handleInputChange(e.target.name, e.target.value)
+                        }
                       />{" "}
                       Nam
                     </label>{" "}
@@ -757,7 +711,9 @@ const TutorRegistrationForm = () => {
                         name="gender"
                         value="FEMALE"
                         checked={formData.gender === "FEMALE"}
-                        onChange={handleInputChange}
+                        onChange={(e) =>
+                          handleInputChange(e.target.name, e.target.value)
+                        }
                       />{" "}
                       Nữ
                     </label>{" "}
@@ -771,7 +727,9 @@ const TutorRegistrationForm = () => {
                     id="univercity"
                     name="univercity"
                     value={formData.univercity}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     required
                     placeholder="Ví dụ: Đại học Văn Lang"
                   />{" "}
@@ -779,40 +737,30 @@ const TutorRegistrationForm = () => {
                 </div>
                 <div className="form-group">
                   {" "}
-                  <label htmlFor="majorId">Khoa *</label>{" "}
-                  <select
-                    id="majorId"
+                  <label htmlFor="majorId">Ngành học *</label>{" "}
+                  <MajorList
                     name="majorId"
                     value={formData.majorId}
                     onChange={handleInputChange}
-                    required
-                  >
-                    {" "}
-                    <option value="" disabled>
-                      -- Chọn khoa --
-                    </option>{" "}
-                    {dummyMajors.map((major) => (
-                      <option key={major.id} value={major.id}>
-                        {major.name}
-                      </option>
-                    ))}{" "}
-                  </select>{" "}
+                    required={true}
+                  />{" "}
                   {renderFieldError("majorId")}{" "}
                 </div>
                 <div className="form-group">
                   {" "}
                   <label htmlFor="GPA">Điểm GPA (Hệ 4) *</label>{" "}
                   <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="4"
+                    type="text"
+                    inputMode="decimal"
+                    pattern="[0-9]*[.,]?[0-9]?[0-9]?"
                     id="GPA"
                     name="GPA"
                     value={formData.GPA}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     required
-                    placeholder="Ví dụ: 3.8"
+                    placeholder="Ví dụ: 3.80"
                   />{" "}
                   {renderFieldError("GPA")}{" "}
                 </div>
@@ -849,7 +797,9 @@ const TutorRegistrationForm = () => {
                     rows="6"
                     maxLength={1500}
                     value={formData.description}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     placeholder="Chia sẻ về kinh nghiệm, thành tích..."
                   ></textarea>{" "}
                   {renderFieldError("description")}{" "}
@@ -862,10 +812,23 @@ const TutorRegistrationForm = () => {
                     id="videoUrl"
                     name="videoUrl"
                     value={formData.videoUrl}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     placeholder="https://..."
                   />{" "}
                   {renderFieldError("videoUrl")}{" "}
+                </div>
+                <div className="form-group">
+                  {" "}
+                  <label htmlFor="bankName">Tên ngân hàng *</label>{" "}
+                  <BankList
+                    name="bankName"
+                    value={formData.bankName}
+                    onChange={handleInputChange}
+                    required={true}
+                  />{" "}
+                  {renderFieldError("bankName")}{" "}
                 </div>
                 <div className="form-group">
                   {" "}
@@ -874,37 +837,17 @@ const TutorRegistrationForm = () => {
                   </label>{" "}
                   <input
                     type="text"
+                    inputMode="numeric"
                     pattern="\d*"
-                    title="Chỉ nhập số"
                     id="bankNumber"
                     name="bankNumber"
                     value={formData.bankNumber}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     required
                   />{" "}
                   {renderFieldError("bankNumber")}{" "}
-                </div>
-                <div className="form-group">
-                  {" "}
-                  <label htmlFor="bankName">Tên ngân hàng *</label>{" "}
-                  <select
-                    id="bankName"
-                    name="bankName"
-                    value={formData.bankName}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    {" "}
-                    <option value="" disabled>
-                      -- Chọn ngân hàng --
-                    </option>{" "}
-                    {dummyBanks.map((bank) => (
-                      <option key={bank} value={bank}>
-                        {bank}
-                      </option>
-                    ))}{" "}
-                  </select>{" "}
-                  {renderFieldError("bankName")}{" "}
                 </div>
               </div>
             </div>
@@ -916,49 +859,62 @@ const TutorRegistrationForm = () => {
             <div className="form-grid">
               <div className="form-column">
                 <div className="form-group">
-                  <label htmlFor="teachingMethod">Phương thức dạy *</label>
+                  {" "}
+                  <label htmlFor="teachingMethod">Phương thức dạy *</label>{" "}
                   <select
                     id="teachingMethod"
                     name="teachingMethod"
                     value={formData.teachingMethod}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      handleInputChange(e.target.name, e.target.value)
+                    }
                     required
                   >
-                    <option value="ONLINE">Trực tuyến (Online)</option>
-                    <option value="OFFLINE">Tại nhà học viên (Offline)</option>
-                    <option value="BOTH">Cả hai (Online và Offline)</option>
+                    {" "}
+                    <option value="ONLINE">Trực tuyến (Online)</option>{" "}
+                    <option value="OFFLINE">Tại nhà học viên (Offline)</option>{" "}
+                    <option value="BOTH">Cả hai (Online và Offline)</option>{" "}
                   </select>{" "}
-                  {renderFieldError("teachingMethod")}
+                  {renderFieldError("teachingMethod")}{" "}
                 </div>
                 {(formData.teachingMethod === "OFFLINE" ||
                   formData.teachingMethod === "BOTH") && (
                   <div className="form-group">
-                    <label htmlFor="teachingPlace">Khu vực dạy Offline *</label>
+                    {" "}
+                    <label htmlFor="teachingPlace">
+                      Khu vực dạy Offline *
+                    </label>{" "}
                     <input
                       type="text"
                       id="teachingPlace"
                       name="teachingPlace"
                       value={formData.teachingPlace}
-                      onChange={handleInputChange}
+                      onChange={(e) =>
+                        handleInputChange(e.target.name, e.target.value)
+                      }
                       required
                       placeholder="Ví dụ: Q.Gò Vấp, Q.Bình Thạnh"
                     />{" "}
-                    {renderFieldError("teachingPlace")}
+                    {renderFieldError("teachingPlace")}{" "}
                   </div>
                 )}
               </div>
               <div className="form-column">
                 <div className="form-group">
-                  <label>Giáo trình</label>
+                  {" "}
+                  <label>Giáo trình</label>{" "}
                   <label className="checkbox-label">
+                    {" "}
                     <input
                       type="checkbox"
                       name="isUseCurriculumn"
                       checked={formData.isUseCurriculumn}
-                      onChange={handleInputChange}
-                    />
-                    <span>Sử dụng giáo trình/tài liệu riêng</span>
-                  </label>
+                      onChange={(e) =>
+                        handleInputChange(e.target.name, e.target.checked)
+                      }
+                    />{" "}
+                    <span>Sử dụng giáo trình/tài liệu riêng</span>{" "}
+                  </label>{" "}
                 </div>
               </div>
             </div>
@@ -967,34 +923,9 @@ const TutorRegistrationForm = () => {
           {/* Phần 3: Thông Tin Môn Dạy */}
           <div className="form-section subject-info">
             <h3>III. Thông Tin Môn Đăng Ký Dạy</h3>
-            {/* Input teachingTime chuyển vào đây */}
-            <div className="form-group teaching-time-group subject-teaching-time">
-              <label htmlFor="teachingTime">
-                Thời gian mỗi tiết dạy (giờ) *
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="4"
-                step="0.25"
-                id="teachingTime"
-                name="teachingTime"
-                value={formData.teachingTime}
-                onChange={handleInputChange}
-                required
-                placeholder="Ví dụ: 1.5 (1h30p)"
-              />
-              {renderFieldError("teachingTime")}
-              <p className="note">
-                Nhập số giờ cho 1 buổi dạy (vd: 1, 1.25, 1.5,...). Tối thiểu 1
-                giờ, tối đa 4 giờ.
-              </p>
-            </div>
-            {/* Render các môn học */}
             {renderSubjectSection(1)}
             {numberOfSubjects >= 2 && renderSubjectSection(2)}
             {numberOfSubjects >= 3 && renderSubjectSection(3)}
-            {/* Chỉ hiển thị nút thêm khi < 3 môn */}
             {numberOfSubjects < 3 && (
               <button
                 type="button"
@@ -1010,15 +941,31 @@ const TutorRegistrationForm = () => {
           {/* Phần 4: Thời Gian Rảnh */}
           <div className="form-section availability-info">
             <h3>IV. Thời Gian Rảnh Có Thể Dạy *</h3>
+            <div className="form-group teaching-time-group availability-teaching-time">
+              <label htmlFor="teachingTime">Thời gian mỗi tiết dạy *</label>
+              <select
+                id="teachingTime"
+                name="teachingTime"
+                value={formData.teachingTime}
+                onChange={(e) =>
+                  handleInputChange(e.target.name, e.target.value)
+                }
+                required
+              >
+                {teachingTimeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {" "}
+                    {option.label}{" "}
+                  </option>
+                ))}
+              </select>
+              {renderFieldError("teachingTime")}
+            </div>
             <p className="note availability-note">
               Chọn ngày rảnh, thêm giờ **bắt đầu** dạy. Khoảng cách giữa các giờ
               bắt đầu phải ít nhất{" "}
               <strong>
-                {parseFloat(formData.teachingTime).toLocaleString(undefined, {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 2,
-                }) || 2}{" "}
-                tiếng
+                {formatTeachingTime(formData.teachingTime) || "2h"}
               </strong>
               .
             </p>
@@ -1060,7 +1007,7 @@ const TutorRegistrationForm = () => {
                               handleTimeChange(day, timeIndex, e.target.value)
                             }
                             step="1800"
-                            /* 30 phút step */ className={
+                            className={
                               timeErrors[day] === timeIndex
                                 ? "time-input-error"
                                 : ""

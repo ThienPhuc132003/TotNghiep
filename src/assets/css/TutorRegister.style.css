@@ -461,7 +461,10 @@
 .terms a:hover {
   text-decoration: underline;
 }
-
+.availability-info .teaching-time-group {
+  max-width: 300px; /* Giữ giới hạn chiều rộng */
+  margin-top: 2.5rem; /* <<< Thêm khoảng cách với lưới lịch ở trên */
+}
 /* === Responsive === */
 @media (max-width: 992px) {
   .form-grid {

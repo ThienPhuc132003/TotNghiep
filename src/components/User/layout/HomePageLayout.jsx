@@ -124,7 +124,7 @@ const HomePageLayoutComponent = ({ children }) => {
               Đăng ký làm gia sư
             </Link>
           )}
-          <Link to="/help" className="home-page-menu-item" href="/help">
+          <Link to="/tro-giup" className="home-page-menu-item" href="/tro-giup">
             Trợ giúp
           </Link>
           <Link to="/blog" className="home-page-menu-item" href="/blog">
@@ -194,7 +194,7 @@ const HomePageLayoutComponent = ({ children }) => {
             </Link>
           )}
           <Link
-            to="/help"
+            to="/tro-giup"
             className="mobile-menu-item"
             onClick={closeMobileMenu}
           >
@@ -252,7 +252,11 @@ const HomePageLayoutComponent = ({ children }) => {
               <span className="footer-brand-text">GiaSuVLU</span>
             </div>
             <p className="footer-brand-description">
-              Kết nối tri thức, kiến tạo tương lai cho sinh viên Văn Lang.
+              GiaSuVLU là nền tảng kết nối sinh viên Văn Lang với các gia sư
+              chất lượng, hỗ trợ học tập hiệu quả cả online lẫn offline. Chúng
+              tôi không chỉ giúp bạn tìm được người hướng dẫn phù hợp mà còn
+              đồng hành cùng bạn trên hành trình chinh phục tri thức và phát
+              triển bản thân.
             </p>
           </div>
 
