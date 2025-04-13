@@ -1,67 +1,71 @@
-const MAX_WIDTH = 800; // Maximum width for the cropped image
-const MAX_HEIGHT = 800; // Maximum height for the cropped image
+// src/utils/cropImage.js
 
-export default function getCroppedImg(imageSrc, crop) {
+const createImage = (url) =>
+  new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = 'anonymous'; // Enable CORS if necessary
-    image.src = imageSrc;
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    // image.setAttribute('crossOrigin', 'anonymous'); // Thêm nếu cần
+    image.src = url;
+  });
 
-    return new Promise((resolve, reject) => {
-        image.onload = () => {
-            if (!crop || crop.width <= 0 || crop.height <= 0 || crop.x < 0 || crop.y < 0) {
-                reject(new Error("Invalid crop dimensions"));
-                return;
-            }
+export default async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
-            if (image.naturalWidth <= 0 || image.naturalHeight <= 0) {
-                reject(new Error("Invalid image dimensions"));
-                return;
-            }
+  if (!ctx) {
+    throw new Error("No 2d context");
+  }
 
-            const canvas = document.createElement("canvas");
-            const scaleX = image.naturalWidth / image.width;
-            const scaleY = image.naturalHeight / image.height;
+  const rotRad = (rotation * Math.PI) / 180;
+  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+    image.width,
+    image.height,
+    rotation
+  );
 
-            // Calculate scaled crop dimensions
-            const scaledCropWidth = crop.width;
-            const scaledCropHeight = crop.height;
+  canvas.width = bBoxWidth;
+  canvas.height = bBoxHeight;
 
-            canvas.width = Math.min(scaledCropWidth, MAX_WIDTH);
-            canvas.height = Math.min(scaledCropHeight, MAX_HEIGHT);
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
+  ctx.rotate(rotRad);
+  ctx.scale(1, 1);
+  ctx.translate(-image.width / 2, -image.height / 2);
+  ctx.drawImage(image, 0, 0);
 
-            const ctx = canvas.getContext("2d");
+  const data = ctx.getImageData(
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height
+  );
 
-            ctx.drawImage(
-                image,
-                crop.x * scaleX,
-                crop.y * scaleY,
-                crop.width * scaleX,
-                crop.height * scaleY,
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+  ctx.putImageData(data, 0, 0);
 
-            const fileType = "image/png"; // You can change this to "image/jpeg"
-
-            canvas.toBlob(
-                (blob) => {
-                    if (!blob) {
-                        reject(new Error("Canvas is empty"));
-                        return;
-                    }
-
-                    const file = new File([blob], "cropped_image.png", { type: fileType });
-                    resolve(file);
-                },
-                fileType,
-                1 // Quality parameter for PNG or JPEG (0.1 to 1)
-            );
-        };
-
-        image.onerror = (error) => {
-            reject(new Error(`Image load failed: ${error?.message}`));
-        };
-    });
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Canvas is empty"));
+          return;
+        }
+        resolve(blob);
+      },
+      "image/jpeg",
+      0.95
+    );
+  });
 }
+
+const rotateSize = (width, height, rotation) => {
+  const rotRad = (rotation * Math.PI) / 180;
+  return {
+    width:
+      Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+    height:
+      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+  };
+};

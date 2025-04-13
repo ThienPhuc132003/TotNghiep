@@ -1,0 +1,153 @@
+/* src/assets/css/ImageCropModal.style.css */
+
+/* Lớp phủ nền mờ */
+.image-crop-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Nền đen mờ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050; /* Đảm bảo cao hơn các thành phần khác (tùy hệ thống z-index của bạn) */
+  }
+  
+  /* Khung nội dung Modal */
+  .image-crop-modal {
+    background: #fff;
+    border-radius: 8px;
+    padding: 25px 30px;
+    max-width: 600px; /* Độ rộng tối đa */
+    width: 90%; /* Chiếm 90% viewport trên màn hình nhỏ */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    outline: none; /* Bỏ outline mặc định */
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* Chiều cao tối đa, tránh tràn màn hình */
+    overflow: hidden; /* Ngăn nội dung tràn ra ngoài modal */
+  }
+  
+  /* Header Modal */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef; /* Đường kẻ phân cách */
+    padding-bottom: 15px;
+    margin-bottom: 20px; /* Khoảng cách với body */
+    flex-shrink: 0; /* Không co lại */
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .modal-close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    line-height: 1;
+  }
+  .modal-close-button:hover {
+      color: #343a40;
+  }
+  
+  /* Body Modal */
+  .modal-body {
+    flex-grow: 1; /* Cho phép body chiếm không gian còn lại */
+    overflow-y: auto; /* Cho phép scroll nếu nội dung cao */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* Khoảng cách giữa cropper và zoom */
+    padding: 5px 0; /* Thêm padding nhẹ */
+    min-height: 300px; /* Chiều cao tối thiểu */
+  }
+  
+  /* Container chứa Cropper */
+  .cropper-container {
+    position: relative; /* Quan trọng cho react-easy-crop */
+    width: 100%; /* Chiếm đủ độ rộng */
+    height: 350px; /* Chiều cao cố định, bạn có thể điều chỉnh */
+    max-height: 55vh; /* Giới hạn theo chiều cao viewport */
+    background: #f0f0f0; /* Nền xám nhẹ */
+    border-radius: 4px;
+    margin-bottom: 10px; /* Khoảng cách nhẹ với thanh zoom */
+  }
+  /* React-easy-crop sẽ tự điều chỉnh bên trong container này */
+  
+  
+  /* Thanh trượt Zoom */
+  .zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Tăng khoảng cách */
+    width: 90%; /* Chiếm phần lớn độ rộng */
+    max-width: 450px;
+    color: #495057;
+    margin-top: 5px; /* Khoảng cách với cropper */
+  }
+  
+  .zoom-slider {
+    flex-grow: 1;
+    cursor: pointer;
+    accent-color: #007bff; /* Màu thanh trượt và thumb */
+    height: 6px; /* Độ dày thanh trượt */
+  }
+  /* Có thể style thêm cho thumb của slider nếu muốn */
+
+  
+  /* Footer Modal */
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end; /* Nút về bên phải */
+    gap: 12px; /* Khoảng cách giữa các nút */
+    border-top: 1px solid #e9ecef; /* Đường kẻ phân cách */
+    padding-top: 20px;
+    margin-top: 20px; /* Khoảng cách với body */
+    flex-shrink: 0; /* Không co lại */
+  }
+  
+  /* Nút trong Footer */
+  .modal-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách icon và text */
+    line-height: 1.5;
+  }
+  
+  .modal-button.cancel {
+    background-color: #6c757d;
+    color: white;
+  }
+  .modal-button.cancel:hover:not(:disabled) {
+    background-color: #5a6268;
+  }
+  
+  .modal-button.save {
+    background-color: #007bff; /* Màu chính */
+    color: white;
+  }
+  .modal-button.save:hover:not(:disabled) {
+    background-color: #0056b3;
+  }
+  
+  .modal-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
