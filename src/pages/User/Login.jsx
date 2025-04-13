@@ -86,11 +86,11 @@ const SigninPageComponent = () => {
           const userInfoResponse = await Api({
             endpoint: "user/get-profile", // Endpoint user profile
             method: METHOD_TYPE.GET,
-            // Token nên được hàm Api tự động thêm vào header từ cookie
           });
 
           if (userInfoResponse.success && userInfoResponse.data) {
-            dispatch(setUserProfile(userInfoResponse.data)); // <-- Sửa thành setUserProfile
+            console.log("User Profile Data:", userInfoResponse);
+            dispatch(setUserProfile(userInfoResponse.data));
             navigate("/trang-chu");
           } else {
             console.error(
