@@ -1,0 +1,94 @@
+/* src/assets/css/AvatarDisplay.style.css */
+
+.avatar-display-container {
+  display: flex;
+  flex-direction: column; /* Ảnh và nút xếp dọc */
+  align-items: center; /* Căn giữa theo chiều ngang */
+  gap: 15px; /* Khoảng cách giữa ảnh và nút */
+  width: fit-content; /* Chỉ rộng bằng nội dung */
+  margin: 0 auto; /* Tự căn giữa nếu thẻ cha là block */
+}
+
+.avatar-image-wrapper {
+  width: 160px; /* Kích thước avatar */
+  height: 160px;
+  border-radius: 50%; /* Hình tròn */
+  overflow: hidden; /* Cắt ảnh thừa */
+  border: 3px solid #e0e0e0; /* Viền */
+  position: relative; /* Cho icon overlay */
+  background-color: #f8f9fa; /* Nền placeholder */
+  cursor: pointer; /* Con trỏ tay */
+  display: flex; /* Căn giữa placeholder */
+  justify-content: center;
+  align-items: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.avatar-image-wrapper:hover {
+  border-color: #007bff; /* Đổi màu viền khi hover */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3); /* Đổ bóng nhẹ */
+}
+
+.avatar-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Đảm bảo ảnh vừa và không méo */
+}
+
+.avatar-placeholder {
+  color: #adb5bd; /* Màu icon placeholder */
+}
+
+.placeholder-icon {
+  font-size: 5rem; /* Kích thước icon user */
+}
+
+/* Icon camera nhỏ ở góc */
+.camera-icon-overlay {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(0, 0, 0, 0.6); /* Nền đen mờ */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  pointer-events: none; /* Quan trọng: Không cho icon chặn click vào wrapper */
+  opacity: 0; /* Ẩn mặc định */
+  transition: opacity 0.2s ease;
+}
+/* Hiện icon khi hover vào wrapper */
+.avatar-image-wrapper:hover .camera-icon-overlay {
+  opacity: 0.85;
+}
+
+/* Nút "Thay đổi ảnh" bên dưới */
+.change-avatar-button {
+  padding: 8px 16px;
+  border: 1px solid #ced4da; /* Viền xám nhạt */
+  background-color: #fff; /* Nền trắng */
+  color: #495057; /* Chữ xám đậm */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.change-avatar-button:hover {
+  background-color: #f8f9fa; /* Nền hơi xám khi hover */
+  border-color: #adb5bd;
+  color: #212529;
+}
+.change-avatar-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Hiệu ứng focus */
+  border-color: #80bdff;
+}

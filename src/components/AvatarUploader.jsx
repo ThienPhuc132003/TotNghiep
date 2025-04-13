@@ -272,10 +272,9 @@ const AvatarUploader = ({
 
   return (
     <div className="avatar-uploader">
-      {/* Nhãn tùy chọn */}
       {label && <label className="avatar-uploader-label">{label}</label>}
       <div className="avatar-uploader-content">
-        {/* --- Khu vực hiển thị chính --- */}
+        {/* --- Khu vực hiển thị chính (Vòng tròn) --- */}
         <div className="avatar-display-area">
           {/* 1. Giao diện Crop */}
           {imageSrc && (
@@ -311,26 +310,27 @@ const AvatarUploader = ({
 
           {/* 2. Ảnh cuối cùng (khi không crop) */}
           {!imageSrc && displayImageUrl && (
-            <div className="final-avatar-container">
+            <div
+              className="final-avatar-container"
+              onClick={triggerFileInput}
+              role="button"
+              tabIndex="0"
+              aria-label="Nhấn để thay đổi ảnh"
+            >
               <img
                 src={displayImageUrl}
                 alt="Ảnh đại diện"
                 className="final-avatar-preview"
-                onError={() => {
-                  setDisplayImageUrl(null);
+                onError={(e) => {
+                  console.error("Failed to load image for cropping.", e);
+                  const msg = "Không thể tải ảnh để cắt.";
+                  setError(msg);
+                  onError(msg); // Gọi callback lỗi cho cha
+                  setImageSrc(null); // Ẩn crop UI
+                  setDisplayImageUrl(initialImageUrl || null); // Hiển thị lại ảnh cũ
                 }}
               />
-              {/* Nút thay đổi ảnh dạng overlay */}
-              <button
-                type="button"
-                onClick={triggerFileInput}
-                className="uploader-button change-button overlay-button"
-                disabled={isLoading}
-                aria-label="Thay đổi ảnh đại diện"
-                title="Thay đổi ảnh đại diện"
-              >
-                <FontAwesomeIcon icon={faCamera} />
-              </button>
+              {/* Không còn nút overlay ở đây */}
             </div>
           )}
 
@@ -352,7 +352,7 @@ const AvatarUploader = ({
                   e.stopPropagation();
                   triggerFileInput();
                 }}
-                className="uploader-button select-button-placeholder" // Class riêng
+                className="uploader-button select-button-placeholder"
                 disabled={isLoading}
                 aria-label="Chọn ảnh đại diện"
               >
@@ -362,40 +362,59 @@ const AvatarUploader = ({
           )}
         </div>{" "}
         {/* Kết thúc avatar-display-area */}
-        {/* --- Khu vực nút bấm và lỗi --- */}
-        {/* Nút bấm khi đang crop */}
-        {imageSrc && (
-          <div className="avatar-uploader-actions crop-actions">
+        {/* --- Khu vực nút bấm (Nằm bên dưới khu vực hiển thị) --- */}
+        <div className="avatar-uploader-actions">
+          {/* Nút bấm khi đang crop */}
+          {imageSrc && (
+            <>
+              {" "}
+              {/* Dùng Fragment để nhóm nút crop */}
+              <button
+                type="button"
+                onClick={handleSaveCroppedImage}
+                className="uploader-button save-button"
+                disabled={
+                  isLoading || !completedCrop?.width || !completedCrop?.height
+                }
+                aria-label="Xác nhận cắt và tải ảnh lên media service"
+              >
+                {isLoading ? (
+                  <>
+                    <FontAwesomeIcon icon={faSpinner} spin /> Đang tải lên...
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faUpload} /> Xác nhận ảnh
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelCrop}
+                className="uploader-button cancel-button"
+                disabled={isLoading}
+                aria-label="Hủy bỏ cắt ảnh"
+              >
+                <FontAwesomeIcon icon={faTimes} /> Hủy bỏ
+              </button>
+            </>
+          )}
+
+          {/* Nút Thay đổi ảnh (hiển thị khi có ảnh và KHÔNG đang crop) */}
+          {!imageSrc && displayImageUrl && (
             <button
               type="button"
-              onClick={handleSaveCroppedImage}
-              className="uploader-button save-button"
-              disabled={
-                isLoading || !completedCrop?.width || !completedCrop?.height
-              }
-              aria-label="Xác nhận cắt và tải ảnh lên media service"
-            >
-              {isLoading ? (
-                <>
-                  <FontAwesomeIcon icon={faSpinner} spin /> Đang tải lên...
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon icon={faUpload} /> Xác nhận ảnh
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={handleCancelCrop}
-              className="uploader-button cancel-button"
+              onClick={triggerFileInput}
+              className="uploader-button change-button" /* Class mới cho nút này */
               disabled={isLoading}
-              aria-label="Hủy bỏ cắt ảnh"
+              aria-label="Thay đổi ảnh đại diện"
+              title="Thay đổi ảnh đại diện"
             >
-              <FontAwesomeIcon icon={faTimes} /> Hủy bỏ
+              <FontAwesomeIcon icon={faCamera} /> Thay đổi ảnh
             </button>
-          </div>
-        )}
+          )}
+        </div>{" "}
+        {/* Kết thúc avatar-uploader-actions */}
         {/* Input File ẩn */}
         <input
           type="file"
