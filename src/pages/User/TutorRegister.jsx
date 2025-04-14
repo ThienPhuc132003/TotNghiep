@@ -129,7 +129,6 @@ const TutorRegistrationForm = () => {
       ) {
         setFormData((prev) => ({ ...prev, [identifier]: url }));
       } else if (identifier in formData) {
-        // Handle other identifiers if necessary, though currently only evidence uses this
         setFormData((prev) => ({ ...prev, [identifier]: url }));
       } else {
         console.warn("Unknown file identifier for generic upload:", identifier);
@@ -154,11 +153,10 @@ const TutorRegistrationForm = () => {
 
   const removeSubjectSlot = useCallback(
     (subjectIndexToRemove) => {
-      const keySuffix = subjectIndexToRemove === 1 ? "" : subjectIndexToRemove; // Handle index 1 having no suffix
+      const keySuffix = subjectIndexToRemove === 1 ? "" : subjectIndexToRemove;
       const subjectIdKey = `subjectId${keySuffix}`;
       const evidenceKey = `evidenceOfSubject${keySuffix}`;
       const descriptionKey = `descriptionOfSubject${keySuffix}`;
-
       const resetFields = {
         [subjectIdKey]: "",
         [evidenceKey]: "",
@@ -169,12 +167,9 @@ const TutorRegistrationForm = () => {
         [evidenceKey]: undefined,
         [descriptionKey]: undefined,
       };
-
       setFormData((prev) => ({ ...prev, ...resetFields }));
       setFieldErrors((prev) => ({ ...prev, ...resetFieldErrors }));
-      setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" })); // Reset specific upload error
-
-      // Shift data up if subject 2 is removed and subject 3 exists
+      setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" }));
       if (subjectIndexToRemove === 2 && numberOfSubjects === 3) {
         const dataToMove = {
           subjectId2: formData.subjectId3,
@@ -187,8 +182,6 @@ const TutorRegistrationForm = () => {
           descriptionOfSubject2: fieldErrors.descriptionOfSubject3,
         };
         const fileErrorToMove = fileUploadErrors["evidenceOfSubject3"];
-
-        // Reset subject 3 fields after moving
         const resetSubject3 = {
           subjectId3: "",
           evidenceOfSubject3: "",
@@ -199,7 +192,6 @@ const TutorRegistrationForm = () => {
           evidenceOfSubject3: undefined,
           descriptionOfSubject3: undefined,
         };
-
         setFormData((prev) => ({ ...prev, ...dataToMove, ...resetSubject3 }));
         setFieldErrors((prev) => ({
           ...prev,
@@ -212,7 +204,6 @@ const TutorRegistrationForm = () => {
           evidenceOfSubject3: "",
         }));
       }
-      // Decrement count last
       setNumberOfSubjects((prev) => prev - 1);
     },
     [numberOfSubjects, formData, fieldErrors, fileUploadErrors]
@@ -610,11 +601,10 @@ const TutorRegistrationForm = () => {
     }
     // Subjects validation
     const validateSubject = (index) => {
-      const suffix = index > 1 ? index : "";
+      const suffix = index === 1 ? "" : index; // Adjust suffix for index 1
       const subjectIdKey = `subjectId${suffix}`;
       const evidenceKey = `evidenceOfSubject${suffix}`;
       let subjectHasError = false;
-      // Only validate if the subject slot is intended (based on numberOfSubjects)
       if (index <= numberOfSubjects) {
         if (!formData[subjectIdKey]) {
           errors[subjectIdKey] = `Vui lòng chọn môn học ${index}.`;
@@ -633,8 +623,8 @@ const TutorRegistrationForm = () => {
       return subjectHasError;
     };
     if (validateSubject(1)) isValid = false;
-    if (validateSubject(2)) isValid = false; // Validate even if not filled, if numberOfSubjects >= 2
-    if (validateSubject(3)) isValid = false; // Validate even if not filled, if numberOfSubjects === 3
+    if (validateSubject(2)) isValid = false;
+    if (validateSubject(3)) isValid = false;
 
     // Availability validation
     let hasSelectedDay = false;
@@ -696,8 +686,7 @@ const TutorRegistrationForm = () => {
           Object.values(errors).find((e) => e) ||
           "Vui lòng kiểm tra lại thông tin."
       );
-    } // Find first error message
-    else {
+    } else {
       setFormError("");
     }
     console.log("Validation Result:", isValid, errors);
@@ -713,7 +702,7 @@ const TutorRegistrationForm = () => {
     avatarUploadError,
   ]);
 
-  // --- Handle Submit (Gửi dữ liệu theo cấu trúc JSON mẫu - Flat Subjects, dateTimeLearn Array) ---
+  // --- Handle Submit (Gửi dưới dạng application/json) ---
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -737,86 +726,64 @@ const TutorRegistrationForm = () => {
       }
 
       setIsLoading(true);
-      const registrationFormData = new FormData();
 
-      // === Append data matching the SAMPLE JSON structure ===
+      // === TẠO OBJECT DỮ LIỆU ===
+      const registrationData = {
+        fullname: formData.fullname,
+        majorId: formData.majorId,
+        birthday: formData.birthday,
+        gender: formData.gender,
+        bankNumber: formData.bankNumber,
+        bankName: formData.bankName,
+        description: formData.description || "",
+        univercity: formData.univercity,
+        // Parse GPA và teachingTime thành số
+        GPA: parseFloat(formData.GPA) || 0,
+        teachingTime: parseFloat(formData.teachingTime) || 0,
+        teachingMethod: formData.teachingMethod,
+        // Gửi isUseCurriculumn dưới dạng boolean
+        isUseCurriculumn: formData.isUseCurriculumn,
+        avatar: formData.avatar || null, // Gửi URL hoặc null nếu không có
+      };
 
-      // 1. Basic Info (Appending strings, numbers, boolean as needed by backend)
-      registrationFormData.append("fullname", formData.fullname);
-      registrationFormData.append("majorId", formData.majorId);
-      registrationFormData.append("birthday", formData.birthday);
-      registrationFormData.append("gender", formData.gender);
-      registrationFormData.append("bankNumber", formData.bankNumber);
-      registrationFormData.append("bankName", formData.bankName);
-      registrationFormData.append("description", formData.description || "");
-      registrationFormData.append("univercity", formData.univercity);
-      registrationFormData.append("GPA", formData.GPA); // Send GPA as string
-      registrationFormData.append(
-        "teachingTime",
-        String(formData.teachingTime)
-      ); // Send teachingTime as string
-      if (formData.evidenceOfGPA) {
-        registrationFormData.append("evidenceOfGPA", formData.evidenceOfGPA);
+      // Thêm các trường tùy chọn nếu có giá trị
+      if (formData.evidenceOfGPA)
+        registrationData.evidenceOfGPA = formData.evidenceOfGPA;
+      if (formData.videoUrl) registrationData.videoUrl = formData.videoUrl;
+      // Chỉ thêm teachingPlace nếu phương thức không phải ONLINE
+      if (formData.teachingMethod !== "ONLINE" && formData.teachingPlace) {
+        registrationData.teachingPlace = formData.teachingPlace;
       }
-      if (formData.videoUrl) {
-        registrationFormData.append("videoUrl", formData.videoUrl);
-      }
-      registrationFormData.append("teachingMethod", formData.teachingMethod);
-      if (formData.teachingPlace) {
-        registrationFormData.append("teachingPlace", formData.teachingPlace);
-      }
-      registrationFormData.append(
-        "isUseCurriculumn",
-        String(formData.isUseCurriculumn)
-      ); // Send boolean as "true"/"false" string
-      if (formData.avatar) {
-        registrationFormData.append("avatar", formData.avatar);
-      } // Send Avatar URL
 
-      // 2. Subjects (Append individual fields based on sample)
+      // Thêm môn học (trường phẳng, kiểm tra tồn tại)
       if (formData.subjectId && formData.evidenceOfSubject) {
-        registrationFormData.append("subjectId", formData.subjectId);
-        registrationFormData.append(
-          "evidenceOfSubject",
-          formData.evidenceOfSubject
-        );
-        registrationFormData.append(
-          "descriptionOfSubject",
-          formData.descriptionOfSubject || ""
-        );
+        registrationData.subjectId = formData.subjectId;
+        registrationData.evidenceOfSubject = formData.evidenceOfSubject;
+        registrationData.descriptionOfSubject =
+          formData.descriptionOfSubject || "";
       }
       if (
         numberOfSubjects >= 2 &&
         formData.subjectId2 &&
         formData.evidenceOfSubject2
       ) {
-        registrationFormData.append("subjectId2", formData.subjectId2);
-        registrationFormData.append(
-          "evidenceOfSubject2",
-          formData.evidenceOfSubject2
-        );
-        registrationFormData.append(
-          "descriptionOfSubject2",
-          formData.descriptionOfSubject2 || ""
-        );
+        registrationData.subjectId2 = formData.subjectId2;
+        registrationData.evidenceOfSubject2 = formData.evidenceOfSubject2;
+        registrationData.descriptionOfSubject2 =
+          formData.descriptionOfSubject2 || "";
       }
       if (
         numberOfSubjects >= 3 &&
         formData.subjectId3 &&
         formData.evidenceOfSubject3
       ) {
-        registrationFormData.append("subjectId3", formData.subjectId3);
-        registrationFormData.append(
-          "evidenceOfSubject3",
-          formData.evidenceOfSubject3
-        );
-        registrationFormData.append(
-          "descriptionOfSubject3",
-          formData.descriptionOfSubject3 || ""
-        );
+        registrationData.subjectId3 = formData.subjectId3;
+        registrationData.evidenceOfSubject3 = formData.evidenceOfSubject3;
+        registrationData.descriptionOfSubject3 =
+          formData.descriptionOfSubject3 || "";
       }
 
-      // 3. Availability (Append as 'dateTimeLearn' with Array structure)
+      // Thêm lịch rảnh (mảng object)
       const dateTimeLearnArray = [];
       daysOfWeek.forEach((day) => {
         const dayData = availability[day];
@@ -827,26 +794,22 @@ const TutorRegistrationForm = () => {
           }
         }
       });
-      registrationFormData.append(
-        "dateTimeLearn",
-        JSON.stringify(dateTimeLearnArray)
-      ); // Append JSON string of the array
+      registrationData.dateTimeLearn = dateTimeLearnArray; // Gán mảng trực tiếp
 
-      // === End Appending Data ===
+      console.log("--- Submitting JSON Data ---");
+      console.log(JSON.stringify(registrationData, null, 2)); // Log object JSON sẽ gửi
 
-      console.log(
-        "--- Submitting FormData (Structured as Sample - Flat Subjects, dateTimeLearn Array) ---"
-      );
-      for (let pair of registrationFormData.entries()) {
-        console.log(pair[0] + ": ", pair[1]);
-      }
-
-      // --- API Call ---
+      // --- API Call (Gửi JSON, set header) ---
       try {
         const response = await Api({
-          endpoint: "tutor-request/regis-to-tutor", // <<< CHECK YOUR ENDPOINT
+          endpoint: "tutor-request/regis-to-tutor", // <<< KIỂM TRA LẠI ENDPOINT NÀY
           method: METHOD_TYPE.POST,
-          data: registrationFormData,
+          data: registrationData, // <<< Gửi object JS
+          headers: {
+            "Content-Type": "application/json", // <<< Đặt header
+            // Thêm header Authorization nếu API yêu cầu
+            // 'Authorization': `Bearer ${your_token}`
+          },
         });
         if (response.success === true) {
           setSuccess("Đăng ký thành công! Hồ sơ của bạn sẽ được xét duyệt.");
@@ -864,7 +827,19 @@ const TutorRegistrationForm = () => {
           apiError.response?.data?.message ||
           apiError.message ||
           "Đã xảy ra lỗi trong quá trình đăng ký.";
-        setFormError(errorMessage);
+        if (apiError.response?.data?.errors) {
+          console.error(
+            "Server Validation Errors:",
+            apiError.response.data.errors
+          );
+          setFormError(
+            `${errorMessage}. Chi tiết: ${JSON.stringify(
+              apiError.response.data.errors
+            )}`
+          );
+        } else {
+          setFormError(errorMessage);
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       } finally {
         setIsLoading(false);
@@ -891,8 +866,7 @@ const TutorRegistrationForm = () => {
   // --- Render Subject Section ---
   const renderSubjectSection = useCallback(
     (index) => {
-      // Adjust suffix handling for index 1
-      const suffix = index === 1 ? "" : index;
+      const suffix = index === 1 ? "" : index; // Handle index 1 having no suffix
       const subjectIdKey = `subjectId${suffix}`;
       const evidenceKey = `evidenceOfSubject${suffix}`;
       const descriptionKey = `descriptionOfSubject${suffix}`;
