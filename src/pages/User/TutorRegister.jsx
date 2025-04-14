@@ -1,19 +1,19 @@
 /* eslint-disable react/no-unescaped-entities */
 // src/pages/User/TutorRegistrationForm.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-// import { useNavigate } from "react-router-dom"; // Bỏ comment nếu bạn cần chuyển hướng sau khi thành công
-import Api from "../../network/Api"; // API helper của bạn
-import { METHOD_TYPE } from "../../network/methodType"; // Method types
-import "../../assets/css/TutorRegister.style.css"; // CSS cho trang này
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Layout trang
-import GenericFileUploader from "../../components/GenericFileUploader"; // Component upload file chung
-import BankList from "../../components/Static_Data/BankList"; // Component danh sách ngân hàng
-import MajorList from "../../components/Static_Data/MajorList"; // Component danh sách ngành học
-import SubjectList from "../../components/Static_Data/SubjectList"; // Component danh sách môn học
-import AvatarDisplay from "../../components/AvatarDisplay"; // Component hiển thị Avatar
-import ImageCropModal from "../../components/ImageCropModal"; // Component Modal Crop
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // FontAwesome
-import { faSpinner } from "@fortawesome/free-solid-svg-icons"; // Icon Spinner
+// import { useNavigate } from "react-router-dom";
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import "../../assets/css/TutorRegister.style.css";
+import HomePageLayout from "../../components/User/layout/HomePageLayout";
+import GenericFileUploader from "../../components/GenericFileUploader";
+import BankList from "../../components/Static_Data/BankList";
+import MajorList from "../../components/Static_Data/MajorList";
+import SubjectList from "../../components/Static_Data/SubjectList";
+import AvatarDisplay from "../../components/AvatarDisplay";
+import ImageCropModal from "../../components/ImageCropModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 // --- Constants ---
 const daysOfWeek = [
@@ -28,7 +28,7 @@ const daysOfWeek = [
 const MEDIA_CATEGORIES = {
   SUBJECT_PROOF: "tutor_subject_proof",
   GPA_PROOF: "tutor_gpa_proof",
-  TUTOR_AVATAR: "TUTOR_AVATAR", // Category cho avatar gia sư
+  TUTOR_AVATAR: "TUTOR_AVATAR",
 };
 const teachingTimeOptions = [];
 for (let h = 1; h <= 3; h += 0.25) {
@@ -47,12 +47,12 @@ const formatTeachingTime = (hours) => {
 
 const TutorRegistrationForm = () => {
   // --- States ---
-  const [isLoading, setIsLoading] = useState(false); // Loading chung khi submit form
-  const [formError, setFormError] = useState(""); // Lỗi chung của form
-  const [success, setSuccess] = useState(""); // Thông báo thành công submit form
-  const [fieldErrors, setFieldErrors] = useState({}); // Lỗi cụ thể của từng field
-  const [fileUploadErrors, setFileUploadErrors] = useState({}); // Lỗi upload file (cho GenericFileUploader)
-  const [numberOfSubjects, setNumberOfSubjects] = useState(1); // Số lượng môn học đăng ký
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [fileUploadErrors, setFileUploadErrors] = useState({});
+  const [numberOfSubjects, setNumberOfSubjects] = useState(1);
   const [formData, setFormData] = useState({
     fullname: "",
     majorId: "",
@@ -60,24 +60,24 @@ const TutorRegistrationForm = () => {
     gender: "MALE",
     bankNumber: "",
     bankName: "",
-    avatar: "", // *** Sẽ chứa mediaUrl sau khi upload thành công ***
+    avatar: "",
     description: "",
-    univercity: "Đại học Văn Lang", // Mặc định
+    univercity: "Đại học Văn Lang",
     GPA: "",
-    evidenceOfGPA: "", // URL minh chứng GPA
-    teachingTime: 2, // Mặc định 2 giờ
+    evidenceOfGPA: "",
+    teachingTime: 2,
     videoUrl: "",
-    teachingMethod: "ONLINE", // Mặc định online
+    teachingMethod: "ONLINE",
     teachingPlace: "",
     isUseCurriculumn: false,
     subjectId: "",
-    evidenceOfSubject: "", // URL minh chứng môn 1
+    evidenceOfSubject: "",
     descriptionOfSubject: "",
     subjectId2: "",
-    evidenceOfSubject2: "", // URL minh chứng môn 2
+    evidenceOfSubject2: "",
     descriptionOfSubject2: "",
     subjectId3: "",
-    evidenceOfSubject3: "", // URL minh chứng môn 3
+    evidenceOfSubject3: "",
     descriptionOfSubject3: "",
   });
   const [availability, setAvailability] = useState(
@@ -89,31 +89,23 @@ const TutorRegistrationForm = () => {
   const [timeErrors, setTimeErrors] = useState(
     daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: null }), {})
   );
-
-  // --- State mới cho quản lý Avatar trong form đăng ký ---
   const [isUploadingRegistrationAvatar, setIsUploadingRegistrationAvatar] =
-    useState(false); // Loading riêng cho upload avatar
-  const [avatarUploadError, setAvatarUploadError] = useState(""); // Lỗi riêng cho upload avatar
-  const [avatarUploadSuccess, setAvatarUploadSuccess] = useState(""); // Thành công upload avatar
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(null); // URL xem trước (blob URL tạm thời hoặc URL từ server)
-  const [isCropModalOpen, setIsCropModalOpen] = useState(false); // State mở/đóng modal crop
-  const [imageToCrop, setImageToCrop] = useState(null); // Data URL ảnh gốc cho modal
+    useState(false);
+  const [avatarUploadError, setAvatarUploadError] = useState("");
+  const [avatarUploadSuccess, setAvatarUploadSuccess] = useState("");
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const fileInputRef = useRef(null);
+  // const navigate = useNavigate();
 
-  // --- Refs ---
-  const fileInputRef = useRef(null); // Ref cho input file ẩn của avatar
-  // const navigate = useNavigate(); // Bỏ comment nếu bạn dùng react-router-dom để chuyển hướng
-
-  // --- Fetch Data (nếu có draft) ---
+  // --- Effects (Fetch Data, Cleanup URL) ---
   useEffect(() => {
-    // Nếu bạn có chức năng lưu draft và load lại, fetch dữ liệu ở đây
-    // Ví dụ: fetchTutorDraft().then(draftData => { setFormData(draftData); setAvatarPreviewUrl(draftData.avatar); ... });
-    // Nếu load draft, cần cập nhật cả avatarPreviewUrl từ formData.avatar
     if (formData.avatar && !avatarPreviewUrl) {
       setAvatarPreviewUrl(formData.avatar);
     }
-  }, [formData.avatar, avatarPreviewUrl]); // Thêm dependency
+  }, [formData.avatar, avatarPreviewUrl]);
 
-  // --- Giải phóng Object URL khi component unmount hoặc URL thay đổi ---
   useEffect(() => {
     const currentPreviewUrl = avatarPreviewUrl;
     return () => {
@@ -124,7 +116,7 @@ const TutorRegistrationForm = () => {
     };
   }, [avatarPreviewUrl]);
 
-  // --- Callbacks Upload File (CHO CÁC FILE KHÁC AVATAR) ---
+  // --- Callbacks Upload File (Generic) ---
   const handleUploadComplete = useCallback(
     (url, identifier) => {
       console.log(`Upload Complete: id=${identifier}, url=${url}`);
@@ -146,7 +138,7 @@ const TutorRegistrationForm = () => {
     setFieldErrors((prev) => ({ ...prev, [identifier]: userMsg }));
   }, []);
 
-  // --- Handler Thêm/Bớt Môn Học ---
+  // --- Handlers Subjects ---
   const addSubjectSlot = useCallback(() => {
     if (numberOfSubjects < 3) {
       setNumberOfSubjects((prev) => prev + 1);
@@ -162,7 +154,6 @@ const TutorRegistrationForm = () => {
         `descriptionOfSubject${keySuffix}`,
       ];
       const evidenceKey = `evidenceOfSubject${keySuffix}`;
-
       const resetFields = keysToReset.reduce(
         (acc, key) => ({ ...acc, [key]: "" }),
         {}
@@ -171,11 +162,9 @@ const TutorRegistrationForm = () => {
         (acc, key) => ({ ...acc, [key]: undefined }),
         {}
       );
-
       setFormData((prev) => ({ ...prev, ...resetFields }));
       setFieldErrors((prev) => ({ ...prev, ...resetFieldErrors }));
       setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" }));
-
       if (subjectIndexToRemove === 2 && numberOfSubjects === 3) {
         const dataToMove = {
           subjectId2: formData.subjectId3,
@@ -188,7 +177,6 @@ const TutorRegistrationForm = () => {
           descriptionOfSubject2: fieldErrors.descriptionOfSubject3,
         };
         const fileErrorToMove = fileUploadErrors["evidenceOfSubject3"];
-
         setFormData((prev) => ({
           ...prev,
           ...dataToMove,
@@ -214,7 +202,7 @@ const TutorRegistrationForm = () => {
     [numberOfSubjects, formData, fieldErrors, fileUploadErrors]
   );
 
-  // --- Handlers Lịch Rảnh ---
+  // --- Handlers Availability ---
   const getTeachingTimeMinutes = useCallback(() => {
     const time = parseFloat(formData.teachingTime);
     return !isNaN(time) && time > 0 ? Math.round(time * 60) : 120;
@@ -279,7 +267,7 @@ const TutorRegistrationForm = () => {
     return !hasAnyError;
   }, [availability, getTeachingTimeMinutes, validateTimeSlotsForDay]);
 
-  // --- Handler Input Thường ---
+  // --- Handler Input Change (Generic) ---
   const handleInputChange = useCallback(
     (name, value) => {
       let processedValue = value;
@@ -328,7 +316,7 @@ const TutorRegistrationForm = () => {
     [fieldErrors, formData, formError, validateAllAvailability]
   );
 
-  // --- Các Handlers Lịch Rảnh khác ---
+  // --- Handlers Availability (Toggle, Add, Remove, Change Time) ---
   const handleDayToggle = useCallback(
     (day) => {
       const isSelected = !availability[day].isSelected;
@@ -423,7 +411,7 @@ const TutorRegistrationForm = () => {
     ]
   );
 
-  // --- Logic xử lý Avatar (Chọn, Mở Modal Crop) ---
+  // --- Handlers Avatar (Trigger Input, Select File) ---
   const handleTriggerAvatarInput = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
@@ -439,15 +427,13 @@ const TutorRegistrationForm = () => {
           ...prev,
           avatar: "Vui lòng chọn một file ảnh hợp lệ.",
         }));
-        setAvatarUploadError("Vui lòng chọn một file ảnh hợp lệ."); // Cập nhật lỗi riêng
+        setAvatarUploadError("Vui lòng chọn một file ảnh hợp lệ.");
         return;
       }
-      // Xóa lỗi cũ
       setFieldErrors((prev) => ({ ...prev, avatar: undefined }));
       setAvatarUploadError("");
       setAvatarUploadSuccess("");
       if (formError) setFormError("");
-
       const reader = new FileReader();
       reader.onload = () => {
         setImageToCrop(reader.result);
@@ -464,29 +450,24 @@ const TutorRegistrationForm = () => {
     [formError]
   );
 
-  // --- Logic xử lý Avatar (Sau khi Crop: Upload NGAY, Lưu URL vào State) ---
+  // --- Handler Avatar (Save Crop -> Upload -> Save URL) ---
   const handleCropSaveForRegistration = useCallback(
     async (croppedImageBlob) => {
-      setIsCropModalOpen(false); // Đóng modal ngay
+      setIsCropModalOpen(false);
       if (!croppedImageBlob) {
-        setImageToCrop(null); // Dọn dẹp nếu không có blob
+        setImageToCrop(null);
         return;
       }
-
-      setIsUploadingRegistrationAvatar(true); // *** BẮT ĐẦU UPLOAD ***
-      setAvatarUploadError(""); // Xóa lỗi upload cũ
-      setAvatarUploadSuccess(""); // Xóa thông báo thành công cũ
-      setFieldErrors((prev) => ({ ...prev, avatar: undefined })); // Xóa lỗi validation avatar cũ
-      setFormError(""); // Xóa lỗi form chung
-
+      setIsUploadingRegistrationAvatar(true);
+      setAvatarUploadError("");
+      setAvatarUploadSuccess("");
+      setFieldErrors((prev) => ({ ...prev, avatar: undefined }));
+      setFormError("");
       let finalUrl = null;
-
       try {
-        // ----- BẮT ĐẦU LOGIC UPLOAD -----
-        // 1. Lấy tên file
         const fileNameResponse = await Api({
           endpoint: "media/media-url",
-          query: { mediaCategory: MEDIA_CATEGORIES.TUTOR_AVATAR }, // Sử dụng category đã định nghĩa
+          query: { mediaCategory: MEDIA_CATEGORIES.TUTOR_AVATAR },
           method: METHOD_TYPE.GET,
         });
         if (!fileNameResponse?.success || !fileNameResponse?.data?.fileName) {
@@ -495,70 +476,57 @@ const TutorRegistrationForm = () => {
           );
         }
         const fileName = fileNameResponse.data.fileName;
-
-        // 2. Tạo FormData để upload ảnh
         const uploadFormData = new FormData();
-        uploadFormData.append("file", croppedImageBlob, `${fileName}.jpeg`); // Đặt tên file
-
-        // 3. Gọi API Upload ảnh
+        uploadFormData.append("file", croppedImageBlob, `${fileName}.jpeg`);
         const uploadResponse = await Api({
           endpoint: `media/upload-media`,
           query: { mediaCategory: MEDIA_CATEGORIES.TUTOR_AVATAR, fileName },
           method: METHOD_TYPE.POST,
           data: uploadFormData,
         });
-
         if (!uploadResponse?.success || !uploadResponse?.data?.mediaUrl) {
           throw new Error(
             uploadResponse?.message || "Upload ảnh đại diện thất bại."
           );
         }
-        finalUrl = uploadResponse.data.mediaUrl; // *** LẤY ĐƯỢC URL ***
-        // ----- KẾT THÚC LOGIC UPLOAD -----
-
-        // Cập nhật state formData với URL thật
+        finalUrl = uploadResponse.data.mediaUrl;
         setFormData((prev) => ({ ...prev, avatar: finalUrl }));
-
-        // Cập nhật URL xem trước (bằng URL thật)
         if (avatarPreviewUrl && avatarPreviewUrl.startsWith("blob:")) {
           URL.revokeObjectURL(avatarPreviewUrl);
         }
-        setAvatarPreviewUrl(finalUrl); // Hiển thị ảnh từ URL server
-
-        setImageToCrop(null); // Dọn dẹp ảnh gốc
-        setAvatarUploadSuccess("Upload ảnh đại diện thành công!"); // Thông báo thành công
+        setAvatarPreviewUrl(finalUrl);
+        setImageToCrop(null);
+        setAvatarUploadSuccess("Upload ảnh đại diện thành công!");
       } catch (error) {
         console.error("Lỗi upload ảnh đại diện khi đăng ký:", error);
-        setFormData((prev) => ({ ...prev, avatar: "" })); // Đảm bảo avatar rỗng trong form
-        setAvatarPreviewUrl(null); // Xóa ảnh preview
+        setFormData((prev) => ({ ...prev, avatar: "" }));
+        setAvatarPreviewUrl(null);
         const errorMsg = `Lỗi upload: ${error.message || "Không xác định"}`;
-        setAvatarUploadError(errorMsg); // Set lỗi riêng cho avatar
-        setFieldErrors((prev) => ({ ...prev, avatar: errorMsg })); // Set lỗi field để validateForm biết
+        setAvatarUploadError(errorMsg);
+        setFieldErrors((prev) => ({ ...prev, avatar: errorMsg }));
       } finally {
-        setIsUploadingRegistrationAvatar(false); // *** KẾT THÚC UPLOAD ***
+        setIsUploadingRegistrationAvatar(false);
       }
     },
-    [avatarPreviewUrl] // Phụ thuộc vào avatarPreviewUrl để revoke
+    [avatarPreviewUrl]
   );
 
-  // --- Hàm đóng modal Crop ---
+  // --- Handler Avatar (Close Crop Modal) ---
   const handleCloseCropModal = useCallback(() => {
-    // Chỉ cho phép đóng nếu không đang xử lý upload
     if (!isUploadingRegistrationAvatar) {
       setIsCropModalOpen(false);
-      setImageToCrop(null); // Dọn dẹp ảnh gốc
+      setImageToCrop(null);
     }
-  }, [isUploadingRegistrationAvatar]); // Phụ thuộc state loading mới
+  }, [isUploadingRegistrationAvatar]);
 
-  // --- Hàm Validate Form Tổng Thể ---
+  // --- Validate Form ---
   const validateForm = useCallback(() => {
     let isValid = true;
     let errors = {};
     const minInterval = getTeachingTimeMinutes();
     const teachingHoursLabel =
       formatTeachingTime(formData.teachingTime) || "2h";
-
-    // --- Validate các trường cơ bản ---
+    // Basic fields validation
     if (!formData.fullname.trim()) {
       errors.fullname = "Vui lòng nhập họ tên.";
       isValid = false;
@@ -600,8 +568,7 @@ const TutorRegistrationForm = () => {
       isValid = false;
     }
     if (formData.videoUrl && !/^https?:\/\/.+/.test(formData.videoUrl)) {
-      errors.videoUrl =
-        "URL video không hợp lệ (bắt đầu bằng http:// hoặc https://).";
+      errors.videoUrl = "URL video không hợp lệ.";
       isValid = false;
     }
     if (
@@ -612,27 +579,20 @@ const TutorRegistrationForm = () => {
       errors.teachingPlace = "Vui lòng nhập khu vực có thể dạy Offline.";
       isValid = false;
     }
-
-    // --- Validate Avatar ---
-    // Kiểm tra xem formData.avatar có URL hợp lệ không (sau khi upload)
+    // Avatar validation (checks URL and upload errors)
     if (!formData.avatar) {
-      // Nếu URL rỗng
       errors.avatar = "Vui lòng tải và lưu ảnh đại diện.";
       isValid = false;
     } else if (avatarUploadError) {
-      // Kiểm tra nếu có lỗi từ quá trình upload trước đó
-      errors.avatar = avatarUploadError; // Sử dụng lỗi đã lưu
+      errors.avatar = avatarUploadError;
       isValid = false;
     }
-
-    // --- Validate các file upload khác (minh chứng GPA, môn học) ---
+    // Other file uploads validation
     if (fileUploadErrors["evidenceOfGPA"]) {
       errors.evidenceOfGPA = `Minh chứng GPA: ${fileUploadErrors["evidenceOfGPA"]}`;
       isValid = false;
     }
-    // GPA proof không bắt buộc
-
-    // --- Validate môn học ---
+    // Subjects validation
     const validateSubject = (index) => {
       const suffix = index > 1 ? index : "";
       const subjectIdKey = `subjectId${suffix}`;
@@ -656,8 +616,7 @@ const TutorRegistrationForm = () => {
     if (validateSubject(1)) isValid = false;
     if (numberOfSubjects >= 2 && validateSubject(2)) isValid = false;
     if (numberOfSubjects >= 3 && validateSubject(3)) isValid = false;
-
-    // --- Validate Lịch Rảnh ---
+    // Availability validation
     let hasSelectedDay = false;
     let hasAnyValidTime = false;
     let timeValidationError = null;
@@ -680,14 +639,14 @@ const TutorRegistrationForm = () => {
             timeValidationError =
               errorInfo.type === "empty"
                 ? `Vui lòng nhập đầy đủ giờ bắt đầu cho ${dayName}.`
-                : `Giờ dạy ${dayName} không hợp lệ (phải cách nhau ít nhất ${teachingHoursLabel}).`;
+                : `Giờ dạy ${dayName} không hợp lệ (cách nhau ${teachingHoursLabel}).`;
           }
           if (!errorInfo && dayData.times.some((t) => !!t)) {
             hasAnyValidTime = true;
           }
         } else {
           if (!timeValidationError) {
-            timeValidationError = `Vui lòng thêm ít nhất một khung giờ cho Thứ ${
+            timeValidationError = `Vui lòng thêm giờ cho Thứ ${
               day === "Sunday" ? "CN" : daysOfWeek.indexOf(day) + 2
             }.`;
           }
@@ -698,77 +657,70 @@ const TutorRegistrationForm = () => {
     });
     setTimeErrors(currentAvailabilityErrors);
     if (!hasSelectedDay) {
-      errors.availability = "Vui lòng chọn ít nhất một ngày rảnh trong tuần.";
+      errors.availability = "Vui lòng chọn ít nhất một ngày rảnh.";
       isValid = false;
     } else if (!hasAnyValidTime && !timeValidationError) {
-      errors.availability =
-        "Vui lòng thêm ít nhất một khung giờ bắt đầu hợp lệ.";
+      errors.availability = "Vui lòng thêm giờ bắt đầu hợp lệ.";
       isValid = false;
     } else if (timeValidationError) {
       errors.availability = timeValidationError;
       isValid = false;
     }
-
-    // --- Cập nhật state lỗi và trả về kết quả ---
+    // Set errors and return
     setFieldErrors(errors);
     if (!isValid) {
       setFormError(
-        avatarUploadError || // Lỗi upload avatar (nếu có)
-          errors.availability || // Lỗi lịch rảnh
-          errors.avatar || // Lỗi avatar chưa tải
-          Object.values(errors)[0] || // Lỗi đầu tiên khác
-          "Vui lòng kiểm tra lại các thông tin đã nhập."
+        avatarUploadError ||
+          errors.availability ||
+          errors.avatar ||
+          Object.values(errors)[0] ||
+          "Vui lòng kiểm tra lại thông tin."
       );
     } else {
-      setFormError(""); // Xóa lỗi chung nếu form hợp lệ
+      setFormError("");
     }
     console.log("Validation Result:", isValid, errors);
     return isValid;
   }, [
-    formData, // Phụ thuộc formData (chứa avatar URL)
-    fieldErrors, // Để set lỗi mới
+    formData,
     numberOfSubjects,
     fileUploadErrors,
     availability,
     timeErrors,
     getTeachingTimeMinutes,
     validateTimeSlotsForDay,
-    avatarUploadError, // Phụ thuộc lỗi upload avatar
+    avatarUploadError,
   ]);
 
-  // --- Xử lý Submit Form ---
+  // --- Handle Submit ---
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      setFormError(""); // Xóa lỗi cũ
-      setSuccess(""); // Xóa thông báo thành công cũ
-      setAvatarUploadError(""); // Xóa lỗi upload avatar cũ khi submit lại
-      setAvatarUploadSuccess(""); // Xóa thông báo thành công upload cũ
+      setFormError("");
+      setSuccess("");
+      setAvatarUploadError("");
+      setAvatarUploadSuccess("");
 
-      // Kiểm tra: Không cho submit nếu đang upload avatar
       if (isUploadingRegistrationAvatar) {
-        setFormError(
-          "Đang xử lý ảnh đại diện, vui lòng đợi hoàn tất trước khi gửi đăng ký."
-        );
+        setFormError("Đang xử lý ảnh, vui lòng đợi.");
         window.scrollTo({
           top: document.body.scrollHeight,
           behavior: "smooth",
-        }); // Cuộn xuống cuối xem lỗi
+        });
         return;
       }
 
-      // Validate trước khi gửi
       if (!validateForm()) {
-        window.scrollTo({ top: 0, behavior: "smooth" }); // Cuộn lên đầu trang để xem lỗi
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
-      setIsLoading(true); // Bắt đầu loading submit form chính
-
-      // ---- Tạo FormData để gửi lên server ----
+      setIsLoading(true);
       const registrationFormData = new FormData();
 
-      // 1. Append các trường dữ liệu thông thường
+      // === Append data matching the SAMPLE JSON structure ===
+
+      // 1. Basic Info
       registrationFormData.append("fullname", formData.fullname);
       registrationFormData.append("majorId", formData.majorId);
       registrationFormData.append("birthday", formData.birthday);
@@ -777,11 +729,17 @@ const TutorRegistrationForm = () => {
       registrationFormData.append("bankName", formData.bankName);
       registrationFormData.append("description", formData.description || "");
       registrationFormData.append("univercity", formData.univercity);
-      registrationFormData.append("GPA", formData.GPA);
+      // Send GPA and teachingTime as numbers (if backend expects numbers directly)
+      // If backend expects strings, keep as is: formData.GPA, formData.teachingTime
+      registrationFormData.append("GPA", parseFloat(formData.GPA) || 0); // Parse to float, default 0
+      registrationFormData.append(
+        "teachingTime",
+        parseFloat(formData.teachingTime) || 0
+      ); // Parse to float, default 0
+
       if (formData.evidenceOfGPA) {
         registrationFormData.append("evidenceOfGPA", formData.evidenceOfGPA);
       }
-      registrationFormData.append("teachingTime", formData.teachingTime);
       if (formData.videoUrl) {
         registrationFormData.append("videoUrl", formData.videoUrl);
       }
@@ -789,73 +747,100 @@ const TutorRegistrationForm = () => {
       if (formData.teachingPlace) {
         registrationFormData.append("teachingPlace", formData.teachingPlace);
       }
+      // Send isUseCurriculumn as boolean (if backend expects boolean directly)
+      // If backend expects string "true"/"false", use String(formData.isUseCurriculumn)
       registrationFormData.append(
         "isUseCurriculumn",
-        String(formData.isUseCurriculumn)
-      );
+        formData.isUseCurriculumn
+      ); // Send boolean
 
-      // *** Append URL avatar từ formData ***
       if (formData.avatar) {
-        // Chỉ append nếu có URL
         registrationFormData.append("avatar", formData.avatar);
       }
 
-      // 2. Append thông tin môn học (JSON string)
-      const subjects = [];
-      const addSubjectData = (index) => {
-        const suffix = index > 1 ? index : "";
-        const subjectIdKey = `subjectId${suffix}`;
-        const evidenceKey = `evidenceOfSubject${suffix}`;
-        const descriptionKey = `descriptionOfSubject${suffix}`;
-        if (formData[subjectIdKey] && formData[evidenceKey]) {
-          subjects.push({
-            subjectId: formData[subjectIdKey],
-            evidence: formData[evidenceKey],
-            description: formData[descriptionKey] || "",
-          });
-        }
-      };
-      addSubjectData(1);
-      if (numberOfSubjects >= 2) addSubjectData(2);
-      if (numberOfSubjects >= 3) addSubjectData(3);
-      registrationFormData.append("subjects", JSON.stringify(subjects));
+      // 2. Subjects (Append individual fields based on sample)
+      if (formData.subjectId && formData.evidenceOfSubject) {
+        registrationFormData.append("subjectId", formData.subjectId);
+        registrationFormData.append(
+          "evidenceOfSubject",
+          formData.evidenceOfSubject
+        ); // URL from GenericFileUploader
+        registrationFormData.append(
+          "descriptionOfSubject",
+          formData.descriptionOfSubject || ""
+        );
+      }
+      if (
+        numberOfSubjects >= 2 &&
+        formData.subjectId2 &&
+        formData.evidenceOfSubject2
+      ) {
+        registrationFormData.append("subjectId2", formData.subjectId2);
+        registrationFormData.append(
+          "evidenceOfSubject2",
+          formData.evidenceOfSubject2
+        ); // URL from GenericFileUploader
+        registrationFormData.append(
+          "descriptionOfSubject2",
+          formData.descriptionOfSubject2 || ""
+        );
+      }
+      // Add Subject 3 if it exists and backend supports it (assuming keys follow pattern)
+      if (
+        numberOfSubjects >= 3 &&
+        formData.subjectId3 &&
+        formData.evidenceOfSubject3
+      ) {
+        registrationFormData.append("subjectId3", formData.subjectId3);
+        registrationFormData.append(
+          "evidenceOfSubject3",
+          formData.evidenceOfSubject3
+        ); // URL from GenericFileUploader
+        registrationFormData.append(
+          "descriptionOfSubject3",
+          formData.descriptionOfSubject3 || ""
+        );
+      }
 
-      // 3. Append lịch rảnh (availability - JSON string)
-      const formattedAvailability = daysOfWeek.reduce((acc, day) => {
+      // 3. Availability (Append as dateTimeLearn with Array structure)
+      const dateTimeLearnArray = [];
+      daysOfWeek.forEach((day) => {
         const dayData = availability[day];
         if (dayData.isSelected && dayData.times.length > 0) {
           const validTimes = dayData.times.filter((t) => !!t).sort();
           if (validTimes.length > 0) {
-            acc[day] = validTimes;
+            dateTimeLearnArray.push({
+              day: day, // Keep English day name
+              times: validTimes,
+            });
           }
         }
-        return acc;
-      }, {});
+      });
+      // Append the JSON string of the array with the key 'dateTimeLearn'
       registrationFormData.append(
-        "availability",
-        JSON.stringify(formattedAvailability)
+        "dateTimeLearn",
+        JSON.stringify(dateTimeLearnArray)
       );
 
-      // --- Log dữ liệu FormData trước khi gửi ---
-      console.log("--- Submitting FormData (with Avatar URL) ---");
+      // === End Appending Data ===
+
+      console.log("--- Submitting FormData (Structured as Sample) ---");
       for (let pair of registrationFormData.entries()) {
         console.log(pair[0] + ": ", pair[1]);
       }
 
-      // --- Gọi API ---
+      // --- API Call ---
       try {
         const response = await Api({
           endpoint: "tutor-request/regis-to-tutor",
           method: METHOD_TYPE.POST,
-          data: registrationFormData, // Gửi FormData chứa URL avatar
+          data: registrationFormData, // Send the structured FormData
         });
-
         if (response.success === true) {
           setSuccess("Đăng ký thành công! Hồ sơ của bạn sẽ được xét duyệt.");
-          // Reset form nếu cần
-          // setFormData({...initialFormData}); setAvailability({...initialAvailability}); ...
           window.scrollTo({ top: 0, behavior: "smooth" });
-          // navigate('/success-page'); // Chuyển hướng nếu cần
+          // Optional: Reset form state here
+          // Optional: navigate('/success-page');
         } else {
           throw new Error(
             response.message || "Đăng ký không thành công từ phía máy chủ."
@@ -870,19 +855,19 @@ const TutorRegistrationForm = () => {
         setFormError(errorMessage);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } finally {
-        setIsLoading(false); // Kết thúc loading submit form chính
+        setIsLoading(false);
       }
     },
     [
-      validateForm, // Phụ thuộc validate mới
-      formData, // Phụ thuộc formData (chứa avatar URL)
+      validateForm,
+      formData,
       availability,
       numberOfSubjects,
-      isUploadingRegistrationAvatar, // Phụ thuộc state upload avatar
+      isUploadingRegistrationAvatar, // Include this state
     ]
   );
 
-  // --- Function hiển thị lỗi field ---
+  // --- Render Field Error ---
   const renderFieldError = useCallback(
     (fieldName) => {
       const error = fieldErrors[fieldName];
@@ -891,7 +876,7 @@ const TutorRegistrationForm = () => {
     [fieldErrors]
   );
 
-  // --- Render Subject Input Sections ---
+  // --- Render Subject Section ---
   const renderSubjectSection = useCallback(
     (index) => {
       const suffix = index > 1 ? index : "";
@@ -900,27 +885,27 @@ const TutorRegistrationForm = () => {
       const descriptionKey = `descriptionOfSubject${suffix}`;
       return (
         <div key={`subject-${index}`} className="subject-item form-grid">
-          {/* Cột 1: Chọn môn, Mô tả */}
           <div className="form-column">
             <h4>
+              {" "}
               Môn Dạy {index}
-              {/* Nút xóa */}
               {index > 1 && (
                 <button
                   type="button"
                   className="remove-button"
                   onClick={() => removeSubjectSlot(index)}
                   title={`Xóa môn ${index}`}
-                  // *** Disable khi đang submit form HOẶC đang upload avatar ***
                   disabled={isLoading || isUploadingRegistrationAvatar}
                 >
-                  Xóa môn
+                  {" "}
+                  Xóa môn{" "}
                 </button>
               )}
             </h4>
             <div className="form-group">
               <label htmlFor={subjectIdKey}>
-                Môn học <span className="required-asterisk">*</span>
+                {" "}
+                Môn học <span className="required-asterisk">*</span>{" "}
               </label>
               <SubjectList
                 name={subjectIdKey}
@@ -932,7 +917,8 @@ const TutorRegistrationForm = () => {
             </div>
             <div className="form-group">
               <label htmlFor={descriptionKey}>
-                Mô tả kinh nghiệm dạy môn này
+                {" "}
+                Mô tả kinh nghiệm dạy môn này{" "}
               </label>
               <textarea
                 id={descriptionKey}
@@ -943,16 +929,15 @@ const TutorRegistrationForm = () => {
                 onChange={(e) =>
                   handleInputChange(e.target.name, e.target.value)
                 }
-                placeholder="Ví dụ: Kinh nghiệm gia sư, thành tích học tập liên quan..."
+                placeholder="Ví dụ: Kinh nghiệm gia sư..."
               />
               {renderFieldError(descriptionKey)}
             </div>
           </div>
-          {/* Cột 2: Upload Minh chứng */}
           <div className="form-column">
             <div className="form-group">
               <GenericFileUploader
-                label={`Minh chứng môn ${index} (Bảng điểm, chứng chỉ...)`}
+                label={`Minh chứng môn ${index} (Bảng điểm...)`}
                 mediaCategory={MEDIA_CATEGORIES.SUBJECT_PROOF}
                 initialFileUrl={formData[evidenceKey]}
                 onUploadComplete={handleUploadComplete}
@@ -974,45 +959,44 @@ const TutorRegistrationForm = () => {
       handleUploadError,
       renderFieldError,
       removeSubjectSlot,
-      isLoading, // Dependency cũ
-      isUploadingRegistrationAvatar, // *** THÊM DEPENDENCY MỚI ***
+      isLoading,
+      isUploadingRegistrationAvatar,
     ]
-  );
+  ); // Added dependencies
 
-  // --- Render Chính ---
+  // --- Main Render ---
   return (
     <HomePageLayout>
-      {/* Input file ẩn */}
+      {/* Hidden file input */}
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleAvatarFileSelected}
         style={{ display: "none" }}
         accept="image/png, image/jpeg, image/jpg"
-        // Disable khi đang upload avatar HOẶC đang submit form chính
         disabled={isUploadingRegistrationAvatar || isLoading}
       />
 
       <div className="tutor-registration-container">
         <h2>Đăng Ký Làm Gia Sư</h2>
-
         <form
           onSubmit={handleSubmit}
           className="tutor-registration-form"
           noValidate
         >
-          {/* --- Phần 1: Thông Tin Cá Nhân & Học Vấn --- */}
+          {/* Section 1: Personal & Academic Info */}
           <div className="form-section">
             <h3>I. Thông Tin Cá Nhân & Học Vấn</h3>
             <div className="form-grid">
-              {/* Cột 1: Thông tin cơ bản */}
               <div className="form-column">
-                {/* Các field fullname, birthday, gender, univercity, majorId, GPA, evidenceOfGPA giữ nguyên */}
+                {" "}
+                {/* Column 1 */}
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="fullname">
                     {" "}
                     Họ và Tên <span className="required-asterisk">*</span>{" "}
-                  </label>
+                  </label>{" "}
                   <input
                     type="text"
                     id="fullname"
@@ -1022,14 +1006,15 @@ const TutorRegistrationForm = () => {
                       handleInputChange(e.target.name, e.target.value)
                     }
                     required
-                  />
-                  {renderFieldError("fullname")}
+                  />{" "}
+                  {renderFieldError("fullname")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="birthday">
                     {" "}
                     Ngày sinh <span className="required-asterisk">*</span>{" "}
-                  </label>
+                  </label>{" "}
                   <input
                     type="date"
                     id="birthday"
@@ -1040,15 +1025,17 @@ const TutorRegistrationForm = () => {
                     }
                     required
                     max={new Date().toISOString().split("T")[0]}
-                  />
-                  {renderFieldError("birthday")}
+                  />{" "}
+                  {renderFieldError("birthday")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label>
                     {" "}
                     Giới tính <span className="required-asterisk">*</span>{" "}
-                  </label>
+                  </label>{" "}
                   <div className="radio-group">
+                    {" "}
                     <label>
                       {" "}
                       <input
@@ -1061,7 +1048,7 @@ const TutorRegistrationForm = () => {
                         }
                       />{" "}
                       Nam{" "}
-                    </label>
+                    </label>{" "}
                     <label>
                       {" "}
                       <input
@@ -1074,16 +1061,17 @@ const TutorRegistrationForm = () => {
                         }
                       />{" "}
                       Nữ{" "}
-                    </label>
-                  </div>
+                    </label>{" "}
+                  </div>{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="univercity">
                     {" "}
                     Trường Đại học <span className="required-asterisk">
                       *
                     </span>{" "}
-                  </label>
+                  </label>{" "}
                   <input
                     type="text"
                     id="univercity"
@@ -1094,29 +1082,31 @@ const TutorRegistrationForm = () => {
                     }
                     required
                     placeholder="Ví dụ: Đại học Văn Lang"
-                  />
-                  {renderFieldError("univercity")}
+                  />{" "}
+                  {renderFieldError("univercity")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="majorId">
                     {" "}
                     Ngành học <span className="required-asterisk">*</span>{" "}
-                  </label>
+                  </label>{" "}
                   <MajorList
                     name="majorId"
                     value={formData.majorId}
                     onChange={handleInputChange}
                     required={true}
-                  />
-                  {renderFieldError("majorId")}
+                  />{" "}
+                  {renderFieldError("majorId")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="GPA">
                     {" "}
                     Điểm GPA (Hệ 4) <span className="required-asterisk">
                       *
                     </span>{" "}
-                  </label>
+                  </label>{" "}
                   <input
                     type="text"
                     inputMode="decimal"
@@ -1128,10 +1118,11 @@ const TutorRegistrationForm = () => {
                     }
                     required
                     placeholder="Ví dụ: 3.50"
-                  />
-                  {renderFieldError("GPA")}
+                  />{" "}
+                  {renderFieldError("GPA")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <GenericFileUploader
                     label="Minh chứng GPA (Bảng điểm)"
                     mediaCategory={MEDIA_CATEGORIES.GPA_PROOF}
@@ -1140,22 +1131,25 @@ const TutorRegistrationForm = () => {
                     onError={handleUploadError}
                     fileIdentifier="evidenceOfGPA"
                     promptText="Tải lên file ảnh hoặc PDF"
-                  />
-                  {renderFieldError("evidenceOfGPA")}
+                  />{" "}
+                  {renderFieldError("evidenceOfGPA")}{" "}
                 </div>
               </div>
-
-              {/* Cột 2: Avatar, Giới thiệu, Ngân hàng */}
               <div className="form-column">
+                {" "}
+                {/* Column 2 */}
                 <div className="form-group">
+                  {" "}
                   <label>
-                    Ảnh đại diện <span className="required-asterisk">*</span>
-                  </label>
+                    {" "}
+                    Ảnh đại diện <span className="required-asterisk">
+                      *
+                    </span>{" "}
+                  </label>{" "}
                   <AvatarDisplay
-                    imageUrl={avatarPreviewUrl} // Hiển thị URL xem trước (từ server hoặc blob)
+                    imageUrl={avatarPreviewUrl}
                     onTriggerSelect={handleTriggerAvatarInput}
-                  />
-                  {/* Hiển thị spinner HOẶC lỗi/thành công upload avatar */}
+                  />{" "}
                   {isUploadingRegistrationAvatar && (
                     <div
                       style={{
@@ -1164,10 +1158,11 @@ const TutorRegistrationForm = () => {
                         color: "#b41e2d",
                       }}
                     >
+                      {" "}
                       <FontAwesomeIcon icon={faSpinner} spin size="lg" /> Đang
-                      tải ảnh lên...
+                      tải ảnh...{" "}
                     </div>
-                  )}
+                  )}{" "}
                   {avatarUploadError && !isUploadingRegistrationAvatar && (
                     <p
                       className="field-error-message"
@@ -1175,7 +1170,7 @@ const TutorRegistrationForm = () => {
                     >
                       {avatarUploadError}
                     </p>
-                  )}
+                  )}{" "}
                   {avatarUploadSuccess && !isUploadingRegistrationAvatar && (
                     <p
                       className="success-message"
@@ -1188,13 +1183,12 @@ const TutorRegistrationForm = () => {
                     >
                       {avatarUploadSuccess}
                     </p>
-                  )}
-                  {/* Hiển thị lỗi validation chung của field avatar */}
-                  {renderFieldError("avatar")}
+                  )}{" "}
+                  {renderFieldError("avatar")}{" "}
                 </div>
-                {/* Các field description, videoUrl, bankName, bankNumber giữ nguyên */}
                 <div className="form-group">
-                  <label htmlFor="description">Giới thiệu bản thân</label>
+                  {" "}
+                  <label htmlFor="description">Giới thiệu bản thân</label>{" "}
                   <textarea
                     id="description"
                     name="description"
@@ -1204,15 +1198,13 @@ const TutorRegistrationForm = () => {
                     onChange={(e) =>
                       handleInputChange(e.target.name, e.target.value)
                     }
-                    placeholder="Chia sẻ về kinh nghiệm giảng dạy..."
-                  ></textarea>
-                  {renderFieldError("description")}
+                    placeholder="Chia sẻ về kinh nghiệm..."
+                  ></textarea>{" "}
+                  {renderFieldError("description")}{" "}
                 </div>
                 <div className="form-group">
-                  <label htmlFor="videoUrl">
-                    {" "}
-                    Link Video giới thiệu (Youtube, Drive,...)
-                  </label>
+                  {" "}
+                  <label htmlFor="videoUrl"> Link Video giới thiệu </label>{" "}
                   <input
                     type="url"
                     id="videoUrl"
@@ -1222,30 +1214,33 @@ const TutorRegistrationForm = () => {
                       handleInputChange(e.target.name, e.target.value)
                     }
                     placeholder="https://..."
-                  />
-                  {renderFieldError("videoUrl")}
+                  />{" "}
+                  {renderFieldError("videoUrl")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="bankName">
                     {" "}
                     Tên ngân hàng <span className="required-asterisk">
                       *
                     </span>{" "}
-                  </label>
+                  </label>{" "}
                   <BankList
                     name="bankName"
                     value={formData.bankName}
                     onChange={handleInputChange}
                     required={true}
-                  />
-                  {renderFieldError("bankName")}
+                  />{" "}
+                  {renderFieldError("bankName")}{" "}
                 </div>
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="bankNumber">
                     {" "}
-                    Số tài khoản nhận học phí{" "}
-                    <span className="required-asterisk">*</span>{" "}
-                  </label>
+                    Số tài khoản <span className="required-asterisk">
+                      *
+                    </span>{" "}
+                  </label>{" "}
                   <input
                     type="text"
                     inputMode="numeric"
@@ -1256,26 +1251,26 @@ const TutorRegistrationForm = () => {
                       handleInputChange(e.target.name, e.target.value)
                     }
                     required
-                  />
-                  {renderFieldError("bankNumber")}
+                  />{" "}
+                  {renderFieldError("bankNumber")}{" "}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* --- Phần 2: Thông Tin Giảng Dạy --- */}
+          {/* Section 2: Teaching Info */}
           <div className="form-section">
             <h3>II. Thông Tin Giảng Dạy</h3>
-            {/* Các field teachingMethod, teachingPlace, isUseCurriculumn giữ nguyên */}
             <div className="form-grid">
               <div className="form-column">
                 <div className="form-group">
+                  {" "}
                   <label htmlFor="teachingMethod">
                     {" "}
                     Phương thức dạy <span className="required-asterisk">
                       *
                     </span>{" "}
-                  </label>
+                  </label>{" "}
                   <select
                     id="teachingMethod"
                     name="teachingMethod"
@@ -1285,20 +1280,22 @@ const TutorRegistrationForm = () => {
                     }
                     required
                   >
-                    <option value="ONLINE">Trực tuyến (Online)</option>
-                    <option value="OFFLINE">Tại nhà học viên (Offline)</option>
-                    <option value="BOTH">Cả hai (Online và Offline)</option>
-                  </select>
-                  {renderFieldError("teachingMethod")}
+                    {" "}
+                    <option value="ONLINE">Online</option>{" "}
+                    <option value="OFFLINE">Offline</option>{" "}
+                    <option value="BOTH">Cả hai</option>{" "}
+                  </select>{" "}
+                  {renderFieldError("teachingMethod")}{" "}
                 </div>
                 {(formData.teachingMethod === "OFFLINE" ||
                   formData.teachingMethod === "BOTH") && (
                   <div className="form-group">
+                    {" "}
                     <label htmlFor="teachingPlace">
                       {" "}
-                      Khu vực có thể dạy Offline{" "}
+                      Khu vực dạy Offline{" "}
                       <span className="required-asterisk">*</span>{" "}
-                    </label>
+                    </label>{" "}
                     <input
                       type="text"
                       id="teachingPlace"
@@ -1308,16 +1305,18 @@ const TutorRegistrationForm = () => {
                         handleInputChange(e.target.name, e.target.value)
                       }
                       required
-                      placeholder="Ví dụ: Q.Gò Vấp, Q.Bình Thạnh"
-                    />
-                    {renderFieldError("teachingPlace")}
+                      placeholder="Ví dụ: Q.Gò Vấp"
+                    />{" "}
+                    {renderFieldError("teachingPlace")}{" "}
                   </div>
                 )}
               </div>
               <div className="form-column">
                 <div className="form-group">
-                  <label>Giáo trình / Tài liệu riêng</label>
+                  {" "}
+                  <label>Giáo trình riêng</label>{" "}
                   <label className="checkbox-label">
+                    {" "}
                     <input
                       type="checkbox"
                       name="isUseCurriculumn"
@@ -1325,53 +1324,49 @@ const TutorRegistrationForm = () => {
                       onChange={(e) =>
                         handleInputChange(e.target.name, e.target.checked)
                       }
-                    />
-                    <span>
-                      {" "}
-                      Tôi có sử dụng giáo trình/tài liệu do tôi tự chuẩn bị{" "}
-                    </span>
-                  </label>
+                    />{" "}
+                    <span> Tôi có sử dụng giáo trình riêng </span>{" "}
+                  </label>{" "}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* --- Phần 3: Thông Tin Môn Đăng Ký Dạy --- */}
+          {/* Section 3: Subjects */}
           <div className="form-section subject-info">
             <h3>III. Thông Tin Môn Đăng Ký Dạy</h3>
-            {/* Render các section môn học */}
             {renderSubjectSection(1)}
             {numberOfSubjects >= 2 && renderSubjectSection(2)}
             {numberOfSubjects >= 3 && renderSubjectSection(3)}
-
-            {/* Nút thêm môn học */}
             {numberOfSubjects < 3 && (
               <button
                 type="button"
                 className="add-button"
                 onClick={addSubjectSlot}
-                // *** Disable khi đang submit form HOẶC đang upload avatar ***
                 disabled={isLoading || isUploadingRegistrationAvatar}
               >
-                + Thêm môn dạy (Tối đa 3 môn)
+                {" "}
+                + Thêm môn dạy{" "}
               </button>
             )}
           </div>
 
-          {/* --- Phần 4: Thời Gian Rảnh Có Thể Dạy --- */}
+          {/* Section 4: Availability */}
           <div className="form-section availability-info">
-            {/* Phần teachingTime, availability grid giữ nguyên */}
             <h3>
               {" "}
-              IV. Thời Gian Rảnh Có Thể Dạy{" "}
-              <span className="required-asterisk">*</span>{" "}
+              IV. Thời Gian Rảnh <span className="required-asterisk">
+                *
+              </span>{" "}
             </h3>
             <div className="form-group teaching-time-group availability-teaching-time">
+              {" "}
               <label htmlFor="teachingTime">
                 {" "}
-                Thời gian mỗi buổi dạy (dự kiến){" "}
-                <span className="required-asterisk">*</span>{" "}
-              </label>
+                Thời gian mỗi buổi <span className="required-asterisk">
+                  *
+                </span>{" "}
+              </label>{" "}
               <select
                 id="teachingTime"
                 name="teachingTime"
@@ -1381,19 +1376,20 @@ const TutorRegistrationForm = () => {
                 }
                 required
               >
+                {" "}
                 {teachingTimeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {" "}
                     {option.label}{" "}
                   </option>
-                ))}
-              </select>
-              {renderFieldError("teachingTime")}
+                ))}{" "}
+              </select>{" "}
+              {renderFieldError("teachingTime")}{" "}
             </div>
             <p className="note availability-note">
               {" "}
-              Chọn các ngày bạn rảnh và thêm các **giờ bắt đầu** ca dạy trong
-              ngày đó. Khoảng cách tối thiểu giữa các giờ bắt đầu phải là{" "}
+              Chọn ngày rảnh và thêm **giờ bắt đầu** ca dạy. Khoảng cách tối
+              thiểu là{" "}
               <strong>
                 {" "}
                 {formatTeachingTime(formData.teachingTime) || "2h"}{" "}
@@ -1419,16 +1415,17 @@ const TutorRegistrationForm = () => {
                       handleDayToggle(day)
                     }
                   >
+                    {" "}
                     <input
                       type="checkbox"
                       id={`day-${day}`}
                       checked={availability[day].isSelected}
                       readOnly
                       style={{ pointerEvents: "none" }}
-                    />
+                    />{" "}
                     <label htmlFor={`day-${day}`}>{`Thứ ${
                       day === "Sunday" ? "CN" : daysOfWeek.indexOf(day) + 2
-                    }`}</label>
+                    }`}</label>{" "}
                   </div>
                   {availability[day].isSelected && (
                     <div className="time-slots">
@@ -1437,6 +1434,7 @@ const TutorRegistrationForm = () => {
                           key={`${day}-${timeIndex}`}
                           className="time-slot-item"
                         >
+                          {" "}
                           <input
                             type="time"
                             value={time}
@@ -1450,23 +1448,23 @@ const TutorRegistrationForm = () => {
                                 : ""
                             }
                             required={availability[day].times.length > 0}
-                          />
-                          <span>(Giờ bắt đầu)</span>
+                          />{" "}
+                          <span>(Giờ bắt đầu)</span>{" "}
                           <button
                             type="button"
                             className="remove-time-button"
                             onClick={() => removeTimeSlot(day, timeIndex)}
-                            title="Xóa khung giờ này"
+                            title="Xóa giờ"
                           >
                             {" "}
                             ×{" "}
-                          </button>
+                          </button>{" "}
                           {timeErrors[day] === timeIndex && (
                             <span className="time-slot-error-message">
                               {" "}
                               Giờ không hợp lệ{" "}
                             </span>
-                          )}
+                          )}{" "}
                         </div>
                       ))}
                       <button
@@ -1484,62 +1482,48 @@ const TutorRegistrationForm = () => {
             </div>
           </div>
 
-          {/* --- Submit & Thông báo --- */}
+          {/* Submit Actions */}
           <div className="form-actions">
-            {/* Hiển thị lỗi chung của form */}
             {formError && <p className="error-message">{formError}</p>}
-            {/* Hiển thị thông báo thành công submit form */}
             {success && <p className="success-message">{success}</p>}
-
-            {/* Điều khoản dịch vụ */}
             <p className="terms">
-              Bằng việc nhấn nút "Hoàn Tất Đăng Ký", bạn xác nhận đã đọc và đồng
-              ý với{" "}
-              <a
-                href="/terms-of-service"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              {" "}
+              Bằng việc nhấn nút, bạn đồng ý với{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer">
                 {" "}
-                Điều khoản Dịch vụ{" "}
+                Điều khoản{" "}
               </a>{" "}
               và{" "}
-              <a
-                href="/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="/privacy" target="_blank" rel="noopener noreferrer">
                 {" "}
                 Chính sách Bảo mật{" "}
-              </a>{" "}
-              của chúng tôi.
+              </a>
+              .{" "}
             </p>
-
-            {/* Nút Submit chính */}
             <button
               type="submit"
-              // *** Disable khi đang submit form HOẶC đang upload avatar ***
               disabled={isLoading || isUploadingRegistrationAvatar}
             >
+              {" "}
               {isLoading ? (
                 <>
                   {" "}
-                  <FontAwesomeIcon icon={faSpinner} spin /> Đang gửi đăng ký...{" "}
+                  <FontAwesomeIcon icon={faSpinner} spin /> Đang gửi...{" "}
                 </>
               ) : (
                 "Hoàn Tất Đăng Ký"
-              )}
+              )}{" "}
             </button>
           </div>
         </form>
       </div>
 
-      {/* --- Modal Crop Ảnh --- */}
+      {/* Crop Modal */}
       <ImageCropModal
         isOpen={isCropModalOpen}
-        onRequestClose={handleCloseCropModal} // Gọi hàm đã sửa đổi
+        onRequestClose={handleCloseCropModal}
         imageSrc={imageToCrop}
-        onCropSave={handleCropSaveForRegistration} // <-- Gọi hàm upload đã sửa đổi
+        onCropSave={handleCropSaveForRegistration}
         aspect={1}
         cropShape="round"
       />
