@@ -3,7 +3,7 @@ import axiosClient from "./axiosClient";
 import qs from "qs";
 
 const Api = async ({
-  domain = "",
+  domain = "https://giasuvlu.click/api/",
   endpoint,
   method = METHOD_TYPE.GET,
   data,
