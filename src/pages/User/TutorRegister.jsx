@@ -845,7 +845,7 @@ const TutorRegistrationForm = () => {
       // --- Gọi API ---
       try {
         const response = await Api({
-          endpoint: "user/regis-to-tutor",
+          endpoint: "user/tutor-request/regis-to-tutor",
           method: METHOD_TYPE.POST,
           data: registrationFormData, // Gửi FormData chứa URL avatar
         });
