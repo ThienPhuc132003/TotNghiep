@@ -1,0 +1,248 @@
+/* src/assets/css/TutorTest.style.css */
+
+.tutor-test-container {
+    max-width: 800px;
+    margin: 2rem auto 4rem auto;
+    padding: 2rem 2.5rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+/* Loading and Error States */
+.loading-container,
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px; /* Ensure some height */
+    text-align: center;
+    color: #6c757d;
+}
+.loading-container p,
+.error-container p {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+}
+.error-container .error-message {
+    color: #dc3545;
+    font-weight: 500;
+}
+.error-container button {
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.error-container button:hover:not(:disabled) {
+    background-color: #0b5ed7;
+}
+.error-container button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+
+/* Test Content Styling */
+.tutor-test-container h1 {
+    text-align: center;
+    color: #b41e2d; /* Primary color */
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.test-description {
+    text-align: center;
+    color: #495057;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1.5rem;
+}
+
+.question-card {
+    background-color: #ffffff;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.8rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.question-number {
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.question-text {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Space between options */
+}
+
+.option-label {
+    display: flex;
+    align-items: flex-start; /* Align radio button with the start of text */
+    cursor: pointer;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.option-label:hover {
+    background-color: #e9ecef;
+}
+
+/* Style when radio is checked */
+.option-label input[type="radio"]:checked + .option-key + .option-text {
+   font-weight: 600; /* Make text bolder */
+   color: #b41e2d;
+}
+.option-label input[type="radio"]:checked {
+   accent-color: #b41e2d;
+}
+.option-label input[type="radio"]:checked ~ .option-key {
+    font-weight: bold;
+    color: #b41e2d;
+}
+
+
+.option-label input[type="radio"] {
+    margin-right: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 0.2em; /* Adjust vertical alignment slightly */
+    width: 16px;
+    height: 16px;
+}
+
+.option-key {
+    font-weight: 600;
+    margin-right: 0.4rem;
+    color: #495057;
+}
+
+.option-text {
+    color: #343a40;
+    line-height: 1.5;
+}
+
+/* Submit Section */
+.submit-section {
+    margin-top: 3rem;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.submit-button {
+    background-color: #b41e2d;
+    color: white;
+    padding: 0.9rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 3px 10px rgba(180, 30, 45, 0.2);
+}
+
+.submit-button:hover:not(:disabled) {
+    background-color: #901724;
+    transform: translateY(-2px);
+}
+
+.submit-button:disabled {
+    background-color: #adb5bd;
+    color: #f8f9fa;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.validation-hint {
+    margin-top: 1rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Banner Messages */
+.submit-success-banner,
+.submit-error-banner {
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 500;
+}
+
+.submit-success-banner {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.submit-error-banner {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .tutor-test-container {
+        padding: 1.5rem 1.8rem;
+    }
+    .question-card {
+        padding: 1.5rem;
+    }
+    .tutor-test-container h1 {
+        font-size: 1.6rem;
+    }
+    .test-description {
+        font-size: 1rem;
+    }
+    .question-text {
+        font-size: 1.05rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .tutor-test-container {
+        padding: 1rem 1.2rem;
+        margin: 1rem auto 2rem auto;
+    }
+     .tutor-test-container h1 {
+        font-size: 1.5rem;
+    }
+    .question-card {
+        padding: 1.2rem 1rem;
+    }
+    .option-label {
+        padding: 0.7rem 0.8rem;
+    }
+    .submit-button {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}

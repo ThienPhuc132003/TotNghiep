@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
 import InputField from "../../components/InputField";
 import TextareaField from "../../components/TextareaField";
 import UploadFile from "../../components/UploadFile";
@@ -225,7 +224,6 @@ const RegisterTutorPage = () => {
   }, []);
 
   return (
-    <UserDashboardLayout>
       <div className="registerForm">
         <h1>Đăng ký làm gia sư2 </h1>
         <form onSubmit={formik.handleSubmit}>
@@ -460,7 +458,6 @@ const RegisterTutorPage = () => {
           </button>
         </form>
       </div>
-    </UserDashboardLayout>
   );
 };
 

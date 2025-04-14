@@ -3,7 +3,7 @@
 /* --- Layout chung của trang --- */
 .profile-page-wrapper {
   padding: 40px 20px;
-  background-color: #f8f9fa; /* Giữ nguyên màu nền sáng */
+  background-color: #f8f9fa;
   min-height: calc(100vh - 60px);
 }
 
@@ -12,7 +12,7 @@
   padding: 40px 50px;
   border-radius: 10px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
-  max-width: 1050px; /* Giữ nguyên max-width đã tăng */
+  max-width: 1050px; /* Độ rộng đã tăng */
   margin: 0 auto;
 }
 
@@ -28,7 +28,7 @@
 .profile-content {
   display: grid;
   grid-template-columns: 240px 1fr;
-  gap: 50px; /* Giữ nguyên khoảng cách giữa avatar và form */
+  gap: 50px;
   align-items: flex-start;
   transition: opacity 0.3s ease-in-out;
 }
@@ -60,13 +60,11 @@
 }
 
 /* --- Khu vực Form --- */
-
-.form-grid {
+.form-grid-user {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   row-gap: 30px;
-  overflow-y: hidden; /* Thêm scroll nếu cần */
-  column-gap: 25px; /* Giảm từ 35px xuống 25px */
+  column-gap: 25px; /* Khoảng cách cột đã giảm */
 }
 
 .form-group {
@@ -87,7 +85,7 @@
 .form-group input[type="tel"],
 .form-group input[type="date"],
 .form-group textarea {
-  padding: 12px 15px;
+  padding: 12px 12px; /* Padding ngang đã giảm */
   border: 1px solid #d1d9e6;
   border-radius: 6px;
   font-size: 1rem;
@@ -95,24 +93,32 @@
   background-color: #fff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  line-height: 1.5;
+  font-family: inherit;
 }
-.form-group input:focus {
+.form-group input:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #86b7fe;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05),
     0 0 0 0.2rem rgba(13, 110, 253, 0.2);
 }
-
-/* Input Chỉ đọc */
-.input-readonly {
-  background-color: #f1f3f5 !important;
-  color: #6c757d !important;
-  cursor: not-allowed !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
 }
+
+/* === Style cho Input Chỉ đọc === */
+.input-readonly {
+  background-color: #f1f3f5 !important; /* Nền xám rất nhạt, !important để chắc chắn ghi đè */
+  color: #6c757d !important; /* Chữ xám mờ */
+  cursor: not-allowed !important; /* Con trỏ không cho phép */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important; /* Giảm bóng đổ */
+}
+/* Ngăn hiệu ứng focus đặc biệt trên input chỉ đọc */
 .input-readonly:focus {
-  border-color: #d1d9e6 !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  border-color: #d1d9e6 !important; /* Giữ màu viền gốc khi focus */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important; /* Giữ nguyên bóng đổ khi focus */
 }
 
 /* Group chiếm toàn bộ các cột */
@@ -263,9 +269,9 @@
   .profile-container {
     padding: 30px 25px;
   }
-  .form-grid {
-    column-gap: 25px;
-  } /* Giữ nguyên hoặc giảm thêm nếu cần */
+  .form-grid-user {
+    column-gap: 20px;
+  } /* Giảm gap cột trên tablet */
 }
 @media (max-width: 767px) {
   .profile-container {
@@ -275,10 +281,10 @@
     font-size: 1.6rem;
     margin-bottom: 30px;
   }
-  .form-grid {
+  .form-grid-user {
     grid-template-columns: 1fr;
     row-gap: 25px;
-  } /* Đảm bảo 1 cột trên mobile */
+  }
   .profile-submit-button {
     width: 100%;
     margin-left: 0;

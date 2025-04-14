@@ -1,6 +1,5 @@
 // src/pages/User/CreateMeeting.jsx
 import React, { useState } from "react";
-import UserDashboardLayout from "../../components/User/layout/UserDashboardLayout";
 import "../../assets/css/CreateMeeting.style.css";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -52,7 +51,7 @@ const CreateMeetingPage = () => {
   };
 
   return (
-    <UserDashboardLayout>
+    <>
       <div className="create-meeting-form">
         <h1>Create Zoom Meeting</h1>
         {status && <p className="status-message">{status}</p>}
@@ -77,7 +76,11 @@ const CreateMeetingPage = () => {
               required
             />
           </div>
-          <button type="submit" className="create-meeting-button" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="create-meeting-button"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Creating..." : "Create Meeting"}
           </button>
         </form>
@@ -103,7 +106,7 @@ const CreateMeetingPage = () => {
           onSubmit={() => {}}
         />
       </Modal>
-    </UserDashboardLayout>
+    </>
   );
 };
 

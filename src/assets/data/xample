@@ -1,34 +1,211 @@
-{
-"avatar": "https://example.com/avatar.jpg" ( file được lấy từ api upload-media),
-"fullname": "Đặng Phương Nam" ( tên text),
-"majorId": "M0002" ( id của ngành học, sẽ có api nhưng hiển thị tên ngành học),
-"birthday": "2003-09-21" ( ngày tháng năm sinh),
-"gender": "MALE" ( giới tính, hiển thị là Nam và Nữ những truyền MALE và FEMALE),
-"bankNumber": "123456789" ( số tài khoản),
-"bankName": "Viettinbank" ( tên ngân hàng, có api lấy tên ngân hàng sau),
-"subjectId": "S0001" ( truyền mã môn học, sẽ có api nhưng hiển thị tên môn học),
-"evidenceOfSubject": "tệp" ( file cũng được lấy từ api upload-media),
-"descriptionOfSubject": "Quản trị mạng" ( truyền text mô tả môn học),
-"subjectId2": "S0006",
-"evidenceOfSubject2": "tệp",
-"descriptionOfSubject2": "Công nghệ phần mêm",
-"univercity": "Đại học Bách Khoa" ( tên trường đang học hoặc đã học),
-"GPA": 3.8 ( điểm trung bình tính đến thời điểm hiện tại), 
-"evidenceOfGPA": "tệp"( minh chứng cho điểm gpa ) ,
-"teachingTime": 10 ( sẽ đặt trên dateTimeLearn, đây là só giờ dạy trong 1 tiết của gia sư, ví dụ là 1:00 trong 1 tiết thì phần times của dateTimeLearn những giờ dạy phải cách nhau 1 tiếng, chọn cách ít hơn 1 tiếng sẽ báo lỗi ),
-"dateTimeLearn": [
-  {
-    "day": "Monday",
-    "times": ["08:00", "10:00"]
-  },
-  {
-    "day": "Wednesday",
-    "times": ["14:00", "16:00"]
-  }
-],
-"description": "Tôi có 3 năm kinh nghiệm giảng dạy toán học." ( mô tả về gia sư),
-"videoUrl": "https://example.com/intro-video.mp4" (link video giới thiệu gia sư ( youtube),
-"teachingMethod": "ONLINE"( có 3 option là ONLINE, OFFLINE và BOTH, nhưng hiển thị là trực tuyến, tại nhà và cả hai),
-"teachingPlace": "địa chỉ nhà" ( nếu chọn cả hai hoặc tại nhà),
-"isUseCurriculumn": true ( có sử dụng giáo trình của trang cung cấp hay không, cho ô tích),
-}
+// src/pages/User/TutorQualificationTestPage.jsx
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import HomePageLayout from '../../components/User/layout/HomePageLayout';
+import Api from '../../network/Api';
+import { METHOD_TYPE } from '../../network/methodType';
+import '../../assets/css/TutorTest.style.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner, faExclamationTriangle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify'; // <-- Import toast
+
+const TutorQualificationTestPage = () => {
+    const navigate = useNavigate();
+
+    // --- States --- (Giữ nguyên)
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasPassedTest, setHasPassedTest] = useState(null);
+    const [testData, setTestData] = useState(null);
+    const [answers, setAnswers] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    // const [submitSuccess, setSubmitSuccess] = useState(false); // <-- Có thể bỏ state này nếu chỉ dùng toast
+
+    // --- API Calls --- (checkTestStatus, fetchTestQuestions giữ nguyên)
+    const fetchTestQuestions = useCallback(async () => { /* ... giữ nguyên ... */
+        setError('');
+        try {
+            const response = await Api({ endpoint: 'test/search', method: METHOD_TYPE.GET });
+            if (response?.success && response?.data?.items?.length > 0) {
+                const firstTest = response.data.items[0];
+                firstTest.questions.sort((a, b) => a.questionNumber - b.questionNumber);
+                setTestData(firstTest);
+                const initialAnswers = firstTest.questions.reduce((acc, q) => { acc[q.testQuestionId] = null; return acc; }, {});
+                setAnswers(initialAnswers);
+            } else { throw new Error(response?.message || 'Không tìm thấy bài test.'); }
+        } catch (err) { setError(err.message || 'Lỗi tải câu hỏi.'); } finally { setIsLoading(false); }
+    }, []);
+
+     const checkTestStatus = useCallback(async () => { /* ... giữ nguyên ... */
+        setIsLoading(true); setError('');
+        try {
+            const response = await Api({ endpoint: 'test-result/check-pass-test', method: METHOD_TYPE.GET });
+            if (response?.success) {
+                let passed = false;
+                if (typeof response.data === 'boolean') passed = response.data;
+                else if (response.message === 'true' || response.message === true) passed = true;
+                else if (response.message === 'false' || response.message === false) passed = false;
+                else throw new Error('Dữ liệu trạng thái không hợp lệ.');
+
+                if (passed) { setHasPassedTest(true); navigate('/dang-ky-gia-su', { replace: true }); }
+                else { setHasPassedTest(false); fetchTestQuestions(); }
+            } else { throw new Error(response?.message || 'Kiểm tra trạng thái thất bại.'); }
+        } catch (err) { setError(err.message || 'Lỗi kiểm tra trạng thái.'); setIsLoading(false); setHasPassedTest(false); }
+     }, [navigate, fetchTestQuestions]);
+
+
+    // Gửi kết quả bài test
+    const submitTestResults = useCallback(async () => {
+        if (!testData) { /* ... giữ nguyên ... */ return; }
+        const answeredQuestions = Object.values(answers).filter(answer => answer !== null && answer !== '');
+        if (answeredQuestions.length < testData.questions.length) { setError('Vui lòng trả lời tất cả các câu hỏi.'); return; }
+        else { setError(''); }
+
+        setIsSubmitting(true);
+        // setSubmitSuccess(false); // <-- Không cần nữa
+
+        const submissionData = { /* ... giữ nguyên ... */
+             testId: testData.testId,
+            answers: Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer })),
+        };
+
+        console.log("Submitting test data:", JSON.stringify(submissionData, null, 2));
+
+        try {
+            const response = await Api({
+                endpoint: 'test-result/submit-test',
+                method: METHOD_TYPE.POST,
+                data: submissionData,
+            });
+
+            if (response?.success) {
+                console.log('Test submitted successfully:', response);
+                // *** GỌI TOAST THÀNH CÔNG ***
+                toast.success('Nộp bài kiểm tra thành công!');
+                // setSubmitSuccess(true); // <-- Không cần nữa
+
+                // Vẫn giữ timeout để người dùng kịp thấy toast trước khi chuyển trang
+                 setTimeout(() => {
+                    navigate('/dang-ky-gia-su', { replace: true });
+                 }, 2000); // Có thể giảm thời gian chờ nếu muốn (ví dụ 2s)
+            } else {
+                throw new Error(response?.message || 'Nộp bài không thành công.');
+            }
+        } catch (err) {
+            console.error("Error submitting test results:", err);
+            setError(err.message || 'Lỗi kết nối khi nộp bài.');
+             // setSubmitSuccess(false); // <-- Không cần nữa
+             // Hiển thị lỗi bằng toast nếu muốn
+             // toast.error(err.message || 'Lỗi kết nối khi nộp bài.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    }, [testData, answers, navigate]);
+
+    // --- Effects --- (Giữ nguyên)
+    useEffect(() => {
+        checkTestStatus();
+    }, [checkTestStatus]);
+
+    // --- Handlers --- (Giữ nguyên)
+     const handleAnswerChange = useCallback((questionId, answer) => { /* ... giữ nguyên ... */
+         setAnswers(prevAnswers => ({ ...prevAnswers, [questionId]: answer }));
+        if (error === 'Vui lòng trả lời tất cả các câu hỏi trước khi nộp bài.') setError('');
+     }, [error]);
+
+     const handleSubmitClick = (e) => { /* ... giữ nguyên ... */
+        e.preventDefault();
+        submitTestResults();
+    };
+
+
+    // --- Render Logic ---
+    if (isLoading) { /* ... render loading ... */
+         return ( <HomePageLayout><div className="tutor-test-container loading-container"><FontAwesomeIcon icon={faSpinner} spin size="3x" /><p>Đang tải...</p></div></HomePageLayout> );
+     }
+     if (error && !testData && !isSubmitting) { /* ... render error ... */
+         return ( <HomePageLayout><div className="tutor-test-container error-container"><FontAwesomeIcon icon={faExclamationTriangle} size="3x" color="red" /><p className="error-message">{error}</p><button onClick={checkTestStatus} disabled={isLoading}>Thử lại</button></div></HomePageLayout> );
+     }
+
+     if (hasPassedTest === false && testData) {
+        const allAnswered = Object.values(answers).every(ans => ans !== null && ans !== '');
+        return (
+            <HomePageLayout>
+                <div className="tutor-test-container">
+                    <h1>{testData.tittle}</h1>
+                    <p className="test-description">{testData.description}</p>
+
+                    {/* Bỏ banner success tĩnh */}
+                    {/* {submitSuccess && ( ... )} */}
+
+                    {/* Vẫn giữ hiển thị lỗi submit nếu có */}
+                    {error && !isSubmitting && (
+                         <div className="error-message submit-error-banner">
+                            <FontAwesomeIcon icon={faExclamationTriangle} /> {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmitClick}>
+                        {testData.questions.map((q) => (
+                           <div key={q.testQuestionId} className="question-card">
+                               {/* ... (question number, text) ... */}
+                               <p className="question-number">Câu {q.questionNumber}:</p>
+                               <p className="question-text">{q.questionText}</p>
+                               <div className="options-group">
+                                   {['A', 'B', 'C', 'D'].map(optionKey => {
+                                       const optionText = q[`option${optionKey}`];
+                                       const inputId = `${q.testQuestionId}-${optionKey}`;
+                                       return (
+                                           <label htmlFor={inputId} key={inputId} className="option-label">
+                                               <input
+                                                   type="radio"
+                                                   id={inputId}
+                                                   name={q.testQuestionId}
+                                                   value={optionKey}
+                                                   checked={answers[q.testQuestionId] === optionKey}
+                                                   onChange={() => handleAnswerChange(q.testQuestionId, optionKey)}
+                                                   // Vẫn disable khi đang submitting
+                                                   disabled={isSubmitting}
+                                               />
+                                               <span className="option-key">{optionKey}.</span>
+                                               <span className="option-text">{optionText}</span>
+                                           </label>
+                                       );
+                                   })}
+                               </div>
+                           </div>
+                        ))}
+                        <div className="submit-section">
+                            <button
+                                type="submit"
+                                className="submit-button"
+                                // Disable khi đang submitting hoặc chưa trả lời hết
+                                disabled={isSubmitting || !allAnswered}
+                            >
+                                {isSubmitting ? (
+                                    <> <FontAwesomeIcon icon={faSpinner} spin /> Đang nộp bài... </>
+                                ) : (
+                                    "Nộp bài kiểm tra"
+                                )}
+                            </button>
+                            {!allAnswered && !isSubmitting && (
+                                <p className="validation-hint">Vui lòng hoàn thành tất cả câu hỏi.</p>
+                            )}
+                        </div>
+                    </form>
+                </div>
+            </HomePageLayout>
+        );
+    }
+
+    // Fallback render
+    return (
+        <HomePageLayout>
+            <div className="tutor-test-container">
+                {hasPassedTest === true && <p>Bạn đã hoàn thành bài kiểm tra. Đang chuyển hướng...</p>}
+            </div>
+        </HomePageLayout>
+    );
+};
+
+export default TutorQualificationTestPage;
