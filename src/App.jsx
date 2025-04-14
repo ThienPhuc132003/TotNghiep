@@ -14,7 +14,6 @@ import TutorRegistrationGuard from "./route/TutorRegistrationGuard ";
 import { ToastContainer } from "react-toastify";
 // User
 const HomePage = lazy(() => import("./pages/User/HomePage"));
-const UserDashboard = lazy(() => import("./pages/User/Dashboard"));
 const UserLogin = lazy(() => import("./pages/User/Login"));
 const Register = lazy(() => import("./pages/User/Register"));
 const TutorQualificationTestPage = lazy(() =>
@@ -101,7 +100,6 @@ function App() {
 
             <Route path="/create-meeting" element={<CreateMeeting />} />
 
-            <Route path="dashboard" element={<UserDashboard />} />
             <Route path="payment" element={<PaymentPage />} />
             <Route path="payment/success" element={<PaymentSuccess />} />
             <Route path="payment/failed" element={<PaymentFailed />} />
