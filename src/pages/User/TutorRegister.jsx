@@ -832,7 +832,7 @@ const TutorRegistrationForm = () => {
       // --- API Call ---
       try {
         const response = await Api({
-          endpoint: "tutor-request/regis-to-tutor", // <<< CHECK YOUR ENDPOINT HERE
+          endpoint: "tutor-request/regis-to-tutor",
           method: METHOD_TYPE.POST,
           data: registrationFormData, // Send the structured FormData
         });
