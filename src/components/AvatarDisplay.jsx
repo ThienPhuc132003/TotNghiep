@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCamera } from '@fortawesome/free-solid-svg-icons';
-// Import CSS mới cho component này
 import '../assets/css/AvatarDisplay.style.css';
 
 const AvatarDisplay = ({ imageUrl, onTriggerSelect }) => {

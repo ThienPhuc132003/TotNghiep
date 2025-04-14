@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import "../assets/css/FormDetail.style.css";
-import CertificateList from "../components/User/CertificateList"; 
+import CertificateList from "../components/User/CertificateList";
 
 const FormDetailComponent = ({
   formData,
@@ -37,7 +37,7 @@ const FormDetailComponent = ({
   const renderCertificateList = () => {
     if (mode === "view" && showFileManagement) {
       return (
-        <div className="form-group">
+        <div className="form-detail-group">
           <label>Chứng chỉ:</label>
           <CertificateList certificates={formData.certificates} />
         </div>
@@ -48,26 +48,27 @@ const FormDetailComponent = ({
 
   return (
     <div className="form-detail-container">
-      <div className="form-header">
+      <div className="form-detail-header">
         <h2>{title}</h2>
-        <button className="close-button" onClick={onClose}>
+        <button className="form-detail-close-button" onClick={onClose}>
           ×
         </button>
       </div>
-      <div className="form-grid">
+      <div className="form-detail-grid">
         <form onSubmit={handleSubmit}>
           {fields.map((field) => (
-            <div className="form-group" key={field.key}>
+            <div className="form-detail-group" key={field.key}>
               <label>{t(field.label)}</label>
               {field.type === "select" ? (
-                // Hiển thị select box, nhưng disable nếu là chế độ view
                 <select
                   name={field.key}
                   value={formData[field.key] || ""}
                   onChange={handleChange}
                   disabled={mode === "view" || field.readOnly}
                   className={
-                    mode === "view" || field.readOnly ? "non-fillable" : ""
+                    mode === "view" || field.readOnly
+                      ? "form-detail-non-fillable"
+                      : ""
                   }
                 >
                   {field.options &&
@@ -85,21 +86,23 @@ const FormDetailComponent = ({
                   onChange={handleChange}
                   readOnly={mode === "view" || field.readOnly}
                   className={
-                    mode === "view" || field.readOnly ? "non-fillable" : ""
+                    mode === "view" || field.readOnly
+                      ? "form-detail-non-fillable"
+                      : ""
                   }
                 />
               )}
               {errors && errors[field.key] && (
-                <p className="error-message">{errors[field.key]}</p>
+                <p className="form-detail-error-message">{errors[field.key]}</p>
               )}
             </div>
           ))}
-          {renderCertificateList()} {/* Gọi hàm hiển thị CertificateList */}
-          <div className="form-actions">
+          {renderCertificateList()}
+          <div className="form-detail-actions">
             {mode !== "view" && (
               <button
                 type="submit"
-                className="save-button"
+                className="form-detail-save-button"
                 onClick={handleSubmit}
               >
                 {t("common.save")}

@@ -9,13 +9,17 @@ import {
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor } from "./redux/Store"; // Import persistor
 import AdminPrivateRoutes from "./route/AdminPrivateRoutes";
-// import UserPrivateRoutes from "./route/UserPrivateRoutes";
 import OtpProtectedRoute from "./route/OtpProtectedRoute";
+import TutorRegistrationGuard from "./route/TutorRegistrationGuard ";
+import { ToastContainer } from "react-toastify";
 // User
 const HomePage = lazy(() => import("./pages/User/HomePage"));
 const UserDashboard = lazy(() => import("./pages/User/Dashboard"));
 const UserLogin = lazy(() => import("./pages/User/Login"));
 const Register = lazy(() => import("./pages/User/Register"));
+const TutorQualificationTestPage = lazy(() =>
+  import("./pages/User/TutorQualificationTestPage")
+);
 const RegisterTutor = lazy(() => import("./pages/User/RegisterTutor"));
 const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
@@ -53,11 +57,23 @@ function App() {
     <Router>
       <Suspense fallback={<div>Loading...</div>}>
         <PersistGate loading={null} persistor={persistor}>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
           <Routes>
             <Route index element={<Navigate to="/trang-chu" />} />
             <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
-            <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
+
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/register" element={<Register />} />
@@ -66,6 +82,13 @@ function App() {
             <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
             <Route path="/tro-giup" element={<HelpPage />} />
             <Route path="/user/wallet" element={<Wallet />} />
+            <Route
+              path="/trac-nghiem-gia-su"
+              element={<TutorQualificationTestPage />}
+            />
+            <Route element={<TutorRegistrationGuard />}>
+              <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
+            </Route>
             <Route
               path="/admin/auth/callback"
               element={<MicrosoftCallback />}
