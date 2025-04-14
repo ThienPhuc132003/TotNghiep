@@ -122,14 +122,21 @@ const TutorRegistrationForm = () => {
       console.log(`Upload Complete: id=${identifier}, url=${url}`);
       setFileUploadErrors((prev) => ({ ...prev, [identifier]: "" }));
       setFieldErrors((prev) => ({ ...prev, [identifier]: undefined }));
-      if (identifier in formData) {
+      // Update formData for evidence URLs directly
+      if (
+        identifier.startsWith("evidenceOfSubject") ||
+        identifier === "evidenceOfGPA"
+      ) {
+        setFormData((prev) => ({ ...prev, [identifier]: url }));
+      } else if (identifier in formData) {
+        // Handle other identifiers if necessary, though currently only evidence uses this
         setFormData((prev) => ({ ...prev, [identifier]: url }));
       } else {
-        console.warn("Unknown file identifier:", identifier);
+        console.warn("Unknown file identifier for generic upload:", identifier);
       }
     },
     [formData]
-  );
+  ); // Keep formData dependency
 
   const handleUploadError = useCallback((message, identifier) => {
     console.error(`Upload Error: id=${identifier}, msg=${message}`);
@@ -147,24 +154,27 @@ const TutorRegistrationForm = () => {
 
   const removeSubjectSlot = useCallback(
     (subjectIndexToRemove) => {
-      const keySuffix = subjectIndexToRemove;
-      const keysToReset = [
-        `subjectId${keySuffix}`,
-        `evidenceOfSubject${keySuffix}`,
-        `descriptionOfSubject${keySuffix}`,
-      ];
+      const keySuffix = subjectIndexToRemove === 1 ? "" : subjectIndexToRemove; // Handle index 1 having no suffix
+      const subjectIdKey = `subjectId${keySuffix}`;
       const evidenceKey = `evidenceOfSubject${keySuffix}`;
-      const resetFields = keysToReset.reduce(
-        (acc, key) => ({ ...acc, [key]: "" }),
-        {}
-      );
-      const resetFieldErrors = keysToReset.reduce(
-        (acc, key) => ({ ...acc, [key]: undefined }),
-        {}
-      );
+      const descriptionKey = `descriptionOfSubject${keySuffix}`;
+
+      const resetFields = {
+        [subjectIdKey]: "",
+        [evidenceKey]: "",
+        [descriptionKey]: "",
+      };
+      const resetFieldErrors = {
+        [subjectIdKey]: undefined,
+        [evidenceKey]: undefined,
+        [descriptionKey]: undefined,
+      };
+
       setFormData((prev) => ({ ...prev, ...resetFields }));
       setFieldErrors((prev) => ({ ...prev, ...resetFieldErrors }));
-      setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" }));
+      setFileUploadErrors((prev) => ({ ...prev, [evidenceKey]: "" })); // Reset specific upload error
+
+      // Shift data up if subject 2 is removed and subject 3 exists
       if (subjectIndexToRemove === 2 && numberOfSubjects === 3) {
         const dataToMove = {
           subjectId2: formData.subjectId3,
@@ -177,19 +187,24 @@ const TutorRegistrationForm = () => {
           descriptionOfSubject2: fieldErrors.descriptionOfSubject3,
         };
         const fileErrorToMove = fileUploadErrors["evidenceOfSubject3"];
-        setFormData((prev) => ({
-          ...prev,
-          ...dataToMove,
+
+        // Reset subject 3 fields after moving
+        const resetSubject3 = {
           subjectId3: "",
           evidenceOfSubject3: "",
           descriptionOfSubject3: "",
-        }));
-        setFieldErrors((prev) => ({
-          ...prev,
-          ...errorsToMove,
+        };
+        const resetSubject3Errors = {
           subjectId3: undefined,
           evidenceOfSubject3: undefined,
           descriptionOfSubject3: undefined,
+        };
+
+        setFormData((prev) => ({ ...prev, ...dataToMove, ...resetSubject3 }));
+        setFieldErrors((prev) => ({
+          ...prev,
+          ...errorsToMove,
+          ...resetSubject3Errors,
         }));
         setFileUploadErrors((prev) => ({
           ...prev,
@@ -197,6 +212,7 @@ const TutorRegistrationForm = () => {
           evidenceOfSubject3: "",
         }));
       }
+      // Decrement count last
       setNumberOfSubjects((prev) => prev - 1);
     },
     [numberOfSubjects, formData, fieldErrors, fileUploadErrors]
@@ -598,24 +614,28 @@ const TutorRegistrationForm = () => {
       const subjectIdKey = `subjectId${suffix}`;
       const evidenceKey = `evidenceOfSubject${suffix}`;
       let subjectHasError = false;
-      if (!formData[subjectIdKey]) {
-        errors[subjectIdKey] = `Vui lòng chọn môn học ${index}.`;
-        subjectHasError = true;
-      }
-      if (!formData[evidenceKey]) {
-        errors[evidenceKey] = `Vui lòng tải minh chứng cho môn học ${index}.`;
-        subjectHasError = true;
-      } else if (fileUploadErrors[evidenceKey]) {
-        errors[
-          evidenceKey
-        ] = `Minh chứng môn ${index}: ${fileUploadErrors[evidenceKey]}`;
-        subjectHasError = true;
+      // Only validate if the subject slot is intended (based on numberOfSubjects)
+      if (index <= numberOfSubjects) {
+        if (!formData[subjectIdKey]) {
+          errors[subjectIdKey] = `Vui lòng chọn môn học ${index}.`;
+          subjectHasError = true;
+        }
+        if (!formData[evidenceKey]) {
+          errors[evidenceKey] = `Vui lòng tải minh chứng cho môn học ${index}.`;
+          subjectHasError = true;
+        } else if (fileUploadErrors[evidenceKey]) {
+          errors[
+            evidenceKey
+          ] = `Minh chứng môn ${index}: ${fileUploadErrors[evidenceKey]}`;
+          subjectHasError = true;
+        }
       }
       return subjectHasError;
     };
     if (validateSubject(1)) isValid = false;
-    if (numberOfSubjects >= 2 && validateSubject(2)) isValid = false;
-    if (numberOfSubjects >= 3 && validateSubject(3)) isValid = false;
+    if (validateSubject(2)) isValid = false; // Validate even if not filled, if numberOfSubjects >= 2
+    if (validateSubject(3)) isValid = false; // Validate even if not filled, if numberOfSubjects === 3
+
     // Availability validation
     let hasSelectedDay = false;
     let hasAnyValidTime = false;
@@ -673,10 +693,11 @@ const TutorRegistrationForm = () => {
         avatarUploadError ||
           errors.availability ||
           errors.avatar ||
-          Object.values(errors)[0] ||
+          Object.values(errors).find((e) => e) ||
           "Vui lòng kiểm tra lại thông tin."
       );
-    } else {
+    } // Find first error message
+    else {
       setFormError("");
     }
     console.log("Validation Result:", isValid, errors);
@@ -692,7 +713,7 @@ const TutorRegistrationForm = () => {
     avatarUploadError,
   ]);
 
-  // --- Handle Submit ---
+  // --- Handle Submit (Gửi dữ liệu theo cấu trúc JSON mẫu - Flat Subjects, dateTimeLearn Array) ---
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -720,7 +741,7 @@ const TutorRegistrationForm = () => {
 
       // === Append data matching the SAMPLE JSON structure ===
 
-      // 1. Basic Info
+      // 1. Basic Info (Appending strings, numbers, boolean as needed by backend)
       registrationFormData.append("fullname", formData.fullname);
       registrationFormData.append("majorId", formData.majorId);
       registrationFormData.append("birthday", formData.birthday);
@@ -729,14 +750,11 @@ const TutorRegistrationForm = () => {
       registrationFormData.append("bankName", formData.bankName);
       registrationFormData.append("description", formData.description || "");
       registrationFormData.append("univercity", formData.univercity);
-      // Send GPA and teachingTime as numbers (if backend expects numbers directly)
-      // If backend expects strings, keep as is: formData.GPA, formData.teachingTime
-      registrationFormData.append("GPA", parseFloat(formData.GPA) || 0); // Parse to float, default 0
+      registrationFormData.append("GPA", formData.GPA); // Send GPA as string
       registrationFormData.append(
         "teachingTime",
-        parseFloat(formData.teachingTime) || 0
-      ); // Parse to float, default 0
-
+        String(formData.teachingTime)
+      ); // Send teachingTime as string
       if (formData.evidenceOfGPA) {
         registrationFormData.append("evidenceOfGPA", formData.evidenceOfGPA);
       }
@@ -747,16 +765,13 @@ const TutorRegistrationForm = () => {
       if (formData.teachingPlace) {
         registrationFormData.append("teachingPlace", formData.teachingPlace);
       }
-      // Send isUseCurriculumn as boolean (if backend expects boolean directly)
-      // If backend expects string "true"/"false", use String(formData.isUseCurriculumn)
       registrationFormData.append(
         "isUseCurriculumn",
-        formData.isUseCurriculumn
-      ); // Send boolean
-
+        String(formData.isUseCurriculumn)
+      ); // Send boolean as "true"/"false" string
       if (formData.avatar) {
         registrationFormData.append("avatar", formData.avatar);
-      }
+      } // Send Avatar URL
 
       // 2. Subjects (Append individual fields based on sample)
       if (formData.subjectId && formData.evidenceOfSubject) {
@@ -764,7 +779,7 @@ const TutorRegistrationForm = () => {
         registrationFormData.append(
           "evidenceOfSubject",
           formData.evidenceOfSubject
-        ); // URL from GenericFileUploader
+        );
         registrationFormData.append(
           "descriptionOfSubject",
           formData.descriptionOfSubject || ""
@@ -779,13 +794,12 @@ const TutorRegistrationForm = () => {
         registrationFormData.append(
           "evidenceOfSubject2",
           formData.evidenceOfSubject2
-        ); // URL from GenericFileUploader
+        );
         registrationFormData.append(
           "descriptionOfSubject2",
           formData.descriptionOfSubject2 || ""
         );
       }
-      // Add Subject 3 if it exists and backend supports it (assuming keys follow pattern)
       if (
         numberOfSubjects >= 3 &&
         formData.subjectId3 &&
@@ -795,36 +809,34 @@ const TutorRegistrationForm = () => {
         registrationFormData.append(
           "evidenceOfSubject3",
           formData.evidenceOfSubject3
-        ); // URL from GenericFileUploader
+        );
         registrationFormData.append(
           "descriptionOfSubject3",
           formData.descriptionOfSubject3 || ""
         );
       }
 
-      // 3. Availability (Append as dateTimeLearn with Array structure)
+      // 3. Availability (Append as 'dateTimeLearn' with Array structure)
       const dateTimeLearnArray = [];
       daysOfWeek.forEach((day) => {
         const dayData = availability[day];
         if (dayData.isSelected && dayData.times.length > 0) {
           const validTimes = dayData.times.filter((t) => !!t).sort();
           if (validTimes.length > 0) {
-            dateTimeLearnArray.push({
-              day: day, // Keep English day name
-              times: validTimes,
-            });
+            dateTimeLearnArray.push({ day: day, times: validTimes });
           }
         }
       });
-      // Append the JSON string of the array with the key 'dateTimeLearn'
       registrationFormData.append(
         "dateTimeLearn",
         JSON.stringify(dateTimeLearnArray)
-      );
+      ); // Append JSON string of the array
 
       // === End Appending Data ===
 
-      console.log("--- Submitting FormData (Structured as Sample) ---");
+      console.log(
+        "--- Submitting FormData (Structured as Sample - Flat Subjects, dateTimeLearn Array) ---"
+      );
       for (let pair of registrationFormData.entries()) {
         console.log(pair[0] + ": ", pair[1]);
       }
@@ -832,9 +844,9 @@ const TutorRegistrationForm = () => {
       // --- API Call ---
       try {
         const response = await Api({
-          endpoint: "tutor-request/regis-to-tutor",
+          endpoint: "tutor-request/regis-to-tutor", // <<< CHECK YOUR ENDPOINT
           method: METHOD_TYPE.POST,
-          data: registrationFormData, // Send the structured FormData
+          data: registrationFormData,
         });
         if (response.success === true) {
           setSuccess("Đăng ký thành công! Hồ sơ của bạn sẽ được xét duyệt.");
@@ -879,7 +891,8 @@ const TutorRegistrationForm = () => {
   // --- Render Subject Section ---
   const renderSubjectSection = useCallback(
     (index) => {
-      const suffix = index > 1 ? index : "";
+      // Adjust suffix handling for index 1
+      const suffix = index === 1 ? "" : index;
       const subjectIdKey = `subjectId${suffix}`;
       const evidenceKey = `evidenceOfSubject${suffix}`;
       const descriptionKey = `descriptionOfSubject${suffix}`;
