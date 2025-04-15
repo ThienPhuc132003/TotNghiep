@@ -362,7 +362,7 @@
   position: relative;
   overflow: hidden;
   padding-bottom: 0; /* Loại bỏ padding-bottom */
-  height: auto; /* Cho phép chiều cao tự động điều chỉnh */
+  height: 300px; /* Cho phép chiều cao tự động điều chỉnh */
   max-width: 100%; /* Giới hạn chiều rộng tối đa */
 }
 
@@ -373,7 +373,6 @@
   width: 100%;
   height: 100%;
   border: 0;
-  max-height: 250px; /* Giới hạn chiều cao tối đa */
 }
 
 /* Phần dưới cùng của Footer */

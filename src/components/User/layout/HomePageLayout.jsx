@@ -1,94 +1,146 @@
 // src/components/User/layout/HomePageLayout.jsx
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
-import { Link, useLocation } from "react-router-dom";
-import Cookies from "js-cookie"; // <<< Đã thêm import Cookies >>>
-import { useSelector } from "react-redux"; // Giữ lại useSelector
-import logo from "../../../assets/images/logo_white.webp"; // Đường dẫn tới logo
-import "../../../assets/css/HomePageLayout.style.css"; // Import CSS cho layout
-import { FaBars, FaTimes, FaEnvelope, FaPhone } from "react-icons/fa"; // Import icons
+import { Link, useLocation } from "react-router-dom"; // Thêm useNavigate nếu cần logout
+import Cookies from "js-cookie";
+import { useSelector } from "react-redux"; // Thêm useDispatch nếu cần logout
+import logo from "../../../assets/images/logo_white.webp";
+import "../../../assets/css/HomePageLayout.style.css";
+import { FaBars, FaTimes, FaEnvelope, FaPhone } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-import UserAccountToolbar from "./UserAccountToolbar"; // Component Toolbar người dùng
+import UserAccountToolbar from "./UserAccountToolbar"; // Đảm bảo đường dẫn đúng
+// Import action logout từ userSlice nếu bạn có (ví dụ)
+// import { logoutUser } from '../../../redux/userSlice';
 
-// Component chính của Layout
 const HomePageLayoutComponent = ({ children }) => {
-  const location = useLocation(); // Hook để lấy thông tin route
-  const [isScrollingUp, setIsScrollingUp] = useState(true); // State ẩn/hiện header khi cuộn
-  const lastScrollY = useRef(window.scrollY); // Ref lưu vị trí cuộn cuối cùng
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State đóng/mở menu mobile
+  const location = useLocation();
+  // const navigate = useNavigate(); // Dùng khi cần chuyển hướng sau logout
+  // const dispatch = useDispatch(); // Dùng khi cần dispatch action Redux logout
+
+  const [isScrollingUp, setIsScrollingUp] = useState(true);
+  const lastScrollY = useRef(window.scrollY);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const today = new Date();
-  const thisYear = today.getFullYear(); // Lấy năm hiện tại cho footer
+  const thisYear = today.getFullYear();
 
-  // --- Lấy profile từ Redux store ---
-  // Giả sử state profile user nằm trong state.user.profile
-  const userProfile = useSelector((state) => state.user.profile);
-  // Kiểm tra sự tồn tại của một trường định danh trong profile (ví dụ: userId, id, email)
-  const userIdFromProfile =
-    userProfile?.userId || userProfile?.id || userProfile?.email; // Thay 'userId' bằng trường thực tế
+  // --- Lấy userProfile từ Redux store ---
+  // Vẫn lấy userProfile để sử dụng cho các thông tin khác khi đã đăng nhập
+  const userProfile = useSelector((state) => state.user.userProfile);
 
-  // --- KIỂM TRA AUTHENTICATION (Kết hợp Redux và Cookie) ---
-  // Kiểm tra xem có cookie token và role=user hợp lệ không
-  const hasValidCookies =
-    !!Cookies.get("token") && Cookies.get("role") === "user";
-  // Xác thực nếu có thông tin định danh trong profile Redux HOẶC có cookie hợp lệ
-  // Điều này giúp hiển thị toolbar ngay cả khi Redux chưa kịp cập nhật sau khi login form
-  const isAuthenticated = !!userIdFromProfile || hasValidCookies;
+  // --- Hàm kiểm tra Authentication dựa trên Cookies ---
+  const checkAuthentication = useCallback(() => {
+    const token = Cookies.get("token");
+    const role = Cookies.get("role");
+    // console.log("[AuthCheck] Token:", token, "Role:", role); // Debug log
+    return !!token && role === "user"; // Chỉ true nếu có token VÀ role là 'user'
+  }, []); // useCallback vì hàm này không phụ thuộc vào state/props nào trong component này
 
-  // Log trạng thái để debug (có thể xóa/comment sau khi hoạt động ổn định)
+  // --- State lưu trạng thái đăng nhập ---
+  // Khởi tạo state dựa trên kết quả kiểm tra cookie ban đầu
+  const [isAuthenticated, setIsAuthenticated] = useState(checkAuthentication());
+
+  // --- Effect cập nhật trạng thái Authentication ---
+  // Chạy mỗi khi location thay đổi (chuyển trang) hoặc khi component mount
+  useEffect(() => {
+    const currentAuthStatus = checkAuthentication();
+    // Chỉ cập nhật state nếu trạng thái thực tế khác với state hiện tại
+    if (currentAuthStatus !== isAuthenticated) {
+      setIsAuthenticated(currentAuthStatus);
+      // console.log("[AuthCheck Effect] Updated isAuthenticated:", currentAuthStatus); // Debug log
+    }
+  }, [location, checkAuthentication, isAuthenticated]); // Thêm isAuthenticated vào dependencies
+
+  // --- Lấy thông tin gia sư (chỉ khi đã đăng nhập) ---
+  const tutorStatus = isAuthenticated ? userProfile?.tutorStatus : null;
+  const isTutorAccepted = isAuthenticated && tutorStatus === "ACCEPT";
+
+  /* // Log tổng hợp (bật/tắt khi cần debug)
   console.log(
     "HomePageLayout Rendering:",
-    "- userIdFromProfile:",
-    userIdFromProfile, // Log giá trị ID lấy từ Redux
-    "- hasValidCookies:",
-    hasValidCookies, // Log kết quả kiểm tra cookie
-    "- isAuthenticated (final):",
-    isAuthenticated // Log trạng thái xác thực cuối cùng
-    // "- Profile from Redux:", JSON.stringify(userProfile) // Log chi tiết profile nếu cần
+    "- isAuthenticated (State):", isAuthenticated,
+    "- User Profile from Redux:", userProfile,
+    "- tutorStatus:", tutorStatus,
+    "- isTutorAccepted:", isTutorAccepted
   );
-  // --- KẾT THÚC KIỂM TRA AUTH ---
+  */
 
-  // --- Side Effects ---
-
-  // Xử lý sự kiện cuộn trang để ẩn/hiện header
-  const handleScroll = () => {
-    if (window.scrollY < lastScrollY.current || window.scrollY < 50) {
-      setIsScrollingUp(true); // Hiện header nếu cuộn lên hoặc ở gần đầu trang
+  // --- Xử lý Scroll Header ---
+  const handleScroll = useCallback(() => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY < lastScrollY.current || currentScrollY < 50) {
+      setIsScrollingUp(true);
     } else {
-      setIsScrollingUp(false); // Ẩn header nếu cuộn xuống
+      setIsScrollingUp(false);
     }
-    lastScrollY.current = window.scrollY; // Cập nhật vị trí cuộn cuối
-  };
+    lastScrollY.current = currentScrollY;
+  }, []); // useCallback vì không phụ thuộc state/props
 
-  // Đăng ký và hủy đăng ký sự kiện scroll
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []); // Chạy một lần khi component mount
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]); // Thêm handleScroll vào dependencies
 
-  // Hàm đóng/mở menu mobile
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMobileMenu = () => setIsMobileMenuOpen(false); // Hàm đóng menu
+  // --- Xử lý Mobile Menu ---
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen((prev) => !prev);
+  }, []);
 
-  // Effect để đánh dấu menu item active dựa trên route hiện tại
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  // --- Xử lý Active Menu Item ---
   useEffect(() => {
     const path = location.pathname;
-    const menuItems = document.querySelectorAll(".home-page-menu-item"); // Lấy các item menu desktop
+    const menuItems = document.querySelectorAll(
+      ".home-page-menu .home-page-menu-item"
+    );
+    const mobileMenuItems = document.querySelectorAll(
+      ".mobile-menu-nav .mobile-menu-item"
+    );
 
-    menuItems.forEach((item) => {
-      const link = item.getAttribute("href"); // Lấy href của item
-      // So sánh path hiện tại với href
-      if (link && (path === link || (link !== "/" && path.startsWith(link)))) {
-        item.classList.add("active"); // Thêm class active nếu khớp
-      } else {
-        item.classList.remove("active"); // Xóa class active nếu không khớp
-      }
-    });
-    // Tương tự có thể làm cho mobile menu nếu cần
-  }, [location]); // Chạy lại mỗi khi location thay đổi
+    const setActive = (items) => {
+      items.forEach((item) => {
+        // Lấy href từ thẻ a (item có thể là Link hoặc thẻ khác chứa Link)
+        const linkElement = item.tagName === "A" ? item : item.closest("a"); // Tìm thẻ 'a' gần nhất
+        const link = linkElement ? linkElement.getAttribute("href") : null;
+
+        // Bỏ class 'active' trước khi kiểm tra
+        item.classList.remove("active");
+
+        if (link) {
+          // Xử lý trường hợp trang chủ (path = '/' và link = '/' hoặc link = '/trang-chu')
+          if ((link === "/" || link === "/trang-chu") && path === "/") {
+            item.classList.add("active");
+          }
+          // Xử lý các trang khác (phải bắt đầu bằng link và không phải là link cha của trang hiện tại)
+          else if (
+            link !== "/" &&
+            link !== "/trang-chu" &&
+            path.startsWith(link)
+          ) {
+            // Kiểm tra chính xác hoặc là trang con trực tiếp
+            if (path === link || path.startsWith(link + "/")) {
+              item.classList.add("active");
+            }
+          }
+        }
+      });
+    };
+
+    setActive(menuItems);
+    setActive(mobileMenuItems);
+  }, [location]); // Chỉ phụ thuộc vào location
+
+  // --- Hàm xử lý khi Logout từ Toolbar ---
+  const handleLogout = useCallback(() => {
+    setIsAuthenticated(false); // Cập nhật state ngay lập tức
+    closeMobileMenu(); // Đóng menu mobile nếu đang mở
+    // Tại đây, component UserAccountToolbar đã thực hiện việc xóa cookie và Redux state
+    // navigate('/login'); // Có thể chuyển hướng về trang login nếu muốn
+  }, [closeMobileMenu]); // Phụ thuộc vào closeMobileMenu
 
   // --- Render JSX ---
   return (
@@ -97,62 +149,66 @@ const HomePageLayoutComponent = ({ children }) => {
       <header
         className={`home-page-header ${isScrollingUp ? "visible" : "hidden"}`}
       >
-        {/* Menu Desktop */}
         <nav className="home-page-menu">
-          {/* Logo */}
           <Link to="/" className="logo-link">
             <img src={logo} alt="Gia Sư VLU Logo" className="logo" />
           </Link>
-          {/* Các mục menu */}
-          <Link
-            to="/trang-chu"
-            className="home-page-menu-item"
-            href="/trang-chu"
-          >
+          <Link to="/trang-chu" className="home-page-menu-item">
             Trang chủ
           </Link>
-          <Link to="/about" className="home-page-menu-item" href="/about">
+          <Link to="/about" className="home-page-menu-item">
             Về chúng tôi
           </Link>
-          {/* Link "Đăng ký làm gia sư" chỉ hiển thị khi đã đăng nhập */}
-          {isAuthenticated && (
-            <Link
-              to="/dang-ky-gia-su"
-              className="home-page-menu-item"
-              href="/dang-ky-gia-su"
-            >
-              Đăng ký làm gia sư
-            </Link>
-          )}
-          <Link to="/tro-giup" className="home-page-menu-item" href="/tro-giup">
-            Trợ giúp
+
+          {/* Link Đăng ký/Hồ sơ gia sư - Chỉ hiển thị khi đã đăng nhập */}
+          {isAuthenticated &&
+            (isTutorAccepted ? (
+              <Link to="/ho-so-gia-su" className="home-page-menu-item">
+                Hồ sơ gia sư
+              </Link>
+            ) : (
+              <Link to="/dang-ky-gia-su" className="home-page-menu-item">
+                Đăng ký làm gia sư
+              </Link>
+            ))}
+
+          <Link
+            to="/quy-dinh-noi-quy-huong-dan"
+            className="home-page-menu-item"
+          >
+            Quy định
           </Link>
-          <Link to="/blog" className="home-page-menu-item" href="/blog">
+          <Link to="/blog" className="home-page-menu-item">
             Blog
+          </Link>
+          <Link to="/tim-kiem-gia-su" className="home-page-menu-item">
+            Tìm kiếm gia sư
           </Link>
         </nav>
 
-        {/* Phần Đăng nhập/Đăng ký hoặc Toolbar User */}
-        {!isAuthenticated ? (
-          // Hiển thị khi chưa đăng nhập
-          <div className="home-page-register-login">
-            <Link to="/login" className="home-page-link login-link">
-              Đăng nhập
-            </Link>
-            <Link to="/register" className="home-page-link register-link">
-              Đăng ký
-            </Link>
-          </div>
-        ) : (
-          // Hiển thị khi đã đăng nhập (dựa trên Redux hoặc Cookie)
-          <UserAccountToolbar />
-        )}
+        {/* Phần Đăng nhập/Đăng ký hoặc User Toolbar */}
+        <div className="header-auth-section">
+          {!isAuthenticated ? (
+            <div className="home-page-register-login">
+              <Link to="/login" className="home-page-link login-link">
+                Đăng nhập
+              </Link>
+              <Link to="/register" className="home-page-link register-link">
+                Đăng ký
+              </Link>
+            </div>
+          ) : (
+            // Truyền hàm handleLogout vào UserAccountToolbar
+            <UserAccountToolbar onLogout={handleLogout} />
+          )}
+        </div>
 
         {/* Nút mở Mobile Menu */}
         <button
           className="mobile-menu-button"
           onClick={toggleMobileMenu}
-          aria-label="Mở menu"
+          aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"} // Cập nhật aria-label
+          aria-expanded={isMobileMenuOpen} // Thêm aria-expanded
         >
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -162,13 +218,12 @@ const HomePageLayoutComponent = ({ children }) => {
       <div className={`mobile-menu ${isMobileMenuOpen ? "open" : ""}`}>
         <button
           className="mobile-menu-close-button"
-          onClick={toggleMobileMenu}
+          onClick={toggleMobileMenu} // Dùng lại toggleMobileMenu
           aria-label="Đóng menu"
         >
           <FaTimes />
         </button>
         <nav className="mobile-menu-nav">
-          {/* Các link trong mobile menu */}
           <Link
             to="/trang-chu"
             className="mobile-menu-item"
@@ -183,22 +238,33 @@ const HomePageLayoutComponent = ({ children }) => {
           >
             Về chúng tôi
           </Link>
-          {/* Link đăng ký gia sư trong mobile menu */}
-          {isAuthenticated && (
-            <Link
-              to="/dang-ky-gia-su"
-              className="mobile-menu-item"
-              onClick={closeMobileMenu}
-            >
-              Đăng ký gia sư
-            </Link>
-          )}
+
+          {/* Link Đăng ký/Hồ sơ gia sư trong mobile */}
+          {isAuthenticated &&
+            (isTutorAccepted ? (
+              <Link
+                to="/ho-so-gia-su"
+                className="mobile-menu-item"
+                onClick={closeMobileMenu}
+              >
+                Hồ sơ gia sư
+              </Link>
+            ) : (
+              <Link
+                to="/dang-ky-gia-su"
+                className="mobile-menu-item"
+                onClick={closeMobileMenu}
+              >
+                Đăng ký làm gia sư
+              </Link>
+            ))}
+
           <Link
-            to="/tro-giup"
+            to="/quy-dinh-noi-quy-huong-dan"
             className="mobile-menu-item"
             onClick={closeMobileMenu}
           >
-            Trợ giúp
+            Quy định
           </Link>
           <Link
             to="/blog"
@@ -207,8 +273,16 @@ const HomePageLayoutComponent = ({ children }) => {
           >
             Blog
           </Link>
+          <Link
+            to="/tim-kiem-gia-su"
+            className="mobile-menu-item"
+            onClick={closeMobileMenu}
+          >
+            Tìm kiếm gia sư
+          </Link>
           <hr className="mobile-menu-divider" />
-          {/* Phần đăng nhập/đăng ký hoặc toolbar trong mobile menu */}
+
+          {/* Phần Đăng nhập/Đăng ký hoặc User Toolbar trong Mobile */}
           {!isAuthenticated ? (
             <>
               <Link
@@ -228,20 +302,19 @@ const HomePageLayoutComponent = ({ children }) => {
             </>
           ) : (
             <div className="mobile-user-toolbar-wrapper">
-              <UserAccountToolbar />
+              {/* Truyền hàm handleLogout vào UserAccountToolbar */}
+              <UserAccountToolbar onLogout={handleLogout} />
             </div>
           )}
         </nav>
       </div>
 
       {/* ==================== Main Content ==================== */}
-      {/* Render nội dung của trang con được truyền vào */}
       <main className="main-content">{children}</main>
 
       {/* ==================== Footer ==================== */}
       <footer className="home-page-footer">
         <div className="footer-content">
-          {/* Cột 1: Logo & Mô tả */}
           <div className="footer-section footer-brand-section">
             <div className="footer-logo-container">
               <img
@@ -252,44 +325,45 @@ const HomePageLayoutComponent = ({ children }) => {
               <span className="footer-brand-text">GiaSuVLU</span>
             </div>
             <p className="footer-brand-description">
-              GiaSuVLU là nền tảng kết nối sinh viên Văn Lang với các gia sư
-              chất lượng, hỗ trợ học tập hiệu quả cả online lẫn offline. Chúng
-              tôi không chỉ giúp bạn tìm được người hướng dẫn phù hợp mà còn
-              đồng hành cùng bạn trên hành trình chinh phục tri thức và phát
-              triển bản thân.
+              Đây là nền tảng chuyên biệt dành cho sinh viên Trường Đại học Văn
+              Lang, nơi kết nối với đội ngũ gia sư uy tín và giàu kinh nghiệm,
+              giúp hỗ trợ học tập hiệu quả thông qua các buổi học tương tác trực
+              tuyến (online) lẫn kèm cặp trực tiếp (offline), đồng thời mang lại
+              sự linh hoạt, tiện lợi và nâng cao chất lượng giáo dục.
             </p>
           </div>
-
-          {/* Cột 3: Bản đồ */}
           <div className="footer-section footer-map-section">
             <h3>Bản đồ</h3>
             <div className="map-responsive-container">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.7877999948746!2d106.69745087573634!3d10.827544858247297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528f4a62fce9b%3A0xc99902aa1e26ef02!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBWxINuIExhbmcgLSBDxqEgc-G7nyBjaMOtbmg!5e0!3m2!1svi!2sus!4v1743440267185!5m2!1svi!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.7877999948746!2d106.69745087573634!3d10.827544858247297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528f4a62fce9b%3A0xc99902aa1e26ef02!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBWxINuIExhbmcgLSBDxqEgc-G7nyBjaMOtbmg!5e0!3m2!1svi!2sus!4v1743440267185!5m2!1svi!2sus" // Lưu ý: API key có thể cần thiết cho Google Maps ở môi trường production
                 style={{ border: 0 }}
-                allowFullScreen=""
+                allowFullScreen={true} // Thuộc tính boolean
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 title="Bản đồ vị trí Đại học Văn Lang"
               ></iframe>
             </div>
           </div>
-
-          {/* Cột 2: Thông tin liên hệ */}
           <div className="footer-section footer-contact-section">
             <h3>Thông tin liên hệ</h3>
             <p>
-              <FaEnvelope className="footer-icon-svg" /> Email:
-              info@giasuvanlang.com
+              <FaEnvelope className="footer-icon-svg" aria-hidden="true" />{" "}
+              Email:{" "}
+              <a href="mailto:info@giasuvanlang.com">info@giasuvanlang.com</a>
             </p>
             <p>
-              <FaPhone className="footer-icon-svg" /> Điện thoại: 012 2109 9200
+              <FaPhone className="footer-icon-svg" aria-hidden="true" /> Điện
+              thoại: <a href="tel:01221099200">012 2109 9200</a>
             </p>
             <p>
-              <FontAwesomeIcon icon={faMapMarkerAlt} className="footer-icon" />{" "}
+              <FontAwesomeIcon
+                icon={faMapMarkerAlt}
+                className="footer-icon"
+                aria-hidden="true"
+              />{" "}
               Cơ sở chính: 69/68 Đặng Thùy Trâm, P. 13, Q. Bình Thạnh, TP. HCM
             </p>
-            {/* ... các địa chỉ khác ... */}
           </div>
         </div>
         <div className="footer-bottom">
@@ -298,6 +372,8 @@ const HomePageLayoutComponent = ({ children }) => {
             <Link to="/privacy-policy" className="footer-policy-link">
               Chính sách riêng tư
             </Link>
+            {/* Thêm link Điều khoản sử dụng nếu có */}
+            {/* <Link to="/terms-of-service" className="footer-policy-link">Điều khoản sử dụng</Link> */}
           </p>
         </div>
       </footer>
@@ -307,9 +383,9 @@ const HomePageLayoutComponent = ({ children }) => {
 
 // Định nghĩa PropTypes
 HomePageLayoutComponent.propTypes = {
-  children: PropTypes.node, // Nội dung trang con
+  children: PropTypes.node, // children có thể là bất kỳ node React nào
 };
 
-// Sử dụng React.memo để tối ưu hóa render nếu props không thay đổi
+// Sử dụng React.memo để tối ưu hóa việc render lại không cần thiết
 const HomePageLayout = React.memo(HomePageLayoutComponent);
 export default HomePageLayout;

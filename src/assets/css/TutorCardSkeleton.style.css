@@ -1,0 +1,122 @@
+/* src/assets/css/TutorCardSkeleton.style.css */
+.tutor-card-skeleton {
+    display: flex;
+    background-color: #ffffff; /* var(--background-white) */
+    border-radius: 8px;
+    border: 1px solid #e5e7eb; /* var(--border-color) */
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1.2rem;
+    /* margin-bottom: 1.5rem;  Đã có gap trong tutor-list */
+  }
+  
+  .skeleton-left {
+    flex: 0 0 120px;
+    padding-right: 1.5rem; /* Khoảng cách giữa avatar và text */
+  }
+  
+  .skeleton-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .skeleton {
+    background-color: #e5e7eb; /* Màu nền skeleton */
+    border-radius: 4px;
+    animation: skeleton-loading 1.5s infinite linear;
+  }
+  
+  @keyframes skeleton-loading {
+    0% {
+      background-color: #e5e7eb;
+    }
+    50% {
+      background-color: #f3f4f6; /* Sáng hơn một chút */
+    }
+    100% {
+      background-color: #e5e7eb;
+    }
+  }
+  
+  .skeleton-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+  }
+  
+  .skeleton-line {
+    height: 1em; /* Chiều cao tương đối */
+    margin-bottom: 0.8rem; /* Điều chỉnh khoảng cách nếu cần */
+  }
+  
+  .skeleton-line-xs { width: 40%; }
+  .skeleton-line-sm { width: 60%; }
+  .skeleton-line-md { width: 85%; }
+  .skeleton-line-lg { width: 100%; }
+  
+  .skeleton-footer {
+    margin-top: auto; /* Đẩy xuống dưới */
+    padding-top: 0.8rem;
+    border-top: 1px solid #f3f4f6; /* var(--border-color) nhẹ hơn */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .skeleton-button {
+    width: 100px;
+    height: 36px; /* Chiều cao tương đương nút */
+    border-radius: 20px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .skeleton-left {
+      flex-basis: 100px;
+      padding-right: 1rem;
+    }
+    .skeleton-avatar {
+      width: 75px;
+      height: 75px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .tutor-card-skeleton {
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    .skeleton-left {
+       flex-basis: auto;
+       width: 100%;
+       padding-right: 0;
+       display: flex;
+       justify-content: center;
+       margin-bottom: 1rem;
+       padding-bottom: 1rem;
+       border-bottom: 1px solid #f3f4f6;
+    }
+     .skeleton-avatar {
+      width: 90px;
+      height: 90px;
+    }
+    .skeleton-right {
+      width: 100%;
+      align-items: center;
+    }
+    .skeleton-line {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .skeleton-footer {
+      flex-direction: column;
+      gap: 0.8rem;
+      width: 80%;
+      max-width: 250px;
+    }
+     .skeleton-button {
+       width: 100%;
+     }
+  }

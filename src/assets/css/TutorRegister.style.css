@@ -11,6 +11,41 @@
   box-sizing: border-box;
 }
 
+/* === NEW: Loading and Error Container Styles === */
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #495057;
+}
+.loading-container p {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.error-container h3 {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+.error-container p {
+  margin-bottom: 1.5rem;
+  color: #721c24;
+}
+.error-container button {
+  background-color: #b41e2d;
+  color: white;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.error-container button:hover {
+  background-color: #901724;
+}
+/* ========================================= */
+
 /* Main heading (H2) */
 .tutor-registration-container h2 {
   text-align: center;
@@ -31,11 +66,6 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Lighter shadow for sections */
   border: 1px solid #e9ecef; /* Light border */
 }
-/* Optional top border for separation */
-/* .tutor-registration-form .form-section:not(:first-child) {
-    border-top: 1px solid #f1f1f1;
-    padding-top: 3rem;
-} */
 .tutor-registration-form .form-section:last-of-type {
   margin-bottom: 0; /* No bottom margin for the last section */
 }
@@ -74,7 +104,6 @@
 }
 
 /* === Labels === */
-/* Exclude labels within radio/checkbox groups */
 .form-group label:not(.checkbox-label):not(.radio-group label) {
   display: block;
   margin-bottom: 0.8rem;
@@ -82,7 +111,6 @@
   color: #495057; /* Standard label color */
   font-size: 0.95rem;
 }
-/* Style for the required asterisk */
 .form-group label .required-asterisk {
   color: #dc3545; /* Red color for asterisk */
   margin-left: 3px;
@@ -91,7 +119,7 @@
 
 /* === Inputs, Selects, Textareas === */
 .form-group input[type="text"],
-.form-group input[type="email"], /* Although email is removed, keep style for consistency */
+.form-group input[type="email"],
 .form-group input[type="date"],
 .form-group input[type="number"],
 .form-group input[type="url"],
@@ -107,7 +135,6 @@
   box-sizing: border-box;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-/* Focus state */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -115,7 +142,6 @@
   outline: 0; /* Remove default outline */
   box-shadow: 0 0 0 0.25rem rgba(180, 30, 45, 0.2); /* Focus shadow */
 }
-/* Disabled state */
 .form-group input:disabled,
 .form-group select:disabled,
 .form-group textarea:disabled {
@@ -127,7 +153,6 @@
   resize: vertical; /* Allow vertical resize */
   min-height: 120px; /* Minimum height */
 }
-/* Helper text/note below inputs */
 .note {
   font-size: 0.85rem;
   color: #6c757d; /* Grey color for notes */
@@ -160,10 +185,10 @@
   cursor: pointer;
   width: 17px;
   height: 17px;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 .checkbox-label {
-  margin-top: 0.5rem; /* Space above standalone checkbox */
+  margin-top: 0.5rem;
 }
 .checkbox-label span {
   line-height: 1.3;
@@ -181,7 +206,7 @@
 }
 .subject-item:last-of-type {
   margin-bottom: 1.5rem;
-} /* Reduce margin for last item before button */
+}
 .subject-item h4 {
   grid-column: 1 / -1;
   margin-bottom: 2rem;
@@ -197,7 +222,6 @@
 }
 
 /* === Availability Section Styling === */
-/* Input for teachingTime (moved here) */
 .teaching-time-group {
   max-width: 280px;
   margin-bottom: 2.5rem;
@@ -205,8 +229,7 @@
 .availability-note {
   margin-bottom: 1.8rem;
   font-weight: 500;
-} /* Make note slightly bolder */
-
+}
 .availability-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -355,58 +378,120 @@
   font-size: 1.3rem;
   padding: 0.1rem 0.6rem;
   line-height: 1;
-} /* Style for 'X' button */
+}
 
 /* === Submit Actions & Messages === */
 .form-actions {
   margin-top: 3.5rem;
   padding-top: 2rem;
   padding-bottom: 1rem;
-  /* text-align: center; */ /* Bỏ căn giữa mặc định */
   border-top: 1px solid #e9ecef;
-  display: flex; /* <<< Kích hoạt Flexbox */
-  justify-content: space-between; /* <<< Đẩy các items ra 2 đầu */
-  align-items: center; /* <<< Căn giữa theo chiều dọc */
-  flex-wrap: wrap; /* <<< Cho phép xuống dòng trên màn hình hẹp */
-  gap: 1rem 1.5rem; /* <<< Khoảng cách khi xuống dòng */
+  display: flex;
+  justify-content: space-between; /* Distribute items */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem; /* Increased gap */
 }
 
-/* Nút Submit */
-.form-actions button[type="submit"] {
-  /* Các style cũ giữ nguyên: background-color, color, padding, border-radius, etc. */
-  background-color: #b41e2d;
-  color: white;
-  padding: 1rem 3rem; /* Giữ hoặc điều chỉnh padding */
+/* --- Styles for common buttons (used by submit, update, cancel) --- */
+.form-actions button {
+  padding: 0.9rem 2.5rem; /* Slightly smaller padding */
   border: none;
-  border-radius: 50px;
-  font-size: 1.15rem; /* Giữ hoặc điều chỉnh */
+  border-radius: 50px; /* Rounded pill shape */
+  font-size: 1.1rem; /* Consistent font size */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(180, 30, 45, 0.25);
-  order: 2; /* <<< Đặt nút ở vị trí thứ 2 (bên phải) */
-  /* Có thể thêm margin-left: auto nếu chỉ có 2 phần tử và muốn đẩy nút sang phải tuyệt đối */
-  /* margin-left: auto; */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-width: 180px; /* Minimum width for buttons */
+  text-align: center;
 }
-/* Hover/disabled states giữ nguyên */
-.form-actions button[type="submit"]:hover:not(:disabled) {
+.form-actions button:disabled {
+  background-color: #ced4da !important; /* Use important to override specifics */
+  color: #6c757d !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: #ced4da !important;
+}
+.form-actions button .fa-spinner {
+  margin-right: 0.5rem;
+}
+
+/* --- Primary button style (Submit/Update) --- */
+.form-actions .button-primary,
+.form-actions button[type="submit"]:not(.button-secondary) /* Apply to default submit too */ {
+  background-color: #b41e2d;
+  color: white;
+  box-shadow: 0 4px 12px rgba(180, 30, 45, 0.25);
+}
+.form-actions .button-primary:hover:not(:disabled),
+.form-actions
+  button[type="submit"]:not(.button-secondary):hover:not(:disabled) {
   background-color: #901724;
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(180, 30, 45, 0.3);
 }
-.form-actions button[type="submit"]:disabled {
-  background-color: #ced4da;
-  color: #6c757d;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+
+/* --- Secondary button style (Cancel) --- */
+.form-actions .button-secondary {
+  background-color: #f8f9fa; /* Light background */
+  color: #6c757d; /* Grey text */
+  border: 1px solid #dee2e6; /* Light border */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-.form-actions .error-message,
-.form-actions .success-message {
-  order: 0; /* <<< Luôn nằm ở đầu */
-  width: 100%; /* Chiếm toàn bộ chiều rộng */
-  text-align: center; /* Căn giữa message */
-  margin-bottom: 1.5rem; /* Khoảng cách dưới message */
+.form-actions .button-secondary:hover:not(:disabled) {
+  background-color: #e9ecef; /* Slightly darker grey on hover */
+  border-color: #ced4da;
+  color: #495057;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Container for multiple action buttons (Update/Cancel) --- */
+.action-buttons-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1rem 1.5rem; /* Space between buttons */
+  justify-content: flex-end; /* Align buttons to the right */
+  flex-grow: 1; /* Allow container to take available space */
+  order: 2; /* Default order (right side) */
+}
+
+/* --- Status Display --- */
+.status-display {
+  order: 0; /* Place it at the beginning */
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+  margin-bottom: 0; /* Reset margin if previously set */
+  flex-shrink: 0; /* Prevent shrinking */
+}
+.status-display strong {
+  margin-right: 0.3rem;
+}
+/* Status-specific colors (add more as needed) */
+.status-display.status-request {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  color: #856404;
+}
+.status-display.status-approved {
+  background-color: #d1e7dd;
+  border-color: #badbcc;
+  color: #0f5132;
+}
+.status-display.status-rejected {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
 }
 
 /* General error/success messages */
@@ -419,6 +504,10 @@
   text-align: left;
   font-size: 1rem;
   border: 1px solid transparent;
+  /* Ensure messages take full width and appear above actions */
+  width: 100%;
+  order: -1; /* Make sure they appear first */
+  box-sizing: border-box;
 }
 .error-message {
   color: #842029;
@@ -430,6 +519,7 @@
   background-color: #d1e7dd;
   border-color: #badbcc;
 }
+
 /* Specific field error message */
 .field-error-message {
   color: #dc3545;
@@ -438,20 +528,18 @@
   font-weight: 500;
   display: block;
 }
+
 /* Terms link */
 .terms {
-  /* margin-top: 2.5rem; */ /* Bỏ margin top vì flexbox đã căn chỉnh */
-  margin-top: 0; /* Reset margin top */
+  margin-top: 0; /* Reset margin */
   font-size: 0.9rem;
   color: #6c757d;
   line-height: 1.6;
-  text-align: left; /* <<< Căn chữ sang trái */
-  order: 1; /* <<< Đặt text ở vị trí thứ 1 (bên trái) */
-  flex-basis: auto; /* Cho phép co giãn */
-  /* Giới hạn chiều rộng để không chiếm quá nhiều khi màn hình rộng */
-  max-width: calc(
-    100% - 250px
-  ); /* Ví dụ: trừ đi khoảng chiều rộng của nút + gap */
+  text-align: left;
+  order: 1; /* Place between status and buttons */
+  flex-basis: 100%; /* Take full width initially, buttons will push */
+  /* max-width: calc(100% - 450px); Allow it to shrink */
+  margin-right: auto; /* Push buttons to the right */
 }
 .terms a {
   color: #b41e2d;
@@ -462,9 +550,10 @@
   text-decoration: underline;
 }
 .availability-info .teaching-time-group {
-  max-width: 300px; /* Giữ giới hạn chiều rộng */
-  margin-top: 2.5rem; /* <<< Thêm khoảng cách với lưới lịch ở trên */
+  max-width: 300px;
+  margin-top: 2.5rem;
 }
+
 /* === Responsive === */
 @media (max-width: 992px) {
   .form-grid {
@@ -477,7 +566,34 @@
   .tutor-registration-form .form-section {
     padding: 2rem 2.5rem;
   }
+  .form-actions {
+    justify-content: center; /* Center items when wrapping */
+    gap: 1.5rem;
+  }
+  .terms {
+    text-align: center;
+    order: 3; /* Terms below buttons on wrap */
+    margin-right: 0;
+    max-width: 100%;
+  }
+  .action-buttons-container {
+    justify-content: center; /* Center buttons when wrapping */
+    order: 2;
+    width: 100%; /* Take full width */
+  }
+  .status-display {
+    order: 1; /* Status above buttons */
+    width: auto; /* Allow status to size naturally */
+    margin-bottom: 0; /* Reset margin */
+    text-align: center;
+    flex-basis: 100%; /* Take full width */
+  }
+  .form-actions button {
+    width: 45%; /* Make buttons take up roughly half width */
+    min-width: 150px;
+  }
 }
+
 @media (max-width: 576px) {
   .tutor-registration-container {
     padding: 1rem 1.5rem;
@@ -497,14 +613,38 @@
     min-height: auto;
   }
   .form-actions {
-    flex-direction: column; /* Xếp chồng lên nhau */
-    align-items: center; /* Căn giữa khi xếp chồng */
-    gap: 1.5rem; /* Khoảng cách khi xếp chồng */
+    flex-direction: column; /* Stack everything vertically */
+    align-items: center;
+    gap: 1.5rem;
   }
-  .form-actions button[type="submit"] {
-    order: 1; /* Nút submit ở trên */
-    width: 100%; /* Chiếm hết chiều rộng */
-    max-width: 300px; /* Giới hạn chiều rộng nút */
+  /* Reset orders for vertical stacking */
+  .error-message,
+  .success-message {
+    order: 0;
+    text-align: center;
+  }
+  .status-display {
+    order: 1;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  .action-buttons-container {
+    order: 2;
+    width: 100%;
+    flex-direction: column; /* Stack buttons vertically too */
+    align-items: center;
+    gap: 1rem;
+  }
+  .form-actions button, /* Target all buttons inside actions */
+  .action-buttons-container button /* Target buttons inside the container */ {
+    width: 100%; /* Full width buttons */
+    max-width: 300px;
+  }
+  .terms {
+    order: 3; /* Terms last */
+    text-align: center;
+    max-width: 100%;
   }
   .tutor-registration-container h2 {
     font-size: 1.8rem;
@@ -522,14 +662,16 @@
   .form-group {
     margin-bottom: 1.5rem;
   }
-  .terms {
-    order: 2; /* Text điều khoản ở dưới */
-    text-align: center; /* Căn giữa text */
-    max-width: 100%; /* Chiếm hết chiều rộng */
-  }
-  .form-actions .error-message,
-  .form-actions .success-message {
-    order: 0;
-    text-align: left; /* Căn trái message lỗi/thành công */
-  }
+}
+
+/* Disabled state for add/remove buttons */
+.add-button:disabled,
+.add-time-button:disabled,
+.remove-button:disabled,
+.remove-time-button:disabled {
+  background-color: #adb5bd; /* Muted grey */
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.65;
 }

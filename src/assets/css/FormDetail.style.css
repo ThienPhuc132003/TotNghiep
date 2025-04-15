@@ -1,13 +1,23 @@
+/* src/assets/css/FormDetail.style.css */
+
 /* Định nghĩa các biến CSS */
 :root {
-  --primary-color: #3498db;
-  --secondary-color: #ecf0f1;
-  --text-color: #333;
-  --border-color: #bdc3c7;
-  --error-color: rgba(215, 33, 52, 1);
+  --primary-color: #3498db; /* Màu xanh dương */
+  --secondary-color: #ecf0f1; /* Màu xám nhạt */
+  --text-color: #333; /* Màu chữ chính */
+  --border-color: #bdc3c7; /* Màu viền */
+  --error-color: #e74c3c; /* Màu đỏ cho lỗi */
+  --disabled-bg-color: #f0f0f0; /* Màu nền khi bị vô hiệu hóa */
+  --disabled-text-color: #7f8c8d; /* Màu chữ khi bị vô hiệu hóa (đậm hơn) */
+  --hover-border-color: #2980b9; /* Màu viền khi hover */
+  --success-color: #2ecc71; /* Màu xanh lá cho nút Lưu */
+  --success-hover-color: #27ae60; /* Hover xanh lá */
+  --cancel-color: #95a5a6; /* Màu xám cho nút Hủy */
+  --cancel-hover-color: #7f8c8d; /* Hover xám */
+  --required-asterisk-color: var(--error-color); /* Màu dấu * */
 }
 
-/* form container */
+/* Form container */
 .form-detail-container {
   position: relative;
   background: #fff;
@@ -18,26 +28,29 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
-  max-height: 80vh;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* form title */
+/* Form title */
 .form-detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
-  background-color: #fff;
+  background-color: #f8f9fa;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+  flex-shrink: 0;
 }
 
 .form-detail-header h2 {
-  text-align: center;
-  margin-bottom: 0.5rem;
+  margin: 0;
   color: var(--text-color);
-  font-size: 1.75rem;
+  font-size: 1.6rem;
+  font-weight: 600;
 }
 
 .form-detail-close-button {
@@ -45,57 +58,193 @@
   border: none;
   font-size: 1.75rem;
   cursor: pointer;
-  color: var(--text-color);
-  transition: color 0.3s ease;
+  color: #6c757d;
+  padding: 0.25rem;
+  line-height: 1;
+  transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .form-detail-close-button:hover {
   color: var(--error-color);
+  transform: scale(1.1);
 }
 
-/* form grid */
+/* Avatar Styles */
+.form-detail-avatar-container {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 0.5rem 0;
+  background-color: #f8f9fa; /* Match header background */
+  flex-shrink: 0;
+}
+
+.form-detail-avatar-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Scrollable Content Area */
+.form-content {
+  padding: 1.5rem 1.5rem;
+  overflow-y: auto; /* Enable vertical scroll */
+  flex-grow: 1; /* Allow this area to take available space */
+}
+
+/* Form grid */
 .form-detail-grid {
-  padding: 1rem 1.5rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  overflow-y: auto;
-  max-height: 400px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem 1.5rem;
 }
 
-/* form group */
+/* Form group */
 .form-detail-group {
   display: flex;
   flex-direction: column;
+  margin-bottom: 0.5rem; /* Reduced margin */
 }
 
 .form-detail-group label {
-  margin-bottom: 0.625rem;
-  font-weight: 500;
-  color: #555;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
   font-size: 0.9rem;
+  display: flex; /* Use flex to align asterisk nicely */
+  align-items: center;
 }
 
+.required-asterisk {
+  color: var(--required-asterisk-color);
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+/* Input, Select, Textarea base styles */
 .form-detail-group input,
-.form-detail-group select {
-  padding: 0.75rem;
+.form-detail-group select,
+.form-detail-group textarea {
+  padding: 0.8rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
   color: var(--text-color);
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: calc(1.5em + 1.6rem + 2px); /* Consistent min-height */
+}
+.form-detail-group textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
-.form-detail-group input:hover,
-.form-detail-group select:hover {
-  border-color: var(--primary-color);
+/* Input error state */
+.form-detail-group input.input-error,
+.form-detail-group select.input-error,
+.form-detail-group textarea.input-error {
+  border-color: var(--error-color) !important; /* Make error border prominent */
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25); /* Red shadow for error */
 }
 
-.form-detail-non-fillable {
-  background-color: #f0f0f0;
-  color: #888;
-  cursor: not-allowed;
+/* Hover/Focus states for editable fields */
+.form-detail-group input:not([readOnly]):not(:disabled):hover,
+.form-detail-group select:not(:disabled):hover,
+.form-detail-group textarea:not([readOnly]):not(:disabled):hover {
+  border-color: var(--hover-border-color);
+}
+.form-detail-group input:not([readOnly]):not(:disabled):focus,
+.form-detail-group select:not(:disabled):focus,
+.form-detail-group textarea:not([readOnly]):not(:disabled):focus {
+  border-color: var(--hover-border-color);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Checkbox specific style */
+.form-detail-checkbox {
+  width: auto; /* Don't force full width */
+  min-height: auto; /* Reset min-height */
+  height: 1.1rem;
+  width: 1.1rem;
+  margin-right: 0.5rem; /* Space if label is next to it */
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+/* Align label and checkbox if needed */
+.form-detail-group label.checkbox-label-inline {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 0; /* Remove bottom margin for inline */
+}
+
+/* --- Styles for Read-only/View Mode --- */
+.form-detail-non-editable,
+.form-detail-value {
+  background-color: var(--disabled-bg-color);
+  color: var(--disabled-text-color);
+  cursor: default;
+  border: 1px solid #ced4da;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  min-height: calc(1.5em + 1.6rem + 2px); /* <<< MATCH INPUT MIN-HEIGHT */
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+  font-size: 0.95rem; /* Match input font size */
+  line-height: 1.5; /* Ensure text doesn't get cut off */
+}
+
+/* Styling for content inside .form-detail-value */
+.form-detail-value img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+.form-detail-value ul {
+  padding-left: 20px;
+  margin: 0;
+  list-style-type: disc;
+}
+.form-detail-value a.evidence-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+.form-detail-value a.evidence-link:hover {
+  text-decoration: underline;
+  color: var(--hover-border-color);
+}
+.form-detail-value .status {
+  padding: 0.2em 0.6em;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.85em;
+  display: inline-block;
+}
+.form-detail-value .status-request {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.form-detail-value .status-accept {
+  background-color: #d4edda;
+  color: #155724;
+}
+.form-detail-value .status-refuse {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.form-detail-value .status-cancel {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+.form-detail-value .status-unknown {
+  background-color: #d6d8db;
+  color: #1b1e21;
 }
 
 .form-detail-error-message {
@@ -104,24 +253,124 @@
   margin-top: 0.5rem;
 }
 
-/* form actions */
+/* Form actions */
 .form-detail-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 0.8rem;
   margin-top: 1.5rem;
+  /* No border-top needed as it's inside .form-content now */
+}
+
+/* Base button style for actions */
+.form-detail-save-button,
+.form-detail-cancel-button {
+  padding: 0.7rem 1.3rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.form-detail-save-button:hover,
+.form-detail-cancel-button:hover {
+  transform: translateY(-1px);
 }
 
 .form-detail-save-button {
-  padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
+  background-color: var(--success-color);
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+}
+.form-detail-save-button:hover {
+  background-color: var(--success-hover-color);
 }
 
-.form-detail-save-button:hover {
-  background-color: darken(var(--primary-color), 10%);
+.form-detail-cancel-button {
+  background-color: var(--cancel-color);
+  color: #fff;
+}
+.form-detail-cancel-button:hover {
+  background-color: var(--cancel-hover-color);
+}
+
+/* Modal Action Buttons Specific Styling (for Approve/Reject in ListOfRequestPage) */
+.modal-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background-color: #f8f9fa; /* Match header */
+  border-bottom-left-radius: 12px; /* Round bottom corners */
+  border-bottom-right-radius: 12px;
+  gap: 1rem;
+}
+
+.modal-action-buttons .action-button {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.modal-action-buttons .action-button:hover {
+  transform: translateY(-1px);
+}
+
+.modal-action-buttons .action-button.approve {
+  background-color: var(--success-color);
+  color: white;
+}
+.modal-action-buttons .action-button.approve:hover {
+  background-color: var(--success-hover-color);
+}
+.modal-action-buttons .action-button.reject,
+.modal-action-buttons .action-button.cancel {
+  background-color: var(--cancel-color);
+  color: white;
+}
+.modal-action-buttons .action-button.reject:hover,
+.modal-action-buttons .action-button.cancel:hover {
+  background-color: var(--cancel-hover-color);
+}
+.modal-action-buttons .action-button:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Approval Modal Specific */
+.approval-modal-content {
+  padding: 1.5rem;
+}
+.approval-modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  text-align: center;
+}
+.approval-modal-content p {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+.approval-modal-content .form-detail-group {
+  margin-bottom: 1rem; /* Adjust spacing inside approval modal */
+}
+.approval-modal-content .modal-action-buttons.approval-actions {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 1.5rem;
+  background-color: transparent; /* Remove background if preferred */
+  border-radius: 0; /* Remove bottom radius if part of content */
+}
+
+/* Make modal scrollable internally */
+
+.modal.medium .form-detail-container {
+  max-width: 600px; /* Adjust max-width for medium modal */
 }

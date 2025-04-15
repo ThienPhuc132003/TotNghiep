@@ -14,57 +14,32 @@
   margin-bottom: 1.5rem;
   text-align: center;
 }
+
+/* --- Container for Search, Filter, Refresh, Add --- */
 .search-bar-filter-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.admin-search-filter-container {
-  display: flex;
-  flex-wrap: wrap; /* Allow items to wrap */
-  justify-content: space-between;
-  align-items: center;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1rem; /* Add gap between elements */
   margin-bottom: 1.5rem;
-  gap: 1rem; /* Add gap for responsive layout */
-}
-.search-clear-input {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1em;
-  height: 1em;
-  visibility: hidden;
-  padding: 5px;
 }
 
-.admin-search:hover .search-clear-input {
-  visibility: visible;
-}
-
-.fa-xmark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  color: white;
-  background-color: rgb(48, 48, 48);
-  padding: 10px 6px;
-  margin: 0 5px;
-}
-.fa-xmark:hover {
-  background-color: #818181;
-}
+/* --- Container for Search, Filter, Refresh --- */
 .search-bar-filter {
   display: flex;
-  flex-grow: 1; /* Allow to grow and take available space */
+  flex-grow: 1; /* Allow this section to grow */
   align-items: center;
-  gap: 1rem;
-  max-width: 70%; /* Prevent excessive growth on large screens */
+  gap: 1rem; /* Gap between search, filter, refresh */
+  flex-wrap: wrap; /* Allow items inside to wrap */
 }
 
+/* --- Search Bar Styles --- */
 .admin-search {
   display: flex;
-  flex-grow: 1; /* Make search bar responsive */
+  min-width: 250px; /* Minimum width */
+  flex-basis: 300px; /* Suggested base width */
+  flex-grow: 1; /* Allow search to take available space */
   align-items: center;
   border: 1px solid #ddd;
   border-radius: 25px;
@@ -79,43 +54,104 @@
   outline: none;
   padding: 0.5rem;
   font-size: 1rem;
+  background-color: transparent; /* Ensure background is transparent */
 }
 
-.admin-search-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
+.search-clear-input {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 1em;
+  height: 1em;
+  visibility: hidden;
+  padding: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.admin-search-button:hover {
-  background-color: #2980b9;
+.admin-search:hover .search-clear-input,
+.admin-search input:not(:placeholder-shown) + .search-clear-input {
+  /* Show when input has value */
+  visibility: visible;
 }
+
+.fa-xmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  background-color: rgb(150, 150, 150); /* Lighter gray */
+  padding: 0; /* Remove default padding */
+  width: 16px; /* Fixed size */
+  height: 16px; /* Fixed size */
+  font-size: 10px; /* Adjust icon size */
+  margin: 0 5px;
+}
+.fa-xmark:hover {
+  background-color: rgb(120, 120, 120); /* Darker gray on hover */
+}
+
+/* --- Status Filter Styles --- */
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Space between label and select */
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  color: #555;
+  white-space: nowrap; /* Prevent label from wrapping */
+}
+
+.status-filter-select {
+  padding: 0.65rem 1rem; /* Adjust padding */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s ease;
+  min-width: 180px; /* Minimum width */
+  height: calc(1.3em + 1.3rem + 2px); /* Match approx height of search */
+  box-sizing: border-box;
+}
+
+.status-filter-select:focus {
+  border-color: #3498db; /* Highlight on focus */
+}
+
+/* --- Refresh Button Styles --- */
 .refresh-button {
   border: none;
-  background-color: #ffffff00;
+  background-color: transparent;
+  padding: 0.5rem;
   cursor: pointer;
-  transition: all 0.8s ease;
+  transition: transform 0.5s ease, color 0.3s ease; /* Adjusted transition */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666; /* Slightly darker icon color */
 }
 .refresh-button:hover {
-  rotate: 180deg;
+  transform: rotate(180deg); /* Keep rotation */
+  color: #333;
 }
+
+/* --- Container for Add Button --- */
+
+
 .add-admin-button {
   background-color: #2ecc71;
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1.25rem; /* Match filter height if needed */
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 0.9rem;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .add-admin-button:hover {
@@ -123,8 +159,7 @@
 }
 
 /* Table styles */
-
-
+/* ... (Keep your existing table styles) ... */
 
 /* Empty Table */
 .custom-table tbody tr.empty-row td {
@@ -135,12 +170,12 @@
 }
 
 /* Pagination */
-
 .pagination {
   display: flex;
+  justify-content: center; /* Center pagination */
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin-top: 1.5rem; /* Add margin above pagination */
 }
 
 .pagination li a,
@@ -152,35 +187,91 @@
   border-radius: 4px;
   text-decoration: none;
   transition: background-color 0.3s ease, color 0.3s ease;
+  border: 1px solid #ddd; /* Add border */
+  background-color: white; /* White background */
 }
 
 .pagination li a:hover,
 .pagination li span:hover {
-  background-color: #3498db;
-  color: white;
+  background-color: #e9ecef; /* Light grey background on hover */
+  color: #0056b3; /* Darker blue text on hover */
+  border-color: #adb5bd;
 }
 
 .pagination li.active a,
 .pagination li.active span {
   background-color: #3498db;
   color: white;
+  border-color: #3498db;
   cursor: default;
 }
 
 .pagination li.disabled a,
 .pagination li.disabled span {
-  color: #95a5a6;
+  color: #aaa; /* Lighter color */
   cursor: not-allowed;
+  background-color: #f8f9fa; /* Very light grey background */
+  border-color: #e9ecef;
 }
 
 .pagination li.disabled a:hover,
 .pagination li.disabled span:hover {
-  background-color: transparent;
-  color: #95a5a6;
+  background-color: #f8f9fa;
+  color: #aaa;
+  border-color: #e9ecef;
 }
 
-/* Smaller font on small screen */
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  /* Adjust breakpoint if needed */
+  .search-bar-filter {
+    flex-basis: 100%; /* Allow search/filter section to take full width if needed */
+    order: 1; /* Ensure search/filter comes first */
+  }
+  .filter-add-admin {
+    flex-basis: 100%; /* Button takes full width */
+    order: 2; /* Button comes after */
+    display: flex;
+    justify-content: flex-end; /* Align button to right */
+    margin-top: 0.5rem; /* Add some space above button */
+  }
+}
+
 @media (max-width: 768px) {
+  .admin-list-title {
+    font-size: 1.8rem; /* Slightly smaller title */
+  }
+  .search-bar-filter {
+    gap: 0.8rem; /* Reduce gap */
+  }
+  .admin-search,
+  .status-filter-select {
+    font-size: 0.9rem; /* Slightly smaller font */
+  }
+  .status-filter-select {
+    min-width: 150px; /* Reduce min-width */
+  }
+  .add-admin-button {
+    padding: 0.6rem 1rem;
+  }
 }
 
 /* Smaller font on small screen */
+@media (max-width: 576px) {
+  .admin-content {
+    padding: 1rem; /* Reduce padding */
+  }
+  .search-bar-filter {
+    flex-direction: column; /* Stack search and filter vertically */
+    align-items: stretch; /* Make them full width */
+  }
+  .filter-control {
+    width: 100%; /* Make filter control full width */
+  }
+  .status-filter-select {
+    width: 100%; /* Make select full width */
+  }
+  .refresh-button {
+    align-self: flex-end; /* Move refresh button to the right */
+  }
+}

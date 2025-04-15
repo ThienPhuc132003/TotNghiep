@@ -1,0 +1,269 @@
+/* src/assets/css/RulesRegulationsPage.style.css */
+
+.rules-page-wrapper {
+  width: 100%;
+  background-color: #fff;
+}
+
+/* --- Style Section Chung --- */
+.rules-page-wrapper .section {
+  padding: 4rem 1rem;
+  margin: 0 auto;
+  max-width: 1000px; /* Có thể điều chỉnh độ rộng */
+}
+.rules-page-wrapper .section:nth-child(even) {
+  /* Đổi lại xen kẽ */
+  background-color: #f9fafb;
+}
+
+/* --- Rules Hero Section --- */
+.rules-hero {
+  /* Giữ lại style nền hoặc đổi nền khác */
+  background: linear-gradient(rgba(45, 51, 77, 0.85), rgba(45, 51, 77, 0.85)),
+    url("../../assets/images/vanlang_background_regulations.webp") center
+      center/cover no-repeat; /* Ảnh nền khác nếu có */
+  color: white;
+  padding: 4rem 1rem; /* Giảm padding nếu không có search bar */
+  text-align: center;
+}
+
+.rules-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.rules-hero h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.rules-hero p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* --- Regulations Content Section --- */
+.regulation-block {
+  margin-bottom: 3.5rem; /* Khoảng cách giữa các khối quy định */
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  border-left: 5px solid rgba(215, 33, 52, 1); /* Đường kẻ đỏ bên trái */
+}
+.rules-page-wrapper .section:nth-child(even) .regulation-block {
+  background-color: #fff; /* Đảm bảo các block luôn nền trắng */
+}
+
+.regulation-block h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: rgba(45, 51, 77, 1); /* Màu tiêu đề đậm */
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem; /* Khoảng cách giữa icon và chữ */
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.8rem;
+}
+.regulation-block h2 .svg-inline--fa {
+  /* Style cho icon trong h2 */
+  color: rgba(215, 33, 52, 1); /* Màu đỏ VLU */
+  font-size: 1.5rem; /* Kích thước icon */
+}
+
+.regulation-block ul {
+  list-style: none; /* Bỏ dấu chấm mặc định */
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.regulation-block li {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 1rem;
+  padding-left: 2rem; /* Thụt lề để chứa icon */
+  position: relative;
+}
+
+.regulation-block li strong {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Icons cho điều nên/không nên làm */
+.regulation-block li .svg-inline--fa {
+  position: absolute;
+  left: 0;
+  top: 6px; /* Căn chỉnh icon theo dòng */
+  font-size: 1.1rem;
+}
+.regulation-block li .icon-do {
+  color: #10b981; /* Màu xanh lá */
+}
+.regulation-block li .icon-dont {
+  color: #ef4444; /* Màu đỏ */
+}
+
+.regulation-block p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.regulation-block .policy-link {
+  color: rgba(215, 33, 52, 1);
+  text-decoration: none;
+  font-weight: 500;
+}
+.regulation-block .policy-link:hover {
+  text-decoration: underline;
+}
+
+/* --- Contact Support Section (Giữ style cũ hoặc chỉnh sửa) --- */
+.contact-support {
+  background-color: rgba(45, 51, 77, 1);
+  color: #e5e7eb;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+.contact-support h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: white;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+.contact-support h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 2px;
+}
+
+.contact-support p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+}
+
+.contact-info {
+  margin-bottom: 1rem; /* Giảm margin nếu không có nút */
+  font-size: 1.1rem;
+}
+.contact-info p {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+.contact-info strong {
+  color: white;
+}
+.contact-info a {
+  color: #a5b4fc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.contact-info a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* --- Media Queries (Giữ lại và điều chỉnh nếu cần) --- */
+@media (max-width: 992px) {
+  .rules-page-wrapper .section {
+    max-width: 90%;
+  }
+  .rules-hero h1 {
+    font-size: 2.5rem;
+  }
+  .regulation-block h2 {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .rules-page-wrapper .section {
+    padding: 3rem 1rem;
+  }
+  .rules-hero h1 {
+    font-size: 2.2rem;
+  }
+  .rules-hero p {
+    font-size: 1.1rem;
+  }
+  .regulation-block {
+    padding: 1.5rem;
+    border-left-width: 4px;
+  }
+  .regulation-block h2 {
+    font-size: 1.5rem;
+    gap: 0.6rem;
+  }
+  .regulation-block h2 .svg-inline--fa {
+    font-size: 1.3rem;
+  }
+  .regulation-block li {
+    font-size: 0.95rem;
+    padding-left: 1.8rem;
+    margin-bottom: 0.8rem;
+  }
+  .regulation-block li .svg-inline--fa {
+    font-size: 1rem;
+    top: 5px;
+  }
+  .contact-support h2 {
+    font-size: 1.8rem;
+  }
+  .contact-support p {
+    font-size: 1rem;
+  }
+  .contact-info {
+    font-size: 1rem;
+  }
+  .contact-info p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .rules-hero h1 {
+    font-size: 2rem;
+  }
+  .rules-hero p {
+    font-size: 1rem;
+  }
+  .regulation-block h2 {
+    font-size: 1.3rem;
+  }
+  .regulation-block h2 .svg-inline--fa {
+    font-size: 1.1rem;
+  }
+  .regulation-block li {
+    line-height: 1.7;
+  }
+}
+
+/* Focus visible styles (Giữ lại) */
+.rules-page-wrapper *:focus-visible {
+  outline: 3px solid rgba(215, 33, 52, 0.5);
+  outline-offset: 2px;
+}
+.rules-page-wrapper *:focus {
+  outline: none;
+}
+.rules-page-wrapper .contact-info a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(215, 33, 52, 0.15);
+}
