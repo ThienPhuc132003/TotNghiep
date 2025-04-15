@@ -29,7 +29,7 @@ const AboutUs = lazy(() => import("./pages/User/AboutUs"));
 const TutorSearch = lazy(() => import("./pages/User/TutorSearch"));
 const TutorRegister = lazy(() => import("./pages/User/TutorRegister"));
 const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
-const HelpPage = lazy(() => import("./pages/User/HelpPage"));
+const RulesRegulationsPage = lazy(() => import("./pages/User/RulesRegulationsPage"));
 const Wallet = lazy(() => import("./pages/User/WalletPage"));
 
 import ZoomCallback from "./pages/User/ZoomCallback";
@@ -79,7 +79,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/otp-verify" element={<OtpVerify />} />
             <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
-            <Route path="/tro-giup" element={<HelpPage />} />
+            <Route path="/quy-dinh-noi-quy-huong-dan" element={<RulesRegulationsPage />} />
             <Route path="/user/wallet" element={<Wallet />} />
             <Route
               path="/trac-nghiem-gia-su"

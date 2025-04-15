@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react"; // Bỏ useEffect vì không fetch major ở đây nữa
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
@@ -6,6 +6,7 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/Register.style.css";
 import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
+import MajorList from "../../components/Static_Data/MajorList"; // <<<--- 1. IMPORT MajorList
 
 const RegisterPage = () => {
   const { t } = useTranslation();
@@ -18,160 +19,170 @@ const RegisterPage = () => {
     gender: "",
     password: "",
     confirmPassword: "",
-    majorId: "", // Thêm majorId vào formData
+    majorId: "", // Giữ majorId trong state
   });
 
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [majors, setMajors] = useState([]); // State để lưu danh sách chuyên ngành
+  // const [majors, setMajors] = useState([]); // <<<--- 2. BỎ state majors không cần thiết
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchMajors = async () => {
-      try {
-        const response = await Api({
-          endpoint: "major/search",
-          method: METHOD_TYPE.GET,
-        });
-        if (response.success) {
-          setMajors(response.data.items);
-        } else {
-          console.error("Failed to fetch majors:", response.message);
-        }
-      } catch (error) {
-        console.error("An error occurred while fetching majors:", error);
+  // <<<--- 3. BỎ useEffect fetchMajors ở đây ---<<<
+  // useEffect(() => {
+  //   const fetchMajors = async () => { ... };
+  //   fetchMajors();
+  // }, []);
+
+  // Hàm handleChange cho các input thông thường
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value, type } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: type === "radio" ? value : value, // Xử lý radio button
+      }));
+      // Xóa lỗi khi người dùng nhập liệu
+      if (formErrors[name]) {
+        setFormErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
       }
-    };
+    },
+    [formErrors]
+  ); // Phụ thuộc formErrors để xóa lỗi
 
-    fetchMajors();
-  }, []);
+  // <<<--- 4. THÊM hàm xử lý riêng cho MajorList ---<<<
+  // MajorList trả về (name, value) thay vì event object
+  const handleMajorChange = useCallback(
+    (name, value) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+      // Xóa lỗi khi người dùng chọn
+      if (formErrors[name]) {
+        setFormErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      }
+    },
+    [formErrors]
+  ); // Phụ thuộc formErrors
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    if (formErrors[name]) {
-      setFormErrors({ ...formErrors, [name]: "" });
-    }
-  };
-
-  const validateFields = () => {
+  // Hàm validate không đổi, vẫn kiểm tra formData.majorId
+  const validateFields = useCallback(() => {
     const errors = {};
 
-    if (!formData.fullname) {
-      errors.fullname = "Vui lòng nhập họ và tên.";
-    }
-
-    if (!formData.birthday) {
-      errors.birthday = "Vui lòng chọn ngày sinh.";
-    }
-
-    if (!formData.email) {
-      errors.email = "Vui lòng nhập địa chỉ email.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.fullname.trim()) errors.fullname = "Vui lòng nhập họ và tên.";
+    if (!formData.birthday) errors.birthday = "Vui lòng chọn ngày sinh.";
+    if (!formData.email.trim()) errors.email = "Vui lòng nhập địa chỉ email.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       errors.email = "Địa chỉ email không hợp lệ.";
-    }
-
-    if (!formData.phoneNumber) {
+    if (!formData.phoneNumber.trim())
       errors.phoneNumber = "Vui lòng nhập số điện thoại.";
-    } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
-      errors.phoneNumber = "Số điện thoại không hợp lệ (10 chữ số).";
-    }
-
-    if (!formData.homeAddress) {
+    else if (!/^\d{10,11}$/.test(formData.phoneNumber))
+      errors.phoneNumber = "Số điện thoại không hợp lệ (10-11 chữ số)."; // Cho phép 10 hoặc 11 số
+    if (!formData.homeAddress.trim())
       errors.homeAddress = "Vui lòng nhập địa chỉ nhà.";
-    }
-
-    if (!formData.gender) {
-      errors.gender = "Vui lòng chọn giới tính.";
-    }
-
-    if (!formData.password) {
-      errors.password = "Vui lòng nhập mật khẩu.";
-    } else if (formData.password.length < 6) {
+    if (!formData.gender) errors.gender = "Vui lòng chọn giới tính.";
+    if (!formData.password) errors.password = "Vui lòng nhập mật khẩu.";
+    else if (formData.password.length < 6)
       errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
-    }
-
-    if (!formData.confirmPassword) {
+    if (!formData.confirmPassword)
       errors.confirmPassword = "Vui lòng xác nhận mật khẩu.";
-    } else if (formData.password !== formData.confirmPassword) {
+    else if (formData.password !== formData.confirmPassword)
       errors.confirmPassword = "Mật khẩu không khớp.";
-    }
-
-    if (!formData.majorId) {
-      errors.majorId = "Vui lòng chọn chuyên ngành.";
-    }
+    if (!formData.majorId) errors.majorId = "Vui lòng chọn chuyên ngành."; // Kiểm tra majorId
 
     return errors;
-  };
+  }, [formData]); // Phụ thuộc formData
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const errors = validateFields();
+      setFormErrors(errors);
 
-    const errors = validateFields();
-    setFormErrors(errors);
-
-    if (Object.keys(errors).length > 0) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const data = {
-      fullname: formData.fullname,
-      birthday: formData.birthday,
-      email: formData.email,
-      phoneNumber: formData.phoneNumber,
-      homeAddress: formData.homeAddress,
-      gender: formData.gender,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
-      majorId: formData.majorId, // Thêm majorId vào data gửi lên server
-    };
-
-    try {
-      const response = await Api({
-        endpoint: "user/send-otp",
-        method: METHOD_TYPE.POST,
-        data: data,
-      });
-
-      if (response.success === true) {
-        navigate("/otp-verify-register", { state: { email: formData.email } });
-      } else {
-        console.error("Failed to send OTP:", response.message);
-        setFormErrors({ register: "Gửi OTP thất bại. Vui lòng thử lại." });
+      if (Object.keys(errors).length > 0) {
+        return;
       }
-    } catch (error) {
-      console.error("Failed to send OTP:", error);
-      setFormErrors({ register: "Đã có lỗi xảy ra. Vui lòng thử lại." });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
-  const handleMicrosoftRegister = async () => {
+      setIsSubmitting(true);
+      setFormErrors({}); // Xóa lỗi chung cũ
+
+      // Dữ liệu gửi đi không đổi
+      const data = {
+        fullname: formData.fullname,
+        birthday: formData.birthday,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        homeAddress: formData.homeAddress,
+        gender: formData.gender,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        majorId: formData.majorId,
+      };
+
+      try {
+        console.log("Sending registration data:", data); // Log dữ liệu gửi đi
+        const response = await Api({
+          endpoint: "user/send-otp", // Endpoint để gửi OTP đăng ký
+          method: METHOD_TYPE.POST,
+          data: data,
+        });
+
+        console.log("Send OTP response:", response); // Log response
+
+        if (response.success === true) {
+          // Chuyển hướng đến trang xác thực OTP, gửi email qua state
+          navigate("/otp-verify-register", {
+            state: { email: formData.email },
+          });
+        } else {
+          // Hiển thị lỗi từ API nếu có, nếu không hiển thị lỗi chung
+          setFormErrors({
+            register: response.message || "Gửi OTP thất bại. Vui lòng thử lại.",
+          });
+        }
+      } catch (error) {
+        console.error("Send OTP error:", error);
+        // Hiển thị lỗi từ response error nếu có
+        const errorMessage =
+          error.response?.data?.message ||
+          "Đã có lỗi xảy ra khi gửi OTP. Vui lòng thử lại.";
+        setFormErrors({ register: errorMessage });
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formData, validateFields, navigate]
+  ); // Dependencies
+
+  const handleMicrosoftRegister = useCallback(async () => {
+    setIsSubmitting(true); // Có thể thêm trạng thái loading riêng cho MS
+    setFormErrors({});
     try {
       const response = await Api({
         endpoint: "user/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
       });
-      const authUrl = response.data.authUrl;
+      const authUrl = response?.data?.authUrl;
 
       if (authUrl) {
         window.location.href = authUrl;
+        // Không cần setIsSubmitting(false) vì đã chuyển trang
       } else {
         console.error("Microsoft Auth URL not found.");
         setFormErrors({
-          microsoft: "Không thể kết nối với Microsoft. Vui lòng thử lại sau.",
+          microsoft: "Không thể lấy đường dẫn xác thực Microsoft.",
         });
+        setIsSubmitting(false);
       }
-    } catch (errors) {
-      console.error("Error fetching Microsoft Auth URL:", errors);
+    } catch (error) {
+      console.error("Error fetching Microsoft Auth URL:", error);
       setFormErrors({
-        microsoft: "Không thể kết nối với Microsoft. Vui lòng thử lại sau.",
+        microsoft:
+          error.response?.data?.message || "Lỗi kết nối với Microsoft.",
       });
+      setIsSubmitting(false);
     }
-  };
+  }, []); // Dependencies
 
   return (
     <LoginLayout>
@@ -179,6 +190,7 @@ const RegisterPage = () => {
         <h1 className="login-title">Đăng ký tài khoản</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
           <div className="form-columns">
+            {/* Cột trái */}
             <div className="form-column">
               <div className="form-group">
                 <label htmlFor="fullname">{t("register.fullName")}</label>
@@ -188,7 +200,7 @@ const RegisterPage = () => {
                   name="fullname"
                   value={formData.fullname}
                   onChange={handleChange}
-                  placeholder="Trịnh Văn Thiên Phúc"
+                  placeholder="Ví dụ: Nguyễn Văn A"
                   className={formErrors.fullname ? "error-border" : ""}
                 />
                 {formErrors.fullname && (
@@ -203,7 +215,7 @@ const RegisterPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="example@gmail.com"
+                  placeholder="Ví dụ: nguyenvana@example.com"
                   className={formErrors.email ? "error-border" : ""}
                 />
                 {formErrors.email && (
@@ -218,13 +230,61 @@ const RegisterPage = () => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  placeholder="0912345678"
+                  placeholder="Ví dụ: 0912345678"
                   className={formErrors.phoneNumber ? "error-border" : ""}
                 />
                 {formErrors.phoneNumber && (
                   <p className="error-message">{formErrors.phoneNumber}</p>
                 )}
               </div>
+              <div className="form-group">
+                <label htmlFor="birthday">{t("register.birthday")}</label>
+                <input
+                  type="date"
+                  id="birthday"
+                  name="birthday"
+                  value={formData.birthday}
+                  onChange={handleChange}
+                  className={formErrors.birthday ? "error-border" : ""}
+                  max={new Date().toISOString().split("T")[0]} // Ngăn chọn ngày tương lai
+                />
+                {formErrors.birthday && (
+                  <p className="error-message">{formErrors.birthday}</p>
+                )}
+              </div>
+              <div className="form-group">
+                <label>{t("register.gender")}</label>
+                <div className="gender-group">
+                  <label className="gender-label">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="MALE"
+                      checked={formData.gender === "MALE"}
+                      onChange={handleChange}
+                    />
+                    {t("register.male")}
+                  </label>
+                  <label className="gender-label">
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="FEMALE"
+                      checked={formData.gender === "FEMALE"}
+                      onChange={handleChange}
+                    />
+                    {t("register.female")}
+                  </label>
+                  {/* Có thể thêm giới tính khác nếu cần */}
+                </div>
+                {formErrors.gender && (
+                  <p className="error-message">{formErrors.gender}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Cột phải */}
+            <div className="form-column">
               <div className="form-group">
                 <label htmlFor="homeAddress">{t("register.homeAddress")}</label>
                 <input
@@ -233,78 +293,27 @@ const RegisterPage = () => {
                   name="homeAddress"
                   value={formData.homeAddress}
                   onChange={handleChange}
-                  placeholder="58a Huỳnh Văn Bánh"
+                  placeholder="Ví dụ: 123 Đường ABC, Phường XYZ, Quận MNP, TP. HCM"
                   className={formErrors.homeAddress ? "error-border" : ""}
                 />
                 {formErrors.homeAddress && (
                   <p className="error-message">{formErrors.homeAddress}</p>
                 )}
               </div>
-            </div>
-            <div className="form-column">
+              {/* <<<--- 5. SỬ DỤNG MajorList component ---<<< */}
               <div className="form-group">
-                <label htmlFor="majorId">Ngành</label>
-                <select
-                  id="majorId"
-                  name="majorId"
-                  value={formData.majorId}
-                  onChange={handleChange}
-                  className={formErrors.majorId ? "error-border" : ""}
-                >
-                  <option value="">Ngành</option>
-                  {majors.map((major) => (
-                    <option key={major.majorId} value={major.majorId}>
-                      {major.majorName}
-                    </option>
-                  ))}
-                </select>
+                <label htmlFor="majorId">Ngành học</label>
+                <MajorList
+                  name="majorId" // Truyền name
+                  value={formData.majorId} // Truyền value từ state
+                  onChange={handleMajorChange} // Truyền hàm xử lý riêng
+                  required // Đánh dấu là bắt buộc (cho validation và isClearable)
+                  placeholder="-- Chọn ngành học của bạn --"
+                />
+                {/* Hiển thị lỗi bên dưới component */}
                 {formErrors.majorId && (
                   <p className="error-message">{formErrors.majorId}</p>
                 )}
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="birthday">{t("register.birthday")}</label>
-                  <input
-                    type="date"
-                    id="birthday"
-                    name="birthday"
-                    value={formData.birthday}
-                    onChange={handleChange}
-                    className={formErrors.birthday ? "error-border" : ""}
-                  />
-                  {formErrors.birthday && (
-                    <p className="error-message">{formErrors.birthday}</p>
-                  )}
-                </div>
-                <div className="form-group">
-                  <label>{t("register.gender")}</label>
-                  <div className="gender-group">
-                    <label className="gender-label">
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="MALE"
-                        checked={formData.gender === "MALE"}
-                        onChange={handleChange}
-                      />
-                      {t("register.male")}
-                    </label>
-                    <label className="gender-label">
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="FEMALE"
-                        checked={formData.gender === "FEMALE"}
-                        onChange={handleChange}
-                      />
-                      {t("register.female")}
-                    </label>
-                  </div>
-                  {formErrors.gender && (
-                    <p className="error-message">{formErrors.gender}</p>
-                  )}
-                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="password">{t("register.password")}</label>
@@ -314,7 +323,7 @@ const RegisterPage = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Nhập mật khẩu"
+                  placeholder="Nhập mật khẩu (ít nhất 6 ký tự)"
                   className={formErrors.password ? "error-border" : ""}
                 />
                 {formErrors.password && (
@@ -331,7 +340,7 @@ const RegisterPage = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  placeholder="Xác nhận mật khẩu"
+                  placeholder="Xác nhận lại mật khẩu"
                   className={formErrors.confirmPassword ? "error-border" : ""}
                 />
                 {formErrors.confirmPassword && (
@@ -340,32 +349,43 @@ const RegisterPage = () => {
               </div>
             </div>
           </div>
-          {formErrors.register && (
-            <p className="error-message">{formErrors.register}</p>
+
+          {/* Hiển thị lỗi chung (từ API) */}
+          {(formErrors.register || formErrors.microsoft) && (
+            <p className="error-message general-error">
+              {formErrors.register || formErrors.microsoft}
+            </p>
           )}
-          {formErrors.microsoft && (
-            <p className="error-message">{formErrors.microsoft}</p>
-          )}
+
+          {/* Nút Đăng ký */}
           <button
             type="submit"
             className="register-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đang đăng ký..." : t("register.registerButton")}
+            {isSubmitting ? "Đang xử lý..." : t("register.registerButton")}
           </button>
+
+          {/* Ngăn cách hoặc */}
           <div className="divider">
             <span>hoặc</span>
           </div>
+
+          {/* Đăng ký với Microsoft */}
           <div className="social-login">
             <button
+              type="button" // Quan trọng: đổi type thành "button" để không submit form
               onClick={handleMicrosoftRegister}
               className="microsoft-login-button"
+              disabled={isSubmitting} // Có thể disable khi đang xử lý đăng ký thường
             >
-              <img src={MicrosoftLogo} alt="" />
+              <img src={MicrosoftLogo} alt="Microsoft logo" /> {/* Thêm alt */}
               {t("register.registerWithMicrosoft")}
             </button>
           </div>
         </form>
+
+        {/* Link đến trang Đăng nhập */}
         <div className="register-link">
           <p>
             Bạn đã có tài khoản? <Link to="/login">Đăng nhập</Link>

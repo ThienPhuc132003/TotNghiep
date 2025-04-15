@@ -44,6 +44,7 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
       </Button>
       <div className={`setting-dropdown-menu ${isDropdownOpen ? "open" : ""}`}>
         <button onClick={handleUserInfo}>Trang cá nhân</button>
+        <button onClick={handleUserInfo}>Gia sư yêu thíchh</button>
         <button onClick={handleWallet}>Ví cá nhân</button>
         <button onClick={handleLogout}>Đăng xuất</button>
       </div>

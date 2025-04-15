@@ -185,14 +185,14 @@ const ListOfTutorLevelPage = () => {
         toast.success("Xóa thành công");
       } else {
         console.log("Failed to delete tutor level");
-        toast.error("Xóa thất bại");
+        toast.error("Hạng này đang có gia sư sử dụng");
       }
     } catch (error) {
       console.error(
         "An error occurred while deleting tutor level:",
         error.message
       );
-      toast.error("Xóa thất bại");
+      toast.error("Hạng này đang có gia sư sử dụng");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);

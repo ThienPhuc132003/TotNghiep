@@ -1,48 +1,138 @@
 /* eslint-disable no-undef */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
-import "../../assets/css/Admin/ListOfAdmin.style.css";
-import "../../assets/css/Modal.style.css";
-import Table from "../../components/Table";
+import "../../assets/css/Admin/ListOfAdmin.style.css"; // Shared styles
+import "../../assets/css/Modal.style.css"; // Modal styles
+// Specific styles if needed (uncomment if you create this file)
+// import "../../assets/css/Admin/ListOfRequest.style.css";
+import Table from "../../components/Table"; // Use the updated Table component
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import FormDetail from "../../components/FormDetail";
-import { useTranslation } from "react-i18next";
+import FormDetail from "../../components/FormDetail"; // For viewing details
+import TutorLevelList from "../../components/Static_Data/TutorLevelList"; // For approval modal
 import Modal from "react-modal";
-import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
 import unidecode from "unidecode";
-import { toast, ToastContainer } from "react-toastify"; // Import toast và ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import CSS của react-toastify
-// Set the app element for accessibility
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { format } from "date-fns";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
 Modal.setAppElement("#root");
 
+// Helper function to format status
+const formatStatus = (status) => {
+  switch (status) {
+    case "REQUEST":
+      return <span className="status status-request">Chờ duyệt</span>;
+    case "ACCEPT":
+      return <span className="status status-accept">Đã duyệt</span>;
+    case "REFUSE":
+      return <span className="status status-refuse">Từ chối</span>;
+    case "CANCEL":
+      return <span className="status status-cancel">Đã hủy</span>;
+    default:
+      return (
+        <span className="status status-unknown">{status || "Không rõ"}</span>
+      );
+  }
+};
+
+// Helper function to parse and format dateTimeLearn
+const daysOfWeek = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+const formatDateTimeLearn = (dateTimeLearnArray) => {
+  if (!dateTimeLearnArray || !Array.isArray(dateTimeLearnArray))
+    return "Không có"; // Changed from N/A
+  try {
+    const parsed = dateTimeLearnArray.map((jsonString) =>
+      JSON.parse(jsonString)
+    );
+    if (parsed.length === 0) return "Không có"; // Handle empty parsed array
+    return (
+      <ul className="datetime-list">
+        {parsed.map((item, index) => (
+          <li key={index}>
+            <strong>
+              {item.day === "Sunday"
+                ? "CN"
+                : `Thứ ${daysOfWeek.indexOf(item.day) + 2}`}
+            </strong>
+            : {item.times.join(", ")}
+          </li>
+        ))}
+      </ul>
+    );
+  } catch (e) {
+    console.error("Error parsing dateTimeLearn:", e);
+    return "Lỗi định dạng";
+  }
+};
+
+// Helper to generate link for evidence
+const renderEvidenceLink = (url) => {
+  if (!url) return "Không có";
+  if (url.startsWith("http") || url.startsWith("blob:")) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="evidence-link"
+      >
+        Xem file
+      </a>
+    );
+  }
+  return url;
+};
+
+// Status Filter Options
+const statusFilterOptions = [
+  { value: "REQUEST", label: "Chờ duyệt" },
+  { value: "ACCEPT", label: "Đã duyệt" },
+  { value: "REFUSE", label: "Từ chối" },
+  { value: "CANCEL", label: "Đã hủy" },
+  { value: "", label: "Tất cả trạng thái" },
+];
+
 const ListOfRequestPage = () => {
-  const { t } = useTranslation();
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]); // Thêm state này
-  const [totalItems, setTotalItems] = useState(0); // Giữ lại totalItems
+  const [filteredData, setFilteredData] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchInput, setSearchInput] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState(null);
-  const [modalData, setModalData] = useState({});
-  const [modalMode, setModalMode] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // General loading for fetch
+  const [isSolvingRequest, setIsSolvingRequest] = useState(false); // Specific loading for approve/reject
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Giá trị mặc định
-  const currentPath = "/yeu-cau";
-  const [filters, setFilters] = useState([]);
+  const [sortConfig, setSortConfig] = useState({
+    key: "createdAt",
+    direction: "desc",
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const currentPath = "/quan-ly-yeu-cau";
   const [pageCount, setPageCount] = useState(1);
-  const [formErrors, setFormErrors] = useState({}); // Thêm state để lưu trữ lỗi
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState("REQUEST");
+  // States for Approval Modal
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+  const [requestToApprove, setRequestToApprove] = useState(null);
+  const [selectedLevelId, setSelectedLevelId] = useState("");
 
   const resetState = () => {
     setSearchInput("");
     setCurrentPage(0);
-    setFilters([]); // Reset filters
+    setSelectedStatusFilter("REQUEST");
   };
 
   const fetchData = useCallback(
@@ -50,46 +140,54 @@ const ListOfRequestPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const query = {
-          rpp: itemsPerPage, // Sử dụng itemsPerPage state
-          page: currentPage + 1,
-        };
-
-        if (filters.length > 0) {
-          query.filter = filters;
+        const query = { rpp: itemsPerPage, page: currentPage + 1 };
+        if (selectedStatusFilter) {
+          query.filter = JSON.stringify([
+            { key: "status", operator: "like", value: selectedStatusFilter },
+          ]);
+        } else {
+          delete query.filter;
         }
-
         let sortToUse = sortConfigOverride;
-
         if (!sortToUse.key) {
           sortToUse = { key: "createdAt", direction: "desc" };
         }
-
-        query.sort = [
+        query.sort = JSON.stringify([
           { key: sortToUse.key, type: sortToUse.direction.toUpperCase() },
-        ];
-
+        ]);
         const response = await Api({
-          endpoint: `user/get-list/:REQUEST`,
+          endpoint: `tutor-request/search-request`,
           method: METHOD_TYPE.GET,
           query: query,
         });
-
-        if (response.success) {
+        if (
+          response.success &&
+          response.data &&
+          Array.isArray(response.data.items)
+        ) {
           setData(response.data.items);
-          setFilteredData(response.data.items); // Lưu trữ dữ liệu vào state mới
-          setTotalItems(response.data.total); // Giữ lại totalItems
-          setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
+          setFilteredData(response.data.items);
+          setTotalItems(response.data.total);
+          setPageCount(Math.ceil(response.data.total / itemsPerPage));
         } else {
-          setError(response.message || t("common.errorLoadingData"));
+          setError(response.message || "Lỗi tải dữ liệu");
+          setData([]);
+          setFilteredData([]);
+          setTotalItems(0);
+          setPageCount(1);
         }
       } catch (error) {
-        setError(t("common.errorLoadingData"));
+        console.error("Fetch data error:", error);
+        setError("Lỗi tải dữ liệu");
+        setData([]);
+        setFilteredData([]);
+        setTotalItems(0);
+        setPageCount(1);
       } finally {
         setIsLoading(false);
       }
     },
-    [currentPage, sortConfig, t, itemsPerPage, filters]
+    [currentPage, sortConfig, itemsPerPage, selectedStatusFilter]
   );
 
   useEffect(() => {
@@ -99,335 +197,483 @@ const ListOfRequestPage = () => {
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
   };
-
   const handleSort = (sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
-        prevConfig.key === sortKey && prevConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
+    setSortConfig((prev) => ({
+      key: sortKey,
+      direction:
+        prev.key === sortKey && prev.direction === "asc" ? "desc" : "asc",
+    }));
   };
-
-  const handleDelete = async (requestId) => {
-    setDeleteItemId(requestId);
-    setIsDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    try {
-      const response = await Api({
-        endpoint: `request/${deleteItemId}`,
-        method: METHOD_TYPE.DELETE,
-      });
-
-      if (response.success) {
-        fetchData();
-        toast.success("Xóa thành công!");
-      } else {
-        toast.error(
-          `Xóa thất bại: ${response.message || "Lỗi không xác định"}`
-        );
-        console.log("Failed to delete request");
-      }
-    } catch (error) {
-      toast.error(`Xóa thất bại: ${error.message || "Lỗi mạng"}`);
-      console.error("An error occurred while deleting request:", error.message);
-    } finally {
-      setIsDeleteModalOpen(false);
-      setDeleteItemId(null);
-    }
-  };
-
-  const handleAddRequest = () => {
-    setModalMode("add");
-    setModalData({
-      email: "",
-      phoneNumber: "",
-      majorName: "",
-      univercity: "",
-      GPA: "",
-      dateTimeLearn: [],
-    });
-    setIsModalOpen(true);
-    setFormErrors({}); // Reset lỗi khi mở modal
-  };
-
   const handleView = (request) => {
-    setModalData({
-      requestId: request.requestId,
-      email: request.email,
-      phoneNumber: request.phoneNumber,
-      majorName: request.tutorProfile.majorName,
-      univercity: request.tutorProfile.univercity,
-      GPA: request.tutorProfile.GPA,
-      dateTimeLearn: request.tutorProfile.dateTimeLearn,
-    });
-    setModalMode("view");
-    setIsModalOpen(true);
+    setModalData(request);
+    setIsDetailModalOpen(true);
+  };
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setModalData(null);
   };
 
-  const handleEdit = (request) => {
-    setModalData({
-      requestId: request.requestId,
-      email: request.email,
-      phoneNumber: request.phoneNumber,
-      majorName: request.tutorProfile.majorName,
-      univercity: request.tutorProfile.univercity,
-      GPA: request.tutorProfile.GPA,
-      dateTimeLearn: request.tutorProfile.dateTimeLearn,
-    });
-    setModalMode("edit");
-    setIsModalOpen(true);
-    setFormErrors({}); // Reset lỗi khi mở modal
+  // Action Handlers
+  const handleApproveClick = (request) => {
+    setRequestToApprove(request);
+    setSelectedLevelId("");
+    setIsApprovalModalOpen(true);
+  };
+  const handleCloseApprovalModal = () => {
+    setIsApprovalModalOpen(false);
+    setRequestToApprove(null);
+    setSelectedLevelId("");
+  };
+  const handleLevelSelect = (name, value) => {
+    setSelectedLevelId(value);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
-    setFormErrors({}); // Reset lỗi khi đóng modal
-  };
-
-  const handleSave = async () => {
-    fetchData();
-    setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
-    setFormErrors({}); // Reset lỗi sau khi lưu
-  };
-
-  const handleCreateRequest = async (formData) => {
+  const handleConfirmApprove = async () => {
+    if (!requestToApprove || !selectedLevelId) {
+      toast.warn("Vui lòng chọn hạng gia sư.");
+      return;
+    }
+    const requestId = requestToApprove.tutorRequestId;
+    setIsSolvingRequest(true);
     try {
       const response = await Api({
-        endpoint: "request",
+        endpoint: `tutor-request/solve-request/${requestId}`,
         method: METHOD_TYPE.POST,
-        data: formData,
+        data: { click: "ACCEPT", tutorLevelId: selectedLevelId },
+        headers: { "Content-Type": "application/json" },
       });
-
       if (response.success) {
-        toast.success("Thêm mới thành công!"); // Hiển thị thông báo thành công
-        // Gọi lại fetchData với sort createdAt giảm dần
-        fetchData({ key: "createdAt", direction: "desc" });
-        handleSave();
+        toast.success("Duyệt yêu cầu thành công!");
+        fetchData();
+        handleCloseApprovalModal();
       } else {
-        toast.error(
-          `Thêm mới thất bại: ${response.message || "Lỗi không xác định"}`
-        );
-        console.error("Failed to create request:", response.message);
+        toast.error(`Duyệt thất bại: ${response.message || "Lỗi"}`);
       }
     } catch (error) {
-      toast.error(`Thêm mới thất bại: ${error.message || "Lỗi mạng"}`);
-      console.error("An error occurred while creating request:", error.message);
+      toast.error(`Duyệt thất bại: ${error.message || "Lỗi mạng"}`);
+      console.error("Approve error:", error);
+    } finally {
+      setIsSolvingRequest(false);
+    }
+  };
+  const handleRejectClick = async (request) => {
+    if (!request || !request.tutorRequestId) return;
+    if (
+      window.confirm(
+        `Bạn chắc muốn từ chối yêu cầu "${request.tutorRequestId}" của ${request.fullname}?`
+      )
+    ) {
+      const requestId = request.tutorRequestId;
+      setIsSolvingRequest(true);
+      try {
+        const response = await Api({
+          endpoint: `tutor-request/solve-request/${requestId}`,
+          method: METHOD_TYPE.PUT,
+          data: { click: "REFUSE" },
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.success) {
+          toast.success("Từ chối yêu cầu thành công!");
+          fetchData();
+        } else {
+          toast.error(`Từ chối thất bại: ${response.message || "Lỗi"}`);
+        }
+      } catch (error) {
+        toast.error(`Từ chối thất bại: ${error.message || "Lỗi mạng"}`);
+        console.error("Reject error:", error);
+      } finally {
+        setIsSolvingRequest(false);
+      }
     }
   };
 
-  const handleUpdateRequest = async (formData) => {
-    try {
-      const response = await Api({
-        endpoint: `request/${modalData.requestId}`,
-        method: METHOD_TYPE.PUT,
-        data: formData,
-      });
+  // Table Columns
+  const columns = useMemo(
+    () => [
+      { title: "ID Yêu Cầu", dataKey: "tutorRequestId", sortable: true },
+      { title: "Họ và Tên", dataKey: "fullname", sortable: true },
+      { title: "Trường ĐH", dataKey: "univercity", sortable: true },
+      { title: "Chuyên ngành", dataKey: "major.majorName", sortable: true },
+      {
+        title: "Điểm Test",
+        dataKey: "totalTestPoints",
+        renderCell: (p) => (p !== null && p !== undefined ? p : "Chưa có"),
+        sortable: true,
+      },
+      { title: "GPA", dataKey: "GPA", sortable: true },
+      {
+        title: "Trạng thái",
+        dataKey: "status",
+        renderCell: formatStatus,
+        sortable: true,
+      },
+    ],
+    []
+  );
 
-      if (response.success) {
-        toast.success("Cập nhật thành công!");
-        handleSave();
-      } else {
-        toast.error(
-          `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
-        );
-        console.error("Failed to update request:", response.message);
-      }
-    } catch (error) {
-      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
-      console.error("An error occurred while updating request:", error.message);
-    }
-  };
-
-  const columns = [
-    { title: t("request.id"), dataKey: "requestId", sortable: true },
-    { title: t("request.email"), dataKey: "email", sortable: true },
-    { title: t("request.phone"), dataKey: "phoneNumber", sortable: true },
-    {
-      title: t("request.majorName"),
-      dataKey: "tutorProfile.majorName",
-      sortable: true,
-    },
-    {
-      title: t("request.univercity"),
-      dataKey: "tutorProfile.univercity",
-      sortable: true,
-    },
-    { title: t("request.GPA"), dataKey: "tutorProfile.GPA", sortable: true },
-    {
-      title: t("request.dateTimeLearn"),
-      dataKey: "tutorProfile.dateTimeLearn",
-      renderCell: (value) => (
-        <ul>
-          {value.map((item, index) => (
-            <li key={index}>
-              {item.day}: {item.times.join(", ")}
-            </li>
-          ))}
-        </ul>
-      ),
-    },
-  ];
-
-  const addFields = [
-    { key: "email", label: t("request.email") },
-    { key: "phoneNumber", label: t("request.phone") },
-    { key: "majorName", label: t("request.majorName") },
-    { key: "univercity", label: t("request.univercity") },
-    { key: "GPA", label: t("request.GPA") },
-    {
-      key: "dateTimeLearn",
-      label: t("request.dateTimeLearn"),
-      type: "date",
-    },
-  ];
-
-  const editFields = [
-    { key: "requestId", label: t("request.id"), readOnly: true },
-    { key: "email", label: t("request.email") },
-    { key: "phoneNumber", label: t("request.phone") },
-    { key: "majorName", label: t("request.majorName") },
-    { key: "univercity", label: t("request.univercity") },
-    { key: "GPA", label: t("request.GPA") },
-    {
-      key: "dateTimeLearn",
-      label: t("request.dateTimeLearn"),
-      type: "date",
-    },
-  ];
+  // Fields for Detail View Modal
+  const viewFields = useMemo(
+    () => [
+      { key: "tutorRequestId", label: "ID Yêu cầu" },
+      { key: "userId", label: "UserID" },
+      {
+        key: "status",
+        label: "Trạng thái",
+        renderValue: (status) => (status ? formatStatus(status) : "Không có"),
+      },
+      { key: "fullname", label: "Họ và Tên" },
+      // Avatar field removed from here as it's displayed separately in the modal
+      {
+        key: "birthday",
+        label: "Ngày sinh",
+        renderValue: (d) =>
+          d ? format(new Date(d), "dd/MM/yyyy") : "Không có",
+      },
+      {
+        key: "gender",
+        label: "Giới tính",
+        renderValue: (gender) =>
+          gender === "MALE" ? "Nam" : gender === "FEMALE" ? "Nữ" : "Không có",
+      },
+      {
+        key: "univercity",
+        label: "Trường Đại học",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "major.majorName",
+        label: "Chuyên ngành",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "GPA",
+        label: "Điểm GPA",
+        renderValue: (val) =>
+          val !== null && val !== undefined ? val : "Không có",
+      },
+      {
+        key: "evidenceOfGPA",
+        label: "Minh chứng GPA",
+        renderValue: renderEvidenceLink,
+      },
+      {
+        key: "subject.subjectName",
+        label: "Môn học 1",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "descriptionOfSubject",
+        label: "Mô tả môn 1",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "evidenceOfSubject",
+        label: "Minh chứng môn 1",
+        renderValue: renderEvidenceLink,
+      },
+      {
+        key: "subject2.subjectName",
+        label: "Môn học 2",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "descriptionOfSubject2",
+        label: "Mô tả môn 2",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "evidenceOfSubject2",
+        label: "Minh chứng môn 2",
+        renderValue: renderEvidenceLink,
+      },
+      {
+        key: "subject3.subjectName",
+        label: "Môn học 3",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "descriptionOfSubject3",
+        label: "Mô tả môn 3",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "evidenceOfSubject3",
+        label: "Minh chứng môn 3",
+        renderValue: renderEvidenceLink,
+      },
+      {
+        key: "description",
+        label: "Giới thiệu bản thân",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "teachingTime",
+        label: "Thời gian/tiết",
+        renderValue: (t) =>
+          t ? `${parseFloat(t).toFixed(2)} giờ` : "Không có",
+      },
+      {
+        key: "teachingMethod",
+        label: "Phương thức dạy",
+        renderValue: (method) =>
+          method === "ONLINE"
+            ? "Trực tuyến"
+            : method === "OFFLINE"
+            ? "Tại nhà"
+            : method === "BOTH"
+            ? "Cả hai"
+            : "Không có",
+      },
+      {
+        key: "teachingPlace",
+        label: "Khu vực dạy Offline",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "isUseCurriculumn",
+        label: "Giáo trình riêng",
+        renderValue: (v) =>
+          typeof v === "boolean" ? (v ? "Có" : "Không") : "Không có",
+      },
+      {
+        key: "videoUrl",
+        label: "Video giới thiệu",
+        renderValue: renderEvidenceLink,
+      },
+      {
+        key: "bankName",
+        label: "Ngân hàng",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "bankNumber",
+        label: "Số tài khoản",
+        renderValue: (val) => val || "Không có",
+      },
+      {
+        key: "dateTimeLearn",
+        label: "Lịch rảnh",
+        renderValue: (val) =>
+          val && val.length > 0 ? formatDateTimeLearn(val) : "Không có",
+      },
+      {
+        key: "tutorLevel.levelName",
+        label: "Cấp độ gia sư",
+        renderValue: (val) => val || "Chưa có",
+      },
+      {
+        key: "totalTestPoints",
+        label: "Điểm test",
+        renderValue: (p) => (p !== null && p !== undefined ? p : "Chưa có"),
+      },
+      {
+        key: "createdAt",
+        label: "Ngày tạo",
+        renderValue: (d) =>
+          d ? format(new Date(d), "dd/MM/yyyy HH:mm") : "Không có",
+      },
+      {
+        key: "updatedAt",
+        label: "Cập nhật",
+        renderValue: (d) =>
+          d ? format(new Date(d), "dd/MM/yyyy HH:mm") : "Không có",
+      },
+    ],
+    []
+  );
 
   const handleSearchInputChange = (query) => {
     setSearchInput(query);
-    const normalizedQuery = unidecode(query.toLowerCase());
-    const collator = new Intl.Collator("vi", { sensitivity: "base" });
-
+    const normQuery = unidecode(query.toLowerCase().trim());
+    if (!normQuery) {
+      setFilteredData(data);
+      return;
+    }
     const filtered = data.filter((item) => {
-      const searchValues = {
-        requestId: item.requestId,
-        email: item.email,
-        phoneNumber: item.phoneNumber,
-        majorName: item.tutorProfile?.majorName || "",
-        univercity: item.tutorProfile?.univercity || "",
-        gpa: item.tutorProfile?.GPA || "",
-      };
-
-      return Object.values(searchValues).some((value) => {
-        if (value) {
-          const stringValue = value.toString().toLowerCase();
-          const normalizedValue = unidecode(stringValue);
-
-          // Tạo biểu thức chính quy
-          const regex = new RegExp(normalizedQuery, "i");
-
-          return (
-            collator.compare(normalizedValue, normalizedQuery) === 0 ||
-            normalizedValue.includes(normalizedQuery) ||
-            regex.test(normalizedValue)
-          );
-        }
-        return false;
-      });
+      const searchable = [
+        item.tutorRequestId,
+        item.fullname,
+        item.univercity,
+        item.major?.majorName,
+        item.totalTestPoints?.toString(),
+        item.GPA?.toString(),
+        item.status,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return unidecode(searchable).includes(normQuery);
     });
-
     setFilteredData(filtered);
+    setCurrentPage(0);
   };
-
   const handleItemsPerPageChange = (newPageSize) => {
     setItemsPerPage(newPageSize);
-    setCurrentPage(0); // Reset về trang đầu tiên
+    setCurrentPage(0);
   };
+  const handleStatusFilterChange = (event) => {
+    setSelectedStatusFilter(event.target.value);
+    setCurrentPage(0);
+  };
+
+  const childrenMiddleContentLower = (
+    <>
+      <div className="admin-content">
+        <h2 className="admin-list-title">Quản lý Yêu cầu Làm Gia sư</h2>
+        <div className="search-bar-filter-container">
+          <div className="search-bar-filter">
+            <SearchBar
+              value={searchInput}
+              onChange={handleSearchInputChange}
+              placeholder="Tìm ID, Tên, Trường, Ngành, Trạng thái..."
+              searchBarClassName="admin-search"
+              searchInputClassName="admin-search-input"
+            />
+            <div className="filter-control">
+              {" "}
+              <label htmlFor="statusFilter" className="filter-label">
+                Lọc:
+              </label>{" "}
+              <select
+                id="statusFilter"
+                value={selectedStatusFilter}
+                onChange={handleStatusFilterChange}
+                className="status-filter-select"
+              >
+                {" "}
+                {statusFilterOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {" "}
+                    {option.label}{" "}
+                  </option>
+                ))}{" "}
+              </select>{" "}
+            </div>
+            <button
+              className="refresh-button"
+              onClick={() => {
+                resetState();
+                fetchData();
+              }}
+              title="Làm mới"
+            >
+              {" "}
+              <i className="fa-solid fa-rotate fa-lg"></i>{" "}
+            </button>
+          </div>
+          <div className="filter-add-admin"> {/* Empty div */} </div>
+        </div>
+        {error && (
+          <Alert severity="error" style={{ marginTop: "1rem" }}>
+            {error}
+          </Alert>
+        )}
+        <Table
+          columns={columns}
+          data={filteredData}
+          // Pass action handlers needed for this page
+          onView={handleView}
+          onApprove={handleApproveClick}
+          onReject={handleRejectClick}
+          // Other Table props
+          pageCount={pageCount}
+          onPageChange={handlePageClick}
+          forcePage={currentPage}
+          onSort={handleSort} // Pass sort handler
+          loading={isLoading || isSolvingRequest}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          showLock={false}
+          statusKey="status"
+        />
+        {!isLoading && !error && <p>Tổng số yêu cầu: {totalItems}</p>}
+      </div>
+    </>
+  );
 
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
-      childrenMiddleContentLower={
-        <>
-          <div className="admin-content">
-            <h2 className="admin-list-title">Danh sách yêu cầu làm gia sư</h2>
-            <div className="search-bar-filter-container">
-              <div className="search-bar-filter">
-                <SearchBar
-                  value={searchInput}
-                  onChange={handleSearchInputChange}
-                  searchBarClassName="admin-search"
-                  searchInputClassName="admin-search-input"
-                  placeholder="Tìm kiếm yêu cầu"
-                />
-                <button
-                  className="refresh-button"
-                  onClick={() => {
-                    resetState();
-                    fetchData();
-                  }}
-                >
-                  <i className="fa-solid fa-rotate"></i>
-                </button>
-              </div>
-              <div className="filter-add-admin">
-                <button className="add-admin-button" onClick={handleAddRequest}>
-                  {t("common.addButton")}
-                </button>
-              </div>
-            </div>
-            {error && <Alert severity="error">{error}</Alert>}
-            <Table
-              columns={columns}
-              data={filteredData}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={(request) => handleDelete(request.requestId)}
-              pageCount={pageCount} // Truyền pageCount
-              onPageChange={handlePageClick}
-              forcePage={currentPage}
-              onSort={handleSort}
-              loading={isLoading}
-              error={error}
-              itemsPerPage={itemsPerPage}
-              onItemsPerPageChange={handleItemsPerPageChange}
-            />
-            <p>Tổng số yêu cầu: {totalItems}</p> {/* Hiện thị totalItems */}
-          </div>
-        </>
-      }
+      childrenMiddleContentLower={childrenMiddleContentLower}
     >
+      {/* Detail View Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onRequestClose={handleCloseModal}
-        contentLabel={modalMode === "add" ? "Add Request" : "Edit Request"}
-        className="modal"
+        isOpen={isDetailModalOpen}
+        onRequestClose={handleCloseDetailModal}
+        contentLabel="Chi tiết Yêu cầu"
+        className="modal large"
         overlayClassName="overlay"
       >
-        <FormDetail
-          formData={modalData}
-          fields={modalMode === "add" ? addFields : editFields}
-          mode={modalMode || "view"}
-          onChange={(name, value) => {
-            setModalData({ ...modalData, [name]: value });
-            setFormErrors({ ...formErrors, [name]: "" }); // Xóa lỗi khi người dùng nhập
-          }}
-          onSubmit={
-            modalMode === "add" ? handleCreateRequest : handleUpdateRequest
-          }
-          onClose={handleCloseModal}
-          errors={formErrors} // Truyền errors cho FormDetail
-        />
+        {modalData && (
+          <FormDetail
+            formData={modalData}
+            fields={viewFields}
+            mode="view"
+            onChange={() => {}}
+            onSubmit={() => {}}
+            title="Chi tiết Yêu cầu"
+            onClose={handleCloseDetailModal}
+            avatarUrl={modalData?.avatar}
+          />
+        )}
       </Modal>
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa yêu cầu này?"
-      />
-      <ToastContainer // Thêm ToastContainer
+      {/* Approval Modal */}
+      <Modal
+        isOpen={isApprovalModalOpen}
+        onRequestClose={handleCloseApprovalModal}
+        contentLabel="Duyệt Yêu Cầu"
+        className="modal medium"
+        overlayClassName="overlay"
+      >
+        {requestToApprove && (
+          <div className="approval-modal-content">
+            <h2>Duyệt Yêu Cầu: {requestToApprove.tutorRequestId}</h2>
+            <p>
+              Gia sư: <strong>{requestToApprove.fullname}</strong>
+            </p>
+            <div className="form-detail-group">
+              {" "}
+              <label htmlFor="tutorLevelApproval">
+                Chọn Hạng Gia Sư:<span className="required-asterisk">*</span>
+              </label>
+              <TutorLevelList
+                name="tutorLevelApproval"
+                value={selectedLevelId}
+                onChange={handleLevelSelect}
+                required={true}
+                placeholder="-- Chọn hạng --"
+              />
+            </div>
+            <div className="modal-action-buttons approval-actions">
+              <button
+                className="action-button cancel"
+                onClick={handleCloseApprovalModal}
+                disabled={isSolvingRequest}
+              >
+                Hủy
+              </button>
+              <button
+                className="action-button approve"
+                onClick={handleConfirmApprove}
+                disabled={!selectedLevelId || isSolvingRequest}
+              >
+                {" "}
+                {isSolvingRequest ? (
+                  <>
+                    <FontAwesomeIcon icon={faSpinner} spin /> Đang xử lý...
+                  </>
+                ) : (
+                  "Xác nhận Duyệt"
+                )}{" "}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+      {/* No Delete Confirmation Modal */}
+      <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
