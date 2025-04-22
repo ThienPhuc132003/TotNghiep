@@ -90,7 +90,7 @@ const SigninPageComponent = () => {
 
           if (userInfoResponse.success && userInfoResponse.data) {
             console.log("User Profile Data:", userInfoResponse);
-            dispatch(setUserProfile(userInfoResponse.data));
+            dispatch(setUserProfile(userInfoResponse.data.userProfile));
             navigate("/trang-chu");
           } else {
             console.error(

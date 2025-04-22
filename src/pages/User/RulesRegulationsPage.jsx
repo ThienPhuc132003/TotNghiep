@@ -162,29 +162,6 @@ const RegulationsContentSection = () => (
 );
 
 // --- Contact Support Section (Giữ lại hoặc chỉnh sửa) ---
-const ContactSupportSection = () => (
-  <section className="contact-support section">
-    {" "}
-    {/* Giữ nguyên hoặc đổi class nếu cần */}
-    <h2>Cần Hỗ Trợ Thêm?</h2>
-    <p>
-      Nếu bạn có bất kỳ câu hỏi nào về quy định hoặc cần hỗ trợ khác, đừng ngần
-      ngại liên hệ với chúng tôi.
-    </p>
-    <div className="contact-info">
-      <p>
-        <strong>Email:</strong>{" "}
-        <a href="mailto:hotro@giasuvlu.com">hotro@giasuvlu.com</a>
-      </p>
-      <p>
-        <strong>Hotline:</strong> <a href="tel:09xxxxxxxx">09xx xxx xxx</a> (Giờ
-        hành chính)
-      </p>
-    </div>
-    {/* Bỏ nút "Gửi yêu cầu hỗ trợ" nếu không có trang liên hệ riêng */}
-    {/* <a href="/contact" className="contact-button">Gửi yêu cầu hỗ trợ</a> */}
-  </section>
-);
 
 // --- Main RulesRegulationsPage Component ---
 const RulesRegulationsPage = () => {
@@ -193,7 +170,6 @@ const RulesRegulationsPage = () => {
       <div className="rules-page-wrapper">
         <RulesHeroSection />
         <RegulationsContentSection />
-        <ContactSupportSection />
       </div>
     </HomePageLayout>
   );
