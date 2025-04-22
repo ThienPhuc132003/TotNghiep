@@ -647,7 +647,7 @@ const HomePage = () => {
             // Fetch user profile after successful login
             try {
               const userInfoResponse = await Api({
-                endpoint: "user/get-profile", // Make sure this endpoint is correct
+                endpoint: "user/get-profile",
                 method: METHOD_TYPE.GET,
                 // No need to pass token in data, Api function should handle Authorization header
               });
