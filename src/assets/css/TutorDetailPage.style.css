@@ -1,0 +1,320 @@
+/* CSS cho Trang Chi Tiết Gia Sư */
+
+.tutor-detail-page {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: var(--background-white);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+}
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  color: var(--text-medium);
+}
+.spinner {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.error-icon {
+  font-size: 3rem;
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+.back-link {
+  margin-top: 1.5rem;
+  color: var(--primary-color);
+  text-decoration: underline;
+  font-weight: 500;
+}
+.back-link:hover {
+  color: var(--primary-color-dark);
+}
+.detail-header {
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  align-items: flex-start;
+}
+.header-left {
+  flex-shrink: 0;
+  position: relative;
+}
+.detail-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--background-white);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.detail-verified-badge {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 1.5rem;
+  color: var(--success-color);
+  background-color: white;
+  border-radius: 50%;
+  padding: 2px;
+}
+.header-main {
+  flex-grow: 1;
+}
+.detail-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.detail-rank-badge {
+  font-size: 1.2em;
+}
+.detail-rating-fav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.detail-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+}
+.detail-rating .star-icon {
+  font-size: 1rem;
+}
+.detail-rating .rating-value {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-left: 0.4rem;
+}
+.detail-rating .review-count {
+  color: var(--text-light);
+  margin-left: 0.5rem;
+}
+.detail-favorite-btn {
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: var(--favorite-inactive);
+  cursor: pointer;
+  padding: 0.3rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+  line-height: 1;
+}
+.detail-favorite-btn:hover {
+  color: var(--favorite-hover);
+  transform: scale(1.1);
+}
+.detail-favorite-btn.favorite-active {
+  color: var(--favorite-active);
+}
+.detail-favorite-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.detail-basic-info {
+  font-size: 1rem;
+  color: var(--text-medium);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.detail-basic-info svg {
+  color: var(--text-light);
+  font-size: 1.1em;
+}
+.header-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+.header-actions .action-btn {
+  padding: 0.8rem 1.8rem;
+  font-size: 1rem;
+  min-width: 140px; /* Kế thừa style từ TutorSearch.css */
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.header-actions .hire-btn {
+  background-color: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+}
+.header-actions .hire-btn:hover {
+  background-color: #059669;
+  border-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header-actions .cancel-btn {
+  background-color: var(--cancel-bg);
+  color: var(--cancel-text);
+  border: 1px solid var(--cancel-border);
+}
+.header-actions .cancel-btn:hover {
+  background-color: var(--cancel-hover-bg);
+  border-color: var(--cancel-hover-border);
+  color: var(--cancel-hover-text);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.booking-status-indicator {
+  /* Style cho trạng thái booking khác */
+  padding: 0.8rem 1.8rem;
+  font-size: 1rem;
+  background-color: #e5e7eb;
+  color: var(--text-medium);
+  border-radius: 20px;
+  font-weight: 500;
+}
+.detail-section {
+  margin-bottom: 2.5rem;
+}
+.detail-section h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.detail-description {
+  line-height: 1.7;
+  color: var(--text-medium);
+  white-space: pre-wrap;
+}
+.info-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.info-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+  color: var(--text-medium);
+}
+.info-list li .info-icon {
+  margin-top: 3px;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.evidence-link {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+.evidence-link:hover {
+  color: var(--primary-color-dark);
+}
+.subject-desc {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-top: 0.3rem;
+  margin-left: calc(20px + 0.8rem);
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--border-color);
+}
+.schedule-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  columns: 2;
+  gap: 1rem;
+}
+.schedule-list li {
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+  break-inside: avoid;
+}
+.schedule-list li strong {
+  color: var(--text-dark);
+  margin-right: 0.5rem;
+  display: inline-block;
+  min-width: 50px;
+}
+.detail-price {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.detail-price svg {
+  font-size: 1.1em;
+}
+@media (max-width: 768px) {
+  .detail-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  .header-main {
+    width: 100%;
+  }
+  .detail-name {
+    justify-content: center;
+    font-size: 1.8rem;
+  }
+  .detail-rating-fav {
+    justify-content: center;
+  }
+  .detail-basic-info {
+    justify-content: center;
+  }
+  .header-actions {
+    justify-content: center;
+  }
+  .schedule-list {
+    columns: 1;
+  }
+  .info-list li {
+    font-size: 0.95rem;
+  }
+}

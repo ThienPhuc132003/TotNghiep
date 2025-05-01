@@ -92,6 +92,29 @@
 }
 
 /* --- Status Filter Styles --- */
+.status {
+  padding: 0.2em 0.6em;
+  border-radius: 0.8em;
+  font-size: 0.85em;
+  font-weight: bold;
+  display: inline-block; /* Để padding và radius hoạt động tốt */
+  text-align: center;
+}
+
+.status-active {
+  color: #27ae60; /* Green */
+  background-color: #e9f7ef; /* Light green background */
+}
+
+.status-blocked {
+  color: #e74c3c; /* Red */
+  background-color: #fdedec; /* Light red background */
+}
+
+.status-unknown {
+  color: #7f8c8d; /* Gray */
+  background-color: #f4f6f7; /* Light gray background */
+}
 .filter-control {
   display: flex;
   align-items: center;
@@ -140,7 +163,6 @@
 }
 
 /* --- Container for Add Button --- */
-
 
 .add-admin-button {
   background-color: #2ecc71;
