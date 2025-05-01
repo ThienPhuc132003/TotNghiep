@@ -7,7 +7,8 @@ import dfMale from "../../assets/images/df-male.png";
 import dfFemale from "../../assets/images/df-female.png";
 
 const UserComponent = () => {
-  const userInfo = useSelector((state) => state.user.userProfile) || {};
+  const userInfo = useSelector((state) => state.user.userProfile.userProfile) || {};
+  console.log("userInfo tôlbar", userInfo);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 

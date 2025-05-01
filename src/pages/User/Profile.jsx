@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const ProfilePage = () => {
-  const userProfile = useSelector((state) => state.user.userProfile);
+  const userProfile = useSelector((state) => state.user.userProfile.userProfile);
   const dispatch = useDispatch();
 
   // State cho dữ liệu form chính
