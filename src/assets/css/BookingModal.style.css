@@ -1,0 +1,281 @@
+/* CSS cho BookingModal.style.css */
+.booking-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Đảm bảo modal ở trên cùng */
+  padding: 1rem; /* Padding để tránh modal chạm sát cạnh màn hình nhỏ */
+}
+
+.booking-modal {
+  background: white;
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  max-width: 650px; /* Giới hạn chiều rộng */
+  width: 100%; /* Chiếm hết chiều rộng của container overlay */
+  max-height: 90vh; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.booking-modal h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--text-light);
+  line-height: 1;
+  padding: 0.2rem;
+}
+.close-modal-btn:hover {
+  color: var(--text-dark);
+}
+.close-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.booking-modal form .form-group {
+  margin-bottom: 1.2rem;
+}
+
+.booking-modal form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-medium);
+  font-size: 0.9rem;
+}
+
+.booking-modal form input[type="number"],
+.booking-modal form input[type="date"],
+.booking-modal form select,
+.booking-modal form input[type="time"] {
+  /* Áp dụng style chung cho input time */
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-sizing: border-box; /* Quan trọng */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.booking-modal form input:focus,
+.booking-modal form select:focus,
+.booking-modal form input[type="time"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.15);
+}
+.booking-modal form input[type="number"]:disabled,
+.booking-modal form input[type="date"]:disabled,
+.booking-modal form select:disabled,
+.booking-modal form input[type="time"]:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+/* Style cho chọn lịch */
+.schedule-picker {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(180px, 1fr)
+  ); /* Tăng min-width cho cột */
+  gap: 1rem;
+}
+
+.day-schedule {
+  border: 1px solid transparent; /* Border ẩn ban đầu */
+  padding: 0.75rem; /* Tăng padding */
+  border-radius: 4px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.day-schedule.selected {
+  border-color: var(--primary-color-dark);
+  background-color: rgba(215, 33, 52, 0.05);
+}
+
+.day-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.8rem; /* Tăng khoảng cách */
+  font-size: 0.95rem;
+}
+.day-label input[type="checkbox"] {
+  width: auto; /* Reset width */
+  cursor: pointer;
+  accent-color: var(--primary-color); /* Màu dấu tick */
+}
+
+.time-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem; /* Tăng gap */
+  margin-top: 0.8rem; /* Tăng margin */
+  padding-left: 0.5rem; /* Giảm thụt lề */
+}
+
+.time-slot-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-slot-input input[type="time"] {
+  flex-grow: 1;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.add-time-btn,
+.remove-time-btn {
+  background: none;
+  border: 1px solid var(--border-color); /* Solid thay vì dashed */
+  color: var(--text-light);
+  cursor: pointer;
+  border-radius: 50%; /* Làm tròn nút */
+  width: 24px; /* Kích thước cố định */
+  height: 24px;
+  font-size: 1.1rem; /* Tăng cỡ chữ (+/x) */
+  line-height: 1;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* Bỏ padding */
+}
+.add-time-btn:hover,
+.remove-time-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(215, 33, 52, 0.05);
+}
+
+.remove-time-btn {
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+.remove-time-btn:hover {
+  border-color: var(--error-color);
+  color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.add-time-btn {
+  margin-top: 0.5rem; /* Khoảng cách nút thêm giờ */
+  border-style: dashed; /* Giữ lại dashed cho nút add */
+}
+
+/* Responsive row cho form */
+.form-row {
+  display: flex;
+  gap: 1.5rem; /* Tăng gap */
+  flex-wrap: wrap; /* Xuống dòng trên mobile */
+}
+.form-row .form-group {
+  flex: 1; /* Chia đều không gian */
+  min-width: 200px; /* Đảm bảo không quá hẹp */
+}
+
+/* --- Modal Actions --- */
+.modal-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end; /* Đẩy nút sang phải */
+  gap: 0.8rem;
+}
+
+.modal-actions button {
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  border: none;
+}
+
+.modal-actions button[type="button"] {
+  background-color: #e5e7eb;
+  color: var(--text-medium);
+}
+.modal-actions button[type="button"]:hover:not(:disabled) {
+  background-color: #d1d5db;
+}
+
+.modal-actions button[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+}
+.modal-actions button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--primary-color-dark);
+}
+.modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message-modal {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  text-align: center;
+  background-color: rgba(239, 68, 68, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+/* Responsive for modal */
+@media (max-width: 600px) {
+  .booking-modal {
+    padding: 1.5rem;
+  }
+  .booking-modal h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .schedule-picker {
+    grid-template-columns: 1fr; /* Một cột trên mobile */
+  }
+  .form-row {
+    gap: 1rem;
+  }
+  .form-row .form-group {
+    min-width: 100%; /* Chiếm full width trên mobile */
+  }
+  .modal-actions {
+    margin-top: 1.5rem;
+    justify-content: center; /* Căn giữa nút trên mobile */
+  }
+  .modal-actions button {
+    flex-grow: 1; /* Cho nút chiếm không gian */
+    max-width: 150px; /* Giới hạn chiều rộng */
+  }
+}

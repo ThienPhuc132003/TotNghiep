@@ -8,13 +8,25 @@
   --border-color: #bdc3c7; /* Màu viền */
   --error-color: #e74c3c; /* Màu đỏ cho lỗi */
   --disabled-bg-color: #f0f0f0; /* Màu nền khi bị vô hiệu hóa */
-  --disabled-text-color: #7f8c8d; /* Màu chữ khi bị vô hiệu hóa (đậm hơn) */
+  --disabled-text-color: #555; /* Màu chữ khi bị vô hiệu hóa (đậm hơn một chút) */
   --hover-border-color: #2980b9; /* Màu viền khi hover */
   --success-color: #2ecc71; /* Màu xanh lá cho nút Lưu */
   --success-hover-color: #27ae60; /* Hover xanh lá */
   --cancel-color: #95a5a6; /* Màu xám cho nút Hủy */
   --cancel-hover-color: #7f8c8d; /* Hover xám */
   --required-asterisk-color: var(--error-color); /* Màu dấu * */
+  --status-active-bg: #d4edda;
+  --status-active-text: #155724;
+  --status-active-border: #c3e6cb;
+  --status-blocked-bg: #f8d7da;
+  --status-blocked-text: #721c24;
+  --status-blocked-border: #f5c6cb;
+  --status-request-bg: #fff3cd;
+  --status-request-text: #856404;
+  --status-request-border: #ffeeba;
+  --status-unknown-bg: #e9ecef;
+  --status-unknown-text: #495057;
+  --status-unknown-border: #dee2e6;
 }
 
 /* Form container */
@@ -22,14 +34,14 @@
   position: relative;
   background: #fff;
   border-radius: 12px;
-  max-width: 900px;
+  max-width: 900px; /* Mặc định cho modal lớn */
   width: 90%;
   margin: 20px auto;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
-  max-height: 85vh;
-  overflow: hidden;
+  max-height: 85vh; /* Giới hạn chiều cao tối đa */
+  overflow: hidden; /* Ẩn overflow ở container chính */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -40,10 +52,10 @@
   align-items: center;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
-  background-color: #f8f9fa;
-  border-top-left-radius: 12px;
+  background-color: #f8f9fa; /* Nền sáng cho header */
+  border-top-left-radius: 12px; /* Bo góc trên */
   border-top-right-radius: 12px;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Không co lại khi nội dung dài */
 }
 
 .form-detail-header h2 {
@@ -58,14 +70,14 @@
   border: none;
   font-size: 1.75rem;
   cursor: pointer;
-  color: #6c757d;
+  color: #6c757d; /* Màu xám cho nút đóng */
   padding: 0.25rem;
   line-height: 1;
   transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .form-detail-close-button:hover {
-  color: var(--error-color);
+  color: var(--error-color); /* Màu đỏ khi hover */
   transform: scale(1.1);
 }
 
@@ -75,45 +87,50 @@
   justify-content: center;
   padding: 1.5rem 0 0.5rem 0;
   background-color: #f8f9fa; /* Match header background */
-  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color); /* Thêm đường kẻ dưới avatar */
+  flex-shrink: 0; /* Không co lại */
 }
 
 .form-detail-avatar-img {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  object-fit: cover; /* Đảm bảo ảnh vừa vặn */
+  border: 3px solid #fff; /* Viền trắng quanh avatar */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* Đổ bóng nhẹ */
 }
 
 /* Scrollable Content Area */
 .form-content {
   padding: 1.5rem 1.5rem;
-  overflow-y: auto; /* Enable vertical scroll */
-  flex-grow: 1; /* Allow this area to take available space */
+  overflow-y: auto; /* Cho phép cuộn dọc */
+  flex-grow: 1; /* Cho phép vùng này mở rộng */
+  -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
 }
 
 /* Form grid */
 .form-detail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem 1.5rem;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(280px, 1fr)
+  ); /* Responsive grid */
+  gap: 1rem 1.5rem; /* Khoảng cách giữa các ô */
 }
 
 /* Form group */
 .form-detail-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.5rem; /* Reduced margin */
+  margin-bottom: 0.5rem; /* Giảm khoảng cách dưới */
 }
 
 .form-detail-group label {
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #495057;
+  color: #495057; /* Màu label */
   font-size: 0.9rem;
-  display: flex; /* Use flex to align asterisk nicely */
+  display: flex;
   align-items: center;
 }
 
@@ -135,50 +152,49 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
   width: 100%;
-  box-sizing: border-box;
-  min-height: calc(1.5em + 1.6rem + 2px); /* Consistent min-height */
+  box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước */
+  min-height: calc(1.5em + 1.6rem + 2px); /* Chiều cao tối thiểu nhất quán */
 }
 .form-detail-group textarea {
-  resize: vertical;
-  min-height: 100px;
+  resize: vertical; /* Cho phép thay đổi chiều cao */
+  min-height: 100px; /* Chiều cao tối thiểu cho textarea */
 }
 
 /* Input error state */
 .form-detail-group input.input-error,
 .form-detail-group select.input-error,
 .form-detail-group textarea.input-error {
-  border-color: var(--error-color) !important; /* Make error border prominent */
-  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25); /* Red shadow for error */
+  border-color: var(--error-color) !important; /* Viền đỏ đậm */
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25); /* Đổ bóng đỏ nhẹ */
 }
 
 /* Hover/Focus states for editable fields */
 .form-detail-group input:not([readOnly]):not(:disabled):hover,
 .form-detail-group select:not(:disabled):hover,
 .form-detail-group textarea:not([readOnly]):not(:disabled):hover {
-  border-color: var(--hover-border-color);
+  border-color: var(--hover-border-color); /* Viền xanh khi hover */
 }
 .form-detail-group input:not([readOnly]):not(:disabled):focus,
 .form-detail-group select:not(:disabled):focus,
 .form-detail-group textarea:not([readOnly]):not(:disabled):focus {
   border-color: var(--hover-border-color);
-  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25); /* Đổ bóng xanh khi focus */
 }
 
 /* Checkbox specific style */
 .form-detail-checkbox {
-  width: auto; /* Don't force full width */
-  min-height: auto; /* Reset min-height */
+  width: auto; /* Không chiếm hết chiều rộng */
+  min-height: auto; /* Reset chiều cao tối thiểu */
   height: 1.1rem;
   width: 1.1rem;
-  margin-right: 0.5rem; /* Space if label is next to it */
-  accent-color: var(--primary-color);
+  margin-right: 0.5rem;
+  accent-color: var(--primary-color); /* Màu khi được check */
   cursor: pointer;
 }
-/* Align label and checkbox if needed */
 .form-detail-group label.checkbox-label-inline {
   flex-direction: row;
   align-items: center;
-  margin-bottom: 0; /* Remove bottom margin for inline */
+  margin-bottom: 0; /* Bỏ margin dưới cho label inline */
 }
 
 /* --- Styles for Read-only/View Mode --- */
@@ -186,80 +202,121 @@
 .form-detail-value {
   background-color: var(--disabled-bg-color);
   color: var(--disabled-text-color);
-  cursor: default;
-  border: 1px solid #ced4da;
+  cursor: default; /* Con trỏ mặc định */
+  border: 1px solid #e0e0e0; /* Viền nhạt hơn */
   padding: 0.8rem 1rem;
   border-radius: 6px;
-  min-height: calc(1.5em + 1.6rem + 2px); /* <<< MATCH INPUT MIN-HEIGHT */
+  min-height: calc(
+    1.5em + 1.6rem + 2px
+  ); /* <<< CHIỀU CAO TỐI THIỂU GIỐNG INPUT */
   display: flex;
-  align-items: center;
-  word-break: break-word;
-  font-size: 0.95rem; /* Match input font size */
-  line-height: 1.5; /* Ensure text doesn't get cut off */
+  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+  word-break: break-word; /* Tự động xuống dòng nếu chữ quá dài */
+  font-size: 0.95rem; /* Cỡ chữ giống input */
+  line-height: 1.5; /* Đảm bảo chữ không bị cắt */
 }
 
-/* Styling for content inside .form-detail-value */
-.form-detail-value img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 4px;
-}
-.form-detail-value ul {
-  padding-left: 20px;
+/* --- Styling for specific content inside .form-detail-value --- */
+
+/* List (e.g., dateTimeLearn) */
+.form-detail-value ul.datetime-list {
+  list-style: none;
+  padding-left: 0;
   margin: 0;
-  list-style-type: disc;
 }
+.form-detail-value ul.datetime-list li {
+  margin-bottom: 0.3rem;
+  font-size: 0.9em;
+  color: var(--disabled-text-color); /* Match text color */
+}
+.form-detail-value ul.datetime-list li strong {
+  color: #0056b3; /* Màu khác biệt cho ngày */
+  margin-right: 5px;
+  font-weight: 600;
+}
+
+/* Evidence Links */
 .form-detail-value a.evidence-link {
   color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
 .form-detail-value a.evidence-link:hover {
   text-decoration: underline;
   color: var(--hover-border-color);
 }
-.form-detail-value .status {
-  padding: 0.2em 0.6em;
-  border-radius: 0.25rem;
-  font-weight: 600;
-  font-size: 0.85em;
-  display: inline-block;
-}
-.form-detail-value .status-request {
-  background-color: #fff3cd;
-  color: #856404;
-}
-.form-detail-value .status-accept {
-  background-color: #d4edda;
-  color: #155724;
-}
-.form-detail-value .status-refuse {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-.form-detail-value .status-cancel {
-  background-color: #e2e3e5;
-  color: #383d41;
-}
-.form-detail-value .status-unknown {
-  background-color: #d6d8db;
-  color: #1b1e21;
+.form-detail-value a.evidence-link.disabled-link {
+  /* Link không hợp lệ */
+  color: var(--disabled-text-color);
+  cursor: not-allowed;
+  text-decoration: none !important;
 }
 
+/* Status Badges */
+.form-detail-value .status {
+  padding: 0.25em 0.7em;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  font-size: 0.85em;
+  display: inline-block; /* Để vừa với nội dung */
+  border: 1px solid transparent; /* Border để giữ kích thước ổn định */
+  line-height: 1.2; /* Căn chỉnh chữ tốt hơn */
+  text-align: center;
+}
+.form-detail-value .status-active {
+  background-color: var(--status-active-bg);
+  color: var(--status-active-text);
+  border-color: var(--status-active-border);
+}
+.form-detail-value .status-blocked {
+  background-color: var(--status-blocked-bg);
+  color: var(--status-blocked-text);
+  border-color: var(--status-blocked-border);
+}
+.form-detail-value .status-request {
+  background-color: var(--status-request-bg);
+  color: var(--status-request-text);
+  border-color: var(--status-request-border);
+}
+.form-detail-value .status-unknown {
+  background-color: var(--status-unknown-bg);
+  color: var(--status-unknown-text);
+  border-color: var(--status-unknown-border);
+}
+/* Thêm các trạng thái khác nếu cần */
+.form-detail-value .status-accept {
+  background-color: var(--status-active-bg);
+  color: var(--status-active-text);
+  border-color: var(--status-active-border);
+}
+.form-detail-value .status-refuse {
+  background-color: var(--status-blocked-bg);
+  color: var(--status-blocked-text);
+  border-color: var(--status-blocked-border);
+}
+.form-detail-value .status-cancel {
+  background-color: var(--status-unknown-bg);
+  color: var(--status-unknown-text);
+  border-color: var(--status-unknown-border);
+}
+
+/* Error message below input */
 .form-detail-error-message {
   color: var(--error-color);
   font-size: 0.85rem;
   margin-top: 0.5rem;
 }
 
-/* Form actions */
+/* Form actions (Save/Cancel) */
 .form-detail-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.8rem;
+  justify-content: flex-end; /* Căn phải */
+  gap: 0.8rem; /* Khoảng cách giữa các nút */
   margin-top: 1.5rem;
-  /* No border-top needed as it's inside .form-content now */
+  padding-top: 1.5rem; /* Khoảng cách trên */
+  border-top: 1px solid var(--border-color); /* Đường kẻ phân cách */
+  flex-shrink: 0; /* Không co lại */
 }
 
 /* Base button style for actions */
@@ -275,7 +332,7 @@
 }
 .form-detail-save-button:hover,
 .form-detail-cancel-button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-1px); /* Hiệu ứng nhấc lên nhẹ */
 }
 
 .form-detail-save-button {
@@ -294,7 +351,7 @@
   background-color: var(--cancel-hover-color);
 }
 
-/* Modal Action Buttons Specific Styling (for Approve/Reject in ListOfRequestPage) */
+/* Modal Action Buttons Specific Styling (for Approve/Reject in ListOfRequestPage - reused style) */
 .modal-action-buttons {
   display: flex;
   justify-content: flex-end;
@@ -304,6 +361,7 @@
   border-bottom-left-radius: 12px; /* Round bottom corners */
   border-bottom-right-radius: 12px;
   gap: 1rem;
+  flex-shrink: 0; /* Không co lại */
 }
 
 .modal-action-buttons .action-button {
@@ -343,7 +401,7 @@
   transform: none;
 }
 
-/* Approval Modal Specific */
+/* Approval Modal Specific Content (nếu dùng chung file CSS) */
 .approval-modal-content {
   padding: 1.5rem;
 }
@@ -359,18 +417,42 @@
   font-size: 1rem;
 }
 .approval-modal-content .form-detail-group {
-  margin-bottom: 1rem; /* Adjust spacing inside approval modal */
+  margin-bottom: 1rem;
 }
-.approval-modal-content .modal-action-buttons.approval-actions {
-  border-top: 1px solid var(--border-color);
-  padding-top: 1rem;
-  margin-top: 1.5rem;
-  background-color: transparent; /* Remove background if preferred */
-  border-radius: 0; /* Remove bottom radius if part of content */
+/* Nút action trong approval modal có thể dùng chung .modal-action-buttons */
+
+/* Responsive modal size classes */
+.modal.large .form-detail-container {
+  max-width: 900px;
 }
-
-/* Make modal scrollable internally */
-
 .modal.medium .form-detail-container {
-  max-width: 600px; /* Adjust max-width for medium modal */
+  max-width: 600px;
+}
+.modal.small .form-detail-container {
+  max-width: 450px;
+}
+
+/* Thêm CSS cho trạng thái user (active/blocked) nếu chưa có */
+.status-active {
+  background-color: var(--status-active-bg) !important;
+  color: var(--status-active-text) !important;
+  border-color: var(--status-active-border) !important;
+}
+
+.status-blocked {
+  background-color: var(--status-blocked-bg) !important;
+  color: var(--status-blocked-text) !important;
+  border-color: var(--status-blocked-border) !important;
+}
+
+/* Đảm bảo .status trong table cũng dùng màu này */
+.custom-table .status {
+  padding: 0.25em 0.7em;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  font-size: 0.85em;
+  display: inline-block;
+  border: 1px solid transparent;
+  line-height: 1.2;
+  text-align: center;
 }

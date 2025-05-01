@@ -1657,9 +1657,8 @@ const TutorRegistrationForm = () => {
               {" "}
               <label htmlFor="teachingTime">
                 {" "}
-                Thời gian mỗi buổi <span className="required-asterisk">
-                  *
-                </span>{" "}
+                Thời gian tối đa có thể dạy mỗi buổi{" "}
+                <span className="required-asterisk">*</span>{" "}
               </label>{" "}
               <select
                 id="teachingTime"

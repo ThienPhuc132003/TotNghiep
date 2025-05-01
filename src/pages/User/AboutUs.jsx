@@ -192,13 +192,12 @@ const AboutUsComponent = () => {
                 alt="Đặng Phương Nam"
                 className="team-member-img"
               />
-              <h3>[Tên Thành Viên 1]</h3>
-              <p className="team-member-role">
-                Chức vụ (VD: Founder & CEO)
-              </p>{" "}
-              {/* & -> & */}
+              <h3>Đặng Phương Nam</h3>
+              <p className="team-member-role">Founder & CEO</p> {/* & -> & */}
               <p className="team-member-bio">
-                [Mô tả ngắn gọn về vai trò, kinh nghiệm, hoặc tâm huyết...]
+                Là người chủ động sáng lập và phát triển Gia Sư Văn Lang, tôi
+                luôn mong muốn mang đến một nền tảng học tập hiệu quả và thân
+                thiện cho sinh viên.
               </p>
               {/* Social links */}
             </div>
@@ -209,9 +208,12 @@ const AboutUsComponent = () => {
                 alt="Trịnh Văn Thiên Phúc"
                 className="team-member-img"
               />
-              <h3>[Tên Thành Viên 2]</h3>
-              <p className="team-member-role">Chức vụ</p>
-              <p className="team-member-bio">[Mô tả ngắn gọn...]</p>
+              <h3>Trịnh Văn Thiên Phúc</h3>
+              <p className="team-member-role">Front-end developer</p>
+              <p className="team-member-bio">
+                Tôi muốn đem đến cho sinh viên một trang web mượt mà, thân thiện
+                nhất có thể
+              </p>
             </div>
             {/* --- Thành viên Mẫu 3 --- */}
             <div className="team-member">
@@ -220,9 +222,12 @@ const AboutUsComponent = () => {
                 alt="Đỗ Tùng Lâm"
                 className="team-member-img"
               />
-              <h3>[Tên Thành Viên 3]</h3>
-              <p className="team-member-role">Chức vụ</p>
-              <p className="team-member-bio">[Mô tả ngắn gọn...]</p>
+              <h3>Đỗ Tùng Lâm</h3>
+              <p className="team-member-role">Back-end developer</p>
+              <p className="team-member-bio">
+                Tôi muốn một trang web vận hành mượt mà đến với mọi người mà
+                không gặp lỗi{" "}
+              </p>
             </div>
           </div>
         </section>

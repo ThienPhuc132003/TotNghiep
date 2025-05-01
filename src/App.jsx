@@ -27,9 +27,12 @@ const OtpVerifyRegister = lazy(() => import("./pages/User/OtpVerifyRegister"));
 const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 const AboutUs = lazy(() => import("./pages/User/AboutUs"));
 const TutorSearch = lazy(() => import("./pages/User/TutorSearch"));
+const TutorDetailPage = lazy(() => import("./pages/User/TutorDetailPage"));
 const TutorRegister = lazy(() => import("./pages/User/TutorRegister"));
 const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
-const RulesRegulationsPage = lazy(() => import("./pages/User/RulesRegulationsPage"));
+const RulesRegulationsPage = lazy(() =>
+  import("./pages/User/RulesRegulationsPage")
+);
 const Wallet = lazy(() => import("./pages/User/WalletPage"));
 
 import ZoomCallback from "./pages/User/ZoomCallback";
@@ -72,6 +75,7 @@ function App() {
             <Route index element={<Navigate to="/trang-chu" />} />
             <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
+            <Route path="/gia-su/:userId" element={<TutorDetailPage />} />
 
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<UserLogin />} />
@@ -79,7 +83,10 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/otp-verify" element={<OtpVerify />} />
             <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
-            <Route path="/quy-dinh-noi-quy-huong-dan" element={<RulesRegulationsPage />} />
+            <Route
+              path="/quy-dinh-noi-quy-huong-dan"
+              element={<RulesRegulationsPage />}
+            />
             <Route path="/user/wallet" element={<Wallet />} />
             <Route
               path="/trac-nghiem-gia-su"

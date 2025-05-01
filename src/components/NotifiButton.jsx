@@ -40,7 +40,7 @@ const NotifiButtonComponent = () => {
       }
     };
 
-    fetchNotifications(page);
+    // fetchNotifications(page);
   }, []);
 
   const toggleDropdown = () => {

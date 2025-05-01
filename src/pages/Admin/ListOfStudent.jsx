@@ -196,7 +196,7 @@ const ListOfStudentPage = () => {
       phoneNumber: student.phoneNumber,
       homeAddress: student.userProfile?.homeAddress || "",
       birthday: student.userProfile?.birthday || "",
-      gender: student.userProfile?.gender === "MALE" ? "Nam" : "Nữ", 
+      gender: student.userProfile?.gender === "MALE" ? "Nam" : "Nữ",
       status: student.status,
       checkActive: student.checkActive, // Ensure checkActive is included
     });
@@ -372,15 +372,6 @@ const ListOfStudentPage = () => {
     { key: "homeAddress", label: "Địa chỉ", readOnly: true },
     { key: "birthday", label: "Ngày sinh", readOnly: true },
     { key: "gender", label: "Giới tính", readOnly: true },
-    {
-      key: "roleId",
-      label: "Loại tài khoản",
-      type: "select",
-      options: [
-        { label: "Người dùng", value: "USER" },
-        { label: "Gia sư", value: "TUTOR" },
-      ],
-    },
   ];
 
   const childrenMiddleContentLower = (

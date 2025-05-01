@@ -160,6 +160,7 @@ const ListOfRequestPage = () => {
           method: METHOD_TYPE.GET,
           query: query,
         });
+        console.log("Test quan ly yeu cau lam gia su:", response.data.items);
         if (
           response.success &&
           response.data &&
@@ -292,6 +293,7 @@ const ListOfRequestPage = () => {
     () => [
       { title: "ID Yêu Cầu", dataKey: "tutorRequestId", sortable: true },
       { title: "Họ và Tên", dataKey: "fullname", sortable: true },
+      { title: "Gmail", dataKey: "gmail", sortable: true },
       { title: "Trường ĐH", dataKey: "univercity", sortable: true },
       { title: "Chuyên ngành", dataKey: "major.majorName", sortable: true },
       {
