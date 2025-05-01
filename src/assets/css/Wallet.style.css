@@ -168,17 +168,7 @@
   border-color: #b41e2d;
   background-color: #fdf0f1;
   box-shadow: 0 2px 5px rgba(180, 30, 45, 0.2);
-  /* Optional: Add a small checkmark or indicator */
 }
-/* Example checkmark indicator */
-/* .package-button.active::after {
-    content: '✔';
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    color: #b41e2d;
-    font-weight: bold;
-} */
 
 .package-button:disabled {
   background-color: #e9ecef;
@@ -232,10 +222,20 @@
   font-size: 1.1em;
 }
 .payment-option-static .svg-inline--fa {
-  color: #007bff;
+  /* Style cho icon nếu dùng FontAwesome */
+  color: #007bff; /* Hoặc màu khác */
   font-size: 1.5em;
   flex-shrink: 0;
 }
+/* --- Bổ sung: Style cho logo VNPAY nếu dùng thẻ <img> --- */
+.payment-option-static img {
+  max-height: 24px; /* Giới hạn chiều cao logo */
+  vertical-align: middle; /* Căn giữa với text */
+  margin-right: 8px; /* Khoảng cách với text */
+  flex-shrink: 0; /* Ngăn logo bị co lại */
+}
+/* --- End Bổ sung --- */
+
 .payment-option-static span {
   font-weight: 500;
   flex-shrink: 0;
@@ -246,10 +246,13 @@
   color: #6c757d;
   margin-top: 5px;
   flex-basis: 100%; /* Make note take full width */
-  padding-left: 34px; /* Align with text */
+  /* Điều chỉnh padding-left nếu cần căn lề với logo/icon */
+  /* Ví dụ: Nếu logo/icon + gap là 34px */
+  padding-left: 34px;
+  /* Hoặc tính toán dựa trên kích thước thực tế */
 }
 
-/* Input Error Message */
+/* Input Error Message (Dùng cho lỗi chọn gói) */
 .input-error-message {
   color: #dc3545; /* Bootstrap danger color */
   font-size: 0.85em;
@@ -350,34 +353,39 @@
 }
 
 .transaction-table .status-col {
-  /* text-align: center; */ /* Center align status text? */
+  /* Class cho thẻ <th> hoặc <td> chứa span status */
   white-space: nowrap;
-  font-weight: 500;
+  /* text-align: center; /* Căn giữa text trạng thái? Xem xét .status-cell */
 }
 .transaction-table .status-cell {
+  /* Class cho thẻ <td> chứa span status */
   text-align: center; /* Center the span within the cell */
 }
 
-/* Status Badge Styles */
+/* Status Badge Styles (Span bên trong .status-cell) */
 .status-col {
+  /* Class cho chính thẻ span hiển thị trạng thái */
   display: inline-block;
   padding: 4px 10px;
   border-radius: 12px; /* Pill shape */
   font-size: 0.85em;
   font-weight: bold;
-  text-transform: capitalize; /* Capitalize first letter */
+  text-transform: lowercase; /* Chuyển về chữ thường để class dễ khớp */
 }
-
+/* Style theo class được tạo động từ status (ví dụ: status-hoan-thanh) */
 .status-col.status-hoan-thanh,
-.status-col.status-completed {
-  /* Add variations */
+.status-col.status-completed,
+.status-col.status-success {
+  /* Thêm các biến thể nếu API trả về khác */
   background-color: #d4edda; /* Light green */
   color: #155724; /* Dark green */
 }
 
 .status-col.status-dang-xu-ly,
 .status-col.status-pending,
-.status-col.status-processing {
+.status-col.status-processing,
+.status-col.status-waiting-for-payment, /* Có thể có trạng thái này */
+.status-col.status-waiting {
   background-color: #fff3cd; /* Light yellow */
   color: #856404; /* Dark yellow */
 }
@@ -385,22 +393,25 @@
 .status-col.status-that-bai,
 .status-col.status-failed,
 .status-col.status-cancelled,
-.status-col.status-error {
+.status-col.status-error,
+.status-col.status-expired {
+  /* Có thể có trạng thái này */
   background-color: #f8d7da; /* Light red */
   color: #721c24; /* Dark red */
 }
 
-/* Alert styles */
+/* Alert styles (Dùng cho thông báo lỗi chung) */
 .alert {
   padding: 15px;
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: center; /* Căn icon và text theo chiều dọc */
+  gap: 10px; /* Khoảng cách giữa icon và text */
 }
 .alert-success {
+  /* Giữ lại nếu có lúc cần thông báo thành công khác */
   color: #155724;
   background-color: #d4edda;
   border-color: #c3e6cb;
@@ -411,7 +422,8 @@
   border-color: #f5c6cb;
 }
 .global-alert {
-  margin-top: 15px; /* Add some space if it's a global message */
+  margin-top: 15px; /* Khoảng cách với phần tử bên trên */
+  margin-bottom: 20px; /* Khoảng cách với phần tử bên dưới */
 }
 
 /* Responsive adjustments */
@@ -458,7 +470,7 @@
     padding: 10px 8px;
     font-size: 0.9em; /* Slightly smaller font on mobile */
   }
-  /* Hide less important columns on very small screens if needed */
+  /* Cân nhắc việc ẩn cột ít quan trọng trên tablet nếu cần */
   /* .transaction-table .details-col { display: none; } */
 }
 
@@ -466,10 +478,32 @@
   .package-options {
     grid-template-columns: 1fr; /* Stack packages vertically */
   }
+
+  /* Responsive Table: Ẩn bớt thông tin hoặc thay đổi layout */
+  .transaction-table {
+    font-size: 0.85em; /* Font nhỏ hơn nữa */
+  }
   .transaction-table .type-col span {
-    display: none;
-  } /* Hide text, keep icon */
+    /* display: none; */ /* Cân nhắc kỹ việc ẩn text loại GD */
+  }
   .transaction-table .details-col {
-    display: none;
-  } /* Hide details */
+    display: none; /* Ẩn cột Chi tiết trên màn hình rất nhỏ */
+  }
+  .transaction-table th,
+  .transaction-table td {
+    padding: 8px 5px; /* Giảm padding */
+  }
+  .payment-option-static {
+    font-size: 1em; /* Giảm font cho phần thanh toán */
+  }
+  .payment-note {
+    font-size: 0.85em;
+    padding-left: 0; /* Có thể bỏ padding nếu icon/logo bị ẩn hoặc thu nhỏ */
+  }
 }
+
+/* --- Có thể thêm CSS cho Modal Thông tin Chuyển khoản (Nếu dùng lại) --- */
+/* .bank-info-modal { ... } */
+/* .bank-info-content { ... } */
+/* .info-item { ... } */
+/* .copy-button { ... } */
