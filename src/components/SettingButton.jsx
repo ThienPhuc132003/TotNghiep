@@ -31,7 +31,7 @@ const SettingButtonComponent = ({ endpoint, pathLogout }) => {
     navigate("/user/profile");
   };
   const handleWallet = () => {
-    navigate("/user/wallet");
+    navigate("/vi-cua-toi");
   };
   return (
     <div className="setting-button-container">
