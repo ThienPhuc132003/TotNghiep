@@ -87,7 +87,7 @@ function App() {
               path="/quy-dinh-noi-quy-huong-dan"
               element={<RulesRegulationsPage />}
             />
-            <Route path="/user/wallet" element={<Wallet />} />
+            <Route path="/vi-cua-toi" element={<Wallet />} />
             <Route
               path="/trac-nghiem-gia-su"
               element={<TutorQualificationTestPage />}
