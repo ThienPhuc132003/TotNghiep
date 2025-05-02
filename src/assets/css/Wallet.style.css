@@ -4,7 +4,6 @@
   background-color: #f4f7f6;
   min-height: calc(100vh - 60px);
 }
-
 .wallet-container {
   max-width: 900px;
   margin: 0 auto;
@@ -13,7 +12,6 @@
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
-
 .wallet-container h1 {
   display: flex;
   align-items: center;
@@ -24,11 +22,9 @@
   border-bottom: 1px solid #eee;
   padding-bottom: 15px;
 }
-
 .wallet-container h1 .svg-inline--fa {
   color: #f39c12;
 }
-
 /* === Section Styling === */
 .section {
   margin-bottom: 30px;
@@ -40,7 +36,6 @@
   margin-bottom: 0;
   padding-bottom: 0;
 }
-
 .section h2 {
   display: flex;
   align-items: center;
@@ -49,7 +44,6 @@
   color: #b41e2d;
   margin-bottom: 20px;
 }
-
 /* === Wallet Balance Section === */
 .wallet-balance-section .balance-card {
   background: linear-gradient(135deg, #b41e2d 0%, #e74c3c 100%);
@@ -61,42 +55,34 @@
   gap: 20px;
   box-shadow: 0 5px 10px rgba(180, 30, 45, 0.2);
 }
-
 .wallet-balance-section .balance-icon {
   font-size: 3em;
   opacity: 0.8;
 }
-
 .wallet-balance-section .balance-details {
   display: flex;
   flex-direction: column;
 }
-
 .wallet-balance-section .balance-label {
   font-size: 0.95em;
   opacity: 0.9;
   margin-bottom: 5px;
 }
-
 .wallet-balance-section .balance-amount {
   font-size: 2em;
   font-weight: bold;
   line-height: 1.2;
 }
-
 /* === Wallet TopUp Section === */
 .topup-form .form-group {
   margin-bottom: 20px;
 }
-
 .topup-form label {
   display: block;
   font-weight: bold;
   margin-bottom: 8px;
   color: #555;
 }
-
-/* Loading/Error/Empty Placeholders */
 .wallet-topup-section .loading-placeholder,
 .wallet-topup-section .error-placeholder,
 .wallet-topup-section .empty-placeholder {
@@ -108,83 +94,61 @@
   color: #6c757d;
   border: 1px dashed #ddd;
 }
-
 .wallet-topup-section .error-placeholder {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
-
 .wallet-topup-section .error-placeholder .svg-inline--fa {
   margin-right: 8px;
 }
-
-/* Package Selection Styles (Layout mới - Bỏ container ảnh) */
 .package-selection-group label {
   font-size: 1.1em;
   color: #333;
 }
-
-/* Grid container */
 .package-options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
   margin-top: 10px;
 }
-
-/* Card gói nạp */
 .package-card {
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   background-color: #fff;
   cursor: pointer;
   transition: all 0.3s ease;
-  overflow: hidden; /* Vẫn giữ để bo góc hoạt động đúng */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-
 .package-card:hover:not(.disabled) {
   border-color: #b41e2d;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-3px);
 }
-
 .package-card.active {
   border-color: #b41e2d;
-  background-color: #fdf0f1; /* Màu nền khi active */
+  background-color: #fdf0f1;
   box-shadow: 0 4px 10px rgba(180, 30, 45, 0.2);
 }
 .package-card.active .package-content {
-  background-color: transparent; /* Đảm bảo content trong suốt khi card active */
+  background-color: transparent;
 }
-
 .package-card.disabled {
   cursor: not-allowed;
   opacity: 0.6;
   background-color: #f8f9fa;
 }
-
-/* Style cho ảnh (Render trực tiếp) - Có thể bỏ class nếu dùng inline style hoàn toàn */
 .package-image-direct {
-  /* Các style chính đặt inline trong JSX để test */
-  /* display: block; */
-  /* width: 100%; */
-  /* height: 150px; */
-  /* object-fit: cover; */
-  /* border-bottom: 1px solid #eee; */
-  transition: transform 0.3s ease; /* Giữ lại hiệu ứng hover nếu muốn */
+  transition: transform 0.3s ease;
 }
 .package-card:hover:not(.disabled) .package-image-direct {
   transform: scale(1.05);
 }
-
-/* Style cho placeholder (Render trực tiếp) */
 .package-image-placeholder {
   width: 100%;
-  /* height: 150px; */ /* Đặt chiều cao ở inline style để test */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -194,25 +158,21 @@
   text-align: center;
   padding: 10px;
   background-color: #f0f2f5;
-  border-bottom: 1px solid #eee; /* Thêm đường kẻ dưới placeholder */
+  border-bottom: 1px solid #eee;
 }
 .package-image-placeholder .svg-inline--fa {
   font-size: 2.5em;
   margin-bottom: 8px;
   opacity: 0.6;
 }
-
-/* Style cho nội dung dưới ảnh/placeholder */
 .package-content {
   padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   flex-grow: 1;
-  background-color: inherit; /* Kế thừa nền từ card */
-  /* Không cần border-top nữa */
+  background-color: inherit;
 }
-
 .package-name {
   font-size: 1.1em;
   font-weight: 600;
@@ -220,22 +180,17 @@
   margin-bottom: 8px;
   line-height: 1.3;
 }
-
 .package-price {
   font-size: 1.2em;
   font-weight: bold;
   color: #e74c3c;
   margin-bottom: 5px;
 }
-
-/* Input Error Message */
 .input-error-message {
   color: #dc3545;
   font-size: 0.85em;
   margin-top: 5px;
 }
-
-/* Payment Method Display */
 .payment-method-display {
   margin-top: 25px;
   margin-bottom: 25px;
@@ -244,7 +199,6 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
 }
-/* ... styles còn lại cho payment ... */
 .payment-method-display label {
   margin-bottom: 10px;
 }
@@ -272,8 +226,6 @@
   flex-basis: 100%;
   padding-left: 34px;
 }
-
-/* Submit Button */
 .topup-submit-button {
   display: inline-flex;
   align-items: center;
@@ -298,7 +250,6 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
-
 /* === Wallet History Section === */
 .transaction-list-container {
   overflow-x: auto;
@@ -309,7 +260,6 @@
   border-collapse: collapse;
   font-size: 0.95em;
 }
-/* ... styles còn lại cho history table ... */
 .transaction-table th,
 .transaction-table td {
   padding: 12px 10px;
@@ -366,33 +316,23 @@
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 0.85em;
-  font-weight: bold;
-  text-transform: lowercase;
+  font-weight: bold; /* text-transform: lowercase; */
 }
-.status-badge.status-hoan-thanh,
-.status-badge.status-completed,
-.status-badge.status-success {
+.status-badge.status-hoan-thanh {
   background-color: #d4edda;
   color: #155724;
 }
-.status-badge.status-dang-xu-ly,
-.status-badge.status-pending,
-.status-badge.status-processing,
-.status-badge.status-waiting-for-payment,
-.status-badge.status-waiting {
+.status-badge.status-cho-thanh-toan,
+.status-badge.status-dang-xu-ly {
   background-color: #fff3cd;
   color: #856404;
 }
 .status-badge.status-that-bai,
-.status-badge.status-failed,
-.status-badge.status-cancelled,
-.status-badge.status-error,
-.status-badge.status-expired,
+.status-badge.status-da-huy,
 .status-badge.status-unknown {
   background-color: #f8d7da;
   color: #721c24;
 }
-
 /* === Alert styles === */
 .alert {
   padding: 15px;
@@ -412,7 +352,6 @@
   margin-top: 15px;
   margin-bottom: 20px;
 }
-
 /* === Responsive adjustments === */
 @media (max-width: 768px) {
   .wallet-container {
@@ -459,7 +398,6 @@
     padding-left: 0;
   }
 }
-
 @media (max-width: 480px) {
   .package-options {
     grid-template-columns: 1fr 1fr;

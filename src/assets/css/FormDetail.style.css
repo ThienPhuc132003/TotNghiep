@@ -54,7 +54,7 @@
   display: flex;
   flex-direction: column;
   max-height: 85vh; /* Giới hạn chiều cao tối đa */
-  overflow: hidden; /* Ẩn overflow ở container chính */
+  overflow: auto; /* Ẩn overflow ở container chính */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 

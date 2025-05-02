@@ -225,7 +225,7 @@ const ListOfValueConfigsPage = () => {
     setModalMode("add");
     setModalData({ price: "", coinConfig: "", urlConfig: "", description: "" });
     setFormErrors({});
-    setImageToCrop(null);
+    setImageToCrop(null); // Đảm bảo reset ảnh khi thêm mới
     setIsModalOpen(true);
   };
   const handleView = (valueConfig) => {
@@ -249,34 +249,35 @@ const ListOfValueConfigsPage = () => {
     });
     setModalMode("edit");
     setFormErrors({});
-    setImageToCrop(null);
+    setImageToCrop(null); // Đảm bảo reset ảnh khi mở edit
     setIsModalOpen(true);
   };
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    // Delay reset state để tránh giật khi modal đóng
     setTimeout(() => {
       setModalData({});
       setModalMode(null);
       setFormErrors({});
-      setImageToCrop(null);
-    }, 300);
+      setImageToCrop(null); // Reset ảnh khi đóng
+    }, 300); // Thời gian delay khớp với closeTimeoutMS của Modal
   };
 
   // --- Image Upload Handlers (Giữ nguyên) ---
   const handleTriggerImageInput = useCallback(() => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = null;
+      fileInputRef.current.value = null; // Reset input để có thể chọn lại cùng file
       fileInputRef.current.click();
     }
   }, []);
   const handleImageSelected = useCallback((event) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      setFormErrors((prev) => ({ ...prev, urlConfig: "" }));
+      setFormErrors((prev) => ({ ...prev, urlConfig: "" })); // Xóa lỗi ảnh nếu có
       const reader = new FileReader();
       reader.onload = () => {
         setImageToCrop(reader.result);
-        setIsCropModalOpen(true);
+        setIsCropModalOpen(true); // Mở modal crop
       };
       reader.onerror = () => {
         toast.error("Không thể đọc file ảnh.");
@@ -287,57 +288,67 @@ const ListOfValueConfigsPage = () => {
     }
   }, []);
   const handleCloseCropModal = useCallback(() => {
+    // Chỉ đóng nếu không đang upload
     if (!isUploadingImage) {
       setIsCropModalOpen(false);
       setImageToCrop(null);
     }
   }, [isUploadingImage]);
   const handleCropSaveForUrlConfig = useCallback(async (croppedImageBlob) => {
-    setIsCropModalOpen(false);
+    setIsCropModalOpen(false); // Đóng modal crop trước
     if (!croppedImageBlob) return;
+
     setIsUploadingImage(true);
     toast.info("Đang tải ảnh lên...", {
       autoClose: false,
       toastId: "uploading-image",
     });
+
     try {
+      // 1. Lấy tên file từ API
       const fileNameResponse = await Api({
         endpoint: "media/media-url",
         query: { mediaCategory: "VALUE_CONFIG_IMAGE" },
         method: METHOD_TYPE.GET,
       });
+
       if (!fileNameResponse?.success || !fileNameResponse?.data?.fileName) {
         throw new Error(
           fileNameResponse?.message || "Lỗi lấy định danh file ảnh."
         );
       }
       const fileName = fileNameResponse.data.fileName;
+
+      // 2. Upload ảnh với tên file đã lấy
       const uploadFormData = new FormData();
-      const uploadFileName = `${fileName}.jpeg`;
+      const uploadFileName = `${fileName}.jpeg`; // Đặt tên file upload chuẩn
       uploadFormData.append("file", croppedImageBlob, uploadFileName);
+
       const uploadResponse = await Api({
         endpoint: `media/upload-media`,
         query: { mediaCategory: "VALUE_CONFIG_IMAGE", fileName: fileName },
         method: METHOD_TYPE.POST,
         data: uploadFormData,
       });
+
       if (!uploadResponse?.success || !uploadResponse?.data?.mediaUrl) {
         throw new Error(uploadResponse?.message || "Upload ảnh gói thất bại.");
       }
+
       const finalUrl = uploadResponse.data.mediaUrl;
-      setModalData((prev) => ({ ...prev, urlConfig: finalUrl }));
+      setModalData((prev) => ({ ...prev, urlConfig: finalUrl })); // Cập nhật URL vào state modalData
       toast.dismiss("uploading-image");
       toast.success("Upload ảnh thành công!");
-      setImageToCrop(null);
+      setImageToCrop(null); // Reset ảnh đã crop
     } catch (error) {
       console.error("Lỗi xử lý ảnh gói:", error);
       toast.dismiss("uploading-image");
       toast.error(error.message || "Lỗi upload ảnh gói.");
-      setImageToCrop(null);
+      setImageToCrop(null); // Reset ảnh đã crop nếu lỗi
     } finally {
       setIsUploadingImage(false);
     }
-  }, []);
+  }, []); // Bỏ modalData khỏi dependency để tránh re-render không cần thiết khi urlConfig thay đổi
 
   // --- Validation Form (Giữ nguyên) ---
   const validateForm = (formData) => {
@@ -353,6 +364,7 @@ const ListOfValueConfigsPage = () => {
     } else if (Number(formData.price) <= 0) {
       errors.price = "Giá tiền phải lớn hơn 0.";
     }
+
     if (
       formData.coinConfig === null ||
       formData.coinConfig === undefined ||
@@ -364,33 +376,43 @@ const ListOfValueConfigsPage = () => {
     } else if (Number(formData.coinConfig) <= 0) {
       errors.coinConfig = "Số coin phải lớn hơn 0.";
     }
-    if (!formData.urlConfig?.trim())
+
+    // Sử dụng urlConfig từ modalData để validate vì nó cập nhật riêng
+    if (!modalData.urlConfig?.trim())
       errors.urlConfig = "Vui lòng upload ảnh cho gói.";
     if (!formData.description?.trim())
       errors.description = "Vui lòng nhập mô tả.";
+
     return errors;
   };
 
   // --- Form Submit Handler (Giữ nguyên) ---
+  // Hàm này được gọi bởi nút "Lưu Gói" tùy chỉnh
   const handleFormSubmit = async (currentFormData) => {
+    // Lấy urlConfig cuối cùng từ modalData (vì nó được cập nhật riêng bởi upload)
     const finalFormData = {
       ...currentFormData,
       urlConfig: modalData.urlConfig,
     };
+
     const errors = validateForm(finalFormData);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      // Hiển thị cảnh báo chung
       toast.warn("Vui lòng kiểm tra lại thông tin nhập, bao gồm cả ảnh.");
-      return;
+      return; // Dừng lại nếu có lỗi
     }
-    setFormErrors({});
-    setIsSubmitting(true);
+
+    setFormErrors({}); // Xóa lỗi nếu validation thành công
+    setIsSubmitting(true); // Bắt đầu submit
+
     const apiData = {
       price: Number(finalFormData.price),
       coinConfig: Number(finalFormData.coinConfig),
       urlConfig: finalFormData.urlConfig,
       description: finalFormData.description,
     };
+
     try {
       let response;
       if (modalMode === "add") {
@@ -401,19 +423,23 @@ const ListOfValueConfigsPage = () => {
         });
       } else if (modalMode === "edit") {
         response = await Api({
-          endpoint: `value-config/update/${modalData.valueConfigId}`,
+          endpoint: `value-config/update/${modalData.valueConfigId}`, // Sử dụng ID từ modalData
           method: METHOD_TYPE.PUT,
           data: apiData,
         });
       } else {
+        setIsSubmitting(false);
         return;
       }
+
+      // Xử lý kết quả
       if (response.success) {
         const successMsg =
           modalMode === "add"
             ? "Thêm gói thành công"
             : "Cập nhật gói thành công";
         toast.success(successMsg);
+        // Fetch lại dữ liệu sau khi thành công
         if (modalMode === "add") {
           setSortConfig({ key: "price", direction: "asc" });
           if (currentPage !== 0) setCurrentPage(0);
@@ -421,20 +447,22 @@ const ListOfValueConfigsPage = () => {
         } else {
           fetchData();
         }
-        handleCloseModal();
+        handleCloseModal(); // Đóng modal sau khi thành công
       } else {
+        // Xử lý lỗi từ API
         const errorMsg =
           modalMode === "add" ? "Thêm gói thất bại" : "Cập nhật gói thất bại";
         toast.error(`${errorMsg}: ${response.message || "Lỗi không xác định"}`);
         if (response.errors) setFormErrors(response.errors);
       }
     } catch (error) {
+      // Xử lý lỗi mạng hoặc lỗi không mong muốn
       console.error(`Error ${modalMode}ing value config:`, error);
       const errorMsg =
         modalMode === "add" ? "Thêm gói thất bại" : "Cập nhật gói thất bại";
       toast.error(`${errorMsg}: ${error.message || "Lỗi mạng"}`);
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Kết thúc submit dù thành công hay thất bại
     }
   };
 
@@ -504,10 +532,10 @@ const ListOfValueConfigsPage = () => {
     []
   );
 
-  // --- JSX Render ---
+  // --- JSX Render (Phần Table và SearchBar giữ nguyên) ---
   const childrenMiddleContentLower = (
-    /* ... Giữ nguyên JSX cho Table, SearchBar ... */
     <>
+      {/* Input ẩn để chọn file */}
       <input
         type="file"
         ref={fileInputRef}
@@ -516,12 +544,12 @@ const ListOfValueConfigsPage = () => {
         accept="image/png, image/jpeg, image/jpg"
         disabled={isUploadingImage || isSubmitting}
       />
+
       <div className="admin-content">
         <h2 className="admin-list-title">Danh sách Gói thanh toán</h2>
+        {/* Search and Add Button */}
         <div className="search-bar-filter-container">
-          {" "}
           <div className="search-bar-filter">
-            {" "}
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
@@ -529,7 +557,7 @@ const ListOfValueConfigsPage = () => {
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
               placeholder="Tìm mã, giá, coin, mô tả..."
-            />{" "}
+            />
             <button
               className="refresh-button"
               onClick={handleApplySearch}
@@ -537,7 +565,7 @@ const ListOfValueConfigsPage = () => {
               aria-label="Tìm kiếm"
             >
               <i className="fa-solid fa-search"></i>
-            </button>{" "}
+            </button>
             <button
               className="refresh-button"
               onClick={resetState}
@@ -545,20 +573,23 @@ const ListOfValueConfigsPage = () => {
               aria-label="Làm mới"
             >
               <i className="fa-solid fa-rotate-left"></i>
-            </button>{" "}
-          </div>{" "}
+            </button>
+          </div>
           <div className="filter-add-admin">
-            {" "}
             <button className="add-admin-button" onClick={handleAddValueConfig}>
               {t("common.addButton")}
-            </button>{" "}
-          </div>{" "}
+            </button>
+          </div>
         </div>
+
+        {/* Error Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
+
+        {/* Table */}
         <Table
           data={data}
           columns={columns}
@@ -576,6 +607,8 @@ const ListOfValueConfigsPage = () => {
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
         />
+
+        {/* Total Count */}
         {!isLoading && !error && data.length > 0 && (
           <p
             style={{
@@ -585,14 +618,14 @@ const ListOfValueConfigsPage = () => {
               color: "#555",
             }}
           >
-            {" "}
-            Tổng số gói: {totalItems}{" "}
+            Tổng số gói: {totalItems}
           </p>
         )}
       </div>
     </>
   );
 
+  // --- JSX Return (Component Chính) ---
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
@@ -603,15 +636,13 @@ const ListOfValueConfigsPage = () => {
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
         contentLabel="Quản lý Gói Thanh Toán"
-        className="modal medium"
+        className={`modal ${modalMode === "view" ? "" : "medium"}`}
         overlayClassName="overlay"
         closeTimeoutMS={300}
       >
         {modalMode && (
-          // Sử dụng FormDetail làm container chính
           <FormDetail
             formData={modalData}
-            // Chọn fields phù hợp
             fields={
               modalMode === "view"
                 ? viewFields
@@ -633,21 +664,22 @@ const ListOfValueConfigsPage = () => {
                 setFormErrors((prev) => ({ ...prev, [name]: "" }));
               }
             }}
-            // Không dùng onSubmit của FormDetail vì có nút riêng
-            // onSubmit={handleFormSubmit}
+            // --- KHÔNG TRUYỀN onSubmit và isSubmitting Ở ĐÂY ---
             onClose={handleCloseModal} // Nút X trên header
             errors={formErrors}
-            // Không truyền isSubmitting vì có nút riêng
+            // --- KẾT THÚC KHÔNG TRUYỀN PROPS ---
           >
-            {/* === Truyền khu vực upload ảnh và nút bấm vào children === */}
+            {/* === Truyền khu vực upload ảnh VÀ nút bấm vào children === */}
             {modalMode !== "view" && (
               <>
                 {/* Khu vực Upload Ảnh */}
                 <div
                   className="form-detail-group"
-                  style={{ marginTop: "1rem" }}
+                  style={{ marginTop: "1rem", marginBottom: "1rem" }}
                 >
-                  <label htmlFor="urlConfigUpload">
+                  <label>
+                    {" "}
+                    {/* Bỏ htmlFor vì không có input trực tiếp */}
                     Ảnh Gói <span className="required-asterisk">*</span>
                   </label>
                   <div className="image-upload-area">
@@ -660,7 +692,7 @@ const ListOfValueConfigsPage = () => {
                           color="#aaa"
                         />
                       ) : modalData.urlConfig ? (
-                        <img src={modalData.urlConfig} alt="Ảnh gói hiện tại" />
+                        renderImageUrl(modalData.urlConfig)
                       ) : (
                         <span className="no-image-text">Chưa có ảnh</span>
                       )}
@@ -685,7 +717,8 @@ const ListOfValueConfigsPage = () => {
                   </div>
                 </div>
 
-                {/* Nút Submit/Cancel tùy chỉnh */}
+                {/* --- Nút Submit/Cancel tùy chỉnh --- */}
+                {/* Đảm bảo div này có class CSS đúng để hiển thị */}
                 <div className="form-detail-actions">
                   <button
                     type="button"
@@ -693,13 +726,12 @@ const ListOfValueConfigsPage = () => {
                     onClick={handleCloseModal}
                     disabled={isSubmitting || isUploadingImage}
                   >
-                    {" "}
-                    Hủy{" "}
+                    Hủy
                   </button>
                   <button
                     type="button"
                     className="form-detail-save-button"
-                    onClick={() => handleFormSubmit(modalData)}
+                    onClick={() => handleFormSubmit(modalData)} // Gọi hàm submit trực tiếp
                     disabled={isSubmitting || isUploadingImage}
                   >
                     {isSubmitting ? (
@@ -708,14 +740,15 @@ const ListOfValueConfigsPage = () => {
                           icon={faSpinner}
                           spin
                           style={{ marginRight: "8px" }}
-                        />{" "}
+                        />
                         Đang lưu...
                       </>
                     ) : (
-                      "Lưu Gói"
+                      "Lưu Gói" // Đặt tên nút là "Lưu Gói"
                     )}
                   </button>
                 </div>
+                {/* --- Kết thúc nút tùy chỉnh --- */}
               </>
             )}
             {/* === Kết thúc children === */}
@@ -723,7 +756,7 @@ const ListOfValueConfigsPage = () => {
         )}
       </Modal>
 
-      {/* Modals khác */}
+      {/* Modals khác (Delete, Crop) */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -736,7 +769,10 @@ const ListOfValueConfigsPage = () => {
         onRequestClose={handleCloseCropModal}
         imageSrc={imageToCrop}
         onCropSave={handleCropSaveForUrlConfig}
+        isSaving={isUploadingImage}
       />
+
+      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );
