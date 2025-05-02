@@ -325,7 +325,7 @@ WalletHistory.propTypes = {
 // --- Main WalletPage Component ---
 const WalletPage = () => {
   const userProfile = useSelector(
-    (state) => state.user.userProfile.userProfile
+    (state) => state.user.userProfile
   );
   console.log("User Profile Data:", userProfile); // Log để kiểm tra dữ liệu
 
@@ -445,9 +445,9 @@ const WalletPage = () => {
   const handleTopUpSubmit = useCallback(
     async (selectedPackageData) => {
       // --- !!! QUAN TRỌNG: Xác nhận lại tên trường chính xác từ Redux !!! ---
-      const customerFullName = userProfile?.fullname; // Hoặc userProfile?.fullname ?
-      const customerEmail = userProfile?.personalEmail; // Hoặc userProfile?.personalEmail ?
-      const customerPhone = userProfile?.phoneNumber; // Hoặc userProfile?.phoneNumber ?
+      const customerFullName = userProfile?.userProfile.fullname; // Hoặc userProfile?.fullname ?
+      const customerEmail = userProfile?.userProfile.personalEmail; // Hoặc userProfile?.personalEmail ?
+      const customerPhone = userProfile?.userProfile.phoneNumber; // Hoặc userProfile?.phoneNumber ?
       // ---------------------------------------------------------------------
 
       // 1. Validate inputs
