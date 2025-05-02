@@ -37,7 +37,7 @@ const PaymentFailed = () => {
               <p><strong>Mã lỗi:</strong> {errorCode || 'N/A'}</p>
             </div> */}
 
-            <div className="action-buttons">
+            <div className="action-buttons-payment-result">
               <Link to="/vi-cua-toi" className="btn btn-primary">
                 {" "}
                 {/* Nút thử lại */}

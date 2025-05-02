@@ -7,7 +7,6 @@ import "../assets/css/Pagination.style.css";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-// Helper to get nested values like 'major.majorName'
 const getNestedValue = (obj, path) => {
   if (!path) return undefined;
   return path.split(".").reduce((acc, part) => acc && acc[part], obj);
@@ -16,79 +15,116 @@ const getNestedValue = (obj, path) => {
 const TableComponent = ({
   columns,
   data,
-  // --- Action Handlers (Optional Props) ---
+  totalItems,
   onView,
   onEdit,
   onDelete,
   onApprove,
   onReject,
   onLock,
-  // --- Other Props ---
   pageCount,
   onPageChange,
-  forcePage,
-  onSort, // Allow parent to control sorting state update
+  forcePage = 0,
+  onSort,
+  // ****** BỔ SUNG PROP: Nhận trạng thái sort hiện tại từ cha ******
+  currentSortConfig, // Ví dụ: { key: 'createdAt', direction: 'desc' }
   loading,
   itemsPerPage,
   onItemsPerPageChange,
   showLock = false,
   statusKey = "status",
 }) => {
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  // State sort nội bộ chỉ dùng khi KHÔNG có onSort (cha không quản lý)
+  const [internalSortConfig, setInternalSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
   const tableContainerRef = useRef(null);
 
-  // Handle internal sort state update and call parent onSort
+  const showActionsColumn = useMemo(() => {
+    return Boolean(
+      onView ||
+        onEdit ||
+        onDelete ||
+        onApprove ||
+        onReject ||
+        (showLock && onLock)
+    );
+  }, [onView, onEdit, onDelete, onApprove, onReject, showLock, onLock]);
+
+  // Hàm requestSort không thay đổi, nó chỉ gọi onSort nếu có
   const requestSort = useCallback(
     (key) => {
-      const newDirection =
-        sortConfig.key === key && sortConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      const newSortConfig = { key, direction: newDirection };
-      setSortConfig(newSortConfig);
-      // If onSort prop is provided, call it (for parent-controlled fetching)
       if (onSort) {
-        onSort(key); // Or pass the full newSortConfig if needed by parent
+        onSort(key); // Gọi handler của cha
+      } else {
+        // Xử lý sort nội bộ nếu cha không quản lý
+        const newDirection =
+          internalSortConfig.key === key &&
+          internalSortConfig.direction === "asc"
+            ? "desc"
+            : "asc";
+        setInternalSortConfig({ key, direction: newDirection });
       }
     },
-    [onSort, sortConfig.direction, sortConfig.key] // Include onSort in dependencies
+    [onSort, internalSortConfig] // Thêm internalSortConfig dependency
   );
 
-  // Memoize sorted data - Sort locally if onSort prop is NOT provided
+  // Dữ liệu sort nội bộ chỉ thực hiện khi không có onSort
   const sortedData = useMemo(() => {
     let sortableItems = [...data];
-    // Only sort internally if onSort is NOT provided (parent handles sorting otherwise)
-    if (!onSort && sortConfig.key) {
+    if (!onSort && internalSortConfig.key) {
       sortableItems.sort((a, b) => {
-        const aValue = getNestedValue(a, sortConfig.key);
-        const bValue = getNestedValue(b, sortConfig.key);
-        // Basic comparison, can be improved for different data types
-        if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1;
-        }
+        const aValue = getNestedValue(a, internalSortConfig.key);
+        const bValue = getNestedValue(b, internalSortConfig.key);
+        if (aValue < bValue)
+          return internalSortConfig.direction === "asc" ? -1 : 1;
+        if (aValue > bValue)
+          return internalSortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
     }
     return sortableItems;
-    // Dependency on `data` and `sortConfig` if sorting internally,
-    // Dependency only on `data` if parent handles sorting via `onSort` prop.
-  }, [data, sortConfig, onSort]); // Added onSort dependency
+  }, [data, internalSortConfig, onSort]); // Thêm onSort dependency
 
   const handlePageChange = useCallback(
-    async (selectedPage) => {
-      await onPageChange(selectedPage);
+    (event) => {
+      if (onPageChange && typeof event.selected === "number") {
+        onPageChange(event);
+      }
     },
     [onPageChange]
   );
+
   const skeletonRows = useMemo(
     () => Array(itemsPerPage || 5).fill(null),
     [itemsPerPage]
   );
+
   const handleItemsPerPageChange = (e) => {
-    onItemsPerPageChange(Number(e.target.value));
+    const newSize = parseInt(e.target.value, 10);
+    if (!isNaN(newSize) && newSize > 0) {
+      onItemsPerPageChange(newSize);
+    }
+  };
+
+  // ****** CẬP NHẬT getSortDirection ******
+  // Ưu tiên trạng thái từ cha (currentSortConfig), sau đó mới đến internalSortConfig
+  const getSortDirection = (keyToCheck) => {
+    // 1. Kiểm tra trạng thái từ cha trước
+    if (currentSortConfig && currentSortConfig.key === keyToCheck) {
+      return currentSortConfig.direction;
+    }
+    // 2. Nếu không có onSort (cha không quản lý), kiểm tra state nội bộ
+    if (!onSort && internalSortConfig.key === keyToCheck) {
+      return internalSortConfig.direction;
+    }
+    // 3. Mặc định là không có sort cho key này
+    return null;
+  };
+
+  const generateKey = (prefix, colIndex, suffix = "") => {
+    return `${prefix}-col${colIndex}${suffix ? `-${suffix}` : ""}`;
   };
 
   return (
@@ -97,195 +133,251 @@ const TableComponent = ({
         <table className="custom-table" aria-label="Bảng dữ liệu" role="grid">
           <thead className="custom-table-header">
             <tr role="row">
-              {columns.map((col) => (
-                <th
-                  key={col.dataKey}
-                  className={`sortable-header ${
-                    col.sortable === false ? "not-sortable" : ""
-                  }`}
-                  onClick={() =>
-                    col.sortable !== false && requestSort(col.dataKey)
-                  }
-                  role="columnheader"
-                  tabIndex={col.sortable !== false ? 0 : -1}
-                  aria-sort={
-                    col.sortable !== false && sortConfig.key === col.dataKey
-                      ? sortConfig.direction === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
-                >
-                  {col.title}
-                  {col.sortable !== false && (
-                    <div className="sort-arrows">
-                      <span
-                        className={
-                          sortConfig.key === col.dataKey &&
-                          sortConfig.direction === "asc"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        ▲
-                      </span>
-                      <span
-                        className={
-                          sortConfig.key === col.dataKey &&
-                          sortConfig.direction === "desc"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        ▼
-                      </span>
-                    </div>
-                  )}
+              {columns.map((col, columnIndex) => {
+                // Xác định key thực tế để kiểm tra sort (ưu tiên sortKey)
+                const sortableKey = col.sortKey || col.dataKey;
+                // Lấy direction hiện tại cho key này
+                const currentDirection = getSortDirection(sortableKey);
+                return (
+                  <th
+                    key={generateKey("header", columnIndex)}
+                    className={`sortable-header ${
+                      col.sortable === false ? "not-sortable" : ""
+                    }`}
+                    onClick={() =>
+                      col.sortable !== false && requestSort(sortableKey)
+                    }
+                    role="columnheader"
+                    tabIndex={col.sortable !== false ? 0 : -1}
+                    // Cập nhật aria-sort dựa trên currentDirection
+                    aria-sort={
+                      col.sortable !== false && currentDirection
+                        ? currentDirection === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : "none"
+                    }
+                  >
+                    {col.title}
+                    {col.sortable !== false && (
+                      <div className="sort-arrows">
+                        {/* Hiển thị mũi tên active dựa trên currentDirection */}
+                        <span
+                          className={currentDirection === "asc" ? "active" : ""}
+                        >
+                          ▲
+                        </span>
+                        <span
+                          className={
+                            currentDirection === "desc" ? "active" : ""
+                          }
+                        >
+                          ▼
+                        </span>
+                      </div>
+                    )}
+                  </th>
+                );
+              })}
+              {showActionsColumn && (
+                <th role="columnheader" className="action-column-header">
+                  Hành động
                 </th>
-              ))}
-              <th role="columnheader" className="action-column-header">
-                Hành động
-              </th>
+              )}
             </tr>
           </thead>
+          {/* Phần tbody không thay đổi logic sort */}
           <tbody role="rowgroup">
             {loading ? (
-              skeletonRows.map((_, index) => (
-                <tr key={`skeleton-${index}`} role="row">
-                  {columns.map((col) => (
+              skeletonRows.map((_, skelIndex) => (
+                <tr key={`table-skeleton-row-${skelIndex}`} role="row">
+                  {columns.map((col, columnIndex) => (
                     <td
-                      key={`${col.dataKey}-skeleton-${index}`}
+                      key={generateKey(
+                        "skel-cell",
+                        columnIndex,
+                        `row${skelIndex}`
+                      )}
                       role="gridcell"
                       className="table-cell"
                     >
                       <Skeleton height={20} />
                     </td>
                   ))}
-                  <td role="gridcell" className="action-buttons">
-                    {/* Adjust skeleton count based on typical visible buttons */}
-                    <Skeleton
-                      circle
-                      width={30}
-                      height={30}
-                      inline={true}
-                      style={{ marginRight: "5px" }}
-                    />
-                    <Skeleton circle width={30} height={30} inline={true} />
-                  </td>
+                  {showActionsColumn && (
+                    <td
+                      key={generateKey(
+                        "skel-action",
+                        columns.length,
+                        `row${skelIndex}`
+                      )}
+                      role="gridcell"
+                      className="action-buttons"
+                    >
+                      <Skeleton
+                        key={`action-skel-1-${skelIndex}`}
+                        circle
+                        width={30}
+                        height={30}
+                        inline={true}
+                        style={{ marginRight: "5px" }}
+                      />
+                      <Skeleton
+                        key={`action-skel-2-${skelIndex}`}
+                        circle
+                        width={30}
+                        height={30}
+                        inline={true}
+                      />
+                    </td>
+                  )}
                 </tr>
               ))
             ) : sortedData.length > 0 ? (
               sortedData.map((row, rowIndex) => (
                 <tr
-                  key={row.id || row.tutorRequestId || rowIndex}
+                  key={
+                    row.id ||
+                    row.tutorRequestId ||
+                    row.paymentId ||
+                    `data-row-${rowIndex}`
+                  }
                   className={rowIndex % 2 === 0 ? "row-even" : "row-odd"}
                   role="row"
                 >
-                  {columns.map((col) => (
-                    <td
-                      key={`${col.dataKey}-${rowIndex}`}
-                      role="gridcell"
-                      className="table-cell"
-                    >
-                      {col.renderCell
-                        ? col.renderCell(getNestedValue(row, col.dataKey), row)
-                        : getNestedValue(row, col.dataKey)}
-                    </td>
-                  ))}
-                  {/* --- Action Buttons Cell with Conditional Rendering --- */}
-                  <td className="action-buttons" role="gridcell">
-                    {/* Render button ONLY if corresponding prop exists */}
-                    {onView && (
-                      <button
-                        onClick={() => onView(row)}
-                        title="Xem chi tiết"
-                        className="action-button view"
-                        aria-label="Xem chi tiết"
-                      >
-                        {" "}
-                        <i className="fa-regular fa-eye"></i>{" "}
-                      </button>
-                    )}
-                    {onEdit && (
-                      <button
-                        onClick={() => onEdit(row)}
-                        title="Chỉnh sửa"
-                        className="action-button edit"
-                        aria-label="Chỉnh sửa"
-                      >
-                        {" "}
-                        <i className="fa-solid fa-pen"></i>{" "}
-                      </button>
-                    )}
-                    {onDelete && (
-                      <button
-                        onClick={() => onDelete(row)}
-                        title="Xóa"
-                        className="action-button delete"
-                        aria-label="Xóa"
-                      >
-                        {" "}
-                        <i className="fa-regular fa-trash-can"></i>{" "}
-                      </button>
-                    )}
-
-                    {/* Approve/Reject Buttons */}
-                    {row[statusKey] === "REQUEST" && (
-                      <>
-                        {onApprove && (
-                          <button
-                            onClick={() => onApprove(row)}
-                            title="Duyệt yêu cầu"
-                            className="action-button approve"
-                            aria-label="Duyệt"
-                          >
-                            {" "}
-                            <i className="fa-solid fa-check"></i>{" "}
-                          </button>
-                        )}
-                        {onReject && (
-                          <button
-                            onClick={() => onReject(row)}
-                            title="Từ chối yêu cầu"
-                            className="action-button reject"
-                            aria-label="Từ chối"
-                          >
-                            {" "}
-                            <i className="fa-solid fa-times"></i>{" "}
-                          </button>
-                        )}
-                      </>
-                    )}
-
-                    {/* Lock Button */}
-                    {showLock && onLock && (
-                      <button
-                        onClick={() => onLock(row)}
-                        title={row[statusKey] === "ACTIVE" ? "Khóa" : "Mở khóa"}
-                        className={`action-button lock ${
-                          row[statusKey] === "ACTIVE" ? "unlocked" : "locked"
-                        }`}
-                        aria-label={
-                          row[statusKey] === "ACTIVE" ? "Khóa" : "Mở khóa"
+                  {columns.map((col, columnIndex) => {
+                    let cellValue = getNestedValue(row, col.dataKey);
+                    if (col.renderCell) {
+                      cellValue = col.renderCell(cellValue, row, rowIndex);
+                    } else if (cellValue === null || cellValue === undefined) {
+                      cellValue = "...";
+                    }
+                    const rowKeySuffix =
+                      row.id ||
+                      row.tutorRequestId ||
+                      row.paymentId ||
+                      `idx${rowIndex}`;
+                    return (
+                      <td
+                        key={generateKey("cell", columnIndex, rowKeySuffix)}
+                        role="gridcell"
+                        className="table-cell"
+                        title={
+                          typeof cellValue === "string" ||
+                          typeof cellValue === "number"
+                            ? String(cellValue)
+                            : ""
                         }
                       >
-                        {" "}
-                        <i
-                          className={
-                            row[statusKey] === "ACTIVE"
-                              ? "fa-solid fa-lock-open"
-                              : "fa-solid fa-lock"
+                        {cellValue}
+                      </td>
+                    );
+                  })}
+                  {showActionsColumn && (
+                    <td
+                      key={generateKey(
+                        "action",
+                        columns.length,
+                        row.id ||
+                          row.tutorRequestId ||
+                          row.paymentId ||
+                          `idx${rowIndex}`
+                      )}
+                      className="action-buttons"
+                      role="gridcell"
+                    >
+                      {onView && (
+                        <button
+                          onClick={() => onView(row)}
+                          title="Xem chi tiết"
+                          className="action-button view"
+                          aria-label="Xem chi tiết"
+                        >
+                          <i className="fa-regular fa-eye"></i>
+                        </button>
+                      )}
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(row)}
+                          title="Chỉnh sửa"
+                          className="action-button edit"
+                          aria-label="Chỉnh sửa"
+                        >
+                          <i className="fa-solid fa-pen"></i>
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(row)}
+                          title="Xóa"
+                          className="action-button delete"
+                          aria-label="Xóa"
+                        >
+                          <i className="fa-regular fa-trash-can"></i>
+                        </button>
+                      )}
+                      {getNestedValue(row, statusKey) === "REQUEST" && (
+                        <>
+                          {onApprove && (
+                            <button
+                              onClick={() => onApprove(row)}
+                              title="Duyệt yêu cầu"
+                              className="action-button approve"
+                              aria-label="Duyệt"
+                            >
+                              <i className="fa-solid fa-check"></i>
+                            </button>
+                          )}
+                          {onReject && (
+                            <button
+                              onClick={() => onReject(row)}
+                              title="Từ chối yêu cầu"
+                              className="action-button reject"
+                              aria-label="Từ chối"
+                            >
+                              <i className="fa-solid fa-times"></i>
+                            </button>
+                          )}
+                        </>
+                      )}
+                      {showLock && onLock && (
+                        <button
+                          onClick={() => onLock(row)}
+                          title={
+                            getNestedValue(row, statusKey) === "ACTIVE"
+                              ? "Khóa"
+                              : "Mở khóa"
                           }
-                        />{" "}
-                      </button>
-                    )}
-                  </td>
+                          className={`action-button lock ${
+                            getNestedValue(row, statusKey) === "ACTIVE"
+                              ? "unlocked"
+                              : "locked"
+                          }`}
+                          aria-label={
+                            getNestedValue(row, statusKey) === "ACTIVE"
+                              ? "Khóa"
+                              : "Mở khóa"
+                          }
+                        >
+                          <i
+                            className={
+                              getNestedValue(row, statusKey) === "ACTIVE"
+                                ? "fa-solid fa-lock-open"
+                                : "fa-solid fa-lock"
+                            }
+                          />
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={columns.length + 1}
+                  colSpan={
+                    showActionsColumn ? columns.length + 1 : columns.length
+                  }
                   className="no-data"
                   role="gridcell"
                 >
@@ -296,12 +388,13 @@ const TableComponent = ({
           </tbody>
         </table>
       </div>
-      {/* Pagination */}
-      <div className="pagination-container">
-        <div className="total-item-show">
-          <label>
-            Số dòng/trang:
+      {(pageCount > 1 ||
+        (totalItems !== undefined && totalItems > itemsPerPage)) && (
+        <div className="pagination-container">
+          <div className="total-item-show">
+            <label htmlFor="itemsPerPageSelect">Số dòng/trang:</label>
             <select
+              id="itemsPerPageSelect"
               value={itemsPerPage}
               onChange={handleItemsPerPageChange}
               className="item-per-page-select"
@@ -312,24 +405,24 @@ const TableComponent = ({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
+          {pageCount > 0 && (
+            <ReactPaginate
+              previousLabel={"<"}
+              nextLabel={">"}
+              breakLabel={"..."}
+              pageCount={pageCount}
+              marginPagesDisplayed={1}
+              pageRangeDisplayed={2}
+              onPageChange={handlePageChange}
+              containerClassName={"pagination"}
+              activeClassName={"active"}
+              disabledClassName={"disabled"}
+              forcePage={forcePage}
+            />
+          )}
         </div>
-        {pageCount > 1 && (
-          <ReactPaginate
-            previousLabel={"<"}
-            nextLabel={">"}
-            breakLabel={"..."}
-            pageCount={pageCount}
-            marginPagesDisplayed={1}
-            pageRangeDisplayed={2}
-            onPageChange={handlePageChange}
-            containerClassName={"pagination"}
-            activeClassName={"active"}
-            disabledClassName={"disabled"}
-            forcePage={forcePage}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 };
@@ -341,19 +434,26 @@ TableComponent.propTypes = {
       dataKey: PropTypes.string.isRequired,
       renderCell: PropTypes.func,
       sortable: PropTypes.bool,
+      sortKey: PropTypes.string,
     })
   ).isRequired,
   data: PropTypes.array.isRequired,
-  onView: PropTypes.func, // Optional
-  onEdit: PropTypes.func, // Optional
-  onDelete: PropTypes.func, // Optional
-  onApprove: PropTypes.func, // Optional
-  onReject: PropTypes.func, // Optional
-  onLock: PropTypes.func, // Optional
+  totalItems: PropTypes.number,
+  onView: PropTypes.func,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  onApprove: PropTypes.func,
+  onReject: PropTypes.func,
+  onLock: PropTypes.func,
   pageCount: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
   forcePage: PropTypes.number,
-  onSort: PropTypes.func, // Optional
+  onSort: PropTypes.func,
+  // ****** BỔ SUNG PROP TYPE ******
+  currentSortConfig: PropTypes.shape({
+    key: PropTypes.string,
+    direction: PropTypes.oneOf(["asc", "desc"]),
+  }), // Có thể là null hoặc object
   loading: PropTypes.bool.isRequired,
   itemsPerPage: PropTypes.number.isRequired,
   onItemsPerPageChange: PropTypes.func.isRequired,

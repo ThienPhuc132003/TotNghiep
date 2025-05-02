@@ -1,11 +1,13 @@
+/* global Intl */ // Khai báo Intl là biến toàn cục cho ESLint
+
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Điều chỉnh đường dẫn nếu cần
-import "../../assets/css/Wallet.style.css"; // Điều chỉnh đường dẫn nếu cần
+import "../../assets/css/Wallet.style.css"; // Đảm bảo CSS được import
 import Api from "../../network/Api"; // Đảm bảo Api helper được cấu hình đúng
 import { METHOD_TYPE } from "../../network/methodType";
-
 // --- Icons ---
+import iconVNPAY from "../../assets/images/Icon_VNPAY.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCoins,
@@ -22,16 +24,18 @@ import PropTypes from "prop-types";
 const formatCurrency = (amount) => {
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
   if (isNaN(numAmount) || typeof numAmount !== "number") return "0 VND";
-  return numAmount.toLocaleString("vi-VN", {
+  return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
-  });
+    currencyDisplay: "code",
+  })
+    .format(numAmount)
+    .replace(" VND", " VND");
 };
 
 // --- Components ---
 
 // --- Balance Section ---
-// Component này không cần thay đổi, nó nhận prop 'currentBalance'
 const WalletBalance = ({ currentBalance = 0 }) => {
   return (
     <section className="wallet-balance-section section">
@@ -40,8 +44,7 @@ const WalletBalance = ({ currentBalance = 0 }) => {
         <div className="balance-details">
           <span className="balance-label">Số dư Coin hiện tại</span>
           <span className="balance-amount">
-            {/* Sử dụng toLocaleString cho số coin nếu muốn có dấu phẩy */}
-            {currentBalance.toLocaleString("en-US")} Coins
+            {currentBalance?.toLocaleString("en-US") || 0} Coins
           </span>
         </div>
       </div>
@@ -52,8 +55,7 @@ WalletBalance.propTypes = {
   currentBalance: PropTypes.number,
 };
 
-// --- Top-up Section ---
-// Component này không cần thay đổi logic hiển thị gói hay submit
+// --- Top-up Section (Layout mới - Render ảnh trực tiếp) ---
 const WalletTopUp = ({
   packages = [],
   isLoadingPackages,
@@ -65,8 +67,10 @@ const WalletTopUp = ({
   const [error, setError] = useState("");
 
   const handlePackageSelect = (packageId) => {
-    setSelectedPackageId(packageId);
-    setError("");
+    if (!isLoadingSubmit) {
+      setSelectedPackageId(packageId);
+      setError("");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -125,42 +129,82 @@ const WalletTopUp = ({
             <div className="form-group package-selection-group">
               <label>Chọn gói Coin bạn muốn nạp:</label>
               <div className="package-options">
+                {" "}
+                {/* Container grid */}
                 {packages.map((pkg) => (
-                  <button
-                    type="button"
+                  <div
                     key={pkg.valueConfigId}
-                    className={`package-button ${
+                    className={`package-card ${
                       selectedPackageId === pkg.valueConfigId ? "active" : ""
-                    }`}
+                    } ${isLoadingSubmit ? "disabled" : ""}`}
                     onClick={() => handlePackageSelect(pkg.valueConfigId)}
-                    disabled={isLoadingSubmit}
+                    role="radio"
+                    aria-checked={selectedPackageId === pkg.valueConfigId}
+                    tabIndex={isLoadingSubmit ? -1 : 0}
+                    onKeyDown={(e) => {
+                      if (
+                        !isLoadingSubmit &&
+                        (e.key === "Enter" || e.key === " ")
+                      )
+                        handlePackageSelect(pkg.valueConfigId);
+                    }}
                   >
-                    <span className="package-coins">
-                      {pkg.coinConfig.toLocaleString("en-US")} Coins
-                    </span>
-                    <span className="package-price">
-                      {formatCurrency(pkg.price)}
-                    </span>
-                    {pkg.description && (
-                      <span className="package-description">
-                        {pkg.description}
-                      </span>
+                    {/* === PHẦN ẢNH/PLACEHOLDER RENDER TRỰC TIẾP === */}
+                    {pkg.urlConfig ? (
+                      <img
+                        src={pkg.urlConfig}
+                        alt={`Gói ${pkg.coinConfig.toLocaleString(
+                          "en-US"
+                        )} Coin`}
+                        className="package-image-direct" // Class mới nếu cần
+                        style={{
+                          // Style inline để test
+                          display: "block",
+                          width: "100%",
+                          height: "150px", // Đặt chiều cao cố định để test
+                          objectFit: "cover",
+                          // borderBottom: '1px solid #eee' // Bỏ border ở đây nếu muốn nó ở placeholder
+                        }}
+                        loading="lazy"
+                        onError={(e) => {
+                          console.error(`Lỗi tải ảnh: ${e.target.src}`);
+                          e.target.style.display = "none"; // Ẩn nếu lỗi
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className="package-image-placeholder"
+                        style={{ height: "150px" }}
+                      >
+                        <FontAwesomeIcon icon={faCoins} />
+                        <span>Gói Coin</span>
+                      </div>
                     )}
-                  </button>
+                    {/* === KẾT THÚC PHẦN ẢNH/PLACEHOLDER === */}
+
+                    {/* 2. Phần Nội dung dưới ảnh */}
+                    <div className="package-content">
+                      <span className="package-name">
+                        {pkg.description ||
+                          `Gói ${pkg.coinConfig.toLocaleString("en-US")} Coin`}
+                      </span>
+                      <span className="package-price">
+                        {formatCurrency(pkg.price)}
+                      </span>
+                    </div>
+                  </div>
                 ))}
               </div>
               {error && <p className="input-error-message">{error}</p>}
             </div>
+            {/* Phần Payment Method Display */}
             <div className="form-group payment-method-display">
               <label>Phương thức thanh toán:</label>
               <div className="payment-option-static">
                 <img
-                  src="/path/to/vnpay_logo.png" // Thay bằng đường dẫn logo VNPAY
+                  src={iconVNPAY}
                   alt="VNPAY"
-                  style={{
-                    height: "24px",
-                    marginRight: "8px",
-                  }}
+                  style={{ height: "24px", marginRight: "8px" }}
                 />
                 <span>Thanh toán qua VNPAY</span>
                 <p className="payment-note">
@@ -169,6 +213,7 @@ const WalletTopUp = ({
                 </p>
               </div>
             </div>
+            {/* Nút Submit chính */}
             <button
               id="topup-submit-button"
               type="submit"
@@ -190,6 +235,7 @@ WalletTopUp.propTypes = {
       price: PropTypes.string.isRequired,
       coinConfig: PropTypes.number.isRequired,
       description: PropTypes.string,
+      urlConfig: PropTypes.string,
     })
   ),
   isLoadingPackages: PropTypes.bool,
@@ -199,7 +245,6 @@ WalletTopUp.propTypes = {
 };
 
 // --- Transaction History Section ---
-// Component này không cần thay đổi
 const WalletHistory = ({ transactions = [], isLoading }) => {
   const getTransactionIcon = (type) => {
     const upperType = type?.toUpperCase();
@@ -208,6 +253,7 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
       case "NẠP COIN":
       case "TOPUP":
       case "DEPOSIT":
+      case "VNPAY_RETURN":
         return (
           <FontAwesomeIcon
             icon={faArrowUp}
@@ -221,6 +267,7 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
       case "RÚT TIỀN":
       case "WITHDRAWAL":
       case "PAYMENT":
+      case "BOOKING_FEE":
         return (
           <FontAwesomeIcon
             icon={faArrowDown}
@@ -238,12 +285,11 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
         );
     }
   };
-
   const getStatusClass = (status) => {
-    if (!status) return "";
-    return `status-${status.toLowerCase().replace(/\s+/g, "-")}`;
+    if (!status) return "status-unknown";
+    const normalizedStatus = status.toLowerCase().replace(/\s+/g, "-");
+    return `status-${normalizedStatus}`;
   };
-
   return (
     <section className="wallet-history-section section">
       <h2>
@@ -274,13 +320,25 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
             </thead>
             <tbody>
               {transactions.map((tx) => (
-                <tr key={tx.id}>
-                  <td>{new Date(tx.date).toLocaleString("vi-VN")}</td>
+                <tr key={tx.id || tx.transactionId}>
+                  <td>
+                    {tx.date
+                      ? new Date(tx.date).toLocaleString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "---"}
+                  </td>
                   <td className="type-col">
                     {getTransactionIcon(tx.type)}
                     <span>{tx.type || "Không rõ"}</span>
                   </td>
-                  <td className="details-col">{tx.details || "---"}</td>
+                  <td className="details-col">
+                    {tx.details || tx.description || "---"}
+                  </td>
                   <td
                     className={`amount-col ${
                       tx.amount > 0
@@ -291,10 +349,14 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
                     }`}
                   >
                     {tx.amount > 0 ? "+" : ""}
-                    {tx.amount?.toLocaleString("en-US")}
+                    {typeof tx.amount === "number"
+                      ? tx.amount.toLocaleString("en-US")
+                      : "0"}
                   </td>
                   <td className="status-cell">
-                    <span className={`status-col ${getStatusClass(tx.status)}`}>
+                    <span
+                      className={`status-badge ${getStatusClass(tx.status)}`}
+                    >
                       {tx.status || "Không rõ"}
                     </span>
                   </td>
@@ -304,17 +366,18 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
           </table>
         )}
       </div>
-      {/* <Pagination ... /> */}
     </section>
   );
 };
 WalletHistory.propTypes = {
   transactions: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      date: PropTypes.string.isRequired,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      transactionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      date: PropTypes.string,
       type: PropTypes.string,
       details: PropTypes.string,
+      description: PropTypes.string,
       amount: PropTypes.number,
       status: PropTypes.string,
     })
@@ -324,26 +387,20 @@ WalletHistory.propTypes = {
 
 // --- Main WalletPage Component ---
 const WalletPage = () => {
-  const userProfile = useSelector(
-    (state) => state.user.userProfile
-  );
-  console.log("User Profile Data:", userProfile); // Log để kiểm tra dữ liệu
-
-  // *** THAY ĐỔI Ở ĐÂY: Sử dụng userProfile?.coin ***
+  const userProfileData = useSelector((state) => state.user.userProfile);
   const [currentCoinAmount, setCurrentCoinAmount] = useState(
-    userProfile?.coin || 0
+    userProfileData?.coin || 0
   );
-  // ----------------------------------------------
-
   const [transactions, setTransactions] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
   const [topupErrorMessage, setTopupErrorMessage] = useState("");
   const [coinPackages, setCoinPackages] = useState([]);
-  const [isLoadingPackages, setIsLoadingPackages] = useState(true);
+  const [isLoadingPackages, setIsLoadingPackages] = useState(false);
   const [packagesError, setPackagesError] = useState(null);
 
-  // Fetch coin packages
+  // Fetch Coin Packages
   useEffect(() => {
     const fetchPackages = async () => {
       setIsLoadingPackages(true);
@@ -366,7 +423,8 @@ const WalletPage = () => {
       } catch (error) {
         console.error("Error fetching coin packages:", error);
         setPackagesError(
-          error.message || "Lỗi kết nối hoặc máy chủ. Vui lòng thử lại sau."
+          error.message ||
+            "Lỗi kết nối hoặc máy chủ khi tải gói nạp. Vui lòng thử lại sau."
         );
         setCoinPackages([]);
       } finally {
@@ -376,171 +434,144 @@ const WalletPage = () => {
     fetchPackages();
   }, []);
 
-  // Fetch transaction history (Mock data)
-  useEffect(() => {
-    const fetchHistory = async () => {
-      setIsLoadingHistory(true);
-      try {
-        // --- !!! THAY BẰNG API CALL THẬT !!! ---
-        await new Promise((resolve) => setTimeout(resolve, 700));
-        setTransactions([
-          {
-            id: 1,
-            date: "2024-03-10T10:30:00Z",
-            type: "Nạp Coin",
-            details: "Thanh toán VNPAY #12345",
-            amount: 200,
-            status: "Hoàn thành",
-          },
-          {
-            id: 2,
-            date: "2024-03-09T15:00:00Z",
-            type: "Thanh toán lớp học",
-            details: "Lớp học Guitar cơ bản G01",
-            amount: -50,
-            status: "Hoàn thành",
-          },
-          {
-            id: 3,
-            date: "2024-03-11T11:00:00Z",
-            type: "Nạp Coin",
-            details: "Thanh toán VNPAY #67890 (Đang chờ)",
-            amount: 100,
-            status: "Đang xử lý",
-          },
-          {
-            id: 4,
-            date: "2024-03-08T09:00:00Z",
-            type: "Nạp Coin",
-            details: "Thanh toán VNPAY #11223 (Thất bại)",
-            amount: 0,
-            status: "Thất bại",
-          },
-        ]);
-        // --- END MOCK DATA ---
-      } catch (error) {
-        console.error("Error fetching transaction history:", error);
-        setTransactions([]);
-      } finally {
-        setIsLoadingHistory(false);
+  // Fetch Transaction History
+  const fetchHistory = useCallback(async () => {
+    setIsLoadingHistory(true);
+    setHistoryError(null);
+    try {
+      const historyResponse = await Api({
+        endpoint: "/transaction/get-list-current-user",
+        method: METHOD_TYPE.GET,
+      });
+      if (
+        historyResponse.success &&
+        Array.isArray(historyResponse.data?.items)
+      ) {
+        const formattedTransactions = historyResponse.data.items.map(
+          (item) => ({
+            id: item.transactionId || item.id,
+            date: item.creationDate || item.date,
+            type: item.transactionType || item.type,
+            details: item.description || item.details,
+            amount: item.coin || item.amount,
+            status: item.status || "Hoàn thành",
+          })
+        );
+        formattedTransactions.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setTransactions(formattedTransactions);
+      } else {
+        throw new Error(
+          historyResponse.message || "Không thể tải lịch sử giao dịch."
+        );
       }
-    };
-    fetchHistory();
-  }, []);
-
-  // *** THAY ĐỔI Ở ĐÂY: Lắng nghe userProfile?.coin ***
-  useEffect(() => {
-    const newCoinValue = userProfile?.coin; // Lấy giá trị coin mới
-    // Chỉ cập nhật state nếu giá trị mới là số và khác giá trị hiện tại
-    if (
-      typeof newCoinValue === "number" &&
-      newCoinValue !== currentCoinAmount
-    ) {
-      setCurrentCoinAmount(newCoinValue); // Cập nhật state
+    } catch (error) {
+      console.error("Error fetching transaction history:", error);
+      setHistoryError(
+        error.message ||
+          "Lỗi kết nối hoặc máy chủ khi tải lịch sử. Vui lòng thử lại sau."
+      );
+      setTransactions([]);
+    } finally {
+      setIsLoadingHistory(false);
     }
-  }, [userProfile?.coin, currentCoinAmount]); // Dependencies là coin và state hiện tại
-  // --------------------------------------------
+  }, []);
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
-  // Handle top-up submission - Luồng VNPAY
+  // Update balance from Redux
+  useEffect(() => {
+    const newCoinValue = userProfileData?.coin;
+    if (
+      (typeof newCoinValue === "number" &&
+        newCoinValue !== currentCoinAmount) ||
+      (typeof newCoinValue === "number" &&
+        currentCoinAmount === 0 &&
+        userProfileData)
+    ) {
+      setCurrentCoinAmount(newCoinValue);
+    }
+  }, [userProfileData, currentCoinAmount]);
+
+  // Handle Top-up Submission
   const handleTopUpSubmit = useCallback(
-    async (selectedPackageData) => {
-      // --- !!! QUAN TRỌNG: Xác nhận lại tên trường chính xác từ Redux !!! ---
-      const customerFullName = userProfile?.userProfile.fullname; // Hoặc userProfile?.fullname ?
-      const customerEmail = userProfile?.userProfile.personalEmail; // Hoặc userProfile?.personalEmail ?
-      const customerPhone = userProfile?.userProfile.phoneNumber; // Hoặc userProfile?.phoneNumber ?
-      // ---------------------------------------------------------------------
-
-      // 1. Validate inputs
+    async ({ packageId }) => {
+      const customerFullName =
+        userProfileData?.fullname ||
+        userProfileData?.userProfile?.fullname ||
+        "";
+      const customerEmail =
+        userProfileData?.personalEmail ||
+        userProfileData?.userProfile?.personalEmail ||
+        "";
+      const customerPhone =
+        userProfileData?.phoneNumber ||
+        userProfileData?.userProfile?.phoneNumber ||
+        "";
       if (!customerFullName || !customerEmail || !customerPhone) {
         setTopupErrorMessage(
-          "Thiếu thông tin người dùng (Họ tên, Email, SĐT). Vui lòng cập nhật hồ sơ và thử lại."
+          "Thiếu thông tin người dùng (Họ tên, Email, SĐT) trong hồ sơ. Vui lòng cập nhật hồ sơ và thử lại."
         );
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-      if (!selectedPackageData?.packageId) {
-        setTopupErrorMessage(
-          "Đã có lỗi xảy ra. Không tìm thấy ID gói nạp đã chọn."
-        );
+      if (!packageId) {
+        setTopupErrorMessage("Vui lòng chọn lại gói nạp. Đã có lỗi xảy ra.");
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-
-      console.log(
-        "Bắt đầu quá trình nạp VNPAY cho gói ID:",
-        selectedPackageData.packageId
-      );
       setIsLoadingSubmit(true);
       setTopupErrorMessage("");
-
       try {
-        // --- Bước 2: Gọi API tạo Order ---
-        console.log("Gọi API tạo order...");
         const orderPayload = {
-          valueConfigId: selectedPackageData.packageId,
-          customerFullname: customerFullName, // Sử dụng biến đã kiểm tra
-          customerEmail: customerEmail, // Sử dụng biến đã kiểm tra
-          customerPhone: customerPhone, // Sử dụng biến đã kiểm tra
+          valueConfigId: packageId,
+          customerFullname: customerFullName,
+          customerEmail: customerEmail,
+          customerPhone: customerPhone,
           payType: "VNPAY",
         };
-
         const orderResponse = await Api({
           endpoint: "order/create-order/with-value-config-id",
           method: METHOD_TYPE.POST,
           data: orderPayload,
         });
-
-        console.log("Response tạo order:", orderResponse);
-
         if (!orderResponse.success || !orderResponse.data?.paymentId) {
-          const errorMessage =
+          const errorMsg =
             orderResponse.message ||
             orderResponse.error ||
-            "Không thể tạo đơn hàng hoặc thiếu thông tin thanh toán từ máy chủ.";
-          throw new Error(errorMessage);
+            "Không thể tạo đơn hàng.";
+          console.error("Order creation failed:", errorMsg, orderResponse);
+          throw new Error(errorMsg);
         }
-
         const paymentId = orderResponse.data.paymentId;
-        console.log(`Tạo order thành công. Payment ID: ${paymentId}`);
-
-        // --- Bước 3: Gọi API lấy URL VNPAY ---
-        console.log("Gọi API lấy URL VNPAY...");
         const vnpayUrlResponse = await Api({
           endpoint: `payment/vnp-url/${paymentId}`,
           method: METHOD_TYPE.GET,
         });
-
-        console.log("Response lấy URL VNPAY:", vnpayUrlResponse);
-
         if (!vnpayUrlResponse.success || !vnpayUrlResponse.data?.payUrl) {
-          const errorMessage =
+          const errorMsg =
             vnpayUrlResponse.message ||
             vnpayUrlResponse.error ||
-            "Không thể lấy được liên kết thanh toán VNPAY từ máy chủ.";
-          throw new Error(errorMessage);
+            "Không thể lấy URL thanh toán.";
+          console.error("Get VNPAY URL failed:", errorMsg, vnpayUrlResponse);
+          throw new Error(errorMsg);
         }
-
-        const payUrl = vnpayUrlResponse.data.payUrl;
-        console.log(`Lấy URL VNPAY thành công: ${payUrl}`);
-
-        // --- Bước 4: Điều hướng người dùng ---
-        console.log("Điều hướng tới VNPAY...");
-        window.location.href = payUrl;
+        window.location.href = vnpayUrlResponse.data.payUrl;
       } catch (error) {
         console.error("Lỗi trong quá trình nạp VNPAY:", error);
         setTopupErrorMessage(
-          `Lỗi: ${
-            error.message ||
-            "Đã xảy ra sự cố không mong muốn. Vui lòng thử lại."
-          }`
+          `Lỗi: ${error.message || "Sự cố khi tạo thanh toán."}`
         );
         window.scrollTo({ top: 0, behavior: "smooth" });
         setIsLoadingSubmit(false);
       }
     },
-    [userProfile] // Chỉ cần userProfile vì các giá trị khác lấy từ đó
+    [userProfileData]
   );
 
+  // Render
   return (
     <HomePageLayout>
       <div className="wallet-page-wrapper">
@@ -548,9 +579,8 @@ const WalletPage = () => {
           <h1>
             <FontAwesomeIcon icon={faCoins} /> Ví Coin Của Bạn
           </h1>
-
           {topupErrorMessage && (
-            <div className="alert alert-danger global-alert">
+            <div className="alert alert-danger global-alert" role="alert">
               <FontAwesomeIcon
                 icon={faExclamationTriangle}
                 style={{ marginRight: "8px" }}
@@ -558,11 +588,7 @@ const WalletPage = () => {
               {topupErrorMessage}
             </div>
           )}
-
-          {/* *** THAY ĐỔI Ở ĐÂY: Truyền state mới vào WalletBalance *** */}
           <WalletBalance currentBalance={currentCoinAmount} />
-          {/* --------------------------------------------------- */}
-
           <WalletTopUp
             packages={coinPackages}
             isLoadingPackages={isLoadingPackages}
@@ -570,7 +596,25 @@ const WalletPage = () => {
             onTopUpSubmit={handleTopUpSubmit}
             isLoadingSubmit={isLoadingSubmit}
           />
-
+          {historyError && !isLoadingHistory && (
+            <div className="alert alert-danger" role="alert">
+              <FontAwesomeIcon
+                icon={faExclamationTriangle}
+                style={{ marginRight: "8px" }}
+              />
+              {historyError}
+              <button
+                onClick={fetchHistory}
+                style={{
+                  marginLeft: "15px",
+                  padding: "2px 5px",
+                  cursor: "pointer",
+                }}
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
           <WalletHistory
             transactions={transactions}
             isLoading={isLoadingHistory}

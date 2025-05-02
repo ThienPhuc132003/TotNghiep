@@ -19,7 +19,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, message = "Are yo
           <div className="alert-icon">&#9888;</div>
           <h2 className="modal-title">Xóa vĩnh viễn</h2>
         </div>
-        <p className="modal-message">{message} thao tác này không thể hoàn tác</p>
+        <p className="modal-message">{message} Thao tác này không thể hoàn tác</p>
         <div className="modal-buttons">
           <button className="cancel-button" onClick={onClose}>Hủy</button>
           <button className="delete-button" onClick={onConfirm}>Xóa</button>

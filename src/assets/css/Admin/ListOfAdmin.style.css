@@ -1,299 +1,604 @@
-/* src/assets/css/Admin/ListOfAdmin.style.css */
+/* src/assets/css/Admin/AdminListPages.style.css */
+/* Hoặc cập nhật src/assets/css/Admin/ListOfAdmin.style.css */
 
+/* --- General Layout for Admin Content Area --- */
 .admin-content {
-  padding: 2rem;
-  background: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  background-color: #f9f9f9; /* Màu nền nhẹ nhàng cho khu vực nội dung */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin: 20px; /* Khoảng cách với sidebar/header */
 }
 
 .admin-list-title {
-  font-size: 2rem;
+  font-size: 1.8em;
   color: #333;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
 }
 
-/* --- Container for Search, Filter, Refresh, Add --- */
+/* --- Search Bar and Filter Container --- */
 .search-bar-filter-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-  gap: 1rem; /* Add gap between elements */
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+  gap: 15px; /* Khoảng cách giữa các nhóm phần tử */
 }
 
-/* --- Container for Search, Filter, Refresh --- */
 .search-bar-filter {
   display: flex;
-  flex-grow: 1; /* Allow this section to grow */
   align-items: center;
-  gap: 1rem; /* Gap between search, filter, refresh */
-  flex-wrap: wrap; /* Allow items inside to wrap */
+  gap: 10px; /* Khoảng cách giữa các control trong nhóm filter/search */
+  flex-wrap: wrap; /* Cho phép xuống dòng các control */
 }
 
-/* --- Search Bar Styles --- */
+/* Styles cho SearchBar Component */
 .admin-search {
   display: flex;
-  min-width: 250px; /* Minimum width */
-  flex-basis: 300px; /* Suggested base width */
-  flex-grow: 1; /* Allow search to take available space */
   align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 25px;
-  padding: 0.5rem 1rem;
-  background-color: white;
-  box-sizing: border-box;
+  position: relative; /* Để chứa nút clear */
+  min-width: 250px; /* Độ rộng tối thiểu */
 }
 
 .admin-search-input {
-  flex: 1;
-  border: none;
+  padding: 8px 30px 8px 12px; /* Thêm padding phải cho nút clear */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95em;
+  width: 100%; /* Chiếm toàn bộ không gian của .admin-search */
+  transition: border-color 0.2s ease;
+}
+
+.admin-search-input:focus {
+  border-color: #007bff; /* Màu viền khi focus */
   outline: none;
-  padding: 0.5rem;
-  font-size: 1rem;
-  background-color: transparent; /* Ensure background is transparent */
 }
 
 .search-clear-input {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1em;
-  height: 1em;
-  visibility: hidden;
-  padding: 5px;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   cursor: pointer;
+  color: #999;
 }
 
-.admin-search:hover .search-clear-input,
-.admin-search input:not(:placeholder-shown) + .search-clear-input {
-  /* Show when input has value */
-  visibility: visible;
-}
-
-.fa-xmark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  color: white;
-  background-color: rgb(150, 150, 150); /* Lighter gray */
-  padding: 0; /* Remove default padding */
-  width: 16px; /* Fixed size */
-  height: 16px; /* Fixed size */
-  font-size: 10px; /* Adjust icon size */
-  margin: 0 5px;
-}
-.fa-xmark:hover {
-  background-color: rgb(120, 120, 120); /* Darker gray on hover */
-}
-
-/* --- Status Filter Styles --- */
-.status {
-  padding: 0.2em 0.6em;
-  border-radius: 0.8em;
-  font-size: 0.85em;
-  font-weight: bold;
-  display: inline-block; /* Để padding và radius hoạt động tốt */
-  text-align: center;
-}
-
-.status-active {
-  color: #27ae60; /* Green */
-  background-color: #e9f7ef; /* Light green background */
-}
-
-.status-blocked {
-  color: #e74c3c; /* Red */
-  background-color: #fdedec; /* Light red background */
-}
-
-.status-unknown {
-  color: #7f8c8d; /* Gray */
-  background-color: #f4f6f7; /* Light gray background */
-}
-.filter-control {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; /* Space between label and select */
-}
-
-.filter-label {
-  font-size: 0.9rem;
-  color: #555;
-  white-space: nowrap; /* Prevent label from wrapping */
-}
-
-.status-filter-select {
-  padding: 0.65rem 1rem; /* Adjust padding */
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: white;
-  font-size: 0.95rem;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.3s ease;
-  min-width: 180px; /* Minimum width */
-  height: calc(1.3em + 1.3rem + 2px); /* Match approx height of search */
-  box-sizing: border-box;
-}
-
-.status-filter-select:focus {
-  border-color: #3498db; /* Highlight on focus */
-}
-
-/* --- Refresh Button Styles --- */
-.refresh-button {
-  border: none;
-  background-color: transparent;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: transform 0.5s ease, color 0.3s ease; /* Adjusted transition */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666; /* Slightly darker icon color */
-}
-.refresh-button:hover {
-  transform: rotate(180deg); /* Keep rotation */
+.search-clear-input i:hover {
   color: #333;
 }
 
-/* --- Container for Add Button --- */
+/* Styles cho Filter Controls (Select) */
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filter-label {
+  font-size: 0.9em;
+  color: #555;
+  font-weight: 500;
+}
+
+.status-filter-select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+  background-color: #fff;
+  min-width: 150px; /* Độ rộng tối thiểu */
+}
+
+/* Styles cho các nút hành động (Refresh, Search) */
+.refresh-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-button:hover {
+  background-color: #e0e0e0;
+}
+
+.refresh-button i {
+  font-size: 1.1em; /* Kích thước icon */
+}
+
+/* --- Add Button Container --- */
+.filter-add-admin {
+  /* Đã có trong container chính với justify-content: space-between */
+}
 
 .add-admin-button {
-  background-color: #2ecc71;
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.25rem; /* Match filter height if needed */
+  padding: 10px 18px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 0.9rem;
-  white-space: nowrap; /* Prevent text wrapping */
+  font-size: 0.95em;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
 .add-admin-button:hover {
-  background-color: #27ae60;
+  background-color: #0056b3;
 }
 
-/* Table styles */
-/* ... (Keep your existing table styles) ... */
-
-/* Empty Table */
-.custom-table tbody tr.empty-row td {
-  text-align: center;
-  font-style: italic;
-  color: #777;
-  padding: 1rem;
+/* --- Table Styles (Reference Table.style.css) --- */
+.main-table-container {
+  width: 100%;
+  overflow: hidden; /* Giấu phần shadow tràn ra ngoài */
 }
 
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: center; /* Center pagination */
-  list-style: none;
-  padding: 0;
-  margin-top: 1.5rem; /* Add margin above pagination */
+.table-scrollable-container {
+  width: 100%;
+  overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ */
+  border-radius: 6px; /* Bo góc nhẹ cho container */
+  background-color: #fff; /* Nền trắng cho bảng */
 }
 
-.pagination li a,
-.pagination li span {
-  cursor: pointer;
-  color: #3498db;
-  padding: 0.6rem 1rem;
-  margin: 0 0.25rem;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  border: 1px solid #ddd; /* Add border */
-  background-color: white; /* White background */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse; /* Gộp đường viền */
+  min-width: 800px; /* Đảm bảo bảng không quá hẹp */
 }
 
-.pagination li a:hover,
-.pagination li span:hover {
-  background-color: #e9ecef; /* Light grey background on hover */
-  color: #0056b3; /* Darker blue text on hover */
-  border-color: #adb5bd;
+.custom-table-header th {
+  background-color: #f8f9fa; /* Màu nền header nhạt */
+  color: #495057; /* Màu chữ header */
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9em;
+  border-bottom: 2px solid #dee2e6; /* Đường kẻ dưới header đậm hơn */
+  white-space: nowrap; /* Không xuống dòng header */
+  cursor: pointer; /* Con trỏ khi hover cột sortable */
+  position: relative; /* Để chứa mũi tên sort */
 }
 
-.pagination li.active a,
-.pagination li.active span {
-  background-color: #3498db;
-  color: white;
-  border-color: #3498db;
+.custom-table-header th.not-sortable {
   cursor: default;
 }
 
-.pagination li.disabled a,
-.pagination li.disabled span {
-  color: #aaa; /* Lighter color */
+.sortable-header .sort-arrows {
+  display: inline-flex; /* Hoặc inline-block */
+  flex-direction: column;
+  margin-left: 8px;
+  font-size: 0.8em;
+  color: #adb5bd; /* Màu mũi tên mặc định */
+  vertical-align: middle; /* Căn giữa theo chiều dọc với text */
+  position: absolute; /* Định vị tuyệt đối so với th */
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sortable-header .sort-arrows span {
+  line-height: 0.7; /* Giảm khoảng cách giữa 2 mũi tên */
+  opacity: 0.5; /* Mờ đi khi chưa active */
+}
+.sortable-header .sort-arrows span.active {
+  color: #343a40; /* Màu mũi tên khi active */
+  opacity: 1;
+}
+
+.custom-table tbody tr {
+  border-bottom: 1px solid #e9ecef; /* Đường kẻ giữa các dòng */
+  transition: background-color 0.15s ease-in-out;
+}
+
+.custom-table tbody tr:last-child {
+  border-bottom: none; /* Bỏ đường kẻ dòng cuối */
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f1f3f4; /* Màu nền khi hover */
+}
+
+.custom-table tbody td {
+  padding: 10px 15px;
+  font-size: 0.9em;
+  color: #333;
+  vertical-align: middle; /* Căn giữa nội dung cell */
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px; /* Khoảng cách giữa các nút action */
+  white-space: nowrap; /* Ngăn nút xuống dòng */
+  justify-content: flex-start; /* Căn các nút về bên trái */
+  min-width: 100px; /* Đảm bảo đủ chỗ cho các nút cơ bản */
+  align-items: center;  
+}
+
+.action-column-header {
+  min-width: 120px; /* Đảm bảo header cột action đủ rộng */
+  text-align: center !important; /* Căn giữa header cột action */
+}
+
+.action-buttons td {
+  justify-content: center; /* Căn giữa các nút trong cell */
+}
+
+.action-button {
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 1.1em; /* Kích thước icon */
+  color: #6c757d; /* Màu icon mặc định */
+  transition: color 0.2s ease;
+  border-radius: 4px; /* Bo góc nhẹ */
+  /* Thêm dòng này để đảm bảo icon cũng được căn giữa tốt hơn trong button */
+  display: inline-flex; /* Giúp align-items hoạt động tốt hơn bên trong button */
+  align-items: center;
+  justify-content: center;
+  line-height: 1; /* Reset line-height để tránh ảnh hưởng căn chỉnh */
+}
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Nền nhẹ khi hover */
+}
+
+.action-button.view:hover {
+  color: #007bff;
+}
+.action-button.edit:hover {
+  color: #ffc107;
+}
+.action-button.delete:hover {
+  color: #dc3545;
+}
+.action-button.approve:hover {
+  color: #28a745;
+}
+.action-button.reject:hover {
+  color: #dc3545;
+}
+.action-button.lock.unlocked:hover {
+  color: #ffc107;
+} /* Màu khóa khi hover */
+.action-button.lock.locked:hover {
+  color: #28a745;
+} /* Màu mở khóa khi hover */
+.action-button.lock.locked {
+  color: #dc3545;
+} /* Màu icon khi đang khóa */
+
+.no-data {
+  text-align: center;
+  padding: 30px;
+  font-size: 1em;
+  color: #6c757d;
+}
+
+/* --- Status Styles --- */
+.status {
+  padding: 4px 10px; /* Tăng padding nhẹ */
+  border-radius: 16px; /* Bo tròn hơn */
+  font-size: 0.8em; /* Giảm font size một chút */
+  font-weight: 600; /* Tăng độ đậm */
+  text-align: center;
+  display: inline-block;
+  min-width: 90px; /* Tăng độ rộng tối thiểu */
+  border: 1px solid transparent; /* Thêm border để giữ layout ổn định */
+  text-transform: uppercase; /* Viết hoa chữ */
+  letter-spacing: 0.5px; /* Tăng khoảng cách chữ nhẹ */
+}
+
+/* Trạng thái Hoạt động (ACTIVE) - Thường dùng cho user, admin */
+.status-active,
+.status-paid {
+  /* Gộp style cho PAID */
+  background-color: #d4edda; /* Xanh lá cây nhạt hơn */
+  color: #155724; /* Xanh lá cây đậm */
+  border-color: #c3e6cb;
+}
+
+/* Trạng thái Khóa (BLOCKED / INACTIVE) */
+.status-blocked,
+.status-inactive {
+  background-color: #f8d7da; /* Hồng nhạt */
+  color: #721c24; /* Đỏ đậm */
+  border-color: #f5c6cb;
+}
+
+/* Trạng thái Đang chờ (PENDING) */
+.status-pending {
+  background-color: #fff3cd; /* Vàng nhạt */
+  color: #856404; /* Vàng nâu đậm */
+  border-color: #ffeeba;
+}
+
+/* Trạng thái Thất bại (FAILED) */
+.status-failed {
+  background-color: #f8d7da; /* Sử dụng lại màu đỏ nhạt của blocked */
+  color: #721c24; /* Sử dụng lại màu đỏ đậm của blocked */
+  border-color: #f5c6cb;
+}
+
+/* Trạng thái Không xác định/Khác */
+.status-unknown {
+  background-color: #e2e3e5; /* Xám nhạt */
+  color: #383d41; /* Xám đậm */
+  border-color: #d6d8db;
+}
+
+/* --- Pagination Styles (Reference Pagination.style.css) --- */
+.pagination-container {
+  display: flex;
+  justify-content: space-between; /* Đẩy pagination và items per page ra 2 bên */
+  align-items: center;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee; /* Đường kẻ phân cách nhẹ */
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+  gap: 15px;
+}
+
+.total-item-show {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.total-item-show label {
+  margin-right: 5px;
+}
+
+.item-per-page-select {
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-left: 5px;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0; /* Reset margin */
+  justify-content: flex-end; /* Căn pagination về bên phải */
+}
+
+.pagination li {
+  margin: 0 3px; /* Khoảng cách nhỏ giữa các nút trang */
+}
+
+.pagination li a {
+  color: #007bff;
+  cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: block; /* Để padding hoạt động đúng */
+  min-width: 36px; /* Chiều rộng tối thiểu */
+  text-align: center;
+}
+
+.pagination li a:hover {
+  background-color: #e9ecef;
+  color: #0056b3;
+}
+
+.pagination li.active a {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+  font-weight: bold;
+}
+
+.pagination li.disabled a {
+  color: #6c757d;
   cursor: not-allowed;
-  background-color: #f8f9fa; /* Very light grey background */
-  border-color: #e9ecef;
+  background-color: #fff;
+  border-color: #dee2e6;
 }
 
-.pagination li.disabled a:hover,
-.pagination li.disabled span:hover {
-  background-color: #f8f9fa;
+.pagination li.break a {
+  color: #6c757d;
+  cursor: default;
+  border: none; /* Bỏ viền cho dấu ... */
+  background-color: transparent;
+}
+.pagination li.break a:hover {
+  background-color: transparent; /* Không đổi màu nền khi hover ... */
+  color: #6c757d;
+}
+
+/* --- Modal Styles (Reference Modal.style.css, DeleteConfirmationModal.style.css) --- */
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Tăng độ mờ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Đảm bảo modal ở trên cùng */
+  opacity: 0; /* Bắt đầu ẩn */
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Khi modal mở, overlay hiện ra */
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+/* Khi modal đóng, overlay mờ đi */
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+/* Modal Content (chung cho FormDetail và DeleteConfirmation) */
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  max-width: 600px; /* Giới hạn chiều rộng tối đa */
+  width: 90%; /* Chiếm 90% chiều rộng màn hình nhỏ */
+  max-height: 90vh; /* Giới hạn chiều cao */
+  overflow-y: none; /* Cho phép cuộn nếu nội dung dài */
+  position: relative; /* Để định vị nút đóng */
+  outline: none; /* Bỏ viền focus mặc định */
+  transform: scale(0.9); /* Hiệu ứng scale khi mở */
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Khi modal mở, scale về kích thước thật */
+.ReactModal__Content--after-open {
+  transform: scale(1);
+}
+/* Khi modal đóng, scale nhỏ lại */
+.ReactModal__Content--before-close {
+  transform: scale(0.9);
+}
+
+/* --- Delete Confirmation Modal Specific Styles --- */
+.delete-confirmation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* Cao hơn modal thường nếu cần */
+}
+
+.delete-confirmation-modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+}
+
+.delete-confirmation-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.8em;
   color: #aaa;
-  border-color: #e9ecef;
+  cursor: pointer;
+  line-height: 1;
+}
+.delete-confirmation-modal-close:hover {
+  color: #333;
 }
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  /* Adjust breakpoint if needed */
+.delete-confirmation-modal-header {
+  margin-bottom: 20px;
+}
+
+.alert-icon {
+  font-size: 3em;
+  color: #f0ad4e; /* Màu vàng cảnh báo */
+  margin-bottom: 10px;
+}
+
+.modal-title {
+  font-size: 1.4em;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.modal-message {
+  font-size: 1em;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center; /* Căn giữa các nút */
+  gap: 15px; /* Khoảng cách giữa các nút */
+}
+
+.modal-buttons button {
+  padding: 10px 25px; /* Tăng padding nút */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cancel-button {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+}
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.delete-button {
+  background-color: #dc3545; /* Màu đỏ */
+  color: white;
+}
+.delete-button:hover {
+  background-color: #c82333; /* Đỏ đậm hơn */
+  box-shadow: 0 2px 5px rgba(220, 53, 69, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .search-bar-filter-container {
+    flex-direction: column; /* Xếp chồng lên nhau */
+    align-items: stretch; /* Kéo dãn các phần tử con */
+  }
   .search-bar-filter {
-    flex-basis: 100%; /* Allow search/filter section to take full width if needed */
-    order: 1; /* Ensure search/filter comes first */
+    justify-content: center; /* Căn giữa các control filter */
   }
   .filter-add-admin {
-    flex-basis: 100%; /* Button takes full width */
-    order: 2; /* Button comes after */
+    width: 100%; /* Nút Add chiếm toàn bộ chiều rộng */
     display: flex;
-    justify-content: flex-end; /* Align button to right */
-    margin-top: 0.5rem; /* Add some space above button */
-  }
-}
-
-@media (max-width: 768px) {
-  .admin-list-title {
-    font-size: 1.8rem; /* Slightly smaller title */
-  }
-  .search-bar-filter {
-    gap: 0.8rem; /* Reduce gap */
-  }
-  .admin-search,
-  .status-filter-select {
-    font-size: 0.9rem; /* Slightly smaller font */
-  }
-  .status-filter-select {
-    min-width: 150px; /* Reduce min-width */
+    justify-content: center; /* Căn giữa nút Add */
   }
   .add-admin-button {
-    padding: 0.6rem 1rem;
+    width: 50%; /* Hoặc độ rộng cụ thể */
   }
-}
 
-/* Smaller font on small screen */
-@media (max-width: 576px) {
-  .admin-content {
-    padding: 1rem; /* Reduce padding */
+  .pagination-container {
+    flex-direction: column;
+    gap: 10px;
   }
-  .search-bar-filter {
-    flex-direction: column; /* Stack search and filter vertically */
-    align-items: stretch; /* Make them full width */
+  .pagination {
+    justify-content: center; /* Căn giữa pagination trên mobile */
   }
-  .filter-control {
-    width: 100%; /* Make filter control full width */
+
+  .modal {
+    max-width: 95%;
   }
-  .status-filter-select {
-    width: 100%; /* Make select full width */
-  }
-  .refresh-button {
-    align-self: flex-end; /* Move refresh button to the right */
+  .delete-confirmation-modal-content {
+    max-width: 90%;
   }
 }
+/* Thêm các media query khác nếu cần thiết cho các kích th  
