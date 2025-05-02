@@ -1,8 +1,9 @@
+/* eslint-disable no-undef */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
-import "../../assets/css/Admin/ListOfAdmin.style.css"; // Styles chung
-import "../../assets/css/Modal.style.css"; // Styles modal
-import "../../assets/css/FormDetail.style.css"; // Styles form chi tiết (quan trọng)
+import "../../assets/css/Admin/ListOfAdmin.style.css"; // Shared styles
+import "../../assets/css/Modal.style.css"; // Modal styles
+import "../../assets/css/FormDetail.style.css"; // Ensure FormDetail styles are imported
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
@@ -13,12 +14,24 @@ import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import qs from "qs";
 import { Alert } from "@mui/material";
-// import unidecode from "unidecode"; // <<< Bỏ import unidecode
+// Removed unidecode import
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format, isValid, parseISO } from "date-fns";
+// --- Helper Functions ---
 
-// --- Helper Functions (Giữ nguyên) ---
+// Helper lấy giá trị lồng nhau an toàn
+const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
+  if (!obj || !path) return defaultValue;
+  // Improved check for intermediate properties being objects
+  const value = path
+    .split(".")
+    .reduce(
+      (acc, part) => (acc && typeof acc === "object" ? acc[part] : undefined),
+      obj
+    );
+  return value !== undefined && value !== null ? value : defaultValue;
+};
 
 // Định dạng trạng thái user (checkActive)
 const formatUserStatus = (status) => {
@@ -42,20 +55,15 @@ const formatGender = (gender) => {
 };
 
 // Định dạng ngày tháng (an toàn hơn)
-const formatDate = (dateString) => {
-  if (!dateString) return "Chưa cập nhật";
+const safeFormatDate = (dateInput, formatString = "dd/MM/yyyy") => {
+  if (!dateInput) return "Chưa cập nhật";
   try {
-    const date = parseISO(dateString);
-    if (isValid(date)) {
-      return format(date, "dd/MM/yyyy");
-    }
-    const directDate = new Date(dateString);
-    if (isValid(directDate)) {
-      return format(directDate, "dd/MM/yyyy");
-    }
-    return "Ngày không hợp lệ";
+    // Handle both string and Date objects
+    const date =
+      typeof dateInput === "string" ? parseISO(dateInput) : dateInput;
+    return isValid(date) ? format(date, formatString) : "Ngày không hợp lệ";
   } catch (e) {
-    console.error("Error formatting date:", dateString, e);
+    console.error("Error formatting date:", dateInput, e);
     return "Lỗi định dạng ngày";
   }
 };
@@ -65,10 +73,8 @@ const renderEvidenceLink = (url) => {
   if (!url || typeof url !== "string") return "Không có";
   const trimmedUrl = url.trim();
   if (!trimmedUrl) return "Không có";
-  const isExternalLink =
-    trimmedUrl.startsWith("http://") ||
-    trimmedUrl.startsWith("https://") ||
-    trimmedUrl.startsWith("blob:");
+  // More robust check for external links
+  const isExternalLink = /^(https?:\/\/|blob:)/i.test(trimmedUrl);
   return (
     <a
       href={isExternalLink ? trimmedUrl : "#"}
@@ -77,6 +83,11 @@ const renderEvidenceLink = (url) => {
       className={`evidence-link ${!isExternalLink ? "disabled-link" : ""}`}
       onClick={(e) => !isExternalLink && e.preventDefault()}
       title={isExternalLink ? `Mở: ${trimmedUrl}` : "Không có link hợp lệ"}
+      style={{
+        color: isExternalLink ? "#007bff" : "#6c757d",
+        textDecoration: isExternalLink ? "underline" : "none",
+        cursor: isExternalLink ? "pointer" : "default",
+      }}
     >
       {isExternalLink ? "Xem Link/File" : "Không có"}
     </a>
@@ -112,10 +123,15 @@ const formatDateTimeLearn = (dateTimeLearnArray) => {
           return null;
         }
       })
-      .filter((item) => item && item.day && Array.isArray(item.times));
+      .filter((item) => item && item.day && Array.isArray(item.times)); // Filter valid entries
+
     if (parsed.length === 0) return "Chưa cập nhật lịch rảnh hợp lệ";
+
     return (
-      <ul className="datetime-list">
+      <ul
+        className="datetime-list"
+        style={{ paddingLeft: "1.2em", margin: 0, listStyleType: "none" }}
+      >
         {parsed.map((item, index) => (
           <li key={index}>
             <strong>{daysOfWeekMap[item.day] || item.day}</strong>:{" "}
@@ -151,128 +167,99 @@ const ListOfTutorPage = () => {
   const { t } = useTranslation();
 
   // --- State Variables ---
-  // const [data, setData] = useState([]); // <<< Bỏ state data không dùng
-  const [filteredData, setFilteredData] = useState([]);
+  const [data, setData] = useState([]); // State chính chứa dữ liệu từ API
+  // Bỏ filteredData
   const [totalItems, setTotalItems] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based index
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default 10
   const [pageCount, setPageCount] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Loading cho bảng
   const [error, setError] = useState(null);
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Query tìm kiếm thực tế
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
-  });
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  }); // Sắp xếp mặc định
+  const [isModalOpen, setIsModalOpen] = useState(false); // Chỉ dùng cho View
   const [modalData, setModalData] = useState(null);
-  const [modalMode, setModalMode] = useState(null); // <<< Khởi tạo là null
+  const [modalMode, setModalMode] = useState(null); // Chỉ là 'view'
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(""); // Message động cho modal xóa
+  const [isProcessingLock, setIsProcessingLock] = useState(false); // Loading riêng cho lock/unlock
+  const [isDeleting, setIsDeleting] = useState(false); // Loading riêng cho delete
 
   const currentPath = "/gia-su";
 
-  // --- URL Synchronization (Giữ nguyên) ---
-  const updateUrl = useCallback(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (searchQuery) params.set("searchQuery", searchQuery);
-    else params.delete("searchQuery");
-    if (sortConfig.key) {
-      params.set("sortKey", sortConfig.key);
-      params.set("sortDirection", sortConfig.direction);
-    } else {
-      params.delete("sortKey");
-      params.delete("sortDirection");
-    }
-    params.set("page", currentPage + 1);
-    params.set("itemsPerPage", itemsPerPage);
-    window.history.pushState(
-      {},
-      "",
-      `${window.location.pathname}?${params.toString()}`
-    );
-  }, [searchQuery, sortConfig, currentPage, itemsPerPage]);
+  // Bỏ URL Synchronization
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialSearchQuery = params.get("searchQuery") || "";
-    const initialSortKey = params.get("sortKey") || "createdAt";
-    const initialSortDirection = params.get("sortDirection") || "desc";
-    const initialPage = parseInt(params.get("page") || "1", 10) - 1;
-    const initialItemsPerPage = parseInt(
-      params.get("itemsPerPage") || "10",
-      10
-    );
-    setSearchInput(initialSearchQuery);
-    setSearchQuery(initialSearchQuery);
-    setSortConfig({ key: initialSortKey, direction: initialSortDirection });
-    setCurrentPage(Math.max(0, initialPage));
-    setItemsPerPage(initialItemsPerPage > 0 ? initialItemsPerPage : 10);
-  }, []);
-
-  useEffect(() => {
-    updateUrl();
-  }, [updateUrl]);
-  // --- End URL Synchronization ---
+  // --- Reset State ---
+  const resetState = () => {
+    setSearchInput("");
+    setSearchQuery("");
+    setSortConfig({ key: "createdAt", direction: "desc" });
+    setCurrentPage(0);
+    setItemsPerPage(10); // Reset itemsPerPage về default
+    // fetchData sẽ tự chạy lại
+  };
 
   // --- Data Fetching ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     console.log(
-      `Fetching data: page=${currentPage + 1}, rpp=${itemsPerPage}, sort=${
+      `Fetching tutors: page=${currentPage + 1}, rpp=${itemsPerPage}, sort=${
         sortConfig.key
       }(${sortConfig.direction}), search=${searchQuery}`
     );
     try {
+      // Luôn filter roleId=TUTOR
       const filterConditions = [
         { key: "roleId", operator: "equal", value: "TUTOR" },
       ];
+
+      // Thêm điều kiện tìm kiếm nếu có searchQuery
       if (searchQuery) {
         filterConditions.push({
-          logic: "or",
-          conditions: [
-            {
-              key: "userProfile.fullname",
-              operator: "contains",
-              value: searchQuery,
-            },
-            { key: "email", operator: "contains", value: searchQuery },
-            { key: "phoneNumber", operator: "contains", value: searchQuery },
-            { key: "userId", operator: "contains", value: searchQuery },
-          ],
+          // Giả định backend hỗ trợ tìm kiếm 'like' trên các trường này
+          key: "userId,userProfile.fullname,email,phoneNumber,tutorProfile.tutorLevel.levelName", // Thêm tìm theo hạng?
+          operator: "like", // hoặc 'search'
+          value: searchQuery,
         });
       }
+
+      // Xây dựng query object
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
-        filter: JSON.stringify(filterConditions),
+        filter: JSON.stringify(filterConditions), // Gửi filter kết hợp
         sort: JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
         ]),
       };
+
       const queryString = qs.stringify(query, {
         encodeValuesOnly: true,
         arrayFormat: "brackets",
       });
       console.log("API Request URL:", `/user/search?${queryString}`);
+
       const response = await Api({
-        endpoint: `/user/search?${queryString}`,
+        endpoint: `/user/search?${queryString}`, // Endpoint tìm user
         method: METHOD_TYPE.GET,
       });
-      console.log("API Response:", response);
+      console.log("API Response (Tutors):", response);
+
       if (
         response.success &&
         response.data &&
         Array.isArray(response.data.items)
       ) {
-        // setData(response.data.items); // <<< Bỏ cập nhật state data không dùng
-        setFilteredData(response.data.items); // Chỉ cập nhật filteredData
-        setTotalItems(response.data.total);
-        setPageCount(Math.ceil(response.data.total / itemsPerPage));
+        setData(response.data.items); // Cập nhật state data chính
+        setTotalItems(response.data.total || 0);
+        setPageCount(Math.ceil((response.data.total || 0) / itemsPerPage));
       } else {
-        // Sử dụng t để dịch lỗi nếu cần, nhưng không cần đưa t vào dependency
         const errorMsg =
           response.message ||
           t("common.errorLoadingData") ||
@@ -280,38 +267,31 @@ const ListOfTutorPage = () => {
         throw new Error(errorMsg);
       }
     } catch (error) {
-      console.error("Fetch data error:", error);
-      // Sử dụng t để dịch lỗi nếu cần, nhưng không cần đưa t vào dependency
+      console.error("Fetch tutor error:", error);
       const errorMsg =
         error.message ||
         t("common.errorLoadingData") ||
         "Đã xảy ra lỗi không mong muốn.";
       setError(errorMsg);
-      // setData([]); // <<< Bỏ reset state data không dùng
-      setFilteredData([]);
+      setData([]); // Reset data khi lỗi
       setTotalItems(0);
       setPageCount(1);
+      toast.error(`Tải danh sách gia sư thất bại: ${errorMsg}`);
     } finally {
       setIsLoading(false);
     }
-    // <<< Bỏ 't' khỏi dependency list
-  }, [
-    currentPage,
-    itemsPerPage,
-    sortConfig.key,
-    sortConfig.direction,
-    searchQuery,
-    t,
-  ]);
+  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]); // Phụ thuộc vào các state điều khiển fetch
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData]); // Gọi fetchData khi dependencies thay đổi
   // --- End Data Fetching ---
 
-  // --- Event Handlers (Giữ nguyên phần lớn, chỉnh sửa lock/delete) ---
+  // --- Event Handlers ---
   const handlePageClick = (event) => {
-    setCurrentPage(event.selected);
+    if (typeof event.selected === "number") {
+      setCurrentPage(event.selected);
+    }
   };
 
   const handleItemsPerPageChange = (newPageSize) => {
@@ -319,20 +299,22 @@ const ListOfTutorPage = () => {
     setCurrentPage(0);
   };
 
-  const handleSearchInputChange = (query) => {
-    setSearchInput(query);
+  const handleSearchInputChange = (value) => {
+    // Đổi tên tham số cho rõ ràng
+    setSearchInput(value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleApplySearch = () => {
+    // Đổi tên hàm
     if (searchQuery !== searchInput) {
       setCurrentPage(0);
-      setSearchQuery(searchInput);
+      setSearchQuery(searchInput); // Chỉ cập nhật searchQuery ở đây
     }
   };
 
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
-      handleSearchSubmit();
+      handleApplySearch(); // Gọi hàm mới
     }
   };
 
@@ -346,23 +328,25 @@ const ListOfTutorPage = () => {
     setCurrentPage(0);
   };
 
-  const resetFiltersAndFetch = () => {
-    setSearchInput("");
-    setSearchQuery("");
-    setSortConfig({ key: "createdAt", direction: "desc" });
-    setCurrentPage(0);
-    setItemsPerPage(10);
-    // fetchData sẽ tự chạy lại do dependency thay đổi
-  };
-
-  const handleDeleteClick = (tutorId) => {
-    if (!tutorId) return;
-    setDeleteItemId(tutorId);
+  // --- Action Handlers ---
+  const handleDeleteClick = (tutor) => {
+    // Nhận cả object
+    if (!tutor || !tutor.userId) return;
+    const tutorName = getSafeNestedValue(
+      tutor,
+      "userProfile.fullname",
+      tutor.userId
+    );
+    setDeleteItemId(tutor.userId);
+    setDeleteMessage(
+      `Bạn có chắc muốn xóa gia sư "${tutorName}"? Hành động này sẽ xóa thông tin liên quan và không thể hoàn tác.`
+    );
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
+    setIsDeleting(true); // Bắt đầu loading xóa
     console.log(`Attempting to delete tutor: ${deleteItemId}`);
     try {
       const response = await Api({
@@ -371,30 +355,13 @@ const ListOfTutorPage = () => {
       });
       if (response.success) {
         toast.success("Xóa gia sư thành công!");
-        // Cập nhật lại UI sau khi xóa thành công
-        const newTotalItems = totalItems - 1;
-        const newPageCount = Math.ceil(newTotalItems / itemsPerPage);
-        // Nếu trang hiện tại trống sau khi xóa và không phải trang đầu -> về trang trước
-        if (filteredData.length === 1 && currentPage > 0 && newTotalItems > 0) {
-          setCurrentPage(currentPage - 1); // Trigger fetchData cho trang trước
+        if (data.length === 1 && currentPage > 0) {
+          // Nếu xóa item cuối cùng của trang và không phải trang đầu -> lùi trang
+          setCurrentPage(currentPage - 1); // Trigger fetchData ở trang trước
         } else {
-          // Nếu không, fetch lại trang hiện tại (hoặc trang 0 nếu là trang đầu)
-          // Cập nhật totalItems trước khi fetch lại để đảm bảo tính toán đúng
-          setTotalItems(newTotalItems);
-          setPageCount(newPageCount);
-          // Gọi lại fetchData nếu cần (ví dụ nếu trang không bị đổi)
-          // Hoặc chỉ cần cập nhật state nếu trang không đổi:
-          if (!(filteredData.length === 1 && currentPage > 0)) {
-            setFilteredData((prev) =>
-              prev.filter((item) => item.userId !== deleteItemId)
-            );
-          }
-          // Nếu muốn đảm bảo dữ liệu luôn mới nhất từ server sau khi xóa:
-          // fetchData(); // Gọi lại fetchData - sẽ dùng currentPage đã được cập nhật (nếu có)
+          // Nếu không, fetch lại trang hiện tại
+          fetchData();
         }
-        // Nếu không gọi fetchData() ở trên, cần cập nhật totalItems và pageCount ở đây
-        setTotalItems(newTotalItems);
-        setPageCount(newPageCount);
       } else {
         throw new Error(response.message || "Xóa thất bại.");
       }
@@ -404,14 +371,17 @@ const ListOfTutorPage = () => {
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
+      setDeleteMessage("");
+      setIsDeleting(false); // Kết thúc loading xóa
     }
   };
 
   const handleViewClick = (tutor) => {
     if (!tutor) return;
     console.log("Viewing Tutor Data:", tutor);
-    setModalData(tutor);
-    setModalMode("view"); // <<< Vẫn set mode để dùng cho title, label modal
+    // Chuẩn bị dữ liệu đầy đủ hơn cho modal view nếu cần
+    setModalData(tutor); // Truyền nguyên object tutor
+    setModalMode("view");
     setIsModalOpen(true);
   };
 
@@ -420,14 +390,20 @@ const ListOfTutorPage = () => {
     const newCheckActive =
       tutor.checkActive === "ACTIVE" ? "BLOCKED" : "ACTIVE";
     const actionText = newCheckActive === "ACTIVE" ? "Mở khóa" : "Khóa";
-    const currentFullname = tutor.userProfile?.fullname || tutor.userId;
+    const tutorName = getSafeNestedValue(
+      tutor,
+      "userProfile.fullname",
+      tutor.userId
+    );
+
     if (
       !window.confirm(
-        `Bạn có chắc muốn ${actionText} tài khoản "${currentFullname}"?`
+        `Bạn có chắc muốn ${actionText} tài khoản "${tutorName}"?`
       )
     )
       return;
 
+    setIsProcessingLock(true); // Bắt đầu loading lock
     console.log(`Attempting to ${actionText} tutor: ${tutor.userId}`);
     try {
       const response = await Api({
@@ -436,44 +412,46 @@ const ListOfTutorPage = () => {
         data: { checkActive: newCheckActive },
       });
       if (response.success) {
-        // Chỉ cập nhật filteredData vì data không còn dùng
-        setFilteredData((prevData) =>
+        // Cập nhật state data để UI thay đổi ngay
+        setData((prevData) =>
           prevData.map((item) =>
             item.userId === tutor.userId
               ? { ...item, checkActive: newCheckActive }
               : item
           )
         );
-        toast.success(
-          `${actionText} tài khoản "${currentFullname}" thành công!`
-        );
+        toast.success(`${actionText} tài khoản "${tutorName}" thành công!`);
       } else {
         throw new Error(response.message || `${actionText} thất bại.`);
       }
     } catch (error) {
       console.error(`Error ${actionText} tutor:`, error);
       toast.error(`${actionText} thất bại: ${error.message}`);
+    } finally {
+      setIsProcessingLock(false); // Kết thúc loading lock
     }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    // Delay reset để tránh giật
     setTimeout(() => {
       setModalData(null);
-      setModalMode(null); // <<< Sửa thành null khi đóng
-    }, 300);
+      setModalMode(null);
+    }, 300); // Giữ delay nếu muốn animation
   };
-  // --- End Event Handlers ---
+  // --- End Action Handlers ---
 
-  // --- Table Columns Definition (Giữ nguyên) ---
+  // --- Table Columns Definition ---
   const columns = useMemo(
     () => [
+      // Sử dụng getSafeNestedValue để render an toàn hơn
       {
         title: t("admin.name"),
         dataKey: "userProfile.fullname",
+        sortKey: "userProfile.fullname",
         sortable: true,
-        renderCell: (val) => val || "Chưa có tên",
+        renderCell: (_, row) =>
+          getSafeNestedValue(row, "userProfile.fullname", "Chưa có tên"),
       },
       {
         title: t("admin.email"),
@@ -490,14 +468,22 @@ const ListOfTutorPage = () => {
       {
         title: "Giới tính",
         dataKey: "userProfile.gender",
-        sortable: false,
-        renderCell: formatGender,
+        sortKey: "userProfile.gender",
+        sortable: true,
+        renderCell: (v, row) =>
+          formatGender(getSafeNestedValue(row, "userProfile.gender", null)),
       },
       {
         title: "Hạng",
         dataKey: "tutorProfile.tutorLevel.levelName",
+        sortKey: "tutorProfile.tutorLevel.levelName",
         sortable: true,
-        renderCell: (val) => val || "Chưa hạng",
+        renderCell: (_, row) =>
+          getSafeNestedValue(
+            row,
+            "tutorProfile.tutorLevel.levelName",
+            "Chưa hạng"
+          ),
       },
       {
         title: t("admin.status"),
@@ -509,265 +495,293 @@ const ListOfTutorPage = () => {
         title: "Ngày tạo",
         dataKey: "createdAt",
         sortable: true,
-        renderCell: formatDate,
-      },
+        renderCell: (v) => safeFormatDate(v, "dd/MM/yyyy"),
+      }, // Format ngắn gọn hơn
     ],
     [t]
   );
   // --- End Table Columns Definition ---
 
-  // --- Form Fields for Detail View (Giữ nguyên) ---
+  // --- Form Fields for Detail View ---
+  // Giữ nguyên hoặc tối ưu viewFields nếu cần
   const viewFields = useMemo(
     () => [
-      // Thông tin cơ bản & UserProfile
-      { key: "userProfile.fullname", label: "Họ và Tên (User)" },
-      { key: "email", label: "Email đăng nhập" },
-      { key: "phoneNumber", label: "SĐT đăng nhập" },
-      { key: "userId", label: "User ID" },
-      { key: "roleId", label: "Vai trò" },
+      // Phần User
+      {
+        key: "userProfile.fullname",
+        label: "Họ và Tên",
+        section: "Thông tin chung",
+      }, // Thêm section
+      { key: "email", label: "Email đăng nhập", section: "Thông tin chung" },
+      {
+        key: "phoneNumber",
+        label: "SĐT đăng nhập",
+        section: "Thông tin chung",
+      },
+      { key: "userId", label: "User ID", section: "Thông tin chung" },
       {
         key: "checkActive",
         label: "Trạng thái tài khoản",
         renderValue: formatUserStatus,
+        section: "Thông tin chung",
       },
       {
         key: "coin",
         label: "Số dư Coin",
         renderValue: (val) => (val ?? 0).toLocaleString(),
-      },
-      {
-        key: "totalTestPoints",
-        label: "Điểm Test tổng",
-        renderValue: (val) => val ?? "Chưa có",
-      },
-      { key: "userProfile.userDisplayName", label: "Tên hiển thị" },
-      { key: "userProfile.personalEmail", label: "Email cá nhân" },
-      {
-        key: "userProfile.homeAddress",
-        label: "Địa chỉ nhà",
-        renderValue: (val) => val || "Chưa cập nhật",
-      },
-      {
-        key: "userProfile.birthday",
-        label: "Ngày sinh (User)",
-        renderValue: formatDate,
-      },
-      {
-        key: "userProfile.gender",
-        label: "Giới tính (User)",
-        renderValue: formatGender,
-      },
-      {
-        key: "userProfile.major.majorName",
-        label: "Chuyên ngành (User)",
-        renderValue: (val) => val || "Chưa cập nhật",
+        section: "Thông tin chung",
       },
       {
         key: "createdAt",
         label: "Ngày tạo tài khoản",
-        renderValue: (d) =>
-          d ? format(new Date(d), "dd/MM/yyyy HH:mm") : "Không có",
+        renderValue: (d) => safeFormatDate(d, "dd/MM/yyyy HH:mm"),
+        section: "Thông tin chung",
       },
       {
         key: "updatedAt",
         label: "Cập nhật lần cuối",
         renderValue: (d) =>
-          d ? format(new Date(d), "dd/MM/yyyy HH:mm") : "Không có",
+          d ? safeFormatDate(d, "dd/MM/yyyy HH:mm") : "Chưa cập nhật",
+        section: "Thông tin chung",
       },
 
-      // Thông tin TutorProfile (hiển thị nếu có)
+      // Phần User Profile
       {
-        key: "tutorProfile.fullname",
-        label: "Họ và Tên (Tutor)",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa cập nhật" : "N/A",
+        key: "userProfile.userDisplayName",
+        label: "Tên hiển thị",
+        section: "Hồ sơ người dùng (User Profile)",
       },
       {
-        key: "tutorProfile.birthday",
-        label: "Ngày sinh (Tutor)",
-        renderValue: (val, data) =>
-          data.tutorProfile ? formatDate(val) : "N/A",
+        key: "userProfile.personalEmail",
+        label: "Email cá nhân",
+        section: "Hồ sơ người dùng (User Profile)",
       },
       {
-        key: "tutorProfile.gender",
-        label: "Giới tính (Tutor)",
-        renderValue: (val, data) =>
-          data.tutorProfile ? formatGender(val) : "N/A",
+        key: "userProfile.homeAddress",
+        label: "Địa chỉ nhà",
+        renderValue: (val) => val || "Chưa cập nhật",
+        section: "Hồ sơ người dùng (User Profile)",
       },
       {
-        key: "tutorProfile.univercity",
-        label: "Trường Đại học",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa cập nhật" : "N/A",
+        key: "userProfile.birthday",
+        label: "Ngày sinh",
+        renderValue: (v, row) =>
+          safeFormatDate(
+            getSafeNestedValue(row, "userProfile.birthday", null),
+            "dd/MM/yyyy"
+          ),
+        section: "Hồ sơ người dùng (User Profile)",
       },
       {
-        key: "tutorProfile.major.majorName",
-        label: "Chuyên ngành (Tutor)",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa cập nhật" : "N/A",
+        key: "userProfile.gender",
+        label: "Giới tính",
+        renderValue: (v, row) =>
+          formatGender(getSafeNestedValue(row, "userProfile.gender", null)),
+        section: "Hồ sơ người dùng (User Profile)",
       },
       {
-        key: "tutorProfile.GPA",
-        label: "Điểm GPA",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val ?? "Chưa có" : "N/A",
+        key: "userProfile.major.majorName",
+        label: "Chuyên ngành",
+        renderValue: (v, row) =>
+          getSafeNestedValue(
+            row,
+            "userProfile.major.majorName",
+            "Chưa cập nhật"
+          ),
+        section: "Hồ sơ người dùng (User Profile)",
       },
-      {
-        key: "tutorProfile.evidenceOfGPA",
-        label: "Minh chứng GPA",
-        renderValue: (val, data) =>
-          data.tutorProfile ? renderEvidenceLink(val) : "N/A",
-      },
-      {
-        key: "tutorProfile.description",
-        label: "Giới thiệu bản thân",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
-      },
-      {
-        key: "tutorProfile.subject.subjectName",
-        label: "Môn học 1",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
-      },
-      {
-        key: "tutorProfile.descriptionOfSubject",
-        label: "Mô tả môn 1",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
-      },
-      {
-        key: "tutorProfile.evidenceOfSubject",
-        label: "Minh chứng môn 1",
-        renderValue: (val, data) =>
-          data.tutorProfile ? renderEvidenceLink(val) : "N/A",
-      },
-      {
-        key: "tutorProfile.subject2.subjectName",
-        label: "Môn học 2",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Không đăng ký" : "N/A",
-      },
-      {
-        key: "tutorProfile.descriptionOfSubject2",
-        label: "Mô tả môn 2",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Không đăng ký" : "N/A",
-      },
-      {
-        key: "tutorProfile.evidenceOfSubject2",
-        label: "Minh chứng môn 2",
-        renderValue: (val, data) =>
-          data.tutorProfile ? renderEvidenceLink(val) : "N/A",
-      },
-      {
-        key: "tutorProfile.subject3.subjectName",
-        label: "Môn học 3",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Không đăng ký" : "N/A",
-      },
-      {
-        key: "tutorProfile.descriptionOfSubject3",
-        label: "Mô tả môn 3",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Không đăng ký" : "N/A",
-      },
-      {
-        key: "tutorProfile.evidenceOfSubject3",
-        label: "Minh chứng môn 3",
-        renderValue: (val, data) =>
-          data.tutorProfile ? renderEvidenceLink(val) : "N/A",
-      },
-      {
-        key: "tutorProfile.teachingTime",
-        label: "Thời gian/tiết (giờ)",
-        renderValue: (val, data) =>
-          data.tutorProfile
-            ? val
-              ? `${parseFloat(val).toFixed(2)} giờ`
-              : "Chưa có"
-            : "N/A",
-      },
-      {
-        key: "tutorProfile.teachingMethod",
-        label: "Phương thức dạy",
-        renderValue: (val, data) =>
-          data.tutorProfile ? formatTeachingMethod(val) : "N/A",
-      },
-      {
-        key: "tutorProfile.teachingPlace",
-        label: "Khu vực dạy Offline",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
-      },
-      {
-        key: "tutorProfile.isUseCurriculumn",
-        label: "Sử dụng giáo trình riêng",
-        renderValue: (val, data) =>
-          data.tutorProfile
-            ? typeof val === "boolean"
-              ? val
-                ? "Có"
-                : "Không"
-              : "Chưa có"
-            : "N/A",
-      },
-      {
-        key: "tutorProfile.videoUrl",
-        label: "Video giới thiệu",
-        renderValue: (val, data) =>
-          data.tutorProfile ? renderEvidenceLink(val) : "N/A",
-      },
-      {
-        key: "tutorProfile.bankName",
-        label: "Ngân hàng",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
-      },
-      {
-        key: "tutorProfile.bankNumber",
-        label: "Số tài khoản",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
-      },
+
+      // Phần Tutor Profile
       {
         key: "tutorProfile.tutorLevel.levelName",
         label: "Hạng Gia Sư",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
+        renderValue: (v, row) =>
+          getSafeNestedValue(
+            row,
+            "tutorProfile.tutorLevel.levelName",
+            "Chưa có"
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
       },
       {
         key: "tutorProfile.tutorLevel.description",
         label: "Mô tả hạng",
-        renderValue: (val, data) =>
-          data.tutorProfile ? val || "Chưa có" : "N/A",
+        renderValue: (v, row) =>
+          getSafeNestedValue(
+            row,
+            "tutorProfile.tutorLevel.description",
+            "Chưa có"
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
       },
       {
         key: "tutorProfile.coinPerHours",
         label: "Coin/Giờ",
-        renderValue: (val, data) =>
-          data.tutorProfile ? (val ?? "Chưa có").toLocaleString() : "N/A",
+        renderValue: (v, row) =>
+          getSafeNestedValue(
+            row,
+            "tutorProfile.coinPerHours",
+            0
+          ).toLocaleString(),
+        section: "Hồ sơ gia sư (Tutor Profile)",
       },
       {
-        key: "tutorProfile.isPublicProfile",
-        label: "Công khai Profile",
-        renderValue: (val, data) =>
-          data.tutorProfile
-            ? typeof val === "boolean"
-              ? val
-                ? "Có"
-                : "Không"
-              : "Chưa có"
-            : "N/A",
+        key: "totalTestPoints",
+        label: "Điểm Test tổng",
+        renderValue: (val) => val ?? "Chưa có",
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.univercity",
+        label: "Trường Đại học",
+        renderValue: (v, row) =>
+          getSafeNestedValue(row, "tutorProfile.univercity", "Chưa cập nhật"),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.major.majorName",
+        label: "Chuyên ngành (Tutor)",
+        renderValue: (v, row) =>
+          getSafeNestedValue(
+            row,
+            "tutorProfile.major.majorName",
+            "Chưa cập nhật"
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.GPA",
+        label: "Điểm GPA",
+        renderValue: (v, row) =>
+          getSafeNestedValue(row, "tutorProfile.GPA", "Chưa có"),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.evidenceOfGPA",
+        label: "Minh chứng GPA",
+        renderValue: (v, row) =>
+          renderEvidenceLink(
+            getSafeNestedValue(row, "tutorProfile.evidenceOfGPA", null)
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.description",
+        label: "Giới thiệu bản thân",
+        renderValue: (v, row) =>
+          getSafeNestedValue(row, "tutorProfile.description", "Chưa có"),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.subject.subjectName",
+        label: "Môn học 1",
+        renderValue: (v, row) =>
+          getSafeNestedValue(
+            row,
+            "tutorProfile.subject.subjectName",
+            "Chưa có"
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.evidenceOfSubject",
+        label: "Minh chứng môn 1",
+        renderValue: (v, row) =>
+          renderEvidenceLink(
+            getSafeNestedValue(row, "tutorProfile.evidenceOfSubject", null)
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      // ... (Thêm các môn 2, 3 tương tự nếu cần)
+      {
+        key: "tutorProfile.teachingTime",
+        label: "Thời gian/tiết (giờ)",
+        renderValue: (v, row) => {
+          const val = getSafeNestedValue(
+            row,
+            "tutorProfile.teachingTime",
+            null
+          );
+          return val ? `${parseFloat(val).toFixed(1)} giờ` : "Chưa có";
+        },
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.teachingMethod",
+        label: "Phương thức dạy",
+        renderValue: (v, row) =>
+          formatTeachingMethod(
+            getSafeNestedValue(row, "tutorProfile.teachingMethod", null)
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.teachingPlace",
+        label: "Khu vực dạy Offline",
+        renderValue: (v, row) =>
+          getSafeNestedValue(row, "tutorProfile.teachingPlace", "Chưa có"),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.isUseCurriculumn",
+        label: "Sử dụng giáo trình riêng",
+        renderValue: (v, row) => {
+          const val = getSafeNestedValue(
+            row,
+            "tutorProfile.isUseCurriculumn",
+            null
+          );
+          return typeof val === "boolean" ? (val ? "Có" : "Không") : "Chưa có";
+        },
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.videoUrl",
+        label: "Video giới thiệu",
+        renderValue: (v, row) =>
+          renderEvidenceLink(
+            getSafeNestedValue(row, "tutorProfile.videoUrl", null)
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.bankName",
+        label: "Ngân hàng",
+        renderValue: (v, row) =>
+          getSafeNestedValue(row, "tutorProfile.bankName", "Chưa có"),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.bankNumber",
+        label: "Số tài khoản",
+        renderValue: (v, row) =>
+          getSafeNestedValue(row, "tutorProfile.bankNumber", "Chưa có"),
+        section: "Hồ sơ gia sư (Tutor Profile)",
       },
       {
         key: "tutorProfile.dateTimeLearn",
         label: "Lịch rảnh",
-        renderValue: (val, data) =>
-          data.tutorProfile ? formatDateTimeLearn(val) : "N/A",
+        renderValue: (v, row) =>
+          formatDateTimeLearn(
+            getSafeNestedValue(row, "tutorProfile.dateTimeLearn", [])
+          ),
+        section: "Hồ sơ gia sư (Tutor Profile)",
+      },
+      {
+        key: "tutorProfile.isPublicProfile",
+        label: "Công khai Profile",
+        renderValue: (v, row) => {
+          const val = getSafeNestedValue(
+            row,
+            "tutorProfile.isPublicProfile",
+            null
+          );
+          return typeof val === "boolean" ? (val ? "Có" : "Không") : "Chưa có";
+        },
+        section: "Hồ sơ gia sư (Tutor Profile)",
       },
     ],
-    []
+    [] // Thêm dependencies nếu có dùng biến ngoài (ví dụ: t)
   );
   // --- End Form Fields ---
 
@@ -780,52 +794,62 @@ const ListOfTutorPage = () => {
           <SearchBar
             value={searchInput}
             onChange={handleSearchInputChange}
-            onKeyPress={handleSearchKeyPress}
+            onKeyPress={handleSearchKeyPress} // Add Enter key press handler
             searchBarClassName="admin-search"
             searchInputClassName="admin-search-input"
-            placeholder="Tìm tên, email, SĐT, ID..."
+            placeholder="Tìm tên, email, SĐT, ID, hạng..." // Update placeholder
           />
+          {/* Search button */}
           <button
-            onClick={handleSearchSubmit}
-            className="search-submit-button"
+            onClick={handleApplySearch}
+            className="refresh-button"
             title="Tìm kiếm"
           >
             <i className="fa-solid fa-search"></i>
           </button>
+          {/* Reset button */}
           <button
             className="refresh-button"
-            onClick={resetFiltersAndFetch}
-            title="Làm mới bộ lọc và tải lại"
+            onClick={resetState}
+            title="Làm mới"
           >
             <i className="fa-solid fa-rotate fa-lg"></i>
           </button>
         </div>
+        {/* No Add button */}
+        <div className="filter-add-admin"></div>
       </div>
+
       {error && (
-        <Alert
-          severity="error"
-          style={{ marginTop: "1rem", marginBottom: "1rem" }}
-        >
+        <Alert severity="error" sx={{ my: 2 }}>
           {error}
         </Alert>
       )}
+
+      {/* Table */}
       <Table
         columns={columns}
-        data={filteredData} // <<< Sử dụng filteredData
+        data={data} // Use 'data' state directly
+        totalItems={totalItems} // Pass total items for pagination logic
+        // Actions
         onView={handleViewClick}
-        onDelete={handleDeleteClick}
-        onLock={handleLockClick}
-        showLock={true}
-        statusKey="checkActive"
+        onDelete={handleDeleteClick} // Pass the student object
+        onLock={handleLockClick} // Pass the lock handler
+        showLock={true} // Enable lock button
+        statusKey="checkActive" // Use 'checkActive' for lock status
+        // Pagination & Sort
         pageCount={pageCount}
         onPageChange={handlePageClick}
         forcePage={currentPage}
         onSort={handleSort}
-        loading={isLoading}
+        currentSortConfig={sortConfig} // Pass current sort state
+        // Loading & Items per page
+        loading={isLoading || isProcessingLock} // Combine loading states
         itemsPerPage={itemsPerPage}
         onItemsPerPageChange={handleItemsPerPageChange}
-        currentSortConfig={sortConfig}
       />
+
+      {/* Total count display */}
       {!isLoading && !error && totalItems > 0 && (
         <p
           style={{
@@ -835,7 +859,7 @@ const ListOfTutorPage = () => {
             fontSize: "0.9em",
           }}
         >
-          Hiển thị {filteredData.length} trên tổng số {totalItems} gia sư.
+          Tổng số gia sư: {totalItems}
         </p>
       )}
     </div>
@@ -846,47 +870,46 @@ const ListOfTutorPage = () => {
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
+      {/* View Modal */}
       <Modal
-        isOpen={isModalOpen}
+        isOpen={isModalOpen && modalMode === "view"} // Ensure modal opens only in view mode
         onRequestClose={handleCloseModal}
-        // <<< Sử dụng modalMode để xác định label
-        contentLabel={modalMode === "view" ? "Chi tiết Gia sư" : "Modal"}
-        className="modal large"
+        contentLabel="Chi tiết Gia sư"
+        className="modal large" // Use 'large' class for potentially more content
         overlayClassName="overlay"
         closeTimeoutMS={300}
       >
+        {/* Conditionally render FormDetail only when modalData is available */}
         {modalData && (
           <FormDetail
             formData={modalData}
             fields={viewFields}
-            // <<< Sử dụng modalMode để xác định mode và title
-            mode={modalMode || "view"}
-            title={modalMode === "view" ? "Chi tiết Gia sư" : "Thông tin"}
+            mode="view" // Explicitly set mode to view
+            title="Chi tiết Gia sư"
             onClose={handleCloseModal}
-            avatarUrl={
-              modalData.tutorProfile?.avatar || modalData.userProfile?.avatar
-            }
+            // Attempt to get avatar from tutorProfile first, then userProfile
+            avatarUrl={getSafeNestedValue(
+              modalData,
+              "tutorProfile.avatar",
+              getSafeNestedValue(modalData, "userProfile.avatar", null)
+            )}
+            // Pass section definitions if FormDetail supports them
+            // sections={[{key: 'general', title: 'Thông tin chung'}, {key: 'user_profile', title: 'Hồ sơ người dùng'}, {key: 'tutor_profile', title: 'Hồ sơ gia sư'}]}
           />
         )}
       </Modal>
+
+      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa gia sư này? Hành động này sẽ xóa thông tin liên quan và không thể hoàn tác."
+        message={deleteMessage} // Use dynamic message
+        isDeleting={isDeleting} // Pass deleting state
       />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );
 };

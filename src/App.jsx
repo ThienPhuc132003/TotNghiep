@@ -34,12 +34,10 @@ const RulesRegulationsPage = lazy(() =>
   import("./pages/User/RulesRegulationsPage")
 );
 const Wallet = lazy(() => import("./pages/User/WalletPage"));
-
+const PaymentSuccess = lazy(() => import("./pages/User/PaymentSuccess"));
+const PaymentFailed = lazy(() => import("./pages/User/PaymentFailed"));
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
-import PaymentPage from "./pages/User/PaymentPage";
-import PaymentSuccess from "./pages/User/PaymentSuccess";
-import PaymentFailed from "./pages/User/PaymentFailed";
 
 // Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
@@ -52,6 +50,12 @@ const ListOfTutor = lazy(() => import("./pages/Admin/ListOfTutor"));
 const ListOfTutorLevel = lazy(() => import("./pages/Admin/ListOfTutorLevel"));
 const ListOfSubject = lazy(() => import("./pages/Admin/ListOfSubject"));
 const ListOfCurriculumn = lazy(() => import("./pages/Admin/ListOfCurriculumn"));
+const ListOfValueConfigs = lazy(() =>
+  import("./pages/Admin/ListOfValueConfigs")
+);
+const ListOfTransactions = lazy(() =>
+  import("./pages/Admin/ListOfTransactions")
+);
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -106,8 +110,6 @@ function App() {
             <Route path="/api/meeting/callback" element={<ZoomCallback />} />
 
             <Route path="/create-meeting" element={<CreateMeeting />} />
-
-            <Route path="payment" element={<PaymentPage />} />
             <Route path="payment/success" element={<PaymentSuccess />} />
             <Route path="payment/failed" element={<PaymentFailed />} />
 
@@ -130,6 +132,11 @@ function App() {
               <Route path="hang-gia-su" element={<ListOfTutorLevel />} />
               <Route path="mon-hoc" element={<ListOfSubject />} />
               <Route path="giao-trinh" element={<ListOfCurriculumn />} />
+              <Route path="goi-thanh-toan" element={<ListOfValueConfigs />} />
+              <Route
+                path="nap-vi-nguoi-dung"
+                element={<ListOfTransactions />}
+              />
             </Route>
           </Routes>
         </PersistGate>

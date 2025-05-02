@@ -21,9 +21,22 @@
   --status-blocked-bg: #f8d7da;
   --status-blocked-text: #721c24;
   --status-blocked-border: #f5c6cb;
-  --status-request-bg: #fff3cd;
-  --status-request-text: #856404;
-  --status-request-border: #ffeeba;
+  --status-pending-bg: #fff3cd; /* Thêm Pending */
+  --status-pending-text: #856404;
+  --status-pending-border: #ffeeba;
+  --status-failed-bg: var(--status-blocked-bg); /* Dùng chung màu với blocked */
+  --status-failed-text: var(--status-blocked-text);
+  --status-failed-border: var(--status-blocked-border);
+  --status-inactive-bg: var(
+    --status-blocked-bg
+  ); /* Dùng chung màu với blocked */
+  --status-inactive-text: var(--status-blocked-text);
+  --status-inactive-border: var(--status-blocked-border);
+  --status-request-bg: var(
+    --status-pending-bg
+  ); /* Dùng chung màu với pending */
+  --status-request-text: var(--status-pending-text);
+  --status-request-border: var(--status-pending-border);
   --status-unknown-bg: #e9ecef;
   --status-unknown-text: #495057;
   --status-unknown-border: #dee2e6;
@@ -141,7 +154,13 @@
 }
 
 /* Input, Select, Textarea base styles */
-.form-detail-group input,
+.form-detail-group input[type="text"],
+.form-detail-group input[type="email"],
+.form-detail-group input[type="password"],
+.form-detail-group input[type="number"],
+.form-detail-group input[type="tel"],
+.form-detail-group input[type="date"],
+.form-detail-group input[type="url"],
 .form-detail-group select,
 .form-detail-group textarea {
   padding: 0.8rem 1rem;
@@ -253,50 +272,56 @@
   text-decoration: none !important;
 }
 
-/* Status Badges */
+/* Status Badges (Shared by Table and FormDetail View) */
+.status, /* Áp dụng cho cả class status chung */
 .form-detail-value .status {
   padding: 0.25em 0.7em;
   border-radius: 0.25rem;
   font-weight: bold;
   font-size: 0.85em;
-  display: inline-block; /* Để vừa với nội dung */
-  border: 1px solid transparent; /* Border để giữ kích thước ổn định */
-  line-height: 1.2; /* Căn chỉnh chữ tốt hơn */
+  display: inline-block;
+  border: 1px solid transparent;
+  line-height: 1.2;
   text-align: center;
+  white-space: nowrap; /* Tránh xuống dòng */
 }
-.form-detail-value .status-active {
+.status-active,
+.form-detail-value .status-active,
+.form-detail-value .status-accept {
+  /* Gộp accept */
   background-color: var(--status-active-bg);
   color: var(--status-active-text);
   border-color: var(--status-active-border);
 }
-.form-detail-value .status-blocked {
-  background-color: var(--status-blocked-bg);
-  color: var(--status-blocked-text);
+.status-blocked,
+.form-detail-value .status-blocked,
+.status-inactive, /* Thêm inactive */
+.form-detail-value .status-inactive,
+.status-failed, /* Thêm failed */
+.form-detail-value .status-failed,
+.status-refuse, /* Thêm refuse */
+.form-detail-value .status-refuse {
+  background-color: var(--status-blocked-bg); /* Dùng chung màu đỏ nhạt */
+  color: var(--status-blocked-text); /* Dùng chung màu đỏ đậm */
   border-color: var(--status-blocked-border);
 }
+.status-pending, /* Thêm pending */
+.form-detail-value .status-pending,
+.status-request, /* Thêm request */
 .form-detail-value .status-request {
-  background-color: var(--status-request-bg);
-  color: var(--status-request-text);
-  border-color: var(--status-request-border);
+  background-color: var(--status-pending-bg); /* Dùng màu vàng */
+  color: var(--status-pending-text);
+  border-color: var(--status-pending-border);
 }
+.status-unknown,
 .form-detail-value .status-unknown {
   background-color: var(--status-unknown-bg);
   color: var(--status-unknown-text);
   border-color: var(--status-unknown-border);
 }
-/* Thêm các trạng thái khác nếu cần */
-.form-detail-value .status-accept {
-  background-color: var(--status-active-bg);
-  color: var(--status-active-text);
-  border-color: var(--status-active-border);
-}
-.form-detail-value .status-refuse {
-  background-color: var(--status-blocked-bg);
-  color: var(--status-blocked-text);
-  border-color: var(--status-blocked-border);
-}
+.status-cancel, /* Thêm cancel */
 .form-detail-value .status-cancel {
-  background-color: var(--status-unknown-bg);
+  background-color: var(--status-unknown-bg); /* Dùng màu xám */
   color: var(--status-unknown-text);
   border-color: var(--status-unknown-border);
 }
@@ -308,7 +333,7 @@
   margin-top: 0.5rem;
 }
 
-/* Form actions (Save/Cancel) */
+/* Form actions (Save/Cancel) - Dùng cho nút submit/cancel của FormDetail VÀ các nút ở cuối modal custom */
 .form-detail-actions {
   display: flex;
   justify-content: flex-end; /* Căn phải */
@@ -317,6 +342,9 @@
   padding-top: 1.5rem; /* Khoảng cách trên */
   border-top: 1px solid var(--border-color); /* Đường kẻ phân cách */
   flex-shrink: 0; /* Không co lại */
+  padding-left: 1.5rem; /* Đảm bảo padding giống form-content */
+  padding-right: 1.5rem;
+  padding-bottom: 1rem; /* Thêm padding dưới */
 }
 
 /* Base button style for actions */
@@ -328,10 +356,13 @@
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease; /* Thêm opacity */
+  display: inline-flex; /* Để icon căn giữa với text */
+  align-items: center;
+  justify-content: center;
 }
-.form-detail-save-button:hover,
-.form-detail-cancel-button:hover {
+.form-detail-save-button:not(:disabled):hover,
+.form-detail-cancel-button:not(:disabled):hover {
   transform: translateY(-1px); /* Hiệu ứng nhấc lên nhẹ */
 }
 
@@ -339,7 +370,7 @@
   background-color: var(--success-color);
   color: #fff;
 }
-.form-detail-save-button:hover {
+.form-detail-save-button:not(:disabled):hover {
   background-color: var(--success-hover-color);
 }
 
@@ -347,66 +378,21 @@
   background-color: var(--cancel-color);
   color: #fff;
 }
-.form-detail-cancel-button:hover {
+.form-detail-cancel-button:not(:disabled):hover {
   background-color: var(--cancel-hover-color);
 }
 
-/* Modal Action Buttons Specific Styling (for Approve/Reject in ListOfRequestPage - reused style) */
-.modal-action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border-color);
-  background-color: #f8f9fa; /* Match header */
-  border-bottom-left-radius: 12px; /* Round bottom corners */
-  border-bottom-right-radius: 12px;
-  gap: 1rem;
-  flex-shrink: 0; /* Không co lại */
-}
-
-.modal-action-buttons .action-button {
-  padding: 0.7rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.modal-action-buttons .action-button:hover {
-  transform: translateY(-1px);
-}
-
-.modal-action-buttons .action-button.approve {
-  background-color: var(--success-color);
-  color: white;
-}
-.modal-action-buttons .action-button.approve:hover {
-  background-color: var(--success-hover-color);
-}
-.modal-action-buttons .action-button.reject,
-.modal-action-buttons .action-button.cancel {
-  background-color: var(--cancel-color);
-  color: white;
-}
-.modal-action-buttons .action-button.reject:hover,
-.modal-action-buttons .action-button.cancel:hover {
-  background-color: var(--cancel-hover-color);
-}
-.modal-action-buttons .action-button:disabled {
-  background-color: #adb5bd;
+/* Disabled state for action buttons */
+.form-detail-save-button:disabled,
+.form-detail-cancel-button:disabled {
+  opacity: 0.65;
   cursor: not-allowed;
   transform: none;
 }
 
 /* Approval Modal Specific Content (nếu dùng chung file CSS) */
-.approval-modal-content {
-  padding: 1.5rem;
-}
 .approval-modal-content h2 {
-  margin-top: 0;
+  /* margin-top: 0; */ /* Có thể bỏ nếu dùng header */
   margin-bottom: 1rem;
   font-size: 1.4rem;
   text-align: center;
@@ -419,7 +405,62 @@
 .approval-modal-content .form-detail-group {
   margin-bottom: 1rem;
 }
-/* Nút action trong approval modal có thể dùng chung .modal-action-buttons */
+
+/* --- Image Upload Area Styles (Thêm vào) --- */
+.image-upload-area {
+  margin-top: 5px;
+}
+
+.image-preview {
+  width: 150px; /* Kích thước preview */
+  height: 150px;
+  border: 1px dashed var(--border-color); /* Dùng biến màu viền */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa; /* Màu nền nhạt */
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px; /* Bo góc nhẹ */
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.image-preview .no-image-text {
+  color: #aaa;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.button-select-image {
+  background-color: #f0f0f0;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 8px 15px;
+  border-radius: 6px; /* Đồng bộ bo góc */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.9em;
+  display: inline-flex; /* Để icon căn với text */
+  align-items: center;
+  gap: 8px; /* Khoảng cách giữa icon và text */
+}
+
+.button-select-image:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #adb5bd; /* Đổi màu viền khi hover */
+}
+
+.button-select-image:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+/* --- Kết thúc Image Upload Area Styles --- */
 
 /* Responsive modal size classes */
 .modal.large .form-detail-container {
@@ -432,27 +473,33 @@
   max-width: 450px;
 }
 
-/* Thêm CSS cho trạng thái user (active/blocked) nếu chưa có */
-.status-active {
-  background-color: var(--status-active-bg) !important;
-  color: var(--status-active-text) !important;
-  border-color: var(--status-active-border) !important;
+/* Responsive cho form grid */
+@media (max-width: 768px) {
+  .form-detail-grid {
+    grid-template-columns: 1fr; /* 1 cột trên màn hình nhỏ */
+    gap: 0.8rem; /* Giảm khoảng cách */
+  }
+  .form-detail-header h2 {
+    font-size: 1.3rem;
+  }
+  .form-detail-actions {
+    justify-content: space-between; /* Hoặc center */
+  }
 }
-
-.status-blocked {
-  background-color: var(--status-blocked-bg) !important;
-  color: var(--status-blocked-text) !important;
-  border-color: var(--status-blocked-border) !important;
-}
-
-/* Đảm bảo .status trong table cũng dùng màu này */
-.custom-table .status {
-  padding: 0.25em 0.7em;
-  border-radius: 0.25rem;
-  font-weight: bold;
-  font-size: 0.85em;
-  display: inline-block;
-  border: 1px solid transparent;
-  line-height: 1.2;
-  text-align: center;
+@media (max-width: 576px) {
+  .form-content {
+    padding: 1rem;
+  }
+  .form-detail-header {
+    padding: 1rem;
+  }
+  .form-detail-actions {
+    padding: 1rem;
+    flex-direction: column; /* Nút xếp chồng */
+    gap: 0.5rem;
+  }
+  .form-detail-save-button,
+  .form-detail-cancel-button {
+    width: 100%; /* Nút chiếm hết chiều rộng */
+  }
 }

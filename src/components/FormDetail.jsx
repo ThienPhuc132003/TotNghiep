@@ -1,62 +1,57 @@
 // src/components/FormDetail.jsx
 import React from "react";
 import PropTypes from "prop-types";
-import "../assets/css/FormDetail.style.css"; // Ensure this CSS file is imported and updated
+import "../assets/css/FormDetail.style.css"; // Đảm bảo import CSS
 
 // Helper to safely access nested properties
-const getNestedValue = (obj, path) => {
-  if (!path || typeof path !== "string") return undefined;
-  // Handle cases where obj might be null/undefined at some point
-  return path.split(".").reduce((acc, part) => {
-    // Ensure acc is not null/undefined before accessing the next part
+const getNestedValue = (obj, path, defaultValue = undefined) => {
+  // Default về undefined để phân biệt rõ hơn
+  if (!obj || !path || typeof path !== "string") return defaultValue;
+  const value = path.split(".").reduce((acc, part) => {
     return acc && acc[part] !== undefined && acc[part] !== null
       ? acc[part]
       : undefined;
   }, obj);
+  // Chỉ trả về defaultValue nếu kết quả cuối cùng là undefined hoặc null
+  return value !== undefined && value !== null ? value : defaultValue;
 };
 
 const FormDetailComponent = ({
   formData,
   fields,
   mode,
-  onChange,
-  onSubmit,
+  onChange = () => {}, // Default trống
+  onSubmit = () => {}, // Default trống
   title,
   onClose,
-  errors,
-  avatarUrl, // Optional avatar URL prop
+  errors = {}, // Default trống
+  avatarUrl,
+  isSubmitting = false, // Default false
+  children, // <<< Prop children mới
 }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    // Handle checkbox input type
     const newValue = type === "checkbox" ? checked : value;
-    // Ensure onChange is callable before calling
-    if (typeof onChange === "function") {
-      onChange(name, newValue);
-    }
+    onChange(name, newValue); // Gọi onChange từ cha
   };
 
-  const handleSubmit = (e) => {
+  // Hàm xử lý submit của thẻ <form> nội bộ
+  const handleSubmitInternal = (e) => {
     e.preventDefault();
-    if (onSubmit && typeof onSubmit === "function") {
-      const submitData = {};
-      fields.forEach((field) => {
-        // Only include fields relevant to add/edit modes, or handle based on field config
-        if (!field.readOnly || mode !== "view") {
-          // Basic check
-          submitData[field.key] = field.getValue
-            ? field.getValue(formData[field.key])
-            : formData[field.key];
-        }
-      });
-      onSubmit(submitData);
+    // Chỉ gọi prop onSubmit nếu nó được truyền và không phải view mode
+    // Và chỉ khi KHÔNG có children (vì children sẽ chứa nút submit riêng)
+    if (typeof onSubmit === "function" && mode !== "view" && !children) {
+      onSubmit(formData);
     }
   };
 
   return (
+    // Container chính do FormDetail quản lý
     <div className="form-detail-container">
+      {/* Header */}
       <div className="form-detail-header">
         <h2>{title}</h2>
+        {/* Nút đóng luôn có */}
         <button
           className="form-detail-close-button"
           onClick={onClose}
@@ -65,7 +60,7 @@ const FormDetailComponent = ({
           ×
         </button>
       </div>
-      {/* Conditional Avatar Rendering */}
+      {/* Avatar (nếu có) */}
       {avatarUrl && (
         <div className="form-detail-avatar-container">
           <img
@@ -75,62 +70,91 @@ const FormDetailComponent = ({
           />
         </div>
       )}
-      {/* Scrollable Content Area */}
-      <div className="form-content">
-        <form onSubmit={handleSubmit}>
+      {/* Thẻ Form bao quanh nội dung chính */}
+      <form onSubmit={handleSubmitInternal} className="form-content-wrapper">
+        {/* Khu vực nội dung có thể cuộn */}
+        <div className="form-content">
+          {/* Lưới chứa các field */}
           <div className="form-detail-grid">
             {fields.map((field) => {
-              // Determine if the field should be non-editable based on mode or field.readOnly
               const isReadOnly = mode === "view" || field.readOnly;
-              // Get the current value, handling nested keys safely
-              const currentValue = getNestedValue(formData, field.key);
+              // Lấy giá trị, dùng '' làm default cho input/select/textarea
+              const currentValue = getNestedValue(formData, field.key, "");
+              const fieldError = getNestedValue(errors, field.key); // Lấy lỗi tương ứng
+
+              // Bỏ qua field nếu nó chỉ dành cho view và đang ở mode add/edit
+              if (!isReadOnly && field.renderValue && mode !== "view") {
+                // Ví dụ: field 'status' chỉ có renderValue, không nên hiện input khi edit
+                // Điều chỉnh logic này nếu cần field vừa có input vừa có renderValue phức tạp
+                if (
+                  field.type !== "select" &&
+                  field.type !== "textarea" &&
+                  field.type !== "checkbox" &&
+                  field.type !== "date" &&
+                  field.type !== "number" &&
+                  field.type !== "email" &&
+                  field.type !== "password" &&
+                  field.type !== "tel" &&
+                  field.type !== "url"
+                ) {
+                  // Nếu không phải các loại input cơ bản và có renderValue -> khả năng cao là chỉ để view
+                  return null;
+                }
+              }
 
               return (
                 <div className="form-detail-group" key={field.key}>
                   <label htmlFor={field.key}>
                     {field.label}
+                    {/* Chỉ hiện dấu * khi required và không phải view mode */}
                     {field.required && mode !== "view" && (
                       <span className="required-asterisk">*</span>
                     )}
                   </label>
-                  {isReadOnly && field.renderValue ? (
-                    // Use renderValue for custom display in view mode
-                    <div className="form-detail-value">
-                      {/* Pass currentValue and full formData */}
-                      {field.renderValue(currentValue, formData)}
-                    </div>
-                  ) : isReadOnly ? (
-                    // Default display for read-only fields without renderValue
-                    <div className="form-detail-non-editable">
-                      {/* Handle boolean, null/undefined/empty specifically */}
-                      {typeof currentValue === "boolean"
-                        ? currentValue
-                          ? "Có"
-                          : "Không"
-                        : currentValue !== null &&
-                          currentValue !== undefined &&
-                          currentValue !== ""
-                        ? currentValue
-                        : "Không có"}
-                    </div>
+                  {/* Render dựa trên mode và type */}
+                  {isReadOnly ? (
+                    // Chế độ View hoặc field ReadOnly
+                    field.renderValue ? (
+                      <div className="form-detail-value">
+                        {field.renderValue(
+                          getNestedValue(formData, field.key),
+                          formData
+                        )}{" "}
+                        {/* Truyền giá trị gốc và cả formData */}
+                      </div>
+                    ) : (
+                      <div className="form-detail-non-editable">
+                        {typeof currentValue === "boolean" ? (
+                          currentValue ? (
+                            "Có"
+                          ) : (
+                            "Không"
+                          )
+                        ) : currentValue !== "" ? (
+                          currentValue
+                        ) : (
+                          <em style={{ color: "#888" }}>Không có</em>
+                        )}
+                      </div>
+                    )
                   ) : field.type === "select" ? (
-                    // Editable Select
+                    // Select
                     <select
                       id={field.key}
                       name={field.key}
-                      value={currentValue || ""} // Use controlled value
+                      value={currentValue}
                       onChange={handleChange}
-                      disabled={field.disabled} // Optional disabled prop per field
+                      disabled={field.disabled || isSubmitting}
                       required={field.required}
-                      className={
-                        errors && errors[field.key] ? "input-error" : ""
-                      } // Add error class if needed
+                      className={fieldError ? "input-error" : ""}
                     >
-                      {/* Add placeholder option */}
-                      <option value="" disabled={field.required}>
-                        {field.placeholder ||
-                          `-- Chọn ${field.label.toLowerCase()} --`}
-                      </option>
+                      {field.placeholder !== false && (
+                        <option value="" disabled={field.required}>
+                          {" "}
+                          {field.placeholder ||
+                            `-- Chọn ${field.label.toLowerCase()} --`}{" "}
+                        </option>
+                      )}
                       {field.options?.map((option) => (
                         <option key={option.value} value={option.value}>
                           {" "}
@@ -139,85 +163,92 @@ const FormDetailComponent = ({
                       ))}
                     </select>
                   ) : field.type === "textarea" ? (
-                    // Editable Textarea
+                    // Textarea
                     <textarea
                       id={field.key}
                       name={field.key}
-                      value={currentValue || ""}
+                      value={currentValue}
                       onChange={handleChange}
                       rows={field.rows || 4}
-                      disabled={field.disabled}
+                      disabled={field.disabled || isSubmitting}
                       required={field.required}
                       placeholder={
                         field.placeholder ||
                         `Nhập ${field.label.toLowerCase()}...`
                       }
-                      className={
-                        errors && errors[field.key] ? "input-error" : ""
-                      }
+                      className={fieldError ? "input-error" : ""}
                     />
                   ) : field.type === "checkbox" ? (
-                    // Editable Checkbox
+                    // Checkbox
                     <input
                       id={field.key}
                       name={field.key}
                       type="checkbox"
-                      checked={!!currentValue} // Ensure boolean value
+                      checked={!!currentValue}
                       onChange={handleChange}
-                      disabled={field.disabled}
+                      disabled={field.disabled || isSubmitting}
                       className="form-detail-checkbox"
                     />
                   ) : (
-                    // Default Editable Input
+                    // Input mặc định (text, number, date, email, password,...)
                     <input
                       id={field.key}
                       type={field.type || "text"}
                       name={field.key}
-                      value={currentValue || ""}
+                      value={currentValue}
                       onChange={handleChange}
-                      disabled={field.disabled}
+                      disabled={field.disabled || isSubmitting}
                       required={field.required}
                       placeholder={
                         field.placeholder ||
                         `Nhập ${field.label.toLowerCase()}...`
                       }
-                      className={
-                        errors && errors[field.key] ? "input-error" : ""
-                      }
+                      className={fieldError ? "input-error" : ""}
                       pattern={field.pattern}
                       min={field.min}
                       max={field.max}
                     />
                   )}
-                  {errors && errors[field.key] && (
-                    <p className="form-detail-error-message">
-                      {errors[field.key]}
-                    </p>
+                  {/* Hiển thị lỗi */}
+                  {fieldError && (
+                    <p className="form-detail-error-message">{fieldError}</p>
                   )}
                 </div>
               );
             })}
+          </div>{" "}
+          {/* Kết thúc form-detail-grid */}
+          {/* ****** RENDER CHILDREN ****** */}
+          {/* Render các phần tử con được truyền từ component cha */}
+          {children}
+          {/* ****** KẾT THÚC RENDER CHILDREN ****** */}
+        </div>{" "}
+        {/* Kết thúc form-content */}
+        {/* Actions Mặc định của FormDetail */}
+        {/* Chỉ hiển thị khi không phải view mode VÀ không có children được truyền vào */}
+        {mode !== "view" && !children && (
+          <div className="form-detail-actions">
+            <button
+              type="button"
+              className="form-detail-cancel-button"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Hủy
+            </button>
+            {/* Nút submit mặc định sẽ trigger handleSubmitInternal */}
+            <button
+              type="submit"
+              className="form-detail-save-button"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Đang lưu..." : "Lưu"}
+            </button>
           </div>
-
-          {/* Actions only shown if not in view mode */}
-          {mode !== "view" && (
-            <div className="form-detail-actions">
-              <button
-                type="button"
-                className="form-detail-cancel-button"
-                onClick={onClose}
-              >
-                Hủy
-              </button>
-              <button type="submit" className="form-detail-save-button">
-                Lưu
-              </button>
-            </div>
-          )}
-        </form>
-      </div>{" "}
-      {/* End of form-content */}
-    </div> // End of form-detail-container
+        )}
+      </form>{" "}
+      {/* Kết thúc thẻ form */}
+    </div> // Kết thúc form-detail-container
   );
 };
 
@@ -227,19 +258,18 @@ FormDetailComponent.propTypes = {
     PropTypes.shape({
       key: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
-      type: PropTypes.string, // text, select, textarea, checkbox, date, number etc.
+      type: PropTypes.string,
       options: PropTypes.arrayOf(
         PropTypes.shape({
           label: PropTypes.string.isRequired,
           value: PropTypes.any.isRequired,
         })
       ),
-      readOnly: PropTypes.bool, // Field specific readOnly (overrides mode='edit')
-      disabled: PropTypes.bool, // Field specific disable
+      readOnly: PropTypes.bool,
+      disabled: PropTypes.bool,
       required: PropTypes.bool,
-      getValue: PropTypes.func, // For complex value extraction before submit
-      renderValue: PropTypes.func, // For custom rendering in view mode (receives value, fullFormData)
-      rows: PropTypes.number, // For textarea
+      renderValue: PropTypes.func, // (value, fullFormData) => ReactNode
+      rows: PropTypes.number,
       placeholder: PropTypes.string,
       pattern: PropTypes.string,
       min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -247,20 +277,23 @@ FormDetailComponent.propTypes = {
     })
   ).isRequired,
   mode: PropTypes.oneOf(["add", "edit", "view"]).isRequired,
-  onChange: PropTypes.func, // Optional for view mode
-  onSubmit: PropTypes.func, // Optional for view mode
+  onChange: PropTypes.func,
+  onSubmit: PropTypes.func, // onSubmit của form (khi dùng nút mặc định)
   title: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   errors: PropTypes.object,
-  avatarUrl: PropTypes.string, // Optional avatar URL prop
+  avatarUrl: PropTypes.string,
+  isSubmitting: PropTypes.bool, // Trạng thái loading cho nút submit mặc định
+  children: PropTypes.node, // <<< Prop children mới
 };
 
-// Default props
 FormDetailComponent.defaultProps = {
   onChange: () => {},
   onSubmit: () => {},
   errors: {},
   avatarUrl: null,
+  isSubmitting: false,
+  children: null, // <<< Default là null
 };
 
 export default React.memo(FormDetailComponent);

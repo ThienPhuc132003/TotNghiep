@@ -1,12 +1,12 @@
-/* General Wallet Page Styles */
+/* === General Wallet Page Styles === */
 .wallet-page-wrapper {
   padding: 20px;
-  background-color: #f4f7f6; /* Light background for the whole page */
-  min-height: calc(100vh - 60px); /* Adjust based on header height */
+  background-color: #f4f7f6;
+  min-height: calc(100vh - 60px);
 }
 
 .wallet-container {
-  max-width: 900px; /* Max width for content */
+  max-width: 900px;
   margin: 0 auto;
   background-color: #fff;
   padding: 25px 30px;
@@ -26,10 +26,10 @@
 }
 
 .wallet-container h1 .svg-inline--fa {
-  color: #f39c12; /* Coin icon color */
+  color: #f39c12;
 }
 
-/* Section Styling */
+/* === Section Styling === */
 .section {
   margin-bottom: 30px;
   padding-bottom: 25px;
@@ -46,17 +46,13 @@
   align-items: center;
   gap: 8px;
   font-size: 1.4em;
-  color: #b41e2d; /* Accent color for section headers */
+  color: #b41e2d;
   margin-bottom: 20px;
 }
 
-/* Wallet Balance Section */
+/* === Wallet Balance Section === */
 .wallet-balance-section .balance-card {
-  background: linear-gradient(
-    135deg,
-    #b41e2d 0%,
-    #e74c3c 100%
-  ); /* Gradient background */
+  background: linear-gradient(135deg, #b41e2d 0%, #e74c3c 100%);
   color: #fff;
   padding: 25px 30px;
   border-radius: 10px;
@@ -88,13 +84,7 @@
   line-height: 1.2;
 }
 
-.wallet-balance-section .balance-vnd-equivalent {
-  font-size: 0.9em;
-  opacity: 0.8;
-  margin-top: 5px;
-}
-
-/* Wallet TopUp Section */
+/* === Wallet TopUp Section === */
 .topup-form .form-group {
   margin-bottom: 20px;
 }
@@ -129,75 +119,120 @@
   margin-right: 8px;
 }
 
-/* Package Selection Styles */
+/* Package Selection Styles (Layout mới - Bỏ container ảnh) */
 .package-selection-group label {
   font-size: 1.1em;
   color: #333;
 }
 
+/* Grid container */
 .package-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
   margin-top: 10px;
 }
 
-.package-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 15px 10px;
-  border: 2px solid #ddd;
+/* Card gói nạp */
+.package-card {
+  border: 2px solid #e0e0e0;
   border-radius: 8px;
   background-color: #fff;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-align: center;
-  min-height: 110px;
-  position: relative;
+  overflow: hidden; /* Vẫn giữ để bo góc hoạt động đúng */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.package-button:hover {
+.package-card:hover:not(.disabled) {
   border-color: #b41e2d;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
 }
 
-.package-button.active {
+.package-card.active {
   border-color: #b41e2d;
-  background-color: #fdf0f1;
-  box-shadow: 0 2px 5px rgba(180, 30, 45, 0.2);
+  background-color: #fdf0f1; /* Màu nền khi active */
+  box-shadow: 0 4px 10px rgba(180, 30, 45, 0.2);
+}
+.package-card.active .package-content {
+  background-color: transparent; /* Đảm bảo content trong suốt khi card active */
 }
 
-.package-button:disabled {
-  background-color: #e9ecef;
+.package-card.disabled {
   cursor: not-allowed;
-  opacity: 0.7;
-  transform: none;
-  box-shadow: none;
+  opacity: 0.6;
+  background-color: #f8f9fa;
 }
 
-.package-coins {
-  font-size: 1.3em;
-  font-weight: bold;
-  color: #b41e2d;
-  margin-bottom: 5px;
+/* Style cho ảnh (Render trực tiếp) - Có thể bỏ class nếu dùng inline style hoàn toàn */
+.package-image-direct {
+  /* Các style chính đặt inline trong JSX để test */
+  /* display: block; */
+  /* width: 100%; */
+  /* height: 150px; */
+  /* object-fit: cover; */
+  /* border-bottom: 1px solid #eee; */
+  transition: transform 0.3s ease; /* Giữ lại hiệu ứng hover nếu muốn */
+}
+.package-card:hover:not(.disabled) .package-image-direct {
+  transform: scale(1.05);
+}
+
+/* Style cho placeholder (Render trực tiếp) */
+.package-image-placeholder {
+  width: 100%;
+  /* height: 150px; */ /* Đặt chiều cao ở inline style để test */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #6c757d;
+  font-size: 0.9em;
+  text-align: center;
+  padding: 10px;
+  background-color: #f0f2f5;
+  border-bottom: 1px solid #eee; /* Thêm đường kẻ dưới placeholder */
+}
+.package-image-placeholder .svg-inline--fa {
+  font-size: 2.5em;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+/* Style cho nội dung dưới ảnh/placeholder */
+.package-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-grow: 1;
+  background-color: inherit; /* Kế thừa nền từ card */
+  /* Không cần border-top nữa */
+}
+
+.package-name {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.3;
 }
 
 .package-price {
-  font-size: 1.1em;
-  color: #28a745;
-  font-weight: 500;
-  margin-bottom: 8px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 5px;
 }
 
-.package-description {
+/* Input Error Message */
+.input-error-message {
+  color: #dc3545;
   font-size: 0.85em;
-  color: #555;
   margin-top: 5px;
-  line-height: 1.3;
-  max-width: 90%; /* Prevent text overflow */
 }
 
 /* Payment Method Display */
@@ -209,63 +244,42 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
 }
-
+/* ... styles còn lại cho payment ... */
 .payment-method-display label {
   margin-bottom: 10px;
 }
-
 .payment-option-static {
   display: flex;
   align-items: center;
-  flex-wrap: wrap; /* Allow note to wrap */
+  flex-wrap: wrap;
   gap: 10px;
   font-size: 1.1em;
 }
-.payment-option-static .svg-inline--fa {
-  /* Style cho icon nếu dùng FontAwesome */
-  color: #007bff; /* Hoặc màu khác */
-  font-size: 1.5em;
+.payment-option-static img {
+  max-height: 24px;
+  vertical-align: middle;
+  margin-right: 8px;
   flex-shrink: 0;
 }
-/* --- Bổ sung: Style cho logo VNPAY nếu dùng thẻ <img> --- */
-.payment-option-static img {
-  max-height: 24px; /* Giới hạn chiều cao logo */
-  vertical-align: middle; /* Căn giữa với text */
-  margin-right: 8px; /* Khoảng cách với text */
-  flex-shrink: 0; /* Ngăn logo bị co lại */
-}
-/* --- End Bổ sung --- */
-
 .payment-option-static span {
   font-weight: 500;
   flex-shrink: 0;
 }
-
 .payment-note {
   font-size: 0.9em;
   color: #6c757d;
   margin-top: 5px;
-  flex-basis: 100%; /* Make note take full width */
-  /* Điều chỉnh padding-left nếu cần căn lề với logo/icon */
-  /* Ví dụ: Nếu logo/icon + gap là 34px */
+  flex-basis: 100%;
   padding-left: 34px;
-  /* Hoặc tính toán dựa trên kích thước thực tế */
-}
-
-/* Input Error Message (Dùng cho lỗi chọn gói) */
-.input-error-message {
-  color: #dc3545; /* Bootstrap danger color */
-  font-size: 0.85em;
-  margin-top: 5px;
 }
 
 /* Submit Button */
 .topup-submit-button {
-  display: inline-flex; /* Use flex for icon alignment */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #b41e2d; /* Primary button color */
+  background-color: #b41e2d;
   color: #fff;
   border: none;
   padding: 12px 25px;
@@ -274,31 +288,28 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 100%; /* Make button full width */
-  margin-top: 10px;
+  width: 100%;
+  margin-top: 20px;
 }
-
 .topup-submit-button:hover:not(:disabled) {
-  background-color: #931824; /* Darker shade on hover */
+  background-color: #931824;
 }
-
 .topup-submit-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-/* Wallet History Section */
+/* === Wallet History Section === */
 .transaction-list-container {
-  overflow-x: auto; /* Allow horizontal scrolling on small screens */
+  overflow-x: auto;
   margin-top: 15px;
 }
-
 .transaction-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95em;
 }
-
+/* ... styles còn lại cho history table ... */
 .transaction-table th,
 .transaction-table td {
   padding: 12px 10px;
@@ -306,115 +317,91 @@
   border-bottom: 1px solid #eee;
   vertical-align: middle;
 }
-
 .transaction-table th {
   background-color: #f8f9fa;
   font-weight: bold;
   color: #555;
   white-space: nowrap;
 }
-
 .transaction-table tbody tr:hover {
-  background-color: #fdf0f1; /* Light accent on hover */
+  background-color: #fdf0f1;
 }
-
 .transaction-table .type-col {
   display: flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
 }
-
 .transaction-table .type-col .svg-inline--fa {
   font-size: 1.2em;
 }
-
 .transaction-table .icon-credit {
   color: #28a745;
-} /* Green for credit */
+}
 .transaction-table .icon-debit {
   color: #dc3545;
-} /* Red for debit */
+}
 .transaction-table .icon-neutral {
   color: #6c757d;
-} /* Gray for other */
-
+}
 .transaction-table .amount-col {
   text-align: right;
   font-weight: bold;
   white-space: nowrap;
 }
-
 .transaction-table .amount-col.positive {
   color: #28a745;
 }
 .transaction-table .amount-col.negative {
   color: #dc3545;
 }
-
 .transaction-table .status-col {
-  /* Class cho thẻ <th> hoặc <td> chứa span status */
   white-space: nowrap;
-  /* text-align: center; /* Căn giữa text trạng thái? Xem xét .status-cell */
 }
 .transaction-table .status-cell {
-  /* Class cho thẻ <td> chứa span status */
-  text-align: center; /* Center the span within the cell */
+  text-align: center;
 }
-
-/* Status Badge Styles (Span bên trong .status-cell) */
-.status-col {
-  /* Class cho chính thẻ span hiển thị trạng thái */
+.status-badge {
   display: inline-block;
   padding: 4px 10px;
-  border-radius: 12px; /* Pill shape */
+  border-radius: 12px;
   font-size: 0.85em;
   font-weight: bold;
-  text-transform: lowercase; /* Chuyển về chữ thường để class dễ khớp */
+  text-transform: lowercase;
 }
-/* Style theo class được tạo động từ status (ví dụ: status-hoan-thanh) */
-.status-col.status-hoan-thanh,
-.status-col.status-completed,
-.status-col.status-success {
-  /* Thêm các biến thể nếu API trả về khác */
-  background-color: #d4edda; /* Light green */
-  color: #155724; /* Dark green */
+.status-badge.status-hoan-thanh,
+.status-badge.status-completed,
+.status-badge.status-success {
+  background-color: #d4edda;
+  color: #155724;
 }
-
-.status-col.status-dang-xu-ly,
-.status-col.status-pending,
-.status-col.status-processing,
-.status-col.status-waiting-for-payment, /* Có thể có trạng thái này */
-.status-col.status-waiting {
-  background-color: #fff3cd; /* Light yellow */
-  color: #856404; /* Dark yellow */
+.status-badge.status-dang-xu-ly,
+.status-badge.status-pending,
+.status-badge.status-processing,
+.status-badge.status-waiting-for-payment,
+.status-badge.status-waiting {
+  background-color: #fff3cd;
+  color: #856404;
 }
-
-.status-col.status-that-bai,
-.status-col.status-failed,
-.status-col.status-cancelled,
-.status-col.status-error,
-.status-col.status-expired {
-  /* Có thể có trạng thái này */
-  background-color: #f8d7da; /* Light red */
-  color: #721c24; /* Dark red */
+.status-badge.status-that-bai,
+.status-badge.status-failed,
+.status-badge.status-cancelled,
+.status-badge.status-error,
+.status-badge.status-expired,
+.status-badge.status-unknown {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
-/* Alert styles (Dùng cho thông báo lỗi chung) */
+/* === Alert styles === */
 .alert {
   padding: 15px;
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
   display: flex;
-  align-items: center; /* Căn icon và text theo chiều dọc */
-  gap: 10px; /* Khoảng cách giữa icon và text */
-}
-.alert-success {
-  /* Giữ lại nếu có lúc cần thông báo thành công khác */
-  color: #155724;
-  background-color: #d4edda;
-  border-color: #c3e6cb;
+  align-items: center;
+  gap: 10px;
 }
 .alert-danger {
   color: #721c24;
@@ -422,11 +409,11 @@
   border-color: #f5c6cb;
 }
 .global-alert {
-  margin-top: 15px; /* Khoảng cách với phần tử bên trên */
-  margin-bottom: 20px; /* Khoảng cách với phần tử bên dưới */
+  margin-top: 15px;
+  margin-bottom: 20px;
 }
 
-/* Responsive adjustments */
+/* === Responsive adjustments === */
 @media (max-width: 768px) {
   .wallet-container {
     padding: 20px 15px;
@@ -449,61 +436,60 @@
   .wallet-balance-section .balance-amount {
     font-size: 1.8em;
   }
-
   .package-options {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
   }
-  .package-button {
-    padding: 12px 8px;
-    min-height: 100px;
+  .package-content {
+    padding: 12px;
   }
-  .package-coins {
-    font-size: 1.2em;
+  .package-name {
+    font-size: 1em;
+    margin-bottom: 6px;
   }
   .package-price {
-    font-size: 1em;
+    font-size: 1.1em;
   }
-
   .transaction-table th,
   .transaction-table td {
     padding: 10px 8px;
-    font-size: 0.9em; /* Slightly smaller font on mobile */
+    font-size: 0.9em;
   }
-  /* Cân nhắc việc ẩn cột ít quan trọng trên tablet nếu cần */
-  /* .transaction-table .details-col { display: none; } */
+  .payment-note {
+    padding-left: 0;
+  }
 }
 
 @media (max-width: 480px) {
   .package-options {
-    grid-template-columns: 1fr; /* Stack packages vertically */
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
-
-  /* Responsive Table: Ẩn bớt thông tin hoặc thay đổi layout */
+  .package-content {
+    padding: 10px;
+  }
+  .package-name {
+    font-size: 0.95em;
+    margin-bottom: 4px;
+  }
+  .package-price {
+    font-size: 1em;
+  }
   .transaction-table {
-    font-size: 0.85em; /* Font nhỏ hơn nữa */
-  }
-  .transaction-table .type-col span {
-    /* display: none; */ /* Cân nhắc kỹ việc ẩn text loại GD */
+    font-size: 0.85em;
   }
   .transaction-table .details-col {
-    display: none; /* Ẩn cột Chi tiết trên màn hình rất nhỏ */
+    display: none;
   }
   .transaction-table th,
   .transaction-table td {
-    padding: 8px 5px; /* Giảm padding */
+    padding: 8px 5px;
   }
   .payment-option-static {
-    font-size: 1em; /* Giảm font cho phần thanh toán */
+    font-size: 1em;
   }
   .payment-note {
     font-size: 0.85em;
-    padding-left: 0; /* Có thể bỏ padding nếu icon/logo bị ẩn hoặc thu nhỏ */
   }
 }
-
-/* --- Có thể thêm CSS cho Modal Thông tin Chuyển khoản (Nếu dùng lại) --- */
-/* .bank-info-modal { ... } */
-/* .bank-info-content { ... } */
-/* .info-item { ... } */
-/* .copy-button { ... } */
+/* --- */

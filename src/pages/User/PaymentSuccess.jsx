@@ -98,7 +98,7 @@ const PaymentSuccess = () => {
                             {amount && <p><strong>Số tiền:</strong> {formatCurrency(parseInt(amount) / 100)}</p>}
                         </div> */}
 
-            <div className="action-buttons">
+            <div className="action-buttons-payment-result">
               <Link to="/vi-cua-toi" className="btn btn-primary">
                 Xem Ví Coin
               </Link>

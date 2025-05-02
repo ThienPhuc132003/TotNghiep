@@ -5,7 +5,7 @@ import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
-import Api from "../../network/Api"; // Đường dẫn đến Api.js
+import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { format, parseISO, isValid } from "date-fns"; // Import date-fns
+import { format, parseISO, isValid } from "date-fns";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
@@ -38,9 +38,15 @@ const formatDate = (dateString, formatString = "dd/MM/yyyy") => {
     const date = parseISO(dateString);
     return isValid(date) ? format(date, formatString) : "Ngày không hợp lệ";
   } catch (e) {
-    // console.error("Error formatting date:", e); // Tắt log lỗi này nếu không cần thiết
     return "Lỗi ngày";
   }
+};
+
+// Helper lấy giá trị lồng nhau an toàn
+const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
+  const value = path.split(".").reduce((acc, part) => acc && acc[part], obj);
+  // Kiểm tra cả null và undefined
+  return value !== undefined && value !== null ? value : defaultValue;
 };
 
 const ListOfAdminPage = () => {
@@ -68,18 +74,21 @@ const ListOfAdminPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState(""); // State cho thông báo xóa
   const [error, setError] = useState(null);
   const currentPath = "/nhan-vien";
 
-  // --- Columns Definition (Định nghĩa TRƯỚC fetchData) ---
+  // --- Columns Definition ---
   const columns = useMemo(
     () => [
       { title: "Mã NV", dataKey: "adminId", sortable: true },
       {
         title: t("admin.name"),
         dataKey: "adminProfile.fullname",
+        sortKey: "adminProfile.fullname",
         sortable: true,
-        renderCell: (v) => v || "...",
+        renderCell: (_, row) =>
+          getSafeNestedValue(row, "adminProfile.fullname", "..."),
       },
       {
         title: t("admin.role"),
@@ -123,16 +132,13 @@ const ListOfAdminPage = () => {
     setCurrentPage(0);
   };
 
-  // --- Fetch Data (Tạo danh sách filter LIKE riêng lẻ) ---
+  // --- Fetch Data ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      // --- Xây dựng Filter ---
       const finalFilterConditions = [];
-      const keysWithDedicatedFilters = ["roleId", "status"];
 
-      // 1. Thêm các điều kiện lọc riêng trước (AND logic)
       if (selectedRoleFilter) {
         finalFilterConditions.push({
           key: "roleId",
@@ -147,40 +153,14 @@ const ListOfAdminPage = () => {
           value: selectedStatusFilter,
         });
       }
-
-      // 2. Xử lý tìm kiếm chung (Thêm các điều kiện LIKE riêng lẻ - Backend có thể hiểu là AND)
       if (searchQuery) {
-        const searchableDataKeys = columns
-          .map((col) => col.dataKey)
-          .filter(
-            (key) =>
-              key &&
-              !keysWithDedicatedFilters.includes(key) &&
-              key !== "createdAt"
-          ); // Loại bỏ cả createdAt khỏi search LIKE
-
-        searchableDataKeys.forEach((key) => {
-          finalFilterConditions.push({
-            key: key,
-            operator: "like",
-            value: searchQuery,
-          });
+        finalFilterConditions.push({
+          key: "adminId,adminProfile.fullname,phoneNumber,email",
+          operator: "like",
+          value: searchQuery,
         });
-        console.warn(
-          "Backend might interpret multiple 'like' filters as AND, not OR."
-        );
-        console.log(
-          "Generated individual LIKE filters:",
-          searchableDataKeys.map((key) => ({
-            key,
-            operator: "like",
-            value: searchQuery,
-          }))
-        );
       }
-      // --- Kết thúc xây dựng Filter ---
 
-      // --- Chuẩn bị Query Object ---
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
@@ -192,19 +172,12 @@ const ListOfAdminPage = () => {
         ]),
       };
 
-      console.log("--- Preparing to call API ---");
-      console.log("Query Object (to be stringified by Api.js):", query);
-      console.log("------------------------------");
-
-      // Gọi Api (Giả định trả về payload data)
       const responsePayload = await Api({
         endpoint: `admin/search`,
         method: METHOD_TYPE.GET,
         query: query,
       });
-      console.log("API Response Payload (Processed):", responsePayload);
 
-      // Xử lý responsePayload
       if (responsePayload && responsePayload.success) {
         const responseInnerData = responsePayload.data;
         if (
@@ -238,6 +211,7 @@ const ListOfAdminPage = () => {
       setData([]);
       setTotalItems(0);
       setPageCount(1);
+      toast.error(error.message || "Tải danh sách nhân viên thất bại!");
     } finally {
       setIsLoading(false);
     }
@@ -249,7 +223,6 @@ const ListOfAdminPage = () => {
     selectedRoleFilter,
     selectedStatusFilter,
     t,
-    columns, // Thêm columns dependency
   ]);
 
   useEffect(() => {
@@ -258,8 +231,11 @@ const ListOfAdminPage = () => {
 
   // --- Handlers ---
   const handlePageClick = (event) => {
-    setCurrentPage(event.selected);
+    if (typeof event.selected === "number") {
+      setCurrentPage(event.selected);
+    }
   };
+
   const handleSort = (sortKey) => {
     setSortConfig((prev) => ({
       key: sortKey,
@@ -268,30 +244,37 @@ const ListOfAdminPage = () => {
     }));
     setCurrentPage(0);
   };
+
   const handleItemsPerPageChange = (newPageSize) => {
     setItemsPerPage(newPageSize);
     setCurrentPage(0);
   };
+
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
   };
+
   const handleApplyFiltersAndSearch = () => {
     setCurrentPage(0);
     setSearchQuery(searchInput);
   };
+
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
       handleApplyFiltersAndSearch();
     }
   };
+
   const handleRoleFilterChange = (event) => {
     setCurrentPage(0);
     setSelectedRoleFilter(event.target.value);
   };
+
   const handleStatusFilterChange = (event) => {
     setCurrentPage(0);
     setSelectedStatusFilter(event.target.value);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setTimeout(() => {
@@ -306,54 +289,41 @@ const ListOfAdminPage = () => {
     const fieldsToValidate = mode === "add" ? addFields : editFields;
     fieldsToValidate.forEach((f) => {
       if (f.readOnly && mode === "edit") return;
+      const value = getSafeNestedValue(formData, f.key, null);
+      const isPasswordEdit =
+        mode === "edit" &&
+        (f.key === "password" || f.key === "confirmPassword");
+
       if (
         f.required !== false &&
-        !formData[f.key] &&
-        !(
-          mode === "edit" &&
-          (f.key === "password" || f.key === "confirmPassword")
-        )
+        !isPasswordEdit &&
+        (value === null || String(value).trim() === "")
       ) {
         errors[f.key] = `Vui lòng nhập ${f.label.toLowerCase()}.`;
       }
     });
-    if (!formData.fullname) {
+
+    if (!formData.fullname?.trim())
       errors.fullname = "Vui lòng nhập họ và tên.";
-    }
-    if (mode === "add" && !formData.birthday) {
+    if (mode === "add" && !formData.birthday)
       errors.birthday = "Vui lòng chọn ngày sinh.";
-    }
-    if (!formData.email) {
-      errors.email = "Vui lòng nhập email.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.email?.trim()) errors.email = "Vui lòng nhập email.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       errors.email = "Email không hợp lệ.";
+    if (mode === "add") {
+      if (!formData.password) errors.password = "Vui lòng nhập mật khẩu.";
+      else if (formData.password.length < 6)
+        errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+      if (!formData.confirmPassword)
+        errors.confirmPassword = "Vui lòng xác nhận mật khẩu.";
+      else if (formData.password !== formData.confirmPassword)
+        errors.confirmPassword = "Mật khẩu không khớp.";
     }
-    if (mode === "add" && !formData.password) {
-      errors.password = "Vui lòng nhập mật khẩu.";
-    } else if (
-      mode === "add" &&
-      formData.password &&
-      formData.password.length < 6
-    ) {
-      errors.password = "Mật khẩu > 6 ký tự.";
-    }
-    if (mode === "add" && !formData.confirmPassword) {
-      errors.confirmPassword = "Vui lòng xác nhận mật khẩu.";
-    } else if (
-      mode === "add" &&
-      formData.password !== formData.confirmPassword
-    ) {
-      errors.confirmPassword = "Mật khẩu không khớp.";
-    }
-    if (!formData.homeAddress) {
+    if (!formData.homeAddress?.trim())
       errors.homeAddress = "Vui lòng nhập địa chỉ.";
-    }
-    if (!formData.gender) {
-      errors.gender = "Vui lòng chọn giới tính.";
-    }
-    if (!formData.roleId) {
-      errors.roleId = "Vui lòng chọn vai trò.";
-    }
+    if (!formData.gender) errors.gender = "Vui lòng chọn giới tính.";
+    if (!formData.roleId) errors.roleId = "Vui lòng chọn vai trò.";
+
     return errors;
   };
 
@@ -361,7 +331,7 @@ const ListOfAdminPage = () => {
     const errors = validateAdminForm(formData, "add");
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      toast.warn("Kiểm tra lại thông tin.");
+      toast.warn("Vui lòng kiểm tra lại thông tin nhập.");
       return;
     }
     setFormErrors({});
@@ -373,18 +343,24 @@ const ListOfAdminPage = () => {
         data: formData,
       });
       if (responsePayload.success) {
-        toast.success("Thêm thành công");
+        toast.success("Thêm nhân viên thành công!");
         setSortConfig({ key: "createdAt", direction: "desc" });
-        if (currentPage !== 0) setCurrentPage(0);
-        else fetchData();
+        if (currentPage !== 0) {
+          setCurrentPage(0);
+        } else {
+          fetchData();
+        }
         handleCloseModal();
       } else {
-        const msg = responsePayload?.message || "Thêm thất bại.";
+        const msg = responsePayload?.message || "Thêm nhân viên thất bại.";
         toast.error(msg);
         if (responsePayload?.errors) setFormErrors(responsePayload.errors);
       }
     } catch (err) {
-      toast.error(`Thêm thất bại: ${err.message || "Lỗi"}`);
+      console.error("Create admin error:", err);
+      toast.error(
+        `Thêm nhân viên thất bại: ${err.message || "Lỗi không xác định"}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -392,14 +368,18 @@ const ListOfAdminPage = () => {
 
   const handleUpdateAdmin = async (formData) => {
     const errors = validateAdminForm(formData, "edit");
+    delete errors.password;
+    delete errors.confirmPassword;
+
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      toast.warn("Kiểm tra lại thông tin.");
+      toast.warn("Vui lòng kiểm tra lại thông tin nhập.");
       return;
     }
     setFormErrors({});
     setIsSubmitting(true);
-    const allowed = [
+
+    const allowedUpdateFields = [
       "fullname",
       "birthday",
       "email",
@@ -407,26 +387,21 @@ const ListOfAdminPage = () => {
       "gender",
       "roleId",
     ];
-    const filtered = Object.keys(formData)
-      .filter((k) => allowed.includes(k))
-      .reduce((o, k) => {
-        if (formData[k] != null) o[k] = formData[k];
-        return o;
-      }, {});
-    if (Object.keys(filtered).length === 0) {
-      toast.info("Không có gì thay đổi.");
-      setIsSubmitting(false);
-      handleCloseModal();
-      return;
-    }
+    const updateData = {};
+    allowedUpdateFields.forEach((key) => {
+      if (formData[key] !== undefined && formData[key] !== null) {
+        updateData[key] = formData[key];
+      }
+    });
+
     try {
       const responsePayload = await Api({
         endpoint: `admin/update-admin-by-id/${modalData.adminId}`,
         method: METHOD_TYPE.PUT,
-        data: filtered,
+        data: updateData,
       });
       if (responsePayload.success) {
-        toast.success("Cập nhật thành công");
+        toast.success("Cập nhật thông tin thành công!");
         fetchData();
         handleCloseModal();
       } else {
@@ -435,14 +410,26 @@ const ListOfAdminPage = () => {
         if (responsePayload?.errors) setFormErrors(responsePayload.errors);
       }
     } catch (err) {
-      toast.error(`Cập nhật thất bại: ${err.message || "Lỗi"}`);
+      console.error("Update admin error:", err);
+      toast.error(`Cập nhật thất bại: ${err.message || "Lỗi không xác định"}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = (adminId) => {
-    setDeleteItemId(adminId);
+  // ****** ĐÃ SỬA ******
+  const handleDelete = (admin) => {
+    if (!admin || !admin.adminId) return;
+    const adminName = getSafeNestedValue(
+      admin,
+      "adminProfile.fullname",
+      admin.adminId
+    );
+    setDeleteItemId(admin.adminId);
+    // Set message động cho modal xác nhận
+    setDeleteMessage(
+      `Bạn có chắc muốn xóa nhân viên "${adminName}"?.`
+    );
     setIsDeleteModalOpen(true);
   };
 
@@ -455,19 +442,25 @@ const ListOfAdminPage = () => {
         method: METHOD_TYPE.DELETE,
       });
       if (responsePayload.success) {
-        toast.success("Xóa thành công!");
-        if (data.length === 1 && currentPage > 0)
+        toast.success("Xóa nhân viên thành công!");
+        if (data.length === 1 && currentPage > 0) {
           setCurrentPage(currentPage - 1);
-        else fetchData();
+        } else {
+          fetchData();
+        }
       } else {
-        toast.error(`Xóa thất bại: ${responsePayload?.message || "Lỗi"}`);
+        toast.error(
+          `Xóa thất bại: ${responsePayload?.message || "Lỗi không xác định"}`
+        );
       }
     } catch (err) {
-      toast.error(`Xóa thất bại: ${err.message || "Lỗi"}`);
+      console.error("Delete admin error:", err);
+      toast.error(`Xóa thất bại: ${err.message || "Lỗi không xác định"}`);
     } finally {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
+      setDeleteMessage(""); // Reset message sau khi đóng modal (tùy chọn)
     }
   };
 
@@ -475,9 +468,15 @@ const ListOfAdminPage = () => {
     if (!admin?.adminId) return;
     const newStatus = admin.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
     const actionText = newStatus === "ACTIVE" ? "Mở khóa" : "Khóa";
-    const name = admin.adminProfile?.fullname || admin.adminId;
+    const name = getSafeNestedValue(
+      admin,
+      "adminProfile.fullname",
+      admin.adminId
+    );
+
     if (!window.confirm(`Bạn chắc muốn ${actionText} tài khoản "${name}"?`))
       return;
+
     try {
       const responsePayload = await Api({
         endpoint: `admin/update-admin-by-id/${admin.adminId}`,
@@ -485,8 +484,8 @@ const ListOfAdminPage = () => {
         data: { status: newStatus },
       });
       if (responsePayload.success) {
-        setData((prev) =>
-          prev.map((item) =>
+        setData((prevData) =>
+          prevData.map((item) =>
             item.adminId === admin.adminId
               ? { ...item, status: newStatus }
               : item
@@ -495,11 +494,16 @@ const ListOfAdminPage = () => {
         toast.success(`${actionText} tài khoản "${name}" thành công!`);
       } else {
         toast.error(
-          `${actionText} thất bại: ${responsePayload?.message || "Lỗi"}`
+          `${actionText} thất bại: ${
+            responsePayload?.message || "Lỗi không xác định"
+          }`
         );
       }
     } catch (err) {
-      toast.error(`${actionText} thất bại: ${err.message || "Lỗi"}`);
+      console.error("Lock/Unlock admin error:", err);
+      toast.error(
+        `${actionText} thất bại: ${err.message || "Lỗi không xác định"}`
+      );
     }
   };
 
@@ -520,6 +524,7 @@ const ListOfAdminPage = () => {
     setIsModalOpen(true);
     setFormErrors({});
   };
+
   const handleView = (admin) => {
     const p = admin.adminProfile || {};
     setModalData({
@@ -538,6 +543,7 @@ const ListOfAdminPage = () => {
     setModalMode("view");
     setIsModalOpen(true);
   };
+
   const handleEdit = (admin) => {
     const p = admin.adminProfile || {};
     setModalData({
@@ -549,9 +555,6 @@ const ListOfAdminPage = () => {
       birthday: p.birthday ? format(parseISO(p.birthday), "yyyy-MM-dd") : "",
       gender: p.gender || "MALE",
       roleId: admin.roleId || "ADMIN",
-      status: admin.status || "",
-      createdAt: admin.createdAt,
-      updatedAt: admin.updatedAt,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -611,6 +614,7 @@ const ListOfAdminPage = () => {
     ],
     [t]
   );
+
   const editFields = useMemo(
     () => [
       { key: "adminId", label: "Mã NV", readOnly: true },
@@ -639,6 +643,8 @@ const ListOfAdminPage = () => {
           { label: "Nữ", value: "FEMALE" },
         ],
         required: true,
+        renderValue: (v) =>
+          v === "MALE" ? "Nam" : v === "FEMALE" ? "Nữ" : "Không xác định",
       },
       {
         key: "roleId",
@@ -649,6 +655,12 @@ const ListOfAdminPage = () => {
           { label: "Nhân viên", value: "ADMIN" },
         ],
         required: true,
+        renderValue: (v) =>
+          v === "BEST_ADMIN"
+            ? "Quản trị viên"
+            : v === "ADMIN"
+            ? "Nhân viên"
+            : "Không xác định",
       },
       {
         key: "status",
@@ -666,7 +678,8 @@ const ListOfAdminPage = () => {
         key: "updatedAt",
         label: "Cập nhật",
         readOnly: true,
-        renderValue: (v) => formatDate(v, "dd/MM/yyyy HH:mm"),
+        renderValue: (v) =>
+          v ? formatDate(v, "dd/MM/yyyy HH:mm") : "Chưa cập nhật",
       },
     ],
     [t]
@@ -688,68 +701,60 @@ const ListOfAdminPage = () => {
               placeholder="Tìm kiếm Mã NV, Tên, SĐT, Email..."
             />
             <div className="filter-control">
-              {" "}
               <label htmlFor="roleFilter" className="filter-label">
                 Vai trò:
-              </label>{" "}
+              </label>
               <select
                 id="roleFilter"
                 value={selectedRoleFilter}
                 onChange={handleRoleFilterChange}
                 className="status-filter-select"
               >
-                {" "}
                 {roleFilterOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
-                ))}{" "}
-              </select>{" "}
+                ))}
+              </select>
             </div>
             <div className="filter-control">
-              {" "}
               <label htmlFor="statusFilter" className="filter-label">
                 Trạng thái:
-              </label>{" "}
+              </label>
               <select
                 id="statusFilter"
                 value={selectedStatusFilter}
                 onChange={handleStatusFilterChange}
                 className="status-filter-select"
               >
-                {" "}
                 {statusFilterOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
-                ))}{" "}
-              </select>{" "}
+                ))}
+              </select>
             </div>
             <button
               className="refresh-button"
               onClick={handleApplyFiltersAndSearch}
-              title="Áp dụng"
-              aria-label="Áp dụng"
+              title="Áp dụng bộ lọc & Tìm kiếm"
+              aria-label="Áp dụng bộ lọc và tìm kiếm"
             >
-              {" "}
-              <i className="fa-solid fa-search"></i>{" "}
+              <i className="fa-solid fa-search"></i>
             </button>
             <button
               className="refresh-button"
               onClick={resetState}
-              title="Làm mới"
-              aria-label="Làm mới"
+              title="Làm mới bộ lọc"
+              aria-label="Làm mới bộ lọc"
             >
-              {" "}
-              <i className="fa-solid fa-rotate-left"></i>{" "}
+              <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
           <div className="filter-add-admin">
-            {" "}
             <button className="add-admin-button" onClick={handleAddAdmin}>
-              {" "}
-              {t("common.addButton")}{" "}
-            </button>{" "}
+              {t("common.addButton")}
+            </button>
           </div>
         </div>
 
@@ -762,9 +767,10 @@ const ListOfAdminPage = () => {
         <Table
           columns={columns}
           data={data}
+          totalItems={totalItems}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDelete} // Truyền handler đã cập nhật
           onLock={handleLock}
           showLock={true}
           statusKey="status"
@@ -772,12 +778,13 @@ const ListOfAdminPage = () => {
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
+          currentSortConfig={sortConfig}
           loading={isLoading}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
-          currentSortConfig={sortConfig}
         />
-        {!isLoading && !error && (
+
+        {!isLoading && !error && data.length > 0 && (
           <p
             style={{
               textAlign: "right",
@@ -786,8 +793,7 @@ const ListOfAdminPage = () => {
               color: "#555",
             }}
           >
-            {" "}
-            Tổng số: {totalItems}{" "}
+            Tổng số nhân viên: {totalItems}
           </p>
         )}
       </div>
@@ -802,7 +808,13 @@ const ListOfAdminPage = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        contentLabel="..."
+        contentLabel={
+          modalMode === "add"
+            ? "Thêm nhân viên"
+            : modalMode === "edit"
+            ? "Sửa thông tin"
+            : "Xem thông tin"
+        }
         className="modal"
         overlayClassName="overlay"
         closeTimeoutMS={300}
@@ -825,8 +837,8 @@ const ListOfAdminPage = () => {
               modalMode === "add"
                 ? "Thêm nhân viên"
                 : modalMode === "edit"
-                ? "Sửa thông tin"
-                : "Xem thông tin"
+                ? "Sửa thông tin nhân viên"
+                : "Xem thông tin nhân viên"
             }
             onClose={handleCloseModal}
             errors={formErrors}
@@ -834,13 +846,17 @@ const ListOfAdminPage = () => {
           />
         )}
       </Modal>
+
+      {/* ****** ĐÃ SỬA ****** */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa nhân viên này? Không thể hoàn tác."
+        // Sử dụng message động từ state
+        message={deleteMessage}
         isDeleting={isDeleting}
       />
+
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

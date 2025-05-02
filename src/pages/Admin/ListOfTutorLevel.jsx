@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
-import "../../assets/css/Admin/ListOfAdmin.style.css";
-import "../../assets/css/Modal.style.css";
+import "../../assets/css/Admin/ListOfAdmin.style.css"; // Shared styles
+import "../../assets/css/Modal.style.css"; // Modal styles
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
@@ -13,213 +13,247 @@ import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import qs from "qs";
 import { Alert } from "@mui/material";
-import unidecode from "unidecode";
+// import unidecode from "unidecode"; // <<< Bỏ import
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import numeral from "numeral"; // Import numeral
-import "numeral/locales/vi"; // Import locale nếu cần
+import numeral from "numeral";
+import "numeral/locales/vi";
 
 // Set the app element for accessibility
 Modal.setAppElement("#root");
 
+// Helper format tiền tệ
+const formatCurrency = (value) => {
+  if (value === null || value === undefined || isNaN(Number(value))) {
+    return "N/A";
+  }
+  numeral.locale("vi"); // Đảm bảo locale được set
+  return numeral(value).format("0,0 đ");
+};
+
 const ListOfTutorLevelPage = () => {
   const { t } = useTranslation();
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  // --- States ---
+  const [data, setData] = useState([]); // Chỉ cần data
+  // Bỏ filteredData
   const [totalItems, setTotalItems] = useState(0);
+  const [pageCount, setPageCount] = useState(1);
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Query tìm kiếm thực tế
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(""); // State message xóa
   const [modalData, setModalData] = useState({});
   const [modalMode, setModalMode] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0); // 0-based index
+  const [isLoading, setIsLoading] = useState(false); // Loading bảng
+  const [isSubmitting, setIsSubmitting] = useState(false); // Loading nút Lưu modal
+  const [isDeleting, setIsDeleting] = useState(false); // Loading nút Xóa modal
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
-  const [itemsPerPage, setItemsPerPage] = useState(7);
+  const [sortConfig, setSortConfig] = useState({
+    key: "levelName",
+    direction: "asc",
+  }); // Sort mặc định theo tên hạng
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default 10
   const currentPath = "/hang-gia-su";
   const [formErrors, setFormErrors] = useState({});
-  const [filters, setFilters] = useState([]);
-  const [pageCount, setPageCount] = useState(1);
+  // Bỏ state filters
 
-  const updateUrl = useCallback(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.append("searchQuery", searchQuery);
-    if (sortConfig.key) {
-      params.append("sortKey", sortConfig.key);
-      params.append("sortDirection", sortConfig.direction);
-    }
-    params.append("page", currentPage + 1);
-    window.history.pushState({}, "", `?${params.toString()}`);
-  }, [searchQuery, sortConfig, currentPage]);
+  // Bỏ URL Sync
 
+  // --- Reset State ---
   const resetState = () => {
     setSearchInput("");
     setSearchQuery("");
-    setSortConfig({ key: "", direction: "asc" });
+    setSortConfig({ key: "levelName", direction: "asc" });
     setCurrentPage(0);
-    setFilters([]); // Reset filters
+    // Bỏ setFilters
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialSearchQuery = params.get("searchQuery") || "";
-    const initialSortKey = params.get("sortKey") || "";
-    const initialSortDirection = params.get("sortDirection") || "asc";
-    const initialPage = parseInt(params.get("page") || "1", 10) - 1;
-
-    setSearchQuery(initialSearchQuery);
-    setSortConfig({ key: initialSortKey, direction: initialSortDirection });
-    setCurrentPage(initialPage);
-    setSearchInput(initialSearchQuery);
-  }, []);
-
-  useEffect(() => {
-    updateUrl();
-  }, [updateUrl]);
-
+  // --- Fetch Data ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
+      const filterConditions = [];
+      if (searchQuery) {
+        filterConditions.push({
+          key: "tutorLevelId,levelName,description,salary", // Các trường tìm kiếm
+          operator: "like",
+          value: searchQuery,
+        });
+      }
+
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
+        ...(filterConditions.length > 0 && {
+          filter: JSON.stringify(filterConditions),
+        }),
+        sort: JSON.stringify([
+          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
+        ]),
       };
 
-      if (filters.length > 0) {
-        query.filter = JSON.stringify(filters);
-      }
-
-      if (sortConfig.key) {
-        query.sort = JSON.stringify([
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ]);
-      }
-
       const queryString = qs.stringify(query, { encode: false });
+      console.log("Fetching tutor levels with query:", queryString);
 
       const response = await Api({
-        endpoint: `tutor-level/search?${queryString}`,
+        endpoint: `tutor-level/search?${queryString}`, // Endpoint tìm kiếm hạng
         method: METHOD_TYPE.GET,
       });
+      console.log("API Response (Tutor Levels):", response);
 
-      if (response.success) {
-        setData(response.data.items);
-        setFilteredData(response.data.items);
-        setTotalItems(response.data.total);
-        setPageCount(Math.ceil(response.data.total / itemsPerPage)); // Cập nhật pageCount
+      if (response.success && response.data) {
+        setData(response.data.items || []);
+        setTotalItems(response.data.total || 0);
+        setPageCount(Math.ceil((response.data.total || 0) / itemsPerPage));
       } else {
-        setError(response.message || t("common.errorLoadingData"));
+        throw new Error(response.message || t("common.errorLoadingData"));
       }
     } catch (error) {
-      setError(t("common.errorLoadingData"));
+      console.error("Fetch tutor level error:", error);
+      setError(error.message || t("common.errorLoadingData"));
+      setData([]);
+      setTotalItems(0);
+      setPageCount(1);
+      toast.error(`Tải danh sách hạng thất bại: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, sortConfig, itemsPerPage, t, filters]);
+  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]); // Thêm searchQuery
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    numeral.locale("vi"); // Set locale nếu cần
+    numeral.locale("vi"); // Set locale khi component mount
   }, []);
 
+  // --- Handlers ---
   const handlePageClick = (event) => {
-    setCurrentPage(event.selected);
+    if (typeof event.selected === "number") {
+      setCurrentPage(event.selected);
+    }
   };
 
-  const handleSearchInputChange = (query) => {
-    setSearchInput(query);
-    setSearchQuery(query);
-
-    const normalizedQuery = unidecode(query.toLowerCase());
-    const filtered = data.filter((item) => {
-      const searchValues = {
-        tutorLevelId: item.tutorLevelId,
-        levelName: item.levelName || "",
-        salary: item.salary || "",
-        description: item.description || "",
-      };
-
-      return Object.values(searchValues).some((value) => {
-        if (value) {
-          const stringValue = value.toString().toLowerCase();
-          const normalizedValue = unidecode(stringValue);
-
-          return normalizedValue.includes(normalizedQuery);
-        }
-        return false;
-      });
-    });
-    setFilteredData(filtered);
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
   };
 
-  const handleSort = (key) => {
+  const handleApplySearch = () => {
+    setCurrentPage(0);
+    setSearchQuery(searchInput);
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleApplySearch();
+    }
+  };
+
+  const handleSort = (sortKey) => {
     setSortConfig((prevConfig) => {
       const newDirection =
-        prevConfig.key === key && prevConfig.direction === "asc"
+        prevConfig.key === sortKey && prevConfig.direction === "asc"
           ? "desc"
           : "asc";
-      return { key: key, direction: newDirection };
+      return { key: sortKey, direction: newDirection };
     });
+    setCurrentPage(0);
   };
 
-  const handleDelete = async (tutorLevelId) => {
-    setDeleteItemId(tutorLevelId);
+  const handleItemsPerPageChange = (newPageSize) => {
+    setItemsPerPage(newPageSize);
+    setCurrentPage(0);
+  };
+
+  // --- CRUD Handlers ---
+  const handleDelete = (tutorLevel) => {
+    // Nhận object
+    if (!tutorLevel || !tutorLevel.tutorLevelId) return;
+    const levelName = tutorLevel.levelName || tutorLevel.tutorLevelId;
+    setDeleteItemId(tutorLevel.tutorLevelId);
+    setDeleteMessage(`Bạn có chắc muốn xóa hạng "${levelName}"?`); // Set message động
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
+    if (!deleteItemId) return;
+    setIsDeleting(true);
     try {
       const response = await Api({
-        endpoint: `tutor-level/delete/${deleteItemId}`,
+        endpoint: `tutor-level/delete/${deleteItemId}`, // Endpoint xóa
         method: METHOD_TYPE.DELETE,
       });
       if (response.success) {
-        fetchData();
         toast.success("Xóa thành công");
+        if (data.length === 1 && currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+        } else {
+          fetchData();
+        }
       } else {
-        console.log("Failed to delete tutor level");
-        toast.error("Hạng này đang có gia sư sử dụng");
+        console.log("Failed to delete tutor level:", response.message);
+        // Thông báo lỗi cụ thể hơn nếu có thể
+        toast.error(
+          `Xóa thất bại: ${response.message || "Hạng đang được sử dụng"}`
+        );
       }
     } catch (error) {
-      console.error(
-        "An error occurred while deleting tutor level:",
-        error.message
-      );
-      toast.error("Hạng này đang có gia sư sử dụng");
+      console.error("An error occurred while deleting tutor level:", error);
+      toast.error(`Xóa thất bại: ${error.message || "Lỗi mạng"}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
+      setDeleteMessage("");
+      setIsDeleting(false);
     }
   };
 
+  // Mở modal thêm
+  const handleAddTutorLevel = () => {
+    setModalMode("add");
+    setModalData({
+      // Reset form
+      levelName: "",
+      salary: "",
+      description: "",
+    });
+    setFormErrors({}); // Xóa lỗi cũ
+    setIsModalOpen(true);
+  };
+
+  // Mở modal xem
   const handleView = (tutorLevel) => {
     setModalData({
+      // Lấy dữ liệu từ item
       tutorLevelId: tutorLevel.tutorLevelId,
-      levelName: tutorLevel.levelName,
-      salary: tutorLevel.salary,
-      description: tutorLevel.description,
+      levelName: tutorLevel.levelName || "",
+      salary: tutorLevel.salary ?? "", // Dùng ?? để xử lý cả null/undefined
+      description: tutorLevel.description || "",
+      // Thêm createdAt/updatedAt nếu API trả về và muốn xem
+      // createdAt: tutorLevel.createdAt,
+      // updatedAt: tutorLevel.updatedAt,
     });
     setModalMode("view");
     setIsModalOpen(true);
   };
 
+  // Mở modal sửa
   const handleEdit = (tutorLevel) => {
     setModalData({
+      // Lấy dữ liệu để sửa
       tutorLevelId: tutorLevel.tutorLevelId,
-      levelName: tutorLevel.levelName,
-      salary: tutorLevel.salary,
-      description: tutorLevel.description,
+      levelName: tutorLevel.levelName || "",
+      salary: tutorLevel.salary ?? "",
+      description: tutorLevel.description || "",
     });
     setModalMode("edit");
+    setFormErrors({}); // Xóa lỗi cũ
     setIsModalOpen(true);
-    setFormErrors({});
   };
 
   const handleCloseModal = () => {
@@ -229,133 +263,153 @@ const ListOfTutorLevelPage = () => {
     setFormErrors({});
   };
 
-  const handleSave = async () => {
-    fetchData();
-    setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
-    setFormErrors({});
-  };
+  // Bỏ handleSave
 
-  const handleCreateTutorLevel = async (formData) => {
-    const errors = validateForm(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-    try {
-      const response = await Api({
-        endpoint: "tutor-level/create",
-        method: METHOD_TYPE.POST,
-        data: formData,
-      });
-
-      if (response.success) {
-        handleSave();
-        toast.success("Thêm thành công");
-        // Thêm nhân viên mới vào đầu danh sách
-        const newTutorLevel = response.data;
-        setData((prevData) => [newTutorLevel, ...prevData]);
-        setFilteredData((prevData) => [newTutorLevel, ...prevData]);
-      } else {
-        console.error("Failed to create tutor level:", response.message);
-        toast.error("Thêm thất bại");
-      }
-    } catch (error) {
-      console.error(
-        "An error occurred while creating tutor level:",
-        error.message
-      );
-      toast.error("Thêm thất bại");
-    }
-  };
-
-  const handleUpdateTutorLevel = async (formData) => {
-    const errors = validateForm(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-    try {
-      const response = await Api({
-        endpoint: `tutor-level/update/${modalData.tutorLevelId}`,
-        method: METHOD_TYPE.PUT,
-        data: formData,
-      });
-
-      if (response.success) {
-        handleSave();
-        toast.success("Cập nhật thành công");
-      } else {
-        console.error("Failed to update tutor level:", response.message);
-        toast.error(t("tutorLevel.updateFailed"));
-      }
-    } catch (error) {
-      console.error(
-        "An error occurred while updating tutor level:",
-        error.message
-      );
-      toast.error(t("tutorLevel.updateFailed"));
-    }
-  };
-
+  // Validation Form
   const validateForm = (formData) => {
     let errors = {};
-
-    if (!formData.levelName) {
+    if (!formData.levelName?.trim())
       errors.levelName = "Vui lòng nhập tên hạng.";
-    }
-
-    if (!formData.salary) {
+    if (
+      formData.salary === null ||
+      formData.salary === undefined ||
+      String(formData.salary).trim() === ""
+    ) {
       errors.salary = "Vui lòng nhập lương.";
     } else if (isNaN(Number(formData.salary))) {
       errors.salary = "Lương phải là một số.";
+    } else if (Number(formData.salary) < 0) {
+      errors.salary = "Lương không được âm.";
     }
-
-    if (!formData.description) {
+    if (!formData.description?.trim())
       errors.description = "Vui lòng nhập mô tả.";
-    }
-
     return errors;
   };
 
-  const columns = [
-    {
-      title: "Mã hạng",
-      dataKey: "tutorLevelId",
-      sortable: true,
-      tooltip: "Mã hạng gia sư",
-    },
-    { title: "Tên hạng", dataKey: "levelName", sortable: true },
-    {
-      title: "Lương",
-      dataKey: "salary",
-      sortable: true,
-      renderCell: (value) => {
-        return numeral(value).format("0,0") + " đồng";
-      },
-    },
-    { title: "Mô tả", dataKey: "description", sortable: true },
-  ];
+  // Submit handler chung cho Add/Edit
+  const handleFormSubmit = async (formData) => {
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast.warn("Vui lòng kiểm tra lại thông tin nhập.");
+      return;
+    }
+    setFormErrors({});
+    setIsSubmitting(true);
 
-  const addFields = [
-    { key: "levelName", label: "Tên hạng" },
-    { key: "salary", label: "Lương" },
-    { key: "description", label: "Mô tả" },
-  ];
+    const apiData = {
+      levelName: formData.levelName,
+      // Đảm bảo gửi salary là số
+      salary: Number(formData.salary),
+      description: formData.description,
+    };
 
-  const editFields = [
-    { key: "tutorLevelId", label: "Mã hạng", readOnly: true },
-    { key: "levelName", label: "Tên hạng" },
-    { key: "salary", label: "Lương" },
-    { key: "description", label: "Mô tả" },
-  ];
+    try {
+      let response;
+      if (modalMode === "add") {
+        response = await Api({
+          endpoint: "tutor-level/create",
+          method: METHOD_TYPE.POST,
+          data: apiData,
+        });
+      } else if (modalMode === "edit") {
+        response = await Api({
+          endpoint: `tutor-level/update/${modalData.tutorLevelId}`,
+          method: METHOD_TYPE.PUT,
+          data: apiData,
+        });
+      } else {
+        return;
+      } // Không làm gì ở mode 'view'
 
-  const handleItemsPerPageChange = (newPageSize) => {
-    setItemsPerPage(newPageSize);
-    setCurrentPage(0); // Reset về trang đầu tiên
+      if (response.success) {
+        const successMsg =
+          modalMode === "add"
+            ? "Thêm hạng thành công"
+            : "Cập nhật hạng thành công";
+        toast.success(successMsg);
+        if (modalMode === "add") {
+          setSortConfig({ key: "levelName", direction: "asc" });
+          if (currentPage !== 0) setCurrentPage(0);
+          else fetchData();
+        } else {
+          fetchData(); // Load lại trang hiện tại
+        }
+        handleCloseModal();
+      } else {
+        const errorMsg =
+          modalMode === "add" ? "Thêm hạng thất bại" : "Cập nhật hạng thất bại";
+        toast.error(`${errorMsg}: ${response.message || "Lỗi không xác định"}`);
+        if (response.errors) setFormErrors(response.errors);
+      }
+    } catch (error) {
+      console.error(`Error ${modalMode}ing tutor level:`, error);
+      const errorMsg =
+        modalMode === "add" ? "Thêm hạng thất bại" : "Cập nhật hạng thất bại";
+      toast.error(`${errorMsg}: ${error.message || "Lỗi mạng"}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  // --- Columns Definition ---
+  const columns = useMemo(
+    () => [
+      {
+        title: "Mã hạng",
+        dataKey: "tutorLevelId",
+        sortable: true,
+        tooltip: "Mã hạng gia sư",
+      },
+      { title: "Tên hạng", dataKey: "levelName", sortable: true },
+      {
+        title: "Lương",
+        dataKey: "salary",
+        sortable: true,
+        renderCell: formatCurrency,
+      }, // Dùng helper
+      { title: "Mô tả", dataKey: "description", sortable: true },
+    ],
+    []
+  ); // Không có dependencies
+
+  // --- Fields Definition ---
+  const addFields = useMemo(
+    () => [
+      { key: "levelName", label: "Tên hạng", required: true },
+      {
+        key: "salary",
+        label: "Lương (VNĐ)",
+        type: "number",
+        required: true,
+        placeholder: "Nhập số tiền",
+      }, // Thêm placeholder
+      { key: "description", label: "Mô tả", type: "textarea", required: true },
+    ],
+    []
+  );
+
+  const editFields = useMemo(
+    () => [
+      { key: "tutorLevelId", label: "Mã hạng", readOnly: true },
+      { key: "levelName", label: "Tên hạng", required: true },
+      {
+        key: "salary",
+        label: "Lương (VNĐ)",
+        type: "number",
+        required: true,
+        placeholder: "Nhập số tiền",
+        renderValue: formatCurrency,
+      }, // Thêm renderValue
+      { key: "description", label: "Mô tả", type: "textarea", required: true },
+      // Thêm createdAt/updatedAt nếu cần xem
+      // { key: "createdAt", label: "Ngày tạo", readOnly: true, renderValue: (v) => safeFormatDate(v)},
+      // { key: "updatedAt", label: "Cập nhật", readOnly: true, renderValue: (v) => v ? safeFormatDate(v) : 'N/A'},
+    ],
+    []
+  );
+
+  // --- JSX Render ---
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
@@ -365,49 +419,79 @@ const ListOfTutorLevelPage = () => {
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
+              onKeyPress={handleSearchKeyPress} // Thêm tìm bằng Enter
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm kiếm hạng gia sư"
+              placeholder="Tìm mã, tên hạng, mô tả..." // Cập nhật placeholder
             />
+            {/* Nút tìm kiếm */}
             <button
               className="refresh-button"
-              onClick={() => {
-                resetState();
-                fetchData();
-              }}
+              onClick={handleApplySearch}
+              title="Tìm kiếm"
+              aria-label="Tìm kiếm"
             >
-              <i className="fa-solid fa-rotate fa-lg"></i>
+              <i className="fa-solid fa-search"></i>
+            </button>
+            {/* Nút làm mới */}
+            <button
+              className="refresh-button"
+              onClick={resetState}
+              title="Làm mới"
+              aria-label="Làm mới"
+            >
+              <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
+          {/* Nút thêm */}
           <div className="filter-add-admin">
-            <button
-              className="add-admin-button"
-              onClick={() => {
-                setModalMode("add");
-                setIsModalOpen(true); // Thêm dòng này để mở modal
-              }}
-            >
+            <button className="add-admin-button" onClick={handleAddTutorLevel}>
               {t("common.addButton")}
             </button>
           </div>
         </div>
-        {error && <Alert severity="error">{error}</Alert>}
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Table */}
         <Table
           columns={columns}
-          data={filteredData}
+          data={data} // Dùng data trực tiếp
+          totalItems={totalItems} // Truyền totalItems
+          // Actions
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={(tutorLevel) => handleDelete(tutorLevel.tutorLevelId)}
-          pageCount={pageCount} // Truyền pageCount
+          onDelete={handleDelete} // Truyền object
+          // Không có lock cho hạng
+          showLock={false}
+          // Pagination & Sort
+          pageCount={pageCount}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
+          currentSortConfig={sortConfig} // Truyền sort config
+          // Loading & Items per page
           loading={isLoading}
-          error={error}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
         />
-        <p>Tổng số hạng gia sư: {totalItems}</p>
+        {/* Tổng số */}
+        {!isLoading && !error && data.length > 0 && (
+          <p
+            style={{
+              textAlign: "right",
+              marginTop: "1rem",
+              fontSize: "0.9em",
+              color: "#555",
+            }}
+          >
+            Tổng số hạng gia sư: {totalItems}
+          </p>
+        )}
       </div>
     </>
   );
@@ -417,57 +501,57 @@ const ListOfTutorLevelPage = () => {
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
+      {/* Modal Add/Edit/View */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
         contentLabel={
-          modalMode === "add" ? "Add Tutor Level" : "Edit Tutor Level"
+          modalMode === "add"
+            ? "Thêm hạng gia sư"
+            : modalMode === "edit"
+            ? "Sửa hạng gia sư"
+            : "Xem hạng gia sư"
         }
-        className="modal"
+        className="modal" // Có thể thêm class 'medium'
         overlayClassName="overlay"
       >
-        <FormDetail
-          formData={modalData}
-          fields={modalMode === "add" ? addFields : editFields}
-          mode={modalMode || "view"}
-          title={
-            modalMode === "add"
-              ? "Thêm hạng gia sư"
-              : modalMode === "edit"
-              ? "Sửa thông tin hạng gia sư"
-              : "Xem thông tin hạng gia sư"
-          }
-          onChange={(name, value) => {
-            setModalData({ ...modalData, [name]: value });
-            setFormErrors({ ...formErrors, [name]: "" });
-          }}
-          onSubmit={
-            modalMode === "add"
-              ? handleCreateTutorLevel
-              : handleUpdateTutorLevel
-          }
-          onClose={handleCloseModal}
-          errors={formErrors}
-        />
+        {modalMode && (
+          <FormDetail
+            formData={modalData}
+            fields={modalMode === "add" ? addFields : editFields}
+            mode={modalMode}
+            title={
+              modalMode === "add"
+                ? "Thêm hạng gia sư"
+                : modalMode === "edit"
+                ? "Sửa thông tin hạng gia sư"
+                : "Xem thông tin hạng gia sư"
+            }
+            onChange={(name, value) => {
+              setModalData({ ...modalData, [name]: value });
+              if (formErrors[name]) {
+                setFormErrors({ ...formErrors, [name]: "" });
+              }
+            }}
+            onSubmit={handleFormSubmit} // Dùng handler chung
+            onClose={handleCloseModal}
+            errors={formErrors}
+            isSubmitting={isSubmitting} // Truyền state loading
+          />
+        )}
       </Modal>
+
+      {/* Modal Delete Confirmation */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa hạng gia sư này?"
+        message={deleteMessage} // Message động
+        isDeleting={isDeleting} // State loading xóa
       />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );
 };
