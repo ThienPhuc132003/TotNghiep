@@ -1,8 +1,8 @@
 // src/store/slices/userSlice.js (Hoặc đường dẫn của bạn)
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import Api from "../../network/Api"; // <<= Đảm bảo đường dẫn này đúng
-import { METHOD_TYPE } from "../../network/methodType"; // <<= Đảm bảo đường dẫn này đúng
+import Api from "../network/Api"; // <<= Đảm bảo đường dẫn này đúng
+import { METHOD_TYPE } from "../network/methodType"; // <<= Đảm bảo đường dẫn này đúng
 
 // --- 1. Định nghĩa Async Thunk ---
 export const fetchUserProfile = createAsyncThunk(
