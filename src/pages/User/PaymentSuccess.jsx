@@ -12,7 +12,7 @@ import "../../assets/css/PaymentResult.style.css"; // CSS cho trang kết quả
 
 // --- !!! QUAN TRỌNG: Import action thunk lấy profile của bạn !!! ---
 // Giả sử bạn đã tạo và export thunk này từ slice user
-import { fetchUserProfile } from "../../store/slices/userSlice"; // <<== THAY ĐỔI ĐƯỜNG DẪN VÀ TÊN FILE/SLICE NẾU CẦN
+import { fetchUserProfile } from "../../redux/userSlice"; // Điều chỉnh đường dẫn
 
 const PaymentSuccess = () => {
   const dispatch = useDispatch();
