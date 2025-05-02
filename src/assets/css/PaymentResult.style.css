@@ -3,197 +3,223 @@
 
 /* Container chính, có thể dùng lại .wallet-container hoặc tùy chỉnh */
 .payment-result-container {
-    max-width: 700px; /* Có thể hẹp hơn Wallet */
-    margin: 30px auto; /* Thêm khoảng cách trên dưới */
-    background-color: #fff;
-    padding: 40px 30px; /* Padding nhiều hơn */
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    text-align: center; /* Căn giữa nội dung */
+  max-width: 700px; /* Có thể hẹp hơn Wallet */
+  margin: 30px auto; /* Thêm khoảng cách trên dưới */
+  background-color: #fff;
+  padding: 40px 30px; /* Padding nhiều hơn */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-align: center; /* Căn giữa nội dung */
+}
+
+/* Style cho icon trạng thái */
+.status-icon {
+  font-size: 5em; /* Icon lớn */
+  margin-bottom: 25px;
+  display: block; /* Để margin auto hoạt động */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.icon-success {
+  color: #28a745; /* Màu xanh lá cây thành công */
+}
+
+.icon-failure {
+  color: #dc3545; /* Màu đỏ thất bại */
+}
+
+/* Style cho tiêu đề */
+.payment-result-content h2 {
+  font-size: 1.9em;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+/* Style cho các đoạn text mô tả */
+.payment-result-content p {
+  font-size: 1.1em;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  max-width: 550px; /* Giới hạn chiều rộng text */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.payment-result-content .sub-message {
+  font-size: 0.95em;
+  color: #6c757d;
+  margin-bottom: 25px;
+}
+
+/* Style cho khu vực chi tiết giao dịch (Tùy chọn) */
+.transaction-details {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  text-align: left; /* Căn trái nội dung chi tiết */
+  display: inline-block; /* Để vừa với nội dung */
+  min-width: 300px; /* Chiều rộng tối thiểu */
+}
+
+.transaction-details p {
+  font-size: 0.95em;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.transaction-details p:last-child {
+  margin-bottom: 0;
+}
+.transaction-details strong {
+  margin-right: 8px;
+  color: #555;
+}
+.error-details {
+  /* Style riêng cho chi tiết lỗi nếu cần */
+  border-color: #f5c6cb;
+  background-color: #f8d7da;
+}
+.error-details p,
+.error-details strong {
+  color: #721c24;
+}
+
+/* Style cho khu vực nút hành động */
+.action-buttons {
+  margin-top: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px; /* Khoảng cách giữa các nút */
+  flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+}
+
+/* Style cơ bản cho nút - Cần điều chỉnh theo hệ thống design của bạn */
+/* Ví dụ sử dụng lại class từ Wallet hoặc Bootstrap-like */
+.btn {
+  display: inline-block;
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 0.6rem 1.2rem; /* Kích thước nút */
+  font-size: 1rem;
+  border-radius: 0.3rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  text-decoration: none; /* Bỏ gạch chân cho Link */
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #b41e2d; /* Màu chính */
+  border-color: #b41e2d;
+}
+.btn-primary:hover {
+  background-color: #931824; /* Màu chính đậm hơn */
+  border-color: #931824;
+}
+
+.btn-secondary {
+  color: #b41e2d; /* Màu chính */
+  background-color: transparent;
+  border: 1px solid #b41e2d; /* Viền màu chính */
+}
+.btn-secondary:hover {
+  color: #fff;
+  background-color: #b41e2d;
+  border-color: #b41e2d;
+}
+
+.btn-tertiary {
+  /* Nút phụ hơn */
+  color: #6c757d; /* Màu xám */
+  background-color: transparent;
+  border: 1px solid #ced4da;
+}
+.btn-tertiary:hover {
+  color: #333;
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+.icon-loading {
+  color: #007bff; /* Màu xanh dương hoặc màu loading của bạn */
+}
+.icon-warning {
+  color: #ffc107; /* Màu vàng cảnh báo */
+}
+.loading-message {
+  color: #007bff;
+  font-style: italic;
+}
+
+.error-message {
+  color: #dc3545; /* Màu đỏ lỗi */
+  font-weight: 500;
+  background-color: #f8d7da; /* Nền đỏ nhạt */
+  border: 1px solid #f5c6cb;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: inline-block; /* Cho vừa với nội dung */
+  margin-top: 10px;
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .payment-result-container {
+    padding: 30px 20px;
+    margin: 20px auto;
   }
-  
-  
-  /* Style cho icon trạng thái */
   .status-icon {
-    font-size: 5em; /* Icon lớn */
-    margin-bottom: 25px;
-    display: block; /* Để margin auto hoạt động */
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 4em;
   }
-  
-  .icon-success {
-    color: #28a745; /* Màu xanh lá cây thành công */
-  }
-  
-  .icon-failure {
-    color: #dc3545; /* Màu đỏ thất bại */
-  }
-  
-  /* Style cho tiêu đề */
   .payment-result-content h2 {
-    font-size: 1.9em;
-    color: #333;
-    margin-bottom: 15px;
-    font-weight: 600;
+    font-size: 1.7em;
   }
-  
-  /* Style cho các đoạn text mô tả */
   .payment-result-content p {
-    font-size: 1.1em;
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 10px;
-    max-width: 550px; /* Giới hạn chiều rộng text */
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 1em;
   }
-  
-  .payment-result-content .sub-message {
-    font-size: 0.95em;
-    color: #6c757d;
-    margin-bottom: 25px;
-  }
-  
-  /* Style cho khu vực chi tiết giao dịch (Tùy chọn) */
-  .transaction-details {
-    margin-top: 30px;
-    margin-bottom: 30px;
-    padding: 15px 20px;
-    background-color: #f8f9fa;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    text-align: left; /* Căn trái nội dung chi tiết */
-    display: inline-block; /* Để vừa với nội dung */
-    min-width: 300px; /* Chiều rộng tối thiểu */
-  }
-  
-  .transaction-details p {
-    font-size: 0.95em;
-    color: #333;
-    margin-bottom: 8px;
-    line-height: 1.4;
-  }
-  .transaction-details p:last-child {
-    margin-bottom: 0;
-  }
-  .transaction-details strong {
-    margin-right: 8px;
-    color: #555;
-  }
-  .error-details { /* Style riêng cho chi tiết lỗi nếu cần */
-    border-color: #f5c6cb;
-    background-color: #f8d7da;
-  }
-  .error-details p, .error-details strong {
-   color: #721c24;
-  }
-  
-  
-  /* Style cho khu vực nút hành động */
   .action-buttons {
-    margin-top: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px; /* Khoảng cách giữa các nút */
-    flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+    gap: 10px;
   }
-  
-  /* Style cơ bản cho nút - Cần điều chỉnh theo hệ thống design của bạn */
-  /* Ví dụ sử dụng lại class từ Wallet hoặc Bootstrap-like */
   .btn {
-    display: inline-block;
-    font-weight: 500;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    user-select: none;
-    background-color: transparent;
-    border: 1px solid transparent;
-    padding: 0.6rem 1.2rem; /* Kích thước nút */
-    font-size: 1rem;
-    border-radius: 0.3rem;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    text-decoration: none; /* Bỏ gạch chân cho Link */
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
-  
-  .btn-primary {
-    color: #fff;
-    background-color: #b41e2d; /* Màu chính */
-    border-color: #b41e2d;
+}
+
+@media (max-width: 480px) {
+  .payment-result-container {
+    padding: 25px 15px;
+    margin: 15px auto;
   }
-  .btn-primary:hover {
-    background-color: #931824; /* Màu chính đậm hơn */
-    border-color: #931824;
+  .status-icon {
+    font-size: 3.5em;
   }
-  
-  .btn-secondary {
-    color: #b41e2d; /* Màu chính */
-    background-color: transparent;
-    border: 1px solid #b41e2d; /* Viền màu chính */
+  .payment-result-content h2 {
+    font-size: 1.5em;
   }
-  .btn-secondary:hover {
-    color: #fff;
-    background-color: #b41e2d;
-    border-color: #b41e2d;
+  .payment-result-content p {
+    font-size: 0.95em;
   }
-  
-  .btn-tertiary { /* Nút phụ hơn */
-    color: #6c757d; /* Màu xám */
-    background-color: transparent;
-    border: 1px solid #ced4da;
+  .action-buttons {
+    flex-direction: column; /* Xếp chồng nút */
+    align-items: stretch; /* Kéo dài nút */
+    gap: 12px;
   }
-  .btn-tertiary:hover {
-   color: #333;
-   background-color: #f8f9fa;
-   border-color: #adb5bd;
+  .btn {
+    width: 100%; /* Nút chiếm toàn bộ chiều rộng */
   }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .payment-result-container {
-      padding: 30px 20px;
-      margin: 20px auto;
-    }
-    .status-icon {
-      font-size: 4em;
-    }
-    .payment-result-content h2 {
-      font-size: 1.7em;
-    }
-     .payment-result-content p {
-      font-size: 1em;
-    }
-    .action-buttons {
-      gap: 10px;
-    }
-    .btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-    }
+  .error-message {
+    font-size: 0.9em;
+    padding: 6px 10px;
   }
-  
-  @media (max-width: 480px) {
-     .payment-result-container {
-      padding: 25px 15px;
-      margin: 15px auto;
-    }
-    .status-icon {
-      font-size: 3.5em;
-    }
-     .payment-result-content h2 {
-      font-size: 1.5em;
-    }
-     .payment-result-content p {
-      font-size: 0.95em;
-    }
-     .action-buttons {
-       flex-direction: column; /* Xếp chồng nút */
-       align-items: stretch; /* Kéo dài nút */
-       gap: 12px;
-     }
-     .btn {
-        width: 100%; /* Nút chiếm toàn bộ chiều rộng */
-     }
-  }
+}
