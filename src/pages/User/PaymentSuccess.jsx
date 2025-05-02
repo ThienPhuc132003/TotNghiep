@@ -1,42 +1,108 @@
+import { useEffect } from "react"; // Import useEffect
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux"; // Import useDispatch và useSelector
+import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Điều chỉnh đường dẫn
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheckCircle,
+  faSpinner,
+  faExclamationTriangle,
+} from "@fortawesome/free-solid-svg-icons"; // Thêm icons
+import "../../assets/css/PaymentResult.style.css"; // CSS cho trang kết quả
 
-import { Link } from 'react-router-dom'; // Cần có React Router
-import HomePageLayout from '../../components/User/layout/HomePageLayout'; // Điều chỉnh đường dẫn
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import '../../assets/css/PaymentResult.style.css'; // Tạo file CSS này
+// --- !!! QUAN TRỌNG: Import action thunk lấy profile của bạn !!! ---
+// Giả sử bạn đã tạo và export thunk này từ slice user
+import { fetchUserProfile } from "../../redux/userSlice"; // Điều chỉnh đường dẫn
 
 const PaymentSuccess = () => {
-  // TODO: Có thể lấy thông tin chi tiết từ URL params nếu backend trả về
-  // ví dụ: const [searchParams] = useSearchParams();
-  // const orderId = searchParams.get('orderId');
-  // const amount = searchParams.get('amount');
+  const dispatch = useDispatch();
+  // Lấy trạng thái loading và lỗi từ Redux store (tùy chọn)
+  const { profileLoading, profileError } = useSelector((state) => state.user); // Giả sử state slice tên là 'user'
+
+  // --- Trigger fetch profile khi component được mount ---
+  useEffect(() => {
+    console.log("PaymentSuccess mounted: Dispatching fetchUserProfile...");
+    // Gọi action thunk để lấy profile mới nhất từ backend (bao gồm số coin đã cập nhật)
+    dispatch(fetchUserProfile());
+  }, [dispatch]); // Dependency là dispatch
+
+  // TODO: Lấy thông tin chi tiết từ URL params nếu cần (ví dụ: mã đơn hàng)
+  // import { useSearchParams } from 'react-router-dom';
+  // const [searchParams] = useSearchParams();
+  // const orderCode = searchParams.get('vnp_TxnRef'); // Ví dụ lấy mã giao dịch VNPAY
+  // const amount = searchParams.get('vnp_Amount'); // Số tiền (lưu ý chia 100 nếu VNPAY trả về)
 
   return (
     <HomePageLayout>
-      {/* Sử dụng lại class của container Wallet hoặc tạo class mới nếu muốn tùy chỉnh */}
       <div className="wallet-page-wrapper">
-        <div className="payment-result-container"> {/* Hoặc dùng className="wallet-container" */}
+        <div className="payment-result-container">
           <div className="payment-result-content success">
-            <FontAwesomeIcon icon={faCheckCircle} className="status-icon icon-success" />
+            {/* Hiển thị icon check hoặc spinner nếu đang load profile */}
+            {!profileLoading && !profileError && (
+              <FontAwesomeIcon
+                icon={faCheckCircle}
+                className="status-icon icon-success"
+              />
+            )}
+            {profileLoading && (
+              <FontAwesomeIcon
+                icon={faSpinner}
+                spin
+                className="status-icon icon-loading"
+              />
+            )}
+            {/* Hiển thị icon lỗi nếu fetch profile thất bại */}
+            {!profileLoading && profileError && (
+              <FontAwesomeIcon
+                icon={faExclamationTriangle}
+                className="status-icon icon-warning"
+              />
+            )}
+
             <h2>Thanh toán thành công!</h2>
             <p>
-              Cảm ơn bạn đã giao dịch. Gói Coin đã được thêm vào tài khoản của bạn.
+              Cảm ơn bạn đã giao dịch. Gói Coin đã được thêm vào tài khoản của
+              bạn.
             </p>
-            <p className="sub-message">
-              Số dư Coin của bạn sẽ được cập nhật trong giây lát.
-            </p>
+
+            {/* Hiển thị thông báo dựa trên trạng thái fetch profile */}
+            {profileLoading && (
+              <p className="sub-message loading-message">
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  spin
+                  style={{ marginRight: "5px" }}
+                />
+                Đang cập nhật thông tin tài khoản...
+              </p>
+            )}
+            {!profileLoading && profileError && (
+              <p className="sub-message error-message">
+                <FontAwesomeIcon
+                  icon={faExclamationTriangle}
+                  style={{ marginRight: "5px" }}
+                />
+                Không thể cập nhật số dư mới nhất. Vui lòng kiểm tra lại sau. (
+                {profileError})
+              </p>
+            )}
+            {!profileLoading && !profileError && (
+              <p className="sub-message">
+                Số dư Coin của bạn đã được cập nhật.
+              </p>
+            )}
 
             {/* Optional: Hiển thị chi tiết giao dịch nếu có */}
             {/* <div className="transaction-details">
-              <p><strong>Mã đơn hàng:</strong> {orderId || 'N/A'}</p>
-              <p><strong>Số tiền:</strong> {amount ? formatCurrency(amount) : 'N/A'}</p>
-            </div> */}
+                            {orderCode && <p><strong>Mã giao dịch:</strong> {orderCode}</p>}
+                            {amount && <p><strong>Số tiền:</strong> {formatCurrency(parseInt(amount) / 100)}</p>}
+                        </div> */}
 
             <div className="action-buttons">
-              <Link to="/vi-cua-toi" className="btn btn-primary"> {/* Sử dụng class button của bạn */}
+              <Link to="/vi-cua-toi" className="btn btn-primary">
                 Xem Ví Coin
               </Link>
-              <Link to="/" className="btn btn-secondary"> {/* Sử dụng class button của bạn */}
+              <Link to="/" className="btn btn-secondary">
                 Về Trang Chủ
               </Link>
             </div>
@@ -46,8 +112,5 @@ const PaymentSuccess = () => {
     </HomePageLayout>
   );
 };
-
-// Hàm formatCurrency nếu cần hiển thị số tiền
-// const formatCurrency = (amount) => { ... };
 
 export default PaymentSuccess;
