@@ -19,7 +19,6 @@ const Register = lazy(() => import("./pages/User/Register"));
 const TutorQualificationTestPage = lazy(() =>
   import("./pages/User/TutorQualificationTestPage")
 );
-const RegisterTutor = lazy(() => import("./pages/User/RegisterTutor"));
 const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
@@ -36,6 +35,10 @@ const RulesRegulationsPage = lazy(() =>
 const Wallet = lazy(() => import("./pages/User/WalletPage"));
 const PaymentSuccess = lazy(() => import("./pages/User/PaymentSuccess"));
 const PaymentFailed = lazy(() => import("./pages/User/PaymentFailed"));
+const FavoriteTutorsPage = lazy(() =>
+  import("./pages/User/FavoriteTutorsPage")
+);
+
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
 
@@ -92,6 +95,7 @@ function App() {
               element={<RulesRegulationsPage />}
             />
             <Route path="/vi-cua-toi" element={<Wallet />} />
+            <Route path="/gia-su-yeu-thich" element={<FavoriteTutorsPage />} />
             <Route
               path="/trac-nghiem-gia-su"
               element={<TutorQualificationTestPage />}
@@ -114,8 +118,6 @@ function App() {
             <Route path="payment/failed" element={<PaymentFailed />} />
 
             <Route path="user/profile" element={<Profile />} />
-            <Route path="register-tutor" element={<RegisterTutor />} />
-
             <Route element={<OtpProtectedRoute />}>
               <Route path="/change-password" element={<ChangePassword />} />
             </Route>

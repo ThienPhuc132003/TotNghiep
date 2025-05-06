@@ -178,9 +178,6 @@ const HomePageLayoutComponent = ({ children }) => {
           >
             Quy định
           </Link>
-          <Link to="/blog" className="home-page-menu-item">
-            Blog
-          </Link>
           <Link to="/tim-kiem-gia-su" className="home-page-menu-item">
             Tìm kiếm gia sư
           </Link>

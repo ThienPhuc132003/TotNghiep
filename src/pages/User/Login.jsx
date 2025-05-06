@@ -1,13 +1,17 @@
-import { useState, useEffect } from "react"; // Bỏ import React nếu không dùng
-import { useNavigate, Link } from "react-router-dom";
-import Api from "../../network/Api"; // Đảm bảo đường dẫn đúng
-import LoginLayout from "../../components/User/layout/LoginLayout"; // Đảm bảo đường dẫn đúng
-import { METHOD_TYPE } from "../../network/methodType"; // Đảm bảo đường dẫn đúng
+import { useState, useEffect } from "react"; // Thêm React nếu chưa có
+import { useNavigate, Link, useLocation } from "react-router-dom"; // *** THÊM useLocation ***
+import Api from "../../network/Api";
+import LoginLayout from "../../components/User/layout/LoginLayout";
+import { METHOD_TYPE } from "../../network/methodType";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setUserProfile } from "../../redux/userSlice"; // <-- Import setUserProfile
-import "../../assets/css/LoginLayout.style.css"; // Đảm bảo đường dẫn đúng
-import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg"; // Đảm bảo đường dẫn đúng
+// *** Đảm bảo đường dẫn userSlice đúng ***
+import { setUserProfile } from "../../redux/userSlice";
+import "../../assets/css/LoginLayout.style.css";
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
+// *** THÊM import cho react-toastify ***
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Đảm bảo CSS được import (thường ở App.js)
 
 const SigninPageComponent = () => {
   const [emailOrPhoneNumber, setEmailOrPhoneNumber] = useState("");
@@ -17,12 +21,33 @@ const SigninPageComponent = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingMicrosoftLogin, setIsLoadingMicrosoftLogin] = useState(false); // <-- Thêm state loading MS
+  const [isLoadingMicrosoftLogin, setIsLoadingMicrosoftLogin] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation(); // *** Lấy location object ***
 
+  // --- XỬ LÝ HIỂN THỊ TOAST KHI ĐĂNG KÝ THÀNH CÔNG ---
   useEffect(() => {
-    // Dùng key riêng cho user nếu cần phân biệt với admin trong localStorage
+    // Kiểm tra state từ trang OTP
+    if (location.state?.registrationSuccess === true) {
+      toast.success("Đăng ký tài khoản thành công!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
+      // Xóa state để tránh hiển thị lại toast khi điều hướng nội bộ
+      navigate(location.pathname, { state: null, replace: true });
+    }
+  }, [location.state, navigate, location.pathname]); // Dependencies
+
+  // useEffect để load thông tin "Nhớ mật khẩu" (giữ nguyên)
+  useEffect(() => {
     const savedEmailOrPhoneNumber = localStorage.getItem(
       "user_emailOrPhoneNumber"
     );
@@ -34,17 +59,19 @@ const SigninPageComponent = () => {
     }
   }, []);
 
+  // validateFields (giữ nguyên)
   const validateFields = () => {
     const errors = {};
     if (!emailOrPhoneNumber) {
-      errors.emailOrPhoneNumber = "Email hoặc số điện thoại chưa được nhập";
+      errors.emailOrPhoneNumber = "Vui lòng nhập Email hoặc số điện thoại.";
     }
     if (!password) {
-      errors.password = "Mật khẩu chưa được nhập";
+      errors.password = "Vui lòng nhập mật khẩu.";
     }
     return errors;
   };
 
+  // handleSubmit (giữ nguyên logic xử lý đăng nhập)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateFields();
@@ -53,26 +80,19 @@ const SigninPageComponent = () => {
       return;
     }
     setIsSubmitting(true);
-    setErrorMessage(""); // Reset lỗi cũ
+    setErrorMessage("");
     try {
       const response = await Api({
-        endpoint: "user/login", // Endpoint user login
+        endpoint: "user/login",
         method: METHOD_TYPE.POST,
-        data: {
-          emailOrPhoneNumber,
-          password,
-        },
+        data: { emailOrPhoneNumber, password },
       });
 
       if (response.success && response.data?.token) {
         const token = response.data.token;
-        console.log("User Login Token:", token);
-
-        // Lưu token và role user
         Cookies.set("token", token, { expires: rememberMe ? 7 : undefined });
         Cookies.set("role", "user", { expires: rememberMe ? 7 : undefined });
 
-        // Lưu thông tin đăng nhập nếu chọn "Nhớ mật khẩu"
         if (rememberMe) {
           localStorage.setItem("user_emailOrPhoneNumber", emailOrPhoneNumber);
           localStorage.setItem("user_password", password);
@@ -81,56 +101,40 @@ const SigninPageComponent = () => {
           localStorage.removeItem("user_password");
         }
 
-        // Lấy thông tin profile user
         try {
           const userInfoResponse = await Api({
-            endpoint: "user/get-profile", // Endpoint user profile
+            endpoint: "user/get-profile",
             method: METHOD_TYPE.GET,
           });
 
           if (userInfoResponse.success && userInfoResponse.data) {
-            console.log("User Profile Data:", userInfoResponse);
             dispatch(setUserProfile(userInfoResponse.data));
-            navigate("/trang-chu");
+            navigate("/trang-chu"); // Chuyển hướng đến trang chủ sau khi lấy profile
           } else {
-            console.error(
-              "Login successful but failed to fetch user profile:",
-              userInfoResponse.message
-            );
-            setErrorMessage(
-              "Đăng nhập thành công nhưng không thể tải dữ liệu người dùng."
-            );
-            // Quyết định: vẫn chuyển hướng hoặc ở lại trang login với lỗi
-            navigate("/login");
+            setErrorMessage("Đăng nhập thành công nhưng không thể tải hồ sơ.");
+            // Ở lại trang login để hiển thị lỗi
           }
         } catch (profileError) {
-          console.error(
-            "Error fetching user profile after login:",
-            profileError
-          );
-          setErrorMessage(
-            profileError.response?.data?.message ||
-              "Lỗi khi tải thông tin người dùng."
-          );
-          navigate("/login"); // Tạm thời vẫn chuyển hướng
+          console.error("Error fetching profile after login:", profileError);
+          setErrorMessage("Lỗi khi tải hồ sơ người dùng.");
+          // Ở lại trang login để hiển thị lỗi
         }
       } else {
-        // Login API không thành công hoặc không trả về token
         setErrorMessage(
-          response.message || "Tài khoản hoặc mật khẩu không đúng."
+          response.message || "Email/SĐT hoặc mật khẩu không đúng."
         );
       }
     } catch (error) {
       console.error("User login error:", error);
       setErrorMessage(
-        error.response?.data?.message || "Tài khoản hoặc mật khẩu không đúng."
+        error.response?.data?.message || "Email/SĐT hoặc mật khẩu không đúng."
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Hàm tạo chuỗi ngẫu nhiên cho state (có thể tạo thành helper dùng chung)
+  // generateRandomString (giữ nguyên)
   const generateRandomString = (length) => {
     let result = "";
     const characters =
@@ -142,49 +146,38 @@ const SigninPageComponent = () => {
     return result;
   };
 
+  // handleMicrosoftLogin (giữ nguyên)
   const handleMicrosoftLogin = async () => {
     setIsLoadingMicrosoftLogin(true);
-    setErrorMessage(""); // Reset lỗi
+    setErrorMessage("");
     try {
-      // 1. Tạo state
       const state = generateRandomString(20);
-      // 2. Lưu state vào cookie
-      Cookies.set("microsoft_auth_state", state, {
-        secure: true,
-        sameSite: "Lax",
-        expires: 1 / 24 / 6,
-      }); // 10 phút
+      Cookies.set("microsoft_auth_state", state, { expires: 1 / 24 / 6 }); // 10 phút
 
-      // 3. Lấy URI
       const response = await Api({
-        endpoint: "user/auth/get-uri-microsoft", // Endpoint lấy URI cho user
+        endpoint: "user/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
       });
 
       if (response.success && response.data?.authUrl) {
-        // 4. Thêm state vào URL và chuyển hướng
         const authUrl = `${response.data.authUrl}&state=${state}`;
-        console.log("Redirecting to Microsoft for user login:", authUrl);
         window.location.href = authUrl;
       } else {
-        setErrorMessage(
-          "Không thể lấy được địa chỉ đăng nhập Microsoft. Vui lòng thử lại."
-        );
+        setErrorMessage("Không thể lấy địa chỉ đăng nhập Microsoft.");
         setIsLoadingMicrosoftLogin(false);
       }
     } catch (error) {
-      console.error("Error initiating Microsoft user login:", error);
-      setErrorMessage(
-        error.response?.data?.message ||
-          "Đã xảy ra lỗi khi bắt đầu đăng nhập Microsoft."
-      );
+      console.error("Error initiating Microsoft login:", error);
+      setErrorMessage("Lỗi khi bắt đầu đăng nhập Microsoft.");
       setIsLoadingMicrosoftLogin(false);
     }
-    // Không cần finally vì nếu thành công đã chuyển trang
   };
 
+  // --- PHẦN JSX (giữ nguyên cấu trúc) ---
   return (
     <LoginLayout>
+      {/* Đảm bảo ToastContainer được render ở cấp cao hơn (vd: App.js) */}
+      {/* <ToastContainer /> */}
       <div className="login-form">
         <h1 className="login-title">Đăng nhập</h1>
         <form className="form-above-container" onSubmit={handleSubmit}>
@@ -202,7 +195,16 @@ const SigninPageComponent = () => {
                 name="emailOrPhoneNumber"
                 value={emailOrPhoneNumber}
                 placeholder="nhập email hoặc số điện thoại"
-                onChange={(e) => setEmailOrPhoneNumber(e.target.value)}
+                onChange={(e) => {
+                  setEmailOrPhoneNumber(e.target.value);
+                  // Xóa lỗi khi người dùng nhập
+                  if (fieldErrors.emailOrPhoneNumber)
+                    setFieldErrors((prev) => ({
+                      ...prev,
+                      emailOrPhoneNumber: "",
+                    }));
+                  if (errorMessage) setErrorMessage(""); // Xóa lỗi chung
+                }}
                 className={fieldErrors.emailOrPhoneNumber ? "error-border" : ""}
               />
               <i className="fa-regular fa-user"></i>
@@ -226,11 +228,18 @@ const SigninPageComponent = () => {
                 name="password"
                 value={password}
                 placeholder="nhập mật khẩu"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  // Xóa lỗi khi người dùng nhập
+                  if (fieldErrors.password)
+                    setFieldErrors((prev) => ({ ...prev, password: "" }));
+                  if (errorMessage) setErrorMessage(""); // Xóa lỗi chung
+                }}
                 className={fieldErrors.password ? "error-border" : ""}
               />
               <button
                 type="button"
+                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"} // Thêm aria-label
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
               >
@@ -260,7 +269,9 @@ const SigninPageComponent = () => {
           </div>
 
           {/* Hiển thị lỗi chung */}
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
+          {errorMessage && (
+            <p className="error-message general-error">{errorMessage}</p>
+          )}
 
           {/* Nút Đăng nhập thường */}
           <button
@@ -268,7 +279,7 @@ const SigninPageComponent = () => {
             className="login-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Đang xử lý..." : "Đăng nhập"}
+            {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
 
           <div className="divider">
@@ -278,17 +289,16 @@ const SigninPageComponent = () => {
           {/* Nút Đăng nhập Microsoft */}
           <div className="social-login">
             <button
-              type="button" // Quan trọng
+              type="button"
               onClick={handleMicrosoftLogin}
               className="microsoft-login-button"
-              disabled={isLoadingMicrosoftLogin} // <-- Disable nút khi loading
+              disabled={isLoadingMicrosoftLogin || isSubmitting} // Disable khi đang login thường hoặc MS
             >
               {isLoadingMicrosoftLogin ? (
-                "Đang xử lý..."
+                "Đang chuyển hướng..."
               ) : (
                 <>
-                  <img src={MicrosoftLogo} alt="Microsoft logo" />{" "}
-                  {/* <-- Thêm alt text */}
+                  <img src={MicrosoftLogo} alt="Microsoft logo" />
                   Đăng nhập với Microsoft
                 </>
               )}
@@ -302,7 +312,7 @@ const SigninPageComponent = () => {
         </div>
         <div className="register-link">
           <p>
-            Không có tài khoản? <Link to="/register">Đăng ký</Link>
+            Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
           </p>
         </div>
       </div>
@@ -310,4 +320,5 @@ const SigninPageComponent = () => {
   );
 };
 
+// Không cần React.memo cho trang login thường trừ khi có lý do tối ưu đặc biệt
 export default SigninPageComponent;
