@@ -308,7 +308,7 @@ const RegisterPage = () => {
                   value={formData.majorId} // Truyền value từ state
                   onChange={handleMajorChange} // Truyền hàm xử lý riêng
                   required // Đánh dấu là bắt buộc (cho validation và isClearable)
-                  placeholder="-- Chọn ngành học của bạn --"
+                  placeholder="Chọn ngành học của bạn"
                 />
                 {/* Hiển thị lỗi bên dưới component */}
                 {formErrors.majorId && (
