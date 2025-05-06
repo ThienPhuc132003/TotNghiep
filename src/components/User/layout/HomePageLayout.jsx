@@ -248,7 +248,7 @@ const HomePageLayoutComponent = ({ children }) => {
               </Link>
             ) : (
               <Link
-                to="/dang-ky-gia-su"
+                to="/trac-nghiem-gia-su"
                 className="mobile-menu-item"
                 onClick={closeMobileMenu}
               >
