@@ -1,26 +1,27 @@
+
 [
   {
     "major_name": "Kỹ thuật ô tô",
-    "image": "/src/assets/images/mayjor_auto.jpg"
+    "image": "../../assets/images/mayjor_auto.jpg"
   },
   {
     "major_name": "Vật lý trị liệu",
-    "image": "/src/assets/images/mayjor_physical.jpg"
+    "image": "../../assets/images/mayjor_physical.jpg"
   },
   {
     "major_name": "Kiến trúc",
-    "image": "/src/assets/images/mayjor_architecture.jpg"
+    "image": "../../assets/images/mayjor_architecture.jpg"
   },
   {
     "major_name": "Công nghệ thông tin",
-    "image": "/src/assets/images/mayjor_technology.jpg"
+    "image": "../../assets/images/mayjor_technology.jpg"
   },
   {
     "major_name": "Quản trị kinh doanh",
-    "image": "/src/assets/images/mayjor_bussiness.jpg"
+    "image": "../../assets/images/mayjor_bussiness.jpg"
   },
   {
     "major_name": "Sư phạm tiểu học",
-    "image": "/src/assets/images/mayjor_teacher.jpg"
+    "image": "../../assets/images/mayjor_teacher.jpg"
   }
 ]

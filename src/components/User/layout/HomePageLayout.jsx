@@ -167,7 +167,7 @@ const HomePageLayoutComponent = ({ children }) => {
                 Hồ sơ gia sư
               </Link>
             ) : (
-              <Link to="/dang-ky-gia-su" className="home-page-menu-item">
+              <Link to="/trac-nghiem-gia-su" className="home-page-menu-item">
                 Đăng ký làm gia sư
               </Link>
             ))}

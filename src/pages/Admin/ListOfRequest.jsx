@@ -338,7 +338,7 @@ const ListOfRequestPage = () => {
     try {
       const response = await Api({
         endpoint: `tutor-request/solve-request/${requestId}`,
-        method: METHOD_TYPE.PUT, // Assuming PUT for update
+        method: METHOD_TYPE.POST, // Assuming PUT for update
         data: { click: "ACCEPT", tutorLevelId: selectedLevelId },
       });
       if (response.success) {
@@ -366,7 +366,7 @@ const ListOfRequestPage = () => {
       try {
         const response = await Api({
           endpoint: `tutor-request/solve-request/${requestId}`,
-          method: METHOD_TYPE.PUT, // Assuming PUT for update
+          method: METHOD_TYPE.POST, // Assuming PUT for update
           data: { click: "REFUSE" },
         });
         if (response.success) {
