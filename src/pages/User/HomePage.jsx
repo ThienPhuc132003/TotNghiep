@@ -11,8 +11,8 @@ import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Lay
 // --- Assets ---
 import welcomeTheme from "../../assets/images/vanlang_background3.webp";
 import vlubackground4 from "../../assets/images/vanlang_background4.webp";
-import subjectList from "../../assets/data/mayjorList.json"; // Sample subject data
-import tutorLevel from "../../assets/data/tutorLevel.json"; // Sample tutor level data
+// import subjectList from "../../assets/data/mayjorList.json"; // ĐÃ XÓA - Không dùng nữa
+import tutorLevel from "../../assets/data/tutorLevel.json"; // Vẫn dùng cho HeroSection
 import PropTypes from "prop-types"; // For prop type checking
 import person1 from "../../assets/images/person_1.png"; // Sample images
 import person2 from "../../assets/images/person_2.png";
@@ -21,6 +21,14 @@ import person4 from "../../assets/images/person_4.png";
 import person5 from "../../assets/images/person_5.png";
 import person6 from "../../assets/images/person_6.png";
 import person7 from "../../assets/images/person_7.png";
+
+// --- Ảnh cho PopularSubjectsSection (import trực tiếp) ---
+import mayjorAutoImg from "../../assets/images/mayjor_auto.jpg";
+import mayjorPhysicalImg from "../../assets/images/mayjor_physical.jpg";
+import mayjorArchitectureImg from "../../assets/images/mayjor_architecture.jpg";
+import mayjorTechnologyImg from "../../assets/images/mayjor_technology.jpg";
+import mayjorBusinessImg from "../../assets/images/mayjor_bussiness.jpg"; // Kiểm tra chính tả "bussiness"
+import mayjorTeacherImg from "../../assets/images/mayjor_teacher.jpg";
 
 // --- Icons ---
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -50,21 +58,48 @@ import { setUserProfile } from "../../redux/userSlice"; // Action to update user
 
 // --- Hero Section Component ---
 const HeroSection = ({ onSearch }) => {
+  const navigate = useNavigate(); // Đã di chuyển lên trên để dùng trong FindTutor
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const searchParams = {
-      level: formData.get("level"),
-      major: formData.get("major"),
-      studyForm: formData.get("studyForm"),
-      day: formData.get("day"),
-    };
+    // Lấy giá trị, đảm bảo không gửi "undefined" string nếu không chọn
+    const level = formData.get("level") || "";
+    const major = formData.get("major") || "";
+    const studyForm = formData.get("studyForm") || "";
+    const day = formData.get("day") || "";
+
+    const searchParams = {};
+    if (level) searchParams.level = level;
+    if (major) searchParams.major = major;
+    if (studyForm) searchParams.studyForm = studyForm;
+    if (day) searchParams.day = day;
+
     onSearch(searchParams);
   };
-  const navigate = useNavigate();
+
   const FindTutor = () => {
     navigate("/tim-kiem-gia-su");
   };
+
+  // Lấy danh sách ngành cho HeroSection (nếu bạn có một file JSON riêng cho mục này)
+  // Hoặc bạn có thể hardcode nó ở đây nếu muốn. Hiện tại đang dùng subjectList từ PopularSubjects
+  // Để tránh lỗi, chúng ta sẽ dùng popularSubjectsData (định nghĩa ở dưới cho PopularSubjectsSection)
+  // HOẶC, tốt hơn là bạn có một file JSON riêng cho các ngành trong bộ lọc tìm kiếm,
+  // ví dụ: allMajorsList.json, vì danh sách ngành để lọc có thể nhiều hơn các ngành "phổ biến".
+  // Ở đây, để đơn giản, tôi sẽ tạm thời dùng một mảng rỗng nếu không có dữ liệu ngành riêng cho Hero.
+  // GIẢ SỬ bạn có một file allMajorList.json hoặc một nguồn dữ liệu khác cho các ngành này
+  // Nếu không, bạn cần tạo một mảng dữ liệu cho nó.
+  // Ví dụ:
+  const majorsForSearch = [
+    // Đây là ví dụ, bạn nên có dữ liệu thực tế
+    { major_id: "it", major_name: "Công nghệ thông tin" },
+    { major_id: "business", major_name: "Quản trị kinh doanh" },
+    { major_id: "auto", major_name: "Kỹ thuật ô tô" },
+    { major_id: "architecture", major_name: "Kiến trúc" },
+    // ... thêm các ngành khác bạn muốn người dùng có thể lọc
+  ];
+
   return (
     <section className="hero">
       <img
@@ -106,14 +141,18 @@ const HeroSection = ({ onSearch }) => {
               />
               <select id="major" name="major" aria-label="Chọn ngành học">
                 <option value="">Tất cả các ngành</option>
-                {subjectList.map((subject) => (
-                  <option
-                    key={subject.major_id || `subject-${subject.major_name}`}
-                    value={subject.major_name}
-                  >
-                    {subject.major_name}
-                  </option>
-                ))}
+                {majorsForSearch.map(
+                  (
+                    subject // Sử dụng majorsForSearch
+                  ) => (
+                    <option
+                      key={subject.major_id || `subject-${subject.major_name}`}
+                      value={subject.major_name}
+                    >
+                      {subject.major_name}
+                    </option>
+                  )
+                )}
               </select>
             </div>
             {/* Study Form Select */}
@@ -240,17 +279,52 @@ SamplePrevArrow.propTypes = {
   onClick: PropTypes.func,
 };
 
-// --- Popular Subjects Section Component ---
+// --- Dữ liệu cho Popular Subjects Section (Định nghĩa cứng) ---
+const popularSubjectsData = [
+  {
+    id: "auto",
+    major_name: "Kỹ thuật ô tô",
+    image: mayjorAutoImg,
+  },
+  {
+    id: "physical",
+    major_name: "Vật lý trị liệu",
+    image: mayjorPhysicalImg,
+  },
+  {
+    id: "architecture",
+    major_name: "Kiến trúc",
+    image: mayjorArchitectureImg,
+  },
+  {
+    id: "it",
+    major_name: "Công nghệ thông tin",
+    image: mayjorTechnologyImg,
+  },
+  {
+    id: "business",
+    major_name: "Quản trị kinh doanh",
+    image: mayjorBusinessImg,
+  },
+  {
+    id: "teacher",
+    major_name: "Sư phạm tiểu học",
+    image: mayjorTeacherImg,
+  },
+];
+
+// --- Popular Subjects Section Component (Đã sửa đổi) ---
 const PopularSubjectsSection = () => {
   const sliderRef = useRef(null);
-  const slidesToShow = 4; // Số lượng slide hiển thị mặc định
+  const slidesToShowDefault = 4; // Số lượng slide hiển thị mặc định
+
   const settings = {
     dots: false,
-    infinite: subjectList.length > slidesToShow,
+    infinite: popularSubjectsData.length > slidesToShowDefault,
     speed: 500,
-    slidesToShow: slidesToShow,
+    slidesToShow: Math.min(slidesToShowDefault, popularSubjectsData.length), // Không vượt quá số item
     slidesToScroll: 1,
-    autoplay: subjectList.length > slidesToShow,
+    autoplay: popularSubjectsData.length > slidesToShowDefault,
     autoplaySpeed: 4000,
     swipeToSlide: true,
     nextArrow: <SampleNextArrow />,
@@ -259,25 +333,25 @@ const PopularSubjectsSection = () => {
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 3,
-          infinite: subjectList.length > 3,
-          autoplay: subjectList.length > 3,
+          slidesToShow: Math.min(3, popularSubjectsData.length),
+          infinite: popularSubjectsData.length > 3,
+          autoplay: popularSubjectsData.length > 3,
         },
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
-          infinite: subjectList.length > 2,
-          autoplay: subjectList.length > 2,
+          slidesToShow: Math.min(2, popularSubjectsData.length),
+          infinite: popularSubjectsData.length > 2,
+          autoplay: popularSubjectsData.length > 2,
         },
       },
       {
         breakpoint: 576,
         settings: {
-          slidesToShow: 1,
-          infinite: subjectList.length > 1,
-          autoplay: subjectList.length > 1,
+          slidesToShow: Math.min(1, popularSubjectsData.length),
+          infinite: popularSubjectsData.length > 1,
+          autoplay: popularSubjectsData.length > 1,
         },
       },
     ],
@@ -285,25 +359,26 @@ const PopularSubjectsSection = () => {
   return (
     <section className="popular-subjects section">
       <h2>Các Ngành Được Học Nhiều Nhất</h2>
-      <Slider {...settings} ref={sliderRef} className="subjects-slider">
-        {subjectList.map((subject) => (
-          <div
-            key={subject.major_id || `subject-slide-${subject.major_name}`}
-            className="subject-slide"
-          >
-            <div className="subject-item">
-              <img
-                src={subject.image}
-                alt={`Ngành ${subject.major_name}`}
-                className="subject-img"
-                loading="lazy"
-              />
-              <div className="subject-img-mask"></div>
-              <p>{subject.major_name}</p>
+      {popularSubjectsData.length > 0 ? (
+        <Slider {...settings} ref={sliderRef} className="subjects-slider">
+          {popularSubjectsData.map((subject) => (
+            <div key={subject.id} className="subject-slide">
+              <div className="subject-item">
+                <img
+                  src={subject.image}
+                  alt={`Ngành ${subject.major_name}`}
+                  className="subject-img"
+                  loading="lazy"
+                />
+                <div className="subject-img-mask"></div>
+                <p>{subject.major_name}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </Slider>
+          ))}
+        </Slider>
+      ) : (
+        <p>Chưa có thông tin về các ngành học phổ biến.</p>
+      )}
     </section>
   );
 };
@@ -413,23 +488,22 @@ const TutorProfilesSection = () => {
       ielts: "7.5",
       image: person4,
     },
-    // Thêm gia sư nếu cần
     {
       id: 5,
       name: "Hoàng Văn G",
       major: "Khoa Mỹ Thuật Công Nghiệp",
       skill: "Vẽ tay, Photoshop",
-      image: person5, // Thay ảnh nếu có
+      image: person5,
     },
   ];
-  const slidesToShow = 4; // Số lượng slide hiển thị mặc định
+  const slidesToShowDefault = 4;
   const settings = {
     dots: false,
-    infinite: tutors.length > slidesToShow,
+    infinite: tutors.length > slidesToShowDefault,
     speed: 500,
-    slidesToShow: slidesToShow,
+    slidesToShow: Math.min(slidesToShowDefault, tutors.length),
     slidesToScroll: 1,
-    autoplay: tutors.length > slidesToShow,
+    autoplay: tutors.length > slidesToShowDefault,
     autoplaySpeed: 3000,
     pauseOnHover: true,
     nextArrow: <SampleNextArrow />,
@@ -438,7 +512,7 @@ const TutorProfilesSection = () => {
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: Math.min(3, tutors.length),
           infinite: tutors.length > 3,
           autoplay: tutors.length > 3,
         },
@@ -446,15 +520,15 @@ const TutorProfilesSection = () => {
       {
         breakpoint: 992,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: Math.min(2, tutors.length),
           infinite: tutors.length > 2,
           autoplay: tutors.length > 2,
         },
       },
       {
-        breakpoint: 768, // Điều chỉnh breakpoint nếu cần
+        breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: Math.min(2, tutors.length),
           infinite: tutors.length > 2,
           autoplay: tutors.length > 2,
         },
@@ -462,7 +536,7 @@ const TutorProfilesSection = () => {
       {
         breakpoint: 576,
         settings: {
-          slidesToShow: 1,
+          slidesToShow: Math.min(1, tutors.length),
           infinite: tutors.length > 1,
           autoplay: tutors.length > 1,
         },
@@ -473,32 +547,36 @@ const TutorProfilesSection = () => {
   return (
     <section className="tutor-profiles section">
       <h2>Gặp Gỡ Các Gia Sư Nổi Bật Của Văn Lang</h2>
-      <Slider {...settings} ref={sliderRef} className="tutor-slider">
-        {tutors.map((tutor) => (
-          <div key={tutor.id} className="tutor-slide">
-            <div className="tutor">
-              <img
-                src={tutor.image}
-                alt={`Gia sư ${tutor.name}`}
-                loading="lazy"
-              />
-              <h3>{tutor.name}</h3>
-              <p className="tutor-info">{tutor.major}</p>
-              {tutor.gpa && <p className="tutor-info">GPA: {tutor.gpa}</p>}
-              {tutor.ielts && (
-                <p className="tutor-info">IELTS: {tutor.ielts}</p>
-              )}
-              {tutor.skill && (
-                <p className="tutor-info">Skill: {tutor.skill}</p>
-              )}
-              <button type="button" className="view-profile-button">
-                Xem Hồ Sơ
-              </button>
+      {tutors.length > 0 ? (
+        <Slider {...settings} ref={sliderRef} className="tutor-slider">
+          {tutors.map((tutor) => (
+            <div key={tutor.id} className="tutor-slide">
+              <div className="tutor">
+                <img
+                  src={tutor.image}
+                  alt={`Gia sư ${tutor.name}`}
+                  loading="lazy"
+                />
+                <h3>{tutor.name}</h3>
+                <p className="tutor-info">{tutor.major}</p>
+                {tutor.gpa && <p className="tutor-info">GPA: {tutor.gpa}</p>}
+                {tutor.ielts && (
+                  <p className="tutor-info">IELTS: {tutor.ielts}</p>
+                )}
+                {tutor.skill && (
+                  <p className="tutor-info">Skill: {tutor.skill}</p>
+                )}
+                <button type="button" className="view-profile-button">
+                  Xem Hồ Sơ
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </Slider>
-      {tutors.length > slidesToShow && (
+          ))}
+        </Slider>
+      ) : (
+        <p>Chưa có thông tin về gia sư nổi bật.</p>
+      )}
+      {tutors.length > slidesToShowDefault && (
         <button type="button" className="view-all-tutors">
           Xem Tất Cả Gia Sư
         </button>
@@ -613,7 +691,6 @@ const HomePage = () => {
       let isMounted = true;
       setIsProcessingOAuth(true);
       setOauthError(null);
-      // Focus after render to ensure element exists
       setTimeout(() => {
         if (isMounted) oauthProcessingRef.current?.focus();
       }, 0);
@@ -624,18 +701,18 @@ const HomePage = () => {
           setOauthError(
             "Lỗi bảo mật (state không khớp). Vui lòng thử đăng nhập lại."
           );
-          Cookies.remove("microsoft_auth_state"); // Clean up invalid state
-          navigate(location.pathname, { replace: true }); // Remove code/state from URL
+          Cookies.remove("microsoft_auth_state");
+          navigate(location.pathname, { replace: true });
           setIsProcessingOAuth(false);
         }
         return;
       }
-      Cookies.remove("microsoft_auth_state"); // State matched, remove it
+      Cookies.remove("microsoft_auth_state");
 
       const exchangeCodeForToken = async (authCode) => {
         try {
           const response = await Api({
-            endpoint: "user/auth/callback", // Make sure this endpoint is correct
+            endpoint: "user/auth/callback",
             method: METHOD_TYPE.POST,
             data: { code: authCode },
           });
@@ -644,15 +721,13 @@ const HomePage = () => {
             Cookies.set("token", response.data.token, {
               secure: true,
               sameSite: "Lax",
-            }); // Add security flags
-            Cookies.set("role", "user", { secure: true, sameSite: "Lax" }); // Assume 'user' role for now
+            });
+            Cookies.set("role", "user", { secure: true, sameSite: "Lax" });
 
-            // Fetch user profile after successful login
             try {
               const userInfoResponse = await Api({
                 endpoint: "user/get-profile",
                 method: METHOD_TYPE.GET,
-                // No need to pass token in data, Api function should handle Authorization header
               });
 
               if (
@@ -662,7 +737,6 @@ const HomePage = () => {
               ) {
                 dispatch(setUserProfile(userInfoResponse.data));
               } else if (isMounted) {
-                // Handle profile fetch error - maybe log user in but show error fetching profile?
                 setOauthError(
                   "Đăng nhập thành công nhưng không thể tải thông tin hồ sơ."
                 );
@@ -677,7 +751,6 @@ const HomePage = () => {
               }
             }
           } else if (isMounted) {
-            // Throw specific error from backend if available
             throw new Error(
               response.message || "Không thể đổi mã xác thực lấy token."
             );
@@ -693,7 +766,7 @@ const HomePage = () => {
           }
         } finally {
           if (isMounted) {
-            navigate(location.pathname, { replace: true }); // Remove code/state from URL regardless of success/failure
+            navigate(location.pathname, { replace: true });
             setIsProcessingOAuth(false);
           }
         }
@@ -701,61 +774,53 @@ const HomePage = () => {
 
       exchangeCodeForToken(code);
 
-      // Cleanup function for useEffect
       return () => {
         isMounted = false;
       };
     }
-    // Only run when location.search changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, navigate, dispatch]);
+  }, [location.search, navigate, dispatch, location]); // Giữ nguyên dependency array
 
   // --- Search Handler ---
   const handleSearch = (searchParams) => {
     console.log("Searching with params:", searchParams);
-    // TODO: Implement navigation to search results page
-    // Example: navigate(`/search?level=${searchParams.level}&major=${searchParams.major}...`);
     const query = new URLSearchParams(searchParams).toString();
-    navigate(`/search-results?${query}`); // Navigate to a hypothetical search results page
+    navigate(`/tim-kiem-gia-su?${query}`); // Cập nhật navigate tới trang tìm kiếm gia sư
   };
 
   // --- Render ---
   return (
     <HomePageLayout>
-      {/* Added Wrapper Div for CSS Scoping and potential styling */}
       <div className="home-page-wrapper">
         {isProcessingOAuth && (
           <div
             ref={oauthProcessingRef}
             className="oauth-processing-overlay"
-            tabIndex="-1" // Make it focusable
+            tabIndex="-1"
             role="region"
-            aria-live="assertive" // Announce changes to screen readers
+            aria-live="assertive"
             aria-label="Đang xử lý đăng nhập qua Microsoft"
           >
             <p>Đang xử lý đăng nhập...</p>
-            {/* Optional: Add a spinner */}
           </div>
         )}
         {oauthError && (
           <div
             className="oauth-error-message"
-            role="alert" // Important for accessibility
+            role="alert"
             style={{
-              color: "#D8000C", // Error red color
-              backgroundColor: "#FFD2D2", // Light red background
+              color: "#D8000C",
+              backgroundColor: "#FFD2D2",
               border: "1px solid #D8000C",
               borderRadius: "4px",
               padding: "10px 15px",
-              margin: "20px auto", // Center it a bit
+              margin: "20px auto",
               textAlign: "center",
-              maxWidth: "600px", // Limit width
+              maxWidth: "600px",
             }}
           >
             <strong>Lỗi Đăng Nhập:</strong> {oauthError}
           </div>
         )}
-        {/* Render main content only when not processing OAuth */}
         {!isProcessingOAuth && <HomePageContent onSearch={handleSearch} />}
       </div>
     </HomePageLayout>

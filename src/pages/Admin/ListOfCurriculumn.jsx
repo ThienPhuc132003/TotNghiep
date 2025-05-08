@@ -336,7 +336,7 @@ const ListOfCurriculumnPage = () => {
 
   const editFields = [
     { key: "curriculumnName", label: "Tên giáo trình", type: "text" },
-    { key: "major.majorName", label: "Ngành", type: "text" },
+    { key: "major.majorName", label: "Negành", type: "text" },
     { key: "curriculumnUrl", label: "URL giáo trình", type: "text" },
     { key: "description", label: "Mô tả", type: "textarea" },
   ];
@@ -382,7 +382,7 @@ const ListOfCurriculumnPage = () => {
           </div>
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddCurriculumn}>
-              Thêm giáo trình
+              Thêm
             </button>
           </div>
         </div>
