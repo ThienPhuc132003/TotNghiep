@@ -389,7 +389,7 @@ const ListOfRequestPage = () => {
     () => [
       { title: "ID", dataKey: "tutorRequestId", sortable: true },
       { title: "Họ và Tên", dataKey: "fullname", sortable: true },
-      { title: "Email", dataKey: "gmail", sortable: true },
+      { title: "Email", dataKey: "emailOfTutor", sortable: true },
       { title: "Trường ĐH", dataKey: "univercity", sortable: true },
       {
         title: "Chuyên ngành",

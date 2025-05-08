@@ -102,6 +102,7 @@ function App() {
             />
             <Route element={<TutorRegistrationGuard />}>
               <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
+              <Route path="/ho-so-gia-su" element={<TutorRegister />} />
             </Route>
             <Route
               path="/admin/auth/callback"
