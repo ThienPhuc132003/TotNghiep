@@ -18,6 +18,9 @@ import person1 from "../../assets/images/person_1.png"; // Sample images
 import person2 from "../../assets/images/person_2.png";
 import person3 from "../../assets/images/person_3.png";
 import person4 from "../../assets/images/person_4.png";
+import person5 from "../../assets/images/person_5.png";
+import person6 from "../../assets/images/person_6.png";
+import person7 from "../../assets/images/person_7.png";
 
 // --- Icons ---
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -312,7 +315,7 @@ const TestimonialsSection = () => {
       id: 1,
       name: "Hồ Đăng Khôi Nguyên",
       major: "Khoa Công Nghệ Thông Tin",
-      image: person1,
+      image: person7,
       quote:
         "Nhờ có GiaSuVLU, mình đã tìm được một bạn gia sư CNTT cùng trường rất nhiệt tình. Bạn ấy không chỉ giúp mình qua môn Lập trình Web mà còn chia sẻ nhiều kinh nghiệm thực tế hữu ích.",
     },
@@ -320,7 +323,7 @@ const TestimonialsSection = () => {
       id: 2,
       name: "Nguyễn Thị Bích Trâm",
       major: "Khoa Quản Trị Kinh Doanh",
-      image: person2,
+      image: person6,
       quote:
         "Lịch học của mình khá bận, nhưng mình vẫn dễ dàng sắp xếp được buổi học với gia sư Quản trị nhờ tính năng linh hoạt của nền tảng. Gia sư rất kiên nhẫn và giải thích dễ hiểu.",
     },
@@ -378,7 +381,6 @@ const TestimonialsSection = () => {
     </section>
   );
 };
-
 // --- Tutor Profiles Section Component ---
 const TutorProfilesSection = () => {
   const sliderRef = useRef(null);
@@ -417,7 +419,7 @@ const TutorProfilesSection = () => {
       name: "Hoàng Văn G",
       major: "Khoa Mỹ Thuật Công Nghiệp",
       skill: "Vẽ tay, Photoshop",
-      image: person1, // Thay ảnh nếu có
+      image: person5, // Thay ảnh nếu có
     },
   ];
   const slidesToShow = 4; // Số lượng slide hiển thị mặc định
@@ -467,6 +469,7 @@ const TutorProfilesSection = () => {
       },
     ],
   };
+
   return (
     <section className="tutor-profiles section">
       <h2>Gặp Gỡ Các Gia Sư Nổi Bật Của Văn Lang</h2>

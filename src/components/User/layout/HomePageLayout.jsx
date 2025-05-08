@@ -167,7 +167,7 @@ const HomePageLayoutComponent = ({ children }) => {
                 Hồ sơ gia sư
               </Link>
             ) : (
-              <Link to="/dang-ky-gia-su" className="home-page-menu-item">
+              <Link to="/trac-nghiem-gia-su" className="home-page-menu-item">
                 Đăng ký làm gia sư
               </Link>
             ))}
@@ -248,7 +248,7 @@ const HomePageLayoutComponent = ({ children }) => {
               </Link>
             ) : (
               <Link
-                to="/trac-nghiem-gia-su"
+                to="/dang-ky-gia-su"
                 className="mobile-menu-item"
                 onClick={closeMobileMenu}
               >
