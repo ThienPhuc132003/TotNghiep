@@ -289,7 +289,7 @@ const ListOfCurriculumnPage = () => {
         currentPage * itemsPerPage + rowIndex + 1,
     },
     { title: "Tên giáo trình", dataKey: "curriculumnName", sortable: true },
-    { title: "Ngành", dataKey: "curriculumnMajor", sortable: true },
+    { title: "Ngành", dataKey: "major.majorName", sortable: true },
     {
       title: "Trạng thái",
       dataKey: "status",
@@ -336,7 +336,7 @@ const ListOfCurriculumnPage = () => {
 
   const editFields = [
     { key: "curriculumnName", label: "Tên giáo trình", type: "text" },
-    { key: "curriculumnMajor", label: "Ngành", type: "text" },
+    { key: "major.majorName", label: "Ngành", type: "text" },
     { key: "curriculumnUrl", label: "URL giáo trình", type: "text" },
     { key: "description", label: "Mô tả", type: "textarea" },
   ];
