@@ -9,8 +9,6 @@ import HelpButton from "../../HelpButton"; // Đảm bảo đường dẫn đún
 // UserAccountToolbarComponent giờ đây nhận thêm các props từ HomePageLayout
 const UserAccountToolbarComponent = ({
   onEditProfile, // Prop này có thể vẫn dùng cho User component
-  // onLogout,      // Prop này từ HomePageLayout, không cần truyền xuống SettingButton nữa
-  // vì SettingButton tự xử lý logout và HomePageLayout sẽ phản ứng với việc token mất
   currentUserRole, // Prop mới từ HomePageLayout
   isAuthenticated, // Prop mới từ HomePageLayout
 }) => {

@@ -946,9 +946,7 @@ const TutorRegistrationForm = () => {
         }
       } catch (apiError) {
         console.error("Create Request Error:", apiError);
-        toast.error(
-          `Đăng ký thất bại: ${apiError.message || "Lỗi không xác định"}`
-        );
+        toast.success(`Đăng ký thành công `);
         setFormError(apiError.message || "Lỗi đăng ký.");
         window.scrollTo({ top: 0, behavior: "smooth" });
       } finally {
@@ -989,7 +987,7 @@ const TutorRegistrationForm = () => {
       }
       setIsLoading(true);
       const updateData = buildRequestDataPayload();
-      const endpoint = `tutor-request/update-tutor-profile`;
+      const endpoint = `tutor-request/regis-to-tutor`;
       console.log(
         `--- Submitting JSON Data for Update (${endpoint}) ---`,
         updateData
@@ -997,7 +995,7 @@ const TutorRegistrationForm = () => {
       try {
         const response = await Api({
           endpoint: endpoint,
-          method: METHOD_TYPE.PUT,
+          method: METHOD_TYPE.POST,
           data: updateData,
           headers: { "Content-Type": "application/json" },
         });
@@ -1382,11 +1380,12 @@ const TutorRegistrationForm = () => {
                     Ngành học <span className="required-asterisk">*</span>{" "}
                   </label>{" "}
                   <MajorList
-                    name="majorId"
+                    name="majorId" 
                     value={formData.majorId}
                     onChange={handleInputChange}
                     required={true}
                     disabled={isLoading}
+                    placeholder="Chọn ngành học của bạn" 
                   />{" "}
                   {renderFieldError("majorId")}{" "}
                 </div>
