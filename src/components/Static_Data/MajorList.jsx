@@ -1,98 +1,135 @@
+// src/components/Static_Data/MajorList.jsx
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import Api from "../../network/Api"; // Import Api
-import { METHOD_TYPE } from "../../network/methodType"; // Import METHOD_TYPE
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
 
 // --- CẬP NHẬT STYLE CHO react-select ĐỂ ĐỒNG BỘ VỚI FORM ---
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    backgroundColor: "transparent", // Nền trong suốt
-    borderColor: state.isFocused ? "#ffffff" : "#ffffff", // Viền trắng (có thể đổi màu khi focus nếu muốn)
-    borderWidth: "2px", // Độ dày viền giống input khác
-    borderRadius: "16px", // Bo tròn giống input khác
-    minHeight: "39px", // Chiều cao tối thiểu giống input khác (có thể cần điều chỉnh)
-    height: "39px", // Set chiều cao cố định
-    boxShadow: "none", // Bỏ shadow mặc định
+    backgroundColor: "transparent",
+    borderColor: state.isFocused
+      ? "#ffffff"
+      : state.isDisabled
+      ? "rgba(255, 255, 255, 0.5)"
+      : "#ffffff",
+    borderWidth: "2px", // Giữ nguyên vì CSS ghi đè sẽ dùng giá trị này để tính toán
+    borderRadius: "16px",
+    minHeight: "auto", // Để CSS bên ngoài kiểm soát hoàn toàn minHeight và height
+    height: "auto", // Để CSS bên ngoài kiểm soát hoàn toàn
+    boxShadow: "none",
     "&:hover": {
-      borderColor: "#ffffff", // Giữ viền trắng khi hover
+      borderColor: state.isFocused
+        ? "#ffffff"
+        : state.isDisabled
+        ? "rgba(255, 255, 255, 0.5)"
+        : "rgba(255, 255, 255, 0.85)",
     },
-    cursor: "pointer", // Thêm con trỏ
+    cursor: state.isDisabled ? "not-allowed" : "pointer",
+    display: "flex", // Cần thiết
+    alignItems: "stretch", // Cần thiết
+    padding: 0, // Control không nên có padding, để valueContainer xử lý
+    boxSizing: "border-box", // Quan trọng
   }),
   valueContainer: (provided) => ({
     ...provided,
-    padding: "0 0.5rem", // Padding giống input khác (0.5rem)
-    height: "39px", // Đảm bảo container giá trị có cùng chiều cao
-    alignItems: "center", // Căn giữa giá trị theo chiều dọc
+    // Padding sẽ được ghi đè bởi CSS ngoài, nhưng để giá trị mặc định ở đây
+    paddingTop: "0.9rem",
+    paddingBottom: "0.9rem",
+    paddingLeft: "calc(1.2rem - 2px)",
+    paddingRight: "calc(1.2rem - 2px)",
+    display: "flex",
+    alignItems: "center",
+    flexGrow: 1,
+    overflow: "hidden", // Giúp xử lý text dài nếu không có ellipsis
+    boxSizing: "border-box", // Quan trọng
   }),
-  placeholder: (provided) => ({
+  placeholder: (provided, state) => ({
     ...provided,
-    color: "rgba(255, 255, 255, 0.7)", // Màu placeholder trắng mờ giống input khác
-    fontStyle: "italic", // Giống placeholder input khác
-    marginLeft: "2px", // Điều chỉnh nhỏ nếu cần
-    marginRight: "2px",
+    color: state.isDisabled
+      ? "rgba(255, 255, 255, 0.4)"
+      : "rgba(255, 255, 255, 0.7)",
+    fontStyle: "italic",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    // margin-left: 0; // Để padding của valueContainer quyết định vị trí
   }),
-  singleValue: (provided) => ({
+  singleValue: (provided, state) => ({
     ...provided,
-    color: "#ffffff", // Màu chữ trắng cho giá trị đã chọn
-    marginLeft: "2px",
-    marginRight: "2px",
+    color: state.isDisabled ? "rgba(255, 255, 255, 0.5)" : "#ffffff",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   }),
-  input: (provided) => ({
+  input: (provided, state) => ({
     ...provided,
-    color: "#ffffff", // Màu chữ trắng khi đang gõ tìm kiếm
-    margin: "0px",
-    padding: "0px",
+    color: state.isDisabled ? "rgba(255, 255, 255, 0.5)" : "#ffffff",
+    margin: "0",
+    paddingTop: "0",
+    paddingBottom: "0",
+    boxSizing: "border-box",
+  }),
+  indicatorsContainer: (provided) => ({
+    ...provided,
+    alignSelf: "stretch",
+    boxSizing: "border-box",
+  }),
+  dropdownIndicator: (provided, state) => ({
+    ...provided,
+    padding: "8px",
+    color: state.isDisabled ? "rgba(255, 255, 255, 0.4)" : "#ffffff",
+    "&:hover": {
+      color: state.isDisabled
+        ? "rgba(255, 255, 255, 0.4)"
+        : "rgba(255, 255, 255, 0.8)",
+    },
+  }),
+  clearIndicator: (provided, state) => ({
+    ...provided,
+    padding: "8px",
+    color: state.isDisabled ? "rgba(255, 255, 255, 0.4)" : "#ffffff",
+    "&:hover": {
+      color: state.isDisabled
+        ? "rgba(255, 255, 255, 0.4)"
+        : "rgba(255, 255, 255, 0.8)",
+    },
   }),
   indicatorSeparator: () => ({
-    display: "none", // Ẩn đường kẻ phân cách
-  }),
-  dropdownIndicator: (provided) => ({
-    ...provided,
-    color: "#ffffff", // Màu mũi tên trắng
-    padding: "8px", // Điều chỉnh padding nếu cần
-    "&:hover": {
-      color: "rgba(255, 255, 255, 0.8)", // Màu mũi tên trắng nhạt hơn khi hover
-    },
-  }),
-  clearIndicator: (provided) => ({
-    ...provided,
-    color: "#ffffff", // Màu nút clear trắng
-    padding: "8px",
-    "&:hover": {
-      color: "rgba(255, 255, 255, 0.8)",
-    },
+    display: "none",
   }),
   menu: (provided) => ({
     ...provided,
-    zIndex: 5, // Giữ z-index cao để menu hiển thị trên các phần tử khác
-    backgroundColor: "#ffffff", // Nền trắng cho menu dropdown
-    borderRadius: "8px", // Có thể thêm bo tròn nhẹ cho menu
-    marginTop: "4px", // Khoảng cách nhỏ giữa control và menu
+    zIndex: 10,
+    backgroundColor: "#ffffff",
+    borderRadius: "8px",
+    marginTop: "4px", // Khoảng cách từ control đến menu
   }),
   option: (provided, state) => ({
     ...provided,
-    // Giữ style option cũ hoặc điều chỉnh màu sắc nếu muốn
     backgroundColor: state.isSelected
-      ? "rgba(64, 104, 178, 0.8)" // Màu xanh khi chọn (giống màu nút Đăng ký)
+      ? "rgba(180, 30, 45, 0.9)" // Màu Văn Lang
       : state.isFocused
-      ? "rgba(64, 104, 178, 0.1)" // Màu nền nhạt khi hover/focus
-      : "#ffffff", // Nền trắng mặc định
-    color: state.isSelected ? "#ffffff" : "#212529", // Chữ trắng khi chọn, đen khi thường
-    padding: "10px 12px", // Tăng padding cho dễ click
+      ? "rgba(180, 30, 45, 0.1)"
+      : "#ffffff",
+    color: state.isSelected ? "#ffffff" : "#212529",
+    padding: "10px 15px",
     cursor: "pointer",
     "&:active": {
-      backgroundColor: "rgba(64, 104, 178, 0.2)", // Màu khi nhấn giữ
+      backgroundColor: "rgba(180, 30, 45, 0.2)",
     },
   }),
   noOptionsMessage: (provided) => ({
     ...provided,
-    color: "#6c757d", // Màu chữ xám cho thông báo không có lựa chọn
+    color: "#6c757d",
+    padding: "10px 15px",
   }),
   loadingMessage: (provided) => ({
     ...provided,
-    color: "#6c757d", // Màu chữ xám cho thông báo đang tải
+    color: "#6c757d",
+    padding: "10px 15px",
   }),
 };
 
@@ -100,12 +137,16 @@ const MajorList = ({
   onChange,
   value,
   required = false,
-  name = "majorId",
-  placeholder = "Chọn ngành học của bạn", // Sửa placeholder cho phù hợp
+  name = "majorId", // name này sẽ được dùng cho instanceId
+  placeholder = "Chọn ngành học của bạn",
+  disabled = false, // Prop để vô hiệu hóa từ bên ngoài
 }) => {
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Tạo instanceId dựa trên name để đảm bảo tính duy nhất và dễ nhắm mục tiêu CSS
+  const selectInstanceId = `select-${name}`; // Ví dụ: select-majorId
 
   useEffect(() => {
     const fetchMajors = async () => {
@@ -113,27 +154,20 @@ const MajorList = ({
       setError(null);
       try {
         const response = await Api({
-          endpoint: "major/search",
+          endpoint: "major/search", // Giả sử API endpoint là đây
           method: METHOD_TYPE.GET,
         });
+        // Kiểm tra cấu trúc response cẩn thận
         const items = response?.data?.items || [];
-        console.log("MajorList Raw API Response Data:", response?.data);
-        console.log("MajorList Extracted Items:", items);
-
         if (Array.isArray(items)) {
           const formattedOptions = items.map((major) => ({
-            value: major.majorId,
-            label: major.majorName,
+            value: major.majorId, // Đảm bảo key là 'majorId' hoặc tương ứng với dữ liệu API
+            label: major.majorName, // Đảm bảo key là 'majorName'
           }));
           setOptions(formattedOptions);
-          setError(null);
-          if (items.length === 0) {
-            console.warn("MajorList: No major data found.");
-            // Không cần setError ở đây, component sẽ tự hiển thị noOptionsMessage
-          }
         } else {
           console.error(
-            "MajorList: Invalid data structure received:",
+            "MajorList: Dữ liệu API không phải là mảng hoặc không hợp lệ.",
             response?.data
           );
           setError("Lỗi định dạng dữ liệu ngành học.");
@@ -141,7 +175,7 @@ const MajorList = ({
         }
       } catch (err) {
         console.error("MajorList fetch error:", err);
-        setError("Lỗi tải dữ liệu ngành học.");
+        setError("Lỗi tải dữ liệu ngành học. Vui lòng thử lại.");
         setOptions([]);
       } finally {
         setIsLoading(false);
@@ -154,52 +188,56 @@ const MajorList = ({
     options.find((option) => option.value === value) || null;
 
   const handleChange = (selected) => {
-    // Khi xóa lựa chọn (isClearable), selected sẽ là null
-    onChange(name, selected ? selected.value : "");
+    onChange(name, selected ? selected.value : ""); // Truyền giá trị rỗng nếu xóa
   };
+
+  const trulyDisabled = disabled || isLoading || !!error;
 
   return (
     <>
       <Select
+        instanceId={selectInstanceId} // QUAN TRỌNG: Dùng để CSS nhắm mục tiêu
         name={name}
         options={options}
         value={selectedOption}
         onChange={handleChange}
         isLoading={isLoading}
-        // isDisabled nên chỉ dùng khi có lỗi nghiêm trọng hoặc không có options
-        isDisabled={isLoading || !!error}
+        isDisabled={trulyDisabled}
         placeholder={
           isLoading
-            ? "Đang tải..."
+            ? "Đang tải ngành học..."
             : error
-            ? "Lỗi tải dữ liệu!" // Thông báo lỗi rõ ràng hơn
-            : placeholder // Sử dụng placeholder truyền vào
+            ? "Lỗi tải dữ liệu!"
+            : placeholder
         }
-        isClearable={!required} // Cho phép xóa nếu không bắt buộc
-        isSearchable={true}
-        noOptionsMessage={() => "Không tìm thấy ngành học"}
+        isClearable={!required && !trulyDisabled}
+        isSearchable={!trulyDisabled}
+        noOptionsMessage={() =>
+          error
+            ? "Lỗi tải dữ liệu"
+            : options.length === 0 && !isLoading
+            ? "Không có ngành học nào"
+            : "Không tìm thấy ngành học"
+        }
         loadingMessage={() => "Đang tải..."}
-        styles={customSelectStyles} // Áp dụng style đã cập nhật
-        required={required} // Truyền prop required xuống để có thể sử dụng ở form cha
+        styles={customSelectStyles}
+        // classNamePrefix={selectInstanceId} // Thêm prefix cho các class nội bộ của react-select nếu muốn (ví dụ: select-majorId__control)
       />
-      {/* Hiển thị lỗi API riêng biệt nếu muốn */}
-      {/* {error && (
-        <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '4px' }}>
-          {error}
-        </p>
-      )} */}
-      {/* Lỗi validation của form cha sẽ hiển thị bên ngoài component này */}
+      {/* 
+        Không cần hiển thị lỗi ở đây nữa, vì placeholder và noOptionsMessage đã xử lý.
+        Lỗi validation của form cha sẽ hiển thị bên ngoài component này.
+      */}
     </>
   );
 };
 
 MajorList.propTypes = {
   onChange: PropTypes.func.isRequired,
-  // value có thể là null hoặc chuỗi rỗng khi chưa chọn hoặc khi clear
-  value: PropTypes.string, // <<== Nên cho phép null/undefined/""
+  value: PropTypes.string,
   required: PropTypes.bool,
   name: PropTypes.string,
   placeholder: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 export default MajorList;
