@@ -47,7 +47,7 @@ const Api = async ({
   // --- Cấu hình Axios ---
   const config = {
     headers: {},
-    // withCredentials: true, // <-- BỎ DÒNG NÀY ĐI HOẶC ĐẶT LÀ FALSE
+    withCredentials: true, // <-- BỎ DÒNG NÀY ĐI HOẶC ĐẶT LÀ FALSE
   };
 
   // --- Kiểm tra Token trong Cookies nếu yêu cầu ---
