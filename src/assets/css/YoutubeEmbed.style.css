@@ -1,0 +1,40 @@
+/* src/components/User/YoutubeEmbed.style.css */
+
+.youtube-embed-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding-top: 56.25%; /* Tỷ lệ 16:9 (9 / 16 * 100) */
+  margin-top: 1rem; /* Khoảng cách với nội dung phía trên */
+  margin-bottom: 1rem; /* Khoảng cách với nội dung phía dưới */
+  background-color: #eee; /* Màu nền tạm thời khi đang tải */
+  border-radius: 8px; /* Bo góc nhẹ */
+}
+
+.youtube-embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  border: none; /* Đảm bảo không có viền mặc định */
+}
+
+.youtube-embed-invalid {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: var(--warning-light-bg, #fff3cd); /* Màu nền cảnh báo */
+    color: var(--warning-dark-text, #664d03); /* Màu chữ cảnh báo */
+    border: 1px solid var(--warning-border, #ffecb5);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.youtube-embed-invalid a {
+    color: var(--warning-dark-text, #664d03);
+    text-decoration: underline;
+    word-break: break-all; /* Ngăn link quá dài làm vỡ layout */
+}
