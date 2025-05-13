@@ -257,8 +257,7 @@ const BookingModal = ({
       await Api({
         endpoint: `booking-request/create/${tutorId}`,
         method: METHOD_TYPE.POST,
-        body: payload,
-        requireToken: true,
+        data: payload,
       });
       toast.success(`Đã gửi yêu cầu thuê gia sư ${tutorName}`);
       if (onBookingSuccess) onBookingSuccess(tutorId);

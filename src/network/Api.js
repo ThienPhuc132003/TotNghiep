@@ -1,8 +1,8 @@
 // src/utils/Api.js
 
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { METHOD_TYPE } from "./methodType";
-import axiosClient from "./axiosClient";
+import axiosClient from "./axiosClient"; // Giả định axiosClient đã có baseURL
 import qs from "qs";
 
 const Api = async ({
@@ -11,68 +11,76 @@ const Api = async ({
   method = METHOD_TYPE.GET,
   data,
   query,
-  requireToken = false,
+  requireToken = false, // Cờ này bây giờ sẽ kiểm soát cả việc gửi token qua header
+  sendCredentials = false, // Cờ mới để kiểm soát việc bật withCredentials
 }) => {
-  // ... (code xử lý query, url, logging request giữ nguyên)
   let processedQuery = { ...query };
-
-  if (processedQuery.filter && (Array.isArray(processedQuery.filter) || typeof processedQuery.filter === 'object')) {
+  // ... (xử lý filter, sort như cũ) ...
+  if (
+    processedQuery.filter &&
+    (Array.isArray(processedQuery.filter) ||
+      typeof processedQuery.filter === "object")
+  ) {
     try {
       processedQuery.filter = JSON.stringify(processedQuery.filter);
     } catch (e) {
-       console.error("Lỗi khi stringify filter param:", e);
+      console.error("Lỗi stringify filter:", e);
     }
   }
-  if (processedQuery.sort && (Array.isArray(processedQuery.sort) || typeof processedQuery.sort === 'object')) {
-     try {
+  if (
+    processedQuery.sort &&
+    (Array.isArray(processedQuery.sort) ||
+      typeof processedQuery.sort === "object")
+  ) {
+    try {
       processedQuery.sort = JSON.stringify(processedQuery.sort);
     } catch (e) {
-       console.error("Lỗi khi stringify sort param:", e);
+      console.error("Lỗi stringify sort:", e);
     }
   }
 
-  let queryString = qs.stringify(processedQuery, {
-    encode: false,
-  });
-
+  let queryString = qs.stringify(processedQuery, { encode: false });
   const url = `${domain}${endpoint}${queryString ? `?${queryString}` : ""}`;
 
   console.log(`API Request: ${method} ${url}`);
-  if (data && !(data instanceof FormData)) {
+  if (data && !(data instanceof FormData))
     console.log("API Request Data:", JSON.stringify(data));
-  } else if (data instanceof FormData) {
+  else if (data instanceof FormData)
     console.log("API Request Data: FormData object");
-  }
 
-  // --- Cấu hình Axios ---
   const config = {
     headers: {},
-    withCredentials: true, // <-- BỎ DÒNG NÀY ĐI HOẶC ĐẶT LÀ FALSE
+    // Chỉ bật withCredentials khi cờ sendCredentials là true
+    ...(sendCredentials && { withCredentials: true }),
   };
 
-  // --- Kiểm tra Token trong Cookies nếu yêu cầu ---
-  // Logic này vẫn có thể hữu ích để ném lỗi sớm nếu token không tồn tại
-  // nhưng nó sẽ không tự động gửi token nếu withCredentials là false
+  // Nếu yêu cầu token (requireToken = true), lấy token và thêm vào header Authorization
+  // Điều này sẽ hoạt động nếu backend hỗ trợ xác thực qua Bearer token.
   if (requireToken) {
-    const token = Cookies.get('token');
-    if (!token) {
-      console.error("API Error: Authentication token is required (checked on client) but not found in Cookies.");
-      // Nếu withCredentials là false, trình duyệt sẽ không gửi cookie.
-      // Backend có thể vẫn trả về 401 nếu nó không nhận được token theo cách khác.
-      throw new Error("Authentication token not found in Cookies. Please login again.");
+    const token = Cookies.get("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("API Request: Added Authorization header (Bearer token).");
+      if (sendCredentials) {
+        console.log(
+          "API Request: withCredentials is TRUE (Cookies should be sent by browser)."
+        );
+      } else {
+        console.log(
+          "API Request: withCredentials is FALSE (Cookies might not be sent by browser for cross-origin)."
+        );
+      }
     } else {
-      console.log("API Request: Token found in Cookies (but won't be sent automatically without withCredentials:true or if not same-origin).");
-      // Nếu bạn muốn thử gửi token qua header Authorization (nếu backend hỗ trợ)
-      // thì bạn phải thêm lại dòng này VÀ đảm bảo backend đọc được từ header.
-      // config.headers.Authorization = `Bearer ${token}`;
+      console.error(
+        "API Error: Token required (for header/cookie) but not found in Cookies."
+      );
+      throw new Error("Authentication token not found. Please login again.");
     }
   }
 
-  // --- Thực hiện yêu cầu API ---
   try {
     let response;
     const upperCaseMethod = method.toUpperCase();
-
     switch (upperCaseMethod) {
       case METHOD_TYPE.POST:
         response = await axiosClient.post(url, data, config);
@@ -91,10 +99,8 @@ const Api = async ({
         response = await axiosClient.get(url, config);
         break;
     }
-
     console.log("API Response Status:", response.status);
     return response;
-
   } catch (error) {
     console.error(`API Error (${method} ${url}):`, error);
     if (error.response) {
