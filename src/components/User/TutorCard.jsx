@@ -137,9 +137,9 @@ const TutorCard = ({
     setIsCancelling(true);
     try {
       await Api({
-        endpoint: `/booking-request/cancel-booking/${currentBookingId}`,
+        endpoint: `booking-request/cancel-booking/${currentBookingId}`,
         method: METHOD_TYPE.PATCH,
-        body: { click: "CANCEL" },
+        data: { click: "CANCEL" },
         requireToken: true,
       });
       toast.success(`Đã hủy yêu cầu thuê ${tutor.name}`);
