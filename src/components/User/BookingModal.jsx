@@ -6,12 +6,6 @@ import Api from "../../network/Api"; // Điều chỉnh đường dẫn nếu c�
 import { METHOD_TYPE } from "../../network/methodType"; // Điều chỉnh đường dẫn nếu cần
 import "../../assets/css/BookingModal.style.css"; // Điều chỉnh đường dẫn nếu cần
 
-// Đảm bảo Modal.setAppElement được gọi ở file gốc (App.jsx hoặc index.js)
-// Ví dụ:
-// if (typeof window !== 'undefined' && document.getElementById('root')) {
-//   Modal.setAppElement('#root');
-// }
-
 const formatHoursOptions = [
   { value: 1, label: "1 giờ" },
   { value: 1.25, label: "1 giờ 15 phút" },
@@ -23,7 +17,6 @@ const formatHoursOptions = [
   { value: 2.75, label: "2 giờ 45 phút" },
   { value: 3, label: "3 giờ" },
 ];
-
 const dayLabels = {
   Monday: "Thứ 2",
   Tuesday: "Thứ 3",
@@ -33,7 +26,6 @@ const dayLabels = {
   Saturday: "Thứ 7",
   Sunday: "CN",
 };
-
 const daysOfWeek = [
   "Monday",
   "Tuesday",
@@ -43,17 +35,12 @@ const daysOfWeek = [
   "Saturday",
   "Sunday",
 ];
-
 const formatTeachingTime = (hours) => {
-  if (hours === null || isNaN(hours) || hours <= 0) {
-    return null;
-  }
+  if (hours === null || isNaN(hours) || hours <= 0) return null;
   const h = Math.floor(hours);
   const minutes = Math.round((hours - h) * 60);
   let result = `${h} giờ`;
-  if (minutes > 0) {
-    result += ` ${minutes} phút`;
-  }
+  if (minutes > 0) result += ` ${minutes} phút`;
   return result;
 };
 
@@ -63,15 +50,14 @@ const BookingModal = ({
   tutorId,
   tutorName,
   onBookingSuccess,
-  maxHoursPerLesson = null, // Sử dụng tham số mặc định
-  availableScheduleRaw = [], // Sử dụng tham số mặc định
+  maxHoursPerLesson = null,
+  availableScheduleRaw = [],
 }) => {
   const [parsedTutorSchedule, setParsedTutorSchedule] = useState({});
   const [selectedScheduleSlots, setSelectedScheduleSlots] = useState([]);
-
   const [lessonsPerWeek, setLessonsPerWeek] = useState(1);
-  const [totalLessons, setTotalLessons] = useState(10);
-  const [hoursPerLesson, setHoursPerLesson] = useState(1.5);
+  const [totalLessons, setTotalLessons] = useState(10); // Giữ là số
+  const [hoursPerLesson, setHoursPerLesson] = useState(1.5); // Giữ là số
   const [startDay, setStartDay] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -96,11 +82,9 @@ const BookingModal = ({
       setStartDay(getMinStartDate());
       setError("");
       setIsSubmitting(false);
-
       const defaultOptionValue = 1.5;
       const maxAllowed = maxHoursPerLesson || 99;
       let initialHoursValue = defaultOptionValue;
-
       if (availableHoursOptions.length > 0) {
         if (
           defaultOptionValue > maxAllowed ||
@@ -109,33 +93,26 @@ const BookingModal = ({
           const validOptionsBelowDefault = availableHoursOptions.filter(
             (opt) => opt.value <= defaultOptionValue
           );
-          if (validOptionsBelowDefault.length > 0) {
+          if (validOptionsBelowDefault.length > 0)
             initialHoursValue = validOptionsBelowDefault.reduce(
               (max, opt) => (opt.value > max.value ? opt : max),
               validOptionsBelowDefault[0]
             ).value;
-          } else {
+          else
             initialHoursValue = availableHoursOptions.reduce(
               (min, opt) => (opt.value < min.value ? opt : min),
               availableHoursOptions[0]
             ).value;
-          }
         }
-      } else {
-        initialHoursValue = 1;
-      }
-      setHoursPerLesson(initialHoursValue);
-
+      } else initialHoursValue = 1;
+      setHoursPerLesson(initialHoursValue); // Set là số
       if (availableScheduleRaw && availableScheduleRaw.length > 0) {
         try {
           const parsed = availableScheduleRaw.reduce((acc, itemString) => {
             let item;
-            if (typeof itemString === "string") {
-              item = JSON.parse(itemString);
-            } else if (typeof itemString === "object" && itemString !== null) {
+            if (typeof itemString === "string") item = JSON.parse(itemString);
+            else if (typeof itemString === "object" && itemString !== null)
               item = itemString;
-            }
-
             if (
               item &&
               item.day &&
@@ -146,9 +123,7 @@ const BookingModal = ({
                 (t) => typeof t === "string" && t.match(/^\d{2}:\d{2}$/)
               );
               if (validTimes.length > 0) {
-                if (!acc[item.day]) {
-                  acc[item.day] = [];
-                }
+                if (!acc[item.day]) acc[item.day] = [];
                 acc[item.day] = [
                   ...new Set([...acc[item.day], ...validTimes]),
                 ].sort();
@@ -158,13 +133,11 @@ const BookingModal = ({
           }, {});
           setParsedTutorSchedule(parsed);
         } catch (e) {
-          console.error("Lỗi parse lịch dạy có sẵn của gia sư:", e);
+          console.error("Lỗi parse lịch dạy:", e);
           setParsedTutorSchedule({});
-          setError("Lỗi khi xử lý lịch dạy của gia sư. Vui lòng thử lại.");
+          setError("Lỗi xử lý lịch dạy của gia sư.");
         }
-      } else {
-        setParsedTutorSchedule({});
-      }
+      } else setParsedTutorSchedule({});
     }
   }, [isOpen, availableScheduleRaw, maxHoursPerLesson, availableHoursOptions]);
 
@@ -173,45 +146,51 @@ const BookingModal = ({
       const slotIndex = prevSlots.findIndex(
         (slot) => slot.day === day && slot.time === time
       );
-      if (slotIndex > -1) {
-        return prevSlots.filter((_, index) => index !== slotIndex);
-      } else {
-        return [...prevSlots, { day, time }];
-      }
+      return slotIndex > -1
+        ? prevSlots.filter((_, index) => index !== slotIndex)
+        : [...prevSlots, { day, time }];
     });
   };
-
   useEffect(() => {
     const numSelectedSlots = selectedScheduleSlots.length;
     if (numSelectedSlots > 0) {
-      if (lessonsPerWeek > numSelectedSlots) {
+      if (lessonsPerWeek > numSelectedSlots)
         setLessonsPerWeek(numSelectedSlots);
-      } else if (lessonsPerWeek < 1 && numSelectedSlots > 0) {
-        setLessonsPerWeek(1);
-      }
-    } else {
-      setLessonsPerWeek(1);
-    }
+      else if (lessonsPerWeek < 1 && numSelectedSlots > 0) setLessonsPerWeek(1);
+    } else setLessonsPerWeek(1);
   }, [selectedScheduleSlots, lessonsPerWeek]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
-
     if (selectedScheduleSlots.length === 0) {
-      setError("Vui lòng chọn ít nhất một lịch học từ lịch của gia sư.");
+      setError("Vui lòng chọn ít nhất một lịch học.");
       setIsSubmitting(false);
       return;
     }
 
-    const currentLessonsPerWeek = parseInt(lessonsPerWeek, 10);
-    if (isNaN(currentLessonsPerWeek) || currentLessonsPerWeek < 1) {
-      setError("Số buổi / tuần phải là một số lớn hơn hoặc bằng 1.");
+    // Chuyển đổi lessonsPerWeek, totalLessons, hoursPerLesson sang số trước khi validate và gửi đi
+    const currentLessonsPerWeekNum = parseInt(lessonsPerWeek, 10);
+    const totalLessonsNum = parseInt(totalLessons, 10);
+    const hoursPerLessonNum = parseFloat(hoursPerLesson);
+
+    if (isNaN(currentLessonsPerWeekNum) || currentLessonsPerWeekNum < 1) {
+      setError("Số buổi / tuần phải lớn hơn hoặc bằng 1.");
       setIsSubmitting(false);
       return;
     }
-    if (currentLessonsPerWeek > selectedScheduleSlots.length) {
-      setError("Số buổi / tuần không được lớn hơn số lịch học bạn đã chọn.");
+    if (currentLessonsPerWeekNum > selectedScheduleSlots.length) {
+      setError("Số buổi / tuần không được lớn hơn số lịch đã chọn.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (isNaN(totalLessonsNum) || totalLessonsNum < 1) {
+      setError("Tổng số buổi phải lớn hơn hoặc bằng 1.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (isNaN(hoursPerLessonNum) || hoursPerLessonNum <= 0) {
+      setError("Thời lượng buổi học không hợp lệ.");
       setIsSubmitting(false);
       return;
     }
@@ -221,18 +200,15 @@ const BookingModal = ({
       setIsSubmitting(false);
       return;
     }
-    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!datePattern.test(startDay)) {
-      setError("Định dạng ngày bắt đầu không hợp lệ (YYYY-MM-DD).");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(startDay)) {
+      setError("Định dạng ngày bắt đầu không hợp lệ.");
       setIsSubmitting(false);
       return;
     }
-
     const minValidStartDate = new Date(getMinStartDate());
-    const selectedStartDate = new Date(startDay);
     minValidStartDate.setHours(0, 0, 0, 0);
+    const selectedStartDate = new Date(startDay);
     selectedStartDate.setHours(0, 0, 0, 0);
-
     if (selectedStartDate < minValidStartDate) {
       setError("Ngày bắt đầu phải cách ngày hiện tại ít nhất 1 ngày.");
       setIsSubmitting(false);
@@ -251,7 +227,6 @@ const BookingModal = ({
       }
       return acc;
     }, []);
-
     const dayOrder = {
       Monday: 1,
       Tuesday: 2,
@@ -264,23 +239,23 @@ const BookingModal = ({
     dateTimeLearnPayload.sort((a, b) => dayOrder[a.day] - dayOrder[b.day]);
 
     const payload = {
-      dateTimeLearn: dateTimeLearnPayload,
-      lessonsPerWeek: currentLessonsPerWeek,
-      totalLessons: parseInt(totalLessons, 10),
-      hoursPerLesson: parseFloat(hoursPerLesson),
-      startDay: startDay,
+      dateTimeLearn: dateTimeLearnPayload, // Mảng các object
+      lessonsPerWeek: currentLessonsPerWeekNum, // Số (number)
+      totalLessons: totalLessonsNum, // Số (number)
+      hoursPerLesson: hoursPerLessonNum, // Số (number)
+      startDay: startDay, // Chuỗi "YYYY-MM-DD"
     };
 
     console.log(
       "Sending booking request for tutor:",
       tutorId,
       "Payload:",
-      payload
+      JSON.stringify(payload, null, 2)
     );
 
     try {
       await Api({
-        endpoint: `/booking-request/create/${tutorId}`,
+        endpoint: `booking-request/create/${tutorId}`,
         method: METHOD_TYPE.POST,
         body: payload,
         requireToken: true,
@@ -290,10 +265,10 @@ const BookingModal = ({
       onClose();
     } catch (err) {
       console.error("Lỗi khi gửi yêu cầu thuê:", err);
+      const backendErrorMsg =
+        err.response?.data?.errors?.msg || err.response?.data?.message;
       const errorMsg =
-        err.response?.data?.message ||
-        err.message ||
-        "Gửi yêu cầu thuê thất bại. Vui lòng thử lại.";
+        backendErrorMsg || err.message || "Gửi yêu cầu thuê thất bại.";
       setError(errorMsg);
       toast.error(`Lỗi: ${errorMsg}`);
     } finally {
@@ -310,8 +285,6 @@ const BookingModal = ({
       overlayClassName="booking-modal-overlay"
       shouldCloseOnOverlayClick={!isSubmitting}
       shouldCloseOnEsc={!isSubmitting}
-      // Sử dụng import.meta.env của Vite để xử lý ariaHideApp
-      // MODE sẽ là 'development', 'production', hoặc giá trị bạn đặt cho test
       ariaHideApp={
         typeof import.meta !== "undefined" &&
         import.meta.env &&
@@ -370,13 +343,12 @@ const BookingModal = ({
             </div>
           ) : (
             <p className="no-schedule-message">
-              {error && error.startsWith("Lỗi khi xử lý lịch dạy")
+              {error && error.startsWith("Lỗi xử lý lịch dạy")
                 ? error
-                : "Gia sư này hiện chưa cập nhật lịch dạy hoặc lịch không hợp lệ. Bạn có thể liên hệ trực tiếp với gia sư."}
+                : "Gia sư này chưa cập nhật lịch dạy hoặc lịch không hợp lệ."}
             </p>
           )}
         </div>
-
         <div className="form-grid">
           <div className="form-group">
             <label htmlFor="lessonsPerWeek">Số buổi / tuần:</label>
@@ -390,23 +362,13 @@ const BookingModal = ({
                   : 7
               }
               value={lessonsPerWeek}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10);
-                if (!isNaN(val)) {
-                  setLessonsPerWeek(
-                    val < 1 && selectedScheduleSlots.length > 0 ? 1 : val
-                  );
-                } else if (e.target.value === "") {
-                  setLessonsPerWeek(selectedScheduleSlots.length > 0 ? 1 : "");
-                }
-              }}
+              onChange={(e) => setLessonsPerWeek(e.target.value)} // Để input tự xử lý, parse khi submit
               required
               disabled={selectedScheduleSlots.length === 0 || isSubmitting}
             />
             {selectedScheduleSlots.length > 0 && (
               <small className="input-hint">
-                Tối đa: {selectedScheduleSlots.length} (dựa trên lựa chọn của
-                bạn)
+                Tối đa: {selectedScheduleSlots.length} (dựa trên lựa chọn)
               </small>
             )}
           </div>
@@ -417,7 +379,7 @@ const BookingModal = ({
               type="number"
               min="1"
               value={totalLessons}
-              onChange={(e) => setTotalLessons(e.target.value)}
+              onChange={(e) => setTotalLessons(e.target.value)} // Để input tự xử lý, parse khi submit
               required
               disabled={isSubmitting}
             />
@@ -426,8 +388,8 @@ const BookingModal = ({
             <label htmlFor="hoursPerLesson">Thời lượng / buổi:</label>
             <select
               id="hoursPerLesson"
-              value={hoursPerLesson}
-              onChange={(e) => setHoursPerLesson(e.target.value)}
+              value={hoursPerLesson} // value giờ là số
+              onChange={(e) => setHoursPerLesson(parseFloat(e.target.value))} // Parse thành số khi thay đổi
               required
               disabled={availableHoursOptions.length === 0 || isSubmitting}
             >
@@ -461,11 +423,9 @@ const BookingModal = ({
             />
           </div>
         </div>
-
-        {error && !error.startsWith("Lỗi khi xử lý lịch dạy") && (
+        {error && !error.startsWith("Lỗi xử lý lịch dạy") && (
           <p className="error-message-modal">{error}</p>
         )}
-
         <div className="modal-actions">
           <button type="button" onClick={onClose} disabled={isSubmitting}>
             Hủy
@@ -497,7 +457,5 @@ BookingModal.propTypes = {
     PropTypes.oneOfType([PropTypes.string, PropTypes.object])
   ),
 };
-
-// Không còn BookingModal.defaultProps nữa
 
 export default BookingModal;
