@@ -301,7 +301,7 @@ const TutorDetailPage = () => {
       await Api({
         endpoint: eP,
         method: m,
-        ...(m === METHOD_TYPE.POST && { body: { tutorId: tutorData.userId } }),
+        ...(m === METHOD_TYPE.POST && { data: { tutorId: tutorData.userId } }),
         requireToken: true,
       });
       toast.success(`Đã ${!cFS ? "thêm" : "xóa"} yêu thích!`);
@@ -341,9 +341,9 @@ const TutorDetailPage = () => {
     setIsActionLoading(true);
     try {
       await Api({
-        endpoint: `/booking-request/cancel-booking/${bookingId}`,
+        endpoint: `booking-request/cancel-booking/${bookingId}`,
         method: METHOD_TYPE.PATCH,
-        body: { click: "CANCEL" },
+        data: { click: "CANCEL" },
         requireToken: true,
       });
       toast.success("Đã hủy yêu cầu.");
