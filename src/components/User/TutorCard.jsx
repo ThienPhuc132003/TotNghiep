@@ -130,10 +130,10 @@ const TutorCard = ({
       isLoadingFavoriteAction ||
       isCancelling
     ) {
-      if (!currentBookingId || !onCancelSuccess) toast.error("K.thể hủy YC!");
+      if (!currentBookingId || !onCancelSuccess) toast.error("Không thể hủy yêu cầu thuê");
       return;
     }
-    if (!window.confirm(`Hủy YC thuê ${tutor.name}?`)) return;
+    if (!window.confirm(`Hủy yêu cầu thuê ${tutor.name}?`)) return;
     setIsCancelling(true);
     try {
       await Api({
@@ -142,11 +142,11 @@ const TutorCard = ({
         body: { click: "CANCEL" },
         requireToken: true,
       });
-      toast.success(`Đã hủy YC thuê ${tutor.name}`);
+      toast.success(`Đã hủy yêu cầu thuê ${tutor.name}`);
       if (onCancelSuccess) onCancelSuccess(tutor.id);
     } catch (err) {
       console.error("Lỗi hủy booking:", err);
-      toast.error(err.response?.data?.message || `K.thể hủy YC.`);
+      toast.error(err.response?.data?.message || `Không thể hủy yêu cầu thuê`);
     } finally {
       setIsCancelling(false);
     }
@@ -250,7 +250,7 @@ const TutorCard = ({
                 disabled={isLoadingFavoriteAction || isCancelling}
               >
                 {isLoadingFavoriteAction ? (
-                  <FaSpinner spin />
+                  <FaSpinner spin={String(true)} />
                 ) : isFavorite ? (
                   <FaHeart />
                 ) : (
@@ -326,13 +326,13 @@ const TutorCard = ({
               <button
                 className="action-btn cancel-btn"
                 onClick={handleCancelBooking}
-                title="Hủy Y.Cầu"
+                title="Hủy yêu cầu thuê"
                 disabled={isCancelling || isLoadingFavoriteAction}
               >
                 {isCancelling ? (
                   <FaSpinner spin className="spinner-inline" />
                 ) : (
-                  <span>Hủy Y.Cầu</span>
+                  <span>Hủy yêu cầu thuê</span>
                 )}
               </button>
             )}
