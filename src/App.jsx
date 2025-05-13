@@ -59,6 +59,9 @@ const ListOfValueConfigs = lazy(() =>
 const ListOfTransactions = lazy(() =>
   import("./pages/Admin/ListOfTransactions")
 );
+const ListOfTutorPayments = lazy(() =>
+  import("./pages/Admin/ListOfTutorPayments")
+);
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -136,6 +139,10 @@ function App() {
               <Route path="mon-hoc" element={<ListOfSubject />} />
               <Route path="giao-trinh" element={<ListOfCurriculumn />} />
               <Route path="goi-thanh-toan" element={<ListOfValueConfigs />} />
+              <Route
+                path="thanh-toan-cho-gia-su"
+                element={<ListOfTutorPayments />}
+              />
               <Route
                 path="nap-vi-nguoi-dung"
                 element={<ListOfTransactions />}

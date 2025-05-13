@@ -49,7 +49,7 @@ const UserComponent = () => {
           // title="Nhấn đúp để xem hồ sơ" // Tooltip gợi ý (tùy chọn)
         />
         <div className="user-details" onClick={toggleDropdown}>
-          <span className="user-name">{userInfo.userProfile.fullname || "Người dùng"}</span>
+          <span className="user-name">{userInfo.userProfile?.fullname || "Người dùng"}</span>
           {/* Hiển thị vai trò đã được xác định động */}
           <span className="user-role">{userRole}</span>
         </div>

@@ -1,107 +1,97 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux"; // *** THÊM: Để lấy trạng thái đăng nhập ***
-import { toast } from "react-toastify"; // *** THÊM: Để hiển thị thông báo ***
-import "react-toastify/dist/ReactToastify.css"; // *** THÊM: CSS cho react-toastify ***
-
+import { useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import TutorCardSkeleton from "../../components/User/TutorCardSkeleton";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import BookingModal from "../../components/User/BookingModal";
-import TutorCard from "../../components/User/TutorCard";
-import Pagination from "../../components/Pagination";
+import BookingModal from "../User/BookingModal"; // Điều chỉnh đường dẫn nếu cần
+import TutorCard from "../../components/User/TutorCard"; // Điều chỉnh đường dẫn nếu cần
+import Pagination from "../Pagination"; // Điều chỉnh đường dẫn nếu cần
 import "../../assets/css/TutorCardSkeleton.style.css";
 import "../../assets/css/TutorSearch.style.css";
 import "../../assets/css/BookingModal.style.css";
 
-// --- Cấu hình hạng gia sư ---
-const tutorsPerPage = 8;
+const TUTORS_PER_PAGE = 8;
 
-// --- Helper Function: mapApiTutorToCardProps (Giữ nguyên) ---
+// --- mapApiTutorToCardProps ĐÃ CẬP NHẬT ---
 const mapApiTutorToCardProps = (apiTutor) => {
-  // ... (Giữ nguyên code của bạn) ...
   if (!apiTutor || !apiTutor.tutorProfile || !apiTutor.userId) {
-    console.warn("Dữ liệu gia sư không hợp lệ:", apiTutor);
+    console.warn("Dữ liệu gia sư không hợp lệ trong mapApiTutor:", apiTutor);
     return null;
   }
   const profile = apiTutor.tutorProfile;
   const avatar = profile.avatar || null;
-  const fullname = profile.fullname || "Chưa cập nhật tên";
-  const gender = profile.gender || null;
-  const univercity = profile.univercity || "Chưa cập nhật trường";
-  const gpa = profile.GPA || null;
-  const description = profile.description || "Chưa có mô tả.";
-  const teachingMethod = profile.teachingMethod || null;
+  const fullname = profile.fullname || "Gia sư ẩn danh";
   const coinPerHours =
     profile.coinPerHours !== null && profile.coinPerHours !== undefined
       ? profile.coinPerHours
       : 0;
-  const teachingTime = profile.teachingTime
-    ? parseFloat(profile.teachingTime)
-    : null;
-  const majorName = profile.major?.majorName || "Chưa cập nhật ngành";
-  const levelName = profile.tutorLevel?.levelName || "Chưa cập nhật trình độ";
-  const subjects = [
-    profile.subject?.subjectName,
-    profile.subject2?.subjectName,
-    profile.subject3?.subjectName,
-  ].filter(Boolean);
-  const bookingRequest = profile.bookingRequest ?? null;
+  const levelName = profile.tutorLevel?.levelName || "Chưa cập nhật";
+
   let rankKey = "bronze";
-  const levelNameLower = levelName?.toLowerCase();
+  const levelNameLower =
+    typeof levelName === "string" ? levelName.toLowerCase() : "";
+
   if (levelNameLower === "bạc") rankKey = "silver";
   else if (levelNameLower === "vàng") rankKey = "gold";
   else if (levelNameLower === "bạch kim") rankKey = "platinum";
   else if (levelNameLower === "kim cương") rankKey = "diamond";
-  const rating =
-    profile.averageRating !== null && profile.averageRating !== undefined
-      ? profile.averageRating
-      : 0;
-  const reviewCount =
-    profile.totalReviews !== null && profile.totalReviews !== undefined
-      ? profile.totalReviews
-      : 0;
-  const isVerified =
-    apiTutor.checkActive === "ACTIVE" && profile.isPublicProfile === true;
-  const isInitiallyFavorite = false;
+
   return {
     id: apiTutor.userId,
     imageUrl: avatar,
     name: fullname,
-    gender: gender,
-    university: univercity,
-    GPA: gpa,
-    description: description,
-    teachingMethod: teachingMethod,
-    hourlyRate: coinPerHours,
-    teachingTime: teachingTime,
-    major: majorName,
+    major: profile.major?.majorName || "Chưa cập nhật",
     level: levelName,
-    subjects: subjects.length > 0 ? subjects : ["Chưa cập nhật môn dạy"],
-    rating: parseFloat(rating.toFixed(1)),
-    reviewCount: reviewCount,
-    isVerified: isVerified,
+    subjects: [
+      profile.subject?.subjectName,
+      profile.subject2?.subjectName,
+      profile.subject3?.subjectName,
+    ].filter(Boolean).length
+      ? [
+          profile.subject?.subjectName,
+          profile.subject2?.subjectName,
+          profile.subject3?.subjectName,
+        ].filter(Boolean)
+      : ["Chưa cập nhật môn dạy"],
+    rating: profile.averageRating
+      ? parseFloat(profile.averageRating.toFixed(1))
+      : 0,
+    reviewCount: profile.totalReviews || 0,
+    isVerified:
+      apiTutor.checkActive === "ACTIVE" && profile.isPublicProfile === true,
     rank: rankKey,
-    isInitiallyFavorite: isInitiallyFavorite,
-    teachingPlace: profile.teachingPlace || null,
-    bookingRequest: bookingRequest, // bookingRequest vẫn được lấy, nhưng chỉ dùng khi đăng nhập
+    hourlyRate: coinPerHours,
+    teachingTime: profile.teachingTime
+      ? parseFloat(profile.teachingTime)
+      : null,
+    // Giữ lại object bookingRequest đầy đủ để TutorCard có thể đọc status
+    bookingRequest: profile.bookingRequest ?? null,
+    // Trích xuất bookingRequestId riêng để dễ dùng cho việc hủy
+    bookingRequestId: profile.bookingRequest?.bookingRequestId || null, // LẤY TỪ ĐÂY
+    isInitiallyFavorite: profile.isMyFavouriteTutor ?? false,
+    teachingPlace: profile.teachingPlace || "Chưa cập nhật",
+    description: profile.description || "Chưa có mô tả.",
+    gender: profile.gender,
+    university: profile.univercity || "Chưa cập nhật",
+    GPA: profile.GPA,
+    teachingMethod: profile.teachingMethod,
+    dateTimeLearn: profile.dateTimeLearn || [],
   };
 };
 
-// ========== COMPONENT CHÍNH: TutorList ==========
 const TutorList = ({
   searchTerm,
   selectedLevelId,
   selectedMajorId,
   sortBy,
 }) => {
-  // *** Lấy trạng thái đăng nhập từ Redux Store ***
-  // Giả sử `userId` tồn tại trong profile khi đăng nhập thành công
+  const navigate = useNavigate();
+  const location = useLocation();
   const isLoggedIn = useSelector((state) => !!state.user.userProfile?.userId);
-  const tesst = useSelector((state) => state.user.userProfile);
-  console.log("Test thuw coi", tesst); // Kiểm tra trạng thái đăng nhập
-  // Hoặc nếu bạn có state `isLoggedIn` riêng:
-  // const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
 
   const [tutors, setTutors] = useState([]);
   const [totalTutors, setTotalTutors] = useState(0);
@@ -111,82 +101,44 @@ const TutorList = ({
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedTutorForBooking, setSelectedTutorForBooking] = useState(null);
 
-  // --- Hàm gọi API fetchTutorsData (Bao gồm Filter/Sort) ---
+  const requireLogin = useCallback(
+    (actionName = "thực hiện chức năng này") => {
+      toast.info(`Vui lòng đăng nhập để ${actionName}!`);
+      navigate("/login", { state: { from: location } });
+    },
+    [navigate, location]
+  );
+
+  // --- fetchTutorsData (phiên bản không có filter/sort để test) ---
   const fetchTutorsData = useCallback(
     async (pageToFetch = 1) => {
       console.log(
-        `Đang tải trang: ${pageToFetch} với filters/sort. Logged in: ${isLoggedIn}`
+        `Đang tải trang: ${pageToFetch}. Logged in: ${isLoggedIn}. (Bỏ qua filter/sort)`
       );
       setIsLoading(true);
-      setError(null);
+      setError(null); // Reset lỗi trước khi fetch
 
-      // --- **CHỌN ENDPOINT DỰA TRÊN TRẠNG THÁI ĐĂNG NHẬP** ---
       const endpoint = isLoggedIn
-        ? "user/get-list-tutor-public" // API cho người dùng đã đăng nhập
-        : "user/get-list-tutor-public-without-login"; // API cho khách
-
-      // --- Các tham số filter/sort giữ nguyên ---
-      const filterParams = [];
-      if (searchTerm)
-        filterParams.push({
-          key: "fullname",
-          operator: "like",
-          value: searchTerm,
-        });
-      if (selectedMajorId)
-        filterParams.push({
-          key: "majorId",
-          operator: "=",
-          value: selectedMajorId,
-        });
-      if (selectedLevelId)
-        filterParams.push({
-          key: "tutorLevelId",
-          operator: "=",
-          value: selectedLevelId,
-        });
-      filterParams.push({ key: "isPublicProfile", operator: "=", value: true });
-
-      let sortParams = [];
-      switch (sortBy) {
-        case "price_asc":
-          sortParams.push({ key: "coinPerHours", type: "ASC" });
-          break;
-        case "price_desc":
-          sortParams.push({ key: "coinPerHours", type: "DESC" });
-          break;
-        case "createdAt_desc":
-          sortParams.push({ key: "createdAt", type: "DESC" });
-          break;
-        case "rating_desc": /* Thêm logic sort theo rating nếu có */
-        default:
-          sortParams.push({ key: "createdAt", type: "DESC" });
-          break;
-      }
+        ? "user/get-list-tutor-public"
+        : "user/get-list-tutor-public-without-login";
 
       try {
         const response = await Api({
-          endpoint: endpoint, // *** SỬ DỤNG ENDPOINT ĐỘNG ***
+          endpoint: endpoint,
           method: METHOD_TYPE.GET,
           query: {
-            filter: filterParams,
-            sort: sortParams,
             page: pageToFetch,
-            rpp: tutorsPerPage,
+            rpp: TUTORS_PER_PAGE,
           },
-          // Quan trọng: KHÔNG gửi token nếu gọi API cho khách
-          // Thư viện Api của bạn cần có logic không gửi header Authorization nếu không có token
-          // Hoặc bạn có thể thêm tùy chọn để không gửi token:
-          // requireToken: isLoggedIn // Ví dụ, nếu thư viện Api hỗ trợ
+          requireToken: isLoggedIn,
         });
 
-        console.log(`Phản hồi từ ${endpoint}:`, response.data?.items);
+        console.log(`Phản hồi từ ${endpoint} (No Filter/Sort):`, response.data);
 
         if (response?.data?.items && Array.isArray(response.data.items)) {
           const apiData = response.data;
-          // Map dữ liệu như cũ, mapApiTutorToCardProps sẽ trả về null nếu thiếu tutorProfile
           const mappedTutors = apiData.items
-            .map(mapApiTutorToCardProps)
+            .map(mapApiTutorToCardProps) // Đảm bảo hàm map này đúng
             .filter(Boolean);
           setTutors(mappedTutors);
           setTotalTutors(apiData.total || 0);
@@ -200,7 +152,6 @@ const TutorList = ({
         }
       } catch (err) {
         console.error(`Lỗi tải danh sách gia sư từ ${endpoint}:`, err);
-        // Xử lý lỗi 401/403 nếu cần (ví dụ: token hết hạn -> logout)
         if (
           err.response &&
           (err.response.status === 401 || err.response.status === 403) &&
@@ -209,140 +160,143 @@ const TutorList = ({
           setError(
             "Phiên đăng nhập hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại."
           );
-          // Có thể thêm logic logout tự động ở đây
         } else {
           setError("Không thể tải danh sách gia sư. Vui lòng thử lại sau.");
         }
-        setTutors([]);
-        setTotalTutors(0);
+        // Không reset tutors ở đây để giữ data cũ nếu fetch trang mới lỗi
+        // setTutors([]);
+        // setTotalTutors(0);
       } finally {
         setIsLoading(false);
       }
     },
-    [isLoggedIn, searchTerm, selectedLevelId, selectedMajorId, sortBy] // *** THÊM isLoggedIn vào dependencies ***
+    [isLoggedIn] // Chỉ fetch lại khi login status thay đổi (trong phiên bản test này)
   );
 
-  // --- useEffect gọi API ---
   useEffect(() => {
     console.log(
-      "Filter/Sort/Login Status thay đổi hoặc component mount. Đang tải trang 1."
+      "Trạng thái đăng nhập thay đổi hoặc component mount. Đang tải trang 1 (không filter/sort)."
     );
-    setCurrentPage(1); // Reset về trang 1 khi filter thay đổi
-    fetchTutorsData(1); // Gọi fetch với trang 1
-  }, [fetchTutorsData]); // fetchTutorsData đã bao gồm các dependency khác
+    setCurrentPage(1);
+    fetchTutorsData(1);
+  }, [fetchTutorsData]);
 
-  // --- Handler phân trang (Giữ nguyên) ---
   const handlePageChange = (pageNumber) => {
-    const totalPages = Math.ceil(totalTutors / tutorsPerPage);
+    const totalPagesCalculated = Math.ceil(totalTutors / TUTORS_PER_PAGE);
     if (
       pageNumber >= 1 &&
-      pageNumber <= totalPages &&
+      pageNumber <= totalPagesCalculated &&
       pageNumber !== currentPage
     ) {
       setCurrentPage(pageNumber);
-      fetchTutorsData(pageNumber);
+      fetchTutorsData(pageNumber); // Fetch trang mới
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // --- Hàm Mở Modal (Đã cập nhật) ---
   const handleOpenBookingModal = useCallback(
     (tutor) => {
-      if (isLoggedIn) {
-        // Nếu đã đăng nhập, mở modal như cũ
-        setSelectedTutorForBooking(tutor);
-        setIsBookingModalOpen(true);
-      } else {
-        // Nếu chưa đăng nhập, hiển thị thông báo
-        toast.info("Vui lòng đăng nhập để thực hiện chức năng này!");
-        // Tùy chọn: Chuyển hướng đến trang đăng nhập sau một khoảng thời gian ngắn hoặc ngay lập tức
-        // setTimeout(() => navigate('/login'), 2000);
-        // navigate('/login', { state: { from: location } }); // Cần import useLocation
+      if (!isLoggedIn) {
+        requireLogin("thuê gia sư");
+        return;
       }
+      setSelectedTutorForBooking(tutor);
+      setIsBookingModalOpen(true);
     },
-    [isLoggedIn]
-  ); // *** THÊM isLoggedIn, navigate vào dependencies ***
+    [isLoggedIn, requireLogin]
+  );
 
-  // --- Hàm Đóng Modal (Giữ nguyên) ---
   const handleCloseBookingModal = useCallback(() => {
     setIsBookingModalOpen(false);
     setSelectedTutorForBooking(null);
   }, []);
 
-  // --- Hàm Xử lý sau khi booking thành công (Chỉ xảy ra khi đã đăng nhập) ---
+  // Callback khi đặt lịch thành công từ modal
   const handleBookingSuccessInList = useCallback(
-    (bookedTutorId) => {
-      console.log(
-        `Booking request successful for ${bookedTutorId}. Refetching current page (${currentPage}).`
-      );
+    () => {
       handleCloseBookingModal();
-      fetchTutorsData(currentPage); // Load lại dữ liệu trang hiện tại
+      toast.success("Yêu cầu thuê gia sư đã được gửi thành công!");
+      // Fetch lại trang hiện tại để cập nhật trạng thái booking của card đó
+      fetchTutorsData(currentPage);
     },
-    [currentPage, fetchTutorsData, handleCloseBookingModal]
+    [currentPage, fetchTutorsData, handleCloseBookingModal] // Thêm fetchTutorsData
   );
 
-  // --- Hàm Xử lý sau khi hủy thành công (Chỉ xảy ra khi đã đăng nhập) ---
+  // Callback khi hủy yêu cầu thành công từ TutorCard
   const handleCancelSuccessInList = useCallback(
-    (cancelledTutorId) => {
-      console.log(
-        `Booking cancel successful for ${cancelledTutorId}. Refetching current page (${currentPage}).`
-      );
-      // Chú ý: API cho khách không trả về bookingRequest, nên nút hủy sẽ không hiển thị
-      // Nếu TutorCard hiển thị nút hủy dựa trên bookingRequest, nó sẽ tự ẩn đi khi chưa đăng nhập.
-      fetchTutorsData(currentPage); // Load lại dữ liệu trang hiện tại
+    () => {
+      toast.success("Đã hủy yêu cầu thuê gia sư.");
+      // Fetch lại trang hiện tại để cập nhật trạng thái booking của card đó
+      fetchTutorsData(currentPage);
     },
-    [currentPage, fetchTutorsData]
+    [currentPage, fetchTutorsData] // Thêm fetchTutorsData
   );
 
-  // --- Tính toán phân trang (Giữ nguyên) ---
-  const totalPages = Math.ceil(totalTutors / tutorsPerPage);
-  const indexOfFirstTutor = (currentPage - 1) * tutorsPerPage;
-  const indexOfLastTutorOnPage = indexOfFirstTutor + tutors.length;
+  // Callback khi trạng thái yêu thích thay đổi từ TutorCard
+  const handleFavoriteStatusChanged = useCallback(
+    (tutorId, newIsFavorite) => {
+      // Cập nhật UI ngay lập tức mà không cần fetch lại
+      setTutors((prevTutors) =>
+        prevTutors.map((t) =>
+          t.id === tutorId ? { ...t, isInitiallyFavorite: newIsFavorite } : t
+        )
+      );
+    },
+    [] // Không cần dependencies
+  );
+
+  const totalPages = Math.ceil(totalTutors / TUTORS_PER_PAGE);
+  const indexOfFirstTutor = (currentPage - 1) * TUTORS_PER_PAGE;
+  const indexOfLastTutorOnPage = Math.min(
+    indexOfFirstTutor + TUTORS_PER_PAGE,
+    totalTutors
+  );
 
   return (
-    // Phần JSX render giữ nguyên cấu trúc, chỉ cần đảm bảo
-    // các hàm callback được truyền đúng và `TutorCard` xử lý việc
-    // hiển thị/ẩn nút "Thuê" hoặc "Hủy" dựa trên dữ liệu `tutor.bookingRequest`
-    // (API cho khách sẽ không có trường này).
     <section className="search-results-section">
       <div className="results-header">
+        {/* Hiển thị lỗi nếu có */}
         {error && <p className="error-message">{error}</p>}
+        {/* Hiển thị số lượng kết quả */}
         {!error && (
           <p className="results-count">
-            {isLoading && currentPage === 1
-              ? "Đang tìm kiếm gia sư..."
+            {isLoading && tutors.length === 0
+              ? "Đang tải danh sách gia sư..."
               : !isLoading && totalTutors > 0
               ? `Hiển thị ${
-                  indexOfFirstTutor + 1
+                  totalTutors > 0 ? indexOfFirstTutor + 1 : 0
                 } - ${indexOfLastTutorOnPage} trên tổng ${totalTutors} gia sư`
               : !isLoading && totalTutors === 0
-              ? "Không tìm thấy gia sư phù hợp"
+              ? "Không tìm thấy gia sư nào."
+              : isLoading && tutors.length > 0
+              ? `Đang tải thêm gia sư... (Tổng: ${totalTutors})` // Thông báo khi load trang mới
               : ""}
           </p>
         )}
       </div>
+
+      {/* Skeleton loading khi đang load lần đầu và chưa có data */}
       {isLoading && tutors.length === 0 ? (
         <div className="tutor-list redesigned-list loading">
-          {Array.from({ length: tutorsPerPage }).map((_, index) => (
+          {Array.from({ length: TUTORS_PER_PAGE }).map((_, index) => (
             <TutorCardSkeleton key={`skeleton-${index}`} />
           ))}
         </div>
-      ) : !error && tutors.length > 0 ? (
+      ) : !error && tutors.length > 0 ? ( // Hiển thị danh sách nếu không lỗi và có data
         <>
           <div className="tutor-list redesigned-list">
             {tutors.map((tutor) => (
               <TutorCard
                 key={tutor.id}
-                tutor={tutor}
-                // Truyền hàm xử lý mở modal đã được cập nhật
+                tutor={tutor} // tutor đã chứa bookingRequestId
                 onOpenBookingModal={handleOpenBookingModal}
-                // Hàm hủy chỉ hoạt động khi có bookingRequest (tức là đã đăng nhập)
-                onCancelSuccess={handleCancelSuccessInList}
-                // Có thể thêm prop isLoggedIn nếu TutorCard cần thay đổi giao diện
-                // isLoggedIn={isLoggedIn}
+                onCancelSuccess={handleCancelSuccessInList} // Truyền callback hủy thành công
+                isLoggedIn={isLoggedIn}
+                onFavoriteStatusChange={handleFavoriteStatusChanged} // Truyền callback yêu thích
               />
             ))}
           </div>
+          {/* Phân trang */}
           {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -351,26 +305,22 @@ const TutorList = ({
             />
           )}
         </>
-      ) : !isLoading && !error && totalTutors === 0 ? (
-        <p className="no-results">
-          Không tìm thấy gia sư nào phù hợp với tiêu chí của bạn. Vui lòng thử
-          lại hoặc đặt lại bộ lọc.
-        </p>
+      ) : !isLoading && !error && totalTutors === 0 ? ( // Hiển thị khi không load, không lỗi, không có data
+        <p className="no-results">Không tìm thấy gia sư nào.</p>
       ) : null}
 
-      {/* BookingModal chỉ render khi isBookingModalOpen là true (chỉ xảy ra khi isLoggedIn) */}
-      {isLoggedIn && selectedTutorForBooking && (
+      {/* Booking Modal */}
+      {selectedTutorForBooking && (
         <BookingModal
           isOpen={isBookingModalOpen}
           onClose={handleCloseBookingModal}
           tutorId={selectedTutorForBooking.id}
           tutorName={selectedTutorForBooking.name}
-          onBookingSuccess={handleBookingSuccessInList}
+          onBookingSuccess={handleBookingSuccessInList} // Dùng callback của List
           maxHoursPerLesson={selectedTutorForBooking.teachingTime}
+          availableScheduleRaw={selectedTutorForBooking.dateTimeLearn || []}
         />
       )}
-      {/* Đảm bảo ToastContainer được render ở đâu đó trong App.js hoặc layout chính */}
-      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
     </section>
   );
 };
