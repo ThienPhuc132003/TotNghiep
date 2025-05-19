@@ -1,7 +1,6 @@
 import { useEffect } from "react"; // Import useEffect
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch và useSelector
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Điều chỉnh đường dẫn
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheckCircle,
@@ -33,7 +32,7 @@ const PaymentSuccess = () => {
   // const amount = searchParams.get('vnp_Amount'); // Số tiền (lưu ý chia 100 nếu VNPAY trả về)
 
   return (
-    <HomePageLayout>
+    <>
       <div className="wallet-page-wrapper">
         <div className="payment-result-container">
           <div className="payment-result-content success">
@@ -109,7 +108,7 @@ const PaymentSuccess = () => {
           </div>
         </div>
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 
