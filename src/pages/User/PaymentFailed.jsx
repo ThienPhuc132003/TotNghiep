@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom"; // Cần có React Router
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Điều chỉnh đường dẫn
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons"; // Chọn 1 icon
 import "../../assets/css/PaymentResult.style.css"; // Dùng chung file CSS
@@ -10,7 +9,7 @@ const PaymentFailed = () => {
   // const message = searchParams.get('message');
 
   return (
-    <HomePageLayout>
+    <>
       <div className="wallet-page-wrapper">
         <div className="payment-result-container">
           {" "}
@@ -57,7 +56,7 @@ const PaymentFailed = () => {
           </div>
         </div>
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 
