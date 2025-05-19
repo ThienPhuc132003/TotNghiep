@@ -169,6 +169,8 @@ function App() {
                   <Route path="/change-password" element={<ChangePassword />} />
                 </Route>
               </Route>
+              <Route path="payment/success" element={<PaymentSuccess />} />
+              <Route path="payment/failed" element={<PaymentFailed />} />
             </Route>{" "}
             {/* Kết thúc các Route sử dụng HomePageLayout */}
             {/* Các route không dùng HomePageLayout (standalone) */}
@@ -184,8 +186,6 @@ function App() {
             />
             <Route path="/api/meeting/callback" element={<ZoomCallback />} />
             <Route path="/create-meeting" element={<CreateMeeting />} />
-            <Route path="payment/success" element={<PaymentSuccess />} />
-            <Route path="payment/failed" element={<PaymentFailed />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             {/* ADMIN ROUTES */}
             <Route path="/admin/*" element={<AdminPrivateRoutes />}>
