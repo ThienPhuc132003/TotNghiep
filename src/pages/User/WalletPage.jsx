@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
-import HomePageLayout from "../../components/User/layout/HomePageLayout";
 import "../../assets/css/Wallet.style.css";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -586,8 +585,8 @@ const WalletPage = () => {
 
   // Render
   return (
-    <HomePageLayout>
-      <div className="wallet-page-wrapper">
+    <>
+      <div className="wallet-page-wrapp er">
         <div className="wallet-container">
           <h1>
             <FontAwesomeIcon icon={faCoins} /> Ví Coin Của Bạn
@@ -634,7 +633,7 @@ const WalletPage = () => {
           />
         </div>
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

@@ -1,144 +1,97 @@
 // src/components/SettingButton.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
-import Cookies from "js-cookie";
+import Button from "./Button";
+import "../assets/css/SettingButton.style.css";
 
-import Button from "./Button"; // Component Button của bạn (đã sửa để render thẻ <button>)
-import Api from "../network/Api";
-import { METHOD_TYPE } from "../network/methodType";
-import { clearUserProfile } from "../redux/userSlice";
-import "../assets/css/SettingButton.style.css"; // CSS cho component này
-
-// Định nghĩa ROLES (phải đồng bộ với ROLES trong HomePageLayout)
 const ROLES = {
-  GUEST: "GUEST",
   USER: "USER",
   TUTOR: "TUTOR",
 };
 
 const SettingButtonComponent = ({
-  endpoint = "user/logout", // Hoặc "auth/logout" tùy theo API của bạn
-  pathLogout = "/login",
   currentUserRole,
   isAuthenticated,
+  onLogout,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dropdownRef = useRef(null);
 
-  const handleLogout = async () => {
-    try {
-      await Api({ endpoint: endpoint, method: METHOD_TYPE.POST });
-    } catch (error) {
-      console.error("Lỗi API đăng xuất (tiếp tục logout client):", error);
-    } finally {
-      Cookies.remove("token");
-      Cookies.remove("role"); // Xóa cả cookie role nếu có
-      dispatch(clearUserProfile());
-      setIsDropdownOpen(false);
-      navigate(pathLogout);
-    }
-  };
-
-  const toggleDropdown = () => {
-    // console.log('SettingButton: toggleDropdown called. Previous isDropdownOpen:', isDropdownOpen);
+  const toggleDropdown = (e) => {
+    e.stopPropagation();
     setIsDropdownOpen((prev) => !prev);
   };
 
-  const handleNavigate = (path) => {
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+  const handleNavigateToAccount = () => {
     setIsDropdownOpen(false);
-    navigate(path);
-  };
-
-  const getSettingDropdownItems = () => {
-    let items = [];
-    console.log('[SettingButton] currentUserRole:', currentUserRole); 
-    if (currentUserRole === ROLES.USER) {
-      items = [
-        {
-          id: "studentProfileSetting",
-          label: "Hồ sơ học viên",
-          path: "/user/profile",
-        },
-        {
-          id: "favoriteTutorsSetting",
-          label: "Gia sư yêu thích",
-          path: "/gia-su-yeu-thich",
-        },
-        { id: "userWalletSetting", label: "Ví cá nhân", path: "/vi-cua-toi" },
-      ];
-    } else if (currentUserRole === ROLES.TUTOR) {
-      items = [
-        {
-          id: "tutorProfileSetting",
-          label: "Hồ sơ gia sư",
-          path: "/ho-so-gia-su",
-        },
-        { id: "tutorWalletSetting", label: "Ví cá nhân", path: "/vi-cua-toi" },
-        {
-          id: "rentalRequestsSetting",
-          label: "Yêu cầu thuê",
-          path: "/yeu-cau-thue",
-        },
-        {
-          id: "personalSyllabusSetting",
-          label: "Giáo trình cá nhân",
-          path: "/giao-trinh-ca-nhan",
-        },
-      ];
+    // Điều hướng đến trang hồ sơ mặc định của layout quản lý tài khoản
+    if (currentUserRole === ROLES.TUTOR) {
+      navigate("/gia-su/quan-ly/ho-so"); // Path đầy đủ đến trang hồ sơ gia sư
+    } else {
+      navigate("/tai-khoan/ho-so"); // Path đầy đủ đến trang hồ sơ người dùng
     }
-    return items;
   };
 
-  const settingDropdownItems = getSettingDropdownItems();
+  const handleUserLogout = () => {
+    setIsDropdownOpen(false);
+    if (onLogout) {
+      onLogout();
+    }
+  };
 
   return (
-    <div className="setting-button-container">
-      {/* 
-        Sử dụng component Button (đã sửa) và truyền className.
-        Component Button bên trong sẽ render ra thẻ <button type="button" className="setting-button" ...>
-      */}
+    <div className="setting-button-container" ref={dropdownRef}>
       <Button className="setting-button" onClick={toggleDropdown}>
         <i
-          className={`fa-solid fa-gear fa-2xl ${
-            isDropdownOpen ? "rotate" : ""
-          }`}
+          className={`fa-solid fa-gear fa-lg ${isDropdownOpen ? "rotate" : ""}`}
         ></i>
       </Button>
 
-      <div className={`setting-dropdown-menu ${isDropdownOpen ? "open" : ""}`}>
-        {settingDropdownItems.map((item) => (
-          // Các mục trong dropdown cũng nên là thẻ <button> để có tính nhất quán và accessibility
+      {isDropdownOpen && (
+        <div className="setting-dropdown-menu open">
           <button
-            key={item.id}
-            onClick={() => handleNavigate(item.path)}
+            onClick={handleNavigateToAccount}
             type="button"
             className="dropdown-item-button"
           >
-            {item.label}
+            {/* Tên mục menu trong SettingButton */}
+            {currentUserRole === ROLES.TUTOR
+              ? "Hồ Sơ Gia Sư"
+              : "Hồ Sơ Học Viên"}
           </button>
-        ))}
-        {isAuthenticated && (
-          <button
-            onClick={handleLogout}
-            type="button"
-            className="dropdown-item-button logout-button"
-          >
-            Đăng xuất
-          </button>
-        )}
-      </div>
+          {isAuthenticated && (
+            <button
+              onClick={handleUserLogout}
+              type="button"
+              className="dropdown-item-button logout-button"
+            >
+              Đăng xuất
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 SettingButtonComponent.propTypes = {
-  endpoint: PropTypes.string,
-  pathLogout: PropTypes.string,
   currentUserRole: PropTypes.string.isRequired,
   isAuthenticated: PropTypes.bool.isRequired,
+  onLogout: PropTypes.func.isRequired,
 };
 
 const SettingButton = React.memo(SettingButtonComponent);

@@ -1,28 +1,24 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import "../../assets/css/User.style.css";
+import "../../assets/css/User.style.css"; // Đảm bảo đường dẫn CSS đúng
 import { useSelector } from "react-redux";
 import dfMale from "../../assets/images/df-male.png";
 import dfFemale from "../../assets/images/df-female.png";
 
 const UserComponent = () => {
-  // Lấy thông tin người dùng từ Redux store, đảm bảo luôn là object
-  const userInfo =
-    useSelector((state) => state.user.userProfile) || {};
-  // console.log("userInfo toolbar:", userInfo); // Giữ lại để debug nếu cần
-
+  // onEditProfile vẫn giữ nếu có kế hoạch dùng
+  const userInfo = useSelector((state) => state.user.userProfile) || {};
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
-    // TODO: Thêm logic hiển thị/ẩn dropdown menu
+    // Logic cho dropdown menu có thể được thêm ở đây
   };
 
   const handleDoubleClick = () => {
     navigate("/user/profile");
-    // Cân nhắc: Thay bằng onClick hoặc đưa vào dropdown sẽ thân thiện hơn
   };
 
   const getAvatar = () => {
@@ -32,11 +28,11 @@ const UserComponent = () => {
     return userInfo.gender === "FEMALE" ? dfFemale : dfMale;
   };
 
-  // --- THAY ĐỔI LOGIC XÁC ĐỊNH VAI TRÒ ---
-  // Kiểm tra xem userInfo.tutorProfile có tồn tại và không phải là null không
-  // Nếu có, vai trò là "Gia sư", ngược lại là "Học viên"
   const userRole = userInfo.tutorProfile ? "Gia sư" : "Học viên";
-  // -----------------------------------------
+  const displayName =
+    userInfo.userProfile && userInfo.userProfile.fullname
+      ? userInfo.userProfile.fullname
+      : "Người dùng";
 
   return (
     <div className="user-dropdown">
@@ -44,23 +40,27 @@ const UserComponent = () => {
         <img
           className="user-avatar-square"
           src={getAvatar()}
-          alt="user-avatar"
-          onClick={handleDoubleClick} // Xem xét lại UX cho hành động này
-          // title="Nhấn đúp để xem hồ sơ" // Tooltip gợi ý (tùy chọn)
+          alt="User Avatar"
+          onClick={handleDoubleClick}
+          title="Xem hồ sơ" // Tooltip cho avatar
         />
-        <div className="user-details" onClick={toggleDropdown}>
-          <span className="user-name">{userInfo.userProfile?.fullname || "Người dùng"}</span>
-          {/* Hiển thị vai trò đã được xác định động */}
+        {/* Thêm title vào user-details để xem full tên khi hover nếu bị cắt ngắn */}
+        <div
+          className="user-details"
+          onClick={toggleDropdown}
+          title={displayName}
+        >
+          <span className="user-name">{displayName}</span>
           <span className="user-role">{userRole}</span>
         </div>
       </div>
-      {/* Phần hiển thị dropdown (nếu có) */}
+      {/* Phần hiển thị dropdown (ví dụ) */}
       {/* {isDropdownOpen && (
         <div className="dropdown-menu">
           <ul>
-            <li onClick={() => navigate('/user/profile')}>Hồ sơ của tôi</li>
-            {userRole === "Gia sư" && <li onClick={() => navigate('/tutor/dashboard')}>Trang gia sư</li>}
-            <li>Đăng xuất</li>
+            <li onClick={() => { navigate('/user/profile'); setIsDropdownOpen(false); }}>Hồ sơ của tôi</li>
+            {userRole === "Gia sư" && <li onClick={() => { navigate('/tutor/dashboard'); setIsDropdownOpen(false); }}>Trang gia sư</li>}
+            // Thêm mục Đăng xuất ở SettingButton, không cần ở đây nữa
           </ul>
         </div>
       )} */}
@@ -68,9 +68,8 @@ const UserComponent = () => {
   );
 };
 
-// Vì vai trò giờ được lấy từ Redux, prop 'userRole' không còn cần thiết nữa
 UserComponent.propTypes = {
-  onEditProfile: PropTypes.func, // Giữ lại nếu bạn có kế hoạch sử dụng
+  onEditProfile: PropTypes.func,
 };
 
 const User = React.memo(UserComponent);

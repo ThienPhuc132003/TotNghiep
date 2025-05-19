@@ -6,7 +6,6 @@ import "../../assets/css/HomePage.style.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Layout chính
 
 // --- Assets ---
 import welcomeTheme from "../../assets/images/vanlang_background3.webp";
@@ -789,7 +788,7 @@ const HomePage = () => {
 
   // --- Render ---
   return (
-    <HomePageLayout>
+    <>
       <div className="home-page-wrapper">
         {isProcessingOAuth && (
           <div
@@ -823,7 +822,7 @@ const HomePage = () => {
         )}
         {!isProcessingOAuth && <HomePageContent onSearch={handleSearch} />}
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

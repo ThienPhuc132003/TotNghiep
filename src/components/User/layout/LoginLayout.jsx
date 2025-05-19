@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 import "../../../assets/css/LoginLayout.style.css";
 import vanlangBackground from "../../../assets/images/vanlang_background1.png";
-import HomePageLayout from "./HomePageLayout";
 
 const LoginLayoutComponent = ({ children = null }) => {
   const location = useLocation();
@@ -23,7 +22,7 @@ const LoginLayoutComponent = ({ children = null }) => {
           <div className="login-container">{children}</div>
         </div>
       ) : (
-        <HomePageLayout>
+        <>
           <div className="login-layout">
             <div className="background-mask"></div>
             <img
@@ -33,7 +32,7 @@ const LoginLayoutComponent = ({ children = null }) => {
             />
             <div className="login-container">{children}</div>
           </div>
-        </HomePageLayout>
+        </>
       )}
     </>
   );

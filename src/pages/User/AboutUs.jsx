@@ -1,5 +1,4 @@
 import React from "react";
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Đảm bảo đường dẫn layout đúng
 import "../../assets/css/AboutUs.style.css"; // Đảm bảo đường dẫn CSS đúng
 import { useNavigate } from "react-router-dom";
 import Avatar_Nam from "../../assets/images/Avatar_nam.jpg"; // Đảm bảo đường dẫn ảnh đúng
@@ -35,7 +34,7 @@ const AboutUsComponent = () => {
   };
 
   return (
-    <HomePageLayout>
+    <>
       <div className="about-us-container">
         {/* ===== Hero Section Mới ===== */}
         <section className="hero-section-new">
@@ -304,7 +303,7 @@ const AboutUsComponent = () => {
           </div>
         </section>
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

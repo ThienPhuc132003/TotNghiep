@@ -1,30 +1,33 @@
-import React, { useCallback, useEffect, useState } from "react";
+// src/pages/Admin/ListOfCurriculumnPage.jsx (Hoặc đường dẫn tương ứng của bạn)
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
+import "../../assets/css/FormDetail.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import FormDetail from "../../components/FormDetail";
+import GenericFileUploader from "../../components/GenericFileUploader";
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
-import unidecode from "unidecode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import qs from "qs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
-// Set the app element for accessibility
 Modal.setAppElement("#root");
 
 const ListOfCurriculumnPage = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [searchInput, setSearchInput] = useState("");
+  const [searchQueryForApi, setSearchQueryForApi] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
@@ -32,77 +35,109 @@ const ListOfCurriculumnPage = () => {
   const [modalMode, setModalMode] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" });
   const currentPath = "/giao-trinh";
   const [majors, setMajors] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [formErrors, setFormErrors] = useState({});
+  const [fileUploadErrorModal, setFileUploadErrorModal] = useState("");
 
-  const resetState = () => {
+  const resetSearchAndFilters = () => {
     setSearchInput("");
+    setSearchQueryForApi("");
     setCurrentPage(0);
+    setSortConfig({ key: "createdAt", direction: "desc" });
   };
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
+      const filterConditions = [];
+      if (searchQueryForApi) {
+        filterConditions.push({
+          key: "curriculumnName,description,major.majorName,subject.subjectName",
+          operator: "like",
+          value: searchQueryForApi,
+        });
+      }
+
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
+        ...(filterConditions.length > 0 && { filter: JSON.stringify(filterConditions) }),
+        sort: JSON.stringify([
+          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
+        ]),
       };
 
-      if (sortConfig.key) {
-        query.sort = JSON.stringify([
-          { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
-        ]);
-      }
-
       const queryString = qs.stringify(query, { encode: false });
-
       const response = await Api({
-        endpoint: `curriculumn/get-list?${queryString}`,
+        endpoint: `curriculumn/search?${queryString}`,
         method: METHOD_TYPE.GET,
       });
 
-      if (response.success) {
-        setData(response.data.items);
-        setFilteredData(response.data.items);
-        setTotalItems(response.data.total);
+      if (response.success && response.data) {
+        setData(response.data.items || []);
+        setTotalItems(response.data.total || 0);
       } else {
-        setError(response.message || t("common.errorLoadingData"));
+        throw new Error(response.message || t("common.errorLoadingData"));
       }
-    } catch (error) {
-      setError(t("common.errorLoadingData"));
+    } catch (err) {
+      console.error("Fetch curriculumn error:", err);
+      setError(err.message || t("common.errorLoadingData"));
+      setData([]);
+      setTotalItems(0);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, t]);
+  }, [currentPage, itemsPerPage, sortConfig, searchQueryForApi, t]);
 
   const fetchMajors = useCallback(async () => {
     try {
       const response = await Api({
-        endpoint: "major",
+        endpoint: "major/search",
         method: METHOD_TYPE.GET,
+        query: { rpp: 1000, page: 1 }
       });
-
-      if (response.success) {
-        setMajors(response.data.items); // Sửa ở đây, lấy data.items
-        console.log("Majors fetched successfully:", response.data.items); // Kiểm tra dữ liệu trả về
+      if (response.success && response.data) {
+        setMajors(response.data.items || []);
       } else {
         console.error("Failed to fetch majors:", response.message);
-        toast.error(`Lấy danh sách ngành thất bại: ${response.message}`);
       }
     } catch (error) {
       console.error("An error occurred while fetching majors:", error.message);
-      toast.error(`Lấy danh sách ngành thất bại: ${error.message}`);
+    }
+  }, []);
+
+  const fetchSubjects = useCallback(async () => {
+    try {
+      const response = await Api({
+        endpoint: "subject/search",
+        method: METHOD_TYPE.GET,
+        query: { rpp: 1000, page: 1 }
+      });
+      if (response.success && response.data) {
+        setSubjects(response.data.items || []);
+      } else {
+        console.error("Failed to fetch subjects:", response.message);
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching subjects:", error.message);
     }
   }, []);
 
   useEffect(() => {
     fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
     fetchMajors();
-  }, [fetchData, fetchMajors]);
+    fetchSubjects();
+  }, [fetchMajors, fetchSubjects]);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
@@ -110,73 +145,67 @@ const ListOfCurriculumnPage = () => {
 
   const handleSearchInputChange = (query) => {
     setSearchInput(query);
-    const normalizedQuery = unidecode(query.toLowerCase());
-    const filtered = data.filter((item) => {
-      const curriculumnName = item.curriculumnName || "";
-      const curriculumnMajor = item.curriculumnMajor || "";
-      const status = item.status || "";
+  };
 
-      const normalizedCurriculumnName = unidecode(
-        curriculumnName.toLowerCase()
-      );
-      const normalizedCurriculumnMajor = unidecode(
-        curriculumnMajor.toLowerCase()
-      );
-      const normalizedStatus = unidecode(status.toLowerCase());
-
-      return (
-        normalizedCurriculumnName.includes(normalizedQuery) ||
-        normalizedCurriculumnMajor.includes(normalizedQuery) ||
-        normalizedStatus.includes(normalizedQuery)
-      );
-    });
-    setFilteredData(filtered);
+  const handleApplySearch = () => {
+    setCurrentPage(0);
+    setSearchQueryForApi(searchInput);
   };
 
   const handleSort = (key) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
-        prevConfig.key === key && prevConfig.direction === "asc"
-          ? "desc"
-          : "asc";
-      return { key: key, direction: newDirection };
-    });
+    setSortConfig((prevConfig) => ({
+      key: key,
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc" ? "desc" : "asc",
+    }));
+    setCurrentPage(0);
   };
 
-  const handleDelete = async (curriculumnId) => {
-    setDeleteItemId(curriculumnId);
+  const handleDelete = (curriculumn) => {
+    if (!curriculumn || !curriculumn.curriculumnId) return;
+    setDeleteItemId(curriculumn.curriculumnId);
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
+    if (!deleteItemId) {
+      toast.error("Không xác định được giáo trình để xóa.");
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const response = await Api({
         endpoint: `curriculumn/delete-by-admin/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
       if (response.success) {
-        fetchData();
-        toast.success("Xóa thành công");
+        toast.success("Xóa giáo trình thành công");
+        if (data.length === 1 && currentPage > 0) {
+          setCurrentPage(currentPage - 1);
+        } else {
+          fetchData();
+        }
       } else {
-        console.log("Failed to delete curriculumn");
-        toast.error("Xóa thất bại");
+        throw new Error(response.message || "Xóa thất bại");
       }
     } catch (error) {
-      console.error(
-        "An error occurred while deleting curriculumn:",
-        error.message
-      );
-      toast.error("Xóa thất bại");
+      console.error("Delete curriculumn error:", error);
+      toast.error(`Xóa thất bại: ${error.message}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
+      setIsSubmitting(false);
     }
   };
 
   const handleView = (curriculumn) => {
     setModalData({
       curriculumnId: curriculumn.curriculumnId,
-      curriculumnName: curriculumn.curriculumnName,
+      curriculumnName: curriculumn.curriculumnName || "",
+      majorName: curriculumn.major?.majorName || "N/A",
+      subjectName: curriculumn.subject?.subjectName || "N/A",
+      curriculumnUrl: curriculumn.curriculumnUrl || "",
+      description: curriculumn.description || "",
       status: curriculumn.status,
     });
     setModalMode("view");
@@ -186,58 +215,140 @@ const ListOfCurriculumnPage = () => {
   const handleEdit = (curriculumn) => {
     setModalData({
       curriculumnId: curriculumn.curriculumnId,
-      curriculumnName: curriculumn.curriculumnName,
-      status: curriculumn.status,
+      curriculumnName: curriculumn.curriculumnName || "",
+      majorId: curriculumn.majorId || "",
+      subjectId: curriculumn.subjectId || "",
+      curriculumnUrl: curriculumn.curriculumnUrl || "",
+      description: curriculumn.description || "",
     });
     setModalMode("edit");
+    setFormErrors({});
+    setFileUploadErrorModal("");
+    setIsModalOpen(true);
+  };
+
+  const handleAddCurriculumn = () => {
+    setModalMode("add");
+    setModalData({
+      curriculumnName: "",
+      majorId: "",
+      subjectId: "",
+      curriculumnUrl: "",
+      description: "",
+      status:"ACTIVE"
+    });
+    setFormErrors({});
+    setFileUploadErrorModal("");
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
+    setTimeout(() => {
+      setModalData({});
+      setModalMode(null);
+      setFormErrors({});
+      setFileUploadErrorModal("");
+    }, 300);
   };
 
-  const handleSave = async () => {
-    fetchData();
-    setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
+  const handleFileUploadCompleteModal = useCallback((url, identifier) => {
+    if (identifier === "curriculumnUrlModal") {
+      setModalData((prev) => ({ ...prev, curriculumnUrl: url }));
+      setFileUploadErrorModal("");
+      setFormErrors(prev => ({ ...prev, curriculumnUrl: undefined }));
+    }
+  }, []);
+
+  const handleFileUploadErrorModalCallback = useCallback((message, identifier) => {
+    if (identifier === "curriculumnUrlModal") {
+      const userMsg = message || "Upload file thất bại.";
+      setFileUploadErrorModal(userMsg);
+      setFormErrors(prev => ({ ...prev, curriculumnUrl: userMsg }));
+    }
+  }, []);
+
+  const validateFormData = (formDataToValidate) => {
+    const errors = {};
+    if (!formDataToValidate.curriculumnName?.trim()) errors.curriculumnName = "Tên giáo trình không được để trống.";
+    if (!formDataToValidate.majorId) errors.majorId = "Vui lòng chọn ngành.";
+    if (!formDataToValidate.subjectId) errors.subjectId = "Vui lòng chọn môn học.";
+    if (!formDataToValidate.description?.trim()) errors.description = "Mô tả không được để trống.";
+
+    const currentFileUrl = modalData.curriculumnUrl;
+    if (modalMode === 'add' && !currentFileUrl) {
+        errors.curriculumnUrl = "Vui lòng tải lên file giáo trình.";
+    } else if (fileUploadErrorModal && !currentFileUrl) {
+        errors.curriculumnUrl = fileUploadErrorModal;
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleUpdateCurriculumn = async (formData) => {
+  const handleFormSubmit = async (formDataFromFormDetail) => {
+    const finalFormData = {
+      ...formDataFromFormDetail,
+      curriculumnUrl: modalData.curriculumnUrl,
+    };
+
+    if (!validateFormData(finalFormData)) {
+      toast.warn("Vui lòng kiểm tra lại thông tin đã nhập, bao gồm cả file upload.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const payload = {
+      curriculumnName: finalFormData.curriculumnName,
+      majorId: finalFormData.majorId,
+      subjectId: finalFormData.subjectId,
+      curriculumnUrl: finalFormData.curriculumnUrl,
+      description: finalFormData.description,
+    };
+
     try {
-      const response = await Api({
-        endpoint: `curriculumn/update-by-admin/${modalData.curriculumnId}`,
-        method: METHOD_TYPE.PUT,
-        data: {
-          curriculumnName: formData.curriculumnName,
-          curriculumnMajor: formData.curriculumnMajor,
-          curriculumnUrl: formData.curriculumnUrl,
-          description: formData.description,
-        },
-      });
+      let response;
+      if (modalMode === "add") {
+        response = await Api({
+          endpoint: "curriculumn/create-by-admin",
+          method: METHOD_TYPE.POST,
+          data: payload,
+        });
+      } else {
+        response = await Api({
+          endpoint: `curriculumn/update-by-admin/${modalData.curriculumnId}`,
+          method: METHOD_TYPE.PUT,
+          data: payload,
+        });
+      }
 
       if (response.success) {
-        handleSave();
-        toast.success("Cập nhật thành công");
+        toast.success(modalMode === "add" ? "Thêm giáo trình thành công" : "Cập nhật giáo trình thành công");
+        fetchData();
+        handleCloseModal();
       } else {
-        console.log("Failed to update curriculumn");
-        toast.error("Cập nhật thất bại");
+        throw new Error(response.message || (modalMode === "add" ? "Thêm thất bại" : "Cập nhật thất bại"));
       }
     } catch (error) {
-      console.error(
-        "An error occurred while updating curriculumn:",
-        error.message
-      );
-      toast.error("Cập nhật thất bại");
+      console.error(`Error ${modalMode} curriculumn:`, error);
+      toast.error(`${modalMode === "add" ? "Thêm" : "Cập nhật"} thất bại: ${error.message}`);
+      if (error.response?.data?.errors) {
+        setFormErrors(error.response.data.errors);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleLock = async (curriculumn) => {
-    const newStatus = curriculumn.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    if (!curriculumn || !curriculumn.curriculumnId) {
+      toast.error("Không thể xác định giáo trình để thay đổi trạng thái.");
+      return;
+    }
+    const newStatus = curriculumn.status === "ACTIVE" ? "UNACTIVE" : "ACTIVE";
+    const curriculumnNameForToast = curriculumn.curriculumnName || curriculumn.curriculumnId;
 
+    setIsSubmitting(true);
     try {
       const response = await Api({
         endpoint: `curriculumn/update-by-admin/${curriculumn.curriculumnId}`,
@@ -246,116 +357,139 @@ const ListOfCurriculumnPage = () => {
       });
 
       if (response.success) {
-        setData((prevData) =>
-          prevData.map((item) =>
-            item.curriculumnId === curriculumn.curriculumnId
-              ? { ...item, status: newStatus }
-              : item
-          )
-        );
-        setFilteredData((prevFilteredData) =>
-          prevFilteredData.map((item) =>
-            item.curriculumnId === curriculumn.curriculumnId
-              ? { ...item, status: newStatus }
-              : item
-          )
-        );
-
         toast.success(
-          `Giáo trình ${curriculumn.curriculumnName} đã được ${
-            newStatus === "ACTIVE" ? "mở khóa" : "khóa"
-          } thành công!`
+          `Giáo trình "${curriculumnNameForToast}" đã ${newStatus === "ACTIVE" ? "mở khóa" : "khóa"} thành công.`
         );
+        fetchData();
       } else {
-        toast.error(
-          `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
-        );
-        console.error("Failed to update curriculumn:", response.message);
+        throw new Error(response.message || "Cập nhật trạng thái thất bại");
       }
     } catch (error) {
-      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
-      console.error(
-        "An error occurred while updating curriculumn:",
-        error.message
-      );
+      console.error("Lock/Unlock curriculumn error:", error);
+      toast.error(`Cập nhật trạng thái thất bại: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
-      title: "Số thứ tự",
-      dataKey: "index",
-      renderCell: (_, __, rowIndex) =>
-        currentPage * itemsPerPage + rowIndex + 1,
+      title: "STT",
+      renderCell: (_, __, rowIndex) => currentPage * itemsPerPage + rowIndex + 1,
     },
     { title: "Tên giáo trình", dataKey: "curriculumnName", sortable: true },
-    { title: "Ngành", dataKey: "major.majorName", sortable: true },
+    {
+      title: "Ngành",
+      dataKey: "major.majorName",
+      renderCell: (_, row) => row.major?.majorName || "N/A",
+      sortable: true,
+    },
+    {
+      title: "Môn học",
+      dataKey: "subject.subjectName",
+      renderCell: (_, row) => row.subject?.subjectName || "N/A",
+      sortable: true,
+    },
+    {
+      title: "File",
+      dataKey: "curriculumnUrl",
+      renderCell: (value) =>
+        value ? (
+          <a href={value} target="_blank" rel="noopener noreferrer" className="table-link">
+            Xem file
+          </a>
+        ) : (
+          "Không có"
+        ),
+    },
+    {
+      title: "Mô tả",
+      dataKey: "description",
+      renderCell: (value) =>
+        value && value.length > 50 ? (
+          <span title={value}>{value.substring(0, 50)}...</span>
+        ) : (
+          value || "Không có"
+        ),
+      sortable: true,
+    },
     {
       title: "Trạng thái",
       dataKey: "status",
       sortable: true,
-      renderCell: (value) => (value === "ACTIVE" ? "Đang mở" : "Khóa"),
+      renderCell: (value) => (value === "ACTIVE" ? "Đang mở" : "Đã khóa"),
     },
-  ];
+  ], [currentPage, itemsPerPage]);
 
-  const handleAddCurriculumn = () => {
-    setModalMode("add");
-    setModalData({
-      curriculumnName: "",
-      curriculumnMajor: "",
-      curriculumnUrl: "",
-      description: "",
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleCreateCurriculumn = async (formData) => {
-    try {
-      const response = await Api({
-        endpoint: "curriculumn/create-by-admin",
-        method: METHOD_TYPE.POST,
-        data: formData,
-      });
-
-      if (response.success) {
-        toast.success("Thêm giáo trình thành công");
-        fetchData();
-        handleSave();
-      } else {
-        toast.error(`Thêm giáo trình thất bại: ${response.message}`);
-        console.error("Failed to create curriculumn:", response.message);
-      }
-    } catch (error) {
-      toast.error(`Thêm giáo trình thất bại: ${error.message}`);
-      console.error(
-        "An error occurred while creating curriculumn:",
-        error.message
-      );
-    }
-  };
-
-  const editFields = [
-    { key: "curriculumnName", label: "Tên giáo trình", type: "text" },
-    { key: "major.majorName", label: "Negành", type: "text" },
-    { key: "curriculumnUrl", label: "URL giáo trình", type: "text" },
-    { key: "description", label: "Mô tả", type: "textarea" },
-  ];
-
-  const addFields = [
-    { key: "curriculumnName", label: "Tên giáo trình", type: "text" },
+  const commonFormFields = useMemo(() => [
     {
-      key: "curriculumnMajor",
+      key: "curriculumnName",
+      label: "Tên giáo trình",
+      type: "text",
+      required: true,
+    },
+    {
+      key: "majorId",
       label: "Ngành",
       type: "select",
+      required: true,
       options: majors.map((major) => ({
-        // Sửa ở đây
         label: major.majorName,
-        value: major.majorName,
+        value: major.majorId,
       })),
+      placeholder: "-- Chọn Ngành --",
     },
-    { key: "curriculumnUrl", label: "URL giáo trình", type: "text" },
-    { key: "description", label: "Mô tả", type: "textarea" },
-  ];
+    {
+      key: "subjectId",
+      label: "Môn học",
+      type: "select",
+      required: true,
+      options: subjects.map((subject) => ({
+        label: subject.subjectName,
+        value: subject.subjectId,
+      })),
+      placeholder: "-- Chọn Môn học --",
+    },
+    {
+      key: "description",
+      label: "Mô tả",
+      type: "textarea",
+      rows: 4,
+      required: true,
+    },
+  ], [majors, subjects]);
+
+  const addFields = useMemo(() => [...commonFormFields], [commonFormFields]);
+  const editFields = useMemo(() => [
+    { key: "curriculumnId", label: "Mã Giáo trình", readOnly: true },
+    ...commonFormFields,
+  ], [commonFormFields]);
+
+  const viewFields = useMemo(() => [
+    { key: "curriculumnId", label: "Mã Giáo trình" },
+    { key: "curriculumnName", label: "Tên giáo trình" },
+    { key: "majorName", label: "Ngành" },
+    { key: "subjectName", label: "Môn học" },
+    {
+      key: "curriculumnUrl",
+      label: "File Giáo trình",
+      renderValue: (value) =>
+        value ? (
+          <a href={value} target="_blank" rel="noopener noreferrer" className="form-detail-link">
+            Xem file
+          </a>
+        ) : (
+          "Không có file"
+        ),
+    },
+    { key: "description", label: "Mô tả" },
+    {
+      key: "status",
+      label: "Trạng thái",
+      renderValue: (value) => (value === "ACTIVE" ? "Đang mở" : "Đã khóa"),
+    },
+  ], []);
+
 
   return (
     <AdminDashboardLayout currentPath={currentPath}>
@@ -366,98 +500,178 @@ const ListOfCurriculumnPage = () => {
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
+              onKeyPress={(e) => e.key === 'Enter' && handleApplySearch()}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm kiếm giáo trình"
+              placeholder="Tìm tên, mô tả, ngành, môn..."
             />
             <button
+                className="refresh-button"
+                onClick={handleApplySearch}
+                title="Tìm kiếm"
+                aria-label="Tìm kiếm"
+              >
+                <i className="fa-solid fa-search"></i>
+            </button>
+            <button
               className="refresh-button"
-              onClick={() => {
-                resetState();
-                fetchData();
-              }}
+              onClick={resetSearchAndFilters}
+              title="Làm mới bộ lọc và danh sách"
             >
-              <i className="fa-solid fa-rotate fa-lg"></i>
+              <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
           <div className="filter-add-admin">
             <button className="add-admin-button" onClick={handleAddCurriculumn}>
-              Thêm
+              Thêm giáo trình
             </button>
           </div>
         </div>
-        {error && <Alert severity="error">{error}</Alert>}
+
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
         <Table
           columns={columns}
-          data={filteredData}
+          data={data}
+          totalItems={totalItems}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={(curriculumn) => handleDelete(curriculumn.curriculumnId)}
+          onDelete={handleDelete}
           onLock={handleLock}
           pageCount={Math.ceil(totalItems / itemsPerPage)}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
+          currentSortConfig={sortConfig}
           loading={isLoading}
-          error={error}
           itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={(e) => setItemsPerPage(Number(e.target.value))}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setCurrentPage(0);
+          }}
           showLock={true}
           statusKey="status"
         />
-        <p>Tổng số giáo trình: {totalItems}</p>
+         {!isLoading && !error && data.length > 0 && (
+          <p className="total-items-count">
+            Tổng số giáo trình: {totalItems}
+          </p>
+        )}
       </div>
+
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
         contentLabel={
-          modalMode === "edit" ? "Chỉnh sửa giáo trình" : "Thêm giáo trình"
+          modalMode === "add"
+            ? "Thêm Giáo trình"
+            : modalMode === "edit"
+            ? "Chỉnh sửa Giáo trình"
+            : "Xem Chi tiết Giáo trình"
         }
-        className="modal"
+        className={`modal ${modalMode === "view" ? "medium" : "large"}`}
         overlayClassName="overlay"
+        closeTimeoutMS={300}
       >
-        <FormDetail
-          formData={modalData}
-          fields={modalMode === "add" ? addFields : editFields}
-          mode={modalMode || "view"}
-          onChange={(name, value) =>
-            setModalData({ ...modalData, [name]: value })
-          }
-          onSubmit={
-            modalMode === "add"
-              ? handleCreateCurriculumn
-              : handleUpdateCurriculumn
-          }
-          onClose={handleCloseModal}
-          title={
-            modalMode === "add"
-              ? "Thêm giáo trình"
-              : modalMode === "edit"
-              ? "Chỉnh sửa giáo trình"
-              : "Xem giáo trình"
-          }
-        />
+        {modalMode && (
+          <FormDetail
+            formData={modalData}
+            fields={
+              modalMode === "add"
+                ? addFields
+                : modalMode === "edit"
+                ? editFields
+                : viewFields
+            }
+            mode={modalMode}
+            onChange={(name, value) => {
+              setModalData((prev) => ({ ...prev, [name]: value }));
+              if (formErrors[name]) {
+                setFormErrors(prev => ({ ...prev, [name]: undefined }));
+              }
+              if (name !== 'curriculumnUrl' && formErrors.curriculumnUrl && modalData.curriculumnUrl) {
+                 setFormErrors(prev => ({ ...prev, curriculumnUrl: undefined }));
+                 setFileUploadErrorModal("");
+              }
+            }}
+            onClose={handleCloseModal}
+            title={
+              modalMode === "add"
+                ? "Thêm Giáo trình Mới"
+                : modalMode === "edit"
+                ? "Chỉnh sửa Thông tin Giáo trình"
+                : "Thông tin Chi tiết Giáo trình"
+            }
+            errors={formErrors}
+          >
+            {(modalMode === "add" || modalMode === "edit") && (
+              <>
+                <div className="form-detail-group" style={{ gridColumn: "1 / -1", marginTop: "1rem" }}>
+                  <GenericFileUploader
+                    label="File Giáo trình"
+                    mediaCategory="CURRICULUMN_DOCUMENT" // !!! THAY THẾ BẰNG MEDIA CATEGORY THỰC TẾ CỦA BẠN
+                    initialFileUrl={modalData.curriculumnUrl}
+                    onUploadComplete={handleFileUploadCompleteModal}
+                    onError={handleFileUploadErrorModalCallback}
+                    fileIdentifier="curriculumnUrlModal"
+                    promptText="Tải file (PDF, DOC, PPT, Ảnh,...)"
+                    required={modalMode === 'add'}
+                    disabled={isSubmitting}
+                  />
+                  {(fileUploadErrorModal || formErrors?.curriculumnUrl) && (
+                    <p className="form-detail-error-message" style={{ color: 'red', fontSize: '0.875em', marginTop: '0.25rem' }}>
+                      {formErrors?.curriculumnUrl || fileUploadErrorModal}
+                    </p>
+                  )}
+                </div>
+
+                <div className="form-detail-actions" style={{ gridColumn: "1 / -1", marginTop: "1.5rem" }}>
+                  <button
+                    type="button"
+                    className="form-detail-cancel-button"
+                    onClick={handleCloseModal}
+                    disabled={isSubmitting}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="button"
+                    className="form-detail-save-button"
+                    onClick={() => handleFormSubmit(modalData)}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: "8px" }} />
+                        Đang lưu...
+                      </>
+                    ) : (
+                      "Lưu"
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </FormDetail>
+        )}
       </Modal>
+
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message="Bạn có chắc muốn xóa giáo trình này?"
+        message="Bạn có chắc chắn muốn xóa giáo trình này không? Hành động này không thể hoàn tác."
+        isDeleting={isSubmitting}
       />
+
       <ToastContainer
         position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
+        autoClose={3000}
+        theme="colored"
       />
     </AdminDashboardLayout>
   );
 };
+
 const ListOfCurriculumn = React.memo(ListOfCurriculumnPage);
 export default ListOfCurriculumn;

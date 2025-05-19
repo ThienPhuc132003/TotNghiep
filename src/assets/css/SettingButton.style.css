@@ -1,63 +1,99 @@
+/* src/assets/css/SettingButton.style.css */
 .setting-button-container {
   position: relative;
-  cursor: none;
+  /* cursor: default; Không cần cursor none nếu button là clickable */
 }
 
 .setting-button {
+  /* Style cho chính nút button */
   display: flex;
-  padding: 20px;
   align-items: center;
   justify-content: center;
   border: none;
   background-color: transparent;
+  padding: 10px; /* Điều chỉnh padding cho nút setting */
+  cursor: pointer; /* Quan trọng cho button */
+  border-radius: 50%; /* Làm tròn nút setting nếu muốn */
+  transition: background-color 0.2s ease;
+}
+.setting-button:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Hiệu ứng hover */
+}
+.home-page-header .setting-button:hover {
+  /* Hiệu ứng hover trên header tối */
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .fa-gear {
-  color: #272e4f;
-  cursor: pointer;
-  transition: transform 0.7s ease;
+  /* color: #272e4f; Màu mặc định cho nền sáng */
+  color: #5f6368; /* Một màu xám trung tính hơn */
+  transition: transform 0.3s ease; /* Giảm thời gian xoay */
+  font-size: 1.25rem; /* Điều chỉnh kích thước icon bánh răng */
+}
+.home-page-header .fa-gear {
+  /* Màu icon bánh răng trên header tối */
+  color: white;
 }
 
 .fa-gear.rotate {
-  transform: rotate(180deg);
+  transform: rotate(90deg); /* Xoay 90 độ thay vì 180 */
 }
 
 .setting-dropdown-menu {
-  display: flex;
+  display: none; /* Mặc định ẩn */
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   background-color: white;
-  border-radius: 16px;
+  border-radius: 8px; /* Bo góc menu */
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px); /* Vị trí so với nút setting */
   right: 0;
-  width: 250px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 200px; /* Độ rộng tối thiểu, có thể điều chỉnh */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); /* Shadow đẹp hơn */
+  z-index: 1050; /* Đảm bảo hiển thị trên các element khác */
+  padding: 8px 0; /* Padding trên dưới cho menu */
   overflow: hidden;
-  z-index: 10;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.2s ease, transform 0.3s ease;
-  pointer-events: none;
 }
 
 .setting-dropdown-menu.open {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  display: flex; /* Hiện khi state open */
+  animation: fadeInDropdownSetting 0.2s ease-out;
 }
 
-.setting-dropdown-menu button {
-  padding: 10px 20px;
+@keyframes fadeInDropdownSetting {
+  /* Animation riêng để tránh trùng tên */
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item-button {
+  /* Style chung cho các button trong dropdown */
+  padding: 10px 16px;
   width: 100%;
   border: none;
   background: none;
   cursor: pointer;
   text-align: left;
-  background-color: rgb(255, 255, 255);
+  font-size: 0.875rem; /* ~14px */
+  color: #333;
+  transition: background-color 0.2s ease;
 }
 
-.setting-dropdown-menu button:hover {
-  background-color: #c4c4c4;
+.dropdown-item-button:hover {
+  background-color: #f5f5f5; /* Màu nền khi hover */
+}
+
+.dropdown-item-button.logout-button {
+  color: #d0011b; /* Màu đỏ cho nút đăng xuất */
+  border-top: 1px solid #efefef; /* Ngăn cách */
+  margin-top: 4px;
+  padding-top: 12px;
+}
+.dropdown-item-button.logout-button:hover {
+  background-color: rgba(208, 1, 27, 0.05);
 }

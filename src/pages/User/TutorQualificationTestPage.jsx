@@ -1,7 +1,6 @@
 // src/pages/User/TutorQualificationTestPage.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import HomePageLayout from "../../components/User/layout/HomePageLayout";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/TutorQualificationTestPage.style.css";
@@ -198,18 +197,18 @@ const TutorQualificationTestPage = () => {
   // --- Render Logic --- (Giữ nguyên, chỉ cần đảm bảo các đường dẫn trong navigate đã đúng)
   if (isLoading) {
     return (
-      <HomePageLayout>
+      <>
         <div className="tutor-test-container loading-container">
           <FontAwesomeIcon icon={faSpinner} spin size="3x" />
           <p>Đang tải dữ liệu bài kiểm tra...</p>
         </div>
-      </HomePageLayout>
+      </>
     );
   }
   // ... (phần còn lại của render logic giữ nguyên) ...
   if (error && !testData && !isSubmitting) {
     return (
-      <HomePageLayout>
+      <>
         <div className="tutor-test-container error-container">
           <FontAwesomeIcon icon={faExclamationTriangle} size="3x" color="red" />
           <p className="error-message">{error}</p>
@@ -217,7 +216,7 @@ const TutorQualificationTestPage = () => {
             Thử lại
           </button>
         </div>
-      </HomePageLayout>
+      </>
     );
   }
 
@@ -226,7 +225,7 @@ const TutorQualificationTestPage = () => {
       (ans) => ans !== null && ans !== ""
     );
     return (
-      <HomePageLayout>
+      <>
         <div className="tutor-test-container">
           {/* ... (title, description, banners) ... */}
           <h1>{testData.tittle}</h1>
@@ -303,17 +302,17 @@ const TutorQualificationTestPage = () => {
             </div>
           </form>
         </div>
-      </HomePageLayout>
+      </>
     );
   }
   return (
-    <HomePageLayout>
+    <>
       <div className="tutor-test-container">
         {hasPassedTest === true && (
           <p>Bạn đã hoàn thành bài kiểm tra. Đang chuyển hướng...</p>
         )}
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

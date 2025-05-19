@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // Đường dẫn layout
 import TutorCard from "../../components/User/TutorCard"; // *** SỬ DỤNG TUTOR CARD ĐÃ CÓ ***
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -272,7 +271,7 @@ const FavoriteTutorsPage = () => {
   };
 
   return (
-    <HomePageLayout>
+    <>
       <div className="favorite-tutors-page-wrapper">
         <div className="favorite-tutors-container">
           <h1>Gia sư yêu thích của bạn</h1>
@@ -280,7 +279,7 @@ const FavoriteTutorsPage = () => {
           {/* Không cần Pagination ở đây */}
         </div>
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

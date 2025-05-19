@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // *** Điều chỉnh đường dẫn ***
 import majorList from "../../components/Static_Data/MajorList"; // *** Đảm bảo file và đường dẫn đúng ***
 import tutorLevel from "../../components/Static_Data/TutorLevelList"; // *** Đảm bảo file và đường dẫn đúng ***
 import "../../assets/css/TutorSearch.style.css"; // *** Điều chỉnh đường dẫn ***
@@ -47,7 +46,7 @@ const TutorSearchPage = () => {
     majorList.find((m) => m.major_id === id)?.major_name || id;
 
   return (
-    <HomePageLayout>
+    <>
       <div className="tutor-search-page layout-2-columns">
         {/* Sidebar Filters */}
         <aside className="search-sidebar">
@@ -193,7 +192,7 @@ const TutorSearchPage = () => {
           />
         </main>
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

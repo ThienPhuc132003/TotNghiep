@@ -1,4 +1,4 @@
-// App.jsx
+// src/App.jsx
 import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -7,12 +7,21 @@ import {
   Navigate,
 } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
-import { persistor } from "./redux/Store"; // Import persistor
+import { persistor } from "./redux/Store";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Layouts
+import HomePageLayout from "./components/User/layout/HomePageLayout";
+import AccountPageLayout from "./components/User/layout/AccountPageLayout";
+
+// Guards & Utils
 import AdminPrivateRoutes from "./route/AdminPrivateRoutes";
 import OtpProtectedRoute from "./route/OtpProtectedRoute";
 import TutorRegistrationGuard from "./route/TutorRegistrationGuard ";
-import { ToastContainer } from "react-toastify";
-// User
+import ProtectRoute from "./route/ProtectRoute";
+
+// User Pages
 const HomePage = lazy(() => import("./pages/User/HomePage"));
 const UserLogin = lazy(() => import("./pages/User/Login"));
 const Register = lazy(() => import("./pages/User/Register"));
@@ -38,11 +47,13 @@ const PaymentFailed = lazy(() => import("./pages/User/PaymentFailed"));
 const FavoriteTutorsPage = lazy(() =>
   import("./pages/User/FavoriteTutorsPage")
 );
-
+const CurriculumPage = lazy(() =>
+  import("./pages/User/CurriculumManagementPage")
+);
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
 
-// Admin
+// Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
@@ -67,7 +78,21 @@ const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 function App() {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+              fontSize: "1.5rem",
+            }}
+          >
+            Loading...
+          </div>
+        }
+      >
         <PersistGate loading={null} persistor={persistor}>
           <ToastContainer
             position="top-right"
@@ -82,53 +107,89 @@ function App() {
             theme="light"
           />
           <Routes>
-            <Route index element={<Navigate to="/trang-chu" />} />
-            <Route path="/trang-chu" element={<HomePage />} />
-            <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
-            <Route path="/gia-su/:userId" element={<TutorDetailPage />} />
-
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/login" element={<UserLogin />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            {/* --- CÁC ROUTE SỬ DỤNG HomePageLayout --- */}
+            <Route element={<HomePageLayout />}>
+              {" "}
+              {/* Layout cha cho tất cả các route con bên dưới */}
+              <Route index element={<Navigate to="/trang-chu" replace />} />
+              <Route path="/trang-chu" element={<HomePage />} />
+              <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
+              <Route path="/gia-su/:userId" element={<TutorDetailPage />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route
+                path="/quy-dinh-noi-quy-huong-dan"
+                element={<RulesRegulationsPage />}
+              />
+              <Route
+                path="/trac-nghiem-gia-su"
+                element={<TutorQualificationTestPage />}
+              />
+              <Route path="/login" element={<UserLogin />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route element={<TutorRegistrationGuard />}>
+                <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
+              </Route>
+              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN CỦA USER (HỌC VIÊN) --- */}
+              <Route element={<ProtectRoute role="USER" />}>
+                <Route path="/tai-khoan/ho-so" element={<AccountPageLayout />}>
+                  <Route
+                    index
+                    element={<Navigate to="thong-tin-nguoi-hoc" replace />}
+                  />
+                  <Route path="thong-tin-nguoi-hoc" element={<Profile />} />
+                  <Route
+                    path="gia-su-yeu-thich"
+                    element={<FavoriteTutorsPage />}
+                  />
+                  <Route path="vi-ca-nhan" element={<Wallet />} />
+                </Route>
+              </Route>
+              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN CỦA TUTOR (GIA SƯ) --- */}
+              <Route element={<ProtectRoute role="TUTOR" />}>
+                <Route
+                  path="/gia-su/quan-ly/ho-so"
+                  element={<AccountPageLayout />}
+                >
+                  <Route
+                    index
+                    element={<Navigate to="thong-tin-gia-su" replace />}
+                  />
+                  <Route path="thong-tin-gia-su" element={<TutorRegister />} />
+                  <Route path="giao-trinh" element={<CurriculumPage />} />
+                  <Route path="vi-ca-nhan" element={<Wallet />} />
+                  {/* <Route path="yeu-cau-thue" element={<SomeComponent />} /> */}
+                </Route>
+              </Route>
+              {/* Route Đổi Mật Khẩu - nằm trong HomePageLayout và được bảo vệ */}
+              <Route element={<ProtectRoute />}>
+                {" "}
+                {/* Chỉ cần đăng nhập */}
+                <Route element={<OtpProtectedRoute />}>
+                  <Route path="/change-password" element={<ChangePassword />} />
+                </Route>
+              </Route>
+            </Route>{" "}
+            {/* Kết thúc các Route sử dụng HomePageLayout */}
+            {/* Các route không dùng HomePageLayout (standalone) */}
             <Route path="/otp-verify" element={<OtpVerify />} />
-            <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
-            <Route
-              path="/quy-dinh-noi-quy-huong-dan"
-              element={<RulesRegulationsPage />}
-            />
-            <Route path="/vi-cua-toi" element={<Wallet />} />
-            <Route path="/gia-su-yeu-thich" element={<FavoriteTutorsPage />} />
-            <Route
-              path="/trac-nghiem-gia-su"
-              element={<TutorQualificationTestPage />}
-            />
-            <Route element={<TutorRegistrationGuard />}>
-              <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
-              <Route path="/ho-so-gia-su" element={<TutorRegister />} />
-            </Route>
-            <Route
-              path="/admin/auth/callback"
-              element={<MicrosoftCallback />}
-            />
             <Route
               path="/otp-verify-register"
               element={<OtpVerifyRegister />}
             />
+            <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
+            <Route
+              path="/admin/auth/callback"
+              element={<MicrosoftCallback />}
+            />
             <Route path="/api/meeting/callback" element={<ZoomCallback />} />
-
             <Route path="/create-meeting" element={<CreateMeeting />} />
             <Route path="payment/success" element={<PaymentSuccess />} />
             <Route path="payment/failed" element={<PaymentFailed />} />
-
-            <Route path="user/profile" element={<Profile />} />
-            <Route element={<OtpProtectedRoute />}>
-              <Route path="/change-password" element={<ChangePassword />} />
-            </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
-            {/* admin pages */}
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* ADMIN ROUTES */}
             <Route path="/admin/*" element={<AdminPrivateRoutes />}>
+              <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="profile" element={<AdminProfile />} />
               <Route path="nhan-vien" element={<ListOfAdmin />} />
               <Route path="nganh" element={<ListOfMajor />} />
