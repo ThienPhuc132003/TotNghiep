@@ -5,7 +5,6 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/TutorRegister.style.css";
 import "../../assets/css/Modal.style.css";
-import HomePageLayout from "../../components/User/layout/HomePageLayout";
 import GenericFileUploader from "../../components/GenericFileUploader";
 import BankList from "../../components/Static_Data/BankList";
 import MajorList from "../../components/Static_Data/MajorList";
@@ -1226,30 +1225,30 @@ const TutorRegistrationForm = () => {
   // --- Main Render ---
   if (isFetchingRequest) {
     return (
-      <HomePageLayout>
+      <>
         <div className="tutor-registration-container loading-container">
           <FontAwesomeIcon icon={faSpinner} spin size="3x" />
           <p>Đang tải...</p>
         </div>
-      </HomePageLayout>
+      </>
     );
   }
   if (fetchRequestError) {
     return (
-      <HomePageLayout>
+      <>
         <div className="tutor-registration-container error-container">
           <h3>Lỗi</h3>
           <p>{fetchRequestError}</p>
           <button onClick={() => window.location.reload()}>Thử lại</button>
         </div>
-      </HomePageLayout>
+      </>
     );
   }
 
   const currentStatus = requestData?.status;
 
   return (
-    <HomePageLayout>
+    <>
       <input
         type="file"
         ref={fileInputRef}
@@ -1979,7 +1978,7 @@ const TutorRegistrationForm = () => {
         cropShape="round"
       />
       {/* ToastContainer is in App.jsx */}
-    </HomePageLayout>
+    </>
   );
 };
 

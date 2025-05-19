@@ -1,4 +1,4 @@
-import HomePageLayout from "../../components/User/layout/HomePageLayout";
+
 import "../../assets/css/RulesRegulationsPage.style.css"; // Đổi tên file CSS
 
 // --- Icons (Có thể giữ lại nếu cần cho các mục nhỏ) ---
@@ -238,12 +238,12 @@ const RegulationsContentSection = () => (
 // --- Main RulesRegulationsPage Component ---
 const RulesRegulationsPage = () => {
   return (
-    <HomePageLayout>
+    <>
       <div className="rules-page-wrapper">
         <RulesHeroSection />
         <RegulationsContentSection />
       </div>
-    </HomePageLayout>
+    </>
   );
 };
 

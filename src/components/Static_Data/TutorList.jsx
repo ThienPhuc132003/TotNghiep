@@ -188,11 +188,11 @@ const TutorList = ({
   }, []);
   const hBSIL = useCallback(() => {
     hCBM();
-    toast.success("Y.cầu thuê đã gửi!");
+    toast.success("Yêu cầu thuê đã gửi!");
     fetchTutorsData(currentPage);
   }, [currentPage, fetchTutorsData, hCBM]);
   const hCSIL = useCallback(() => {
-    toast.success("Đã hủy y.cầu thuê.");
+    toast.success("Đã hủy yêu cầu thuê.");
     fetchTutorsData(currentPage);
   }, [currentPage, fetchTutorsData]);
   const hFSC = useCallback((tId, nIF) => {

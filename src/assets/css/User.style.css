@@ -1,30 +1,33 @@
 /* User.style.css */
 
-.user-account-toolbar{
+.user-account-toolbar {
   display: flex;
- flex-direction: row;
+  flex-direction: row;
+  align-items: center; /* Căn các button và user info thẳng hàng */
 }
+
 .user-dropdown {
   display: flex;
   align-items: center;
   cursor: pointer;
-  position: relative;
+  position: relative; /* Cho dropdown menu (nếu có) */
 }
 
 .user-info-dropdown {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-right: 20px;
+  gap: 10px; /* Khoảng cách giữa avatar và user-details */
+  margin-right: 15px; /* Khoảng cách với button kế tiếp (ví dụ: SettingButton) */
 }
 
 .user-avatar-square {
   width: 40px;
   height: 40px;
-  border-radius: 20%;
-  border: 2px solid #272e4f;
+  border-radius: 20%; /* Bo tròn 20% tạo hình vuông bo góc nhẹ */
+  border: 2px solid #e0e0e0; /* Màu viền mặc định cho nền sáng */
   object-fit: cover;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  flex-shrink: 0; /* Không cho avatar bị co lại */
 }
 
 .user-avatar-square:hover {
@@ -32,30 +35,68 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Styles khi UserAccountToolbar nằm trong .home-page-header (nền tối) */
+.home-page-header .user-avatar-square {
+  border-color: rgba(255, 255, 255, 0.5); /* Viền trắng mờ */
+}
+.home-page-header .user-avatar-square:hover {
+  border-color: white; /* Viền trắng rõ khi hover */
+}
+/* Kết thúc style riêng cho header */
+
 .user-details {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 120px; /* <<<<---- CỐ ĐỊNH CHIỀU RỘNG. Điều chỉnh giá trị này! */
+  overflow: hidden; /* Ẩn phần text bị tràn */
 }
 
 .user-name {
-  font-weight: bold;
-  font-size: 12px;
+  font-weight: 600; /* Đậm hơn một chút */
+  font-size: 0.8rem; /* Có thể là 12px hoặc 0.8rem, 0.85rem */
+  color: #333; /* Màu chữ mặc định cho nền sáng */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%; /* Để text-overflow hoạt động */
+  line-height: 1.4; /* Tăng nhẹ line-height cho dễ đọc */
+}
+
+/* Style cho user-name trong .home-page-header (nền tối) */
+.home-page-header .user-name {
+  color: white;
 }
 
 .user-role {
-  font-size: 12px;
-  color: gray;
-  text-align: center;
+  font-size: 0.75rem; /* Nhỏ hơn user-name (ví dụ 11px-12px) */
+  color: #757575; /* Màu xám cho vai trò trên nền sáng */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  line-height: 1.3;
 }
 
+/* Style cho user-role trong .home-page-header (nền tối) */
+.home-page-header .user-role {
+  color: #cccccc; /* Màu xám nhạt hơn cho nền tối */
+}
+
+/* Dropdown arrow and menu (giữ nguyên nếu bạn đã có, hoặc thêm nếu cần) */
 .dropdown-arrow {
   width: 10px;
   height: 10px;
-  border-left: 2px solid black;
-  border-bottom: 2px solid black;
+  border-left: 2px solid black; /* Màu mũi tên mặc định */
+  border-bottom: 2px solid black; /* Màu mũi tên mặc định */
   transform: rotate(-45deg);
   transition: transform 0.2s;
+  margin-left: 8px; /* Khoảng cách với user-details */
+}
+.home-page-header .dropdown-arrow {
+  /* Mũi tên màu trắng trên header */
+  border-left-color: white;
+  border-bottom-color: white;
 }
 
 .dropdown-arrow.open {
@@ -64,40 +105,53 @@
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 5px); /* Cách user-dropdown 5px */
   right: 0;
   background: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
   overflow: hidden;
-  margin-top: 5px;
-  z-index: 10;
-  border-radius: 20px;
-  width: 200px;
+  z-index: 1050; /* Cao hơn các element khác */
+  width: 180px; /* Độ rộng của dropdown */
+  padding: 0.5rem 0;
 }
 
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 10px 20px;
+.dropdown-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-menu li {
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  color: #333;
   cursor: pointer;
-  font-weight: bold;
-  background-color: #272e4f;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.dropdown-item:hover {
-  background-color: #3744b9;
+.dropdown-menu li:hover {
+  background-color: #f0f0f0; /* Màu nền khi hover */
 }
+/* Kết thúc dropdown */
+
+/* Responsive */
 @media (max-width: 1024px) {
-  .user-details{
+  /* Trên Tablet, ẩn user-details */
+  .user-details {
     display: none;
   }
-  .user-dropdown{
-    gap: 0px;
+  .user-info-dropdown {
+    margin-right: 5px; /* Giảm margin khi chỉ còn avatar */
+    gap: 0;
+  }
+  .dropdown-arrow {
+    /* Ẩn mũi tên nếu user-details bị ẩn */
+    display: none;
   }
 }
 
-/* Media query for phones (up to 768px) */
 @media (max-width: 767px) {
+  /* Trên mobile, có thể giữ nguyên như tablet hoặc ẩn hoàn toàn nếu cần thêm không gian */
+  /* Ví dụ: .user-dropdown { display: none; } */
 }

@@ -1,73 +1,82 @@
+// src/pages/User/Profile.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import HomePageLayout from "../../components/User/layout/HomePageLayout"; // <- Layout của bạn
-import "../../assets/css/Profile.style.css"; // <- CSS cho trang Profile
-import { METHOD_TYPE } from "../../network/methodType"; // <- methodType
-import Api from "../../network/Api"; // <- File Api của bạn
-import { setUserProfile } from "../../redux/userSlice"; // <- Action Redux
-import AvatarDisplay from "../../components/AvatarDisplay"; // <- Component hiển thị Avatar
-import ImageCropModal from "../../components/ImageCropModal"; // <- Modal Crop
+import "../../assets/css/Profile.style.css";
+import { METHOD_TYPE } from "../../network/methodType";
+import Api from "../../network/Api";
+import { setUserProfile } from "../../redux/userSlice"; // Thêm fetchUserProfile nếu bạn muốn refresh profile từ trang này
+import AvatarDisplay from "../../components/AvatarDisplay";
+import ImageCropModal from "../../components/ImageCropModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const ProfilePage = () => {
-  const userProfile = useSelector((state) => state.user.userProfile.userProfile);
+  // Lấy toàn bộ object userProfile từ Redux state
+  const userProfileFromRedux = useSelector((state) => state.user.userProfile);
+  const profileLoading = useSelector((state) => state.user.profileLoading);
+  const profileError = useSelector((state) => state.user.profileError);
   const dispatch = useDispatch();
 
-  // State cho dữ liệu form chính
   const [profileData, setProfileData] = useState({
     avatar: null,
     fullName: "",
     birthday: "",
-    email: "", // Email cá nhân (readonly)
+    email: "",
     phoneNumber: "",
     homeAddress: "",
     gender: "",
-    workEmail: "", // Email VLU (editable)
+    workEmail: "",
   });
 
-  // State quản lý modal crop
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState(null); // Data URL ảnh gốc cho modal
-
-  // State thông báo & loading
+  const [imageToCrop, setImageToCrop] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isSavingProfile, setIsSavingProfile] = useState(false); // Loading lưu form chính
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false); // Loading upload avatar
-
-  // Ref cho input file ẩn
+  const [errorMessage, setErrorMessageState] = useState(""); // Đổi tên để tránh trùng với profileError từ Redux
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Đồng bộ từ Redux vào state local
+  // Đồng bộ từ Redux vào state local khi userProfileFromRedux thay đổi hoặc khi component mount
   useEffect(() => {
-    if (userProfile) {
+    if (userProfileFromRedux) {
+      // Truy cập trực tiếp các thuộc tính của userProfileFromRedux
+      // Giả sử cấu trúc API trả về fullname, personalEmail, workEmail,... trực tiếp trong object data
       setProfileData({
-        avatar: userProfile.avatar || null,
-        fullName: userProfile.fullname || "",
-        birthday: userProfile.birthday
-          ? userProfile.birthday.split("T")[0]
+        avatar: userProfileFromRedux.avatar || null,
+        fullName: userProfileFromRedux.fullname || "", // Thay vì userProfileFromRedux.userProfile.fullname
+        birthday: userProfileFromRedux.birthday
+          ? userProfileFromRedux.birthday.split("T")[0]
           : "",
-        email: userProfile.personalEmail || "", // Map từ personalEmail
-        phoneNumber: userProfile.phoneNumber || "",
-        homeAddress: userProfile.homeAddress || "",
-        gender: userProfile.gender || "",
-        workEmail: userProfile.workEmail || userProfile.email || "", // Map từ workEmail hoặc email
+        email:
+          userProfileFromRedux.personalEmail ||
+          userProfileFromRedux.email ||
+          "", // Ưu tiên personalEmail
+        phoneNumber: userProfileFromRedux.phoneNumber || "",
+        homeAddress: userProfileFromRedux.homeAddress || "",
+        gender: userProfileFromRedux.gender || "",
+        workEmail: userProfileFromRedux.workEmail || "", // Nếu API có workEmail riêng
       });
+    } else {
+      // Nếu chưa có userProfile trong Redux (ví dụ: mới vào trang, chưa kịp fetch),
+      // bạn có thể dispatch fetchUserProfile ở đây
+      // dispatch(fetchUserProfile()); // Cẩn thận vòng lặp vô hạn nếu không có điều kiện dừng
     }
-  }, [userProfile]);
+  }, [userProfileFromRedux, dispatch]); // Thêm dispatch vào dependencies nếu dùng fetchUserProfile
 
-  // Xử lý thay đổi input form
+  // Xử lý khi errorMessage từ Redux thay đổi
+  useEffect(() => {
+    if (profileError) {
+      setErrorMessageState(`Lỗi tải hồ sơ: ${profileError}`);
+    }
+  }, [profileError]);
+
   const handleChange = (e) => {
-    // Không cho phép thay đổi nếu input là readOnly (chỉ cần thiết nếu không dùng thuộc tính readOnly HTML)
-    // if (e.target.readOnly) return;
     const { name, value } = e.target;
     setProfileData((prevData) => ({ ...prevData, [name]: value }));
     if (successMessage) setSuccessMessage("");
-    if (errorMessage) setErrorMessage("");
+    if (errorMessage) setErrorMessageState("");
   };
 
-  // --- Trigger ẩn input file ---
   const handleTriggerFileInput = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
@@ -75,14 +84,13 @@ const ProfilePage = () => {
     }
   }, []);
 
-  // --- Xử lý khi người dùng chọn file từ input ---
   const handleFileSelected = useCallback((event) => {
     const file = event.target.files?.[0];
     if (!file || !file.type.startsWith("image/")) {
-      setErrorMessage("Vui lòng chọn một file ảnh hợp lệ.");
+      setErrorMessageState("Vui lòng chọn một file ảnh hợp lệ.");
       return;
     }
-    setErrorMessage("");
+    setErrorMessageState("");
     const reader = new FileReader();
     reader.onload = () => {
       setImageToCrop(reader.result);
@@ -90,21 +98,19 @@ const ProfilePage = () => {
     };
     reader.onerror = (error) => {
       console.error("Lỗi đọc file:", error);
-      setErrorMessage("Không thể đọc file ảnh.");
+      setErrorMessageState("Không thể đọc file ảnh.");
     };
     reader.readAsDataURL(file);
   }, []);
 
-  // --- Hàm được gọi khi nhấn "Lưu ảnh" trong ImageCropModal ---
   const handleCropSave = useCallback(
     async (croppedImageBlob) => {
       setIsCropModalOpen(false);
       if (!croppedImageBlob) return;
       setIsUploadingAvatar(true);
       setSuccessMessage("");
-      setErrorMessage("");
+      setErrorMessageState("");
       try {
-        // 1. Lấy tên file
         const fileNameResponse = await Api({
           endpoint: "media/media-url",
           query: { mediaCategory: "USER_AVATAR" },
@@ -115,9 +121,9 @@ const ProfilePage = () => {
             fileNameResponse?.message || "Lỗi lấy định danh file."
           );
         const fileName = fileNameResponse.data.fileName;
-        // 2. Upload ảnh
+
         const uploadFormData = new FormData();
-        uploadFormData.append("file", croppedImageBlob, `${fileName}.jpeg`);
+        uploadFormData.append("file", croppedImageBlob, `${fileName}.jpeg`); // Hoặc .png tùy bạn
         const uploadResponse = await Api({
           endpoint: `media/upload-media`,
           query: { mediaCategory: "USER_AVATAR", fileName },
@@ -127,31 +133,34 @@ const ProfilePage = () => {
         if (!uploadResponse?.success || !uploadResponse?.data?.mediaUrl)
           throw new Error(uploadResponse?.message || "Upload ảnh thất bại.");
         const finalUrl = uploadResponse.data.mediaUrl;
-        // 3. Cập nhật profile
+
         const updateProfileResponse = await Api({
           endpoint: "user/update-profile",
           method: METHOD_TYPE.PUT,
-          data: { avatar: finalUrl },
+          data: { avatar: finalUrl }, // Chỉ gửi avatar để cập nhật
         });
         if (!updateProfileResponse.success)
           throw new Error(
             updateProfileResponse.message || "Cập nhật liên kết ảnh thất bại."
           );
-        // 4. Cập nhật Redux
-        dispatch(setUserProfile({ ...userProfile, avatar: finalUrl }));
+
+        // Dispatch để cập nhật Redux store với profile mới từ API (bao gồm avatar mới)
+        // Hoặc nếu API update-profile trả về toàn bộ profile đã cập nhật:
+        // dispatch(setUserProfile(updateProfileResponse.data));
+        // Nếu không, bạn có thể chỉ cập nhật avatar cục bộ và trong Redux:
+        dispatch(setUserProfile({ ...userProfileFromRedux, avatar: finalUrl }));
         setSuccessMessage("Ảnh đại diện đã cập nhật thành công!");
         setImageToCrop(null);
       } catch (error) {
         console.error("Lỗi xử lý avatar:", error);
-        setErrorMessage(error.message || "Lỗi cập nhật ảnh đại diện.");
+        setErrorMessageState(error.message || "Lỗi cập nhật ảnh đại diện.");
       } finally {
         setIsUploadingAvatar(false);
       }
     },
-    [dispatch, userProfile]
+    [dispatch, userProfileFromRedux]
   );
 
-  // --- Hàm đóng modal ---
   const handleCloseCropModal = useCallback(() => {
     if (!isUploadingAvatar) {
       setIsCropModalOpen(false);
@@ -159,23 +168,20 @@ const ProfilePage = () => {
     }
   }, [isUploadingAvatar]);
 
-  // --- Xử lý submit form chính ---
   const handleSubmitProfile = async (e) => {
     e.preventDefault();
     if (isUploadingAvatar) return;
     setIsSavingProfile(true);
     setSuccessMessage("");
-    setErrorMessage("");
-    // *** Dữ liệu gửi đi ***
+    setErrorMessageState("");
     const dataToSend = {
       fullname: profileData.fullName,
       birthday: profileData.birthday,
       phoneNumber: profileData.phoneNumber,
       homeAddress: profileData.homeAddress,
       gender: profileData.gender,
-      // Gửi email VLU (đảm bảo key `workEmail` khớp backend)
       workEmail: profileData.workEmail,
-      // KHÔNG gửi email cá nhân (profileData.email)
+      // Không gửi email cá nhân (profileData.email) nếu nó là readonly và không cho sửa
     };
     try {
       const response = await Api({
@@ -184,23 +190,44 @@ const ProfilePage = () => {
         data: dataToSend,
       });
       if (response.success === true && response.data) {
-        dispatch(setUserProfile({ ...userProfile, ...response.data }));
+        // Giả sử API trả về toàn bộ profile đã cập nhật
+        dispatch(setUserProfile(response.data));
         setSuccessMessage("Thông tin hồ sơ đã cập nhật!");
       } else {
         throw new Error(response.message || "Cập nhật thông tin thất bại.");
       }
     } catch (error) {
       console.error("Update profile error:", error);
-      setErrorMessage(error.message || "Lỗi lưu thông tin.");
+      setErrorMessageState(error.message || "Lỗi lưu thông tin.");
     } finally {
       setIsSavingProfile(false);
     }
   };
 
-  // --- Render JSX ---
+  if (profileLoading && !userProfileFromRedux) {
+    // Hiển thị loading nếu đang fetch lần đầu và chưa có data
+    return (
+      <div
+        className="profile-page-wrapper"
+        style={{ textAlign: "center", paddingTop: "50px" }}
+      >
+        <FontAwesomeIcon icon={faSpinner} spin size="3x" />
+        <p>Đang tải thông tin hồ sơ...</p>
+      </div>
+    );
+  }
+  // Sau khi đã có userProfileFromRedux (dù fetch lỗi hay thành công sau đó), render form
+  // Hoặc nếu profileError và không có userProfileFromRedux, hiển thị lỗi
+  if (profileError && !userProfileFromRedux && !profileLoading) {
+    return (
+      <div className="profile-page-wrapper alert alert-danger">
+        Không thể tải thông tin hồ sơ: {profileError}
+      </div>
+    );
+  }
+
   return (
-    <HomePageLayout>
-      {/* Input file ẩn */}
+    <>
       <input
         type="file"
         ref={fileInputRef}
@@ -209,26 +236,20 @@ const ProfilePage = () => {
         accept="image/png, image/jpeg, image/jpg"
         disabled={isUploadingAvatar}
       />
-
       <div className="profile-page-wrapper">
         <div className="profile-container">
           <h1>Hồ sơ cá nhân</h1>
-
-          {/* Thông báo */}
           {successMessage && (
             <div className="alert alert-success">{successMessage}</div>
           )}
           {errorMessage && (
             <div className="alert alert-danger">{errorMessage}</div>
           )}
-
-          {/* Content chính */}
           <div
             className={`profile-content ${
               isSavingProfile || isUploadingAvatar ? "content-loading" : ""
             }`}
           >
-            {/* Khu vực Avatar */}
             <div className="profile-avatar-section">
               {isUploadingAvatar && (
                 <div className="avatar-loading-overlay">
@@ -236,19 +257,15 @@ const ProfilePage = () => {
                 </div>
               )}
               <AvatarDisplay
-                imageUrl={profileData.avatar}
+                imageUrl={profileData.avatar} // Dùng avatar từ state local đã đồng bộ
                 onTriggerSelect={handleTriggerFileInput}
               />
             </div>
-
-            {/* Form thông tin */}
             <form
               className="profile-form-section"
               onSubmit={handleSubmitProfile}
             >
-              {/* === GRID ĐÃ SẮP XẾP LẠI === */}
               <div className="form-grid-user">
-                {/* --- DÒNG 1 --- */}
                 <div className="form-group">
                   <label htmlFor="fullName">Họ và tên</label>
                   <input
@@ -270,8 +287,6 @@ const ProfilePage = () => {
                     onChange={handleChange}
                   />
                 </div>
-
-                {/* --- DÒNG 2 --- */}
                 <div className="form-group">
                   <label htmlFor="email">Email cá nhân</label>
                   <input
@@ -279,10 +294,10 @@ const ProfilePage = () => {
                     id="email"
                     name="email"
                     value={profileData.email}
-                    readOnly // Chỉ đọc
-                    className="input-readonly" // Thêm class để style
+                    readOnly
+                    className="input-readonly"
                     aria-label="Email cá nhân không thể thay đổi"
-                    onChange={handleChange} // Vẫn cần onChange
+                    onChange={handleChange} // Vẫn cần onChange dù là readonly để state không bị warning
                   />
                 </div>
                 <div className="form-group">
@@ -292,13 +307,10 @@ const ProfilePage = () => {
                     id="workEmail"
                     name="workEmail"
                     value={profileData.workEmail}
-                    onChange={handleChange} // Cho phép sửa
+                    onChange={handleChange}
                     placeholder="Nhập email liên hệ VLU"
-                    // KHÔNG có readOnly và class input-readonly
                   />
                 </div>
-
-                {/* --- DÒNG 3 --- */}
                 <div className="form-group">
                   <label htmlFor="birthday">Ngày sinh</label>
                   <input
@@ -334,8 +346,6 @@ const ProfilePage = () => {
                     </label>
                   </div>
                 </div>
-
-                {/* --- DÒNG 4 --- */}
                 <div className="form-group form-group-full">
                   <label htmlFor="homeAddress">Địa chỉ hiện tại</label>
                   <input
@@ -347,9 +357,7 @@ const ProfilePage = () => {
                     placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
                   />
                 </div>
-              </div>{" "}
-              {/* === KẾT THÚC GRID === */}
-              {/* Nút Submit */}
+              </div>
               <button
                 type="submit"
                 className="profile-submit-button"
@@ -361,16 +369,13 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-
-      {/* Modal Crop Ảnh */}
       <ImageCropModal
         isOpen={isCropModalOpen}
         onRequestClose={handleCloseCropModal}
         imageSrc={imageToCrop}
         onCropSave={handleCropSave}
       />
-    </HomePageLayout>
+    </>
   );
 };
-
 export default ProfilePage;

@@ -5,14 +5,24 @@
   min-height: 100vh;
   width: 100%;
   background-color: #f4f6f9;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Quan trọng để tránh scroll ngang do các hiệu ứng/transform */
+}
+
+.site-container {
+  width: 100%;
+  max-width: 1400px; /* Hoặc giá trị bạn muốn, ví dụ 1200px, 1320px, 1400px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem; /* Padding mặc định cho container hai bên */
+  padding-right: 1.5rem;
+  box-sizing: border-box;
 }
 
 /* ==================== Header Styles ==================== */
 .home-page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; /* Để căn chỉnh .site-container và .mobile-menu-button */
+  align-items: center; /* Căn giữa theo chiều dọc cho các item bên trong */
+  justify-content: center; /* Căn .site-container vào giữa nếu không có mobile-menu-button */
   position: fixed;
   top: 0;
   left: 0;
@@ -26,9 +36,18 @@
   );
   transition: transform 0.4s ease-out;
   backdrop-filter: blur(8px);
-  padding: 1rem 2.5rem;
+  padding-top: 1rem; /* Giữ padding dọc */
+  padding-bottom: 1rem; /* Giữ padding dọc */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+}
+
+.home-page-header .site-container.header-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%; /* Để chiếm toàn bộ không gian của site-container */
+  position: relative; /* Để mobile-menu-button có thể được định vị tuyệt đối liên quan đến header */
 }
 
 .home-page-header.hidden {
@@ -59,7 +78,7 @@
 .home-page-menu {
   display: flex;
   align-items: center;
-  gap: 35px;
+  gap: 35px; /* Khoảng cách giữa các item menu */
 }
 
 .home-page-menu-item {
@@ -89,16 +108,15 @@
   color: #f0f0f0;
 }
 
-.home-page-menu-item:hover::after {
-  width: 80%;
-}
+.home-page-menu-item:hover::after,
 .home-page-menu-item.active::after {
-  width: 80%; /* Giữ gạch chân */
+  width: 80%;
 }
 
 .home-page-menu-item.active {
-  color: #f0f0f0;
+  color: #f0f0f0; /* Hoặc màu nổi bật hơn cho active */
 }
+
 /* Nút Đăng nhập/Đăng ký Desktop */
 .home-page-register-login {
   display: flex;
@@ -119,7 +137,7 @@
 
 .home-page-link.register-link {
   background-color: white;
-  color: #d72134;
+  color: #d72134; /* Màu đỏ của VLU */
 }
 
 .home-page-link.login-link:hover {
@@ -140,17 +158,21 @@
   color: white;
   font-size: 1.9rem;
   cursor: pointer;
-  display: none;
+  display: none; /* Sẽ được hiển thị bởi media query */
   transition: transform 0.3s ease;
-  padding: 8px;
-  line-height: 1;
+  padding: 8px; /* Tăng vùng chạm */
+  line-height: 1; /* Đảm bảo icon căn giữa */
+  position: absolute; /* Định vị so với .home-page-header */
+  right: 1.5rem; /* Căn phải, cùng giá trị với padding của .site-container */
+  top: 50%;
+  transform: translateY(-50%); /* Căn giữa nút theo chiều dọc với header */
+  z-index: 1002; /* Cao hơn nội dung header */
 }
 
 .mobile-menu-button:hover {
-  transform: scale(1.15);
+  transform: translateY(-50%) scale(1.15); /* Giữ translateY khi scale */
 }
 
-/* Container Mobile Menu */
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -158,12 +180,12 @@
   width: 85%;
   max-width: 320px;
   height: 100vh;
-  background-color: #2d334d;
-  z-index: 1001;
+  background-color: #2d334d; /* Màu nền menu mobile */
+  z-index: 1001; /* Dưới nút đóng, trên header một chút */
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 5rem 0 2rem 0;
+  padding: 5rem 0 2rem 0; /* Padding trên cùng để không bị che bởi nút đóng */
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
@@ -174,13 +196,12 @@
   transform: translateX(0);
 }
 
-/* Navigation trong Mobile Menu */
 .mobile-menu-nav {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  padding: 0 1.5rem;
+  padding: 0 1.5rem; /* Padding cho các item bên trong */
   box-sizing: border-box;
 }
 
@@ -199,10 +220,15 @@
 
 .mobile-menu-item:hover,
 .mobile-menu-item:focus {
-  background-color: rgba(215, 33, 52, 0.8);
+  background-color: rgba(215, 33, 52, 0.8); /* Màu đỏ VLU khi hover */
   color: white;
   transform: translateX(5px);
   outline: none;
+}
+.mobile-menu-item.active {
+  /* Thêm style cho active item trên mobile */
+  background-color: rgba(215, 33, 52, 0.6);
+  font-weight: bold;
 }
 
 .mobile-menu-divider {
@@ -221,7 +247,6 @@
   transform: translateX(0) scale(1.02);
 }
 
-/* Nút đóng Mobile Menu */
 .mobile-menu-close-button {
   position: absolute;
   top: 1.2rem;
@@ -232,7 +257,7 @@
   font-size: 2rem;
   cursor: pointer;
   transition: transform 0.3s ease, color 0.3s ease;
-  z-index: 1002;
+  z-index: 1002; /* Phải cao hơn mobile-menu-nav */
   padding: 5px;
 }
 
@@ -243,7 +268,10 @@
 
 /* ==================== Main Content Styles ==================== */
 .main-content {
-  padding-top: 75px;
+  /* Điều chỉnh giá trị này dựa trên chiều cao thực tế của header của bạn */
+  /* Ví dụ: (1rem padding-top + 1rem padding-bottom header) + chiều cao logo/text menu ~ 55px */
+  /* padding-top: calc(2rem + 55px); */
+  padding-top: 80px; /* Giá trị cụ thể, hãy đo và điều chỉnh */
   flex: 1;
   width: 100%;
   box-sizing: border-box;
@@ -254,34 +282,34 @@
   background-color: #2d334d;
   color: #cccccc;
   text-align: left;
-  padding: 4rem 2rem 2rem 2rem;
-  margin-top: auto;
-  z-index: 10;
+  padding-top: 4rem; /* Giữ padding dọc */
+  padding-bottom: 2rem; /* Giữ padding dọc */
+  margin-top: auto; /* Đẩy footer xuống cuối nếu nội dung không đủ cao */
+  z-index: 10; /* Đảm bảo footer không bị che */
   width: 100%;
   box-sizing: border-box;
-  border-top: 4px solid #d72134;
+  border-top: 4px solid #d72134; /* Màu nhấn của VLU */
 }
 
-/* Container nội dung chính footer */
+.home-page-footer .site-container.footer-inner-wrapper {
+  /* Không cần style gì đặc biệt ở đây nếu site-container đã đủ */
+}
+
 .footer-content {
   display: flex;
-  flex-wrap: nowrap; /* Ngăn các cột xuống dòng */
-  flex-direction: row; /* Xếp các cột theo hàng ngang */
-  justify-content: space-between; /* Phân bố khoảng cách */
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ hơn trước khi media query tác động */
+  justify-content: space-between;
   gap: 2.5rem;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%; /* Chiếm toàn bộ .footer-inner-wrapper (là .site-container) */
 }
 
-/* Từng cột trong footer */
 .footer-section {
-  margin-bottom: 1rem;
+  margin-bottom: 1rem; /* Giữ khoảng cách nếu các section wrap xuống */
   text-align: left;
-  flex-grow: 1; /* Cho phép các cột co giãn */
-  flex-shrink: 1; /* Cho phép các cột thu nhỏ */
-  flex-basis: 0; /* Đặt flex-basis về 0 để phân chia không gian đều hơn */
-  width: 33.33%; /* Mỗi cột chiếm khoảng 1/3 chiều rộng */
+  /* flex-grow: 1; không cần thiết nếu dùng flex-basis hợp lý */
+  /* flex-shrink: 1; */
+  flex-basis: calc(33.333% - 2rem); /* Cho 3 cột, trừ đi gap */
+  min-width: 280px; /* Giúp các cột không quá hẹp trước khi wrap */
 }
 
 /* Logo và Tên thương hiệu */
@@ -295,7 +323,7 @@
 .footer-logo-large {
   width: 70px;
   height: auto;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* Làm logo trắng */
 }
 
 .footer-brand-text {
@@ -312,18 +340,16 @@
   margin-top: 0.5rem;
 }
 
-/* Tiêu đề các cột (H3) */
 .footer-section h3 {
   font-size: 1.15rem;
   margin-bottom: 1.5rem;
   color: white;
   padding-bottom: 0.7rem;
   position: relative;
-  display: inline-block;
+  display: inline-block; /* Để after chỉ theo chiều rộng chữ */
   font-weight: 600;
 }
 
-/* Gạch dưới cho H3 */
 .footer-section h3::after {
   content: "";
   position: absolute;
@@ -331,43 +357,49 @@
   left: 0;
   width: 50px;
   height: 3px;
-  background-color: #d72134;
+  background-color: #d72134; /* Màu đỏ VLU */
   border-radius: 2px;
 }
 
-/* Các dòng thông tin (P) */
 .footer-section p {
   font-size: 0.92rem;
   line-height: 1.8;
   margin-bottom: 0.9rem;
   display: flex;
-  align-items: flex-start;
+  align-items: flex-start; /* Căn icon và text ở đầu dòng */
   gap: 10px;
   color: #d0d0d0;
 }
+.footer-section p a {
+  color: #e0e0e0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.footer-section p a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
 
-/* Icons trong P */
 .footer-section p .footer-icon,
 .footer-section p .footer-icon-svg {
-  color: #d72134;
-  margin-top: 5px;
+  color: #d72134; /* Màu đỏ VLU */
+  margin-top: 5px; /* Căn chỉnh icon với dòng text */
   font-size: 1.05rem;
-  flex-shrink: 0;
-  width: 1.1em;
+  flex-shrink: 0; /* Không cho icon bị co lại */
+  width: 1.1em; /* Đảm bảo không gian cho icon */
   text-align: center;
 }
 
-/* Container bản đồ responsive */
 .map-responsive-container {
   position: relative;
   overflow: hidden;
-  padding-bottom: 0; /* Loại bỏ padding-bottom */
-  height: 300px; /* Cho phép chiều cao tự động điều chỉnh */
-  max-width: 100%; /* Giới hạn chiều rộng tối đa */
+  height: 250px; /* Chiều cao cố định cho bản đồ, điều chỉnh nếu cần */
+  max-width: 100%;
+  border-radius: 4px; /* Bo góc nhẹ */
 }
 
 .map-responsive-container iframe {
-  position: relative; /* Thay đổi từ absolute thành relative */
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -375,7 +407,6 @@
   border: 0;
 }
 
-/* Phần dưới cùng của Footer */
 .footer-bottom {
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -383,9 +414,7 @@
   font-size: 0.88rem;
   color: #a0a0a0;
   line-height: 1.7;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%; /* Chiếm toàn bộ .footer-inner-wrapper (là .site-container) */
 }
 
 .footer-policy-link {
@@ -398,190 +427,129 @@
   color: #ffffff;
   text-decoration: underline;
 }
+
 /* ============================================ */
 /* Styles for UserAccountToolbar inside HomePageLayout */
+/* (Giữ nguyên các style này vì chúng áp dụng cho component con) */
 /* ============================================ */
-
-/* Đổi màu icon Setting (bánh răng) thành trắng */
 .home-page-header .user-account-toolbar .setting-button .fa-gear {
-  color: white; /* Hoặc một màu trắng nhạt hơn như #f0f0f0 nếu muốn */
-  transition: color 0.3s ease; /* Thêm transition cho mượt */
-}
-
-/* Tùy chọn: Đổi màu icon Setting khi hover (nếu cần) */
-.home-page-header .user-account-toolbar .setting-button:hover .fa-gear {
-  color: #e0e0e0; /* Màu trắng hơi xám khi hover */
-}
-
-/* Đổi màu chữ User Name thành trắng */
-.home-page-header .user-account-toolbar .user-dropdown .user-name {
   color: white;
-  font-weight: 600; /* Có thể tăng độ đậm nếu muốn */
-}
-
-/* Đổi màu chữ User Role thành màu sáng hơn (ví dụ: xám nhạt) */
-.home-page-header .user-account-toolbar .user-dropdown .user-role {
-  color: #cccccc; /* Màu xám nhạt, dễ đọc trên nền tối */
-}
-
-/* Đổi màu viền avatar (nếu muốn) */
-.home-page-header .user-account-toolbar .user-avatar-square {
-  border-color: rgba(255, 255, 255, 0.5); /* Viền trắng mờ */
-}
-.home-page-header .user-account-toolbar .user-avatar-square:hover {
-  border-color: white; /* Viền trắng rõ khi hover */
-}
-
-/* --- THÊM CHO CÁC ICON KHÁC (NotifiButton, HelpButton) --- */
-/* Giả sử NotifiButton và HelpButton cũng dùng icon FontAwesome bên trong một button */
-
-/* Đổi màu icon Notification */
-.home-page-header .user-account-toolbar .notification-button i {
-  /* Thay .notification-button và i bằng selector thực tế */
-  color: white;
-}
-.home-page-header .user-account-toolbar .notification-button:hover i {
-  color: #e0e0e0;
-}
-
-/* Đổi màu icon Help */
-.home-page-header .user-account-toolbar .help-button i {
-  /* Thay .help-button và i bằng selector thực tế */
-  color: white;
-}
-.home-page-header .user-account-toolbar .help-button:hover i {
-  color: #e0e0e0;
-}
-
-/* --- CSS cho UserAccountToolbar trong Mobile Menu (Nếu cần) --- */
-/* Nếu UserAccountToolbar cũng hiển thị trong mobile menu và cần style khác */
-.mobile-menu
-  .mobile-user-toolbar-wrapper
-  .user-account-toolbar
-  .setting-button
-  .fa-gear {
-  /* Style riêng cho icon setting trong mobile menu nếu cần */
-  color: white; /* Ví dụ */
-}
-
-.mobile-menu .mobile-user-toolbar-wrapper .user-account-toolbar .user-name {
-  /* Style riêng cho user name trong mobile menu nếu cần */
-  color: white;
-}
-.home-page-header .user-account-toolbar .notifi-button i {
-  /* Selector chung cho thẻ <i> */
-  /* hoặc dùng: .home-page-header .user-account-toolbar .notifi-button .fa-bell { */
-  color: white; /* Đổi thành màu trắng */
   transition: color 0.3s ease;
 }
-
-/* Tùy chọn: Đổi màu icon Notification khi hover */
-.home-page-header .user-account-toolbar .notifi-button:hover i {
-  /* hoặc dùng: .home-page-header .user-account-toolbar .notifi-button:hover .fa-bell { */
-  color: #e0e0e0; /* Màu trắng hơi xám khi hover */
+.home-page-header .user-account-toolbar .setting-button:hover .fa-gear {
+  color: #e0e0e0;
 }
+.home-page-header .user-account-toolbar .user-dropdown .user-name {
+  color: white;
+  font-weight: 600;
+}
+.home-page-header .user-account-toolbar .user-dropdown .user-role {
+  color: #cccccc;
+}
+.home-page-header .user-account-toolbar .user-avatar-square {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.home-page-header .user-account-toolbar .user-avatar-square:hover {
+  border-color: white;
+}
+.home-page-header .user-account-toolbar .notifi-button i {
+  color: white;
+  transition: color 0.3s ease;
+}
+.home-page-header .user-account-toolbar .notifi-button:hover i {
+  color: #e0e0e0;
+}
+/* ... (các style khác cho UserAccountToolbar nếu có) ... */
+
 /* ==================== Responsive Styles ==================== */
 
-/* Tablets và Desktop nhỏ ( <= 992px) */
-@media (max-width: 992px) {
-  /* --- Header Responsive --- */
-  .home-page-header {
-    padding: 1rem 1.5rem;
+/* Tablets và Desktop nhỏ ( <= 1024px ) - Điều chỉnh breakpoint nếu cần */
+@media (max-width: 1024px) {
+  .site-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
   .home-page-menu {
-    gap: 20px;
+    gap: 25px;
   }
   .home-page-menu-item {
-    font-size: 0.95rem;
-  }
-  .home-page-link {
-    padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
   }
-
-  /* --- Footer Responsive --- */
-  .footer-content {
-    gap: 2rem;
-    justify-content: space-around;
+  .home-page-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
-  /* Layout 2 cột trên tablet */
-  .footer-brand-section,
-  .footer-contact-section,
-  .footer-map-section {
-    flex-basis: 47%;
+  .footer-section {
+    flex-basis: calc(50% - 1.25rem); /* 2 cột trên tablet, trừ đi 1/2 gap */
     min-width: 260px;
   }
 }
 
 /* Mobile Devices ( <= 768px) */
 @media (max-width: 768px) {
-  /* Ẩn menu desktop, hiện nút mobile */
-  .home-page-menu,
-  .home-page-register-login {
+  .site-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Header Responsive: Ẩn menu desktop, hiện nút mobile */
+  .home-page-header .site-container.header-content-wrapper .home-page-menu,
+  .home-page-header
+    .site-container.header-content-wrapper
+    .header-auth-section {
     display: none;
   }
   .mobile-menu-button {
     display: block;
+    right: 1rem; /* Căn phải theo padding của site-container trên mobile */
   }
-
+  /* Chỉ còn logo, căn trái */
+  .home-page-header .site-container.header-content-wrapper {
+    justify-content: flex-start;
+  }
   .home-page-header {
-    padding: 0.8rem 1rem;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
   }
-
   .main-content {
-    padding-top: 65px;
+    /* Điều chỉnh lại padding-top cho main content nếu chiều cao header thay đổi trên mobile */
+    padding-top: 70px; /* Ví dụ, đo lại cho chính xác */
   }
 
-  /* --- Footer Responsive Mobile --- */
+  /* Footer Responsive Mobile */
   .footer-content {
-    flex-direction: column;
-    align-items: center;
+    flex-direction: column; /* Các cột xếp chồng lên nhau */
+    align-items: center; /* Căn giữa các cột khi chúng xếp chồng */
     gap: 2rem;
   }
-
-  /* Các cột chiếm toàn bộ chiều rộng trên mobile */
   .footer-section {
-    flex-basis: 100%;
-    width: 95%;
-    max-width: 400px;
-    text-align: center;
-    min-width: initial;
+    flex-basis: 100%; /* Mỗi cột chiếm toàn bộ chiều rộng */
+    width: 100%; /* Đảm bảo chiếm full width của site-container */
+    max-width: 450px; /* Giới hạn chiều rộng tối đa của mỗi section trên mobile */
+    text-align: center; /* Căn giữa nội dung của từng section */
   }
-
   .footer-logo-container {
-    justify-content: center;
+    justify-content: center; /* Căn giữa logo và brand text */
   }
-
-  /* Căn giữa tiêu đề và gạch dưới */
   .footer-section h3 {
-    text-align: center;
-    display: inline-block;
+    display: inline-block; /* Để ::after căn giữa theo text */
   }
   .footer-section h3::after {
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* Căn giữa gạch dưới */
   }
-
-  /* Căn giữa các dòng thông tin và icon */
   .footer-section p {
-    justify-content: center;
+    justify-content: center; /* Căn giữa các dòng text và icon */
     text-align: center;
-    align-items: center;
-    padding-left: 5px;
-    padding-right: 5px;
   }
   .footer-section p .footer-icon,
   .footer-section p .footer-icon-svg {
-    margin-top: 0;
+    margin-top: 2px; /* Điều chỉnh căn icon nếu cần */
   }
-
-  .footer-map-section iframe,
   .map-responsive-container {
-    max-width: 100%;
+    height: 200px; /* Giảm chiều cao bản đồ trên mobile */
   }
-
   .footer-bottom p {
     font-size: 0.8rem;
-    line-height: 1.6;
   }
 }
