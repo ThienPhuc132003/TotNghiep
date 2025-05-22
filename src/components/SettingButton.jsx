@@ -1,9 +1,8 @@
-// src/components/SettingButton.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import Button from "./Button";
-import "../assets/css/SettingButton.style.css";
+import Button from "./Button"; // Đảm bảo component Button của bạn render ra thẻ <button>
+import "../assets/css/SettingButton.style.css"; // Đảm bảo CSS được import
 
 const ROLES = {
   USER: "USER",
@@ -11,7 +10,7 @@ const ROLES = {
 };
 
 const SettingButtonComponent = ({
-  currentUserRole,
+  currentUserRole = null,
   isAuthenticated,
   onLogout,
 }) => {
@@ -38,12 +37,7 @@ const SettingButtonComponent = ({
 
   const handleNavigateToAccount = () => {
     setIsDropdownOpen(false);
-    // Điều hướng đến trang hồ sơ mặc định của layout quản lý tài khoản
-    if (currentUserRole === ROLES.TUTOR) {
-      navigate("/gia-su/quan-ly/ho-so"); // Path đầy đủ đến trang hồ sơ gia sư
-    } else {
-      navigate("/tai-khoan/ho-so"); // Path đầy đủ đến trang hồ sơ người dùng
-    }
+    navigate("/tai-khoan/ho-so"); // Luôn điều hướng đến base path chung
   };
 
   const handleUserLogout = () => {
@@ -53,9 +47,13 @@ const SettingButtonComponent = ({
     }
   };
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="setting-button-container" ref={dropdownRef}>
-      <Button className="setting-button" onClick={toggleDropdown}>
+      <Button className="setting-button" onClick={toggleDropdown} type="button">
         <i
           className={`fa-solid fa-gear fa-lg ${isDropdownOpen ? "rotate" : ""}`}
         ></i>
@@ -68,20 +66,17 @@ const SettingButtonComponent = ({
             type="button"
             className="dropdown-item-button"
           >
-            {/* Tên mục menu trong SettingButton */}
             {currentUserRole === ROLES.TUTOR
-              ? "Hồ Sơ Gia Sư"
-              : "Hồ Sơ Học Viên"}
+              ? "Quản Lý Gia Sư"
+              : "Tài Khoản Của Tôi"}
           </button>
-          {isAuthenticated && (
-            <button
-              onClick={handleUserLogout}
-              type="button"
-              className="dropdown-item-button logout-button"
-            >
-              Đăng xuất
-            </button>
-          )}
+          <button
+            onClick={handleUserLogout}
+            type="button"
+            className="dropdown-item-button logout-button"
+          >
+            Đăng xuất
+          </button>
         </div>
       )}
     </div>
@@ -89,7 +84,7 @@ const SettingButtonComponent = ({
 };
 
 SettingButtonComponent.propTypes = {
-  currentUserRole: PropTypes.string.isRequired,
+  currentUserRole: PropTypes.string,
   isAuthenticated: PropTypes.bool.isRequired,
   onLogout: PropTypes.func.isRequired,
 };

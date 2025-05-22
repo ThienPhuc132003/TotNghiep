@@ -10,7 +10,7 @@ const TutorSearchPage = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedLevelId, setSelectedLevelId] = useState("");
   const [selectedMajorId, setSelectedMajorId] = useState("");
-  const [sortBy, setSortBy] = useState("rating_desc"); // Mặc định
+  const [sortBy, setSortBy] = useState("rating_desc"); 
 
   // Debounce search input
   useEffect(() => {

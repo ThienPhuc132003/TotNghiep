@@ -1,10 +1,13 @@
+// src/components/User/BookingModal.jsx
+
 import { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
-import Api from "../../network/Api"; // Điều chỉnh đường dẫn nếu cần
-import { METHOD_TYPE } from "../../network/methodType"; // Điều chỉnh đường dẫn nếu cần
-import "../../assets/css/BookingModal.style.css"; // Điều chỉnh đường dẫn nếu cần
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import "../../assets/css/BookingModal.style.css";
+import { FaCoins, FaClock, FaMoneyBillWave } from "react-icons/fa";
 
 const formatHoursOptions = [
   { value: 1, label: "1 giờ" },
@@ -52,15 +55,27 @@ const BookingModal = ({
   onBookingSuccess,
   maxHoursPerLesson = null,
   availableScheduleRaw = [],
+  hourlyRate = 0,
 }) => {
+  // DEBUG #4: Kiểm tra giá trị hourlyRate nhận được từ props
+  console.log(
+    "[BookingModal DEBUG #4] Received props - hourlyRate:",
+    hourlyRate,
+    "for tutor:",
+    tutorName
+  );
+
   const [parsedTutorSchedule, setParsedTutorSchedule] = useState({});
   const [selectedScheduleSlots, setSelectedScheduleSlots] = useState([]);
   const [lessonsPerWeek, setLessonsPerWeek] = useState(1);
-  const [totalLessons, setTotalLessons] = useState(10); // Giữ là số
-  const [hoursPerLesson, setHoursPerLesson] = useState(1.5); // Giữ là số
+  const [totalLessons, setTotalLessons] = useState(10);
+  const [hoursPerLesson, setHoursPerLesson] = useState(1.5);
   const [startDay, setStartDay] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const [calculatedTotalHours, setCalculatedTotalHours] = useState(0);
+  const [calculatedTotalCoin, setCalculatedTotalCoin] = useState(0);
 
   const availableHoursOptions = useMemo(() => {
     const maxAllowed = maxHoursPerLesson || 99;
@@ -105,7 +120,7 @@ const BookingModal = ({
             ).value;
         }
       } else initialHoursValue = 1;
-      setHoursPerLesson(initialHoursValue); // Set là số
+      setHoursPerLesson(initialHoursValue);
       if (availableScheduleRaw && availableScheduleRaw.length > 0) {
         try {
           const parsed = availableScheduleRaw.reduce((acc, itemString) => {
@@ -141,6 +156,31 @@ const BookingModal = ({
     }
   }, [isOpen, availableScheduleRaw, maxHoursPerLesson, availableHoursOptions]);
 
+  useEffect(() => {
+    const currentTotalLessons = parseInt(totalLessons, 10) || 0;
+    const currentHoursPerLesson = parseFloat(hoursPerLesson) || 0;
+    const currentHourlyRate = parseFloat(hourlyRate) || 0;
+
+    console.log("[BookingModal DEBUG] Calculating cost with:", {
+      currentTotalLessons,
+      currentHoursPerLesson,
+      currentHourlyRate,
+    });
+
+    if (currentTotalLessons > 0 && currentHoursPerLesson > 0) {
+      const totalHrs = currentTotalLessons * currentHoursPerLesson;
+      setCalculatedTotalHours(totalHrs);
+      if (currentHourlyRate > 0) {
+        setCalculatedTotalCoin(totalHrs * currentHourlyRate);
+      } else {
+        setCalculatedTotalCoin(0);
+      }
+    } else {
+      setCalculatedTotalHours(0);
+      setCalculatedTotalCoin(0);
+    }
+  }, [totalLessons, hoursPerLesson, hourlyRate]);
+
   const handleSlotToggle = (day, time) => {
     setSelectedScheduleSlots((prevSlots) => {
       const slotIndex = prevSlots.findIndex(
@@ -151,13 +191,19 @@ const BookingModal = ({
         : [...prevSlots, { day, time }];
     });
   };
+
   useEffect(() => {
     const numSelectedSlots = selectedScheduleSlots.length;
     if (numSelectedSlots > 0) {
-      if (lessonsPerWeek > numSelectedSlots)
+      const currentLessonsPerWeek = parseInt(lessonsPerWeek, 10) || 1;
+      if (currentLessonsPerWeek > numSelectedSlots) {
         setLessonsPerWeek(numSelectedSlots);
-      else if (lessonsPerWeek < 1 && numSelectedSlots > 0) setLessonsPerWeek(1);
-    } else setLessonsPerWeek(1);
+      } else if (currentLessonsPerWeek < 1) {
+        setLessonsPerWeek(1);
+      }
+    } else {
+      setLessonsPerWeek(1);
+    }
   }, [selectedScheduleSlots, lessonsPerWeek]);
 
   const handleSubmit = async (event) => {
@@ -169,7 +215,6 @@ const BookingModal = ({
       return;
     }
 
-    // Chuyển đổi lessonsPerWeek, totalLessons, hoursPerLesson sang số trước khi validate và gửi đi
     const currentLessonsPerWeekNum = parseInt(lessonsPerWeek, 10);
     const totalLessonsNum = parseInt(totalLessons, 10);
     const hoursPerLessonNum = parseFloat(hoursPerLesson);
@@ -194,7 +239,6 @@ const BookingModal = ({
       setIsSubmitting(false);
       return;
     }
-
     if (!startDay) {
       setError("Vui lòng chọn ngày bắt đầu.");
       setIsSubmitting(false);
@@ -216,7 +260,6 @@ const BookingModal = ({
     }
 
     setIsSubmitting(true);
-
     const dateTimeLearnPayload = selectedScheduleSlots.reduce((acc, slot) => {
       const existingDayEntry = acc.find((entry) => entry.day === slot.day);
       if (existingDayEntry) {
@@ -239,15 +282,15 @@ const BookingModal = ({
     dateTimeLearnPayload.sort((a, b) => dayOrder[a.day] - dayOrder[b.day]);
 
     const payload = {
-      dateTimeLearn: dateTimeLearnPayload, // Mảng các object
-      lessonsPerWeek: currentLessonsPerWeekNum, // Số (number)
-      totalLessons: totalLessonsNum, // Số (number)
-      hoursPerLesson: hoursPerLessonNum, // Số (number)
-      startDay: startDay, // Chuỗi "YYYY-MM-DD"
+      dateTimeLearn: dateTimeLearnPayload,
+      lessonsPerWeek: currentLessonsPerWeekNum,
+      totalLessons: totalLessonsNum,
+      hoursPerLesson: hoursPerLessonNum,
+      startDay: startDay,
     };
 
     console.log(
-      "Sending booking request for tutor:",
+      "[BookingModal] Sending booking request for tutor:",
       tutorId,
       "Payload:",
       JSON.stringify(payload, null, 2)
@@ -361,13 +404,14 @@ const BookingModal = ({
                   : 7
               }
               value={lessonsPerWeek}
-              onChange={(e) => setLessonsPerWeek(e.target.value)} // Để input tự xử lý, parse khi submit
+              onChange={(e) => setLessonsPerWeek(e.target.value)}
               required
               disabled={selectedScheduleSlots.length === 0 || isSubmitting}
             />
             {selectedScheduleSlots.length > 0 && (
               <small className="input-hint">
-                Tối đa: {selectedScheduleSlots.length} (dựa trên lựa chọn)
+                {" "}
+                Tối đa: {selectedScheduleSlots.length} (dựa trên lựa chọn){" "}
               </small>
             )}
           </div>
@@ -378,7 +422,7 @@ const BookingModal = ({
               type="number"
               min="1"
               value={totalLessons}
-              onChange={(e) => setTotalLessons(e.target.value)} // Để input tự xử lý, parse khi submit
+              onChange={(e) => setTotalLessons(e.target.value)}
               required
               disabled={isSubmitting}
             />
@@ -387,15 +431,16 @@ const BookingModal = ({
             <label htmlFor="hoursPerLesson">Thời lượng / buổi:</label>
             <select
               id="hoursPerLesson"
-              value={hoursPerLesson} // value giờ là số
-              onChange={(e) => setHoursPerLesson(parseFloat(e.target.value))} // Parse thành số khi thay đổi
+              value={hoursPerLesson}
+              onChange={(e) => setHoursPerLesson(parseFloat(e.target.value))}
               required
               disabled={availableHoursOptions.length === 0 || isSubmitting}
             >
               {availableHoursOptions.length > 0 ? (
                 availableHoursOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                    {" "}
+                    {opt.label}{" "}
                   </option>
                 ))
               ) : (
@@ -404,8 +449,9 @@ const BookingModal = ({
             </select>
             {maxHoursPerLesson && (
               <small className="input-hint">
+                {" "}
                 Gia sư dạy tối đa: {formatTeachingTime(maxHoursPerLesson)} /
-                buổi
+                buổi{" "}
               </small>
             )}
           </div>
@@ -422,9 +468,44 @@ const BookingModal = ({
             />
           </div>
         </div>
+
         {error && !error.startsWith("Lỗi xử lý lịch dạy") && (
           <p className="error-message-modal">{error}</p>
         )}
+
+        <div className="booking-summary">
+          <div className="summary-item">
+            <FaMoneyBillWave className="summary-icon" />
+            <span>Đơn giá:</span>
+            <span className="summary-value">
+              {parseFloat(hourlyRate) > 0
+                ? `${parseFloat(hourlyRate).toLocaleString("vi-VN")} Coin / giờ`
+                : "Thỏa thuận"}
+            </span>
+          </div>
+          <div className="summary-item">
+            <FaClock className="summary-icon" />
+            <span>Tổng số giờ học:</span>
+            <span className="summary-value">
+              {calculatedTotalHours > 0
+                ? `${calculatedTotalHours.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                  })} giờ`
+                : "---"}
+            </span>
+          </div>
+          <div className="summary-item">
+            <FaCoins className="summary-icon" />
+            <span>Tổng chi phí:</span>
+            <span className="summary-value important-value">
+              {parseFloat(hourlyRate) > 0 && calculatedTotalCoin > 0
+                ? `${calculatedTotalCoin.toLocaleString("vi-VN")} Coin`
+                : "Thỏa thuận"}
+            </span>
+          </div>
+        </div>
+
         <div className="modal-actions">
           <button type="button" onClick={onClose} disabled={isSubmitting}>
             Hủy
@@ -455,6 +536,7 @@ BookingModal.propTypes = {
   availableScheduleRaw: PropTypes.arrayOf(
     PropTypes.oneOfType([PropTypes.string, PropTypes.object])
   ),
+  hourlyRate: PropTypes.number,
 };
 
 export default BookingModal;

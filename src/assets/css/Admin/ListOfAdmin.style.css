@@ -1,13 +1,12 @@
 /* src/assets/css/Admin/AdminListPages.style.css */
-/* Hoặc cập nhật src/assets/css/Admin/ListOfAdmin.style.css */
 
 /* --- General Layout for Admin Content Area --- */
 .admin-content {
   padding: 20px;
-  background-color: #f9f9f9; /* Màu nền nhẹ nhàng cho khu vực nội dung */
+  background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  margin: 20px; /* Khoảng cách với sidebar/header */
+  margin: 20px;
 }
 
 .admin-list-title {
@@ -23,39 +22,48 @@
 .search-bar-filter-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* Đổi thành center để các item đều được căn giữa nếu chiều cao khác nhau */
   margin-bottom: 20px;
-  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
-  gap: 15px; /* Khoảng cách giữa các nhóm phần tử */
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .search-bar-filter {
   display: flex;
-  align-items: center;
-  gap: 10px; /* Khoảng cách giữa các control trong nhóm filter/search */
-  flex-wrap: wrap; /* Cho phép xuống dòng các control */
+  align-items: center; /* Quan trọng để các control thẳng hàng */
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* Styles cho SearchBar Component */
+/* Styles cho SearchBar Component (.admin-search, .admin-search-input) */
 .admin-search {
   display: flex;
   align-items: center;
-  position: relative; /* Để chứa nút clear */
-  min-width: 250px; /* Độ rộng tối thiểu */
+  position: relative;
+  min-width: 220px; /* Giảm nhẹ để có thêm không gian cho các control khác */
+  flex-grow: 1; /* Cho phép input search co giãn */
+  max-width: 350px; /* Giới hạn độ rộng tối đa */
 }
 
 .admin-search-input {
-  padding: 8px 30px 8px 12px; /* Thêm padding phải cho nút clear */
+  padding: 8px 30px 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 0.95em;
-  width: 100%; /* Chiếm toàn bộ không gian của .admin-search */
+  width: 100%;
   transition: border-color 0.2s ease;
+  height: 38px; /* Đồng bộ chiều cao với select và button */
+  box-sizing: border-box;
 }
 
 .admin-search-input:focus {
-  border-color: #007bff; /* Màu viền khi focus */
+  border-color: #007bff;
   outline: none;
+}
+
+.admin-search-input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
 }
 
 .search-clear-input {
@@ -82,15 +90,23 @@
   font-size: 0.9em;
   color: #555;
   font-weight: 500;
+  white-space: nowrap; /* Ngăn label xuống dòng */
 }
 
 .status-filter-select {
-  padding: 8px 10px;
+  padding: 0 10px; /* Điều chỉnh padding để khớp với height */
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 0.9em; /* Giữ nguyên hoặc 0.95em */
   background-color: #fff;
-  min-width: 150px; /* Độ rộng tối thiểu */
+  min-width: 160px; /* Tăng nhẹ độ rộng tối thiểu */
+  height: 38px; /* Đồng bộ chiều cao */
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.status-filter-select:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 /* Styles cho các nút hành động (Refresh, Search) */
@@ -98,75 +114,94 @@
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   color: #333;
-  padding: 8px 12px;
+  /* padding: 8px 12px; */ /* Bỏ padding này để kích thước do width/height quyết định */
+  width: 38px; /* Kích thước cố định */
+  height: 38px; /* Kích thước cố định */
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Ngăn nút bị co lại */
 }
 
 .refresh-button:hover {
   background-color: #e0e0e0;
 }
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .refresh-button i {
-  font-size: 1.1em; /* Kích thước icon */
+  font-size: 1.1em;
 }
 
 /* --- Add Button Container --- */
 .filter-add-admin {
   /* Đã có trong container chính với justify-content: space-between */
+  flex-shrink: 0; /* Ngăn nút bị co lại */
 }
 
 .add-admin-button {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px 18px;
+  /* padding: 10px 18px; */ /* Chiều cao sẽ được đồng bộ */
+  padding: 0 18px; /* Chỉ padding ngang */
+  height: 38px; /* Đồng bộ chiều cao */
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.95em;
   font-weight: 500;
   transition: background-color 0.2s ease;
+  display: inline-flex; /* Để align-items hoạt động */
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .add-admin-button:hover {
   background-color: #0056b3;
 }
+.add-admin-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
 
 /* --- Table Styles (Reference Table.style.css) --- */
+/* ... (Giữ nguyên phần table styles bạn đã cung cấp) ... */
 .main-table-container {
   width: 100%;
-  overflow: hidden; /* Giấu phần shadow tràn ra ngoài */
+  overflow: hidden;
 }
 
 .table-scrollable-container {
   width: 100%;
-  overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ */
-  border-radius: 6px; /* Bo góc nhẹ cho container */
-  background-color: #fff; /* Nền trắng cho bảng */
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background-color: #fff;
 }
 
 .custom-table {
   width: 100%;
-  border-collapse: collapse; /* Gộp đường viền */
-  min-width: 800px; /* Đảm bảo bảng không quá hẹp */
+  border-collapse: collapse;
+  min-width: 800px;
 }
 
 .custom-table-header th {
-  background-color: #f8f9fa; /* Màu nền header nhạt */
-  color: #495057; /* Màu chữ header */
+  background-color: #f8f9fa;
+  color: #495057;
   padding: 12px 15px;
   text-align: left;
   font-weight: 600;
   font-size: 0.9em;
-  border-bottom: 2px solid #dee2e6; /* Đường kẻ dưới header đậm hơn */
-  white-space: nowrap; /* Không xuống dòng header */
-  cursor: pointer; /* Con trỏ khi hover cột sortable */
-  position: relative; /* Để chứa mũi tên sort */
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+  cursor: pointer;
+  position: relative;
 }
 
 .custom-table-header th.not-sortable {
@@ -174,82 +209,81 @@
 }
 
 .sortable-header .sort-arrows {
-  display: inline-flex; /* Hoặc inline-block */
+  display: inline-flex;
   flex-direction: column;
   margin-left: 8px;
   font-size: 0.8em;
-  color: #adb5bd; /* Màu mũi tên mặc định */
-  vertical-align: middle; /* Căn giữa theo chiều dọc với text */
-  position: absolute; /* Định vị tuyệt đối so với th */
+  color: #adb5bd;
+  vertical-align: middle;
+  position: absolute;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
 }
 
 .sortable-header .sort-arrows span {
-  line-height: 0.7; /* Giảm khoảng cách giữa 2 mũi tên */
-  opacity: 0.5; /* Mờ đi khi chưa active */
+  line-height: 0.7;
+  opacity: 0.5;
 }
 .sortable-header .sort-arrows span.active {
-  color: #343a40; /* Màu mũi tên khi active */
+  color: #343a40;
   opacity: 1;
 }
 
 .custom-table tbody tr {
-  border-bottom: 1px solid #e9ecef; /* Đường kẻ giữa các dòng */
+  border-bottom: 1px solid #e9ecef;
   transition: background-color 0.15s ease-in-out;
 }
 
 .custom-table tbody tr:last-child {
-  border-bottom: none; /* Bỏ đường kẻ dòng cuối */
+  border-bottom: none;
 }
 
 .custom-table tbody tr:hover {
-  background-color: #f1f3f4; /* Màu nền khi hover */
+  background-color: #f1f3f4;
 }
 
 .custom-table tbody td {
   padding: 10px 15px;
   font-size: 0.9em;
   color: #333;
-  vertical-align: middle; /* Căn giữa nội dung cell */
+  vertical-align: middle;
 }
 
 .action-buttons {
   display: flex;
-  gap: 8px; /* Khoảng cách giữa các nút action */
-  white-space: nowrap; /* Ngăn nút xuống dòng */
-  justify-content: flex-start; /* Căn các nút về bên trái */
-  min-width: 100px; /* Đảm bảo đủ chỗ cho các nút cơ bản */
-  align-items: center;  
+  gap: 8px;
+  white-space: nowrap;
+  justify-content: flex-start;
+  min-width: 100px;
+  align-items: center;
 }
 
 .action-column-header {
-  min-width: 120px; /* Đảm bảo header cột action đủ rộng */
-  text-align: center !important; /* Căn giữa header cột action */
+  min-width: 120px;
+  text-align: center !important;
 }
 
-.action-buttons td {
-  justify-content: center; /* Căn giữa các nút trong cell */
-}
+/* .action-buttons td { // Dòng này có vẻ không cần thiết, vì action-buttons là class của td rồi
+  justify-content: center;
+} */
 
 .action-button {
   background: none;
   border: none;
   padding: 5px;
   cursor: pointer;
-  font-size: 1.1em; /* Kích thước icon */
-  color: #6c757d; /* Màu icon mặc định */
+  font-size: 1.1em;
+  color: #6c757d;
   transition: color 0.2s ease;
-  border-radius: 4px; /* Bo góc nhẹ */
-  /* Thêm dòng này để đảm bảo icon cũng được căn giữa tốt hơn trong button */
-  display: inline-flex; /* Giúp align-items hoạt động tốt hơn bên trong button */
+  border-radius: 4px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1; /* Reset line-height để tránh ảnh hưởng căn chỉnh */
+  line-height: 1;
 }
 .action-button:hover {
-  background-color: rgba(0, 0, 0, 0.05); /* Nền nhẹ khi hover */
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .action-button.view:hover {
@@ -269,13 +303,13 @@
 }
 .action-button.lock.unlocked:hover {
   color: #ffc107;
-} /* Màu khóa khi hover */
+}
 .action-button.lock.locked:hover {
   color: #28a745;
-} /* Màu mở khóa khi hover */
+}
 .action-button.lock.locked {
   color: #dc3545;
-} /* Màu icon khi đang khóa */
+}
 
 .no-data {
   text-align: center;
@@ -286,65 +320,60 @@
 
 /* --- Status Styles --- */
 .status {
-  padding: 4px 10px; /* Tăng padding nhẹ */
-  border-radius: 16px; /* Bo tròn hơn */
-  font-size: 0.8em; /* Giảm font size một chút */
-  font-weight: 600; /* Tăng độ đậm */
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8em;
+  font-weight: 600;
   text-align: center;
   display: inline-block;
-  min-width: 90px; /* Tăng độ rộng tối thiểu */
-  border: 1px solid transparent; /* Thêm border để giữ layout ổn định */
-  text-transform: uppercase; /* Viết hoa chữ */
-  letter-spacing: 0.5px; /* Tăng khoảng cách chữ nhẹ */
+  min-width: 90px;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Trạng thái Hoạt động (ACTIVE) - Thường dùng cho user, admin */
 .status-active,
 .status-paid {
-  /* Gộp style cho PAID */
-  background-color: #d4edda; /* Xanh lá cây nhạt hơn */
-  color: #155724; /* Xanh lá cây đậm */
+  background-color: #d4edda;
+  color: #155724;
   border-color: #c3e6cb;
 }
 
-/* Trạng thái Khóa (BLOCKED / INACTIVE) */
 .status-blocked,
 .status-inactive {
-  background-color: #f8d7da; /* Hồng nhạt */
-  color: #721c24; /* Đỏ đậm */
+  background-color: #f8d7da;
+  color: #721c24;
   border-color: #f5c6cb;
 }
 
-/* Trạng thái Đang chờ (PENDING) */
 .status-pending {
-  background-color: #fff3cd; /* Vàng nhạt */
-  color: #856404; /* Vàng nâu đậm */
+  background-color: #fff3cd;
+  color: #856404;
   border-color: #ffeeba;
 }
 
-/* Trạng thái Thất bại (FAILED) */
 .status-failed {
-  background-color: #f8d7da; /* Sử dụng lại màu đỏ nhạt của blocked */
-  color: #721c24; /* Sử dụng lại màu đỏ đậm của blocked */
+  background-color: #f8d7da;
+  color: #721c24;
   border-color: #f5c6cb;
 }
 
-/* Trạng thái Không xác định/Khác */
 .status-unknown {
-  background-color: #e2e3e5; /* Xám nhạt */
-  color: #383d41; /* Xám đậm */
+  background-color: #e2e3e5;
+  color: #383d41;
   border-color: #d6d8db;
 }
 
 /* --- Pagination Styles (Reference Pagination.style.css) --- */
+/* ... (Giữ nguyên phần pagination styles bạn đã cung cấp) ... */
 .pagination-container {
   display: flex;
-  justify-content: space-between; /* Đẩy pagination và items per page ra 2 bên */
+  justify-content: space-between;
   align-items: center;
   margin-top: 25px;
   padding-top: 15px;
-  border-top: 1px solid #eee; /* Đường kẻ phân cách nhẹ */
-  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
   gap: 15px;
 }
 
@@ -358,22 +387,24 @@
 }
 
 .item-per-page-select {
-  padding: 5px 8px;
+  padding: 5px 8px; /* Giữ nguyên hoặc điều chỉnh cho khớp height chung */
   border-radius: 4px;
   border: 1px solid #ccc;
   margin-left: 5px;
+  height: 32px; /* Cân nhắc đồng bộ với 38px nếu cần */
+  box-sizing: border-box;
 }
 
 .pagination {
   display: flex;
   list-style: none;
   padding: 0;
-  margin: 0; /* Reset margin */
-  justify-content: flex-end; /* Căn pagination về bên phải */
+  margin: 0;
+  justify-content: flex-end;
 }
 
 .pagination li {
-  margin: 0 3px; /* Khoảng cách nhỏ giữa các nút trang */
+  margin: 0 3px;
 }
 
 .pagination li a {
@@ -384,9 +415,10 @@
   border-radius: 4px;
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
-  display: block; /* Để padding hoạt động đúng */
-  min-width: 36px; /* Chiều rộng tối thiểu */
+  display: block;
+  min-width: 36px;
   text-align: center;
+  line-height: 1.25; /* Điều chỉnh line-height nếu padding thay đổi */
 }
 
 .pagination li a:hover {
@@ -411,67 +443,17 @@
 .pagination li.break a {
   color: #6c757d;
   cursor: default;
-  border: none; /* Bỏ viền cho dấu ... */
+  border: none;
   background-color: transparent;
 }
 .pagination li.break a:hover {
-  background-color: transparent; /* Không đổi màu nền khi hover ... */
+  background-color: transparent;
   color: #6c757d;
 }
 
 /* --- Modal Styles (Reference Modal.style.css, DeleteConfirmationModal.style.css) --- */
-/* Overlay */
+/* ... (Giữ nguyên phần Modal styles bạn đã cung cấp) ... */
 .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6); /* Tăng độ mờ */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Đảm bảo modal ở trên cùng */
-  opacity: 0; /* Bắt đầu ẩn */
-  transition: opacity 0.3s ease-in-out;
-}
-
-/* Khi modal mở, overlay hiện ra */
-.ReactModal__Overlay--after-open {
-  opacity: 1;
-}
-
-/* Khi modal đóng, overlay mờ đi */
-.ReactModal__Overlay--before-close {
-  opacity: 0;
-}
-
-/* Modal Content (chung cho FormDetail và DeleteConfirmation) */
-.modal {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  max-width: 600px; /* Giới hạn chiều rộng tối đa */
-  width: 90%; /* Chiếm 90% chiều rộng màn hình nhỏ */
-  max-height: 90vh; /* Giới hạn chiều cao */
-  overflow-y: none; /* Cho phép cuộn nếu nội dung dài */
-  position: relative; /* Để định vị nút đóng */
-  outline: none; /* Bỏ viền focus mặc định */
-  transform: scale(0.9); /* Hiệu ứng scale khi mở */
-  transition: transform 0.3s ease-in-out;
-}
-
-/* Khi modal mở, scale về kích thước thật */
-.ReactModal__Content--after-open {
-  transform: scale(1);
-}
-/* Khi modal đóng, scale nhỏ lại */
-.ReactModal__Content--before-close {
-  transform: scale(0.9);
-}
-
-/* --- Delete Confirmation Modal Specific Styles --- */
-.delete-confirmation-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -481,10 +463,53 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1050; /* Cao hơn modal thường nếu cần */
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.modal {
+  /* Chung cho FormDetail */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  /* overflow-y: auto; Sẽ được FormDetail.style.css xử lý nếu cần */
+  position: relative;
+  outline: none;
+  transform: scale(0.9);
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Thêm opacity cho mượt */
+  /* Sẽ không có scrollbar ở đây, FormDetail sẽ tự quản lý scroll nội bộ */
+  display: flex; /* Để FormDetail có thể quản lý chiều cao tốt hơn */
+  flex-direction: column; /* Để header, content, footer xếp chồng */
+}
+
+.ReactModal__Content--after-open {
+  transform: scale(1);
+}
+.ReactModal__Content--before-close {
+  transform: scale(0.9);
+}
+
+/* --- Delete Confirmation Modal Specific Styles --- */
+/* Delete Modal sẽ dùng chung overlay nhưng có thể có content riêng */
+.delete-confirmation-modal-overlay {
+  /* Thường là class chung ReactModal__Overlay */
+  /* (Đã định nghĩa ở trên) */
 }
 
 .delete-confirmation-modal-content {
+  /* Class này bạn có thể truyền vào prop `className` của DeleteConfirmationModal */
   background: #fff;
   padding: 30px;
   border-radius: 8px;
@@ -492,7 +517,18 @@
   max-width: 450px;
   width: 90%;
   text-align: center;
-  position: relative;
+  position: relative; /* Quan trọng cho nút close */
+  outline: none;
+  /* Thêm hiệu ứng nếu muốn, nhưng thường modal confirm đơn giản hơn */
+  transform: scale(0.95); /* Hiệu ứng nhẹ hơn */
+  transition: transform 0.2s ease-out;
+}
+/* Style khi mở cho Delete Confirmation Modal (nếu dùng class riêng) */
+.delete-confirmation-modal-content.ReactModal__Content--after-open {
+  transform: scale(1);
+}
+.delete-confirmation-modal-content.ReactModal__Content--before-close {
+  transform: scale(0.95);
 }
 
 .delete-confirmation-modal-close {
@@ -516,11 +552,12 @@
 
 .alert-icon {
   font-size: 3em;
-  color: #f0ad4e; /* Màu vàng cảnh báo */
+  color: #f0ad4e;
   margin-bottom: 10px;
 }
 
 .modal-title {
+  /* Dùng chung cho các modal */
   font-size: 1.4em;
   font-weight: 600;
   color: #333;
@@ -528,6 +565,7 @@
 }
 
 .modal-message {
+  /* Cho Delete Modal */
   font-size: 1em;
   color: #555;
   margin-bottom: 30px;
@@ -535,13 +573,14 @@
 }
 
 .modal-buttons {
+  /* Cho Delete Modal */
   display: flex;
-  justify-content: center; /* Căn giữa các nút */
-  gap: 15px; /* Khoảng cách giữa các nút */
+  justify-content: center;
+  gap: 15px;
 }
 
 .modal-buttons button {
-  padding: 10px 25px; /* Tăng padding nút */
+  padding: 10px 25px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -549,56 +588,131 @@
   font-weight: 500;
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
+.modal-buttons button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 
 .cancel-button {
   background-color: #f0f0f0;
   color: #333;
   border: 1px solid #ccc;
 }
-.cancel-button:hover {
+.cancel-button:hover:not(:disabled) {
   background-color: #e0e0e0;
 }
 
 .delete-button {
-  background-color: #dc3545; /* Màu đỏ */
+  background-color: #dc3545;
   color: white;
 }
-.delete-button:hover {
-  background-color: #c82333; /* Đỏ đậm hơn */
+.delete-button:hover:not(:disabled) {
+  background-color: #c82333;
   box-shadow: 0 2px 5px rgba(220, 53, 69, 0.4);
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
+  /* Tăng breakpoint một chút */
   .search-bar-filter-container {
-    flex-direction: column; /* Xếp chồng lên nhau */
-    align-items: stretch; /* Kéo dãn các phần tử con */
+    /* Không nhất thiết phải column, có thể để wrap tự nhiên */
+    /* align-items: flex-start; */ /* Căn các nhóm filter về đầu dòng nếu wrap */
   }
   .search-bar-filter {
-    justify-content: center; /* Căn giữa các control filter */
+    /* flex-direction: column; */ /* Cân nhắc nếu muốn xếp chồng các control */
+    /* align-items: stretch; */
+    /* width: 100%; */
   }
+  /* Nếu muốn từng control chiếm full width trên mobile */
+  /* .search-bar-filter > * {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .search-bar-filter > *:last-child {
+    margin-bottom: 0;
+  } */
+}
+
+@media (max-width: 768px) {
+  .admin-content {
+    margin: 10px;
+    padding: 15px;
+  }
+  .admin-list-title {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+
+  .search-bar-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  /* Đảm bảo các nhóm filter và nút add có khoảng cách */
+  .search-bar-filter {
+    margin-bottom: 15px; /* Thêm khoảng cách nếu nút Add ở dưới */
+  }
+
   .filter-add-admin {
-    width: 100%; /* Nút Add chiếm toàn bộ chiều rộng */
+    width: 100%;
     display: flex;
-    justify-content: center; /* Căn giữa nút Add */
+    justify-content: center;
   }
   .add-admin-button {
-    width: 50%; /* Hoặc độ rộng cụ thể */
+    width: auto; /* Để nút co lại theo nội dung */
+    padding: 10px 25px; /* Có thể tăng padding cho dễ nhấn */
   }
 
   .pagination-container {
     flex-direction: column;
-    gap: 10px;
+    gap: 15px; /* Tăng gap cho dễ nhìn */
+    align-items: center; /* Căn giữa tất cả */
+  }
+  .total-item-show {
+    width: 100%;
+    text-align: center;
   }
   .pagination {
-    justify-content: center; /* Căn giữa pagination trên mobile */
+    justify-content: center;
   }
 
   .modal {
     max-width: 95%;
+    width: 95%;
   }
   .delete-confirmation-modal-content {
     max-width: 90%;
+    width: 90%;
   }
 }
-/* Thêm các media query khác nếu cần thiết cho các kích th  
+
+@media (max-width: 480px) {
+  .admin-list-title {
+    font-size: 1.3em;
+  }
+  /* Các control trong .search-bar-filter có thể cần full width */
+  .search-bar-filter > .filter-control,
+  .search-bar-filter > .admin-search {
+    width: 100%;
+  }
+  .search-bar-filter > .refresh-button {
+    /* Có thể muốn các nút này cũng full width hoặc một phần */
+    flex-grow: 1; /* Chia sẻ không gian còn lại */
+  }
+  .status-filter-select {
+    width: 100%; /* Cho select chiếm full width của filter-control */
+  }
+
+  .item-per-page-select {
+    width: auto; /* Hoặc một giá trị cố định */
+  }
+  .pagination li a {
+    padding: 6px 10px; /* Giảm padding nút pagination */
+  }
+  .modal-buttons {
+    flex-direction: column; /* Nút trong modal xếp chồng */
+    gap: 10px;
+  }
+  .modal-buttons button {
+    width: 100%; /* Nút chiếm full width */
+  }
+}

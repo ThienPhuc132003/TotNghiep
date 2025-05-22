@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Montserrat", sans-serif; 
+  font-family: "Montserrat", sans-serif;
 }
 
 body {
@@ -16,4 +16,34 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+:root {
+  --primary-color: #d72134;
+  --primary-color-rgb: 215, 33, 52;
+  --primary-color-dark: #b41e2d;
+  --text-dark: #1f2937;
+  --text-medium: #4b5563;
+  --text-light: #6b7280;
+  --border-color: #e5e7eb;
+  --border-color-focus: var(--primary-color-dark);
+  --background-light: #f8f9fa;
+  --background-white: #ffffff;
+  --star-filled: #facc15;
+  --star-empty: #e5e7eb;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --rank-bronze: #cd7f32;
+  --rank-silver: #c0c0c0;
+  --rank-gold: #ffd700;
+  --rank-platinum: #67e8f9;
+  --rank-diamond: #0e7490;
+  --favorite-inactive: #cbd5e1;
+  --favorite-hover: #f87171;
+  --favorite-active: var(--error-color);
+  --cancel-bg: #f8fafc;
+  --cancel-border: #e2e8f0;
+  --cancel-text: var(--text-medium);
+  --cancel-hover-bg: #f1f5f9;
+  --cancel-hover-border: #cbd5e1;
+  --cancel-hover-text: var(--text-dark);
 }

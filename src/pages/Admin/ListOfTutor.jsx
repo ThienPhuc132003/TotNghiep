@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css"; // Shared styles
 import "../../assets/css/Modal.style.css"; // Modal styles
-import "../../assets/css/FormDetail.style.css"; // Ensure FormDetail styles are imported
+import "../../assets/css/FormDetail.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
@@ -12,18 +12,15 @@ import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
-import qs from "qs";
+// qs không còn cần thiết nếu API không dùng nó trực tiếp ở FE nữa
 import { Alert } from "@mui/material";
-// Removed unidecode import
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format, isValid, parseISO } from "date-fns";
-// --- Helper Functions ---
 
-// Helper lấy giá trị lồng nhau an toàn
+// --- Helper Functions ---
 const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
   if (!obj || !path) return defaultValue;
-  // Improved check for intermediate properties being objects
   const value = path
     .split(".")
     .reduce(
@@ -33,7 +30,6 @@ const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
   return value !== undefined && value !== null ? value : defaultValue;
 };
 
-// Định dạng trạng thái user (checkActive)
 const formatUserStatus = (status) => {
   switch (status) {
     case "ACTIVE":
@@ -47,33 +43,27 @@ const formatUserStatus = (status) => {
   }
 };
 
-// Định dạng giới tính
 const formatGender = (gender) => {
   if (gender === "MALE") return "Nam";
   if (gender === "FEMALE") return "Nữ";
   return "Chưa cập nhật";
 };
 
-// Định dạng ngày tháng (an toàn hơn)
 const safeFormatDate = (dateInput, formatString = "dd/MM/yyyy") => {
   if (!dateInput) return "Chưa cập nhật";
   try {
-    // Handle both string and Date objects
     const date =
       typeof dateInput === "string" ? parseISO(dateInput) : dateInput;
     return isValid(date) ? format(date, formatString) : "Ngày không hợp lệ";
   } catch (e) {
-    console.error("Error formatting date:", dateInput, e);
     return "Lỗi định dạng ngày";
   }
 };
 
-// Render link cho file/URL (an toàn hơn)
 const renderEvidenceLink = (url) => {
   if (!url || typeof url !== "string") return "Không có";
   const trimmedUrl = url.trim();
   if (!trimmedUrl) return "Không có";
-  // More robust check for external links
   const isExternalLink = /^(https?:\/\/|blob:)/i.test(trimmedUrl);
   return (
     <a
@@ -94,7 +84,6 @@ const renderEvidenceLink = (url) => {
   );
 };
 
-// Định dạng lịch dạy (dateTimeLearn) - xử lý lỗi tốt hơn
 const daysOfWeekMap = {
   Monday: "Thứ 2",
   Tuesday: "Thứ 3",
@@ -110,28 +99,19 @@ const formatDateTimeLearn = (dateTimeLearnArray) => {
   }
   try {
     const parsed = dateTimeLearnArray
-      .map((jsonString, index) => {
+      .map((jsonString) => {
         if (typeof jsonString !== "string" || !jsonString.trim()) return null;
         try {
           return JSON.parse(jsonString);
         } catch (e) {
-          console.error(
-            `Error parsing JSON string at index ${index}:`,
-            jsonString,
-            e
-          );
           return null;
         }
       })
-      .filter((item) => item && item.day && Array.isArray(item.times)); // Filter valid entries
+      .filter((item) => item && item.day && Array.isArray(item.times));
 
     if (parsed.length === 0) return "Chưa cập nhật lịch rảnh hợp lệ";
-
     return (
-      <ul
-        className="datetime-list"
-        style={{ paddingLeft: "1.2em", margin: 0, listStyleType: "none" }}
-      >
+      <ul style={{ paddingLeft: "1.2em", margin: 0, listStyleType: "none" }}>
         {parsed.map((item, index) => (
           <li key={index}>
             <strong>{daysOfWeekMap[item.day] || item.day}</strong>:{" "}
@@ -141,12 +121,10 @@ const formatDateTimeLearn = (dateTimeLearnArray) => {
       </ul>
     );
   } catch (e) {
-    console.error("Unexpected error parsing dateTimeLearn:", e);
     return "Lỗi định dạng lịch";
   }
 };
 
-// Định dạng phương thức dạy
 const formatTeachingMethod = (method) => {
   switch (method) {
     case "ONLINE":
@@ -163,91 +141,98 @@ const formatTeachingMethod = (method) => {
 
 Modal.setAppElement("#root");
 
+// Định nghĩa các cột có thể tìm kiếm cho Gia sư
+const searchableTutorColumnOptions = [
+  { value: "userProfile.fullname", label: "Tên gia sư" },
+  { value: "email", label: "Email" },
+  { value: "phoneNumber", label: "Số điện thoại" },
+  { value: "tutorProfile.tutorLevel.levelName", label: "Hạng" },
+  {
+    value: "createdAt",
+    label: "Ngày tạo",
+    placeholderSuffix: " (YYYY-MM-DD)",
+  },
+  { value: "userId", label: "Mã gia sư" }, // Thêm mã gia sư
+];
+
 const ListOfTutorPage = () => {
   const { t } = useTranslation();
 
   // --- State Variables ---
-  const [data, setData] = useState([]); // State chính chứa dữ liệu từ API
-  // Bỏ filteredData
+  const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0); // 0-based index
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Default 10
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [pageCount, setPageCount] = useState(1);
-  const [isLoading, setIsLoading] = useState(false); // Loading cho bảng
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // Query tìm kiếm thực tế
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableTutorColumnOptions[0].value // Mặc định là cột đầu tiên
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableTutorColumnOptions[0].value
+  );
+
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
-  }); // Sắp xếp mặc định
-  const [isModalOpen, setIsModalOpen] = useState(false); // Chỉ dùng cho View
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
-  const [modalMode, setModalMode] = useState(null); // Chỉ là 'view'
+  const [modalMode, setModalMode] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
-  const [deleteMessage, setDeleteMessage] = useState(""); // Message động cho modal xóa
-  const [isProcessingLock, setIsProcessingLock] = useState(false); // Loading riêng cho lock/unlock
-  const [isDeleting, setIsDeleting] = useState(false); // Loading riêng cho delete
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [isProcessingLock, setIsProcessingLock] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const currentPath = "/gia-su";
 
-  // Bỏ URL Synchronization
-
   // --- Reset State ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
+    setSelectedSearchField(searchableTutorColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableTutorColumnOptions[0].value);
     setSortConfig({ key: "createdAt", direction: "desc" });
     setCurrentPage(0);
-    setItemsPerPage(10); // Reset itemsPerPage về default
-    // fetchData sẽ tự chạy lại
-  };
+    setItemsPerPage(10);
+  }, []);
 
   // --- Data Fetching ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    console.log(
-      `Fetching tutors: page=${currentPage + 1}, rpp=${itemsPerPage}, sort=${
-        sortConfig.key
-      }(${sortConfig.direction}), search=${searchQuery}`
-    );
     try {
-      // Luôn filter roleId=TUTOR
       const filterConditions = [
         { key: "roleId", operator: "equal", value: "TUTOR" },
       ];
 
-      // Thêm điều kiện tìm kiếm nếu có searchQuery
-      if (searchQuery) {
+      if (appliedSearchInput && appliedSearchField) {
         filterConditions.push({
-          // Giả định backend hỗ trợ tìm kiếm 'like' trên các trường này
-          key: "userId,userProfile.fullname,email,phoneNumber,tutorProfile.tutorLevel.levelName", // Thêm tìm theo hạng?
-          operator: "like", // hoặc 'search'
-          value: searchQuery,
+          key: appliedSearchField,
+          operator: "like", // Hoặc 'equal' cho ID/ngày nếu backend hỗ trợ chính xác
+          value: appliedSearchInput,
         });
       }
 
-      // Xây dựng query object
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
-        filter: JSON.stringify(filterConditions), // Gửi filter kết hợp
+        filter: JSON.stringify(filterConditions),
         sort: JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
         ]),
       };
 
-      const queryString = qs.stringify(query, {
-        encodeValuesOnly: true,
-        arrayFormat: "brackets",
-      });
-      console.log("API Request URL:", `/user/search?${queryString}`);
-
+      console.log("Fetching tutors with query:", query);
       const response = await Api({
-        endpoint: `/user/search?${queryString}`, // Endpoint tìm user
+        endpoint: `/user/search`, // Endpoint tìm user
         method: METHOD_TYPE.GET,
+        query: query, // Truyền object query
       });
       console.log("API Response (Tutors):", response);
 
@@ -256,7 +241,7 @@ const ListOfTutorPage = () => {
         response.data &&
         Array.isArray(response.data.items)
       ) {
-        setData(response.data.items); // Cập nhật state data chính
+        setData(response.data.items);
         setTotalItems(response.data.total || 0);
         setPageCount(Math.ceil((response.data.total || 0) / itemsPerPage));
       } else {
@@ -266,25 +251,32 @@ const ListOfTutorPage = () => {
           "Lỗi tải dữ liệu gia sư.";
         throw new Error(errorMsg);
       }
-    } catch (error) {
-      console.error("Fetch tutor error:", error);
+    } catch (errorCatch) {
+      console.error("Fetch tutor error:", errorCatch);
       const errorMsg =
-        error.message ||
+        errorCatch.message ||
         t("common.errorLoadingData") ||
         "Đã xảy ra lỗi không mong muốn.";
       setError(errorMsg);
-      setData([]); // Reset data khi lỗi
+      setData([]);
       setTotalItems(0);
       setPageCount(1);
       toast.error(`Tải danh sách gia sư thất bại: ${errorMsg}`);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]); // Phụ thuộc vào các state điều khiển fetch
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    appliedSearchInput,
+    appliedSearchField,
+    t,
+  ]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]); // Gọi fetchData khi dependencies thay đổi
+  }, [fetchData]);
   // --- End Data Fetching ---
 
   // --- Event Handlers ---
@@ -300,21 +292,31 @@ const ListOfTutorPage = () => {
   };
 
   const handleSearchInputChange = (value) => {
-    // Đổi tên tham số cho rõ ràng
     setSearchInput(value);
   };
 
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+  };
+
   const handleApplySearch = () => {
-    // Đổi tên hàm
-    if (searchQuery !== searchInput) {
-      setCurrentPage(0);
-      setSearchQuery(searchInput); // Chỉ cập nhật searchQuery ở đây
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput("");
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      setAppliedSearchInput("");
     }
+    setCurrentPage(0);
   };
 
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
-      handleApplySearch(); // Gọi hàm mới
+      handleApplySearch();
     }
   };
 
@@ -327,10 +329,10 @@ const ListOfTutorPage = () => {
     }));
     setCurrentPage(0);
   };
+  // --- End Event Handlers ---
 
-  // --- Action Handlers ---
+  // --- Action Handlers (giữ nguyên các handler khác như handleDeleteClick, confirmDelete, handleViewClick, handleLockClick, handleCloseModal) ---
   const handleDeleteClick = (tutor) => {
-    // Nhận cả object
     if (!tutor || !tutor.userId) return;
     const tutorName = getSafeNestedValue(
       tutor,
@@ -346,8 +348,7 @@ const ListOfTutorPage = () => {
 
   const confirmDelete = async () => {
     if (!deleteItemId) return;
-    setIsDeleting(true); // Bắt đầu loading xóa
-    console.log(`Attempting to delete tutor: ${deleteItemId}`);
+    setIsDeleting(true);
     try {
       const response = await Api({
         endpoint: `user/delete-user-by-id/${deleteItemId}`,
@@ -356,31 +357,26 @@ const ListOfTutorPage = () => {
       if (response.success) {
         toast.success("Xóa gia sư thành công!");
         if (data.length === 1 && currentPage > 0) {
-          // Nếu xóa item cuối cùng của trang và không phải trang đầu -> lùi trang
-          setCurrentPage(currentPage - 1); // Trigger fetchData ở trang trước
+          setCurrentPage(currentPage - 1);
         } else {
-          // Nếu không, fetch lại trang hiện tại
           fetchData();
         }
       } else {
         throw new Error(response.message || "Xóa thất bại.");
       }
-    } catch (error) {
-      console.error("Delete tutor error:", error);
-      toast.error(`Xóa thất bại: ${error.message}`);
+    } catch (errorCatch) {
+      toast.error(`Xóa thất bại: ${errorCatch.message}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
       setDeleteMessage("");
-      setIsDeleting(false); // Kết thúc loading xóa
+      setIsDeleting(false);
     }
   };
 
   const handleViewClick = (tutor) => {
     if (!tutor) return;
-    console.log("Viewing Tutor Data:", tutor);
-    // Chuẩn bị dữ liệu đầy đủ hơn cho modal view nếu cần
-    setModalData(tutor); // Truyền nguyên object tutor
+    setModalData(tutor);
     setModalMode("view");
     setIsModalOpen(true);
   };
@@ -403,8 +399,7 @@ const ListOfTutorPage = () => {
     )
       return;
 
-    setIsProcessingLock(true); // Bắt đầu loading lock
-    console.log(`Attempting to ${actionText} tutor: ${tutor.userId}`);
+    setIsProcessingLock(true);
     try {
       const response = await Api({
         endpoint: `user/update-user-by-id/${tutor.userId}`,
@@ -412,7 +407,6 @@ const ListOfTutorPage = () => {
         data: { checkActive: newCheckActive },
       });
       if (response.success) {
-        // Cập nhật state data để UI thay đổi ngay
         setData((prevData) =>
           prevData.map((item) =>
             item.userId === tutor.userId
@@ -424,11 +418,10 @@ const ListOfTutorPage = () => {
       } else {
         throw new Error(response.message || `${actionText} thất bại.`);
       }
-    } catch (error) {
-      console.error(`Error ${actionText} tutor:`, error);
-      toast.error(`${actionText} thất bại: ${error.message}`);
+    } catch (errorCatch) {
+      toast.error(`${actionText} thất bại: ${errorCatch.message}`);
     } finally {
-      setIsProcessingLock(false); // Kết thúc loading lock
+      setIsProcessingLock(false);
     }
   };
 
@@ -437,14 +430,13 @@ const ListOfTutorPage = () => {
     setTimeout(() => {
       setModalData(null);
       setModalMode(null);
-    }, 300); // Giữ delay nếu muốn animation
+    }, 300);
   };
-  // --- End Action Handlers ---
 
   // --- Table Columns Definition ---
   const columns = useMemo(
     () => [
-      // Sử dụng getSafeNestedValue để render an toàn hơn
+      { title: "Mã GS", dataKey: "userId", sortable: true }, // Thêm Mã GS
       {
         title: t("admin.name"),
         dataKey: "userProfile.fullname",
@@ -456,22 +448,16 @@ const ListOfTutorPage = () => {
       {
         title: t("admin.email"),
         dataKey: "email",
+        sortKey: "email", // Thêm sortKey
         sortable: true,
         renderCell: (val) => val || "Chưa có email",
       },
       {
         title: t("admin.phone"),
         dataKey: "phoneNumber",
-        sortable: false,
+        sortKey: "phoneNumber", // Thêm sortKey
+        sortable: true, // Cho phép sort SĐT
         renderCell: (val) => val || "Chưa có SĐT",
-      },
-      {
-        title: "Giới tính",
-        dataKey: "userProfile.gender",
-        sortKey: "userProfile.gender",
-        sortable: true,
-        renderCell: (v, row) =>
-          formatGender(getSafeNestedValue(row, "userProfile.gender", null)),
       },
       {
         title: "Hạng",
@@ -487,38 +473,38 @@ const ListOfTutorPage = () => {
       },
       {
         title: t("admin.status"),
-        dataKey: "checkActive",
+        dataKey: "checkActive", // checkActive là trạng thái khóa/mở
         sortable: true,
         renderCell: formatUserStatus,
       },
       {
         title: "Ngày tạo",
         dataKey: "createdAt",
+        sortKey: "createdAt",
         sortable: true,
-        renderCell: (v) => safeFormatDate(v, "dd/MM/yyyy"),
-      }, // Format ngắn gọn hơn
+        renderCell: (v) => safeFormatDate(v, "dd/MM/yy HH:mm"), // Format chi tiết hơn
+      },
     ],
     [t]
   );
   // --- End Table Columns Definition ---
 
-  // --- Form Fields for Detail View ---
-  // Giữ nguyên hoặc tối ưu viewFields nếu cần
+  // --- Form Fields for Detail View (giữ nguyên hoặc tối ưu) ---
   const viewFields = useMemo(
     () => [
-      // Phần User
+      // Section: Thông tin chung
+      { key: "userId", label: "Mã Gia Sư", section: "Thông tin chung" },
       {
         key: "userProfile.fullname",
         label: "Họ và Tên",
         section: "Thông tin chung",
-      }, // Thêm section
+      },
       { key: "email", label: "Email đăng nhập", section: "Thông tin chung" },
       {
         key: "phoneNumber",
         label: "SĐT đăng nhập",
         section: "Thông tin chung",
       },
-      { key: "userId", label: "User ID", section: "Thông tin chung" },
       {
         key: "checkActive",
         label: "Trạng thái tài khoản",
@@ -545,7 +531,7 @@ const ListOfTutorPage = () => {
         section: "Thông tin chung",
       },
 
-      // Phần User Profile
+      // Section: Hồ sơ người dùng (User Profile)
       {
         key: "userProfile.userDisplayName",
         label: "Tên hiển thị",
@@ -581,7 +567,7 @@ const ListOfTutorPage = () => {
       },
       {
         key: "userProfile.major.majorName",
-        label: "Chuyên ngành",
+        label: "Chuyên ngành (User)",
         renderValue: (v, row) =>
           getSafeNestedValue(
             row,
@@ -591,7 +577,7 @@ const ListOfTutorPage = () => {
         section: "Hồ sơ người dùng (User Profile)",
       },
 
-      // Phần Tutor Profile
+      // Section: Hồ sơ gia sư (Tutor Profile)
       {
         key: "tutorProfile.tutorLevel.levelName",
         label: "Hạng Gia Sư",
@@ -692,7 +678,6 @@ const ListOfTutorPage = () => {
           ),
         section: "Hồ sơ gia sư (Tutor Profile)",
       },
-      // ... (Thêm các môn 2, 3 tương tự nếu cần)
       {
         key: "tutorProfile.teachingTime",
         label: "Thời gian/tiết (giờ)",
@@ -781,43 +766,73 @@ const ListOfTutorPage = () => {
         section: "Hồ sơ gia sư (Tutor Profile)",
       },
     ],
-    [] // Thêm dependencies nếu có dùng biến ngoài (ví dụ: t)
+    []
   );
   // --- End Form Fields ---
 
   // --- JSX Rendering ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableTutorColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}${
+        currentSearchFieldConfig.placeholderSuffix || ""
+      }...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <div className="admin-content">
       <h2 className="admin-list-title">Danh sách Gia sư</h2>
       <div className="search-bar-filter-container">
         <div className="search-bar-filter">
+          {/* Select chọn cột tìm kiếm */}
+          <div className="filter-control">
+            <select
+              id="searchFieldSelectTutor"
+              value={selectedSearchField}
+              onChange={handleSearchFieldChange}
+              className="status-filter-select"
+              aria-label="Chọn trường để tìm kiếm"
+            >
+              {searchableTutorColumnOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <SearchBar
             value={searchInput}
             onChange={handleSearchInputChange}
-            onKeyPress={handleSearchKeyPress} // Add Enter key press handler
+            onKeyPress={handleSearchKeyPress}
             searchBarClassName="admin-search"
             searchInputClassName="admin-search-input"
-            placeholder="Tìm tên, email, SĐT, ID, hạng..." // Update placeholder
+            placeholder={searchPlaceholder}
           />
-          {/* Search button */}
           <button
             onClick={handleApplySearch}
             className="refresh-button"
             title="Tìm kiếm"
+            disabled={isLoading || isProcessingLock || isDeleting}
           >
             <i className="fa-solid fa-search"></i>
           </button>
-          {/* Reset button */}
           <button
             className="refresh-button"
             onClick={resetState}
             title="Làm mới"
+            disabled={isLoading || isProcessingLock || isDeleting}
           >
-            <i className="fa-solid fa-rotate fa-lg"></i>
+            <i className="fa-solid fa-rotate-left"></i>{" "}
+            {/* Thay đổi icon nếu muốn */}
           </button>
         </div>
-        {/* No Add button */}
-        <div className="filter-add-admin"></div>
+        <div className="filter-add-admin"></div> {/* Không có nút Add */}
       </div>
 
       {error && (
@@ -826,31 +841,26 @@ const ListOfTutorPage = () => {
         </Alert>
       )}
 
-      {/* Table */}
       <Table
         columns={columns}
-        data={data} // Use 'data' state directly
-        totalItems={totalItems} // Pass total items for pagination logic
-        // Actions
+        data={data}
+        totalItems={totalItems}
         onView={handleViewClick}
-        onDelete={handleDeleteClick} // Pass the student object
-        onLock={handleLockClick} // Pass the lock handler
-        showLock={true} // Enable lock button
-        statusKey="checkActive" // Use 'checkActive' for lock status
-        // Pagination & Sort
+        onDelete={handleDeleteClick}
+        onLock={handleLockClick}
+        showLock={true}
+        statusKey="checkActive"
         pageCount={pageCount}
         onPageChange={handlePageClick}
         forcePage={currentPage}
         onSort={handleSort}
-        currentSortConfig={sortConfig} // Pass current sort state
-        // Loading & Items per page
-        loading={isLoading || isProcessingLock} // Combine loading states
+        currentSortConfig={sortConfig}
+        loading={isLoading || isProcessingLock || isDeleting}
         itemsPerPage={itemsPerPage}
         onItemsPerPageChange={handleItemsPerPageChange}
       />
 
-      {/* Total count display */}
-      {!isLoading && !error && totalItems > 0 && (
+      {!isLoading && !error && data.length > 0 && (
         <p
           style={{
             textAlign: "right",
@@ -862,6 +872,18 @@ const ListOfTutorPage = () => {
           Tổng số gia sư: {totalItems}
         </p>
       )}
+      {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "2rem",
+            fontSize: "1em",
+            color: "#777",
+          }}
+        >
+          Không có dữ liệu gia sư.
+        </p>
+      )}
     </div>
   );
 
@@ -870,45 +892,38 @@ const ListOfTutorPage = () => {
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
-      {/* View Modal */}
       <Modal
-        isOpen={isModalOpen && modalMode === "view"} // Ensure modal opens only in view mode
+        isOpen={isModalOpen && modalMode === "view"}
         onRequestClose={handleCloseModal}
         contentLabel="Chi tiết Gia sư"
-        className="modal large" // Use 'large' class for potentially more content
+        className="modal large"
         overlayClassName="overlay"
         closeTimeoutMS={300}
       >
-        {/* Conditionally render FormDetail only when modalData is available */}
-        {modalData && (
+        {modalData && modalMode === "view" && (
           <FormDetail
             formData={modalData}
             fields={viewFields}
-            mode="view" // Explicitly set mode to view
+            mode="view"
             title="Chi tiết Gia sư"
             onClose={handleCloseModal}
-            // Attempt to get avatar from tutorProfile first, then userProfile
             avatarUrl={getSafeNestedValue(
               modalData,
               "tutorProfile.avatar",
               getSafeNestedValue(modalData, "userProfile.avatar", null)
             )}
-            // Pass section definitions if FormDetail supports them
-            // sections={[{key: 'general', title: 'Thông tin chung'}, {key: 'user_profile', title: 'Hồ sơ người dùng'}, {key: 'tutor_profile', title: 'Hồ sơ gia sư'}]}
           />
         )}
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message={deleteMessage} // Use dynamic message
-        isDeleting={isDeleting} // Pass deleting state
+        message={deleteMessage}
+        isDeleting={isDeleting}
       />
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

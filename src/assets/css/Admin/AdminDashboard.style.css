@@ -1,368 +1,475 @@
-/* src/assets/css/Admin/AdminDashboard.style.css */
+/* === FILE: src/assets/css/Admin/AdminDashboard.style.css === */
 
-/* Biến màu và kích thước để dễ tùy chỉnh (Ví dụ - bạn có thể điều chỉnh cho phù hợp với theme) */
+/* --- CSS Variables (Đảm bảo các biến này được định nghĩa đúng trong :root của index.css hoặc ở đây) --- */
 :root {
-  --admin-primary-color: #4e73df; /* Màu xanh dương kiểu SB Admin */
-  --admin-secondary-color: #858796; /* Màu xám phụ */
-  --admin-success-color: #1cc88a; /* Xanh lá cây */
-  --admin-info-color: #36b9cc; /* Xanh ngọc */
-  --admin-warning-color: #f6c23e; /* Vàng */
-  --admin-danger-color: #e74a3b; /* Đỏ */
-  --admin-light-gray: #f8f9fc; /* Nền rất sáng */
-  --admin-dark-gray: #5a5c69; /* Xám đậm cho text */
-  --admin-icon-gray: #dddfeb; /* Xám nhạt cho icon nền */
-  --admin-border-color: #e3e6f0; /* Màu viền */
-  --admin-text-dark: #333;
-  --admin-text-light: #fff;
-  --admin-card-bg: #ffffff;
-  --admin-card-border-radius: 0.35rem;
-  --admin-card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-  --admin-gap: 1.25rem; /* Khoảng cách thống nhất */
+  /* Văn Lang Branding */
+  --vlu-primary-orange: #f76b1c;
+  --vlu-primary-blue: #003366; /* Có thể dùng cho các yếu tố nhấn nhá khác */
+  --vlu-orange-lighter: rgba(
+    247,
+    107,
+    28,
+    0.08
+  ); /* Nhạt hơn nữa cho nền icon */
+  --vlu-blue-lighter: rgba(0, 51, 102, 0.07);
+
+  /* Lấy RGB từ var(--success-color), var(--error-color), v.v. từ index.css */
+  /* Ví dụ: nếu --success-color trong index.css là #10B981 */
+  --success-color-rgb: 16, 185, 129;
+  --success-color-lighter: rgba(var(--success-color-rgb), 0.08);
+
+  --admin-info-color: #0dcaf0; /* Giữ lại màu info nếu index.css không có hoặc muốn khác */
+  --admin-info-color-rgb: 13, 202, 240;
+  --admin-info-lighter: rgba(var(--admin-info-color-rgb), 0.08);
+
+  --admin-warning-color: #ffc107; /* Giữ lại màu warning */
+  --admin-warning-color-rgb: 255, 193, 7;
+  --admin-warning-lighter: rgba(var(--admin-warning-color-rgb), 0.1);
+
+  --admin-card-border-radius: 0.75rem; /* 12px, giống các ví dụ hiện đại */
+  --admin-card-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04); /* Shadow rất nhẹ */
+  --admin-chart-shadow: 0px 5px 15px rgba(0, 0, 0, 0.05);
+
+  --admin-gap: 1.5rem;
+  --admin-section-gap: 2rem;
 }
 
-/* --- Container chính cho nội dung trang Dashboard --- */
+/* --- Page Content Container --- */
 .admin-dashboard-page-content {
   width: 100%;
-  height: 100%; /* Cần layout cha hỗ trợ chiều cao */
+  padding: var(--admin-section-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-section-gap);
   box-sizing: border-box;
-  padding: var(--admin-gap);
-  display: flex;
-  flex-direction: column;
-  gap: var(--admin-gap); /* Khoảng cách giữa sections */
-  /* overflow: auto; */ /* Bỏ comment nếu muốn cuộn ở đây thay vì ở main-layout-left */
+  background-color: var(
+    --background-light
+  ); /* Nên là màu xám rất nhạt, vd: #f8f9fa hoặc #f9fafb */
 }
-
-/* --- Cards Section --- */
-.admin-dashboard-content {
-  /* Grid for stat cards */
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(220px, 1fr)
-  ); /* Giảm minwidth một chút */
-  gap: var(--admin-gap);
-  /* Không cần margin-bottom vì container cha đã có gap */
-}
-
-/* --- Card Styling (Thống kê) --- */
-.admin-card {
-  background-color: var(--admin-card-bg);
-  border-radius: var(--admin-card-border-radius);
-  box-shadow: var(--admin-card-shadow);
-  border: 1px solid var(--admin-border-color);
-  display: flex; /* Sử dụng flex để căn chỉnh body */
-  min-width: 0;
-  transition: transform 0.2s ease-in-out;
-}
-.admin-card:hover {
-  transform: translateY(-2px);
-}
-
-.admin-card-body {
-  padding: 1rem 1.25rem; /* Giảm padding một chút */
-  flex-grow: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.admin-card-info {
-  min-width: 0;
-}
-
-.admin-card-title {
-  color: var(
-    --admin-secondary-color
-  ); /* Đổi màu tiêu đề card stats thành xám */
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.75rem; /* Nhỏ hơn */
-  margin-bottom: 0.3rem;
-  letter-spacing: 0.05em;
-}
-/* Màu viền trái đặc trưng (ví dụ) */
-.admin-card.tutors {
-  border-left: 0.25rem solid var(--admin-primary-color);
-}
-.admin-card.students {
-  border-left: 0.25rem solid var(--admin-success-color);
-}
-.admin-card.classes {
-  border-left: 0.25rem solid var(--admin-info-color);
-}
-.admin-card.revenue {
-  border-left: 0.25rem solid var(--admin-warning-color);
-}
-.admin-card.requests {
-  border-left: 0.25rem solid var(--admin-danger-color);
-}
-
-/* Override màu title nếu muốn giữ màu theo loại card thay vì border */
-/* .admin-card.tutors .admin-card-title { color: var(--admin-primary-color); }
-.admin-card.students .admin-card-title { color: var(--admin-success-color); }
-... */
-
-.admin-card-data {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--admin-dark-gray);
-  margin-bottom: 0;
-  line-height: 1.2;
-  white-space: nowrap; /* Ngăn xuống dòng nếu số quá dài */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.admin-card-change {
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-  white-space: nowrap;
-}
-.admin-card-change .increase {
-  color: var(--admin-success-color);
-  font-weight: 500;
-}
-.admin-card-change .decrease {
-  color: var(--admin-danger-color);
-  font-weight: 500;
-}
-.admin-card-change i {
-  margin-right: 3px;
-}
-
-.admin-card-icon {
-  font-size: 2rem;
-  color: var(--admin-icon-gray);
-  margin-left: 1rem; /* Khoảng cách với phần text */
-}
-
-.admin-card-footer {
-  /* Nếu muốn thêm footer link */
-  padding: 0.5rem 1.25rem;
-  font-size: 0.8rem;
-  border-top: 1px solid var(--admin-border-color);
-  margin-top: auto; /* Đẩy footer xuống dưới cùng nếu card body dùng flex-grow */
-}
-.admin-card-footer a {
-  color: var(--admin-secondary-color);
-  text-decoration: none;
-}
-.admin-card-footer a:hover {
-  color: var(--admin-dark-gray);
-}
-
-/* --- Charts Section --- */
-.admin-dashboard-charts {
-  /* Grid for charts */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--admin-gap);
-  /* Không cần margin-bottom vì container cha đã có gap */
-}
-
-/* --- Chart Card Styling --- */
-.admin-chart-card {
-  background-color: var(--admin-card-bg);
-  border-radius: var(--admin-card-border-radius);
-  box-shadow: var(--admin-card-shadow);
-  border: 1px solid var(--admin-border-color);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.admin-chart-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--admin-border-color);
-  background-color: #f8f9fc; /* Nền header chart nhẹ */
-}
-
-.admin-chart-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--admin-primary-color); /* Màu tiêu đề chart */
-}
-
-.admin-chart-body {
-  padding: 1.25rem;
-  position: relative; /* Cần cho canvas chart */
-  height: 320px; /* Chiều cao cố định cho khu vực chart */
-  flex-grow: 1; /* Cho phép body chart co giãn nếu cần */
-}
-/* Đảm bảo canvas chiếm đúng không gian */
-.admin-chart-body canvas {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-/* --- Styling cho các lớp phủ/thông báo --- */
-.oauth-processing-overlay,
-.loading-data-overlay,
-.auth-required-message,
-.oauth-error-message {
-  /* Căn giữa nội dung */
+.admin-dashboard-page-content--centered {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-height: calc(
+    100vh - 100px
+  ); /* Adjust based on actual header/sidebar height */
   text-align: center;
-  padding: 2rem;
-  border-radius: var(--admin-card-border-radius);
-  margin: 1rem 0; /* Khoảng cách trên dưới */
 }
 
-.oauth-processing-overlay,
-.loading-data-overlay {
-  background-color: rgba(255, 255, 255, 0.8); /* Nền trắng mờ */
-  color: var(--admin-dark-gray);
-  min-height: 200px; /* Chiều cao tối thiểu */
-}
-.oauth-processing-overlay p,
-.loading-data-overlay p {
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-top: 1rem; /* Khoảng cách với spinner nếu có */
+/* --- Dashboard Header --- */
+.admin-dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+  gap: 1.5rem;
 }
 
-.oauth-error-message {
-  background-color: rgba(231, 74, 59, 0.1); /* Nền đỏ nhạt */
-  border: 1px solid var(--admin-danger-color);
-  color: var(--admin-danger-color);
+.admin-dashboard__welcome-message {
+  /* Bây giờ là tiêu đề "Bảng Điều Khiển" */
+  font-size: 1.75rem; /* ~28px */
+  font-weight: 600; /* Đậm vừa phải */
+  color: var(--text-dark);
+  margin: 0;
+  line-height: 1.3;
 }
-.oauth-error-message strong {
-  display: block;
-  margin-bottom: 0.5rem;
+
+/* --- Time Range Selector --- */
+.admin-dashboard__time-range-selector {
+  display: flex;
+  gap: 0.6rem; /* Khoảng cách giữa các nút */
+  background-color: var(--background-white); /* Nền trắng cho cụm nút */
+  padding: 0.3rem; /* Padding nhỏ xung quanh cụm nút */
+  border-radius: 0.625rem; /* Bo góc cho cụm nút ~10px */
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06); /* Shadow nhẹ cho cụm nút */
 }
-.oauth-error-message button {
-  margin-top: 1rem;
-  background-color: var(--admin-danger-color);
-  color: var(--admin-text-light);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+
+.time-range-button {
+  padding: 0.55rem 1.1rem; /* Padding cho nút */
+  border: none; /* Bỏ border mặc định */
+  background-color: transparent; /* Nền trong suốt cho nút thường */
+  color: var(--text-medium); /* Màu text cho nút thường */
+  border-radius: 0.5rem; /* Bo góc cho từng nút ~8px */
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.875rem; /* ~14px */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
 }
 
+.time-range-button:hover {
+  color: var(--vlu-primary-orange); /* Đổi màu text khi hover */
+  background-color: var(--vlu-orange-lighter); /* Nền cam rất nhạt khi hover */
+}
+
+.time-range-button.active {
+  background-color: var(--vlu-primary-orange);
+  color: var(--background-white); /* Text trắng */
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(247, 107, 28, 0.3); /* Shadow cam cho nút active */
+}
+
+/* --- Cards Grid --- */
+.admin-dashboard__cards-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(260px, 1fr)
+  ); /* Giảm minwidth để có thể có 5 card/hàng trên màn lớn */
+  gap: var(--admin-gap);
+}
+
+/* --- Card Styling (BEM) --- */
+.admin-card {
+  background-color: var(--background-white);
+  border-radius: var(--admin-card-border-radius);
+  box-shadow: var(--admin-card-shadow);
+  border: none;
+  display: flex;
+  overflow: hidden; /* Quan trọng để icon-wrapper không phá vỡ bo góc */
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.07);
+}
+
+.admin-card__icon-wrapper {
+  flex-shrink: 0;
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Nền được set bởi modifier, không cần bo góc ở đây vì card đã overflow:hidden */
+}
+.admin-card__icon {
+  font-size: 1.8rem; /* Điều chỉnh cho cân đối */
+}
+
+/* Modifier cho màu icon-wrapper và icon */
+.admin-card--revenue .admin-card__icon-wrapper {
+  background-color: var(--vlu-orange-lighter);
+}
+.admin-card--revenue .admin-card__icon {
+  color: var(--vlu-primary-orange);
+}
+
+.admin-card--new-users .admin-card__icon-wrapper {
+  background-color: var(--vlu-blue-lighter);
+}
+.admin-card--new-users .admin-card__icon {
+  color: var(--vlu-primary-blue);
+}
+
+.admin-card--new-tutors .admin-card__icon-wrapper {
+  background-color: var(--success-color-lighter);
+}
+.admin-card--new-tutors .admin-card__icon {
+  color: var(--success-color);
+}
+
+.admin-card--tutor-requests .admin-card__icon-wrapper {
+  background-color: var(--admin-info-lighter);
+}
+.admin-card--tutor-requests .admin-card__icon {
+  color: var(--admin-info-color);
+}
+
+.admin-card--active-classes .admin-card__icon-wrapper {
+  background-color: var(--admin-warning-lighter);
+}
+.admin-card--active-classes .admin-card__icon {
+  color: var(--admin-warning-color);
+}
+
+.admin-card__content {
+  flex-grow: 1;
+  padding: 1rem 1.25rem; /* Padding vừa phải */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem; /* Giảm gap giữa các dòng text trong card */
+  min-width: 0; /* Ngăn text tràn */
+}
+
+.admin-card__header {
+  margin-bottom: 0;
+}
+
+.admin-card__title {
+  color: var(--text-light);
+  font-weight: 500;
+  font-size: 0.75rem; /* Nhỏ hơn cho tiêu đề card ~12px */
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.04em;
+}
+
+.admin-card__data {
+  display: block;
+  font-size: 1.875rem; /* ~30px, to rõ */
+  font-weight: 600; /* Đậm vừa */
+  color: var(--text-dark);
+  line-height: 1.2;
+  margin-bottom: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-card__change {
+  font-size: 0.8rem; /* ~13px */
+  /* color: var(--text-medium);  Không cần set ở đây, vì .admin-card__change-value sẽ có màu riêng */
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.admin-card__change-value {
+  /* Class cho phần giá trị thay đổi */
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500; /* Trọng lượng cho số % */
+}
+.admin-card__change-value.increase {
+  color: var(--success-color);
+}
+.admin-card__change-value.decrease {
+  color: var(--error-color);
+}
+.admin-card__change-value.no-change {
+  color: var(--text-light); /* Cho "Không đổi" hoặc "N/A" */
+}
+.admin-card__change-value i {
+  font-size: 0.9em; /* Kích thước icon tăng/giảm */
+}
+
+/* --- Charts Grid --- */
+.admin-dashboard__charts-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Hiện tại chỉ có 1 chart */
+  gap: var(--admin-gap);
+}
+
+/* --- Chart Card Styling --- */
+.admin-chart-card {
+  background-color: var(--background-white);
+  border-radius: var(--admin-card-border-radius);
+  box-shadow: var(--admin-chart-shadow);
+  border: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-chart-card__header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color); /* Đường kẻ mỏng */
+  background-color: transparent;
+  display: flex; /* Cho phép căn chỉnh title và subtitle */
+  justify-content: space-between; /* Nếu có thêm control bên phải header chart */
+  align-items: center;
+}
+
+.admin-chart-card__title {
+  margin: 0;
+  font-size: 1.125rem; /* ~18px */
+  font-weight: 600;
+  color: var(--text-dark);
+  background-color: transparent !important; /* Chắc chắn không có nền lạ */
+  line-height: 1.3;
+}
+.admin-chart-card__subtitle {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
+
+.admin-chart-card__body {
+  padding: 1.5rem;
+  padding-top: 1rem; /* Giảm padding top một chút cho chart */
+  position: relative;
+  height: 320px; /* Điều chỉnh chiều cao chart nếu cần */
+  flex-grow: 1;
+}
+.admin-chart-card__body canvas {
+  max-width: 100%;
+  max-height: 100%;
+  background-color: transparent !important;
+}
+
+/* --- Loading, Error, Auth Messages (Giữ nguyên hoặc tinh chỉnh padding/font) --- */
+.loading-indicator,
+.status-message {
+  padding: 2.5rem;
+  border-radius: var(--admin-card-border-radius);
+  background-color: var(--background-white);
+  box-shadow: var(--admin-card-shadow);
+  max-width: 500px;
+  width: 90%;
+  border-left: 5px solid transparent;
+}
+.loading-indicator p,
+.status-message p {
+  font-size: 1.05rem; /* Giảm nhẹ */
+  font-weight: 500;
+  margin-top: 1.25rem;
+  margin-bottom: 1.75rem;
+  color: var(--text-dark);
+}
+.status-message strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+.error-message {
+  border-left-color: var(--error-color);
+}
+.error-message strong {
+  color: var(--error-color);
+}
 .auth-required-message {
-  background-color: rgba(246, 194, 62, 0.1); /* Nền vàng nhạt */
-  border: 1px solid var(--admin-warning-color);
-  color: #b88d1a; /* Màu text vàng đậm hơn */
+  border-left-color: var(--vlu-primary-orange);
 }
 .auth-required-message p {
-  margin-bottom: 1rem;
-}
-.auth-required-message button {
-  background-color: var(--admin-primary-color);
-  color: var(--admin-text-light);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
+  color: var(--text-medium);
 }
 
-/* --- Responsive --- */
-@media (max-width: 768px) {
-  .admin-dashboard-content {
+.status-button {
+  background-color: var(--vlu-primary-orange);
+  color: var(--background-white);
+  border: none;
+  padding: 0.7rem 1.4rem; /* Điều chỉnh padding */
+  border-radius: 0.5rem; /* Bo góc nút */
+  cursor: pointer;
+  font-weight: 500; /* Giảm nhẹ */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-size: 0.9rem; /* Kích thước chữ nút */
+}
+.status-button:hover {
+  background-color: #e07b18;
+  transform: translateY(-1px);
+}
+.status-button:active {
+  transform: translateY(0px);
+}
+.error-message .status-button {
+  background-color: var(--error-color);
+}
+.error-message .status-button:hover {
+  filter: brightness(0.9);
+}
+
+/* Spinner animation */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--vlu-orange-lighter);
+  border-top-color: var(--vlu-primary-orange);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+  .admin-dashboard__cards-grid {
     grid-template-columns: repeat(
       auto-fit,
-      minmax(200px, 1fr)
-    ); /* Cho card nhỏ hơn trên mobile */
+      minmax(240px, 1fr)
+    ); /* Cho card nhỏ hơn một chút */
   }
-  .admin-dashboard-charts {
-    grid-template-columns: 1fr; /* Mỗi chart một hàng */
+  .admin-chart-card__body {
+    height: 300px;
   }
-  /* Điều chỉnh span cột chart nếu đã đặt */
-  .admin-chart-card[style*="grid-column: span"] {
-    grid-column: span 1 !important; /* Reset span về 1 cột */
-  }
-  .admin-chart-body {
-    height: 280px; /* Giảm chiều cao chart trên mobile */
-  }
-  .admin-card-data {
-    font-size: 1.3rem;
+  .admin-dashboard__welcome-message {
+    font-size: 1.6rem;
   }
 }
 
-/* --- Dark Mode Styles (Ví dụ) --- */
-body.dark-mode {
-  /* Cập nhật biến màu cho dark mode nếu layout chính hỗ trợ */
-  --admin-light-gray: #2a2a2a;
-  --admin-dark-gray: #c5c7d3; /* Text xám sáng */
-  --admin-icon-gray: #666;
-  --admin-text-dark: #e0e0e0; /* Text chính */
-  --admin-card-bg: #333333;
-  --admin-card-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.25);
-  --admin-border-color: #555;
+@media (max-width: 768px) {
+  :root {
+    /* Giảm gap trên mobile */
+    --admin-gap: 1.25rem;
+    --admin-section-gap: 1.5rem;
+  }
+  .admin-dashboard__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .admin-dashboard__welcome-message {
+    text-align: left; /* Hoặc center tùy bạn */
+    font-size: 1.5rem;
+  }
+  .admin-dashboard__time-range-selector {
+    align-self: flex-start; /* Căn cụm nút sang trái */
+    padding: 0.25rem; /* Giảm padding cụm nút */
+  }
+  .time-range-button {
+    padding: 0.5rem 0.9rem; /* Giảm padding nút */
+    font-size: 0.8rem;
+  }
+
+  .admin-dashboard__cards-grid {
+    grid-template-columns: 1fr; /* 1 card mỗi hàng */
+    gap: var(--admin-gap);
+  }
+  .admin-card__icon-wrapper {
+    width: 60px;
+  }
+  .admin-card__icon {
+    font-size: 1.6rem;
+  }
+  .admin-card__data {
+    font-size: 1.75rem;
+  }
+  .admin-chart-card__body {
+    height: 280px; /* Giảm chiều cao chart */
+    padding: 1rem;
+  }
+  .admin-chart-card__header {
+    padding: 1rem 1.25rem;
+  }
+  .admin-chart-card__title {
+    font-size: 1rem;
+  }
+  .admin-chart-card__subtitle {
+    font-size: 0.75rem;
+    display: block; /* Cho xuống dòng trên mobile nếu cần */
+    margin-left: 0;
+    margin-top: 0.2rem;
+  }
 }
-body.dark-mode .admin-card,
-body.dark-mode .admin-chart-card {
-  background-color: var(--admin-card-bg);
-  color: var(--admin-text-dark);
-  border-color: var(--admin-border-color);
-}
-body.dark-mode .admin-card.tutors {
-  border-left-color: var(--admin-primary-color);
-} /* Giữ màu border */
-/* ... các màu border khác ... */
-body.dark-mode .admin-card-title {
-  color: var(--admin-secondary-color);
-}
-body.dark-mode .admin-card-data {
-  color: var(--admin-text-dark);
-}
-body.dark-mode .admin-chart-header {
-  background-color: #2a2a2a;
-  border-bottom-color: var(--admin-border-color);
-}
-body.dark-mode .admin-chart-title {
-  color: var(--admin-primary-color);
-} /* Hoặc màu sáng hơn */
-body.dark-mode .admin-card-icon {
-  color: var(--admin-icon-gray);
-}
-body.dark-mode .admin-card-change .increase {
-  color: var(--admin-success-color);
-}
-body.dark-mode .admin-card-change .decrease {
-  color: var(--admin-danger-color);
-}
-body.dark-mode .admin-card-footer {
-  border-top-color: var(--admin-border-color);
-}
-body.dark-mode .admin-card-footer a {
-  color: var(--admin-secondary-color);
-}
-body.dark-mode .admin-card-footer a:hover {
-  color: var(--admin-text-dark);
-}
-/* Dark mode cho overlay/message */
-body.dark-mode .oauth-processing-overlay,
-body.dark-mode .loading-data-overlay {
-  background-color: rgba(0, 0, 0, 0.8);
-  color: var(--admin-text-dark);
-}
-body.dark-mode .oauth-error-message {
-  background-color: rgba(231, 74, 59, 0.3);
-  color: #f8d7da;
-  border-color: var(--admin-danger-color);
-}
-body.dark-mode .oauth-error-message button {
-  background-color: var(--admin-danger-color);
-}
-body.dark-mode .auth-required-message {
-  background-color: rgba(246, 194, 62, 0.2);
-  color: #fff3cd;
-  border-color: var(--admin-warning-color);
-}
-body.dark-mode .auth-required-message button {
-  background-color: var(--admin-primary-color);
-}
-/* Dark mode cho chart grids */
-body.dark-mode .chartjs-chart .label,
-body.dark-mode .chartjs-chart .tick {
-  color: var(--admin-secondary-color) !important;
-} /* Cần !important nếu chartjs ghi đè */
-body.dark-mode .chartjs-chart .grid {
-  color: var(--admin-border-color) !important;
+
+@media (max-width: 480px) {
+  .admin-dashboard__welcome-message {
+    font-size: 1.3rem;
+  }
+  .admin-card__content {
+    padding: 0.75rem 1rem;
+  }
+  .admin-card__title {
+    font-size: 0.7rem;
+  }
+  .admin-card__data {
+    font-size: 1.6rem;
+  }
+  .time-range-button {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+  }
+  .admin-chart-card__body {
+    height: 250px;
+  }
 }

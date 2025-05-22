@@ -18,7 +18,7 @@ const UserComponent = () => {
   };
 
   const handleDoubleClick = () => {
-    navigate("/user/profile");
+    navigate("/tai-khoan/ho-so");
   };
 
   const getAvatar = () => {
@@ -28,11 +28,12 @@ const UserComponent = () => {
     return userInfo.gender === "FEMALE" ? dfFemale : dfMale;
   };
 
-  const userRole = userInfo.tutorProfile ? "Gia sư" : "Học viên";
   const displayName =
     userInfo.userProfile && userInfo.userProfile.fullname
       ? userInfo.userProfile.fullname
       : "Người dùng";
+  const userRole = userInfo.tutorProfile ? "Gia sư" : "Học viên";
+  const userCoin = userInfo.coin ? `${userInfo.coin} Coin` : "0 Xu";
 
   return (
     <div className="user-dropdown">
@@ -52,18 +53,12 @@ const UserComponent = () => {
         >
           <span className="user-name">{displayName}</span>
           <span className="user-role">{userRole}</span>
+          <span className="user-coin">
+            <p className="user-coin-amount"> {userCoin}</p>
+            <i className="fa-solid fa-coins"></i>
+          </span>
         </div>
       </div>
-      {/* Phần hiển thị dropdown (ví dụ) */}
-      {/* {isDropdownOpen && (
-        <div className="dropdown-menu">
-          <ul>
-            <li onClick={() => { navigate('/user/profile'); setIsDropdownOpen(false); }}>Hồ sơ của tôi</li>
-            {userRole === "Gia sư" && <li onClick={() => { navigate('/tutor/dashboard'); setIsDropdownOpen(false); }}>Trang gia sư</li>}
-            // Thêm mục Đăng xuất ở SettingButton, không cần ở đây nữa
-          </ul>
-        </div>
-      )} */}
     </div>
   );
 };

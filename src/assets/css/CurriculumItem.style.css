@@ -1,96 +1,175 @@
-/* src/assets/css/CurriculumItem.style.css (hoặc .module.css) */
-/* Các class tương ứng nếu dùng CSS Modules: .curriculumItem, .itemHeader, ... */
+/* src/assets/css/CurriculumItem.style.css */
 
 .curriculumItem {
-  background-color: #ffffff;
-  border: 1px solid #e9ecef; /* Border nhạt hơn */
-  border-radius: 8px; /* Giữ bo tròn */
-  padding: 20px; /* Tăng padding */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Bóng đổ nhẹ nhàng hơn */
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  display: flex; /* Cho phép flex direction column để dễ quản lý */
+  background-color: var(--background-white, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  display: flex;
   flex-direction: column;
-  height: 100%; /* Để các card có chiều cao bằng nhau trong grid */
+  gap: 10px; /* Khoảng cách giữa các phần tử con */
 }
 
 .curriculumItem:hover {
-  transform: translateY(-4px); /* Hiệu ứng nhấc lên khi hover */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.curriculumItem.added {
+  /* Style đặc biệt cho item đã được thêm, ví dụ: viền màu khác hoặc nền nhạt */
+  /* border-left: 4px solid var(--success-color, #10b981); */
+}
+
+.curriculumItem.processing {
+  opacity: 0.7;
+  pointer-events: none; /* Ngăn tương tác khi đang xử lý */
 }
 
 .itemHeader {
   display: flex;
   align-items: center;
-  margin-bottom: 15px; /* Tăng khoảng cách */
-  border-bottom: 1px dashed #f1f1f1; /* Đường kẻ phân cách nhẹ */
-  padding-bottom: 10px;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-color, #eee);
+  margin-bottom: 5px; /* Giảm margin bớt để gần với itemDetail hơn */
 }
 
-.title {
-  font-size: 1.2rem; /* ~19px, giữ nguyên hoặc nhỏ hơn chút */
+.itemHeader .icon {
+  color: var(--primary-color, #d72134);
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.itemHeader .title {
+  margin: 0;
+  font-size: 1.15rem;
   font-weight: 600;
-  color: #343a40;
-  margin: 0 0 0 10px; /* Tăng margin trái */
-  line-height: 1.3;
+  color: var(--text-dark, #333);
+  line-height: 1.4;
 }
 
 .itemDetail {
   display: flex;
-  align-items: flex-start;
-  font-size: 0.9rem; /* ~14.4px */
-  color: #495057; /* Màu chữ tối hơn */
-  margin-bottom: 10px; /* Tăng khoảng cách */
-  line-height: 1.6;
+  align-items: flex-start; /* Căn các item lên trên nếu text dài */
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-medium, #555);
+  line-height: 1.5;
+}
+
+.itemDetail .icon {
+  color: var(--text-light, #777);
+  font-size: 1rem;
+  margin-top: 3px; /* Căn icon với dòng text đầu tiên */
+  flex-shrink: 0;
+  width: 16px; /* Cho icon có không gian cố định */
+  text-align: center;
 }
 
 .itemDetail p {
-  margin: 0 0 0 10px;
+  margin: 0;
 }
-
-.itemDetail strong {
-  font-weight: 500; /* Giảm độ đậm một chút */
-  color: #343a40;
-}
-
-.icon {
-  color: #c82333; /* Màu đỏ VLU cho icon */
-  margin-right: 10px;
-  font-size: 1.1rem; /* Tăng kích thước icon */
-  flex-shrink: 0;
-  margin-top: 3px; /* Căn chỉnh icon với dòng text đầu tiên */
+.itemDetail p strong {
+  font-weight: 500;
+  color: var(--text-dark, #444);
 }
 
 .fileLink {
-  color: #c82333; /* Màu đỏ VLU */
+  color: var(--primary-color, #d72134);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.2s ease;
 }
-
-.fileLink:hover,
-.fileLink:focus {
+.fileLink:hover {
   text-decoration: underline;
-  color: #a31220; /* Màu đỏ đậm hơn khi hover */
+  color: var(--primary-color-dark, #b41e2d);
 }
 
-/* Nút Thuê (nếu có) - Đồng bộ với các nút khác */
-.rentButton {
-  background-color: #c82333; /* Màu đỏ VLU */
+.itemActions {
+  margin-top: 12px; /* Tăng khoảng cách với nội dung trên */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color, #eee);
+}
+
+.addCurriculumButton {
+  background-color: var(--primary-color, #d72134);
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 20px; /* Bo tròn nhiều hơn */
+  padding: 8px 18px; /* Padding lớn hơn chút */
+  border-radius: 20px; /* Bo tròn hơn */
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  text-transform: uppercase; /* Có thể thêm nếu muốn */
-  letter-spacing: 0.5px; /* Giãn cách chữ nhẹ */
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  margin-top: auto; /* Đẩy nút xuống cuối card nếu card dùng flex-direction: column */
-  align-self: flex-start; /* Căn nút sang trái */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Khoảng cách icon và text */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 4px rgba(var(--primary-color-rgb), 0.2);
+}
+.addCurriculumButton:hover:not(:disabled) {
+  background-color: var(--primary-color-dark, #b41e2d);
+  transform: translateY(-1px);
+}
+.addCurriculumButton:disabled {
+  background-color: var(--text-light, #aaa);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+.addCurriculumButton .fa-spin {
+  /* Style cho FontAwesome spinner */
+  animation: fa-spin 1s infinite linear;
+  margin-right: 5px; /* Nếu icon spinner của bạn là FontAwesome và cần cách text */
+}
+.addCurriculumButton svg {
+  /* Style chung cho icon SVG (react-icons) */
+  /* margin-right: 5px; /* Bỏ nếu đã dùng gap */
 }
 
-.rentButton:hover {
-  background-color: #a31220; /* Màu đỏ đậm hơn */
-  transform: translateY(-2px);
+.addedStatus {
+  color: var(--success-color, #10b981);
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0; /* Thêm padding để căn chỉnh với nút */
+}
+.addedStatus svg {
+  /* Icon check */
+  font-size: 1.1em;
+}
+
+.curriculumCost {
+  font-size: 0.9rem;
+  color: var(--text-medium, #555);
+  font-weight: 500;
+  padding: 8px 0; /* Thêm padding để căn chỉnh */
+  white-space: nowrap; /* Ngăn xuống dòng */
+}
+
+/* Responsive cho CurriculumItem nếu cần */
+@media (max-width: 480px) {
+  .curriculumItem {
+    padding: 12px 15px;
+  }
+  .itemHeader .title {
+    font-size: 1.05rem;
+  }
+  .itemDetail {
+    font-size: 0.85rem;
+  }
+  .addCurriculumButton {
+    padding: 7px 12px;
+    font-size: 0.85rem;
+  }
+  .itemActions {
+    flex-direction: column; /* Xếp chồng nút và chi phí trên mobile nếu không đủ chỗ */
+    align-items: flex-start;
+    gap: 8px;
+  }
 }

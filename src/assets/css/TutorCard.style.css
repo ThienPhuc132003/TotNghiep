@@ -1,0 +1,381 @@
+/* src/assets/css/TutorCard.style.css */
+
+/* :root { 
+  /* Các biến màu này nên được định nghĩa ở file global như index.css */
+/* --rank-bronze: #cd7f32; ... */
+/* --star-filled: #facc15; ... */
+/* } */
+
+.tutor-card.redesigned {
+  display: flex;
+  background-color: var(--background-white, #fff);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+.tutor-card.redesigned:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+/* Trạng thái loading khi bỏ thích hoặc hủy booking */
+.tutor-card.card-removing-favorite,
+.tutor-card.card-cancelling-booking {
+  opacity: 0.7;
+  pointer-events: none; /* Ngăn tương tác khi đang xử lý */
+}
+
+/* --- CỘT BÊN TRÁI (AVATAR) --- */
+.tutor-card-left {
+  flex-shrink: 0;
+  padding: 20px; /* Padding xung quanh avatar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Căn avatar lên trên */
+  /* background-color: #f8f9fa; /* Nền nhẹ cho cột avatar nếu muốn */
+  /* border-right: 1px solid var(--border-color, #e0e0e0); */ /* Đường kẻ phân cách nếu cần */
+}
+
+.avatar-container {
+  position: relative;
+  width: 100px; /* Kích thước avatar */
+  height: 100px;
+}
+.tutor-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--background-white, #fff); /* Viền trắng cho avatar */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.verified-badge-avatar {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: var(--background-white, #fff);
+  border-radius: 50%;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.verified-badge-avatar .svg-inline--fa, /* Cho FontAwesome */
+.verified-badge-avatar svg {
+  /* Cho React Icons */
+  color: var(--success-color, #10b981);
+  font-size: 1.1rem; /* Kích thước icon tick */
+}
+
+/* --- CỘT BÊN PHẢI (THÔNG TIN) --- */
+.tutor-card-right {
+  flex-grow: 1;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Đẩy footer xuống dưới */
+  min-width: 0; /* Quan trọng để text-overflow hoạt động */
+}
+
+.tutor-card-main-info {
+  margin-bottom: 15px; /* Khoảng cách với footer */
+}
+
+.tutor-card-header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Align items to the top */
+  gap: 10px;
+  margin-bottom: 10px; /* Tăng margin */
+}
+
+.tutor-name {
+  font-size: 1.25rem; /* Tên to hơn */
+  font-weight: 600;
+  color: var(--text-dark, #333);
+  margin: 0;
+  line-height: 1.3;
+  transition: color 0.2s ease;
+  display: inline-flex; /* Cho rank badge nằm cùng hàng */
+  align-items: center;
+  gap: 6px;
+}
+.tutor-name:hover {
+  color: var(--primary-color, #d72134);
+}
+.tutor-rank-badge {
+  font-size: 1.1rem; /* Kích thước rank icon */
+  display: inline-block;
+  margin-left: 6px; /* Khoảng cách với tên */
+  line-height: 1; /* Căn giữa icon nếu nó cao hơn text */
+}
+.tutor-rank-badge .svg-inline--fa,
+.tutor-rank-badge svg {
+  /* Cho PiMedalThin */
+  vertical-align: middle;
+}
+
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding-top: 2px; /* Căn chỉnh nhẹ với tên */
+}
+
+.tutor-rating-display.card-rating-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-medium);
+  font-size: 0.85rem;
+}
+.rating-value-text {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+.stars-wrapper {
+  display: flex;
+  align-items: center;
+}
+.star-icon {
+  font-size: 0.9em;
+  margin-right: 1px;
+}
+.star-icon.filled {
+  color: var(--star-filled, #facc15);
+}
+.star-icon.empty {
+  color: var(--star-empty, #e0e0e0);
+}
+.review-count-text {
+  color: var(--text-light);
+  margin-left: 2px;
+}
+
+.favorite-btn {
+  background: none;
+  border: none;
+  color: var(--favorite-inactive, #cbd5e1);
+  font-size: 1.4rem; /* Icon tim to hơn */
+  cursor: pointer;
+  padding: 4px; /* Vùng click lớn hơn */
+  transition: color 0.2s ease, transform 0.2s ease;
+  line-height: 1;
+  align-self: center;
+}
+.favorite-btn:hover:not(:disabled) {
+  color: var(--favorite-hover, #f87171);
+  transform: scale(1.1);
+}
+.favorite-btn.favorite-active {
+  color: var(--favorite-active, #ef4444);
+}
+.favorite-btn.loading .svg-inline--fa {
+  /* Cho FontAwesome spinner */
+  animation: fa-spin 1s infinite linear;
+}
+.favorite-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.tutor-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-medium, #666);
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.tutor-info-row .info-icon {
+  color: var(--text-light, #888);
+  font-size: 0.95em; /* Icon nhỏ hơn text một chút */
+  width: 16px; /* Đảm bảo icon thẳng hàng */
+  text-align: center;
+  flex-shrink: 0;
+}
+.tutor-subjects {
+  /* Xử lý nếu danh sách môn học quá dài */
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Giới hạn 1 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* Cho phép xuống dòng ảo để ellipsis hoạt động */
+}
+
+.tutor-description {
+  font-size: 0.9rem;
+  color: var(--text-light, #777);
+  line-height: 1.6;
+  margin-top: 10px;
+  /* Giới hạn số dòng hiển thị */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Hiển thị tối đa 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(
+    1.6em * 2
+  ); /* Đảm bảo chiều cao cho 2 dòng, tránh nhảy layout */
+  transition: color 0.2s ease;
+}
+.tutor-description:hover {
+  color: var(--primary-color, #d72134);
+}
+
+/* --- FOOTER CỦA CARD --- */
+.tutor-card-footer-info {
+  margin-top: auto; /* Đẩy footer xuống dưới cùng */
+  padding-top: 15px; /* Khoảng cách với main-info */
+  border-top: 1px solid var(--border-color, #f0f0f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.tutor-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-color, #d72134);
+  white-space: nowrap; /* Ngăn giá xuống dòng */
+}
+.tutor-price .price-icon {
+  font-size: 1.1em; /* Icon Coin to hơn chút */
+  color: var(--primary-color, #d72134); /* Icon cùng màu giá */
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 20px; /* Bo tròn nhiều hơn */
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.action-btn.hire-btn {
+  background-color: var(--primary-color, #d72134);
+  color: white;
+}
+.action-btn.hire-btn:hover:not(:disabled) {
+  background-color: var(--primary-color-dark, #b41e2d);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.action-btn.view-profile-btn {
+  background-color: transparent;
+  color: var(--text-medium, #555);
+  border-color: var(--border-color, #ccc);
+}
+.action-btn.view-profile-btn:hover:not(:disabled) {
+  background-color: var(--background-light, #f8f9fa);
+  border-color: var(--text-medium, #555);
+  color: var(--text-dark, #333);
+}
+.action-btn.cancel-btn {
+  background-color: var(--cancel-bg, #f8fafc);
+  color: var(--cancel-text, #4b5563);
+  border-color: var(--cancel-border, #e2e8f0);
+}
+.action-btn.cancel-btn:hover:not(:disabled) {
+  background-color: var(--cancel-hover-bg, #f1f5f9);
+  border-color: var(--cancel-hover-border, #cbd5e1);
+  color: var(--cancel-hover-text, #1f2937);
+}
+.spinner-inline {
+  margin-right: 5px;
+}
+.booking-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.booking-status-indicator.card-approved {
+  background-color: rgba(
+    var(--success-color-rgb, 16, 185, 129),
+    0.1
+  ); /* Cần success-color-rgb */
+  color: var(--success-color, #10b981);
+}
+.booking-status-indicator.card-rejected {
+  background-color: rgba(
+    var(--error-color-rgb, 239, 68, 68),
+    0.1
+  ); /* Cần error-color-rgb */
+  color: var(--error-color, #ef4444);
+}
+
+/* Responsive cho TutorCard */
+@media (max-width: 576px) {
+  .tutor-card.redesigned {
+    flex-direction: column; /* Xếp chồng trên mobile */
+  }
+  .tutor-card-left {
+    padding: 15px;
+    border-right: none;
+    /* border-bottom: 1px solid var(--border-color, #e0e0e0); */ /* Có thể thêm đường kẻ nếu muốn */
+    width: auto; /* Để avatar căn giữa */
+  }
+  .avatar-container {
+    width: 80px;
+    height: 80px;
+  }
+  .tutor-card-right {
+    padding: 15px;
+  }
+  .tutor-card-header-info {
+    flex-direction: column; /* Tên và actions xếp chồng */
+    align-items: flex-start; /* Căn trái */
+    gap: 8px;
+  }
+  .header-right-actions {
+    width: 100%;
+    justify-content: space-between; /* Đẩy tim sang phải nếu có sao */
+  }
+  .tutor-rating-display.card-rating-section {
+    font-size: 0.8rem;
+  }
+  .tutor-name {
+    font-size: 1.1rem;
+  }
+  .tutor-card-footer-info {
+    flex-direction: column;
+    align-items: stretch; /* Nút và giá chiếm full width */
+    gap: 10px;
+  }
+  .tutor-price {
+    justify-content: center; /* Căn giữa giá */
+  }
+  .footer-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .action-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

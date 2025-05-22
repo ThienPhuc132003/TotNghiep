@@ -106,7 +106,7 @@ const SigninPageComponent = () => {
             endpoint: "user/get-profile",
             method: METHOD_TYPE.GET,
           });
-
+          console.log("data usser sau khi đăng nhập", userInfoResponse.data);
           if (userInfoResponse.success && userInfoResponse.data) {
             dispatch(setUserProfile(userInfoResponse.data));
             navigate("/trang-chu"); // Chuyển hướng đến trang chủ sau khi lấy profile

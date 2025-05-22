@@ -1,5 +1,5 @@
 // src/components/User/layout/HomePageLayout.jsx
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react"; // Bỏ useRef vì lastScrollY đã bị xóa
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useSelector, useDispatch } from "react-redux";
@@ -28,8 +28,7 @@ const HomePageLayoutComponent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [isScrollingUp, setIsScrollingUp] = useState(true);
-  const lastScrollY = useRef(window.scrollY);
+  // KHÔNG CÒN isScrollingUp và lastScrollY
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const today = new Date();
   const thisYear = today.getFullYear();
@@ -56,20 +55,7 @@ const HomePageLayoutComponent = () => {
 
   const currentUserRole = getCurrentUserRole();
 
-  const handleScroll = useCallback(() => {
-    const currentScrollY = window.scrollY;
-    if (currentScrollY < lastScrollY.current || currentScrollY < 50) {
-      setIsScrollingUp(true);
-    } else {
-      setIsScrollingUp(false);
-    }
-    lastScrollY.current = currentScrollY;
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  // KHÔNG CÒN handleScroll và useEffect liên quan đến scroll
 
   const toggleMobileMenu = useCallback(
     () => setIsMobileMenuOpen((prev) => !prev),
@@ -129,13 +115,13 @@ const HomePageLayoutComponent = () => {
       },
       {
         id: "about",
-        label: "Về chúng tôi",
+        label: "VỀ CHÚNG TÔI",
         path: "/about",
         roles: [ROLES.GUEST, ROLES.USER, ROLES.TUTOR],
       },
       {
         id: "rules",
-        label: "Quy định",
+        label: "QUY ĐỊNH",
         path: "/quy-dinh-noi-quy-huong-dan",
         roles: [ROLES.GUEST, ROLES.USER, ROLES.TUTOR],
       },
@@ -143,7 +129,7 @@ const HomePageLayoutComponent = () => {
     if (currentUserRole === ROLES.GUEST || currentUserRole === ROLES.USER) {
       items.push({
         id: "searchTutor",
-        label: "Tìm kiếm gia sư",
+        label: "TÌM KIẾM GIA SƯ",
         path: "/tim-kiem-gia-su",
         roles: [ROLES.GUEST, ROLES.USER],
       });
@@ -151,7 +137,7 @@ const HomePageLayoutComponent = () => {
     if (currentUserRole === ROLES.USER) {
       items.push({
         id: "tutorRegistrationLink",
-        label: "Đăng ký làm gia sư",
+        label: "ĐĂNG KÝ LÀM GIA SƯ",
         path: "/trac-nghiem-gia-su",
         roles: [ROLES.USER],
       });
@@ -162,9 +148,8 @@ const HomePageLayoutComponent = () => {
 
   return (
     <div className="home-page-container">
-      <header
-        className={`home-page-header ${isScrollingUp ? "visible" : "hidden"}`}
-      >
+      {/* Class của header đã được sửa */}
+      <header className="home-page-header">
         <div className="site-container header-content-wrapper">
           <nav className="home-page-menu">
             <Link to="/" className="logo-link">

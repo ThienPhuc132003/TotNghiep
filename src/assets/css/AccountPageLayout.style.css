@@ -1,22 +1,23 @@
-/* src/components/User/layout/AccountPageLayout.style.css */
+/* src/assets/css/AccountPageLayout.style.css */
 
 .account-page-container {
-  max-width: 1200px; /* Giới hạn chiều rộng của toàn bộ trang quản lý tài khoản */
-  margin: 2rem auto; /* Căn giữa và tạo khoảng cách trên dưới */
-  padding: 0 1rem;   /* Padding hai bên nếu màn hình nhỏ hơn max-width */
-  background-color: #f0f2f5; /* Màu nền xám nhẹ giống Shopee */
-  min-height: calc(100vh - 160px); /* Chiều cao tối thiểu, trừ đi chiều cao header và footer ước tính */
+  max-width: 1200px; /* Chiều rộng tối đa của toàn bộ layout */
+  margin: 2rem auto;
+  padding: 0 1rem; /* Padding ngang cho màn hình nhỏ */
+  background-color: var(
+    --background-light
+  ); /* Nền xám nhẹ cho toàn bộ khu vực */
+  min-height: calc(100vh - 120px); /* Giả sử header+footer khoảng 120px */
 }
 
 .account-page-layout-grid {
   display: flex;
-  gap: 20px; /* Khoảng cách giữa sidebar và content */
+  gap: 20px;
 }
 
 .account-sidebar {
-  flex: 0 0 250px; /* Chiều rộng cố định cho sidebar, có thể điều chỉnh */
-  background-color: transparent; /* Sidebar sẽ lấy màu nền của account-page-container */
-  padding-top: 20px; /* Padding trên cùng cho sidebar */
+  flex: 0 0 250px;
+  padding-top: 20px;
 }
 
 /* --- Sidebar User Info --- */
@@ -26,7 +27,6 @@
   gap: 15px;
   padding-bottom: 20px;
   margin-bottom: 20px;
-  /* border-bottom: 1px solid #e0e0e0; */ /* Bỏ border để giống Shopee hơn */
 }
 
 .sidebar-avatar {
@@ -34,39 +34,23 @@
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #ddd; /* Viền nhẹ cho avatar */
+  border: 2px solid var(--border-color);
 }
 
 .sidebar-user-details {
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Để xử lý text-overflow */
+  overflow: hidden;
 }
 
 .sidebar-user-fullname {
-  font-weight: 500; /* Shopee không dùng bold ở đây */
+  font-weight: 500;
   font-size: 0.9375rem; /* ~15px */
-  color: #333;
-  margin-bottom: 4px;
+  color: var(--text-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px; /* Giới hạn chiều rộng để không làm vỡ layout */
-}
-
-.sidebar-edit-profile-link { /* Nếu bạn quyết định giữ link này */
-  font-size: 0.8125rem; /* ~13px */
-  color: #888;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.sidebar-edit-profile-link i {
-  font-size: 0.75rem;
-}
-.sidebar-edit-profile-link:hover {
-  color: #EE4D2D; /* Màu cam Shopee */
+  max-width: 160px;
 }
 
 /* --- Sidebar Menu Navigation --- */
@@ -79,106 +63,114 @@
 .account-menu-nav li a {
   display: flex;
   align-items: center;
-  padding: 12px 10px 12px 5px; /* Điều chỉnh padding cho giống Shopee */
+  padding: 12px 10px;
   text-decoration: none;
-  color: rgba(0,0,0,.8); /* Màu chữ menu của Shopee */
+  color: var(--text-medium);
   font-size: 0.875rem; /* ~14px */
-  border-radius: 4px;
-  transition: color 0.15s ease, background-color 0.15s ease;
-  margin-bottom: 6px;
-  gap: 12px; /* Khoảng cách giữa icon và text */
+  border-radius: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+  margin-bottom: 8px;
+  gap: 12px;
 }
 
 .account-menu-nav li a i {
-  font-size: 1rem; /* Kích thước icon */
-  width: 22px; /* Đảm bảo icon thẳng hàng */
+  font-size: 1.1rem;
+  width: 24px;
   text-align: center;
-  color: #757575; /* Màu icon mặc định, xám hơn */
-  transition: color 0.15s ease;
+  color: var(--text-light);
+  transition: color 0.2s ease;
 }
 
-/* Item được hover hoặc active */
-.account-menu-nav li a:hover,
+.account-menu-nav li a:hover {
+  background-color: var(--primary-color-dark);
+  color: var(--background-white);
+  transform: translateX(3px);
+}
+.account-menu-nav li a:hover i {
+  color: var(--background-white);
+}
+
 .account-menu-nav li.active a {
-  color: #EE4D2D; /* Màu chữ cam Shopee */
-  /* background-color: #fff0ed; */ /* Shopee không đổi background, chỉ đổi màu text */
-}
-
-.account-menu-nav li a:hover i,
-.account-menu-nav li.active a i {
-  color: #EE4D2D; /* Icon cũng đổi màu */
-}
-
-/* .account-menu-nav li.active a {
+  background-color: var(--primary-color);
+  color: var(--background-white);
   font-weight: 500;
-} */
+}
 
+.account-menu-nav li.active a i {
+  color: var(--background-white);
+}
 
 /* --- Main Content Area --- */
 .account-content-main {
-  flex-grow: 1; /* Chiếm phần còn lại */
-  background-color: #ffffff; /* Nền trắng cho vùng nội dung */
-  padding: 25px 30px; /* Padding cho nội dung bên trong */
-  border-radius: 3px; /* Bo góc nhẹ */
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,.05); /* Shadow rất nhẹ của Shopee */
+  flex-grow: 1;
+  background-color: var(--background-white);
+  border-radius: 8px;
+  padding: 25px 30px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  overflow-x: hidden;
 }
 
 /* --- Responsive cho AccountPageLayout --- */
-@media (max-width: 992px) { /* Tablet */
+@media (max-width: 992px) {
   .account-page-layout-grid {
-    flex-direction: column; /* Sidebar và content xếp chồng lên nhau */
+    flex-direction: column;
   }
   .account-sidebar {
-    flex-basis: auto; /* Chiều rộng tự động */
+    flex-basis: auto;
     width: 100%;
-    padding-bottom: 15px;
-    margin-bottom: 20px; /* Khoảng cách khi sidebar ở trên */
-    /* border-bottom: 1px solid #e0e0e0; */ /* Có thể thêm border dưới khi thành cột */
+    padding-bottom: 0;
+    margin-bottom: 20px;
   }
   .sidebar-user-info {
-    justify-content: flex-start; /* Hoặc center nếu muốn */
-    padding-left: 10px; /* Thêm padding để không sát lề */
+    padding-left: 0;
+    justify-content: center;
   }
   .account-menu-nav ul {
     display: flex;
-    flex-wrap: wrap; /* Cho phép menu xuống dòng */
-    justify-content: flex-start; /* Hoặc center */
-    gap: 5px 10px; /* Khoảng cách giữa các item menu */
-    padding-left: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .account-menu-nav li {
+    flex-shrink: 0;
   }
   .account-menu-nav li a {
-    padding: 10px 15px; /* Điều chỉnh padding cho item menu ngang */
+    padding: 10px 15px;
+    margin-bottom: 0;
+  }
+  .account-content-main {
+    border-radius: 8px;
   }
 }
 
-@media (max-width: 768px) { /* Mobile */
+@media (max-width: 768px) {
   .account-page-container {
-    margin: 1rem auto; /* Giảm margin trên mobile */
-    padding: 0 0.75rem;
+    margin: 1rem auto;
+    padding: 0 0.5rem;
   }
   .account-sidebar {
     padding-top: 10px;
   }
   .sidebar-user-info {
     gap: 10px;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-  }
-  .sidebar-avatar {
-    width: 40px;
-    height: 40px;
-  }
-  .sidebar-user-fullname {
-    font-size: 0.875rem;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
   }
   .account-content-main {
-    padding: 20px; /* Giảm padding nội dung trên mobile */
+    padding: 20px 15px;
   }
   .account-menu-nav ul {
-    justify-content: space-around; /* Phân bố đều menu items trên mobile */
-    padding-left: 0;
+    gap: 8px;
   }
-  /* .account-menu-nav li a i {
-    margin-right: 0;
-  } */
+  .account-menu-nav li a {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+  .account-menu-nav li a i {
+    font-size: 1rem;
+    width: 20px;
+    margin-right: 6px; /* Thay gap bằng margin-right nếu cần */
+  }
 }

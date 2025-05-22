@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState, useMemo } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css"; // Shared styles
 import "../../assets/css/Modal.style.css"; // Modal styles
-// import "../../assets/css/Admin/ListOfRequest.style.css"; // Uncomment if specific styles are needed
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
@@ -12,17 +11,17 @@ import FormDetail from "../../components/FormDetail";
 import TutorLevelList from "../../components/Static_Data/TutorLevelList";
 import Modal from "react-modal";
 import { Alert } from "@mui/material";
-// Removed unidecode as filtering is now server-side
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format, parseISO, isValid } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import qs from "qs";
+// qs không cần thiết nữa nếu Api class tự xử lý
+// import qs from "qs";
 
 Modal.setAppElement("#root");
 
-// Helper lấy giá trị lồng nhau an toàn
+// --- Helper Functions (Giữ nguyên các helper functions đã có) ---
 const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
   if (!obj || !path) return defaultValue;
   const value = path
@@ -30,11 +29,10 @@ const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
     .reduce(
       (acc, part) => (acc && typeof acc === "object" ? acc[part] : undefined),
       obj
-    ); // Thêm kiểm tra typeof acc
+    );
   return value !== undefined && value !== null ? value : defaultValue;
 };
 
-// Helper function to format status
 const formatStatus = (status) => {
   switch (status) {
     case "REQUEST":
@@ -52,7 +50,6 @@ const formatStatus = (status) => {
   }
 };
 
-// Helper định dạng ngày an toàn hơn
 const safeFormatDate = (dateInput, formatString = "dd/MM/yyyy HH:mm") => {
   if (!dateInput) return "Không có";
   try {
@@ -64,7 +61,6 @@ const safeFormatDate = (dateInput, formatString = "dd/MM/yyyy HH:mm") => {
   }
 };
 
-// Helper function to parse and format dateTimeLearn (Improved Safety)
 const daysOfWeek = [
   "Monday",
   "Tuesday",
@@ -87,16 +83,9 @@ const formatDateTimeLearn = (dateTimeLearnArray) => {
         }
       })
       .filter((item) => item && item.day && Array.isArray(item.times));
-
     if (parsed.length === 0) return "Không có";
-
     return (
-      <ul
-        className="datetime-list"
-        style={{ paddingLeft: "1.2em", margin: 0, listStyleType: "none" }}
-      >
-        {" "}
-        {/* Style cơ bản */}
+      <ul style={{ paddingLeft: "1.2em", margin: 0, listStyleType: "none" }}>
         {parsed.map((item, index) => {
           const dayIndex = daysOfWeek.indexOf(item.day);
           const dayLabel =
@@ -114,12 +103,10 @@ const formatDateTimeLearn = (dateTimeLearnArray) => {
       </ul>
     );
   } catch (e) {
-    console.error("Error processing dateTimeLearn:", e);
     return "Lỗi định dạng";
   }
 };
 
-// Helper to generate link for evidence
 const renderEvidenceLink = (url) => {
   if (!url) return "Không có";
   if (
@@ -134,7 +121,6 @@ const renderEvidenceLink = (url) => {
         href={properUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="evidence-link"
         style={{ color: "#007bff", textDecoration: "underline" }}
       >
         Xem file
@@ -149,6 +135,8 @@ const renderEvidenceLink = (url) => {
   );
 };
 
+// --- End Helper Functions ---
+
 // Status Filter Options
 const statusFilterOptions = [
   { value: "", label: "Tất cả trạng thái" },
@@ -158,38 +146,62 @@ const statusFilterOptions = [
   { value: "CANCEL", label: "Đã hủy" },
 ];
 
+// Searchable Columns for Tutor Requests
+const searchableRequestColumnOptions = [
+  { value: "tutorRequestId", label: "ID Yêu cầu" },
+  { value: "fullname", label: "Họ và Tên" },
+  { value: "emailOfTutor", label: "Email" }, // Sử dụng emailOfTutor từ data API
+  { value: "univercity", label: "Trường Đại học" },
+  { value: "totalTestPoints", label: "Điểm Test" },
+  { value: "GPA", label: "GPA" },
+  { value: "createdAt", label: "Ngày tạo", placeholderSuffix: " (YYYY-MM-DD)" },
+];
+
 const ListOfRequestPage = () => {
   // --- States ---
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [modalData, setModalData] = useState(null);
+  const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSolvingRequest, setIsSolvingRequest] = useState(false);
-  const [error, setError] = useState(null);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const [searchInput, setSearchInput] = useState("");
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableRequestColumnOptions[0].value // Mặc định cột đầu tiên
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableRequestColumnOptions[0].value
+  );
+
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState("REQUEST");
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
   });
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const currentPath = "/quan-ly-yeu-cau"; // Khai báo ở đây là đúng
-  const [pageCount, setPageCount] = useState(1);
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState("REQUEST");
+
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
   const [requestToApprove, setRequestToApprove] = useState(null);
   const [selectedLevelId, setSelectedLevelId] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSolvingRequest, setIsSolvingRequest] = useState(false);
+  const [error, setError] = useState(null);
+
+  const currentPath = "/quan-ly-yeu-cau";
+
   // --- Reset State ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
+    setSelectedSearchField(searchableRequestColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableRequestColumnOptions[0].value);
     setSelectedStatusFilter("REQUEST");
     setSortConfig({ key: "createdAt", direction: "desc" });
     setCurrentPage(0);
-  };
+  }, []);
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
@@ -204,11 +216,12 @@ const ListOfRequestPage = () => {
           value: selectedStatusFilter,
         });
       }
-      if (searchQuery) {
+      // Sử dụng appliedSearchInput và appliedSearchField
+      if (appliedSearchInput && appliedSearchField) {
         filterConditions.push({
-          key: "tutorRequestId,fullname,gmail,univercity,major.majorName",
-          operator: "like",
-          value: searchQuery,
+          key: appliedSearchField,
+          operator: "like", // Hoặc 'equal' cho ID/ngày nếu backend hỗ trợ chính xác
+          value: appliedSearchInput,
         });
       }
 
@@ -223,31 +236,29 @@ const ListOfRequestPage = () => {
         ]),
       };
 
-      const queryString = qs.stringify(query, { encode: false });
-      console.log("Fetching requests with query:", queryString);
-
+      console.log("Fetching requests with query:", query);
       const response = await Api({
-        endpoint: `tutor-request/search-request?${queryString}`,
+        endpoint: `tutor-request/search-request`, // Bỏ queryString, truyền query object
         method: METHOD_TYPE.GET,
+        query: query, // Truyền object query
       });
       console.log("API Response:", response);
 
       if (response.success && response.data) {
-        // ****** ĐÃ SỬA LỖI Ở ĐÂY ******
         setData(response.data.items || []);
-        // ****** KẾT THÚC SỬA LỖI ******
         setTotalItems(response.data.total || 0);
         setPageCount(Math.ceil((response.data.total || 0) / itemsPerPage));
       } else {
         throw new Error(response.message || "Lỗi tải dữ liệu yêu cầu.");
       }
-    } catch (error) {
-      console.error("Fetch data error:", error);
-      setError(error.message || "Lỗi tải dữ liệu yêu cầu.");
+    } catch (errorCatch) {
+      console.error("Fetch data error:", errorCatch);
+      const errorMessage = errorCatch.message || "Lỗi tải dữ liệu yêu cầu.";
+      setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      toast.error(`Tải dữ liệu thất bại: ${error.message}`);
+      toast.error(`Tải dữ liệu thất bại: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -256,7 +267,8 @@ const ListOfRequestPage = () => {
     itemsPerPage,
     sortConfig,
     selectedStatusFilter,
-    searchQuery,
+    appliedSearchInput,
+    appliedSearchField,
   ]);
 
   useEffect(() => {
@@ -265,9 +277,7 @@ const ListOfRequestPage = () => {
 
   // --- Handlers ---
   const handlePageClick = (event) => {
-    if (typeof event.selected === "number") {
-      setCurrentPage(event.selected);
-    }
+    if (typeof event.selected === "number") setCurrentPage(event.selected);
   };
 
   const handleSort = (sortKey) => {
@@ -288,15 +298,30 @@ const ListOfRequestPage = () => {
     setSearchInput(value);
   };
 
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+  };
+
   const handleApplySearch = () => {
+    // Chỉ áp dụng nếu có input hoặc field thay đổi
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        // Nếu input trống, nhưng field thay đổi -> áp dụng field mới, xóa input
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput("");
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      // Nếu input bị xóa rỗng, và trước đó có tìm kiếm -> xóa điều kiện tìm kiếm
+      setAppliedSearchInput("");
+    }
     setCurrentPage(0);
-    setSearchQuery(searchInput);
   };
 
   const handleSearchKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleApplySearch();
-    }
+    if (e.key === "Enter") handleApplySearch();
   };
 
   const handleStatusFilterChange = (event) => {
@@ -304,7 +329,7 @@ const ListOfRequestPage = () => {
     setCurrentPage(0);
   };
 
-  // --- Modal Handlers ---
+  // --- Modal Handlers (giữ nguyên) ---
   const handleView = (request) => {
     setModalData(request);
     setIsDetailModalOpen(true);
@@ -327,7 +352,7 @@ const ListOfRequestPage = () => {
     setSelectedLevelId(value);
   };
 
-  // --- Action Handlers (Approve/Reject) ---
+  // --- Action Handlers (Approve/Reject) (giữ nguyên) ---
   const handleConfirmApprove = async () => {
     if (!requestToApprove || !selectedLevelId) {
       toast.warn("Vui lòng chọn hạng gia sư.");
@@ -338,7 +363,7 @@ const ListOfRequestPage = () => {
     try {
       const response = await Api({
         endpoint: `tutor-request/solve-request/${requestId}`,
-        method: METHOD_TYPE.POST, // Assuming PUT for update
+        method: METHOD_TYPE.POST,
         data: { click: "ACCEPT", tutorLevelId: selectedLevelId },
       });
       if (response.success) {
@@ -348,9 +373,8 @@ const ListOfRequestPage = () => {
       } else {
         throw new Error(response.message || "Duyệt yêu cầu thất bại");
       }
-    } catch (error) {
-      toast.error(`Duyệt thất bại: ${error.message}`);
-      console.error("Approve error:", error);
+    } catch (errorCatch) {
+      toast.error(`Duyệt thất bại: ${errorCatch.message}`);
     } finally {
       setIsSolvingRequest(false);
     }
@@ -359,14 +383,13 @@ const ListOfRequestPage = () => {
   const handleRejectClick = async (request) => {
     if (!request || !request.tutorRequestId) return;
     const tutorName = request.fullname || request.tutorRequestId;
-
     if (window.confirm(`Bạn chắc muốn từ chối yêu cầu của ${tutorName}?`)) {
       const requestId = request.tutorRequestId;
       setIsSolvingRequest(true);
       try {
         const response = await Api({
           endpoint: `tutor-request/solve-request/${requestId}`,
-          method: METHOD_TYPE.POST, // Assuming PUT for update
+          method: METHOD_TYPE.POST,
           data: { click: "REFUSE" },
         });
         if (response.success) {
@@ -375,9 +398,8 @@ const ListOfRequestPage = () => {
         } else {
           throw new Error(response.message || "Từ chối yêu cầu thất bại");
         }
-      } catch (error) {
-        toast.error(`Từ chối thất bại: ${error.message}`);
-        console.error("Reject error:", error);
+      } catch (errorCatch) {
+        toast.error(`Từ chối thất bại: ${errorCatch.message}`);
       } finally {
         setIsSolvingRequest(false);
       }
@@ -387,18 +409,10 @@ const ListOfRequestPage = () => {
   // --- Table Columns Definition ---
   const columns = useMemo(
     () => [
-      { title: "ID", dataKey: "tutorRequestId", sortable: true },
+      { title: "ID YC", dataKey: "tutorRequestId", sortable: true }, // Sửa title
       { title: "Họ và Tên", dataKey: "fullname", sortable: true },
-      { title: "Email", dataKey: "emailOfTutor", sortable: true },
+      { title: "Email", dataKey: "emailOfTutor", sortable: true }, // emailOfTutor là key đúng
       { title: "Trường ĐH", dataKey: "univercity", sortable: true },
-      {
-        title: "Chuyên ngành",
-        dataKey: "major.majorName",
-        sortKey: "major.majorName",
-        sortable: true,
-        renderCell: (_, row) =>
-          getSafeNestedValue(row, "major.majorName", "N/A"),
-      },
       {
         title: "Điểm Test",
         dataKey: "totalTestPoints",
@@ -422,11 +436,10 @@ const ListOfRequestPage = () => {
     []
   );
 
-  // --- Fields for Detail View Modal ---
+  // --- Fields for Detail View Modal (giữ nguyên) ---
   const viewFields = useMemo(
     () => [
       { key: "tutorRequestId", label: "ID Yêu cầu" },
-      { key: "userId", label: "UserID" },
       { key: "status", label: "Trạng thái", renderValue: formatStatus },
       { key: "fullname", label: "Họ và Tên" },
       {
@@ -527,7 +540,7 @@ const ListOfRequestPage = () => {
       },
       {
         key: "tutorLevel.levelName",
-        label: "Cấp độ gia sư",
+        label: "Cấp độ gia sư (nếu đã duyệt)",
         renderValue: (v, row) =>
           getSafeNestedValue(row, "tutorLevel.levelName", "Chưa có"),
       },
@@ -551,20 +564,51 @@ const ListOfRequestPage = () => {
   );
 
   // --- JSX Render ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableRequestColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}${
+        currentSearchFieldConfig.placeholderSuffix || ""
+      }...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
         <h2 className="admin-list-title">Quản lý Yêu cầu Làm Gia sư</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
+            {/* Select chọn cột tìm kiếm */}
+            <div className="filter-control">
+              <select
+                id="searchFieldSelectRequest"
+                value={selectedSearchField}
+                onChange={handleSearchFieldChange}
+                className="status-filter-select"
+                aria-label="Chọn trường để tìm kiếm"
+              >
+                {searchableRequestColumnOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
               onKeyPress={handleSearchKeyPress}
-              placeholder="Tìm ID, Tên, Trường, Ngành..." // Bỏ Trạng thái vì đã có filter riêng
+              placeholder={searchPlaceholder}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
             />
+            {/* Filter Trạng thái */}
             <div className="filter-control">
               <label htmlFor="statusFilter" className="filter-label">
                 Lọc:
@@ -577,8 +621,7 @@ const ListOfRequestPage = () => {
               >
                 {statusFilterOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {" "}
-                    {option.label}{" "}
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -588,6 +631,7 @@ const ListOfRequestPage = () => {
               onClick={handleApplySearch}
               title="Tìm kiếm"
               aria-label="Tìm kiếm"
+              disabled={isLoading || isSolvingRequest}
             >
               <i className="fa-solid fa-search"></i>
             </button>
@@ -596,11 +640,12 @@ const ListOfRequestPage = () => {
               onClick={resetState}
               title="Làm mới bộ lọc & tìm kiếm"
               aria-label="Làm mới bộ lọc và tìm kiếm"
+              disabled={isLoading || isSolvingRequest}
             >
               <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
-          <div className="filter-add-admin"></div>
+          <div className="filter-add-admin"></div> {/* No Add button */}
         </div>
 
         {error && (
@@ -616,8 +661,8 @@ const ListOfRequestPage = () => {
           onView={handleView}
           onApprove={handleApproveClick}
           onReject={handleRejectClick}
-          showLock={false}
-          statusKey="status"
+          showLock={false} // Không có nút Khóa/Mở khóa ở đây
+          statusKey="status" // Key để xác định có hiển thị nút Approve/Reject không
           pageCount={pageCount}
           onPageChange={handlePageClick}
           forcePage={currentPage}
@@ -640,6 +685,18 @@ const ListOfRequestPage = () => {
             Tổng số yêu cầu: {totalItems}
           </p>
         )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            Không có dữ liệu yêu cầu.
+          </p>
+        )}
       </div>
     </>
   );
@@ -656,17 +713,16 @@ const ListOfRequestPage = () => {
         contentLabel="Chi tiết Yêu cầu"
         className="modal large"
         overlayClassName="overlay"
+        closeTimeoutMS={300}
       >
         {modalData && (
           <FormDetail
             formData={modalData}
             fields={viewFields}
             mode="view"
-            onChange={() => {}}
-            onSubmit={() => {}}
             title="Chi tiết Yêu cầu"
             onClose={handleCloseDetailModal}
-            avatarUrl={modalData?.avatar}
+            avatarUrl={modalData?.avatar} // Giả sử có trường avatar trong modalData
           />
         )}
       </Modal>
@@ -678,6 +734,7 @@ const ListOfRequestPage = () => {
         contentLabel="Duyệt Yêu Cầu"
         className="modal medium"
         overlayClassName="overlay"
+        closeTimeoutMS={300}
       >
         {requestToApprove && (
           <div className="approval-modal-content">
@@ -691,13 +748,26 @@ const ListOfRequestPage = () => {
                 ×
               </button>
             </div>
-            <div className="form-content">
+            <div className="form-content" style={{ padding: "20px" }}>
               <p>
                 Gia sư: <strong>{requestToApprove.fullname}</strong>
               </p>
               <div className="form-detail-group">
-                <label htmlFor="tutorLevelApproval">
-                  Chọn Hạng Gia Sư:<span className="required-asterisk">*</span>
+                <label
+                  htmlFor="tutorLevelApproval"
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontWeight: "500",
+                  }}
+                >
+                  Chọn Hạng Gia Sư:
+                  <span
+                    className="required-asterisk"
+                    style={{ color: "red", marginLeft: "4px" }}
+                  >
+                    *
+                  </span>
                 </label>
                 <TutorLevelList
                   name="tutorLevelApproval"
@@ -705,9 +775,13 @@ const ListOfRequestPage = () => {
                   onChange={handleLevelSelect}
                   required={true}
                   placeholder="-- Chọn hạng --"
+                  // style cho select nếu cần
                 />
               </div>
-              <div className="form-detail-actions">
+              <div
+                className="form-detail-actions"
+                style={{ marginTop: "25px" }}
+              >
                 <button
                   className="form-detail-cancel-button"
                   onClick={handleCloseApprovalModal}
@@ -739,7 +813,6 @@ const ListOfRequestPage = () => {
         )}
       </Modal>
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

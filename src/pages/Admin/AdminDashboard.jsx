@@ -1,7 +1,6 @@
-// src/pages/Admin/AdminDashboardPage.jsx
+/* global Intl */
 import { useEffect, useState, useRef, useCallback } from "react";
-// Link is now used in the JSX below
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {  useLocation, useNavigate } from "react-router-dom"; // Link có thể không dùng trực tiếp trong file này nữa
 import { useDispatch, useSelector } from "react-redux";
 import Cookies from "js-cookie";
 import Api from "../../network/Api";
@@ -9,9 +8,32 @@ import { METHOD_TYPE } from "../../network/methodType";
 import { setAdminProfile } from "../../redux/adminSlice";
 
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
-import ChartComponent from "../../components/Chart";
-// import LoadingSpinner from "../../components/LoadingSpinner"; // Removed
-import "../../assets/css/Admin/AdminDashboard.style.css"; // Ensure CSS is imported
+import ChartComponent from "../../components/Chart"; // Đảm bảo đường dẫn đúng
+import "../../assets/css/Admin/AdminDashboard.style.css"; // CSS cho trang này
+
+// Helper để lấy giá trị CSS Variable trong JS
+const getCssVariable = (variableName) => {
+  if (typeof window !== "undefined") {
+    try {
+      const value = getComputedStyle(document.documentElement)
+        .getPropertyValue(variableName)
+        .trim();
+      return value;
+    } catch (error) {
+      // console.warn(`CSS variable ${variableName} not found. Defaulting.`, error);
+      // Cung cấp giá trị mặc định nếu biến không tìm thấy để tránh lỗi chart
+      if (variableName.includes("orange")) return "#F76B1C";
+      if (variableName.includes("text-dark")) return "#1f2937";
+      if (variableName.includes("text-light")) return "#6b7280";
+      return null;
+    }
+  }
+  // Giá trị mặc định nếu window không tồn tại (SSR, etc.)
+  if (variableName.includes("orange")) return "#F76B1C";
+  if (variableName.includes("text-dark")) return "#1f2937";
+  if (variableName.includes("text-light")) return "#6b7280";
+  return null;
+};
 
 const AdminDashboardPage = () => {
   const location = useLocation();
@@ -21,7 +43,7 @@ const AdminDashboardPage = () => {
 
   const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
   const [oauthError, setOauthError] = useState(null);
-  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!(
       adminProfile?.adminId ||
@@ -30,147 +52,307 @@ const AdminDashboardPage = () => {
   );
   const oauthProcessingRef = useRef(false);
 
-  // --- States for Mock Data ---
+  const [timeRange, setTimeRange] = useState("month");
+
   const [dashboardStats, setDashboardStats] = useState({
-    totalTutors: { value: 0, change: null },
-    pendingTutors: { value: 0, change: null },
-    totalStudents: { value: 0, change: null },
-    activeClasses: { value: 0, change: null },
-    pendingRequests: { value: 0, change: null },
-    monthlyRevenue: { value: 0, currency: "VNĐ", change: null },
+    revenue: { value: 0, currency: "VNĐ", change: null },
+    newUsers: { value: 0, change: null },
+    newTutors: { value: 0, change: null },
+    newTutorRequest: { value: 0, change: null },
+    newClassActive: { value: 0, change: null },
   });
+
   const [chartData, setChartData] = useState({
-    userGrowth: { labels: [], datasets: [] },
-    revenueSource: { labels: [], datasets: [] },
     revenueTrend: { labels: [], datasets: [] },
   });
 
-  // --- Chart Options ---
   const chartLineOptions = {
     scales: {
-      y: { beginAtZero: true, grid: { color: "#e3e6f0", borderDash: [2, 2] } },
-      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)",
+          borderDash: [2, 2],
+          drawBorder: false,
+        },
+        ticks: {
+          color: getCssVariable("--text-light") || "#6b7280",
+          padding: 10,
+          font: { size: 11 },
+        },
+      },
+      x: {
+        grid: { display: false, drawBorder: false },
+        ticks: {
+          color: getCssVariable("--text-light") || "#6b7280",
+          padding: 10,
+          font: { size: 11 },
+        },
+      },
     },
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "bottom" },
-      tooltip: { mode: "index", intersect: false },
+      legend: {
+        position: "bottom",
+        align: "start",
+        labels: {
+          color: getCssVariable("--text-dark") || "#1f2937",
+          font: { size: 12, weight: "500" },
+          boxWidth: 12,
+          boxHeight: 12,
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: "rectRounded",
+        },
+      },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+        backgroundColor: getCssVariable("--text-dark") || "rgba(0,0,0,0.85)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        padding: { top: 10, bottom: 10, left: 12, right: 12 },
+        cornerRadius: 6,
+        titleFont: { weight: "600", size: 13 },
+        bodyFont: { size: 12 },
+        displayColors: false, // Không hiển thị ô màu trong tooltip nếu chỉ có 1 dataset
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(context.parsed.y);
+            }
+            return label;
+          },
+        },
+      },
     },
     interaction: { mode: "nearest", axis: "x", intersect: false },
-  };
-  const chartDoughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: "bottom" } },
-    cutout: "70%",
-  };
-  const chartBarOptions = {
-    scales: {
-      y: { beginAtZero: true, grid: { color: "#e3e6f0", borderDash: [2, 2] } },
-      x: { grid: { display: false } },
+    elements: {
+      line: {
+        tension: 0.4, // Làm cho đường cong mượt hơn
+      },
+      point: {
+        radius: 3, // Bán kính điểm
+        hoverRadius: 6, // Bán kính điểm khi hover
+        hitRadius: 15, // Vùng nhận diện click/hover cho điểm
+      },
     },
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
   };
 
-  // --- Helper Functions ---
   const formatCurrency = (value, currency = "VNĐ") => {
-    if (value === null || value === undefined) return "N/A";
-    return `${value.toLocaleString("vi-VN")} ${currency}`;
+    if (value === null || value === undefined || isNaN(Number(value)))
+      return "N/A";
+    return `${Number(value).toLocaleString("vi-VN")} ${currency}`;
   };
+
   const renderChange = (change, isPercent = false) => {
-    if (change === null || change === undefined || change === 0) {
+    if (change === null || change === undefined || isNaN(Number(change))) {
+      return <span className="admin-card__change-value no-change">N/A</span>;
+    }
+    const numChange = Number(change);
+    if (numChange === 0 && isPercent) {
+      // Nếu là % và bằng 0, vẫn hiển thị 0%
       return (
-        <span style={{ color: "gray" }}>
+        <span className="admin-card__change-value no-change">
+          <i className="fa-solid fa-minus"></i> 0.0%
+        </span>
+      );
+    }
+    if (numChange === 0) {
+      return (
+        <span className="admin-card__change-value no-change">
           <i className="fa-solid fa-minus"></i> Không đổi
         </span>
       );
     }
-    const isIncrease = change > 0;
-    const absChange = Math.abs(change);
+    const isIncrease = numChange > 0;
+    const absChange = Math.abs(numChange);
     const displayValue = isPercent
-      ? `${absChange}%`
-      : absChange.toLocaleString
-      ? absChange.toLocaleString("vi-VN")
-      : absChange;
+      ? `${absChange.toFixed(1)}%`
+      : absChange.toLocaleString("vi-VN");
     return (
-      <span className={isIncrease ? "increase" : "decrease"}>
+      <span
+        className={`admin-card__change-value ${
+          isIncrease ? "increase" : "decrease"
+        }`}
+      >
         <i
-          className={`fa-solid ${isIncrease ? "fa-arrow-up" : "fa-arrow-down"}`}
+          className={`fa-solid ${
+            isIncrease ? "fa-arrow-trend-up" : "fa-arrow-trend-down"
+          }`}
         ></i>{" "}
         {displayValue}
       </span>
     );
   };
 
-  // --- Fetch Admin Profile and Data Function ---
-  const fetchAdminProfileAndData = useCallback(async () => {
+  const getTimeRangeText = (range) => {
+    if (range === "week") return "Tuần";
+    if (range === "year") return "Năm";
+    return "Tháng";
+  };
+
+  const fetchDataForRange = useCallback(
+    async (range) => {
+      if (!isAuthenticated) {
+        setIsLoadingData(false);
+        return;
+      }
+      setIsLoadingData(true);
+      let endpoint = "";
+      switch (range) {
+        case "week":
+          endpoint = "statistical/week";
+          break;
+        case "year":
+          endpoint = "statistical/year";
+          break;
+        case "month":
+        default:
+          endpoint = "statistical/month";
+          break;
+      }
+
+      try {
+        const response = await Api({ endpoint, method: METHOD_TYPE.GET });
+        if (response.success && response.data) {
+          const { information } = response.data;
+          setDashboardStats({
+            revenue: {
+              value: information.revenue,
+              currency: "VNĐ",
+              change: information.revenuePercentage,
+            },
+            newUsers: {
+              value: information.newUsers,
+              change: information.newUserPercentage,
+            },
+            newTutors: {
+              value: information.newTutors,
+              change: information.newTutorPercentage,
+            },
+            newTutorRequest: {
+              value: information.newTutorRequest,
+              change: information.newTutorRequestPercentage,
+            },
+            newClassActive: {
+              value: information.newClassActive,
+              change: information.newClassActivePercentage,
+            },
+          });
+
+          let revenueLabels = [];
+          let revenueValues = [];
+
+          if (range === "week" && response.data.dailyRevenue?.revenue) {
+            revenueLabels = response.data.dailyRevenue.revenue.map((item) => {
+              const date = new Date(item.date);
+              return `${date.getDate()}/${date.getMonth() + 1}`;
+            });
+            revenueValues = response.data.dailyRevenue.revenue.map(
+              (item) => item.revenue
+            );
+          } else if (range === "month" && response.data.weekRevenue?.revenue) {
+            revenueLabels = response.data.weekRevenue.revenue.map(
+              (item) => item.week
+            );
+            revenueValues = response.data.weekRevenue.revenue.map(
+              (item) => item.revenue
+            );
+          } else if (range === "year" && response.data.monthRevenue?.revenue) {
+            revenueLabels = response.data.monthRevenue.revenue.map((item) => {
+              const [year, month] = item.month.split("-");
+              return `T${month}/${year.slice(-2)}`;
+            });
+            revenueValues = response.data.monthRevenue.revenue.map(
+              (item) => item.revenue
+            );
+          }
+
+          const vluOrange = getCssVariable("--vlu-primary-orange") || "#F76B1C";
+          let vluOrangeRgb = "247,107,28";
+          if (vluOrange.startsWith("#") && vluOrange.length >= 7) {
+            const r = parseInt(vluOrange.slice(1, 3), 16);
+            const g = parseInt(vluOrange.slice(3, 5), 16);
+            const b = parseInt(vluOrange.slice(5, 7), 16);
+            if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+              vluOrangeRgb = `${r},${g},${b}`;
+            }
+          }
+
+          setChartData((prev) => ({
+            ...prev,
+            revenueTrend: {
+              labels: revenueLabels,
+              datasets: [
+                {
+                  label: "Doanh thu",
+                  data: revenueValues,
+                  borderColor: vluOrange,
+                  backgroundColor: `rgba(${vluOrangeRgb}, 0.15)`, // Giảm độ đậm của vùng fill
+                  borderWidth: 2.5, // Tăng độ dày đường line
+                  fill: true,
+                  pointBackgroundColor: vluOrange,
+                  pointBorderColor: "#fff", // Màu viền của điểm
+                  pointBorderWidth: 2, // Độ dày viền điểm
+                  pointHoverBackgroundColor: "#fff", // Màu nền điểm khi hover
+                  pointHoverBorderColor: vluOrange, // Màu viền điểm khi hover
+                },
+              ],
+            },
+          }));
+        } else {
+          console.error("Failed to fetch statistical data:", response);
+        }
+      } catch (error) {
+        console.error("Error fetching statistical data:", error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    },
+    [isAuthenticated]
+  );
+
+  const fetchAdminProfile = useCallback(async () => {
     if (!Cookies.get("token") || Cookies.get("role") !== "admin") {
       setIsAuthenticated(false);
       setIsLoadingData(false);
       return;
     }
-    console.log("Fetch Profile: Attempting...");
-    setIsLoadingData(true);
-    // Removed unused 'success' variable
     try {
       const adminInfoResponse = await Api({
         endpoint: "admin/get-profile",
         method: METHOD_TYPE.GET,
       });
-      if (Cookies.get("token")) {
-        if (adminInfoResponse.success && adminInfoResponse.data?.adminId) {
-          console.log(
-            "Fetch Profile: Success, dispatching:",
-            adminInfoResponse.data
-          );
-          dispatch(setAdminProfile(adminInfoResponse.data));
-          setIsAuthenticated(true);
-          // --- SET MOCK DATA ---
-          setDashboardStats({
-            totalTutors: { value: 152, change: 5 },
-            pendingTutors: { value: 15, change: 2 },
-            totalStudents: { value: 325, change: -2 },
-            activeClasses: { value: 85, change: 10 },
-            pendingRequests: { value: 12, change: 0 },
-            monthlyRevenue: { value: 25000000, currency: "VNĐ", change: 15 },
-          });
-          setChartData({
-            /* ... mock chart data ... */
-          });
-          // --- END MOCK DATA ---
-        } else {
-          console.error(
-            "Fetch Profile: API success but data invalid:",
-            adminInfoResponse
-          );
-          setOauthError("Dữ liệu profile Admin không hợp lệ từ API.");
-          setIsAuthenticated(false);
-          Cookies.remove("token");
-          Cookies.remove("role");
-        }
-      }
-    } catch (error) {
-      console.error("Fetch Profile: API Error:", error);
-      if (Cookies.get("token")) {
-        setOauthError(
-          error.response?.data?.message || "Lỗi mạng khi tải thông tin."
-        );
+      if (adminInfoResponse.success && adminInfoResponse.data?.adminId) {
+        dispatch(setAdminProfile(adminInfoResponse.data));
+        setIsAuthenticated(true);
+      } else {
+        setOauthError("Dữ liệu profile Admin không hợp lệ.");
         setIsAuthenticated(false);
         Cookies.remove("token");
         Cookies.remove("role");
       }
-    } finally {
-      if (Cookies.get("token")) {
-        setIsLoadingData(false);
-        console.log("Fetch Profile: Attempt finished.");
-      }
+    } catch (error) {
+      setOauthError(
+        error.response?.data?.message || "Lỗi tải thông tin Admin."
+      );
+      setIsAuthenticated(false);
+      Cookies.remove("token");
+      Cookies.remove("role");
     }
   }, [dispatch]);
 
-  // --- Effect 1: Handle OAuth Callback & Initial Token/Profile Check ---
   useEffect(() => {
     let isMounted = true;
     const searchParams = new URLSearchParams(location.search);
@@ -181,21 +363,19 @@ const AdminDashboardPage = () => {
       if (!isMounted) return;
       setIsProcessingOAuth(true);
       setOauthError(null);
-      setIsLoadingData(true);
-      console.log("OAuth: Exchanging code...");
-      let response = null;
       try {
-        response = await Api({
+        const response = await Api({
           endpoint: "admin/auth/callback",
           method: METHOD_TYPE.POST,
           data: { code: authCode },
         });
-        if (response && response.success && response.data?.token && isMounted) {
-          const { token } = response.data;
-          Cookies.set("token", token, { secure: true, sameSite: "Lax" });
+        if (response?.success && response.data?.token && isMounted) {
+          Cookies.set("token", response.data.token, {
+            secure: true,
+            sameSite: "Lax",
+          });
           Cookies.set("role", "admin", { secure: true, sameSite: "Lax" });
-          console.log("OAuth: Token received. Fetching profile...");
-          fetchAdminProfileAndData(); // Call fetch
+          await fetchAdminProfile();
         } else if (isMounted) {
           throw new Error(response?.message || "Lỗi đổi mã xác thực.");
         }
@@ -205,7 +385,6 @@ const AdminDashboardPage = () => {
           Cookies.remove("token");
           Cookies.remove("role");
           setIsAuthenticated(false);
-          setIsLoadingData(false);
         }
       } finally {
         if (isMounted) {
@@ -215,9 +394,6 @@ const AdminDashboardPage = () => {
       }
     };
 
-    const profileAlreadyExists = !!adminProfile?.adminId;
-    console.log("useEffect running. Profile in Redux?", profileAlreadyExists);
-
     if (code && state && !oauthProcessingRef.current) {
       oauthProcessingRef.current = true;
       const storedState = Cookies.get("microsoft_auth_state");
@@ -225,60 +401,44 @@ const AdminDashboardPage = () => {
       if (!storedState || state !== storedState) {
         if (isMounted) {
           setOauthError("Lỗi bảo mật (state).");
-          setIsLoadingData(false);
           navigate("/admin/dashboard", { replace: true });
         }
         return;
       }
       exchangeAdminCodeForToken(code);
     } else if (!code && !state) {
-      const existingToken = Cookies.get("token");
-      const existingRole = Cookies.get("role");
-      if (existingToken && existingRole === "admin") {
-        if (!profileAlreadyExists) {
-          console.log("useEffect: Token found, profile missing. Fetching...");
-          fetchAdminProfileAndData();
+      if (Cookies.get("token") && Cookies.get("role") === "admin") {
+        if (!adminProfile?.adminId) {
+          fetchAdminProfile();
         } else {
-          console.log(
-            "useEffect: Token and profile exist. Ensuring auth state."
-          );
-          if (isMounted) {
-            setIsAuthenticated(true);
-            setIsLoadingData(false);
-          }
+          setIsAuthenticated(true);
         }
       } else {
-        if (isMounted) {
-          setIsAuthenticated(false);
-          setIsLoadingData(false);
-        }
-      }
-    } else {
-      if (!oauthProcessingRef.current && isMounted) {
+        setIsAuthenticated(false);
         setIsLoadingData(false);
       }
     }
-
     return () => {
       isMounted = false;
     };
-  }, [
-    location.search,
-    navigate,
-    dispatch,
-    fetchAdminProfileAndData,
-    adminProfile,
-  ]);
+  }, [location.search, navigate, fetchAdminProfile, adminProfile?.adminId]);
 
-  // --- Render Logic ---
+  useEffect(() => {
+    if (isAuthenticated && !isProcessingOAuth) {
+      fetchDataForRange(timeRange);
+    } else if (!isAuthenticated && !isProcessingOAuth) {
+      setIsLoadingData(false);
+    }
+  }, [isAuthenticated, timeRange, fetchDataForRange, isProcessingOAuth]);
+
   if (isProcessingOAuth) {
     return (
       <AdminDashboardLayout currentPage="Đang xác thực...">
-        <div
-          className="oauth-processing-overlay"
-          style={{ textAlign: "center", padding: "2rem" }}
-        >
-          <p>Đang xử lý đăng nhập với Microsoft...</p>
+        <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
+          <div className="loading-indicator">
+            <div className="spinner"></div>
+            <p>Đang xử lý đăng nhập với Microsoft...</p>
+          </div>
         </div>
       </AdminDashboardLayout>
     );
@@ -286,10 +446,13 @@ const AdminDashboardPage = () => {
   if (oauthError) {
     return (
       <AdminDashboardLayout currentPage="Lỗi">
-        <div className="admin-dashboard-page-content">
-          <div className="oauth-error-message">
+        <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
+          <div className="status-message error-message">
             <strong>Lỗi:</strong> {oauthError}
-            <button onClick={() => navigate("/admin/login", { replace: true })}>
+            <button
+              onClick={() => navigate("/admin/login", { replace: true })}
+              className="status-button"
+            >
               Đăng nhập lại
             </button>
           </div>
@@ -297,13 +460,16 @@ const AdminDashboardPage = () => {
       </AdminDashboardLayout>
     );
   }
-  if (!isAuthenticated && !isLoadingData) {
+  if (!isAuthenticated && !isLoadingData && !isProcessingOAuth) {
     return (
       <AdminDashboardLayout currentPage="Yêu Cầu Đăng Nhập">
-        <div className="admin-dashboard-page-content">
-          <div className="auth-required-message">
-            <p>Vui lòng đăng nhập.</p>
-            <button onClick={() => navigate("/admin/login", { replace: true })}>
+        <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
+          <div className="status-message auth-required-message">
+            <p>Vui lòng đăng nhập để truy cập bảng điều khiển.</p>
+            <button
+              onClick={() => navigate("/admin/login", { replace: true })}
+              className="status-button"
+            >
               Đăng nhập
             </button>
           </div>
@@ -311,194 +477,185 @@ const AdminDashboardPage = () => {
       </AdminDashboardLayout>
     );
   }
-  if (isLoadingData) {
+  if (isLoadingData && !oauthError && isAuthenticated) {
     return (
       <AdminDashboardLayout currentPage="Bảng Điều Khiển">
-        <div
-          className="loading-data-overlay"
-          style={{ textAlign: "center", padding: "2rem" }}
-        >
-          <p>Đang tải dữ liệu...</p>
+        <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
+          <div className="loading-indicator">
+            <div className="spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+          </div>
         </div>
       </AdminDashboardLayout>
     );
   }
 
-  // --- Main Render ---
   if (isAuthenticated && !isLoadingData) {
     return (
       <AdminDashboardLayout currentPage="Bảng Điều Khiển">
         <div className="admin-dashboard-page-content">
-          {adminProfile && (
-            <h2 style={{ marginBottom: "1.5rem", fontWeight: "600" }}>
-              Chào mừng, {adminProfile.fullName || adminProfile.email}!
-            </h2>
-          )}
-          {/* Cards Section */}
-          <div className="admin-dashboard-content">
-            {/* Card Tổng Gia sư */}
-            <div className="admin-card tutors">
-              <div className="admin-card-body">
-                <div className="admin-card-info">
-                  <div className="admin-card-title">Tổng Gia sư</div>
-                  <div className="admin-card-data">
-                    {dashboardStats.totalTutors.value?.toLocaleString(
-                      "vi-VN"
-                    ) || "..."}
-                  </div>
-                  <div className="admin-card-change">
-                    {renderChange(dashboardStats.totalTutors.change)}
-                  </div>
-                </div>
-                <i className="fas fa-chalkboard-teacher admin-card-icon"></i>
-              </div>
-              {/* Footer with Link */}
-              <div className="admin-card-footer">
-                <Link to="/admin/gia-su">Xem chi tiết</Link>
-              </div>
-            </div>
-            {/* Card Gia sư chờ duyệt */}
-            <div className="admin-card requests">
-              <div className="admin-card-body">
-                <div className="admin-card-info">
-                  <div className="admin-card-title">Gia sư chờ duyệt</div>
-                  <div className="admin-card-data">
-                    {dashboardStats.pendingTutors.value?.toLocaleString(
-                      "vi-VN"
-                    ) || "..."}
-                  </div>
-                  <div className="admin-card-change">
-                    {renderChange(dashboardStats.pendingTutors.change)}
-                  </div>
-                </div>
-                <i className="fas fa-user-clock admin-card-icon"></i>
-              </div>
-              {/* Footer with Link */}
-              <div className="admin-card-footer">
-                <Link to="/admin/gia-su?status=pending">Xem chi tiết</Link>
-              </div>
-            </div>
-            {/* Card Tổng Học viên */}
-            <div className="admin-card students">
-              <div className="admin-card-body">
-                <div className="admin-card-info">
-                  <div className="admin-card-title">Tổng Học viên</div>
-                  <div className="admin-card-data">
-                    {dashboardStats.totalStudents.value?.toLocaleString(
-                      "vi-VN"
-                    ) || "..."}
-                  </div>
-                  <div className="admin-card-change">
-                    {renderChange(dashboardStats.totalStudents.change)}
-                  </div>
-                </div>
-                <i className="fas fa-user-graduate admin-card-icon"></i>
-              </div>
-              {/* Footer with Link */}
-              <div className="admin-card-footer">
-                <Link to="/admin/nguoi-hoc">Xem chi tiết</Link>
-              </div>
-            </div>
-            {/* Card Lớp hoạt động */}
-            <div className="admin-card classes">
-              <div className="admin-card-body">
-                <div className="admin-card-info">
-                  <div className="admin-card-title">Lớp hoạt động</div>
-                  <div className="admin-card-data">
-                    {dashboardStats.activeClasses.value?.toLocaleString(
-                      "vi-VN"
-                    ) || "..."}
-                  </div>
-                  <div className="admin-card-change">
-                    {renderChange(dashboardStats.activeClasses.change)}
-                  </div>
-                </div>
-                <i className="fas fa-school admin-card-icon"></i>
-              </div>
-              {/* Optional Footer Link */}
-              {/* <div className="admin-card-footer"><Link to="/admin/lop-hoc">Xem chi tiết</Link></div> */}
-            </div>
-            {/* Card Yêu cầu mới */}
-            <div className="admin-card requests">
-              <div className="admin-card-body">
-                <div className="admin-card-info">
-                  <div className="admin-card-title">Yêu cầu mới</div>
-                  <div className="admin-card-data">
-                    {dashboardStats.pendingRequests.value?.toLocaleString(
-                      "vi-VN"
-                    ) || "..."}
-                  </div>
-                  <div className="admin-card-change">
-                    {renderChange(dashboardStats.pendingRequests.change)}
-                  </div>
-                </div>
-                <i className="fas fa-file-alt admin-card-icon"></i>
-              </div>
-              {/* Footer with Link */}
-              <div className="admin-card-footer">
-                <Link to="/admin/yeu-cau">Xem chi tiết</Link>
-              </div>
-            </div>
-            {/* Card Doanh thu tháng */}
-            <div className="admin-card revenue">
-              <div className="admin-card-body">
-                <div className="admin-card-info">
-                  <div className="admin-card-title">Doanh thu tháng</div>
-                  <div className="admin-card-data">
-                    {formatCurrency(
-                      dashboardStats.monthlyRevenue.value,
-                      dashboardStats.monthlyRevenue.currency
-                    )}
-                  </div>
-                  <div className="admin-card-change">
-                    {renderChange(dashboardStats.monthlyRevenue.change, true)}
-                  </div>
-                </div>
-                <i className="fas fa-dollar-sign admin-card-icon"></i>
-              </div>
-              {/* Optional Footer Link */}
-              {/* <div className="admin-card-footer"><Link to="/admin/bao-cao">Xem báo cáo</Link></div> */}
+          <div className="admin-dashboard__header">
+            {adminProfile && (
+              <h1 className="admin-dashboard__welcome-message">
+                {" "}
+                {/* Sử dụng h1 cho tiêu đề chính của trang */}
+                Bảng Điều Khiển
+                {/* Chào mừng, {adminProfile.fullName || adminProfile.email}!  */}
+                {/* Tạm ẩn lời chào để giống các ví dụ */}
+              </h1>
+            )}
+            <div className="admin-dashboard__time-range-selector">
+              <button
+                onClick={() => setTimeRange("week")}
+                className={`time-range-button ${
+                  timeRange === "week" ? "active" : ""
+                }`}
+              >
+                {/* <i className="far fa-calendar-alt"></i>  */}
+                <span>Tuần</span>
+              </button>
+              <button
+                onClick={() => setTimeRange("month")}
+                className={`time-range-button ${
+                  timeRange === "month" ? "active" : ""
+                }`}
+              >
+                {/* <i className="far fa-calendar"></i>  */}
+                <span>Tháng</span>
+              </button>
+              <button
+                onClick={() => setTimeRange("year")}
+                className={`time-range-button ${
+                  timeRange === "year" ? "active" : ""
+                }`}
+              >
+                {/* <i className="far fa-calendar-check"></i>  */}
+                <span>Năm</span>
+              </button>
             </div>
           </div>
-          {/* Charts Section */}
-          <div className="admin-dashboard-charts">
-            <div className="admin-chart-card" style={{ gridColumn: "span 2" }}>
-              <div className="admin-chart-header">
-                <h3 className="admin-chart-title">
-                  Tăng trưởng người dùng (6 tháng)
-                </h3>
+
+          <div className="admin-dashboard__cards-grid">
+            <div className="admin-card admin-card--revenue">
+              <div className="admin-card__icon-wrapper">
+                <i className="fas fa-wallet admin-card__icon"></i>
               </div>
-              <div className="admin-chart-body">
+              <div className="admin-card__content">
+                <div className="admin-card__header">
+                  <h3 className="admin-card__title">
+                    Doanh thu ({getTimeRangeText(timeRange)})
+                  </h3>
+                  <span className="admin-card__data">
+                    {formatCurrency(
+                      dashboardStats.revenue.value,
+                      dashboardStats.revenue.currency
+                    )}
+                  </span>
+                </div>
+                <div className="admin-card__change">
+                  {renderChange(dashboardStats.revenue.change, true)}
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-card admin-card--new-users">
+              <div className="admin-card__icon-wrapper">
+                <i className="fas fa-users admin-card__icon"></i>
+              </div>
+              <div className="admin-card__content">
+                <div className="admin-card__header">
+                  <h3 className="admin-card__title">Người dùng mới</h3>
+                  <span className="admin-card__data">
+                    {dashboardStats.newUsers.value?.toLocaleString("vi-VN") ||
+                      "N/A"}
+                  </span>
+                </div>
+                <div className="admin-card__change">
+                  {renderChange(dashboardStats.newUsers.change, true)}
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-card admin-card--new-tutors">
+              <div className="admin-card__icon-wrapper">
+                <i className="fas fa-user-tie admin-card__icon"></i>
+              </div>
+              <div className="admin-card__content">
+                <div className="admin-card__header">
+                  <h3 className="admin-card__title">Gia sư mới</h3>
+                  <span className="admin-card__data">
+                    {dashboardStats.newTutors.value?.toLocaleString("vi-VN") ||
+                      "N/A"}
+                  </span>
+                </div>
+                <div className="admin-card__change">
+                  {renderChange(dashboardStats.newTutors.change, true)}
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-card admin-card--tutor-requests">
+              <div className="admin-card__icon-wrapper">
+                <i className="fas fa-file-signature admin-card__icon"></i>
+              </div>
+              <div className="admin-card__content">
+                <div className="admin-card__header">
+                  <h3 className="admin-card__title">Yêu cầu gia sư mới</h3>
+                  <span className="admin-card__data">
+                    {dashboardStats.newTutorRequest.value?.toLocaleString(
+                      "vi-VN"
+                    ) || "N/A"}
+                  </span>
+                </div>
+                <div className="admin-card__change">
+                  {renderChange(dashboardStats.newTutorRequest.change, true)}
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-card admin-card--active-classes">
+              <div className="admin-card__icon-wrapper">
+                <i className="fas fa-chalkboard-user admin-card__icon"></i>
+              </div>
+              <div className="admin-card__content">
+                <div className="admin-card__header">
+                  <h3 className="admin-card__title">Lớp mới hoạt động</h3>
+                  <span className="admin-card__data">
+                    {dashboardStats.newClassActive.value?.toLocaleString(
+                      "vi-VN"
+                    ) || "N/A"}
+                  </span>
+                </div>
+                <div className="admin-card__change">
+                  {renderChange(dashboardStats.newClassActive.change, true)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-dashboard__charts-grid">
+            <div className="admin-chart-card">
+              <div className="admin-chart-card__header">
+                <h2 className="admin-chart-card__title">
+                  {" "}
+                  {/* Sử dụng h2 cho tiêu đề chart */}
+                  Xu hướng doanh thu
+                  <span className="admin-chart-card__subtitle">
+                    (
+                    {timeRange === "week"
+                      ? "7 ngày qua"
+                      : timeRange === "month"
+                      ? "4 tuần qua"
+                      : "12 tháng qua"}
+                    )
+                  </span>
+                </h2>
+              </div>
+              <div className="admin-chart-card__body">
                 <ChartComponent
                   type="line"
-                  data={chartData.userGrowth}
-                  options={chartLineOptions}
-                />
-              </div>
-            </div>
-            <div className="admin-chart-card">
-              <div className="admin-chart-header">
-                <h3 className="admin-chart-title">Phân bổ doanh thu</h3>
-              </div>
-              <div className="admin-chart-body">
-                <ChartComponent
-                  type="doughnut"
-                  data={chartData.revenueSource}
-                  options={chartDoughnutOptions}
-                />
-              </div>
-            </div>
-            <div className="admin-chart-card" style={{ gridColumn: "span 3" }}>
-              <div className="admin-chart-header">
-                <h3 className="admin-chart-title">
-                  Xu hướng doanh thu (6 tháng)
-                </h3>
-              </div>
-              <div className="admin-chart-body">
-                <ChartComponent
-                  type="bar"
                   data={chartData.revenueTrend}
-                  options={chartBarOptions}
+                  options={chartLineOptions}
                 />
               </div>
             </div>
@@ -508,7 +665,16 @@ const AdminDashboardPage = () => {
     );
   }
 
-  return <AdminDashboardLayout currentPage="Đang tải..." />; // Fallback
+  return (
+    <AdminDashboardLayout currentPage="Đang tải...">
+      <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
+        <div className="loading-indicator">
+          <div className="spinner"></div>
+          <p>Đang chuẩn bị bảng điều khiển...</p>
+        </div>
+      </div>
+    </AdminDashboardLayout>
+  );
 };
 
 export default AdminDashboardPage;

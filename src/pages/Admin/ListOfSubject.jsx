@@ -11,12 +11,11 @@ import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
-// Bỏ unidecode
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import qs from "qs";
+// qs không cần thiết nữa nếu Api class tự xử lý
+// import qs from "qs";
 
-// Set the app element for accessibility
 Modal.setAppElement("#root");
 
 // Helper lấy giá trị lồng nhau an toàn
@@ -31,44 +30,83 @@ const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
   return value !== undefined && value !== null ? value : defaultValue;
 };
 
+// Searchable Columns for Subjects
+const searchableSubjectColumnOptions = [
+  { value: "subjectId", label: "Mã môn học" },
+  { value: "subjectName", label: "Tên môn học" },
+  { value: "major.majorName", label: "Tên ngành" }, // Key cho tìm kiếm tên ngành
+];
+
 const ListOfSubjectPage = () => {
   const { t } = useTranslation();
   // --- States ---
-  const [data, setData] = useState([]); // Chỉ cần data
+  const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [pageCount, setPageCount] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // State cho query tìm kiếm thực tế
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState(null);
-  const [deleteMessage, setDeleteMessage] = useState(""); // State cho message xóa
-  const [modalData, setModalData] = useState({});
-  const [modalMode, setModalMode] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0); // Index 0-based
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading cho nút Lưu modal
-  const [isDeleting, setIsDeleting] = useState(false); // Loading cho nút Xóa modal
-  const [error, setError] = useState(null);
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableSubjectColumnOptions[0].value // Mặc định cột đầu tiên
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableSubjectColumnOptions[0].value
+  );
+
   const [sortConfig, setSortConfig] = useState({
     key: "subjectName",
     direction: "asc",
-  }); // Sort theo tên môn học
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const currentPath = "/mon-hoc";
-  // Bỏ state filters
-  const [formErrors, setFormErrors] = useState({});
-  const [majors, setMajors] = useState([]); // State lưu danh sách ngành
+  });
 
-  // Bỏ updateUrl và useEffect liên quan
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({});
+  const [modalMode, setModalMode] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [majors, setMajors] = useState([]);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const currentPath = "/mon-hoc";
 
   // --- Reset State ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
+    setSelectedSearchField(searchableSubjectColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableSubjectColumnOptions[0].value);
     setSortConfig({ key: "subjectName", direction: "asc" });
     setCurrentPage(0);
-  };
+  }, []);
+
+  // --- Fetch Majors ---
+  const fetchMajors = useCallback(async () => {
+    try {
+      const response = await Api({
+        endpoint: `major/search`, // Lấy tất cả ngành, có thể cần phân trang nếu nhiều
+        method: METHOD_TYPE.GET,
+        query: { rpp: 1000, page: 1 }, // Lấy nhiều ngành một lúc
+      });
+      if (response.success && Array.isArray(response.data?.items)) {
+        setMajors(response.data.items);
+      } else {
+        console.error("Failed to fetch majors:", response.message);
+      }
+    } catch (errorCatch) {
+      console.error(
+        "An error occurred while fetching majors:",
+        errorCatch.message
+      );
+    }
+  }, []);
 
   // --- Fetch Data (Subjects) ---
   const fetchData = useCallback(async () => {
@@ -76,11 +114,11 @@ const ListOfSubjectPage = () => {
     setError(null);
     try {
       const filterConditions = [];
-      if (searchQuery) {
+      if (appliedSearchInput && appliedSearchField) {
         filterConditions.push({
-          key: "subjectId,subjectName,major.majorName", // Các trường tìm kiếm
+          key: appliedSearchField,
           operator: "like",
-          value: searchQuery,
+          value: appliedSearchInput,
         });
       }
 
@@ -95,12 +133,11 @@ const ListOfSubjectPage = () => {
         ]),
       };
 
-      const queryString = qs.stringify(query, { encode: false });
-      console.log("Fetching subjects with query:", queryString);
-
+      console.log("Fetching subjects with query:", query);
       const response = await Api({
-        endpoint: `subject/search?${queryString}`, // Endpoint tìm kiếm môn học
+        endpoint: `subject/search`,
         method: METHOD_TYPE.GET,
+        query: query,
       });
       console.log("API Response (Subjects):", response);
 
@@ -111,79 +148,75 @@ const ListOfSubjectPage = () => {
       } else {
         throw new Error(response.message || t("common.errorLoadingData"));
       }
-    } catch (error) {
-      console.error("Fetch subject error:", error);
-      setError(error.message || t("common.errorLoadingData"));
+    } catch (errorCatch) {
+      console.error("Fetch subject error:", errorCatch);
+      const errorMessage = errorCatch.message || t("common.errorLoadingData");
+      setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      toast.error(`Tải danh sách môn học thất bại: ${error.message}`);
+      toast.error(`Tải danh sách môn học thất bại: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]); // Thêm searchQuery
-
-  // --- Fetch Majors ---
-  const fetchMajors = useCallback(async () => {
-    // Logic fetchMajors giữ nguyên hoặc cải thiện nếu cần (ví dụ: không cần search trong dropdown này)
-    try {
-      const query = { rpp: 1000, page: 1 }; // Lấy nhiều ngành một lúc
-      const queryString = qs.stringify(query, { encode: false });
-      const response = await Api({
-        endpoint: `major/search?${queryString}`, // Endpoint tìm ngành
-        method: METHOD_TYPE.GET,
-      });
-      if (response.success && Array.isArray(response.data?.items)) {
-        setMajors(response.data.items);
-        console.log("Majors fetched:", response.data.items.length);
-      } else {
-        console.error("Failed to fetch majors:", response.message);
-        // Không nên toast error ở đây vì nó không phải lỗi chính của trang
-      }
-    } catch (error) {
-      console.error("An error occurred while fetching majors:", error.message);
-    }
-  }, []); // Không có dependencies, chỉ fetch 1 lần
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    appliedSearchInput,
+    appliedSearchField,
+    t,
+  ]);
 
   // --- UseEffect Hooks ---
   useEffect(() => {
-    fetchMajors(); // Fetch majors khi component mount
+    fetchMajors();
   }, [fetchMajors]);
 
   useEffect(() => {
-    fetchData(); // Fetch subjects khi dependencies thay đổi
+    fetchData();
   }, [fetchData]);
 
   // --- Handlers ---
   const handlePageClick = (event) => {
-    if (typeof event.selected === "number") {
-      setCurrentPage(event.selected);
-    }
+    if (typeof event.selected === "number") setCurrentPage(event.selected);
   };
 
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
   };
 
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+  };
+
   const handleApplySearch = () => {
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput("");
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      setAppliedSearchInput("");
+    }
     setCurrentPage(0);
-    setSearchQuery(searchInput);
   };
 
   const handleSearchKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleApplySearch();
-    }
+    if (e.key === "Enter") handleApplySearch();
   };
 
   const handleSort = (sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
+    setSortConfig((prevConfig) => ({
+      key: sortKey,
+      direction:
         prevConfig.key === sortKey && prevConfig.direction === "asc"
           ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
+          : "asc",
+    }));
     setCurrentPage(0);
   };
 
@@ -192,9 +225,8 @@ const ListOfSubjectPage = () => {
     setCurrentPage(0);
   };
 
-  // --- CRUD Handlers ---
+  // --- CRUD Handlers (giữ nguyên các handler khác) ---
   const handleDelete = (subject) => {
-    // Nhận object
     if (!subject || !subject.subjectId) return;
     const subjectName = subject.subjectName || subject.subjectId;
     setDeleteItemId(subject.subjectId);
@@ -207,26 +239,21 @@ const ListOfSubjectPage = () => {
     setIsDeleting(true);
     try {
       const response = await Api({
-        endpoint: `subject/delete/${deleteItemId}`, // Endpoint xóa subject
+        endpoint: `subject/delete/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
-
       if (response.success) {
         toast.success("Xóa môn học thành công");
-        if (data.length === 1 && currentPage > 0) {
+        if (data.length === 1 && currentPage > 0)
           setCurrentPage(currentPage - 1);
-        } else {
-          fetchData();
-        }
+        else fetchData();
       } else {
-        console.log("Failed to delete subject:", response.message);
         toast.error(
           `Xóa thất bại: ${response.message || "Lỗi không xác định"}`
         );
       }
-    } catch (error) {
-      console.error("An error occurred while deleting subject:", error);
-      toast.error(`Xóa thất bại: ${error.message || "Lỗi mạng"}`);
+    } catch (errorCatch) {
+      toast.error(`Xóa thất bại: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -238,25 +265,19 @@ const ListOfSubjectPage = () => {
   const handleAddSubject = () => {
     setModalMode("add");
     setModalData({
-      // Reset form data
       subjectName: "",
-      majorId: majors.length > 0 ? majors[0].majorId : "", // Chọn ngành đầu tiên làm mặc định
+      majorId: majors.length > 0 ? majors[0].majorId : "",
     });
     setFormErrors({});
     setIsModalOpen(true);
-    // Không cần fetchMajors ở đây nữa nếu đã fetch ở useEffect
   };
 
   const handleView = (subject) => {
     setModalData({
-      // Chuẩn bị data view
       subjectId: subject.subjectId,
       subjectName: subject.subjectName || "",
       majorId: getSafeNestedValue(subject, "major.majorId", ""),
-      majorName: getSafeNestedValue(subject, "major.majorName", "N/A"), // Lấy cả tên ngành để hiển thị
-      // Thêm createdAt, updatedAt nếu cần
-      // createdAt: subject.createdAt,
-      // updatedAt: subject.updatedAt,
+      majorName: getSafeNestedValue(subject, "major.majorName", "N/A"),
     });
     setModalMode("view");
     setIsModalOpen(true);
@@ -264,25 +285,25 @@ const ListOfSubjectPage = () => {
 
   const handleEdit = (subject) => {
     setModalData({
-      // Chuẩn bị data edit
       subjectId: subject.subjectId,
       subjectName: subject.subjectName || "",
-      majorId: getSafeNestedValue(subject, "major.majorId", ""), // Cần majorId để select đúng
+      majorId: getSafeNestedValue(subject, "major.majorId", ""),
     });
     setModalMode("edit");
     setFormErrors({});
     setIsModalOpen(true);
-    // Không cần fetchMajors ở đây nữa
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
-    setFormErrors({});
+    setTimeout(() => {
+      // Đợi animation nếu có
+      setModalData({});
+      setModalMode(null);
+      setFormErrors({});
+    }, 300);
   };
 
-  // Validation
   const validateSubjectForm = (formData) => {
     const errors = {};
     if (!formData.subjectName?.trim())
@@ -291,7 +312,6 @@ const ListOfSubjectPage = () => {
     return errors;
   };
 
-  // Chung handler submit cho Add/Edit
   const handleFormSubmit = async (formData) => {
     const errors = validateSubjectForm(formData);
     if (Object.keys(errors).length > 0) {
@@ -301,12 +321,10 @@ const ListOfSubjectPage = () => {
     }
     setFormErrors({});
     setIsSubmitting(true);
-
     const apiData = {
       subjectName: formData.subjectName,
       majorId: formData.majorId,
     };
-
     try {
       let response;
       if (modalMode === "add") {
@@ -317,13 +335,11 @@ const ListOfSubjectPage = () => {
         });
       } else if (modalMode === "edit") {
         response = await Api({
-          endpoint: `subject/update/${modalData.subjectId}`, // Dùng ID từ modalData gốc
+          endpoint: `subject/update/${modalData.subjectId}`,
           method: METHOD_TYPE.PUT,
           data: apiData,
         });
-      } else {
-        return; // Không làm gì nếu mode là view
-      }
+      } else return;
 
       if (response.success) {
         const successMsg =
@@ -332,13 +348,10 @@ const ListOfSubjectPage = () => {
             : "Cập nhật môn học thành công";
         toast.success(successMsg);
         if (modalMode === "add") {
-          // Về trang đầu sau khi thêm
           setSortConfig({ key: "subjectName", direction: "asc" });
           if (currentPage !== 0) setCurrentPage(0);
           else fetchData();
-        } else {
-          fetchData(); // Load lại trang hiện tại sau khi sửa
-        }
+        } else fetchData();
         handleCloseModal();
       } else {
         const errorMsg =
@@ -348,13 +361,12 @@ const ListOfSubjectPage = () => {
         toast.error(`${errorMsg}: ${response.message || "Lỗi không xác định"}`);
         if (response.errors) setFormErrors(response.errors);
       }
-    } catch (error) {
-      console.error(`Error ${modalMode}ing subject:`, error);
+    } catch (errorCatch) {
       const errorMsg =
         modalMode === "add"
           ? "Thêm môn học thất bại"
           : "Cập nhật môn học thất bại";
-      toast.error(`${errorMsg}: ${error.message || "Lỗi mạng"}`);
+      toast.error(`${errorMsg}: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -368,15 +380,14 @@ const ListOfSubjectPage = () => {
       {
         title: "Tên ngành",
         dataKey: "major.majorName",
-        sortKey: "major.majorName", // Cần backend hỗ trợ
+        sortKey: "major.majorName",
         sortable: true,
         renderCell: (_, row) =>
-          getSafeNestedValue(row, "major.majorName", "N/A"), // Dùng helper
+          getSafeNestedValue(row, "major.majorName", "N/A"),
       },
-      // Thêm cột khác nếu cần
     ],
     []
-  ); // Không có dependencies
+  );
 
   // --- Fields Definition ---
   const addFields = useMemo(
@@ -388,7 +399,6 @@ const ListOfSubjectPage = () => {
         type: "select",
         required: true,
         options: majors.map((major) => ({
-          // Map từ state majors
           label: major.majorName,
           value: major.majorId,
         })),
@@ -396,7 +406,7 @@ const ListOfSubjectPage = () => {
       },
     ],
     [majors]
-  ); // Phụ thuộc state majors
+  );
 
   const editFields = useMemo(
     () => [
@@ -413,50 +423,85 @@ const ListOfSubjectPage = () => {
         })),
         placeholder: "-- Chọn ngành --",
       },
-      // Thêm các trường readOnly nếu cần hiển thị ở view mode
-      // { key: "majorName", label: "Tên ngành (View)", readOnly: true, renderValue: (v, data) => getSafeNestedValue(data, 'major.majorName', 'N/A')},
-      // { key: "createdAt", label: "Ngày tạo", readOnly: true, renderValue: (v) => v ? safeFormatDate(v) : 'N/A'},
+      // Thêm các trường readOnly nếu cần hiển thị ở view mode (ví dụ `majorName`)
+      {
+        key: "majorName",
+        label: "Tên ngành (Hiện tại)",
+        readOnly: true,
+        renderValue: (v, data) => getSafeNestedValue(data, "majorName", "N/A"),
+      },
     ],
     [majors]
-  ); // Phụ thuộc state majors
+  );
 
   // --- JSX Render ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableSubjectColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
         <h2 className="admin-list-title">Danh sách môn học</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
+            {/* Select chọn cột tìm kiếm */}
+            <div className="filter-control">
+              <select
+                id="searchFieldSelectSubject"
+                value={selectedSearchField}
+                onChange={handleSearchFieldChange}
+                className="status-filter-select"
+                aria-label="Chọn trường để tìm kiếm"
+              >
+                {searchableSubjectColumnOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
-              onKeyPress={handleSearchKeyPress} // Thêm tìm bằng Enter
+              onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm mã, tên môn học, tên ngành..." // Cập nhật placeholder
+              placeholder={searchPlaceholder}
             />
-            {/* Nút tìm kiếm */}
             <button
               className="refresh-button"
               onClick={handleApplySearch}
               title="Tìm kiếm"
               aria-label="Tìm kiếm"
+              disabled={isLoading}
             >
               <i className="fa-solid fa-search"></i>
             </button>
-            {/* Nút làm mới */}
             <button
               className="refresh-button"
               onClick={resetState}
               title="Làm mới"
               aria-label="Làm mới"
+              disabled={isLoading}
             >
               <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
-          {/* Nút thêm */}
           <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddSubject}>
+            <button
+              className="add-admin-button"
+              onClick={handleAddSubject}
+              disabled={isLoading || isSubmitting}
+            >
               {t("common.addButton")}
             </button>
           </div>
@@ -468,29 +513,23 @@ const ListOfSubjectPage = () => {
           </Alert>
         )}
 
-        {/* Table */}
         <Table
           columns={columns}
-          data={data} // Dùng data trực tiếp
-          totalItems={totalItems} // Truyền totalItems
-          // Actions
+          data={data}
+          totalItems={totalItems}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete} // Truyền object subject
-          // Không có lock cho subject
+          onDelete={handleDelete}
           showLock={false}
-          // Pagination & Sort
           pageCount={pageCount}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
-          currentSortConfig={sortConfig} // Truyền sort config
-          // Loading & Items per page
-          loading={isLoading}
+          currentSortConfig={sortConfig}
+          loading={isLoading || isDeleting || isSubmitting}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
         />
-        {/* Tổng số */}
         {!isLoading && !error && data.length > 0 && (
           <p
             style={{
@@ -503,6 +542,18 @@ const ListOfSubjectPage = () => {
             Tổng số môn học: {totalItems}
           </p>
         )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            Không có dữ liệu môn học.
+          </p>
+        )}
       </div>
     </>
   );
@@ -512,7 +563,6 @@ const ListOfSubjectPage = () => {
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
-      {/* Modal Add/Edit/View */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
@@ -523,23 +573,22 @@ const ListOfSubjectPage = () => {
             ? "Chỉnh sửa môn học"
             : "Xem môn học"
         }
-        className="modal" // Có thể thêm class 'medium'
+        className="modal"
         overlayClassName="overlay"
+        closeTimeoutMS={300}
       >
-        {/* Render FormDetail khi có mode */}
         {modalMode && (
           <FormDetail
             formData={modalData}
+            // Sử dụng editFields cho cả view mode để hiển thị đúng tên ngành
             fields={modalMode === "add" ? addFields : editFields}
             mode={modalMode}
             onChange={(name, value) => {
               setModalData({ ...modalData, [name]: value });
-              // Xóa lỗi khi thay đổi input
-              if (formErrors[name]) {
+              if (formErrors[name])
                 setFormErrors((prev) => ({ ...prev, [name]: "" }));
-              }
             }}
-            onSubmit={handleFormSubmit} // Dùng handler chung
+            onSubmit={handleFormSubmit}
             title={
               modalMode === "add"
                 ? "Thêm môn học"
@@ -549,21 +598,19 @@ const ListOfSubjectPage = () => {
             }
             onClose={handleCloseModal}
             errors={formErrors}
-            isSubmitting={isSubmitting} // Truyền state loading
+            isSubmitting={isSubmitting}
           />
         )}
       </Modal>
 
-      {/* Modal Delete Confirmation */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message={deleteMessage} // Message động
-        isDeleting={isDeleting} // State loading xóa
+        message={deleteMessage}
+        isDeleting={isDeleting}
       />
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

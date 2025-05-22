@@ -98,7 +98,7 @@ const PaymentSuccess = () => {
                         </div> */}
 
             <div className="action-buttons-payment-result">
-              <Link to="/vi-cua-toi" className="btn btn-primary">
+              <Link to="/tai-khoan/ho-so/vi-ca-nhan" className="btn btn-primary">
                 Xem Ví Coin
               </Link>
               <Link to="/" className="btn btn-secondary">

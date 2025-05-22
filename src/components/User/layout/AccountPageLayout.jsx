@@ -1,14 +1,13 @@
-// src/components/User/layout/AccountPageLayout.jsx
-import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import "../../../assets/css/AccountPageLayout.style.css"; // Đảm bảo đường dẫn đúng
-import dfMale from "../../../assets/images/df-male.png"; // Đảm bảo đường dẫn đúng
-import dfFemale from "../../../assets/images/df-female.png"; // Đảm bảo đường dẫn đúng
+import "../../../assets/css/AccountPageLayout.style.css";
+import dfMale from "../../../assets/images/df-male.png";
+import dfFemale from "../../../assets/images/df-female.png";
 
 // Component SidebarUserInfo
 const SidebarUserInfo = () => {
   const user = useSelector((state) => state.user.userProfile);
-
   if (!user || !user.userProfile) {
     return (
       <div className="sidebar-user-info">
@@ -25,6 +24,7 @@ const SidebarUserInfo = () => {
   }
   const getAvatar = () =>
     user.avatar ? user.avatar : user.gender === "FEMALE" ? dfFemale : dfMale;
+
   return (
     <div className="sidebar-user-info">
       <img
@@ -43,48 +43,97 @@ const SidebarUserInfo = () => {
     </div>
   );
 };
-// Không cần PropTypes cho SidebarUserInfo nếu nó không nhận props trực tiếp
 
 const AccountPageLayout = () => {
   const location = useLocation();
-  const user = useSelector((state) => state.user.userProfile);
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.userProfile); // Lấy toàn bộ user object từ Redux
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
-  if (!user || !user.userProfile) {
-    // ProtectRoute nên xử lý việc này trước, nhưng đây là fallback
-    return <Navigate to="/login" replace />;
+  // useEffect để kiểm tra xác thực và điều hướng nếu cần
+  useEffect(() => {
+    // Chỉ kiểm tra !isAuthenticated là đủ, vì nếu không xác thực thì user.userProfile cũng không nên tồn tại
+    if (!isAuthenticated) {
+      // console.warn("AccountPageLayout: User not authenticated, redirecting to login.");
+      navigate("/login", { replace: true, state: { from: location } });
+    }
+    // Nếu đã xác thực nhưng không có user.userProfile (trường hợp hiếm), có thể log lỗi hoặc xử lý thêm
+    else if (isAuthenticated && (!user || !user.userProfile)) {
+      // console.warn("AccountPageLayout: User authenticated but profile missing. Potential data issue.");
+      // Bạn có thể chọn ở lại trang (return;) hoặc redirect về login/trang lỗi
+      // navigate("/login", { replace: true, state: { from: location } }); // Hoặc 1 trang báo lỗi
+    }
+  }, [isAuthenticated, user, navigate, location]);
+
+  // Xác định isTutor và các path mặc định
+  // Đảm bảo user và user.userProfile có giá trị trước khi truy cập user.roleId
+  const isTutor =
+    isAuthenticated &&
+    user?.userProfile &&
+    String(user.roleId).toUpperCase() === "TUTOR";
+  const defaultUserPath = "thong-tin-ca-nhan";
+  const defaultTutorPath = "ho-so-gia-su"; // ĐÃ CẬP NHẬT
+
+  // useEffect để điều hướng đến trang con mặc định
+  useEffect(() => {
+    // Chỉ chạy logic này nếu user đã được xác thực và có profile đầy đủ
+    if (isAuthenticated && user && user.userProfile) {
+      const baseAccountPath = "/tai-khoan/ho-so";
+      if (
+        location.pathname === baseAccountPath ||
+        location.pathname === `${baseAccountPath}/`
+      ) {
+        const targetPath = isTutor ? defaultTutorPath : defaultUserPath;
+        navigate(`${baseAccountPath}/${targetPath}`, { replace: true });
+      }
+    }
+  }, [
+    location.pathname,
+    navigate,
+    isAuthenticated,
+    user, // Quan trọng: user là dependency
+    isTutor, // isTutor phụ thuộc vào user
+    defaultUserPath,
+    defaultTutorPath,
+  ]);
+
+  // Điều kiện return sớm nếu chưa xác thực hoặc thiếu thông tin user cơ bản
+  if (!isAuthenticated || !user || !user.userProfile) {
+    // Hooks đã chạy, giờ có thể return null hoặc component loading
+    // trong khi chờ navigate từ useEffect kiểm tra xác thực
+    return null;
   }
 
-  const isTutor = !!user.tutorProfile;
-
   const getSidebarMenuItems = () => {
+    // isTutor đã được tính toán chính xác ở trên
     if (isTutor) {
       return [
         {
           id: "tutorProfile",
           label: "Hồ Sơ Gia Sư",
-          pathBase: "thong-tin-gia-su",
+          pathBase: "ho-so-gia-su", // ĐÃ CẬP NHẬT
           icon: "fas fa-id-badge",
         },
         {
           id: "tutorWallet",
           label: "Ví Cá Nhân",
-          pathBase: "vi-ca-nhan",
+          pathBase: "vi-cua-toi",
           icon: "fas fa-wallet",
         },
-        // { id: 'rentalRequests', label: 'Yêu Cầu Thuê', pathBase: 'yeu-cau-thue', icon: 'fas fa-clipboard-list' },
         {
           id: "personalSyllabus",
-          label: "Giáo Trình",
-          pathBase: "giao-trinh",
+          label: "Giáo Trình Cá Nhân",
+          pathBase: "giao-trinh-ca-nhan",
           icon: "fas fa-book-open",
         },
       ];
     } else {
+      // USER (Người học)
       return [
         {
           id: "userProfile",
-          label: "Thông Tin Người Học",
-          pathBase: "thong-tin-nguoi-hoc",
+          label: "Hồ Sơ Học Viên",
+          pathBase: "thong-tin-ca-nhan", // Giữ nguyên cho User
           icon: "fas fa-user-circle",
         },
         {
@@ -96,7 +145,7 @@ const AccountPageLayout = () => {
         {
           id: "userWallet",
           label: "Ví Cá Nhân",
-          pathBase: "vi-ca-nhan",
+          pathBase: "vi-cua-toi",
           icon: "fas fa-wallet",
         },
       ];
@@ -104,10 +153,7 @@ const AccountPageLayout = () => {
   };
 
   const sidebarMenuItems = getSidebarMenuItems();
-  // basePathForLinks giờ đây chính là path của Route chứa AccountPageLayout
-  const basePathForLinks = isTutor
-    ? "/gia-su/quan-ly/ho-so"
-    : "/tai-khoan/ho-so";
+  const basePathForLinks = "/tai-khoan/ho-so";
 
   return (
     <div className="account-page-container">
@@ -141,8 +187,5 @@ const AccountPageLayout = () => {
     </div>
   );
 };
-
-// AccountPageLayout không nhận props trực tiếp, không cần PropTypes ở đây
-// AccountPageLayout.propTypes = {};
 
 export default AccountPageLayout;

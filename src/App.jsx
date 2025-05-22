@@ -1,4 +1,3 @@
-// src/App.jsx
 import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -28,7 +27,7 @@ const Register = lazy(() => import("./pages/User/Register"));
 const TutorQualificationTestPage = lazy(() =>
   import("./pages/User/TutorQualificationTestPage")
 );
-const Profile = lazy(() => import("./pages/User/Profile"));
+const Profile = lazy(() => import("./pages/User/Profile")); // Trang hồ sơ cho USER
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const OtpVerifyRegister = lazy(() => import("./pages/User/OtpVerifyRegister"));
@@ -36,7 +35,7 @@ const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 const AboutUs = lazy(() => import("./pages/User/AboutUs"));
 const TutorSearch = lazy(() => import("./pages/User/TutorSearch"));
 const TutorDetailPage = lazy(() => import("./pages/User/TutorDetailPage"));
-const TutorRegister = lazy(() => import("./pages/User/TutorRegister"));
+const TutorRegister = lazy(() => import("./pages/User/TutorRegister")); // Dùng cho trang đăng ký VÀ hồ sơ Gia sư
 const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
 const RulesRegulationsPage = lazy(() =>
   import("./pages/User/RulesRegulationsPage")
@@ -109,8 +108,6 @@ function App() {
           <Routes>
             {/* --- CÁC ROUTE SỬ DỤNG HomePageLayout --- */}
             <Route element={<HomePageLayout />}>
-              {" "}
-              {/* Layout cha cho tất cả các route con bên dưới */}
               <Route index element={<Navigate to="/trang-chu" replace />} />
               <Route path="/trang-chu" element={<HomePage />} />
               <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
@@ -127,50 +124,52 @@ function App() {
               <Route path="/login" element={<UserLogin />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+
               <Route element={<TutorRegistrationGuard />}>
                 <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
               </Route>
-              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN CỦA USER (HỌC VIÊN) --- */}
-              <Route element={<ProtectRoute role="USER" />}>
-                <Route path="/tai-khoan/ho-so" element={<AccountPageLayout />}>
-                  <Route
-                    index
-                    element={<Navigate to="thong-tin-nguoi-hoc" replace />}
-                  />
-                  <Route path="thong-tin-nguoi-hoc" element={<Profile />} />
+
+              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN CHUNG (USER & TUTOR) --- */}
+              <Route element={<ProtectRoute />}>
+                {" "}
+                {/* Chỉ cần đăng nhập */}
+                <Route
+                  path="/tai-khoan/ho-so" // BASE PATH CHUNG
+                  element={<AccountPageLayout />}
+                >
+                  {/* AccountPageLayout sẽ tự điều hướng đến trang con mặc định dựa trên role */}
+
+                  {/* === USER (Người học) specific routes === */}
+                  <Route path="thong-tin-ca-nhan" element={<Profile />} />
                   <Route
                     path="gia-su-yeu-thich"
                     element={<FavoriteTutorsPage />}
                   />
-                  <Route path="vi-ca-nhan" element={<Wallet />} />
-                </Route>
-              </Route>
-              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN CỦA TUTOR (GIA SƯ) --- */}
-              <Route element={<ProtectRoute role="TUTOR" />}>
-                <Route
-                  path="/gia-su/quan-ly/ho-so"
-                  element={<AccountPageLayout />}
-                >
+
+                  {/* === TUTOR (Gia sư) specific routes === */}
+                  <Route path="ho-so-gia-su" element={<TutorRegister />} />
                   <Route
-                    index
-                    element={<Navigate to="thong-tin-gia-su" replace />}
+                    path="giao-trinh-ca-nhan"
+                    element={<CurriculumPage />}
                   />
-                  <Route path="thong-tin-gia-su" element={<TutorRegister />} />
-                  <Route path="giao-trinh" element={<CurriculumPage />} />
-                  <Route path="vi-ca-nhan" element={<Wallet />} />
-                  {/* <Route path="yeu-cau-thue" element={<SomeComponent />} /> */}
+
+                  {/* === SHARED routes for both USER and TUTOR under AccountPageLayout === */}
+                  <Route path="vi-cua-toi" element={<Wallet />} />
                 </Route>
               </Route>
-              {/* Route Đổi Mật Khẩu - nằm trong HomePageLayout và được bảo vệ */}
+
+              {/* Route Đổi Mật Khẩu */}
               <Route element={<ProtectRoute />}>
-                {" "}
-                {/* Chỉ cần đăng nhập */}
                 <Route element={<OtpProtectedRoute />}>
                   <Route path="/change-password" element={<ChangePassword />} />
                 </Route>
               </Route>
-              <Route path="payment/success" element={<PaymentSuccess />} />
-              <Route path="payment/failed" element={<PaymentFailed />} />
+
+              {/* Payment Routes */}
+              <Route element={<ProtectRoute />}>
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/failed" element={<PaymentFailed />} />
+              </Route>
             </Route>{" "}
             {/* Kết thúc các Route sử dụng HomePageLayout */}
             {/* Các route không dùng HomePageLayout (standalone) */}

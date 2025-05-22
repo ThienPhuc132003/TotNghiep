@@ -13,6 +13,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 const ProfilePage = () => {
   // Lấy toàn bộ object userProfile từ Redux state
   const userProfileFromRedux = useSelector((state) => state.user.userProfile);
+  console.log("user in profile page ", userProfileFromRedux);
   const profileLoading = useSelector((state) => state.user.profileLoading);
   const profileError = useSelector((state) => state.user.profileError);
   const dispatch = useDispatch();
@@ -43,7 +44,7 @@ const ProfilePage = () => {
       // Giả sử cấu trúc API trả về fullname, personalEmail, workEmail,... trực tiếp trong object data
       setProfileData({
         avatar: userProfileFromRedux.avatar || null,
-        fullName: userProfileFromRedux.fullname || "", // Thay vì userProfileFromRedux.userProfile.fullname
+        fullName: userProfileFromRedux.userProfile.fullname || "", // Thay vì userProfileFromRedux.userProfile.fullname
         birthday: userProfileFromRedux.birthday
           ? userProfileFromRedux.birthday.split("T")[0]
           : "",
@@ -53,7 +54,7 @@ const ProfilePage = () => {
           "", // Ưu tiên personalEmail
         phoneNumber: userProfileFromRedux.phoneNumber || "",
         homeAddress: userProfileFromRedux.homeAddress || "",
-        gender: userProfileFromRedux.gender || "",
+        gender: userProfileFromRedux.userProfile.gender || "",
         workEmail: userProfileFromRedux.workEmail || "", // Nếu API có workEmail riêng
       });
     } else {
@@ -191,7 +192,21 @@ const ProfilePage = () => {
       });
       if (response.success === true && response.data) {
         // Giả sử API trả về toàn bộ profile đã cập nhật
-        dispatch(setUserProfile(response.data));
+        dispatch(
+          setUserProfile({
+            ...userProfileFromRedux,
+            userProfile: {
+              ...userProfileFromRedux.userProfile,
+              ...{
+                fullname: response.data.fullname,
+                gender: response.data.gender,
+                // Thêm các trường khác nếu cần
+              },
+            },
+            // Merge các trường khác ở root nếu có
+            ...response.data,
+          })
+        );
         setSuccessMessage("Thông tin hồ sơ đã cập nhật!");
       } else {
         throw new Error(response.message || "Cập nhật thông tin thất bại.");

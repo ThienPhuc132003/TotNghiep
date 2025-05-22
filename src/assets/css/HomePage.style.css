@@ -3,7 +3,7 @@
 /* --- Styles cho Wrapper và Container chính --- */
 .home-page-wrapper {
   width: 100%;
-  overflow-x: hidden; /* Ngăn cuộn ngang không mong muốn */
+  overflow-x: hidden;
 }
 
 /* --- Styles chung cho các Section trong HomePage --- */
@@ -11,8 +11,8 @@
   padding: 4rem 1rem;
   margin: 0 auto;
   text-align: center;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
+  background-color: var(--background-white); /* Sử dụng biến */
+  border-bottom: 1px solid var(--border-color); /* Sử dụng biến */
 }
 .home-page-wrapper .section:last-of-type {
   border-bottom: none;
@@ -22,7 +22,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 3rem;
-  color: rgba(215, 33, 52, 1); /* Màu đỏ Văn Lang */
+  color: var(--primary-color);
   text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
@@ -36,7 +36,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 4px;
-  background-color: rgba(215, 33, 52, 0.5);
+  background-color: rgba(var(--primary-color-rgb), 0.5);
   border-radius: 2px;
 }
 
@@ -46,13 +46,13 @@
   padding: 6rem 1rem;
   position: relative;
   width: 100%;
-  min-height: 85vh; /* Chiều cao tối thiểu */
+  min-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  background-color: #333; /* Màu nền dự phòng */
+  background-color: #333;
   border-bottom: none;
 }
 .home-page-wrapper .welcomeTheme {
@@ -61,7 +61,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Đảm bảo ảnh nền che phủ */
+  object-fit: cover;
   z-index: 1;
 }
 .home-page-wrapper .hero::before {
@@ -74,7 +74,7 @@
   background: linear-gradient(
     to bottom,
     rgba(45, 51, 77, 0.4),
-    /* Lớp phủ mờ dần */ rgba(45, 51, 77, 0.7)
+    rgba(45, 51, 77, 0.7)
   );
   z-index: 2;
 }
@@ -82,7 +82,7 @@
   max-width: 1200px;
   padding: 0 1rem;
   position: relative;
-  z-index: 3; /* Nội dung nổi lên trên */
+  z-index: 3;
   width: 100%;
 }
 .home-page-wrapper .hero h1 {
@@ -103,7 +103,7 @@
   margin-right: auto;
 }
 
-/* --- Search Form Styles --- */
+/* --- Search Form Styles (Đã cập nhật cho React-Select) --- */
 .home-page-wrapper .search-form {
   margin-top: 2rem;
   width: 100%;
@@ -118,26 +118,12 @@
   border-radius: 15px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
 }
-.home-page-wrapper .search-input-wrapper {
+.home-page-wrapper .search-input-wrapper.react-select-hero-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 30px;
-  padding: 0 1rem 0 2.8rem;
-  height: 50px;
-  flex: 1 1 200px;
-  min-width: 180px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.home-page-wrapper .search-input-wrapper:focus-within {
-  border-color: rgba(215, 33, 52, 1);
-  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.2);
-}
-.home-page-wrapper .search-input-wrapper.js-no-focus-highlight:focus-within {
-  border-color: #d1d5db;
-  box-shadow: none;
+  flex: 1 1 220px;
+  min-width: 200px;
 }
 .home-page-wrapper .search-input-wrapper .search-icon {
   position: absolute;
@@ -147,35 +133,15 @@
   color: #6b7280;
   font-size: 1rem;
   pointer-events: none;
+  z-index: 5;
 }
-.home-page-wrapper .search-input-wrapper select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+
+.home-page-wrapper .hero-search-select {
   width: 100%;
-  height: 100%;
-  padding: 0 2rem 0 0;
-  border: none;
-  background-color: transparent;
-  font-size: 1rem;
-  color: #374151;
-  cursor: pointer;
-  outline: none;
 }
-.home-page-wrapper .search-input-wrapper::after {
-  content: "\f078"; /* Font Awesome down arrow */
-  font-family: "Font Awesome 5 Free", "Font Awesome 6 Free"; /* Add both families for wider compatibility */
-  font-weight: 900;
-  position: absolute;
-  right: 1.2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  pointer-events: none;
-  font-size: 0.8rem;
-}
+
 .home-page-wrapper .search-inputs button[type="submit"] {
-  background-color: rgba(45, 51, 77, 1);
+  background-color: var(--text-dark, rgba(45, 51, 77, 1));
   color: white;
   border: none;
   border-radius: 50%;
@@ -190,14 +156,14 @@
   flex-shrink: 0;
 }
 .home-page-wrapper .search-inputs button[type="submit"]:hover {
-  background-color: rgba(215, 33, 52, 1);
+  background-color: var(--primary-color);
   transform: scale(1.1);
 }
 
 /* --- CTA Button --- */
 .home-page-wrapper .cta-button,
 .home-page-wrapper .view-all-tutors {
-  background-color: rgba(215, 33, 52, 1);
+  background-color: var(--primary-color);
   color: white;
   padding: 0.9rem 2.5rem;
   border: none;
@@ -215,14 +181,14 @@
 }
 .home-page-wrapper .cta-button:hover,
 .home-page-wrapper .view-all-tutors:hover {
-  background-color: rgba(190, 28, 45, 1);
+  background-color: var(--primary-color-dark);
   transform: translateY(-3px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
 }
 
 /* --- Benefits Section --- */
 .home-page-wrapper .benefits {
-  background-color: #f9fafb;
+  background-color: var(--background-light);
   padding: 4rem 1rem;
 }
 .home-page-wrapper .benefits-grid {
@@ -241,7 +207,7 @@
   text-align: center;
   padding: 2.5rem 1.5rem;
   border-radius: 15px;
-  background-color: #fff;
+  background-color: var(--background-white);
   box-shadow: 0 6px 15px rgba(45, 51, 77, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   flex: 1 1 300px;
@@ -254,23 +220,23 @@
 .home-page-wrapper .benefit-icon {
   font-size: 3.5rem;
   margin-bottom: 1.5rem;
-  color: rgba(215, 33, 52, 1);
+  color: var(--primary-color);
 }
 .home-page-wrapper .benefit h3 {
   font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 0.8rem;
-  color: rgba(45, 51, 77, 1);
+  color: var(--text-dark);
 }
 .home-page-wrapper .benefit p {
   font-size: 1rem;
   line-height: 1.7;
-  color: #555;
+  color: var(--text-medium);
 }
 
 /* --- Popular Subjects Section --- */
 .home-page-wrapper .popular-subjects {
-  background-color: rgba(24, 61, 129, 1); /* Màu xanh đậm VLU */
+  background-color: var(--primary-color-dark); /* Hoặc màu xanh VLU nếu có */
   padding: 4rem 0;
 }
 .home-page-wrapper .popular-subjects h2 {
@@ -346,19 +312,19 @@
   border-radius: 50%;
   width: 45px;
   height: 45px;
-  display: flex !important; /* Override slick default */
+  display: flex !important;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   border: none;
-  color: rgba(45, 51, 77, 0.9);
+  color: var(--text-dark);
   font-size: 1.2rem;
 }
 .custom-slick-arrow:hover {
   background: white;
-  color: rgba(215, 33, 52, 1);
+  color: var(--primary-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 .custom-slick-arrow.slick-disabled {
@@ -367,15 +333,15 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 .custom-slick-prev {
-  left: -15px; /* Điều chỉnh vị trí nếu cần */
+  left: -15px;
 }
 .custom-slick-next {
-  right: -15px; /* Điều chỉnh vị trí nếu cần */
+  right: -15px;
 }
 
 /* --- Tutor Profiles Section --- */
 .home-page-wrapper .tutor-profiles {
-  background-color: #fff;
+  background-color: var(--background-white);
   padding: 4rem 0;
 }
 .home-page-wrapper .tutor-slider {
@@ -393,15 +359,14 @@
   padding: 2rem 1.5rem;
   border-radius: 15px;
   text-align: center;
-  background-color: #f9fafb;
+  background-color: var(--background-light);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-  height: 100%; /* Giúp các thẻ trong slide bằng nhau nếu nội dung khác nhau */
-  /* min-height: 380px; /* Hoặc giữ min-height nếu muốn chiều cao cố định tối thiểu */
+  height: 100%;
 }
 .home-page-wrapper .tutor:hover {
   transform: translateY(-8px);
-  box-shadow: 0 10px 25px rgba(45, 51, 77, 0.12);
+  box-shadow: 0 10px 25px rgba(var(--text-dark-rgb, 31, 41, 55), 0.12); /* Cần text-dark-rgb */
 }
 .home-page-wrapper .tutor img {
   width: 140px;
@@ -416,19 +381,19 @@
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: rgba(45, 51, 77, 1);
+  color: var(--text-dark);
 }
 .home-page-wrapper .tutor-info {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--text-medium);
   margin-bottom: 0.4rem;
   line-height: 1.5;
 }
 .home-page-wrapper .tutor-info:last-of-type {
-  margin-bottom: 1.2rem; /* Khoảng cách trước nút */
+  margin-bottom: 1.2rem;
 }
 .home-page-wrapper .view-profile-button {
-  background-color: rgba(45, 51, 77, 1);
+  background-color: var(--text-dark);
   color: white;
   padding: 0.7rem 1.5rem;
   border: none;
@@ -437,13 +402,12 @@
   transition: background-color 0.3s ease, transform 0.2s ease;
   font-size: 0.9rem;
   font-weight: 500;
-  margin-top: auto; /* Đẩy nút xuống dưới cùng */
+  margin-top: auto;
 }
 .home-page-wrapper .view-profile-button:hover {
-  background-color: rgba(215, 33, 52, 1);
+  background-color: var(--primary-color);
   transform: translateY(-2px);
 }
-/* .view-all-tutors đã được định nghĩa ở phần CTA Button */
 
 /* --- Testimonials Section --- */
 .home-page-wrapper .testimonials {
@@ -451,8 +415,8 @@
   overflow: hidden;
   padding: 5rem 1rem;
   color: white;
-  background-color: #444; /* Màu nền dự phòng */
-  background-size: cover; /* Đảm bảo ảnh nền che phủ */
+  background-color: #444;
+  background-size: cover;
   background-position: center;
   border-bottom: none;
 }
@@ -463,7 +427,10 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(45, 51, 77, 0.8); /* Lớp phủ màu */
+  background-color: rgba(
+    var(--text-dark-rgb, 31, 41, 55),
+    0.8
+  ); /* Cần text-dark-rgb */
   z-index: 1;
 }
 .home-page-wrapper .testimonials-content {
@@ -473,11 +440,7 @@
   margin: 0 auto;
 }
 .home-page-wrapper .testimonials h2 {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
   color: white;
-  margin-bottom: 3rem;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 .home-page-wrapper .testimonials h2::after {
@@ -487,7 +450,7 @@
   width: 100%;
 }
 .home-page-wrapper .student-review {
-  display: flex !important; /* Override slick */
+  display: flex !important;
   flex-direction: column;
   align-items: center;
   text-align: center;
@@ -519,28 +482,26 @@
   color: rgba(255, 255, 255, 0.95);
   max-width: 600px;
   margin: 0 auto;
-  position: relative; /* Cần thiết cho pseudo-elements */
+  position: relative;
 }
-/* Sử dụng pseudo-elements cho dấu ngoặc kép */
 .home-page-wrapper .student-quote::before {
-  content: "\201C"; /* Left double quotation mark */
-  font-size: 2em; /* Kích thước lớn hơn */
-  opacity: 0.6;
-  position: absolute;
-  left: -0.6em; /* Điều chỉnh vị trí */
-  top: -0.2em;
-}
-.home-page-wrapper .student-quote::after {
-  content: "\201D"; /* Right double quotation mark */
+  content: "\201C";
   font-size: 2em;
   opacity: 0.6;
   position: absolute;
-  right: -0.6em; /* Điều chỉnh vị trí */
+  left: -0.6em;
+  top: -0.2em;
+}
+.home-page-wrapper .student-quote::after {
+  content: "\201D";
+  font-size: 2em;
+  opacity: 0.6;
+  position: absolute;
+  right: -0.6em;
   bottom: -0.3em;
 }
-/* Điều chỉnh Slick dots */
 .home-page-wrapper .testimonials-slider .slick-dots {
-  bottom: -30px; /* Đẩy dots xuống dưới */
+  bottom: -30px;
 }
 .home-page-wrapper .testimonials-slider .slick-dots li button:before {
   font-size: 12px;
@@ -557,12 +518,12 @@
   .slick-dots
   li.slick-active
   button:before {
-  color: white; /* Màu dot active */
+  color: white;
 }
 
-/* --- FAQ Section (Updated Animation) --- */
+/* --- FAQ Section --- */
 .home-page-wrapper .faq {
-  background-color: #fff;
+  background-color: var(--background-white);
   padding: 4rem 1rem;
   border-bottom: none;
 }
@@ -571,10 +532,10 @@
   margin: 0 auto;
 }
 .home-page-wrapper .faq-item {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
 }
 .home-page-wrapper .faq-item:first-child {
-  border-top: 1px solid #eee; /* Thêm border top cho item đầu */
+  border-top: 1px solid var(--border-color);
 }
 .home-page-wrapper .faq-item:last-child {
   border-bottom: none;
@@ -586,8 +547,8 @@
   width: 100%;
   padding: 1.5rem 0;
   font-size: 1.1rem;
-  font-weight: 500; /* Giảm độ đậm một chút so với h3 */
-  color: rgba(45, 51, 77, 1);
+  font-weight: 500;
+  color: var(--text-dark);
   transition: color 0.2s ease;
   text-align: left;
   background: none;
@@ -596,8 +557,7 @@
 }
 .home-page-wrapper .faq-question:hover,
 .home-page-wrapper .faq-question:focus-visible {
-  /* Sử dụng focus-visible */
-  color: rgba(215, 33, 52, 1);
+  color: var(--primary-color);
 }
 .home-page-wrapper .faq-question span {
   flex-grow: 1;
@@ -608,38 +568,29 @@
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
-/* Style cho icon khi mở (Nếu cần xoay) */
-/* .home-page-wrapper .faq-question[aria-expanded="true"] svg {
-  transform: rotate(180deg);
-} */
-
 .home-page-wrapper .faq-answer {
   overflow: hidden;
   max-height: 0;
-  /* Thêm transition cho cả padding và margin */
   transition: max-height 0.35s ease-out, padding-top 0.35s ease-out,
     padding-bottom 0.35s ease-out, margin-top 0.35s ease-out;
   padding-top: 0;
   padding-bottom: 0;
   margin-top: 0;
 }
-/* Sử dụng class .active được thêm từ JS */
 .home-page-wrapper .faq-answer.active {
-  max-height: 500px; /* Đảm bảo đủ lớn để chứa nội dung */
+  max-height: 500px;
   padding-top: 0.5rem;
   padding-bottom: 1.5rem;
-  /* margin-top: 5px; /* Thêm khoảng cách nhỏ nếu muốn */
 }
-
 .home-page-wrapper .faq-answer p {
   font-size: 1rem;
   line-height: 1.7;
-  color: #555;
+  color: var(--text-medium);
   text-align: left;
-  margin: 0; /* Reset margin mặc định của p */
+  margin: 0;
 }
 
-/* --- Style cho overlay và error message (Updated Error Message) --- */
+/* --- OAuth Styles --- */
 .home-page-wrapper .oauth-processing-overlay {
   position: fixed;
   inset: 0;
@@ -654,22 +605,21 @@
   font-size: 1.2rem;
   font-weight: 500;
 }
-
 .home-page-wrapper .oauth-error-message {
-  color: #d8000c; /* Error red color */
-  background-color: #ffd2d2; /* Light red background */
-  border: 1px solid #d8000c;
-  border-radius: 8px; /* Bo tròn góc */
-  padding: 15px 20px; /* Tăng padding */
-  margin: 25px auto; /* Tăng margin và căn giữa */
+  color: var(--error-color);
+  background-color: #ffd2d2;
+  border: 1px solid var(--error-color);
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin: 25px auto;
   text-align: center;
-  max-width: 600px; /* Giới hạn chiều rộng */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ */
-  font-size: 1rem; /* Kích thước chữ phù hợp */
+  max-width: 600px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
 }
 .home-page-wrapper .oauth-error-message strong {
-  font-weight: 600; /* In đậm phần tiêu đề lỗi */
-  display: block; /* Cho tiêu đề xuống dòng riêng nếu cần */
+  font-weight: 600;
+  display: block;
   margin-bottom: 5px;
 }
 
@@ -687,28 +637,26 @@
   .home-page-wrapper .search-inputs {
     flex-direction: column;
     align-items: stretch;
-    padding: 1rem;
+    padding: 1.2rem;
   }
-  .home-page-wrapper .search-input-wrapper {
+  .home-page-wrapper .search-input-wrapper.react-select-hero-wrapper {
     flex-basis: auto;
     min-width: 0;
   }
   .home-page-wrapper .search-inputs button[type="submit"] {
     align-self: center;
-    margin-top: 0.5rem;
-    width: 55px; /* Có thể tăng kích thước nút tìm kiếm */
-    height: 55px;
+    margin-top: 0.8rem;
   }
   .home-page-wrapper .benefits-grid {
     gap: 1.5rem;
   }
   .home-page-wrapper .benefit {
-    flex-basis: calc(50% - 1rem); /* 2 cột */
+    flex-basis: calc(50% - 1rem);
     max-width: none;
   }
   .home-page-wrapper .subjects-slider,
   .home-page-wrapper .tutor-slider {
-    padding: 0 2rem; /* Giảm padding cho slider */
+    padding: 0 2rem;
   }
   .custom-slick-prev {
     left: -5px;
@@ -717,7 +665,6 @@
     right: -5px;
   }
 }
-
 @media (max-width: 768px) {
   .home-page-wrapper .section {
     padding: 3rem 1rem;
@@ -733,19 +680,18 @@
     font-size: 1.1rem;
   }
   .home-page-wrapper .benefits-grid {
-    flex-direction: column; /* Chuyển thành 1 cột */
+    flex-direction: column;
     align-items: center;
     gap: 1.5rem;
   }
   .home-page-wrapper .benefit {
-    max-width: 90%; /* Giới hạn chiều rộng */
+    max-width: 90%;
     flex-basis: auto;
   }
   .home-page-wrapper .subjects-slider,
   .home-page-wrapper .tutor-slider {
-    padding: 0 1rem; /* Giảm padding hơn nữa */
+    padding: 0 1rem;
   }
-  /* Di chuyển mũi tên vào trong trên mobile nhỏ */
   .custom-slick-prev {
     left: 5px;
   }
@@ -762,13 +708,12 @@
   }
   .home-page-wrapper .student-quote::before,
   .home-page-wrapper .student-quote::after {
-    font-size: 1.5em; /* Giảm kích thước dấu ngoặc kép */
+    font-size: 1.5em;
   }
   .home-page-wrapper .faq-list {
     max-width: 100%;
   }
 }
-
 @media (max-width: 576px) {
   .home-page-wrapper .section h2 {
     font-size: 1.8rem;
@@ -779,12 +724,6 @@
   .home-page-wrapper .hero p {
     font-size: 1rem;
     margin-bottom: 2rem;
-  }
-  .home-page-wrapper .search-input-wrapper {
-    padding: 0 0.8rem 0 2.5rem;
-  }
-  .home-page-wrapper .search-input-wrapper .search-icon {
-    left: 0.9rem;
   }
   .home-page-wrapper .cta-button,
   .home-page-wrapper .view-all-tutors {
@@ -818,42 +757,39 @@
 }
 
 /* --- Focus Visible --- */
-/* Áp dụng focus ring chuẩn cho các element tương tác */
 .home-page-wrapper *:focus-visible {
-  outline: 3px solid rgba(215, 33, 52, 0.5); /* Màu đỏ VLU với độ mờ */
+  outline: 3px solid rgba(var(--primary-color-rgb), 0.5);
   outline-offset: 2px;
-  box-shadow: none; /* Không cần thêm box-shadow nếu outline đủ rõ */
+  box-shadow: none;
 }
-/* Loại bỏ outline mặc định khi focus-visible được hỗ trợ */
 .home-page-wrapper *:focus {
   outline: none;
 }
-
-/* Xử lý đặc biệt cho các trường hợp không muốn focus ring */
-.home-page-wrapper .search-input-wrapper:focus-within {
-  /* Giữ lại border color thay đổi khi focus vào wrapper */
-  border-color: rgba(215, 33, 52, 1);
-  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.2);
-  /* Bỏ outline cho wrapper */
-  outline: none;
+.home-page-wrapper
+  .search-input-wrapper.react-select-hero-wrapper
+  .hero-select__control--is-focused {
+  /* Target control của react-select khi focused */
+  border-color: var(
+    --primary-color
+  ) !important; /* Quan trọng để ghi đè style của react-select */
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2) !important;
+  outline: none !important;
 }
-/* Bỏ focus ring cho select bên trong wrapper đã có hiệu ứng focus */
-.home-page-wrapper .search-input-wrapper select:focus-visible {
-  outline: none;
+.home-page-wrapper .hero-search-select:focus-visible, /* Target Select component itself */
+.home-page-wrapper .hero-search-select *:focus-visible {
+  /* Target children that might get focus */
+  outline: none !important; /* Bỏ outline cho react-select và các con của nó */
 }
-/* Loại bỏ focus ring cho nút FAQ vì đã có hiệu ứng hover/focus-visible đổi màu chữ */
 .home-page-wrapper .faq-question:focus-visible {
-  background-color: rgba(215, 33, 52, 0.05); /* Thêm background nhẹ khi focus */
+  background-color: rgba(var(--primary-color-rgb), 0.05);
   border-radius: 4px;
-  outline: none; /* Bỏ outline */
+  outline: none;
 }
-/* Bỏ focus ring cho các nút slick slider vì đã có hiệu ứng hover */
 .home-page-wrapper .custom-slick-arrow:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(45, 51, 77, 0.2); /* Thêm shadow nhẹ thay outline */
+  box-shadow: 0 0 0 3px rgba(var(--text-dark-rgb, 31, 41, 55), 0.2);
 }
-/* Bỏ focus ring cho các nút trong thẻ (ví dụ: Xem hồ sơ) vì đã có hover */
 .home-page-wrapper .view-profile-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(45, 51, 77, 0.2); /* Thêm shadow nhẹ thay outline */
+  box-shadow: 0 0 0 3px rgba(var(--text-dark-rgb, 31, 41, 55), 0.2);
 }

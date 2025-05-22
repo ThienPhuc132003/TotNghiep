@@ -1,83 +1,59 @@
-/* src/assets/css/CurriculumManagementPage.style.css (hoặc .module.css) */
-/* Nếu dùng .module.css, các class sẽ là .pageWrapper, .pageTitle,... */
-/* Nếu dùng .style.css (global), các class sẽ là pageWrapper, pageTitle,... */
+/* src/assets/css/CurriculumManagementPage.style.css */
 
-.pageWrapper, /* Hoặc .pageWrapper nếu dùng CSS Modules */
-.page-wrapper-fallback {
-  /* Class fallback nếu bạn dùng JSX với fallback */
-  padding: 25px 20px; /* Tăng padding */
-  max-width: 1200px;
+.mainContent {
+  max-width: 900px;
   margin: 0 auto;
-  background-color: #f8f9fa; /* Màu nền xám nhạt giống các trang khác */
-  min-height: calc(
-    100vh - var(--header-height, 100px) - var(--footer-height, 100px)
-  ); /* Giả sử bạn có biến CSS cho chiều cao header/footer */
-}
-
-.pageTitle,
-.page-title-fallback {
-  font-size: 2rem; /* 32px */
-  color: #343a40; /* Màu chữ tối hơn một chút */
-  margin-bottom: 30px;
-  text-align: center;
-  font-weight: 600; /* Hơi đậm hơn */
-  padding-bottom: 15px;
-  /* border-bottom: 2px solid #c82333; */ /* Màu đỏ sẫm VLU (thay #0056b3) */
-  /* Cân nhắc bỏ border-bottom nếu không nhất quán với các trang khác */
-}
-
-.mainContent,
-.main-content-fallback {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 25px;
 }
 
-.section,
-.section-fallback {
-  background-color: #ffffff; /* Nền trắng cho card */
-  padding: 25px; /* Tăng padding cho section */
+.pageTitle {
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 700;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section {
+  background-color: var(--background-white);
+  padding: 20px 25px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Bóng đổ nhẹ nhàng hơn */
-  border: 1px solid #dee2e6; /* Border nhẹ cho card */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
 }
 
-.sectionTitle,
-.section-title-fallback {
-  font-size: 1.5rem; /* 24px */
-  color: #495057;
+.sectionTitle {
+  font-size: 1.3rem;
+  color: var(--primary-color-dark);
   margin-bottom: 20px;
   font-weight: 600;
   padding-bottom: 10px;
-  border-bottom: 1px solid #e9ecef; /* Đường kẻ phân cách nhẹ nhàng */
+  border-bottom: 1px solid #e9ecef;
 }
 
-.comingSoonText,
-.coming-soon-text-fallback {
-  font-size: 1rem; /* 16px */
-  color: #6c757d;
-  line-height: 1.6;
-  text-align: center;
-  padding: 30px 0;
-  font-style: italic;
+.comingSoonText {
+  font-size: 1rem;
+  color: var(--text-light);
+  padding: 25px 0;
 }
 
 @media (max-width: 768px) {
-  .pageWrapper,
-  .page-wrapper-fallback {
-    padding: 20px 15px;
+  .mainContent {
+    gap: 20px;
+    max-width: 100%;
   }
-  .pageTitle,
-  .page-title-fallback {
-    font-size: 1.75rem; /* 28px */
-    margin-bottom: 25px;
+  .pageTitle {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
   }
-  .sectionTitle,
-  .section-title-fallback {
-    font-size: 1.3rem; /* ~21px */
+  .sectionTitle {
+    font-size: 1.2rem;
   }
-  .section,
-  .section-fallback {
-    padding: 20px;
+  .section {
+    padding: 15px 20px;
   }
 }
