@@ -1,139 +1,223 @@
 // src/components/User/CurriculumManagement/CurriculumList.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import PropTypes from "prop-types";
 import Api from "../../../network/Api";
 import { METHOD_TYPE } from "../../../network/methodType";
 import CurriculumItem from "./CurriculumItem";
-// IMPORT CSS TRỰC TIẾP (nếu bạn không dùng CSS Modules)
 import "../../../assets/css/CurriculumList.style.css";
-// HOẶC IMPORT CSS MODULES (nếu bạn đã đổi tên file thành .module.css)
-// import styles from '../../../assets/css/CurriculumList.module.css';
+import { toast } from "react-toastify";
+import { setUserProfile } from "../../../redux/userSlice";
 
-// Giả sử bạn vẫn đang dùng class name trực tiếp cho CSS
-// Nếu dùng CSS Modules, thay thế các className="someClass" bằng className={styles.someClass}
+const ITEMS_PER_PAGE = 10;
 
-const ITEMS_PER_PAGE = 10; // Số lượng item mặc định trên mỗi trang
-
-const CurriculumList = () => {
-  const [curriculums, setCurriculums] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const CurriculumList = ({ onAfterCurriculumAdded }) => {
+  const [availableCurriculums, setAvailableCurriculums] = useState([]);
+  const [myCurriculumIds, setMyCurriculumIds] = useState(new Set());
+  const [isLoadingAvailable, setIsLoadingAvailable] = useState(true);
+  const [isLoadingMyCurriculums, setIsLoadingMyCurriculums] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0); // Để tính tổng số trang
+  const [totalItems, setTotalItems] = useState(0);
+  const [processingCurriculumId, setProcessingCurriculumId] = useState(null);
+
+  const dispatch = useDispatch();
+  const currentUserProfile = useSelector((state) => state.user.userProfile);
+  const currentUserCoin = currentUserProfile?.coin ?? 0;
+
+  const fetchMyCurriculumsInternal = useCallback(async () => {
+    // Đổi tên để tránh trùng với prop
+    setIsLoadingMyCurriculums(true);
+    try {
+      const response = await Api({
+        endpoint: "/my-curriculumn/get-my-curriculumn",
+        method: METHOD_TYPE.GET,
+        requireToken: true,
+      });
+      if (
+        response.success &&
+        response.data &&
+        Array.isArray(response.data.items)
+      ) {
+        const ids = response.data.items
+          .flatMap((ownedItem) =>
+            ownedItem.items && Array.isArray(ownedItem.items)
+              ? ownedItem.items.map(
+                  (detailItem) => detailItem.curriculumn?.curriculumnId
+                )
+              : []
+          )
+          .filter(Boolean);
+        setMyCurriculumIds(new Set(ids));
+      } else if (response.success && Array.isArray(response.data)) {
+        const ids = response.data.map(
+          (item) => item.curriculumnId || item.id || item
+        ); // Thử nhiều key ID
+        setMyCurriculumIds(new Set(ids.filter(Boolean)));
+      } else {
+        console.warn(
+          "[CurriculumList] Không thể tải danh sách giáo trình của tôi (internal) hoặc dữ liệu rỗng/sai định dạng.",
+          response
+        );
+        setMyCurriculumIds(new Set());
+      }
+    } catch (err) {
+      console.error(
+        "[CurriculumList] Lỗi khi tải danh sách giáo trình của tôi (internal):",
+        err
+      );
+      setMyCurriculumIds(new Set());
+    } finally {
+      setIsLoadingMyCurriculums(false);
+    }
+  }, []);
+
+  const fetchAvailableCurriculums = useCallback(async (pageToFetch) => {
+    setIsLoadingAvailable(true);
+    setError(null);
+    try {
+      const filterParams = [
+        { key: "status", operator: "equal", value: "ACTIVE" },
+      ];
+      const queryParams = {
+        filter: filterParams,
+        rpp: ITEMS_PER_PAGE,
+        page: pageToFetch,
+      };
+      const response = await Api({
+        endpoint: "/curriculumn/search-for-tutor",
+        method: METHOD_TYPE.GET,
+        query: queryParams,
+      });
+      if (
+        response &&
+        response.data &&
+        typeof response.data.total !== "undefined" &&
+        Array.isArray(response.data.items)
+      ) {
+        setAvailableCurriculums(response.data.items || []);
+        setTotalItems(response.data.total || 0);
+      } else if (
+        response &&
+        response.data &&
+        response.data.success &&
+        response.data.data &&
+        typeof response.data.data.total !== "undefined" &&
+        Array.isArray(response.data.data.items)
+      ) {
+        setAvailableCurriculums(response.data.data.items || []);
+        setTotalItems(response.data.data.total || 0);
+      } else {
+        console.error(
+          "[CurriculumList] Lỗi từ API /curriculumn/search-for-tutor hoặc định dạng dữ liệu không đúng:",
+          response
+        );
+        throw new Error(
+          response?.data?.message || "Lỗi tải danh sách giáo trình."
+        );
+      }
+    } catch (err) {
+      console.error("[CurriculumList] Lỗi khi fetchAvailableCurriculums:", err);
+      setError(err.message || "Đã xảy ra lỗi khi tải giáo trình.");
+      setAvailableCurriculums([]);
+      setTotalItems(0);
+    } finally {
+      setIsLoadingAvailable(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchCurriculums = async (pageToFetch) => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const filterParams = [
-          {
-            key: "status", // Key để lọc
-            operator: "equal", // Toán tử so sánh bằng
-            value: "ACTIVE", // Giá trị cần lọc
-          },
-          // Bạn có thể thêm các điều kiện lọc khác vào đây nếu cần
-          // Ví dụ: lọc theo tên giáo trình (curriculumnName) nếu người dùng nhập vào ô tìm kiếm
-          // {
-          //   key: 'curriculumnName',
-          //   operator: 'like', // hoặc 'contains' tùy API của bạn
-          //   value: searchTerm, // searchTerm từ state của input tìm kiếm
-          // }
-        ];
+    fetchMyCurriculumsInternal();
+  }, [fetchMyCurriculumsInternal]);
 
-        // API của bạn mong muốn `filter` và `sort` là chuỗi JSON.
-        // Hàm Api của bạn đã có logic JSON.stringify cho filter và sort,
-        // nên chúng ta chỉ cần truyền object vào.
-        const queryParams = {
-          filter: filterParams,
-          // sort: [{ key: "createdAt", type: "DESC" }], // Bỏ sort nếu tạm thời chưa cần
-          rpp: ITEMS_PER_PAGE,
-          page: pageToFetch,
-        };
+  useEffect(() => {
+    fetchAvailableCurriculums(currentPage);
+  }, [currentPage, fetchAvailableCurriculums]);
 
-        const response = await Api({
-          endpoint: "/curriculumn/search",
-          method: METHOD_TYPE.GET,
-          query: queryParams,
-          // requireToken: false,
-        });
+  const handleRequestAddCurriculum = async (
+    curriculumIdToAdd,
+    curriculumName
+  ) => {
+    if (processingCurriculumId) return;
+    if (currentUserCoin < 10) {
+      toast.error("Bạn không đủ 10 Coin để sử dụng giáo trình này.");
+      return;
+    }
+    if (myCurriculumIds.has(curriculumIdToAdd)) {
+      toast.info(`Bạn đã sở hữu giáo trình "${curriculumName}".`);
+      return;
+    }
 
-        if (
-          response &&
-          response.data &&
-          typeof response.data.total !== "undefined" &&
-          Array.isArray(response.data.items)
-        ) {
-          setCurriculums(response.data.items || []);
-          setTotalItems(response.data.total || 0);
-        } else if (
-          response &&
-          response.data &&
-          response.data.success &&
-          response.data.data
-        ) {
-          setCurriculums(response.data.data.items || []);
-          setTotalItems(response.data.data.total || 0);
+    setProcessingCurriculumId(curriculumIdToAdd);
+    try {
+      const response = await Api({
+        endpoint: "/my-curriculumn/add-to-my-curriculumn",
+        method: METHOD_TYPE.POST,
+        data: { curriculumnId: curriculumIdToAdd },
+        requireToken: true,
+      });
+
+      if (response.success) {
+        toast.success(
+          `Đã thêm giáo trình "${curriculumName}" vào danh sách của bạn!`
+        );
+        await fetchMyCurriculumsInternal(); // Cập nhật lại set IDs nội bộ
+
+        if (currentUserProfile) {
+          const updatedProfile = {
+            ...currentUserProfile,
+            coin: (currentUserProfile.coin || 0) - 10,
+          };
+          dispatch(setUserProfile(updatedProfile));
         } else {
-          const errorMessage =
-            response?.data?.message ||
-            "Không thể tải danh sách giáo trình hoặc định dạng dữ liệu không đúng.";
-          console.error(
-            "Lỗi từ API hoặc định dạng dữ liệu không đúng:",
-            response
+          console.warn(
+            "[CurriculumList] Không tìm thấy userProfile trong Redux để cập nhật coin."
           );
-          throw new Error(errorMessage);
         }
-      } catch (err) {
-        console.error(
-          "Lỗi trong CurriculumList khi fetchCurriculums:",
-          err.message
-        );
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Đã xảy ra lỗi không mong muốn khi tải danh sách giáo trình."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    fetchCurriculums(currentPage);
-  }, [currentPage]); // Fetch lại dữ liệu khi currentPage thay đổi
+        if (onAfterCurriculumAdded) {
+          // Gọi callback để báo cho component cha (CurriculumManagementPage)
+          onAfterCurriculumAdded();
+        }
+      } else {
+        throw new Error(
+          response.message || "Không thể thêm giáo trình. Vui lòng thử lại."
+        );
+      }
+    } catch (err) {
+      console.error("Lỗi khi thêm giáo trình:", err);
+      toast.error(`Lỗi: ${err.message || "Không thể hoàn thành thao tác."}`);
+    } finally {
+      setProcessingCurriculumId(null);
+    }
+  };
 
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
       setCurrentPage(newPage);
     }
   };
 
-  // --- Render UI ---
-  if (isLoading) {
+  if (isLoadingAvailable || isLoadingMyCurriculums) {
     return (
       <div className="loadingState" aria-live="polite">
-        Đang tải danh sách giáo trình...
+        Đang tải dữ liệu giáo trình...
       </div>
     );
   }
-
-  if (error) {
+  if (error && availableCurriculums.length === 0) {
     return (
       <div className="errorState" role="alert">
         Lỗi: {error}
       </div>
     );
   }
-
-  if (!curriculums || curriculums.length === 0) {
+  if (!availableCurriculums || availableCurriculums.length === 0) {
     return (
-      <>
-        <p className="emptyState">
-          Hiện không có giáo trình nào (trạng thái ACTIVE) để hiển thị.
-        </p>
-        {/* Nút thử lại hoặc quay về trang trước có thể hữu ích ở đây */}
-      </>
+      <p className="emptyState">
+        Hiện không có giáo trình nào (trạng thái ACTIVE) để bạn sử dụng.
+      </p>
     );
   }
 
@@ -142,19 +226,27 @@ const CurriculumList = () => {
       className="curriculumListContainer"
       aria-labelledby="available-curriculums-title"
     >
+      {error && (
+        <div className="errorState" role="alert">
+          Lỗi tải một phần dữ liệu: {error}
+        </div>
+      )}
       <h2 id="available-curriculums-title" className="listTitle">
-        Giáo trình có thể thuê
+        Giáo trình có thể sử dụng
       </h2>
       <ul className="list" role="list">
-        {curriculums.map((curriculum) => (
+        {availableCurriculums.map((curriculum) => (
           <CurriculumItem
             key={curriculum.curriculumnId}
             curriculum={curriculum}
+            onAddCurriculum={handleRequestAddCurriculum}
+            isAdded={myCurriculumIds.has(curriculum.curriculumnId)}
+            isProcessingAdd={
+              processingCurriculumId === curriculum.curriculumnId
+            }
           />
         ))}
       </ul>
-
-      {/* Component Phân trang đơn giản */}
       {totalPages > 1 && (
         <nav
           aria-label="Phân trang danh sách giáo trình"
@@ -166,10 +258,12 @@ const CurriculumList = () => {
             className="paginationButton"
             aria-label="Trang trước"
           >
-            Trước
+            {" "}
+            Trước{" "}
           </button>
           <span className="paginationInfo">
-            Trang {currentPage} / {totalPages}
+            {" "}
+            Trang {currentPage} / {totalPages}{" "}
           </span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
@@ -177,12 +271,21 @@ const CurriculumList = () => {
             className="paginationButton"
             aria-label="Trang sau"
           >
-            Sau
+            {" "}
+            Sau{" "}
           </button>
         </nav>
       )}
     </section>
   );
+};
+
+CurriculumList.propTypes = {
+  onAfterCurriculumAdded: PropTypes.func,
+};
+
+CurriculumList.defaultProps = {
+  onAfterCurriculumAdded: () => {},
 };
 
 export default CurriculumList;

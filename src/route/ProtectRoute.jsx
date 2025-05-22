@@ -15,6 +15,7 @@ const ProtectRoute = ({ role: requiredRole }) => {
 
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const userProfile = useSelector((state) => state.user.userProfile);
+  console.log("user in ProtectRoute", userProfile);
 
   console.log(`[ProtectRoute] Path: ${location.pathname}`);
   console.log(`[ProtectRoute] isAuthenticated (from Redux):`, isAuthenticated);

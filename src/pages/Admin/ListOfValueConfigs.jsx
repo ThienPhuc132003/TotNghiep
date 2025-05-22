@@ -9,17 +9,16 @@ import React, {
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css";
 import "../../assets/css/Modal.style.css";
-import "../../assets/css/FormDetail.style.css"; // Đảm bảo import
+import "../../assets/css/FormDetail.style.css";
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import FormDetail from "../../components/FormDetail"; // Import FormDetail
+import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import ImageCropModal from "../../components/ImageCropModal";
-import qs from "qs";
 import { Alert } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,14 +27,12 @@ import "numeral/locales/vi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faUpload } from "@fortawesome/free-solid-svg-icons";
 
-// Set the app element for accessibility
 Modal.setAppElement("#root");
 
-// --- Helpers (Giữ nguyên) ---
+// --- Helpers ---
 const formatCurrency = (value) => {
-  if (value === null || value === undefined || isNaN(Number(value))) {
+  if (value === null || value === undefined || isNaN(Number(value)))
     return "N/A";
-  }
   numeral.locale("vi");
   return numeral(value).format("0,0 đ");
 };
@@ -47,33 +44,49 @@ const renderImageUrl = (url) => {
       src={url}
       alt="Ảnh gói"
       style={{
-        maxWidth: "100px",
-        maxHeight: "100px",
+        maxWidth: "80px",
+        maxHeight: "80px",
         display: "block",
-        marginTop: "5px",
+        margin: "auto",
         border: "1px solid #eee",
         objectFit: "contain",
+        borderRadius: "4px",
       }}
     />
   );
 };
 // --- End Helpers ---
 
+const searchableValueConfigColumnOptions = [
+  { value: "valueConfigId", label: "Mã gói" },
+  { value: "price", label: "Giá (VNĐ)", placeholderSuffix: " (số)" },
+  { value: "coinConfig", label: "Số Coin", placeholderSuffix: " (số)" },
+  { value: "description", label: "Mô tả" },
+];
+
 const ListOfValueConfigsPage = () => {
-  // --- States (Giữ nguyên) ---
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [pageCount, setPageCount] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableValueConfigColumnOptions[0].value
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableValueConfigColumnOptions[0].value
+  );
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [modalData, setModalData] = useState({});
   const [modalMode, setModalMode] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -82,7 +95,6 @@ const ListOfValueConfigsPage = () => {
     key: "price",
     direction: "asc",
   });
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const currentPath = "/goi-thanh-toan";
   const [formErrors, setFormErrors] = useState({});
   const fileInputRef = useRef(null);
@@ -90,27 +102,33 @@ const ListOfValueConfigsPage = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  // --- Reset State (Giữ nguyên) ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
+    setSelectedSearchField(searchableValueConfigColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableValueConfigColumnOptions[0].value);
     setSortConfig({ key: "price", direction: "asc" });
     setCurrentPage(0);
-  };
+  }, []);
 
-  // --- Fetch Data (Giữ nguyên) ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const filterConditions = [];
-      if (searchQuery) {
+      if (appliedSearchInput && appliedSearchField) {
         filterConditions.push({
-          key: "valueConfigId,price,coinConfig,description",
-          operator: "like",
-          value: searchQuery,
+          key: appliedSearchField,
+          operator:
+            appliedSearchField === "price" ||
+            appliedSearchField === "coinConfig" ||
+            appliedSearchField === "valueConfigId"
+              ? "equal"
+              : "like",
+          value: appliedSearchInput,
         });
       }
+
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
@@ -121,11 +139,13 @@ const ListOfValueConfigsPage = () => {
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
         ]),
       };
-      const queryString = qs.stringify(query, { encode: false });
+
       const response = await Api({
-        endpoint: `value-config/get-list?${queryString}`,
+        endpoint: `value-config/get-list`,
         method: METHOD_TYPE.GET,
+        query: query,
       });
+
       if (response.success && response.data) {
         setData(response.data.items || []);
         setTotalItems(response.data.total || 0);
@@ -133,17 +153,25 @@ const ListOfValueConfigsPage = () => {
       } else {
         throw new Error(response.message || t("common.errorLoadingData"));
       }
-    } catch (error) {
-      console.error("Fetch value config error:", error);
-      setError(error.message || t("common.errorLoadingData"));
+    } catch (errorCatch) {
+      const errorMessage = errorCatch.message || t("common.errorLoadingData");
+      setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      toast.error(`Tải danh sách gói thất bại: ${error.message}`);
+      toast.error(`Tải danh sách gói thất bại: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    appliedSearchInput,
+    appliedSearchField,
+    t,
+  ]);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -151,23 +179,8 @@ const ListOfValueConfigsPage = () => {
     numeral.locale("vi");
   }, []);
 
-  // --- Handlers (Pagination, Search, Sort - Giữ nguyên) ---
   const handlePageClick = (event) => {
-    if (typeof event.selected === "number") {
-      setCurrentPage(event.selected);
-    }
-  };
-  const handleSearchInputChange = (value) => {
-    setSearchInput(value);
-  };
-  const handleApplySearch = () => {
-    setCurrentPage(0);
-    setSearchQuery(searchInput);
-  };
-  const handleSearchKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleApplySearch();
-    }
+    if (typeof event.selected === "number") setCurrentPage(event.selected);
   };
   const handleSort = (sortKey) => {
     setSortConfig((prev) => ({
@@ -181,15 +194,39 @@ const ListOfValueConfigsPage = () => {
     setItemsPerPage(newPageSize);
     setCurrentPage(0);
   };
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
+  };
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+  };
+  const handleApplySearch = () => {
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput("");
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      setAppliedSearchInput("");
+    }
+    setCurrentPage(0);
+  };
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") handleApplySearch();
+  };
 
-  // --- CRUD Handlers (Giữ nguyên) ---
   const handleDelete = (valueConfig) => {
     if (!valueConfig || !valueConfig.valueConfigId) return;
-    const configDesc = valueConfig.description || valueConfig.valueConfigId;
+    const configDesc =
+      valueConfig.description || `Gói ID ${valueConfig.valueConfigId}`;
     setDeleteItemId(valueConfig.valueConfigId);
     setDeleteMessage(`Bạn có chắc muốn xóa gói "${configDesc}"?`);
     setIsDeleteModalOpen(true);
   };
+
   const confirmDelete = async () => {
     if (!deleteItemId) return;
     setIsDeleting(true);
@@ -200,20 +237,16 @@ const ListOfValueConfigsPage = () => {
       });
       if (response.success) {
         toast.success("Xóa gói thành công");
-        if (data.length === 1 && currentPage > 0) {
+        if (data.length === 1 && currentPage > 0)
           setCurrentPage(currentPage - 1);
-        } else {
-          fetchData();
-        }
+        else fetchData();
       } else {
-        console.error("Failed to delete value config:", response.message);
         toast.error(
           `Xóa gói thất bại: ${response.message || "Lỗi không xác định"}`
         );
       }
-    } catch (error) {
-      console.error("An error occurred while deleting value config:", error);
-      toast.error(`Xóa gói thất bại: ${error.message || "Lỗi mạng"}`);
+    } catch (errorCatch) {
+      toast.error(`Xóa gói thất bại: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -221,13 +254,15 @@ const ListOfValueConfigsPage = () => {
       setIsDeleting(false);
     }
   };
+
   const handleAddValueConfig = () => {
     setModalMode("add");
     setModalData({ price: "", coinConfig: "", urlConfig: "", description: "" });
     setFormErrors({});
-    setImageToCrop(null); // Đảm bảo reset ảnh khi thêm mới
+    setImageToCrop(null);
     setIsModalOpen(true);
   };
+
   const handleView = (valueConfig) => {
     setModalData({
       valueConfigId: valueConfig.valueConfigId,
@@ -239,6 +274,7 @@ const ListOfValueConfigsPage = () => {
     setModalMode("view");
     setIsModalOpen(true);
   };
+
   const handleEdit = (valueConfig) => {
     setModalData({
       valueConfigId: valueConfig.valueConfigId,
@@ -249,35 +285,35 @@ const ListOfValueConfigsPage = () => {
     });
     setModalMode("edit");
     setFormErrors({});
-    setImageToCrop(null); // Đảm bảo reset ảnh khi mở edit
+    setImageToCrop(null);
     setIsModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    // Delay reset state để tránh giật khi modal đóng
     setTimeout(() => {
       setModalData({});
       setModalMode(null);
       setFormErrors({});
-      setImageToCrop(null); // Reset ảnh khi đóng
-    }, 300); // Thời gian delay khớp với closeTimeoutMS của Modal
+      setImageToCrop(null);
+    }, 300);
   };
 
-  // --- Image Upload Handlers (Giữ nguyên) ---
   const handleTriggerImageInput = useCallback(() => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = null; // Reset input để có thể chọn lại cùng file
+      fileInputRef.current.value = null;
       fileInputRef.current.click();
     }
   }, []);
+
   const handleImageSelected = useCallback((event) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      setFormErrors((prev) => ({ ...prev, urlConfig: "" })); // Xóa lỗi ảnh nếu có
+      setFormErrors((prev) => ({ ...prev, urlConfig: "" }));
       const reader = new FileReader();
       reader.onload = () => {
         setImageToCrop(reader.result);
-        setIsCropModalOpen(true); // Mở modal crop
+        setIsCropModalOpen(true);
       };
       reader.onerror = () => {
         toast.error("Không thể đọc file ảnh.");
@@ -287,70 +323,60 @@ const ListOfValueConfigsPage = () => {
       toast.warn("Vui lòng chọn file ảnh hợp lệ (jpg, png,...).");
     }
   }, []);
+
   const handleCloseCropModal = useCallback(() => {
-    // Chỉ đóng nếu không đang upload
     if (!isUploadingImage) {
       setIsCropModalOpen(false);
       setImageToCrop(null);
     }
   }, [isUploadingImage]);
-  const handleCropSaveForUrlConfig = useCallback(async (croppedImageBlob) => {
-    setIsCropModalOpen(false); // Đóng modal crop trước
-    if (!croppedImageBlob) return;
 
+  const handleCropSaveForUrlConfig = useCallback(async (croppedImageBlob) => {
+    setIsCropModalOpen(false);
+    if (!croppedImageBlob) return;
     setIsUploadingImage(true);
     toast.info("Đang tải ảnh lên...", {
       autoClose: false,
       toastId: "uploading-image",
     });
-
     try {
-      // 1. Lấy tên file từ API
       const fileNameResponse = await Api({
         endpoint: "media/media-url",
         query: { mediaCategory: "VALUE_CONFIG_IMAGE" },
         method: METHOD_TYPE.GET,
       });
-
       if (!fileNameResponse?.success || !fileNameResponse?.data?.fileName) {
         throw new Error(
           fileNameResponse?.message || "Lỗi lấy định danh file ảnh."
         );
       }
       const fileName = fileNameResponse.data.fileName;
-
-      // 2. Upload ảnh với tên file đã lấy
       const uploadFormData = new FormData();
-      const uploadFileName = `${fileName}.jpeg`; // Đặt tên file upload chuẩn
+      const uploadFileName = `${fileName}.jpeg`;
       uploadFormData.append("file", croppedImageBlob, uploadFileName);
-
       const uploadResponse = await Api({
         endpoint: `media/upload-media`,
         query: { mediaCategory: "VALUE_CONFIG_IMAGE", fileName: fileName },
         method: METHOD_TYPE.POST,
         data: uploadFormData,
       });
-
       if (!uploadResponse?.success || !uploadResponse?.data?.mediaUrl) {
         throw new Error(uploadResponse?.message || "Upload ảnh gói thất bại.");
       }
-
       const finalUrl = uploadResponse.data.mediaUrl;
-      setModalData((prev) => ({ ...prev, urlConfig: finalUrl })); // Cập nhật URL vào state modalData
+      setModalData((prev) => ({ ...prev, urlConfig: finalUrl }));
       toast.dismiss("uploading-image");
       toast.success("Upload ảnh thành công!");
-      setImageToCrop(null); // Reset ảnh đã crop
-    } catch (error) {
-      console.error("Lỗi xử lý ảnh gói:", error);
+      setImageToCrop(null);
+    } catch (errorCatch) {
       toast.dismiss("uploading-image");
-      toast.error(error.message || "Lỗi upload ảnh gói.");
-      setImageToCrop(null); // Reset ảnh đã crop nếu lỗi
+      toast.error(errorCatch.message || "Lỗi upload ảnh gói.");
+      setImageToCrop(null);
     } finally {
       setIsUploadingImage(false);
     }
-  }, []); // Bỏ modalData khỏi dependency để tránh re-render không cần thiết khi urlConfig thay đổi
+  }, []);
 
-  // --- Validation Form (Giữ nguyên) ---
   const validateForm = (formData) => {
     let errors = {};
     if (
@@ -359,60 +385,47 @@ const ListOfValueConfigsPage = () => {
       String(formData.price).trim() === ""
     ) {
       errors.price = "Vui lòng nhập giá tiền.";
-    } else if (isNaN(Number(formData.price))) {
-      errors.price = "Giá tiền phải là một số.";
-    } else if (Number(formData.price) <= 0) {
-      errors.price = "Giá tiền phải lớn hơn 0.";
+    } else if (isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
+      errors.price = "Giá tiền phải là số dương.";
     }
-
     if (
       formData.coinConfig === null ||
       formData.coinConfig === undefined ||
       String(formData.coinConfig).trim() === ""
     ) {
       errors.coinConfig = "Vui lòng nhập số coin.";
-    } else if (!Number.isInteger(Number(formData.coinConfig))) {
-      errors.coinConfig = "Số coin phải là số nguyên.";
-    } else if (Number(formData.coinConfig) <= 0) {
-      errors.coinConfig = "Số coin phải lớn hơn 0.";
+    } else if (
+      !Number.isInteger(Number(formData.coinConfig)) ||
+      Number(formData.coinConfig) <= 0
+    ) {
+      errors.coinConfig = "Số coin phải là số nguyên dương.";
     }
-
-    // Sử dụng urlConfig từ modalData để validate vì nó cập nhật riêng
     if (!modalData.urlConfig?.trim())
       errors.urlConfig = "Vui lòng upload ảnh cho gói.";
     if (!formData.description?.trim())
       errors.description = "Vui lòng nhập mô tả.";
-
     return errors;
   };
 
-  // --- Form Submit Handler (Giữ nguyên) ---
-  // Hàm này được gọi bởi nút "Lưu Gói" tùy chỉnh
   const handleFormSubmit = async (currentFormData) => {
-    // Lấy urlConfig cuối cùng từ modalData (vì nó được cập nhật riêng bởi upload)
     const finalFormData = {
       ...currentFormData,
       urlConfig: modalData.urlConfig,
     };
-
     const errors = validateForm(finalFormData);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      // Hiển thị cảnh báo chung
       toast.warn("Vui lòng kiểm tra lại thông tin nhập, bao gồm cả ảnh.");
-      return; // Dừng lại nếu có lỗi
+      return;
     }
-
-    setFormErrors({}); // Xóa lỗi nếu validation thành công
-    setIsSubmitting(true); // Bắt đầu submit
-
+    setFormErrors({});
+    setIsSubmitting(true);
     const apiData = {
       price: Number(finalFormData.price),
       coinConfig: Number(finalFormData.coinConfig),
       urlConfig: finalFormData.urlConfig,
       description: finalFormData.description,
     };
-
     try {
       let response;
       if (modalMode === "add") {
@@ -423,7 +436,7 @@ const ListOfValueConfigsPage = () => {
         });
       } else if (modalMode === "edit") {
         response = await Api({
-          endpoint: `value-config/update/${modalData.valueConfigId}`, // Sử dụng ID từ modalData
+          endpoint: `value-config/update/${modalData.valueConfigId}`,
           method: METHOD_TYPE.PUT,
           data: apiData,
         });
@@ -432,41 +445,33 @@ const ListOfValueConfigsPage = () => {
         return;
       }
 
-      // Xử lý kết quả
       if (response.success) {
         const successMsg =
           modalMode === "add"
             ? "Thêm gói thành công"
             : "Cập nhật gói thành công";
         toast.success(successMsg);
-        // Fetch lại dữ liệu sau khi thành công
         if (modalMode === "add") {
           setSortConfig({ key: "price", direction: "asc" });
           if (currentPage !== 0) setCurrentPage(0);
           else fetchData();
-        } else {
-          fetchData();
-        }
-        handleCloseModal(); // Đóng modal sau khi thành công
+        } else fetchData();
+        handleCloseModal();
       } else {
-        // Xử lý lỗi từ API
         const errorMsg =
           modalMode === "add" ? "Thêm gói thất bại" : "Cập nhật gói thất bại";
         toast.error(`${errorMsg}: ${response.message || "Lỗi không xác định"}`);
         if (response.errors) setFormErrors(response.errors);
       }
-    } catch (error) {
-      // Xử lý lỗi mạng hoặc lỗi không mong muốn
-      console.error(`Error ${modalMode}ing value config:`, error);
+    } catch (errorCatch) {
       const errorMsg =
         modalMode === "add" ? "Thêm gói thất bại" : "Cập nhật gói thất bại";
-      toast.error(`${errorMsg}: ${error.message || "Lỗi mạng"}`);
+      toast.error(`${errorMsg}: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
-      setIsSubmitting(false); // Kết thúc submit dù thành công hay thất bại
+      setIsSubmitting(false);
     }
   };
 
-  // --- Columns Definition (Giữ nguyên) ---
   const columns = useMemo(
     () => [
       { title: "Mã gói", dataKey: "valueConfigId", sortable: true },
@@ -477,12 +482,17 @@ const ListOfValueConfigsPage = () => {
         renderCell: formatCurrency,
       },
       { title: "Số Coin", dataKey: "coinConfig", sortable: true },
-      { title: "Mô tả", dataKey: "description", sortable: true },
+      { title: "Mô tả", dataKey: "description", sortable: false },
+      {
+        title: "Ảnh",
+        dataKey: "urlConfig",
+        renderCell: renderImageUrl,
+        sortable: false,
+      },
     ],
     []
   );
 
-  // --- Fields Definition (Giữ nguyên) ---
   const commonFields = useMemo(
     () => [
       {
@@ -499,11 +509,19 @@ const ListOfValueConfigsPage = () => {
         required: true,
         placeholder: "Ví dụ: 50",
       },
-      { key: "description", label: "Mô tả", type: "textarea", required: true },
+      {
+        key: "description",
+        label: "Mô tả",
+        type: "textarea",
+        required: true,
+        rows: 3,
+      },
     ],
     []
   );
+
   const addFields = useMemo(() => [...commonFields], [commonFields]);
+
   const editFieldsForForm = useMemo(
     () => [
       { key: "valueConfigId", label: "Mã gói", readOnly: true },
@@ -511,6 +529,7 @@ const ListOfValueConfigsPage = () => {
     ],
     [commonFields]
   );
+
   const viewFields = useMemo(
     () => [
       { key: "valueConfigId", label: "Mã gói", readOnly: true },
@@ -532,10 +551,21 @@ const ListOfValueConfigsPage = () => {
     []
   );
 
-  // --- JSX Render (Phần Table và SearchBar giữ nguyên) ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableValueConfigColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}${
+        currentSearchFieldConfig.placeholderSuffix || ""
+      }...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <>
-      {/* Input ẩn để chọn file */}
       <input
         type="file"
         ref={fileInputRef}
@@ -544,52 +574,71 @@ const ListOfValueConfigsPage = () => {
         accept="image/png, image/jpeg, image/jpg"
         disabled={isUploadingImage || isSubmitting}
       />
-
       <div className="admin-content">
         <h2 className="admin-list-title">Danh sách Gói thanh toán</h2>
-        {/* Search and Add Button */}
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
+            <div className="filter-control">
+              <select
+                id="searchFieldSelectValueConfig"
+                value={selectedSearchField}
+                onChange={handleSearchFieldChange}
+                className="status-filter-select"
+                aria-label="Chọn trường để tìm kiếm"
+              >
+                {searchableValueConfigColumnOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {" "}
+                    {option.label}{" "}
+                  </option>
+                ))}
+              </select>
+            </div>
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
               onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm mã, giá, coin, mô tả..."
+              placeholder={searchPlaceholder}
             />
             <button
               className="refresh-button"
               onClick={handleApplySearch}
               title="Tìm kiếm"
               aria-label="Tìm kiếm"
+              disabled={isLoading || isSubmitting}
             >
-              <i className="fa-solid fa-search"></i>
+              {" "}
+              <i className="fa-solid fa-search"></i>{" "}
             </button>
             <button
               className="refresh-button"
               onClick={resetState}
               title="Làm mới"
               aria-label="Làm mới"
+              disabled={isLoading || isSubmitting}
             >
-              <i className="fa-solid fa-rotate-left"></i>
+              {" "}
+              <i className="fa-solid fa-rotate-left"></i>{" "}
             </button>
           </div>
           <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddValueConfig}>
-              {t("common.addButton")}
+            <button
+              className="add-admin-button"
+              onClick={handleAddValueConfig}
+              disabled={isLoading || isSubmitting}
+            >
+              {" "}
+              {t("common.addButton")}{" "}
             </button>
           </div>
         </div>
-
-        {/* Error Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
-
-        {/* Table */}
         <Table
           data={data}
           columns={columns}
@@ -603,12 +652,10 @@ const ListOfValueConfigsPage = () => {
           forcePage={currentPage}
           onSort={handleSort}
           currentSortConfig={sortConfig}
-          loading={isLoading}
+          loading={isLoading || isDeleting || isSubmitting}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
         />
-
-        {/* Total Count */}
         {!isLoading && !error && data.length > 0 && (
           <p
             style={{
@@ -618,20 +665,32 @@ const ListOfValueConfigsPage = () => {
               color: "#555",
             }}
           >
-            Tổng số gói: {totalItems}
+            {" "}
+            Tổng số gói: {totalItems}{" "}
+          </p>
+        )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            {" "}
+            Không có dữ liệu gói thanh toán.{" "}
           </p>
         )}
       </div>
     </>
   );
 
-  // --- JSX Return (Component Chính) ---
   return (
     <AdminDashboardLayout
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
-      {/* Modal Add/Edit/View */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
@@ -664,26 +723,30 @@ const ListOfValueConfigsPage = () => {
                 setFormErrors((prev) => ({ ...prev, [name]: "" }));
               }
             }}
-            // --- KHÔNG TRUYỀN onSubmit và isSubmitting Ở ĐÂY ---
-            onClose={handleCloseModal} // Nút X trên header
+            onClose={handleCloseModal}
             errors={formErrors}
-            // --- KẾT THÚC KHÔNG TRUYỀN PROPS ---
           >
-            {/* === Truyền khu vực upload ảnh VÀ nút bấm vào children === */}
+            {" "}
             {modalMode !== "view" && (
               <>
-                {/* Khu vực Upload Ảnh */}
+                {" "}
                 <div
                   className="form-detail-group"
-                  style={{ marginTop: "1rem", marginBottom: "1rem" }}
+                  style={{
+                    marginTop: "1rem",
+                    marginBottom: "1rem",
+                    gridColumn: "1 / -1",
+                  }}
                 >
+                  {" "}
                   <label>
                     {" "}
-                    {/* Bỏ htmlFor vì không có input trực tiếp */}
-                    Ảnh Gói <span className="required-asterisk">*</span>
-                  </label>
+                    Ảnh Gói <span className="required-asterisk">*</span>{" "}
+                  </label>{" "}
                   <div className="image-upload-area">
+                    {" "}
                     <div className="image-preview">
+                      {" "}
                       {isUploadingImage ? (
                         <FontAwesomeIcon
                           icon={faSpinner}
@@ -695,68 +758,67 @@ const ListOfValueConfigsPage = () => {
                         renderImageUrl(modalData.urlConfig)
                       ) : (
                         <span className="no-image-text">Chưa có ảnh</span>
-                      )}
-                    </div>
+                      )}{" "}
+                    </div>{" "}
                     <button
                       type="button"
                       className="button-select-image"
                       onClick={handleTriggerImageInput}
                       disabled={isUploadingImage || isSubmitting}
                     >
+                      {" "}
                       <FontAwesomeIcon
                         icon={faUpload}
                         style={{ marginRight: "8px" }}
-                      />
-                      {modalData.urlConfig ? "Thay đổi ảnh" : "Chọn ảnh"}
-                    </button>
+                      />{" "}
+                      {modalData.urlConfig ? "Thay đổi ảnh" : "Chọn ảnh"}{" "}
+                    </button>{" "}
                     {formErrors.urlConfig && (
                       <p className="form-detail-error-message">
-                        {formErrors.urlConfig}
+                        {" "}
+                        {formErrors.urlConfig}{" "}
                       </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* --- Nút Submit/Cancel tùy chỉnh --- */}
-                {/* Đảm bảo div này có class CSS đúng để hiển thị */}
+                    )}{" "}
+                  </div>{" "}
+                </div>{" "}
                 <div className="form-detail-actions">
+                  {" "}
                   <button
                     type="button"
                     className="form-detail-cancel-button"
                     onClick={handleCloseModal}
                     disabled={isSubmitting || isUploadingImage}
                   >
-                    Hủy
-                  </button>
+                    {" "}
+                    Hủy{" "}
+                  </button>{" "}
                   <button
                     type="button"
                     className="form-detail-save-button"
-                    onClick={() => handleFormSubmit(modalData)} // Gọi hàm submit trực tiếp
+                    onClick={() => handleFormSubmit(modalData)}
                     disabled={isSubmitting || isUploadingImage}
                   >
+                    {" "}
                     {isSubmitting ? (
                       <>
+                        {" "}
                         <FontAwesomeIcon
                           icon={faSpinner}
                           spin
                           style={{ marginRight: "8px" }}
-                        />
-                        Đang lưu...
+                        />{" "}
+                        Đang lưu...{" "}
                       </>
                     ) : (
-                      "Lưu Gói" // Đặt tên nút là "Lưu Gói"
-                    )}
-                  </button>
-                </div>
-                {/* --- Kết thúc nút tùy chỉnh --- */}
+                      "Lưu Gói"
+                    )}{" "}
+                  </button>{" "}
+                </div>{" "}
               </>
-            )}
-            {/* === Kết thúc children === */}
+            )}{" "}
           </FormDetail>
         )}
       </Modal>
-
-      {/* Modals khác (Delete, Crop) */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -771,8 +833,6 @@ const ListOfValueConfigsPage = () => {
         onCropSave={handleCropSaveForUrlConfig}
         isSaving={isUploadingImage}
       />
-
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

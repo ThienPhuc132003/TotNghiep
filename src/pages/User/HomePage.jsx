@@ -6,14 +6,14 @@ import "../../assets/css/HomePage.style.css";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Select from "react-select"; // <<<< IMPORT REACT-SELECT
 
 // --- Assets ---
 import welcomeTheme from "../../assets/images/vanlang_background3.webp";
 import vlubackground4 from "../../assets/images/vanlang_background4.webp";
-// import subjectList from "../../assets/data/mayjorList.json"; // ĐÃ XÓA - Không dùng nữa
-import tutorLevel from "../../assets/data/tutorLevel.json"; // Vẫn dùng cho HeroSection
-import PropTypes from "prop-types"; // For prop type checking
-import person1 from "../../assets/images/person_1.png"; // Sample images
+import tutorLevelData from "../../assets/data/tutorLevel.json";
+import PropTypes from "prop-types";
+import person1 from "../../assets/images/person_1.png";
 import person2 from "../../assets/images/person_2.png";
 import person3 from "../../assets/images/person_3.png";
 import person4 from "../../assets/images/person_4.png";
@@ -21,12 +21,12 @@ import person5 from "../../assets/images/person_5.png";
 import person6 from "../../assets/images/person_6.png";
 import person7 from "../../assets/images/person_7.png";
 
-// --- Ảnh cho PopularSubjectsSection (import trực tiếp) ---
+// --- Ảnh cho PopularSubjectsSection ---
 import mayjorAutoImg from "../../assets/images/mayjor_auto.jpg";
 import mayjorPhysicalImg from "../../assets/images/mayjor_physical.jpg";
 import mayjorArchitectureImg from "../../assets/images/mayjor_architecture.jpg";
 import mayjorTechnologyImg from "../../assets/images/mayjor_technology.jpg";
-import mayjorBusinessImg from "../../assets/images/mayjor_bussiness.jpg"; // Kiểm tra chính tả "bussiness"
+import mayjorBusinessImg from "../../assets/images/mayjor_bussiness.jpg";
 import mayjorTeacherImg from "../../assets/images/mayjor_teacher.jpg";
 
 // --- Icons ---
@@ -46,58 +46,155 @@ import {
   FaChartLine,
   FaPlus,
   FaMinus,
-} from "react-icons/fa"; // Using react-icons
+} from "react-icons/fa";
 
 // --- Network và Redux ---
-import Api from "../../network/Api"; // API call function
-import { METHOD_TYPE } from "../../network/methodType"; // API methods
-import { setUserProfile } from "../../redux/userSlice"; // Action to update user profile
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import { setUserProfile } from "../../redux/userSlice";
 
-/* eslint-disable react/prop-types */ // Disable prop-types check if not fully defined yet
+/* eslint-disable react/prop-types */
+
+// --- Custom Styles cho React-Select ---
+const customSelectStylesForHero = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: "var(--background-white)",
+    border: `1px solid ${
+      state.isFocused ? "var(--primary-color)" : "var(--border-color)"
+    }`,
+    borderRadius: "30px",
+    minHeight: "50px",
+    height: "50px",
+    paddingLeft: "2.3rem",
+    boxShadow: state.isFocused
+      ? `0 0 0 2px rgba(var(--primary-color-rgb), 0.2)`
+      : "none",
+    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+    "&:hover": {
+      borderColor: state.isFocused
+        ? "var(--primary-color)"
+        : "var(--border-color-focus, #9a1a27)",
+    },
+  }),
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: "0 4px",
+    height: "100%",
+    overflow: "visible",
+  }),
+  input: (provided) => ({ ...provided, margin: "0px", padding: "0px" }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: "#6b7280",
+    marginLeft: "2px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#374151",
+    marginLeft: "2px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  }),
+  indicatorsContainer: (provided) => ({
+    ...provided,
+    paddingRight: "8px",
+    height: "100%",
+  }),
+  indicatorSeparator: () => ({
+    display: "none",
+  }),
+  dropdownIndicator: (provided, state) => ({
+    ...provided,
+    color: state.isFocused ? "var(--primary-color)" : "#9ca3af",
+    transition: "color 0.2s ease",
+    padding: "8px",
+    alignSelf: "center",
+  }),
+  menu: (provided) => ({
+    ...provided,
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    marginTop: "4px",
+    zIndex: 20,
+  }),
+  menuList: (provided) => ({
+    ...provided,
+    paddingTop: "4px",
+    paddingBottom: "4px",
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    padding: "10px 15px",
+    backgroundColor: state.isSelected
+      ? "var(--primary-color)"
+      : state.isFocused
+      ? "rgba(var(--primary-color-rgb), 0.1)"
+      : "var(--background-white)",
+    color: state.isSelected ? "var(--background-white)" : "var(--text-dark)",
+    cursor: "pointer",
+    fontSize: "0.95rem",
+    "&:hover": {
+      backgroundColor: !state.isSelected
+        ? "rgba(var(--primary-color-rgb), 0.05)"
+        : undefined,
+    },
+  }),
+};
 
 // --- Hero Section Component ---
 const HeroSection = ({ onSearch }) => {
-  const navigate = useNavigate(); // Đã di chuyển lên trên để dùng trong FindTutor
+  const navigate = useNavigate();
+  const [selectedLevel, setSelectedLevel] = useState(null);
+  const [selectedMajor, setSelectedMajor] = useState(null);
+  const [selectedStudyForm, setSelectedStudyForm] = useState(null);
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const levelOptions = tutorLevelData.map((level) => ({
+    value: level.level_name,
+    label: level.level_name,
+  }));
+
+  const majorsForSearchOptions = [
+    { value: "CNTT", label: "Công nghệ thông tin" },
+    { value: "QTKD", label: "Quản trị kinh doanh" },
+    { value: "OTO", label: "Kỹ thuật ô tô" },
+    { value: "KT", label: "Kiến trúc" },
+    { value: "NNA", label: "Ngôn ngữ Anh" },
+    // BẠN CẦN THÊM DỮ LIỆU NGÀNH THỰC TẾ Ở ĐÂY
+  ];
+  const studyFormOptions = [
+    { value: "ONLINE", label: "Trực tuyến" },
+    { value: "OFFLINE", label: "Tại nhà" },
+    { value: "BOTH", label: "Cả hai" },
+  ];
+  const dayOptions = [
+    { value: "Monday", label: "Thứ 2" },
+    { value: "Tuesday", label: "Thứ 3" },
+    { value: "Wednesday", label: "Thứ 4" },
+    { value: "Thursday", label: "Thứ 5" },
+    { value: "Friday", label: "Thứ 6" },
+    { value: "Saturday", label: "Thứ 7" },
+    { value: "Sunday", label: "Chủ nhật" },
+  ];
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    // Lấy giá trị, đảm bảo không gửi "undefined" string nếu không chọn
-    const level = formData.get("level") || "";
-    const major = formData.get("major") || "";
-    const studyForm = formData.get("studyForm") || "";
-    const day = formData.get("day") || "";
-
     const searchParams = {};
-    if (level) searchParams.level = level;
-    if (major) searchParams.major = major;
-    if (studyForm) searchParams.studyForm = studyForm;
-    if (day) searchParams.day = day;
-
+    if (selectedLevel) searchParams.level = selectedLevel.value;
+    if (selectedMajor) searchParams.major = selectedMajor.value;
+    if (selectedStudyForm) searchParams.studyForm = selectedStudyForm.value;
+    if (selectedDay) searchParams.day = selectedDay.value;
     onSearch(searchParams);
   };
 
   const FindTutor = () => {
     navigate("/tim-kiem-gia-su");
   };
-
-  // Lấy danh sách ngành cho HeroSection (nếu bạn có một file JSON riêng cho mục này)
-  // Hoặc bạn có thể hardcode nó ở đây nếu muốn. Hiện tại đang dùng subjectList từ PopularSubjects
-  // Để tránh lỗi, chúng ta sẽ dùng popularSubjectsData (định nghĩa ở dưới cho PopularSubjectsSection)
-  // HOẶC, tốt hơn là bạn có một file JSON riêng cho các ngành trong bộ lọc tìm kiếm,
-  // ví dụ: allMajorsList.json, vì danh sách ngành để lọc có thể nhiều hơn các ngành "phổ biến".
-  // Ở đây, để đơn giản, tôi sẽ tạm thời dùng một mảng rỗng nếu không có dữ liệu ngành riêng cho Hero.
-  // GIẢ SỬ bạn có một file allMajorList.json hoặc một nguồn dữ liệu khác cho các ngành này
-  // Nếu không, bạn cần tạo một mảng dữ liệu cho nó.
-  // Ví dụ:
-  const majorsForSearch = [
-    // Đây là ví dụ, bạn nên có dữ liệu thực tế
-    { major_id: "it", major_name: "Công nghệ thông tin" },
-    { major_id: "business", major_name: "Quản trị kinh doanh" },
-    { major_id: "auto", major_name: "Kỹ thuật ô tô" },
-    { major_id: "architecture", major_name: "Kiến trúc" },
-    // ... thêm các ngành khác bạn muốn người dùng có thể lọc
-  ];
 
   return (
     <section className="hero">
@@ -112,85 +209,78 @@ const HeroSection = ({ onSearch }) => {
         <p>Nhanh chóng và dễ dàng tìm kiếm gia sư theo nhu cầu của bạn</p>
         <form className="search-form" onSubmit={handleSubmit}>
           <div className="search-inputs">
-            {/* Level Select */}
-            <div className="search-input-wrapper js-no-focus-highlight">
+            <div className="search-input-wrapper react-select-hero-wrapper">
               <FontAwesomeIcon
                 icon={faChalkboardUser}
                 className="search-icon"
                 aria-hidden="true"
               />
-              <select id="level" name="level" aria-label="Chọn trình độ gia sư">
-                <option value="">Trình độ gia sư</option>
-                {tutorLevel.map((level, index) => (
-                  <option
-                    key={level.level_id || `level-${index}`}
-                    value={level.level_name}
-                  >
-                    {level.level_name}
-                  </option>
-                ))}
-              </select>
+              <Select
+                options={levelOptions}
+                value={selectedLevel}
+                onChange={setSelectedLevel}
+                styles={customSelectStylesForHero}
+                placeholder="Trình độ gia sư"
+                aria-label="Chọn trình độ gia sư"
+                isClearable
+                className="hero-search-select"
+                classNamePrefix="hero-select"
+              />
             </div>
-            {/* Major Select */}
-            <div className="search-input-wrapper js-no-focus-highlight">
+            <div className="search-input-wrapper react-select-hero-wrapper">
               <FontAwesomeIcon
                 icon={faBook}
                 className="search-icon"
                 aria-hidden="true"
               />
-              <select id="major" name="major" aria-label="Chọn ngành học">
-                <option value="">Tất cả các ngành</option>
-                {majorsForSearch.map(
-                  (
-                    subject // Sử dụng majorsForSearch
-                  ) => (
-                    <option
-                      key={subject.major_id || `subject-${subject.major_name}`}
-                      value={subject.major_name}
-                    >
-                      {subject.major_name}
-                    </option>
-                  )
-                )}
-              </select>
+              <Select
+                options={majorsForSearchOptions}
+                value={selectedMajor}
+                onChange={setSelectedMajor}
+                styles={customSelectStylesForHero}
+                placeholder="Tất cả các ngành"
+                aria-label="Chọn ngành học"
+                isClearable
+                className="hero-search-select"
+                classNamePrefix="hero-select"
+              />
             </div>
-            {/* Study Form Select */}
-            <div className="search-input-wrapper js-no-focus-highlight">
+            <div className="search-input-wrapper react-select-hero-wrapper">
               <FontAwesomeIcon
                 icon={faClockSolid}
                 className="search-icon"
                 aria-hidden="true"
               />
-              <select
-                id="studyForm"
-                name="studyForm"
+              <Select
+                options={studyFormOptions}
+                value={selectedStudyForm}
+                onChange={setSelectedStudyForm}
+                styles={customSelectStylesForHero}
+                placeholder="Hình thức học"
                 aria-label="Chọn hình thức học"
-              >
-                <option value="">Hình thức học</option>{" "}
-                <option value="online">Trực tuyến</option>{" "}
-                <option value="offline">Tại nhà</option>{" "}
-                <option value="both">Cả hai</option>
-              </select>
+                isClearable
+                className="hero-search-select"
+                classNamePrefix="hero-select"
+              />
             </div>
-            {/* Day Select */}
-            <div className="search-input-wrapper js-no-focus-highlight">
+            <div className="search-input-wrapper react-select-hero-wrapper">
               <FontAwesomeIcon
                 icon={faCalendarDays}
                 className="search-icon"
                 aria-hidden="true"
               />
-              <select id="day" name="day" aria-label="Chọn ngày học">
-                <option value="">Chọn ngày</option>{" "}
-                <option value="monday">Thứ 2</option>{" "}
-                <option value="tuesday">Thứ 3</option>{" "}
-                <option value="wednesday">Thứ 4</option>{" "}
-                <option value="thursday">Thứ 5</option>{" "}
-                <option value="friday">Thứ 6</option>{" "}
-                <option value="saturday">Thứ 7</option>{" "}
-                <option value="sunday">Chủ nhật</option>
-              </select>
+              <Select
+                options={dayOptions}
+                value={selectedDay}
+                onChange={setSelectedDay}
+                styles={customSelectStylesForHero}
+                placeholder="Chọn ngày"
+                aria-label="Chọn ngày học"
+                isClearable
+                className="hero-search-select"
+                classNamePrefix="hero-select"
+              />
             </div>
-            {/* Search Button */}
             <button type="submit" aria-label="Tìm kiếm gia sư">
               <FontAwesomeIcon icon={faMagnifyingGlass} />
             </button>
@@ -280,48 +370,27 @@ SamplePrevArrow.propTypes = {
 
 // --- Dữ liệu cho Popular Subjects Section (Định nghĩa cứng) ---
 const popularSubjectsData = [
-  {
-    id: "auto",
-    major_name: "Kỹ thuật ô tô",
-    image: mayjorAutoImg,
-  },
-  {
-    id: "physical",
-    major_name: "Vật lý trị liệu",
-    image: mayjorPhysicalImg,
-  },
-  {
-    id: "architecture",
-    major_name: "Kiến trúc",
-    image: mayjorArchitectureImg,
-  },
-  {
-    id: "it",
-    major_name: "Công nghệ thông tin",
-    image: mayjorTechnologyImg,
-  },
+  { id: "auto", major_name: "Kỹ thuật ô tô", image: mayjorAutoImg },
+  { id: "physical", major_name: "Vật lý trị liệu", image: mayjorPhysicalImg },
+  { id: "architecture", major_name: "Kiến trúc", image: mayjorArchitectureImg },
+  { id: "it", major_name: "Công nghệ thông tin", image: mayjorTechnologyImg },
   {
     id: "business",
     major_name: "Quản trị kinh doanh",
     image: mayjorBusinessImg,
   },
-  {
-    id: "teacher",
-    major_name: "Sư phạm tiểu học",
-    image: mayjorTeacherImg,
-  },
+  { id: "teacher", major_name: "Sư phạm tiểu học", image: mayjorTeacherImg },
 ];
 
-// --- Popular Subjects Section Component (Đã sửa đổi) ---
+// --- Popular Subjects Section Component ---
 const PopularSubjectsSection = () => {
   const sliderRef = useRef(null);
-  const slidesToShowDefault = 4; // Số lượng slide hiển thị mặc định
-
+  const slidesToShowDefault = 4;
   const settings = {
     dots: false,
     infinite: popularSubjectsData.length > slidesToShowDefault,
     speed: 500,
-    slidesToShow: Math.min(slidesToShowDefault, popularSubjectsData.length), // Không vượt quá số item
+    slidesToShow: Math.min(slidesToShowDefault, popularSubjectsData.length),
     slidesToScroll: 1,
     autoplay: popularSubjectsData.length > slidesToShowDefault,
     autoplaySpeed: 4000,
@@ -382,7 +451,7 @@ const PopularSubjectsSection = () => {
   );
 };
 
-// --- Testimonials Section Component (Updated Content) ---
+// --- Testimonials Section Component ---
 const TestimonialsSection = () => {
   const studentReviews = [
     {
@@ -455,6 +524,7 @@ const TestimonialsSection = () => {
     </section>
   );
 };
+
 // --- Tutor Profiles Section Component ---
 const TutorProfilesSection = () => {
   const sliderRef = useRef(null);
@@ -531,7 +601,7 @@ const TutorProfilesSection = () => {
           infinite: tutors.length > 2,
           autoplay: tutors.length > 2,
         },
-      },
+      }, // Giữ 2 cột cho tablet nhỏ
       {
         breakpoint: 576,
         settings: {
@@ -566,7 +636,8 @@ const TutorProfilesSection = () => {
                   <p className="tutor-info">Skill: {tutor.skill}</p>
                 )}
                 <button type="button" className="view-profile-button">
-                  Xem Hồ Sơ
+                  {" "}
+                  Xem Hồ Sơ{" "}
                 </button>
               </div>
             </div>
@@ -575,7 +646,7 @@ const TutorProfilesSection = () => {
       ) : (
         <p>Chưa có thông tin về gia sư nổi bật.</p>
       )}
-      {tutors.length > slidesToShowDefault && (
+      {tutors.length > slidesToShowDefault && ( // Chỉ hiển thị nếu có nhiều hơn số slide mặc định
         <button type="button" className="view-all-tutors">
           Xem Tất Cả Gia Sư
         </button>
@@ -584,7 +655,7 @@ const TutorProfilesSection = () => {
   );
 };
 
-// --- FAQ Section Component (Updated Content) ---
+// --- FAQ Section Component ---
 const FAQSection = () => {
   const [activeQuestion, setActiveQuestion] = useState(null);
   const toggleQuestion = (index) => {
@@ -681,7 +752,6 @@ const HomePage = () => {
   const [oauthError, setOauthError] = useState(null);
   const oauthProcessingRef = useRef(null);
 
-  // --- OAuth Callback Logic ---
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const code = searchParams.get("code");
@@ -715,20 +785,17 @@ const HomePage = () => {
             method: METHOD_TYPE.POST,
             data: { code: authCode },
           });
-
           if (response.success && response.data?.token && isMounted) {
             Cookies.set("token", response.data.token, {
               secure: true,
               sameSite: "Lax",
             });
             Cookies.set("role", "user", { secure: true, sameSite: "Lax" });
-
             try {
               const userInfoResponse = await Api({
                 endpoint: "user/get-profile",
                 method: METHOD_TYPE.GET,
               });
-
               if (
                 userInfoResponse.success &&
                 userInfoResponse.data &&
@@ -770,23 +837,18 @@ const HomePage = () => {
           }
         }
       };
-
       exchangeCodeForToken(code);
-
       return () => {
         isMounted = false;
       };
     }
-  }, [location.search, navigate, dispatch, location]); // Giữ nguyên dependency array
+  }, [location.search, navigate, dispatch, location]);
 
-  // --- Search Handler ---
   const handleSearch = (searchParams) => {
-    console.log("Searching with params:", searchParams);
     const query = new URLSearchParams(searchParams).toString();
-    navigate(`/tim-kiem-gia-su?${query}`); // Cập nhật navigate tới trang tìm kiếm gia sư
+    navigate(`/tim-kiem-gia-su?${query}`);
   };
 
-  // --- Render ---
   return (
     <>
       <div className="home-page-wrapper">
@@ -803,20 +865,7 @@ const HomePage = () => {
           </div>
         )}
         {oauthError && (
-          <div
-            className="oauth-error-message"
-            role="alert"
-            style={{
-              color: "#D8000C",
-              backgroundColor: "#FFD2D2",
-              border: "1px solid #D8000C",
-              borderRadius: "4px",
-              padding: "10px 15px",
-              margin: "20px auto",
-              textAlign: "center",
-              maxWidth: "600px",
-            }}
-          >
+          <div className="oauth-error-message" role="alert">
             <strong>Lỗi Đăng Nhập:</strong> {oauthError}
           </div>
         )}

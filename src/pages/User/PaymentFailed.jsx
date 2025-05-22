@@ -37,16 +37,15 @@ const PaymentFailed = () => {
             </div> */}
 
             <div className="action-buttons-payment-result">
-              <Link to="/vi-cua-toi" className="btn btn-primary">
+              <Link to="/tai-khoan/ho-so/vi-ca-nhan" className="btn btn-primary">
                 {" "}
                 {/* Nút thử lại */}
                 Thử Nạp Lại
               </Link>
-              <Link to="/lien-he" className="btn btn-secondary">
+              {/* <Link to="/lien-he" className="btn btn-secondary">
                 {" "}
-                {/* Nút liên hệ */}
                 Liên Hệ Hỗ Trợ
-              </Link>
+              </Link> */}
               <Link to="/" className="btn btn-tertiary">
                 {" "}
                 {/* Nút về trang chủ */}

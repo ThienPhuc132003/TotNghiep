@@ -3,33 +3,41 @@ import PropTypes from "prop-types";
 import {
   FaBookOpen,
   FaBuilding,
-  FaFileAlt,
+  // FaFileAlt, // Không dùng nữa
   FaInfoCircle,
+  FaPlusCircle,
+  FaCheckCircle,
+  FaSpinner,
 } from "react-icons/fa";
-// IMPORT CSS TRỰC TIẾP - KHÔNG GÁN VÀO BIẾN
-import "../../../assets/css/CurriculumItem.style.css";
+import "../../../assets/css/CurriculumItem.style.css"; // Đảm bảo bạn đã tạo và style file này
 
-const CurriculumItem = ({ curriculum }) => {
+const CurriculumItem = ({
+  curriculum,
+  onAddCurriculum,
+  isAdded,
+  isProcessingAdd,
+}) => {
   if (!curriculum) {
     return null;
   }
 
-  // SỬ DỤNG TÊN CLASS DƯỚI DẠNG CHUỖI STRING
+  const handleAddClick = () => {
+    if (onAddCurriculum && !isAdded && !isProcessingAdd) {
+      onAddCurriculum(curriculum.curriculumnId, curriculum.curriculumnName);
+    }
+  };
+
   return (
-    <li className="curriculumItem">
-      {" "}
-      {/* Thay styles.curriculumItem */}
+    <li
+      className={`curriculumItem ${isAdded ? "added" : ""} ${
+        isProcessingAdd ? "processing" : ""
+      }`}
+    >
       <div className="itemHeader">
-        {" "}
-        {/* Thay styles.itemHeader */}
-        <FaBookOpen className="icon" aria-hidden="true" />{" "}
-        {/* Thay styles.icon */}
-        <h3 className="title">{curriculum.curriculumnName}</h3>{" "}
-        {/* Thay styles.title */}
+        <FaBookOpen className="icon" aria-hidden="true" />
+        <h3 className="title">{curriculum.curriculumnName}</h3>
       </div>
       <div className="itemDetail">
-        {" "}
-        {/* Thay styles.itemDetail */}
         <FaBuilding className="icon" aria-hidden="true" />
         <p>
           <strong>Ngành:</strong>{" "}
@@ -43,26 +51,54 @@ const CurriculumItem = ({ curriculum }) => {
           {curriculum.description || "Không có mô tả chi tiết."}
         </p>
       </div>
+      {/* Link file giáo trình đã được ẩn đi theo yêu cầu */}
+      {/* 
       <div className="itemDetail">
         <FaFileAlt className="icon" aria-hidden="true" />
         <p>
           <strong>File Giáo trình:</strong>{" "}
           <a
-            href={curriculum.curriculumnUrl}
+            href={curriculum.curriculumnUrl} // Vẫn cần curriculumnUrl nếu muốn hiển thị sau khi thuê
             target="_blank"
             rel="noopener noreferrer"
-            className="fileLink" /* Thay styles.fileLink */
+            className="fileLink"
             aria-label={`Xem hoặc tải giáo trình ${curriculum.curriculumnName}`}
           >
-            Xem / Tải về
+            Xem / Tải về 
           </a>
         </p>
       </div>
-      {/*
-      <button type="button" className="rentButton"> // Thay styles.rentButton
-        Thuê giáo trình
-      </button>
       */}
+      <div className="itemActions">
+        {isAdded ? (
+          <span className="addedStatus">
+            <FaCheckCircle /> Đã sở hữu
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="addCurriculumButton"
+            onClick={handleAddClick}
+            disabled={isProcessingAdd || isAdded}
+            title={
+              isAdded
+                ? "Giáo trình này đã có trong danh sách của bạn"
+                : "Sử dụng giáo trình này (phí: 10 Coin)"
+            }
+          >
+            {isProcessingAdd ? (
+              <>
+                <FaSpinner className="fa-spin" /> Đang xử lý...
+              </>
+            ) : (
+              <>
+                <FaPlusCircle /> Sử dụng giáo trình
+              </>
+            )}
+          </button>
+        )}
+        {!isAdded && <span className="curriculumCost">Phí: 10 Coin</span>}
+      </div>
     </li>
   );
 };
@@ -74,9 +110,12 @@ CurriculumItem.propTypes = {
     major: PropTypes.shape({
       majorName: PropTypes.string,
     }),
-    curriculumnUrl: PropTypes.string.isRequired,
+    curriculumnUrl: PropTypes.string, // Không còn isRequired, nhưng vẫn có thể dùng nếu cần
     description: PropTypes.string,
   }).isRequired,
+  onAddCurriculum: PropTypes.func.isRequired,
+  isAdded: PropTypes.bool.isRequired,
+  isProcessingAdd: PropTypes.bool.isRequired,
 };
 
 export default CurriculumItem;

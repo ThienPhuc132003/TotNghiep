@@ -1,13 +1,17 @@
-/* src/assets/css/CurriculumList.style.css (hoặc .module.css) */
-/* Các class tương ứng nếu dùng CSS Modules: .curriculumListContainer, .listTitle, ... */
+/* src/assets/css/CurriculumList.style.css */
 
 .listTitle {
-  font-size: 1.6rem; /* 25.6px, nhỏ hơn pageTitle */
-  color: #c82333; /* Màu đỏ sẫm VLU cho tiêu đề section */
-  margin-bottom: 25px;
-  text-align: left; /* Căn trái để nhất quán hơn với form */
+  /* Tiêu đề "Giáo trình có thể sử dụng" */
+  font-size: 1.3rem; /* Điều chỉnh nếu muốn to hơn/nhỏ hơn so với .sectionTitle của page */
+  color: var(
+    --text-dark,
+    #333
+  ); /* Hoặc var(--primary-color-dark) nếu muốn nhấn mạnh */
+  margin-bottom: 20px;
+  text-align: left;
   font-weight: 600;
-  /* Có thể bỏ border-bottom nếu .sectionTitle đã có */
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color, #eee); /* Phân cách nhẹ */
 }
 
 .list {
@@ -15,81 +19,86 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 25px; /* Tăng khoảng cách */
-  grid-template-columns: 1fr;
+  gap: 20px; /* Khoảng cách giữa các CurriculumItem */
+  grid-template-columns: 1fr; /* Mặc định 1 cột */
 }
 
+/* Responsive cho grid layout */
 @media (min-width: 768px) {
   .list {
     grid-template-columns: repeat(
       auto-fill,
-      minmax(300px, 1fr)
-    ); /* Responsive hơn */
-  }
-  .listTitle {
-    font-size: 1.75rem; /* ~28px */
+      minmax(320px, 1fr)
+    ); /* 2 hoặc 3 cột tùy độ rộng */
   }
 }
-
-/* @media (min-width: 1024px) { ... có thể không cần nếu dùng auto-fill ... } */
+@media (min-width: 1200px) {
+  .list {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(350px, 1fr)
+    ); /* Có thể nhiều cột hơn trên màn hình lớn */
+  }
+}
 
 .loadingState,
 .errorState,
 .emptyState {
   text-align: center;
-  padding: 50px 20px;
-  font-size: 1.05rem; /* ~17px */
-  color: #6c757d;
-  background-color: #f8f9fa; /* Nền nhẹ cho các trạng thái này */
+  padding: 30px 15px;
+  font-size: 0.95rem;
+  color: var(--text-light, #6c757d);
+  background-color: transparent;
   border-radius: 6px;
-  margin: 20px 0;
+  margin: 20px 0; /* Thêm margin trên dưới */
+  border: 1px dashed var(--border-color, #d1d5db);
 }
 
 .errorState {
-  color: #721c24; /* Màu chữ lỗi đậm hơn */
-  background-color: #f8d7da; /* Nền lỗi nhạt */
-  border: 1px solid #f5c6cb; /* Border lỗi */
+  color: var(--error-text-color, #721c24); /* Biến màu cho text lỗi */
+  background-color: var(--error-bg-light, #f8d7da); /* Biến màu cho nền lỗi */
+  border-color: var(--error-color, #f5c6cb); /* Biến màu cho viền lỗi */
 }
 
-/* --- Pagination Styles (điều chỉnh lại) --- */
+/* --- Pagination Styles --- */
 .paginationContainer {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--border-color, #e9ecef);
 }
 
 .paginationButton {
-  background-color: #ffffff;
-  color: #c82333; /* Màu chữ đỏ */
-  border: 1px solid #c82333; /* Border đỏ */
-  padding: 8px 16px;
-  margin: 0 8px; /* Tăng khoảng cách */
-  border-radius: 20px; /* Bo tròn nhiều hơn */
+  background-color: var(--background-white, #ffffff);
+  color: var(--primary-color, #d72134);
+  border: 1px solid var(--primary-color, #d72134);
+  padding: 7px 14px;
+  margin: 0 6px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
 }
 
 .paginationButton:hover:not(:disabled) {
-  background-color: #c82333; /* Nền đỏ khi hover */
+  background-color: var(--primary-color, #d72134);
   color: white;
-  transform: translateY(-2px); /* Hiệu ứng nhấc lên nhẹ */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .paginationButton:disabled {
-  border-color: #adb5bd;
-  color: #adb5bd;
+  border-color: var(--text-light, #adb5bd);
+  color: var(--text-light, #adb5bd);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .paginationInfo {
-  margin: 0 15px;
-  font-size: 0.95rem;
-  color: #495057;
-  font-weight: 500;
+  margin: 0 12px;
+  font-size: 0.9rem;
+  color: var(--text-medium, #495057);
 }

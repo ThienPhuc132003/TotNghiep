@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
-import "../../assets/css/Admin/ListOfAdmin.style.css"; // Sử dụng lại CSS chung nếu phù hợp
+import "../../assets/css/Admin/ListOfAdmin.style.css"; // Sử dụng lại CSS chung
 import Table from "../../components/Table";
 import SearchBar from "../../components/SearchBar";
 import Api from "../../network/Api";
@@ -13,7 +13,7 @@ import numeral from "numeral";
 import "numeral/locales/vi";
 import { format, parseISO, isValid } from "date-fns";
 
-// Helper định dạng ngày (tương tự ListOfAdminPage)
+// Helper định dạng ngày
 const formatDate = (dateString, formatString = "dd/MM/yyyy HH:mm") => {
   if (!dateString) return "N/A";
   try {
@@ -24,53 +24,88 @@ const formatDate = (dateString, formatString = "dd/MM/yyyy HH:mm") => {
   }
 };
 
-// Helper định dạng tiền tệ/coin (tương tự ListOfTransactionsPage)
+// Helper định dạng tiền tệ/coin
 const formatCoin = (amount) => {
-  if (amount === null || amount === undefined || isNaN(Number(amount))) {
+  if (amount === null || amount === undefined || isNaN(Number(amount)))
     return "N/A";
-  }
-  numeral.locale("vi"); // Đảm bảo locale được set
-  // Bạn có thể tùy chỉnh format "0,0" nếu không muốn hiển thị chữ "đ" cho coin
-  return numeral(amount).format("0,0"); // Ví dụ: 1,234
+  numeral.locale("vi");
+  return numeral(amount).format("0,0");
 };
 
-// Helper lấy giá trị lồng nhau an toàn (tương tự ListOfAdminPage)
+// Helper lấy giá trị lồng nhau an toàn
 const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
+  if (!obj || !path) return defaultValue;
   const value = path.split(".").reduce((acc, part) => acc && acc[part], obj);
   return value !== undefined && value !== null ? value : defaultValue;
 };
+
+// Searchable Columns for Tutor Payments
+const searchableTutorPaymentColumnOptions = [
+  { value: "tutor.fullname", label: "Tên Gia Sư" },
+  { value: "user.personalEmail", label: "Email Người Dùng" }, // Giả sử email của người dùng học
+  { value: "user.phoneNumber", label: "SĐT Người Dùng" }, // Giả sử SĐT của người dùng học
+  {
+    value: "coinOfUserPayment",
+    label: "Coin Thanh Toán",
+    placeholderSuffix: " (số)",
+  },
+  {
+    value: "coinOfTutorReceive",
+    label: "Coin Gia Sư Nhận",
+    placeholderSuffix: " (số)",
+  },
+  {
+    value: "coinOfWebReceive",
+    label: "Coin Web Nhận",
+    placeholderSuffix: " (số)",
+  }, // <<< THÊM MỚI
+  {
+    value: "createdAt",
+    label: "Ngày Giao Dịch",
+    placeholderSuffix: " (YYYY-MM-DD)",
+  },
+  // { value: "paymentId", label: "Mã Giao Dịch" }, // <<< Cân nhắc thêm nếu paymentId là duy nhất và dễ tìm
+];
 
 const ListOfTutorPaymentsPage = () => {
   // --- States ---
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [pageCount, setPageCount] = useState(1);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const [searchInput, setSearchInput] = useState("");
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableTutorPaymentColumnOptions[0].value
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableTutorPaymentColumnOptions[0].value
+  );
+
   const [sortConfig, setSortConfig] = useState({
-    key: "createdAt", // Sắp xếp mặc định theo ngày tạo
+    key: "createdAt",
     direction: "desc",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const currentPath = "/quan-ly-thanh-toan-gia-su"; // Cập nhật đường dẫn
+  const currentPath = "/quan-ly-thanh-toan-gia-su";
 
   // --- Columns Definition ---
   const columns = useMemo(
     () => [
       {
         title: "STT",
-        dataKey: "stt", // Không phải key từ data, chỉ để định danh cột
+        dataKey: "stt",
         sortable: false,
         renderCell: (_, __, rowIndex) =>
           currentPage * itemsPerPage + rowIndex + 1,
       },
       {
         title: "Tên Gia Sư",
-        dataKey: "tutor.fullname", // dataKey để truy cập, sortKey cho API
-        sortKey: "tutor.fullname", // Backend cần hỗ trợ sort bằng key này
+        dataKey: "tutor.fullname",
+        sortKey: "tutor.fullname",
         sortable: true,
         renderCell: (_, row) =>
           getSafeNestedValue(row, "tutor.fullname", "..."),
@@ -86,8 +121,8 @@ const ListOfTutorPaymentsPage = () => {
       {
         title: "SĐT Người Dùng",
         dataKey: "user.phoneNumber",
-        sortKey: "user.phoneNumber", // Backend có thể cần hỗ trợ sort này
-        sortable: true, // Đặt là true nếu backend hỗ trợ sort
+        sortKey: "user.phoneNumber",
+        sortable: true,
         renderCell: (_, row) =>
           getSafeNestedValue(row, "user.phoneNumber", "..."),
       },
@@ -95,37 +130,39 @@ const ListOfTutorPaymentsPage = () => {
         title: "Coin Thanh Toán",
         dataKey: "coinOfUserPayment",
         sortable: true,
-        renderCell: (value) => formatCoin(value),
+        renderCell: formatCoin,
       },
       {
         title: "Coin Gia Sư Nhận",
         dataKey: "coinOfTutorReceive",
         sortable: true,
-        renderCell: (value) => formatCoin(value),
+        renderCell: formatCoin,
       },
       {
         title: "Coin Web Nhận",
         dataKey: "coinOfWebReceive",
         sortable: true,
-        renderCell: (value) => formatCoin(value),
+        renderCell: formatCoin,
       },
       {
         title: "Ngày Giao Dịch",
         dataKey: "createdAt",
         sortable: true,
-        renderCell: (value) => formatDate(value), // Sử dụng formatDate đã định nghĩa
+        renderCell: formatDate,
       },
     ],
-    [currentPage, itemsPerPage] // Dependencies cho STT
+    [currentPage, itemsPerPage]
   );
 
   // --- Reset State ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
+    setSelectedSearchField(searchableTutorPaymentColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableTutorPaymentColumnOptions[0].value);
     setSortConfig({ key: "createdAt", direction: "desc" });
     setCurrentPage(0);
-  };
+  }, []);
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
@@ -133,12 +170,15 @@ const ListOfTutorPaymentsPage = () => {
     setError(null);
     try {
       const finalFilterConditions = [];
-      if (searchQuery) {
+      if (appliedSearchInput && appliedSearchField) {
         finalFilterConditions.push({
-          // Cập nhật các key tìm kiếm, backend cần hỗ trợ tìm kiếm trên các trường lồng nhau này
-          key: "tutor.fullname,user.personalEmail,user.phoneNumber",
-          operator: "like",
-          value: searchQuery,
+          key: appliedSearchField,
+          operator:
+            appliedSearchField.toLowerCase().includes("coin") ||
+            appliedSearchField.toLowerCase().includes("id")
+              ? "equal"
+              : "like",
+          value: appliedSearchInput,
         });
       }
 
@@ -154,7 +194,7 @@ const ListOfTutorPaymentsPage = () => {
       };
 
       const responsePayload = await Api({
-        endpoint: `manage-payment/search`, // Cập nhật endpoint
+        endpoint: `manage-payment/search`, // Đảm bảo endpoint này đúng
         method: METHOD_TYPE.GET,
         query: query,
       });
@@ -170,7 +210,6 @@ const ListOfTutorPaymentsPage = () => {
           setTotalItems(responseInnerData.total);
           setPageCount(Math.ceil(responseInnerData.total / itemsPerPage));
         } else {
-          console.error("Unexpected data structure:", responsePayload);
           throw new Error("Lỗi xử lý dữ liệu từ API.");
         }
       } else {
@@ -178,35 +217,37 @@ const ListOfTutorPaymentsPage = () => {
           responsePayload?.message || "Lỗi không xác định từ API."
         );
       }
-    } catch (error) {
-      console.error("Fetch data error caught:", error.message || error);
-      setError(
-        error.message || "Có lỗi xảy ra khi tải dữ liệu thanh toán gia sư."
-      );
+    } catch (errorCatch) {
+      const errorMessage =
+        errorCatch.message ||
+        "Có lỗi xảy ra khi tải dữ liệu thanh toán gia sư.";
+      setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      toast.error(error.message || "Tải dữ liệu thất bại!");
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, searchQuery]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    appliedSearchInput,
+    appliedSearchField,
+  ]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
   useEffect(() => {
-    numeral.locale("vi"); // Set locale khi component mount cho numeral
+    numeral.locale("vi");
   }, []);
 
   // --- Handlers ---
   const handlePageClick = (event) => {
-    if (typeof event.selected === "number") {
-      setCurrentPage(event.selected);
-    }
+    if (typeof event.selected === "number") setCurrentPage(event.selected);
   };
-
   const handleSort = (sortKey) => {
     setSortConfig((prev) => ({
       key: sortKey,
@@ -215,47 +256,87 @@ const ListOfTutorPaymentsPage = () => {
     }));
     setCurrentPage(0);
   };
-
   const handleItemsPerPageChange = (newPageSize) => {
     setItemsPerPage(newPageSize);
     setCurrentPage(0);
   };
-
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
   };
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+  };
 
   const handleApplySearch = () => {
+    // Đổi tên hàm cho nhất quán, không cần "AndFilters" vì không có filter khác
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput("");
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      setAppliedSearchInput("");
+    }
     setCurrentPage(0);
-    setSearchQuery(searchInput);
   };
 
   const handleSearchKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleApplySearch();
-    }
+    if (e.key === "Enter") handleApplySearch();
   };
 
   // --- JSX Render ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableTutorPaymentColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}${
+        currentSearchFieldConfig.placeholderSuffix || ""
+      }...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
         <h2 className="admin-list-title">Quản Lý Thanh Toán Gia Sư</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
+            <div className="filter-control">
+              <select
+                id="searchFieldSelectTutorPayment"
+                value={selectedSearchField}
+                onChange={handleSearchFieldChange}
+                className="status-filter-select"
+                aria-label="Chọn trường để tìm kiếm"
+              >
+                {searchableTutorPaymentColumnOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {" "}
+                    {option.label}{" "}
+                  </option>
+                ))}
+              </select>
+            </div>
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
               onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm tên gia sư, email/SĐT người dùng..." // Cập nhật placeholder
+              placeholder={searchPlaceholder}
             />
             <button
               className="refresh-button"
               onClick={handleApplySearch}
               title="Tìm kiếm"
               aria-label="Tìm kiếm"
+              disabled={isLoading}
             >
               <i className="fa-solid fa-search"></i>
             </button>
@@ -264,11 +345,11 @@ const ListOfTutorPaymentsPage = () => {
               onClick={resetState}
               title="Làm mới"
               aria-label="Làm mới"
+              disabled={isLoading}
             >
               <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
-          {/* Không có nút Add cho trang này */}
         </div>
 
         {error && (
@@ -289,10 +370,7 @@ const ListOfTutorPaymentsPage = () => {
           loading={isLoading}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
-          // Không có các action như view, edit, delete, lock cho trang này theo yêu cầu hiện tại
-          // Nếu cần xem chi tiết, bạn có thể thêm prop `onView` và xử lý modal tương ứng
         />
-
         {!isLoading && !error && data.length > 0 && (
           <p
             style={{
@@ -303,6 +381,18 @@ const ListOfTutorPaymentsPage = () => {
             }}
           >
             Tổng số giao dịch: {totalItems}
+          </p>
+        )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            Không có dữ liệu giao dịch.
           </p>
         )}
       </div>

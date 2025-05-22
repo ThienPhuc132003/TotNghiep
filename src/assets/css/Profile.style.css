@@ -1,70 +1,56 @@
 /* src/assets/css/Profile.style.css */
 
-/* --- Layout chung của trang --- */
-.profile-page-wrapper {
-  padding: 40px 20px;
-  background-color: #f8f9fa;
-  min-height: calc(100vh - 60px);
-}
-
 .profile-container {
-  background-color: #ffffff;
-  padding: 40px 50px;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
-  max-width: 1050px; /* Độ rộng đã tăng */
+  max-width: 850px;
   margin: 0 auto;
 }
 
 .profile-container h1 {
   text-align: center;
-  margin-bottom: 40px;
-  color: #1a253c;
+  margin-bottom: 35px;
+  color: var(--text-dark);
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
-/* --- Layout nội dung chính --- */
 .profile-content {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 50px;
+  grid-template-columns: 220px 1fr;
+  gap: 40px;
   align-items: flex-start;
   transition: opacity 0.3s ease-in-out;
 }
 
-/* --- Khu vực Avatar --- */
 .profile-avatar-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  padding-top: 15px;
+  padding-top: 10px;
 }
 .avatar-loading-overlay {
   position: absolute;
-  top: 15px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 160px;
-  height: 160px;
-  background-color: rgba(255, 255, 255, 0.9);
+  width: 150px;
+  height: 150px;
+  background-color: rgba(255, 255, 255, 0.85);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
-  color: #0d6efd;
-  border: 3px solid #e0e0e0;
+  color: var(--primary-color);
+  border: 2px solid var(--border-color);
   box-sizing: border-box;
 }
 
-/* --- Khu vực Form --- */
 .form-grid-user {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  row-gap: 30px;
-  column-gap: 25px; /* Khoảng cách cột đã giảm */
+  row-gap: 25px;
+  column-gap: 20px;
 }
 
 .form-group {
@@ -73,103 +59,94 @@
 }
 
 .form-group label {
-  margin-bottom: 10px;
-  font-weight: 600;
-  color: #343a40;
-  font-size: 0.95rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-medium);
+  font-size: 0.9rem;
 }
 
-/* Style input */
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="tel"],
 .form-group input[type="date"],
 .form-group textarea {
-  padding: 12px 12px; /* Padding ngang đã giảm */
-  border: 1px solid #d1d9e6;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  font-size: 1rem;
-  color: #495057;
-  background-color: #fff;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background-color: var(--background-white);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   line-height: 1.5;
-  font-family: inherit;
 }
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #86b7fe;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05),
-    0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+  border-color: var(--primary-color-dark);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.2);
 }
+
 .form-group textarea {
   resize: vertical;
   min-height: 80px;
 }
 
-/* === Style cho Input Chỉ đọc === */
 .input-readonly {
-  background-color: #f1f3f5 !important; /* Nền xám rất nhạt, !important để chắc chắn ghi đè */
-  color: #6c757d !important; /* Chữ xám mờ */
-  cursor: not-allowed !important; /* Con trỏ không cho phép */
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important; /* Giảm bóng đổ */
+  background-color: #f0f2f5 !important;
+  color: var(--text-light) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }
-/* Ngăn hiệu ứng focus đặc biệt trên input chỉ đọc */
 .input-readonly:focus {
-  border-color: #d1d9e6 !important; /* Giữ màu viền gốc khi focus */
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important; /* Giữ nguyên bóng đổ khi focus */
+  border-color: var(--border-color) !important;
+  box-shadow: none !important;
 }
 
-/* Group chiếm toàn bộ các cột */
 .form-group-full {
   grid-column: 1 / -1;
 }
 
-/* Style Radio Button */
 .gender-group {
   display: flex;
-  gap: 30px;
+  gap: 25px;
   align-items: center;
-  padding-top: 8px;
-  height: 44px;
+  padding-top: 6px;
+  height: 40px;
 }
 .radio-label {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-weight: 500;
-  color: #495057;
+  font-weight: 400;
+  color: var(--text-dark);
   position: relative;
-  padding-left: 30px;
-  margin-right: 15px;
+  padding-left: 28px;
+  margin-right: 10px;
   user-select: none;
 }
 .radio-label input[type="radio"] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
-  height: 0;
-  width: 0;
 }
 .radio-custom {
   position: absolute;
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  height: 20px;
-  width: 20px;
-  background-color: #fff;
+  height: 18px;
+  width: 18px;
+  background-color: var(--background-white);
   border: 1px solid #adb5bd;
   border-radius: 50%;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .radio-label:hover input[type="radio"] ~ .radio-custom {
-  border-color: #86b7fe;
+  border-color: var(--primary-color);
 }
 .radio-label input[type="radio"]:checked ~ .radio-custom {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 .radio-custom::after {
   content: "";
@@ -178,8 +155,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: white;
 }
@@ -187,117 +164,90 @@
   display: block;
 }
 
-/* Nút Submit chính */
 .profile-submit-button {
-  margin-top: 40px;
-  padding: 12px 35px;
-  background-image: linear-gradient(to right, #0d6efd, #0a58ca);
+  margin-top: 30px;
+  padding: 10px 30px;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 1.05rem;
-  font-weight: 600;
-  transition: background-image 0.3s ease, box-shadow 0.2s ease,
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, box-shadow 0.2s ease,
     transform 0.1s ease;
   display: block;
   margin-left: auto;
   margin-right: 0;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.2);
 }
 .profile-submit-button:hover:not(:disabled) {
-  background-image: linear-gradient(to right, #0b5ed7, #0a58ca);
-  box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3);
+  background: var(--primary-color-dark);
+  box-shadow: 0 4px 10px rgba(var(--primary-color-rgb), 0.3);
   transform: translateY(-1px);
 }
 .profile-submit-button:active:not(:disabled) {
   transform: translateY(0px);
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
 }
 .profile-submit-button:disabled {
-  background-image: none;
-  background-color: #a0c8ff;
+  background-color: #e0e0e0;
   cursor: not-allowed;
   box-shadow: none;
-  transform: none;
 }
 .profile-submit-button:focus {
   outline: none;
-  box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
+  box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.4);
 }
 
-/* Trạng thái Loading */
 .profile-content.content-loading {
   opacity: 0.6;
   pointer-events: none;
 }
 
-/* Alert Messages */
 .alert {
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.2rem;
   border: 1px solid transparent;
-  border-radius: 0.375rem;
-  font-size: 0.95rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
 .alert-success {
   color: #0f5132;
   background-color: #d1e7dd;
-  border-color: #badbcc;
+  border-color: var(--success-color);
 }
 .alert-danger {
   color: #842029;
   background-color: #f8d7da;
-  border-color: #f5c2c7;
-}
-.alert-info {
-  color: #055160;
-  background-color: #cff4fc;
-  border-color: #b6effb;
+  border-color: var(--error-color);
 }
 
-/* Responsive Design */
 @media (max-width: 991px) {
   .profile-content {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 30px;
   }
   .profile-avatar-section {
-    margin-bottom: 0;
-    grid-row: 1;
+    margin-bottom: 10px;
   }
   .profile-container {
-    padding: 30px 25px;
+    padding: 0;
+    max-width: 100%;
   }
-  .form-grid-user {
-    column-gap: 20px;
-  } /* Giảm gap cột trên tablet */
 }
 @media (max-width: 767px) {
-  .profile-container {
-    padding: 25px 15px;
-  }
   .profile-container h1 {
-    font-size: 1.6rem;
-    margin-bottom: 30px;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
   }
   .form-grid-user {
     grid-template-columns: 1fr;
-    row-gap: 25px;
+    row-gap: 20px;
   }
   .profile-submit-button {
     width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    padding: 12px 20px;
   }
   .profile-content {
-    gap: 35px;
-  }
-  .gender-group {
-    flex-wrap: wrap;
-    gap: 15px;
-    height: auto;
-    padding-bottom: 10px;
+    gap: 25px;
   }
 }

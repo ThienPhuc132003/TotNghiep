@@ -11,12 +11,12 @@ import FormDetail from "../../components/FormDetail";
 import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
-import qs from "qs";
+// qs không còn cần thiết nếu API không dùng nó trực tiếp ở FE nữa
 import { Alert } from "@mui/material";
-// Bỏ unidecode
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { format, parseISO, isValid } from "date-fns"; // Thêm parseISO, isValid
+import { format, parseISO, isValid } from "date-fns";
+
 Modal.setAppElement("#root");
 
 // Helper lấy giá trị lồng nhau an toàn
@@ -33,7 +33,6 @@ const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
 
 // Helper định dạng ngày an toàn hơn
 const safeFormatDate = (dateInput, formatString = "dd/MM/yyyy") => {
-  // Mặc định không cần giờ
   if (!dateInput) return "Không có";
   try {
     const date =
@@ -50,7 +49,7 @@ const formatLockStatus = (status) => {
     case "ACTIVE":
       return <span className="status status-active">Hoạt động</span>;
     case "BLOCKED":
-      return <span className="status status-blocked">Đã khóa</span>; // Hoặc status-inactive
+      return <span className="status status-blocked">Đã khóa</span>;
     default:
       return (
         <span className="status status-unknown">{status || "Không rõ"}</span>
@@ -58,79 +57,108 @@ const formatLockStatus = (status) => {
   }
 };
 
+// Định nghĩa các cột có thể tìm kiếm cho Người học
+const searchableStudentColumnOptions = [
+  { value: "userId", label: "Mã người học" },
+  { value: "userProfile.fullname", label: "Tên người học" },
+  { value: "email", label: "Email" }, // Thêm email
+  { value: "phoneNumber", label: "Số điện thoại" }, // Thêm SĐT
+  {
+    value: "userProfile.birthday",
+    label: "Ngày sinh",
+    placeholderSuffix: " (YYYY-MM-DD)",
+  },
+  { value: "userProfile.major.majorName", label: "Ngành" },
+  {
+    value: "createdAt",
+    label: "Ngày tạo",
+    placeholderSuffix: " (YYYY-MM-DD)",
+  },
+];
+
 const ListOfStudentPage = () => {
   const { t } = useTranslation();
   // --- States ---
   const [data, setData] = useState([]);
-  // Bỏ filteredData
   const [totalItems, setTotalItems] = useState(0);
-  const [pageCount, setPageCount] = useState(1); // State cho tổng số trang
+  const [pageCount, setPageCount] = useState(1);
+
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // State cho query tìm kiếm thực tế
-  const [isModalOpen, setIsModalOpen] = useState(false); // Chỉ dùng cho View modal
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableStudentColumnOptions[0].value
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableStudentColumnOptions[0].value
+  );
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
-  const [deleteMessage, setDeleteMessage] = useState(""); // State cho message xóa
-  const [modalData, setModalData] = useState({}); // Dùng cho View modal
-  const [modalMode, setModalMode] = useState(null); // Chỉ set thành 'view'
-  const [currentPage, setCurrentPage] = useState(0); // Index 0-based
-  const [isLoading, setIsLoading] = useState(false); // Loading chính cho bảng
-  const [isProcessingLock, setIsProcessingLock] = useState(false); // Loading cho nút khóa/mở
-  const [isDeleting, setIsDeleting] = useState(false); // Loading cho nút xóa
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [modalData, setModalData] = useState({});
+  const [modalMode, setModalMode] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessingLock, setIsProcessingLock] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
-  }); // Mặc định sort theo ngày tạo giảm dần
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Đổi lại thành 10 hoặc tùy ý
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const currentPath = "/nguoi-hoc";
-  // Bỏ formErrors nếu không có form Add/Edit
-  // const [formErrors, setFormErrors] = useState({});
-
-  // Bỏ updateUrl và useEffect liên quan
 
   // --- Reset State ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
-    setSortConfig({ key: "createdAt", direction: "desc" }); // Reset về sort mặc định
+    setSelectedSearchField(searchableStudentColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableStudentColumnOptions[0].value);
+    setSortConfig({ key: "createdAt", direction: "desc" });
     setCurrentPage(0);
-  };
+    // Không cần gọi fetchData ở đây vì các useEffect sẽ tự trigger khi state thay đổi
+  }, []);
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Luôn lọc theo roleId=USER
       const filterConditions = [
         { key: "roleId", operator: "equal", value: "USER" },
       ];
 
-      // Thêm filter tìm kiếm nếu có
-      if (searchQuery) {
+      if (appliedSearchInput && appliedSearchField) {
+        // QUAN TRỌNG: Backend API /user/search cần hỗ trợ tìm kiếm theo `key` đơn lẻ
+        // Nếu backend chỉ hỗ trợ tìm kiếm trên một chuỗi các trường cố định,
+        // thì việc chọn cột ở FE sẽ không thay đổi cách backend tìm kiếm.
+        // Ví dụ: nếu backend tìm `value` trên `userId,userProfile.fullname,...`
+        // thì dù `appliedSearchField` là gì, nó vẫn tìm trên tất cả các trường đó.
+        // Giả định ở đây là backend hỗ trợ key đơn lẻ:
         filterConditions.push({
-          key: "userId,userProfile.fullname,email,phoneNumber,userProfile.major.majorName", // Các trường tìm kiếm
-          operator: "like",
-          value: searchQuery,
+          key: appliedSearchField,
+          operator: "like", // Hoặc 'equal' cho các trường như ID, ngày tháng nếu backend hỗ trợ
+          value: appliedSearchInput,
         });
       }
 
       const query = {
         rpp: itemsPerPage,
-        page: currentPage + 1, // API page 1-based
-        filter: JSON.stringify(filterConditions), // Gửi filter đã kết hợp
+        page: currentPage + 1,
+        filter: JSON.stringify(filterConditions),
         sort: JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
         ]),
       };
 
-      const queryString = qs.stringify(query, { encode: false });
-      console.log("Fetching students with query:", queryString);
+      console.log("Fetching students with query:", query);
 
       const response = await Api({
-        endpoint: `user/search?${queryString}`, // Endpoint user search
+        endpoint: `user/search`, // Endpoint user search, không cần qs.stringify ở đây nữa
         method: METHOD_TYPE.GET,
+        query: query, // Truyền object query, class Api sẽ tự xử lý
       });
       console.log("API Response:", response);
 
@@ -141,17 +169,25 @@ const ListOfStudentPage = () => {
       } else {
         throw new Error(response.message || t("common.errorLoadingData"));
       }
-    } catch (error) {
-      console.error("Fetch student error:", error);
-      setError(error.message || t("common.errorLoadingData"));
+    } catch (errorCatch) {
+      console.error("Fetch student error:", errorCatch);
+      const errorMessage = errorCatch.message || t("common.errorLoadingData");
+      setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      toast.error(`Tải danh sách người học thất bại: ${error.message}`);
+      toast.error(`Tải danh sách người học thất bại: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]); // Thêm searchQuery
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    appliedSearchInput,
+    appliedSearchField,
+    t,
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -168,10 +204,31 @@ const ListOfStudentPage = () => {
     setSearchInput(value);
   };
 
-  // Trigger tìm kiếm backend
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+    // Có thể reset searchInput ở đây nếu muốn: setSearchInput("");
+  };
+
   const handleApplySearch = () => {
+    // Chỉ áp dụng nếu có input hoặc field thay đổi so với applied
+    // Điều này giúp tránh gọi API thừa khi nhấn nút tìm kiếm mà không có gì mới
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        // Nếu input trống, nhưng field thay đổi -> có thể là muốn xóa search theo field cũ
+        // và áp dụng field mới (nếu có filter khác) hoặc xóa hẳn search
+        setAppliedSearchField(selectedSearchField); // Giữ field mới
+        setAppliedSearchInput(""); // Xóa input
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      // Nếu input bị xóa rỗng, và trước đó có tìm kiếm -> xóa điều kiện tìm kiếm
+      setAppliedSearchInput("");
+      // Giữ nguyên appliedSearchField hoặc reset về mặc định tùy logic
+    }
     setCurrentPage(0);
-    setSearchQuery(searchInput);
+    // fetchData sẽ được gọi lại bởi useEffect
   };
 
   const handleSearchKeyPress = (e) => {
@@ -180,27 +237,23 @@ const ListOfStudentPage = () => {
     }
   };
 
-  // Cập nhật sortConfig
   const handleSort = (sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
+    setSortConfig((prevConfig) => ({
+      key: sortKey,
+      direction:
         prevConfig.key === sortKey && prevConfig.direction === "asc"
           ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
+          : "asc",
+    }));
     setCurrentPage(0);
   };
 
-  // Cập nhật itemsPerPage
   const handleItemsPerPageChange = (newPageSize) => {
     setItemsPerPage(newPageSize);
     setCurrentPage(0);
   };
 
-  // --- Action Handlers ---
   const handleDelete = (student) => {
-    // Nhận cả object
     if (!student || !student.userId) return;
     const studentName = getSafeNestedValue(
       student,
@@ -217,25 +270,23 @@ const ListOfStudentPage = () => {
     setIsDeleting(true);
     try {
       const response = await Api({
-        endpoint: `user/delete-user-by-id/${deleteItemId}`, // Endpoint xóa user
+        endpoint: `user/delete-user-by-id/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
       if (response.success) {
         toast.success("Xóa người học thành công");
         if (data.length === 1 && currentPage > 0) {
-          setCurrentPage(currentPage - 1);
+          setCurrentPage(currentPage - 1); // Chuyển về trang trước nếu xóa item cuối cùng của trang hiện tại
         } else {
-          fetchData();
+          fetchData(); // Tải lại dữ liệu cho trang hiện tại
         }
       } else {
-        console.error("Failed to delete student:", response.message);
         toast.error(
           `Xóa thất bại: ${response.message || "Lỗi không xác định"}`
         );
       }
-    } catch (error) {
-      console.error("An error occurred while deleting student:", error);
-      toast.error(`Xóa thất bại: ${error.message || "Lỗi mạng"}`);
+    } catch (errorCatch) {
+      toast.error(`Xóa thất bại: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
@@ -244,9 +295,7 @@ const ListOfStudentPage = () => {
     }
   };
 
-  // Handler cho nút View
   const handleView = (student) => {
-    // Chuẩn bị dữ liệu đầy đủ cho modal view
     const studentDataForView = {
       userId: student.userId,
       fullname: getSafeNestedValue(
@@ -261,18 +310,17 @@ const ListOfStudentPage = () => {
         "userProfile.homeAddress",
         "Chưa cập nhật"
       ),
-      birthday: getSafeNestedValue(student, "userProfile.birthday", null), // Giữ null nếu không có
-      gender: getSafeNestedValue(student, "userProfile.gender", null), // Giữ null nếu không có
+      birthday: getSafeNestedValue(student, "userProfile.birthday", null),
+      gender: getSafeNestedValue(student, "userProfile.gender", null),
       majorName: getSafeNestedValue(
         student,
         "userProfile.major.majorName",
         "Chưa cập nhật"
       ),
-      status: student.status, // Trạng thái tài khoản (PENDING, ACTIVE,...)
-      checkActive: student.checkActive, // Trạng thái khóa/mở (ACTIVE, BLOCKED)
+      status: student.status,
+      checkActive: student.checkActive,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
-      // Thêm các trường khác nếu cần hiển thị
     };
     setModalData(studentDataForView);
     setModalMode("view");
@@ -281,15 +329,14 @@ const ListOfStudentPage = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
-    // Bỏ setFormErrors nếu không có form add/edit
+    setTimeout(() => {
+      setModalData({});
+      setModalMode(null);
+    }, 300); // Đợi animation của modal
   };
 
-  // Handler cho nút Lock/Unlock
   const handleLock = async (student) => {
     if (!student || !student.userId) return;
-    // Trạng thái mới dựa trên checkActive
     const newCheckActive =
       student.checkActive === "ACTIVE" ? "BLOCKED" : "ACTIVE";
     const actionText = newCheckActive === "ACTIVE" ? "Mở khóa" : "Khóa";
@@ -304,17 +351,15 @@ const ListOfStudentPage = () => {
     )
       return;
 
-    setIsProcessingLock(true); // Bắt đầu loading
+    setIsProcessingLock(true);
     try {
       const response = await Api({
-        endpoint: `user/update-user-by-id/${student.userId}`, // Endpoint cập nhật user
+        endpoint: `user/update-user-by-id/${student.userId}`,
         method: METHOD_TYPE.PUT,
-        // Chỉ gửi trường cần thay đổi
         data: { checkActive: newCheckActive },
       });
 
       if (response.success) {
-        // Cập nhật state data để UI thay đổi ngay
         setData((prevData) =>
           prevData.map((item) =>
             item.userId === student.userId
@@ -327,30 +372,22 @@ const ListOfStudentPage = () => {
         toast.error(
           `Cập nhật thất bại: ${response.message || "Lỗi không xác định"}`
         );
-        console.error(
-          "Failed to update student lock status:",
-          response.message
-        );
       }
-    } catch (error) {
-      toast.error(`Cập nhật thất bại: ${error.message || "Lỗi mạng"}`);
-      console.error(
-        "An error occurred while updating student lock status:",
-        error
-      );
+    } catch (errorCatch) {
+      toast.error(`Cập nhật thất bại: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
-      setIsProcessingLock(false); // Kết thúc loading
+      setIsProcessingLock(false);
     }
   };
 
   // --- Columns Definition ---
   const columns = useMemo(
     () => [
-      { title: "Mã người dùng", dataKey: "userId", sortable: true },
+      { title: "Mã NH", dataKey: "userId", sortable: true }, // Sửa title
       {
-        title: "Tên",
+        title: "Tên người học", // Sửa title
         dataKey: "userProfile.fullname",
-        sortKey: "userProfile.fullname", // Cần backend hỗ trợ sort nested
+        sortKey: "userProfile.fullname",
         sortable: true,
         renderCell: (_, row) =>
           getSafeNestedValue(row, "userProfile.fullname", "..."),
@@ -360,44 +397,36 @@ const ListOfStudentPage = () => {
         dataKey: "userProfile.birthday",
         sortKey: "userProfile.birthday",
         sortable: true,
-        renderCell: (v) => safeFormatDate(v, "dd/MM/yyyy"), // Dùng safeFormatDate
-      },
-      {
-        title: "Giới tính",
-        dataKey: "userProfile.gender",
-        sortKey: "userProfile.gender",
-        sortable: true,
-        renderCell: (v) =>
-          v === "MALE" ? "Nam" : v === "FEMALE" ? "Nữ" : "Khác",
+        renderCell: (v) => safeFormatDate(v, "dd/MM/yyyy"),
       },
       {
         title: "Ngành",
         dataKey: "userProfile.major.majorName",
-        sortKey: "userProfile.major.majorName",
+        sortKey: "userProfile.major.majorName", // Đảm bảo backend hỗ trợ sort key này
         sortable: true,
         renderCell: (_, row) =>
           getSafeNestedValue(row, "userProfile.major.majorName", "Chưa có"),
       },
       {
-        title: "Trạng thái", // Đổi thành trạng thái khóa/mở
+        title: "Trạng thái",
         dataKey: "checkActive",
         sortable: true,
-        renderCell: formatLockStatus, // Dùng helper format trạng thái
+        renderCell: formatLockStatus,
       },
       {
-        title: "Ngày tạo", // Thêm cột ngày tạo
+        title: "Ngày tạo",
         dataKey: "createdAt",
         sortable: true,
         renderCell: (v) => safeFormatDate(v, "dd/MM/yy HH:mm"),
       },
     ],
-    []
-  ); // Không có dependencies
+    [] // Dependencies trống nếu không có gì thay đổi
+  );
 
   // --- Fields Definition for View Modal ---
   const viewFields = useMemo(
     () => [
-      { key: "userId", label: "Mã người dùng" },
+      { key: "userId", label: "Mã người học" },
       { key: "fullname", label: "Tên" },
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Số điện thoại" },
@@ -413,13 +442,12 @@ const ListOfStudentPage = () => {
         renderValue: (v) =>
           v === "MALE" ? "Nam" : v === "FEMALE" ? "Nữ" : "Khác",
       },
-      { key: "majorName", label: "Ngành" }, // Dùng key đã chuẩn bị trong modalData
+      { key: "majorName", label: "Ngành" },
       {
         key: "checkActive",
-        label: "Trạng thái",
+        label: "Trạng thái tài khoản",
         renderValue: formatLockStatus,
-      }, // Trạng thái khóa/mở
-      // { key: "status", label: "Trạng thái TK", renderValue: (v) => v }, // Trạng thái tài khoản (PENDING, ACTIVE...) nếu cần
+      },
       {
         key: "createdAt",
         label: "Ngày tạo",
@@ -436,40 +464,70 @@ const ListOfStudentPage = () => {
   );
 
   // --- JSX Render ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableStudentColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}${
+        currentSearchFieldConfig.placeholderSuffix || ""
+      }...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
         <h2 className="admin-list-title">Danh sách người học</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
+            {/* Select chọn cột tìm kiếm */}
+            <div className="filter-control">
+              <select
+                id="searchFieldSelectStudent"
+                value={selectedSearchField}
+                onChange={handleSearchFieldChange}
+                className="status-filter-select" // Tái sử dụng class CSS
+                aria-label="Chọn trường để tìm kiếm"
+              >
+                {searchableStudentColumnOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
-              onKeyPress={handleSearchKeyPress} // Thêm tìm bằng Enter
+              onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm mã, tên, email, SĐT, ngành..." // Cập nhật placeholder
+              placeholder={searchPlaceholder}
             />
-            {/* Nút tìm kiếm */}
             <button
-              className="refresh-button"
+              className="refresh-button" // Tái sử dụng class CSS
               onClick={handleApplySearch}
               title="Tìm kiếm"
               aria-label="Tìm kiếm"
+              disabled={isLoading || isProcessingLock}
             >
               <i className="fa-solid fa-search"></i>
             </button>
-            {/* Nút làm mới */}
             <button
-              className="refresh-button"
+              className="refresh-button" // Tái sử dụng class CSS
               onClick={resetState}
-              title="Làm mới"
-              aria-label="Làm mới"
+              title="Làm mới bộ lọc"
+              aria-label="Làm mới bộ lọc"
+              disabled={isLoading || isProcessingLock}
             >
               <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
-          {/* Không có nút Add Student ở đây */}
+          {/* Không có nút Add Student ở đây, nên div này có thể để trống hoặc bỏ */}
           <div className="filter-add-admin"></div>
         </div>
 
@@ -479,30 +537,24 @@ const ListOfStudentPage = () => {
           </Alert>
         )}
 
-        {/* Table */}
         <Table
           columns={columns}
-          data={data} // Dùng data
-          totalItems={totalItems} // Truyền totalItems
-          // Actions
+          data={data}
+          totalItems={totalItems}
           onView={handleView}
-          onDelete={handleDelete} // Truyền cả object student
-          onLock={handleLock} // Truyền handler khóa/mở
-          showLock={true} // Hiển thị nút lock
-          statusKey="checkActive" // Key để kiểm tra trạng thái lock
-          // Pagination & Sort
+          onDelete={handleDelete}
+          onLock={handleLock}
+          showLock={true}
+          statusKey="checkActive"
           pageCount={pageCount}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
-          currentSortConfig={sortConfig} // Truyền sort config
-          // Loading & Items per page
-          // Kết hợp loading chính và loading lock
-          loading={isLoading || isProcessingLock}
+          currentSortConfig={sortConfig}
+          loading={isLoading || isProcessingLock || isDeleting} // Kết hợp các trạng thái loading
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
         />
-        {/* Tổng số */}
         {!isLoading && !error && data.length > 0 && (
           <p
             style={{
@@ -515,6 +567,18 @@ const ListOfStudentPage = () => {
             Tổng số người học: {totalItems}
           </p>
         )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            Không có dữ liệu người học.
+          </p>
+        )}
       </div>
     </>
   );
@@ -524,37 +588,33 @@ const ListOfStudentPage = () => {
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
-      {/* View Modal */}
       <Modal
-        isOpen={isModalOpen && modalMode === "view"} // Chỉ mở khi mode là view
+        isOpen={isModalOpen && modalMode === "view"}
         onRequestClose={handleCloseModal}
         contentLabel="Xem thông tin người học"
-        className="modal" // Có thể thêm class 'large' nếu cần
+        className="modal"
         overlayClassName="overlay"
+        closeTimeoutMS={300}
       >
-        {/* Render FormDetail chỉ khi modalData có */}
-        {modalData && (
+        {modalData && modalMode === "view" && (
           <FormDetail
             formData={modalData}
-            fields={viewFields} // Sử dụng viewFields
+            fields={viewFields}
             mode="view"
             title="Xem thông tin người học"
             onClose={handleCloseModal}
-            // Không cần các props khác cho view mode (onChange, onSubmit, errors, isSubmitting)
           />
         )}
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message={deleteMessage} // Dùng message động
-        isDeleting={isDeleting} // Truyền state deleting
+        message={deleteMessage}
+        isDeleting={isDeleting}
       />
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

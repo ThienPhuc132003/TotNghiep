@@ -77,7 +77,20 @@
   width: 100%;
   line-height: 1.3;
 }
-
+.user-coin {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+.user-coin-amount {
+  color: #a09368;
+}
+.fa-coins {
+  color: #ffd700 !important;
+  font-size: 0.9rem;
+}
 /* Style cho user-role trong .home-page-header (nền tối) */
 .home-page-header .user-role {
   color: #cccccc; /* Màu xám nhạt hơn cho nền tối */

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react"; // Thêm useMemo
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
 import "../../assets/css/Admin/ListOfAdmin.style.css"; // Dùng chung CSS
 import "../../assets/css/Modal.style.css";
@@ -11,73 +11,86 @@ import { useTranslation } from "react-i18next";
 import Modal from "react-modal";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { Alert } from "@mui/material";
-// Bỏ unidecode
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import qs from "qs";
+// qs không cần thiết nữa nếu Api class tự xử lý
+// import qs from "qs";
 
-// Set the app element for accessibility
 Modal.setAppElement("#root");
 
+// Searchable Columns for Majors
+const searchableMajorColumnOptions = [
+  { value: "majorId", label: "Mã ngành" },
+  { value: "sumName", label: "Tên viết tắt" },
+  { value: "majorName", label: "Tên ngành" },
+];
 
 const ListOfMajorPage = () => {
   const { t } = useTranslation();
   // --- States ---
-  const [data, setData] = useState([]); // Chỉ cần data
+  const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [pageCount, setPageCount] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // State cho query tìm kiếm thực tế
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState(null);
-  const [deleteMessage, setDeleteMessage] = useState(""); // State cho message xóa
-  const [modalData, setModalData] = useState({});
-  const [modalMode, setModalMode] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0); // Index 0-based
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // State cho nút Lưu modal
-  const [isDeleting, setIsDeleting] = useState(false); // State cho nút Xóa modal
-  const [error, setError] = useState(null);
+  const [selectedSearchField, setSelectedSearchField] = useState(
+    searchableMajorColumnOptions[0].value // Mặc định cột đầu tiên
+  );
+  const [appliedSearchInput, setAppliedSearchInput] = useState("");
+  const [appliedSearchField, setAppliedSearchField] = useState(
+    searchableMajorColumnOptions[0].value
+  );
+
   const [sortConfig, setSortConfig] = useState({
     key: "majorName",
     direction: "asc",
-  }); // Mặc định sort theo tên ngành
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const currentPath = "/nganh";
-  // Bỏ state filters
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({});
+  const [modalMode, setModalMode] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
-  // Bỏ updateUrl và useEffect liên quan
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const currentPath = "/nganh";
 
   // --- Reset State ---
-  const resetState = () => {
+  const resetState = useCallback(() => {
     setSearchInput("");
-    setSearchQuery("");
-    setSortConfig({ key: "majorName", direction: "asc" }); // Reset về sort mặc định
+    setSelectedSearchField(searchableMajorColumnOptions[0].value);
+    setAppliedSearchInput("");
+    setAppliedSearchField(searchableMajorColumnOptions[0].value);
+    setSortConfig({ key: "majorName", direction: "asc" });
     setCurrentPage(0);
-    // Bỏ setFilters([]);
-  };
+  }, []);
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
     setError(null);
     setIsLoading(true);
     try {
-      // Xây dựng filter từ searchQuery
       const filterConditions = [];
-      if (searchQuery) {
+      if (appliedSearchInput && appliedSearchField) {
         filterConditions.push({
-          key: "majorId,sumName,majorName", // Các trường muốn tìm kiếm
-          operator: "like",
-          value: searchQuery,
+          key: appliedSearchField,
+          operator: "like", // Hoặc 'equal' cho ID nếu backend hỗ trợ chính xác
+          value: appliedSearchInput,
         });
       }
 
       const query = {
         rpp: itemsPerPage,
-        page: currentPage + 1, // API dùng page 1-based
-        // Sử dụng filterConditions đã tạo
+        page: currentPage + 1,
         ...(filterConditions.length > 0 && {
           filter: JSON.stringify(filterConditions),
         }),
@@ -86,12 +99,11 @@ const ListOfMajorPage = () => {
         ]),
       };
 
-      const queryString = qs.stringify(query, { encode: false });
-      console.log("Fetching majors with query:", queryString);
-
+      console.log("Fetching majors with query:", query);
       const response = await Api({
-        endpoint: `major/search?${queryString}`, // Đảm bảo endpoint đúng
+        endpoint: `major/search`, // Endpoint tìm kiếm ngành
         method: METHOD_TYPE.GET,
+        query: query, // Truyền object query
       });
       console.log("API Response:", response);
 
@@ -102,70 +114,84 @@ const ListOfMajorPage = () => {
       } else {
         throw new Error(response.message || t("common.errorLoadingData"));
       }
-    } catch (error) {
-      console.error("Fetch major error:", error);
-      setError(error.message || t("common.errorLoadingData"));
+    } catch (errorCatch) {
+      console.error("Fetch major error:", errorCatch);
+      const errorMessage = errorCatch.message || t("common.errorLoadingData");
+      setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      toast.error(`Tải danh sách ngành thất bại: ${error.message}`);
+      toast.error(`Tải danh sách ngành thất bại: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, searchQuery, t]); // Thêm searchQuery
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    appliedSearchInput,
+    appliedSearchField,
+    t,
+  ]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]); // fetchData đã chứa đủ dependencies
+  }, [fetchData]);
 
   // --- Handlers ---
   const handlePageClick = (event) => {
-    if (typeof event.selected === "number") {
-      setCurrentPage(event.selected);
-    }
+    if (typeof event.selected === "number") setCurrentPage(event.selected);
   };
 
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
   };
 
-  // Trigger tìm kiếm backend
+  const handleSearchFieldChange = (event) => {
+    setSelectedSearchField(event.target.value);
+  };
+
   const handleApplySearch = () => {
+    if (searchInput.trim() || selectedSearchField !== appliedSearchField) {
+      if (searchInput.trim()) {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput(searchInput);
+      } else {
+        setAppliedSearchField(selectedSearchField);
+        setAppliedSearchInput("");
+      }
+    } else if (!searchInput.trim() && appliedSearchInput) {
+      setAppliedSearchInput("");
+    }
     setCurrentPage(0);
-    setSearchQuery(searchInput);
   };
 
   const handleSearchKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleApplySearch();
-    }
+    if (e.key === "Enter") handleApplySearch();
   };
 
-  // Cập nhật sortConfig
   const handleSort = (sortKey) => {
-    setSortConfig((prevConfig) => {
-      const newDirection =
+    setSortConfig((prevConfig) => ({
+      key: sortKey,
+      direction:
         prevConfig.key === sortKey && prevConfig.direction === "asc"
           ? "desc"
-          : "asc";
-      return { key: sortKey, direction: newDirection };
-    });
-    setCurrentPage(0); // Về trang đầu khi sort
+          : "asc",
+    }));
+    setCurrentPage(0);
   };
 
-  // Cập nhật itemsPerPage
   const handleItemsPerPageChange = (newPageSize) => {
     setItemsPerPage(newPageSize);
     setCurrentPage(0);
   };
 
-  // --- CRUD Handlers ---
+  // --- CRUD Handlers (giữ nguyên các handler khác) ---
   const handleDelete = (major) => {
-    // Nhận cả object major
     if (!major || !major.majorId) return;
-    const majorName = major.majorName || major.majorId; // Lấy tên hoặc ID
+    const majorName = major.majorName || major.majorId;
     setDeleteItemId(major.majorId);
-    setDeleteMessage(`Bạn có chắc chắn muốn xóa ngành "${majorName}"?`); // Set message động
+    setDeleteMessage(`Bạn có chắc chắn muốn xóa ngành "${majorName}"?`);
     setIsDeleteModalOpen(true);
   };
 
@@ -177,51 +203,40 @@ const ListOfMajorPage = () => {
         endpoint: `major/delete/${deleteItemId}`,
         method: METHOD_TYPE.DELETE,
       });
-
       if (response.success) {
         toast.success("Xóa thành công");
-        // Kiểm tra lùi trang nếu cần
         if (data.length === 1 && currentPage > 0) {
           setCurrentPage(currentPage - 1);
         } else {
-          fetchData(); // Fetch lại trang hiện tại
+          fetchData();
         }
       } else {
-        console.log("Failed to delete major:", response.message);
-        // Hiển thị lỗi cụ thể hơn nếu có, ví dụ ngành đang được sử dụng
         toast.error(
           `Xóa không thành công: ${response.message || "Lỗi không xác định"}`
         );
       }
-    } catch (error) {
-      console.error("An error occurred while deleting major:", error);
-      toast.error(`Xóa không thành công: ${error.message || "Lỗi mạng"}`);
+    } catch (errorCatch) {
+      toast.error(`Xóa không thành công: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteItemId(null);
-      setDeleteMessage(""); // Reset message
+      setDeleteMessage("");
       setIsDeleting(false);
     }
   };
 
   const handleAddMajor = () => {
     setModalMode("add");
-    setModalData({
-      // Reset data form
-      sumName: "",
-      majorName: "",
-    });
-    setFormErrors({}); // Xóa lỗi cũ
+    setModalData({ sumName: "", majorName: "" });
+    setFormErrors({});
     setIsModalOpen(true);
   };
 
   const handleView = (major) => {
     setModalData({
-      // Lấy dữ liệu từ item
       majorId: major.majorId,
       sumName: major.sumName || "",
       majorName: major.majorName || "",
-      // Thêm các trường khác nếu có (createdAt, updatedAt,...)
     });
     setModalMode("view");
     setIsModalOpen(true);
@@ -229,32 +244,38 @@ const ListOfMajorPage = () => {
 
   const handleEdit = (major) => {
     setModalData({
-      // Lấy dữ liệu để sửa
       majorId: major.majorId,
       sumName: major.sumName || "",
       majorName: major.majorName || "",
     });
     setModalMode("edit");
-    setFormErrors({}); // Xóa lỗi cũ
+    setFormErrors({});
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setModalData({});
-    setModalMode(null);
-    setFormErrors({});
+    setTimeout(() => {
+      // Đợi animation nếu có
+      setModalData({});
+      setModalMode(null);
+      setFormErrors({});
+    }, 300);
   };
 
-  // Bỏ handleSave, logic save nằm trong handleCreate/Update
-
-  // Validation Form
   const validateMajorForm = (formData) => {
     const errors = {};
     if (!formData.majorName?.trim())
       errors.majorName = "Vui lòng nhập tên ngành.";
-    // Thêm validate cho sumName nếu cần (ví dụ: không được trùng, viết hoa,...)
-    // if(!formData.sumName?.trim()) errors.sumName = "Vui lòng nhập tên viết tắt.";
+    // Thêm validate cho sumName nếu cần
+    if (!formData.sumName?.trim())
+      errors.sumName = "Vui lòng nhập tên viết tắt.";
+    // Kiểm tra sumName không nên chứa khoảng trắng và nên viết hoa
+    else if (/\s/.test(formData.sumName))
+      errors.sumName = "Tên viết tắt không được chứa khoảng trắng.";
+    else if (formData.sumName !== formData.sumName.toUpperCase())
+      errors.sumName = "Tên viết tắt nên được viết hoa.";
+
     return errors;
   };
 
@@ -271,29 +292,22 @@ const ListOfMajorPage = () => {
       const response = await Api({
         endpoint: "major/create",
         method: METHOD_TYPE.POST,
-        data: formData, // Gửi dữ liệu từ form
+        data: formData,
       });
-
       if (response.success) {
         toast.success("Thêm ngành thành công");
-        // Reset sort về mặc định, về trang đầu
         setSortConfig({ key: "majorName", direction: "asc" });
-        if (currentPage !== 0) {
-          setCurrentPage(0);
-        } else {
-          fetchData(); // Fetch lại trang 1
-        }
-        handleCloseModal(); // Đóng modal
+        if (currentPage !== 0) setCurrentPage(0);
+        else fetchData();
+        handleCloseModal();
       } else {
-        console.log("Failed to create major:", response.message);
         toast.error(
           `Thêm không thành công: ${response.message || "Lỗi không xác định"}`
         );
         if (response.errors) setFormErrors(response.errors);
       }
-    } catch (error) {
-      console.error("An error occurred while creating major:", error);
-      toast.error(`Thêm không thành công: ${error.message || "Lỗi mạng"}`);
+    } catch (errorCatch) {
+      toast.error(`Thêm không thành công: ${errorCatch.message || "Lỗi mạng"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -309,23 +323,20 @@ const ListOfMajorPage = () => {
     setFormErrors({});
     setIsSubmitting(true);
     try {
-      // Chỉ gửi các trường cần update
       const updateData = {
         sumName: formData.sumName,
         majorName: formData.majorName,
       };
       const response = await Api({
-        endpoint: `major/update/${modalData.majorId}`, // Dùng ID từ modalData
+        endpoint: `major/update/${modalData.majorId}`,
         method: METHOD_TYPE.PUT,
         data: updateData,
       });
-
       if (response.success) {
         toast.success("Cập nhật thành công");
-        fetchData(); // Fetch lại dữ liệu
-        handleCloseModal(); // Đóng modal
+        fetchData();
+        handleCloseModal();
       } else {
-        console.log("Failed to update major:", response.message);
         toast.error(
           `Cập nhật không thành công: ${
             response.message || "Lỗi không xác định"
@@ -333,9 +344,10 @@ const ListOfMajorPage = () => {
         );
         if (response.errors) setFormErrors(response.errors);
       }
-    } catch (error) {
-      console.error("An error occurred while updating major:", error);
-      toast.error(`Cập nhật không thành công: ${error.message || "Lỗi mạng"}`);
+    } catch (errorCatch) {
+      toast.error(
+        `Cập nhật không thành công: ${errorCatch.message || "Lỗi mạng"}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -349,12 +361,17 @@ const ListOfMajorPage = () => {
       { title: t("major.name"), dataKey: "majorName", sortable: true },
     ],
     [t]
-  ); // Chỉ phụ thuộc t
+  );
 
   // --- Fields Definition ---
   const addFields = useMemo(
     () => [
-      { key: "sumName", label: "Tên viết tắt", placeholder: "Ví dụ: CNTT" },
+      {
+        key: "sumName",
+        label: "Tên viết tắt",
+        placeholder: "Ví dụ: CNTT",
+        required: true,
+      }, // Thêm required
       {
         key: "majorName",
         label: "Tên ngành",
@@ -363,62 +380,95 @@ const ListOfMajorPage = () => {
       },
     ],
     []
-  ); // Không có dependencies
+  );
 
   const editFields = useMemo(
     () => [
-      { key: "majorId", label: "Mã ngành", readOnly: true }, // Không cho sửa Mã ngành
-      { key: "sumName", label: "Tên viết tắt", placeholder: "Ví dụ: CNTT" },
+      { key: "majorId", label: "Mã ngành", readOnly: true },
+      {
+        key: "sumName",
+        label: "Tên viết tắt",
+        placeholder: "Ví dụ: CNTT",
+        required: true,
+      }, // Thêm required
       {
         key: "majorName",
         label: "Tên ngành",
         required: true,
         placeholder: "Ví dụ: Công nghệ thông tin",
       },
-      // Thêm các trường readOnly nếu muốn hiển thị ở view mode
-      // { key: "createdAt", label: "Ngày tạo", readOnly: true, renderValue: (v) => v ? new Date(v).toLocaleString('vi-VN') : 'N/A'},
-      // { key: "updatedAt", label: "Cập nhật", readOnly: true, renderValue: (v) => v ? new Date(v).toLocaleString('vi-VN') : 'N/A'},
     ],
     []
-  ); // Không có dependencies
+  );
 
   // --- JSX Render ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableMajorColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}...`
+    : "Nhập tìm kiếm...";
+
   const childrenMiddleContentLower = (
     <>
       <div className="admin-content">
         <h2 className="admin-list-title">{t("major.listTitle")}</h2>
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
+            {/* Select chọn cột tìm kiếm */}
+            <div className="filter-control">
+              <select
+                id="searchFieldSelectMajor"
+                value={selectedSearchField}
+                onChange={handleSearchFieldChange}
+                className="status-filter-select"
+                aria-label="Chọn trường để tìm kiếm"
+              >
+                {searchableMajorColumnOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <SearchBar
               value={searchInput}
               onChange={handleSearchInputChange}
-              onKeyPress={handleSearchKeyPress} // Thêm onKeyPress
+              onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder="Tìm mã ngành, tên, viết tắt..." // Cập nhật placeholder
+              placeholder={searchPlaceholder}
             />
-            {/* Nút tìm kiếm */}
             <button
               className="refresh-button"
               onClick={handleApplySearch}
               title="Tìm kiếm"
               aria-label="Tìm kiếm"
+              disabled={isLoading}
             >
               <i className="fa-solid fa-search"></i>
             </button>
-            {/* Nút làm mới */}
             <button
               className="refresh-button"
               onClick={resetState}
               title="Làm mới"
               aria-label="Làm mới"
+              disabled={isLoading}
             >
               <i className="fa-solid fa-rotate-left"></i>
             </button>
           </div>
-          {/* Nút thêm */}
           <div className="filter-add-admin">
-            <button className="add-admin-button" onClick={handleAddMajor}>
+            <button
+              className="add-admin-button"
+              onClick={handleAddMajor}
+              disabled={isLoading || isSubmitting}
+            >
               {t("common.addButton")}
             </button>
           </div>
@@ -430,28 +480,22 @@ const ListOfMajorPage = () => {
           </Alert>
         )}
 
-        {/* Table */}
         <Table
           columns={columns}
-          data={data} // Dùng data trực tiếp
-          totalItems={totalItems} // Truyền totalItems
-          // Actions
+          data={data}
+          totalItems={totalItems}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete} // Truyền cả object
-          // Không có onLock cho Major
-          // Pagination & Sort
+          onDelete={handleDelete}
           pageCount={pageCount}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
-          currentSortConfig={sortConfig} // Truyền sort config hiện tại
-          // Loading & Items per page
-          loading={isLoading}
+          currentSortConfig={sortConfig}
+          loading={isLoading || isDeleting || isSubmitting} // Kết hợp loading states
           itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={handleItemsPerPageChange} // Đảm bảo đúng handler
+          onItemsPerPageChange={handleItemsPerPageChange}
         />
-        {/* Tổng số */}
         {!isLoading && !error && data.length > 0 && (
           <p
             style={{
@@ -464,6 +508,18 @@ const ListOfMajorPage = () => {
             Tổng số ngành: {totalItems}
           </p>
         )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            Không có dữ liệu ngành.
+          </p>
+        )}
       </div>
     </>
   );
@@ -473,7 +529,6 @@ const ListOfMajorPage = () => {
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
     >
-      {/* Modal Add/Edit/View */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
@@ -481,11 +536,12 @@ const ListOfMajorPage = () => {
           modalMode === "add"
             ? "Thêm ngành"
             : modalMode === "edit"
-            ? "Chỉnh sửa nghành"
+            ? "Chỉnh sửa ngành"
             : "Xem ngành"
         }
-        className="modal"
+        className="modal" // Có thể thêm class 'small' hoặc 'medium' nếu modal này thường nhỏ
         overlayClassName="overlay"
+        closeTimeoutMS={300}
       >
         {modalMode && (
           <FormDetail
@@ -494,9 +550,8 @@ const ListOfMajorPage = () => {
             mode={modalMode}
             onChange={(name, value) => {
               setModalData({ ...modalData, [name]: value });
-              if (formErrors[name]) {
+              if (formErrors[name])
                 setFormErrors((prev) => ({ ...prev, [name]: "" }));
-              }
             }}
             onSubmit={
               modalMode === "add" ? handleCreateMajor : handleUpdateMajor
@@ -510,21 +565,19 @@ const ListOfMajorPage = () => {
             }
             onClose={handleCloseModal}
             errors={formErrors}
-            isSubmitting={isSubmitting} // Truyền state
+            isSubmitting={isSubmitting}
           />
         )}
       </Modal>
 
-      {/* Modal Delete Confirmation */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        message={deleteMessage} // Truyền message động
-        isDeleting={isDeleting} // Truyền state
+        message={deleteMessage}
+        isDeleting={isDeleting}
       />
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </AdminDashboardLayout>
   );

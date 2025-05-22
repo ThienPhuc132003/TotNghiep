@@ -1,0 +1,100 @@
+/* src/assets/css/OwnedCurriculumItem.style.css */
+/* Style này có thể kế thừa nhiều từ CurriculumItem.style.css */
+/* hoặc bạn có thể copy và tùy chỉnh lại */
+
+.ownedCurriculumItem {
+  background-color: var(--background-white, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-left: 4px solid var(--success-color, #10b981); /* Viền trái màu xanh để phân biệt */
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ownedCurriculumItem .itemHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-color, #eee);
+  margin-bottom: 5px;
+}
+
+.ownedCurriculumItem .itemHeader .icon {
+  color: var(--primary-color, #d72134);
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.ownedCurriculumItem .itemHeader .title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-dark, #333);
+  line-height: 1.4;
+}
+
+.ownedCurriculumItem .itemDetail {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-medium, #555);
+  line-height: 1.5;
+}
+
+.ownedCurriculumItem .itemDetail .icon {
+  color: var(--text-light, #777);
+  font-size: 1rem;
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.ownedCurriculumItem .itemDetail p {
+  margin: 0;
+}
+.ownedCurriculumItem .itemDetail p strong {
+  font-weight: 500;
+  color: var(--text-dark, #444);
+}
+
+.ownedCurriculumItem .fileLink {
+  color: var(--primary-color, #d72134);
+  text-decoration: none;
+  font-weight: 500;
+}
+.ownedCurriculumItem .fileLink:hover {
+  text-decoration: underline;
+  color: var(--primary-color-dark, #b41e2d);
+}
+
+/* Nếu có nút xóa */
+.itemActionsOwned {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color, #eee);
+  text-align: right; /* Hoặc flex và justify-content: flex-end */
+}
+
+.removeOwnedButton {
+  background-color: var(--error-color, #ef4444);
+  color: white;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+.removeOwnedButton:hover {
+  background-color: #dc2626; /* Darker error color */
+}
