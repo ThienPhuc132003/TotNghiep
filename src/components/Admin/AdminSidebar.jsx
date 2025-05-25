@@ -7,7 +7,7 @@ import "../../assets/css/Admin/AdminSidebar.style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMenuData } from "../../redux/menuAdminSlice"; // Import fetchMenuData
 import { setSidebarVisibility, toggleSubmenu } from "../../redux/uiAdminSlice";
-import SideBarBackGround from "../../assets/images/vanlang_background.webp";
+import SideBarBackGround from "../../assets/images/vanlang_background5.jpg";
 import Logo from "../../assets/images/logo_white.webp";
 
 const removeDiacritics = (str) => {

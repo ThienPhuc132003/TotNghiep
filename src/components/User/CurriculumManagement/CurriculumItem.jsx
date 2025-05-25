@@ -92,7 +92,7 @@ const CurriculumItem = ({
               </>
             ) : (
               <>
-                <FaPlusCircle /> Sử dụng giáo trình
+                <FaPlusCircle /> Mua giáo trình
               </>
             )}
           </button>

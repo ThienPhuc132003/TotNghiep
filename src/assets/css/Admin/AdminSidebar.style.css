@@ -206,10 +206,11 @@ nav ul li:hover a {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  font-weight: bold;
 }
 
 .menu-item-content .menu-name {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgb(255, 255, 255);
   flex-grow: 1;
   margin-left: 10px;
 }
