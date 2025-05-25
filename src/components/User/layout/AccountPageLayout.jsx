@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import "../../../assets/css/AccountPageLayout.style.css";
+import "../../../assets/css/AccountPageLayout.style.css"; // Đảm bảo file CSS này tồn tại và được style
 import dfMale from "../../../assets/images/df-male.png";
 import dfFemale from "../../../assets/images/df-female.png";
 
-// Component SidebarUserInfo
+// Component SidebarUserInfo (Giả sử component này không thay đổi và đã có ở nơi khác)
+// Nếu SidebarUserInfo nằm trong file này, bạn có thể giữ nguyên nó.
+// Để cho gọn, tôi sẽ không lặp lại code SidebarUserInfo ở đây.
+// Ví dụ: import SidebarUserInfo from './SidebarUserInfo'; // Nếu bạn tách ra
 const SidebarUserInfo = () => {
   const user = useSelector((state) => state.user.userProfile);
   if (!user || !user.userProfile) {
@@ -47,36 +50,26 @@ const SidebarUserInfo = () => {
 const AccountPageLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user.userProfile); // Lấy toàn bộ user object từ Redux
+  const user = useSelector((state) => state.user.userProfile);
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
-  // useEffect để kiểm tra xác thực và điều hướng nếu cần
   useEffect(() => {
-    // Chỉ kiểm tra !isAuthenticated là đủ, vì nếu không xác thực thì user.userProfile cũng không nên tồn tại
     if (!isAuthenticated) {
-      // console.warn("AccountPageLayout: User not authenticated, redirecting to login.");
       navigate("/login", { replace: true, state: { from: location } });
-    }
-    // Nếu đã xác thực nhưng không có user.userProfile (trường hợp hiếm), có thể log lỗi hoặc xử lý thêm
-    else if (isAuthenticated && (!user || !user.userProfile)) {
-      // console.warn("AccountPageLayout: User authenticated but profile missing. Potential data issue.");
-      // Bạn có thể chọn ở lại trang (return;) hoặc redirect về login/trang lỗi
-      // navigate("/login", { replace: true, state: { from: location } }); // Hoặc 1 trang báo lỗi
+    } else if (isAuthenticated && (!user || !user.userProfile)) {
+      // Xử lý trường hợp hiếm: đã xác thực nhưng thiếu profile
+      // Có thể redirect hoặc hiển thị thông báo lỗi
     }
   }, [isAuthenticated, user, navigate, location]);
 
-  // Xác định isTutor và các path mặc định
-  // Đảm bảo user và user.userProfile có giá trị trước khi truy cập user.roleId
   const isTutor =
     isAuthenticated &&
     user?.userProfile &&
     String(user.roleId).toUpperCase() === "TUTOR";
   const defaultUserPath = "thong-tin-ca-nhan";
-  const defaultTutorPath = "ho-so-gia-su"; // ĐÃ CẬP NHẬT
+  const defaultTutorPath = "ho-so-gia-su";
 
-  // useEffect để điều hướng đến trang con mặc định
   useEffect(() => {
-    // Chỉ chạy logic này nếu user đã được xác thực và có profile đầy đủ
     if (isAuthenticated && user && user.userProfile) {
       const baseAccountPath = "/tai-khoan/ho-so";
       if (
@@ -91,28 +84,30 @@ const AccountPageLayout = () => {
     location.pathname,
     navigate,
     isAuthenticated,
-    user, // Quan trọng: user là dependency
-    isTutor, // isTutor phụ thuộc vào user
+    user,
+    isTutor,
     defaultUserPath,
     defaultTutorPath,
   ]);
 
-  // Điều kiện return sớm nếu chưa xác thực hoặc thiếu thông tin user cơ bản
   if (!isAuthenticated || !user || !user.userProfile) {
-    // Hooks đã chạy, giờ có thể return null hoặc component loading
-    // trong khi chờ navigate từ useEffect kiểm tra xác thực
-    return null;
+    return null; // Hoặc một component loading
   }
 
   const getSidebarMenuItems = () => {
-    // isTutor đã được tính toán chính xác ở trên
     if (isTutor) {
       return [
         {
           id: "tutorProfile",
           label: "Hồ Sơ Gia Sư",
-          pathBase: "ho-so-gia-su", // ĐÃ CẬP NHẬT
+          pathBase: "ho-so-gia-su",
           icon: "fas fa-id-badge",
+        },
+        {
+          id: "tutorBookingRequests",
+          label: "Yêu Cầu Thuê",
+          pathBase: "yeu-cau-day",
+          icon: "fas fa-calendar-check",
         },
         {
           id: "tutorWallet",
@@ -128,12 +123,11 @@ const AccountPageLayout = () => {
         },
       ];
     } else {
-      // USER (Người học)
       return [
         {
           id: "userProfile",
           label: "Hồ Sơ Học Viên",
-          pathBase: "thong-tin-ca-nhan", // Giữ nguyên cho User
+          pathBase: "thong-tin-ca-nhan",
           icon: "fas fa-user-circle",
         },
         {

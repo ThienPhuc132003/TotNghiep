@@ -49,6 +49,10 @@ const FavoriteTutorsPage = lazy(() =>
 const CurriculumPage = lazy(() =>
   import("./pages/User/CurriculumManagementPage")
 );
+const TutorBookingRequestsPage = lazy(() =>
+  import("./pages/User/TutorBookingRequestsPage")
+);
+
 import ZoomCallback from "./pages/User/ZoomCallback";
 import CreateMeeting from "./pages/User/CreateMeeting";
 
@@ -138,21 +142,22 @@ function App() {
                   element={<AccountPageLayout />}
                 >
                   {/* AccountPageLayout sẽ tự điều hướng đến trang con mặc định dựa trên role */}
-
                   {/* === USER (Người học) specific routes === */}
                   <Route path="thong-tin-ca-nhan" element={<Profile />} />
                   <Route
                     path="gia-su-yeu-thich"
                     element={<FavoriteTutorsPage />}
                   />
-
                   {/* === TUTOR (Gia sư) specific routes === */}
-                  <Route path="ho-so-gia-su" element={<TutorRegister />} />
+                  <Route path="ho-so-gia-su" element={<TutorRegister />} />{" "}
+                  <Route
+                    path="yeu-cau-day"
+                    element={<TutorBookingRequestsPage />}
+                  />
                   <Route
                     path="giao-trinh-ca-nhan"
                     element={<CurriculumPage />}
                   />
-
                   {/* === SHARED routes for both USER and TUTOR under AccountPageLayout === */}
                   <Route path="vi-cua-toi" element={<Wallet />} />
                 </Route>

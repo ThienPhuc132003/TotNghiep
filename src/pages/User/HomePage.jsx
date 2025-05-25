@@ -2,11 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import "../../assets/css/HomePage.style.css";
+import "../../assets/css/HomePage.style.css"; // Đảm bảo file CSS này tồn tại
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Select from "react-select"; // <<<< IMPORT REACT-SELECT
+import Select from "react-select";
 
 // --- Assets ---
 import welcomeTheme from "../../assets/images/vanlang_background3.webp";
@@ -64,9 +64,11 @@ const customSelectStylesForHero = {
       state.isFocused ? "var(--primary-color)" : "var(--border-color)"
     }`,
     borderRadius: "30px",
+    height: "50px", // Chiều cao cố định cho control
     minHeight: "50px",
-    height: "50px",
     paddingLeft: "2.3rem",
+    display: "flex",
+    alignItems: "center",
     boxShadow: state.isFocused
       ? `0 0 0 2px rgba(var(--primary-color-rgb), 0.2)`
       : "none",
@@ -80,17 +82,35 @@ const customSelectStylesForHero = {
   valueContainer: (provided) => ({
     ...provided,
     padding: "0 4px",
-    height: "100%",
-    overflow: "visible",
+    flexWrap: "wrap",
+    height: "calc(100% - 4px)", // Hoặc giá trị pixel cố định như "40px"
+    maxHeight: "calc(100% - 4px)",
+    overflowY: "auto",
+    display: "flex",
+    alignItems: "center",
   }),
-  input: (provided) => ({ ...provided, margin: "0px", padding: "0px" }),
-  placeholder: (provided) => ({
+  input: (provided) => ({
+    ...provided,
+    margin: "2px",
+    padding: "0px",
+    alignSelf: "stretch",
+    minHeight: "20px",
+  }),
+  placeholder: (provided, state) => ({
     ...provided,
     color: "#6b7280",
     marginLeft: "2px",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    display:
+      (state.hasValue && state.selectProps.isMulti) ||
+      state.selectProps.inputValue
+        ? "none"
+        : "block",
+    position:
+      state.hasValue && state.selectProps.isMulti ? "absolute" : "relative",
+    top: state.hasValue && state.selectProps.isMulti ? "-9999px" : undefined,
   }),
   singleValue: (provided) => ({
     ...provided,
@@ -99,11 +119,14 @@ const customSelectStylesForHero = {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    lineHeight: "normal", // Đảm bảo text không bị cắt
   }),
   indicatorsContainer: (provided) => ({
     ...provided,
     paddingRight: "8px",
-    height: "100%",
+    alignSelf: "stretch",
+    display: "flex",
+    alignItems: "center",
   }),
   indicatorSeparator: () => ({
     display: "none",
@@ -113,7 +136,6 @@ const customSelectStylesForHero = {
     color: state.isFocused ? "var(--primary-color)" : "#9ca3af",
     transition: "color 0.2s ease",
     padding: "8px",
-    alignSelf: "center",
   }),
   menu: (provided) => ({
     ...provided,
@@ -144,6 +166,37 @@ const customSelectStylesForHero = {
         : undefined,
     },
   }),
+  multiValue: (provided) => ({
+    ...provided,
+    backgroundColor: "rgba(var(--primary-color-rgb), 0.1)",
+    borderRadius: "4px",
+    padding: "1px 5px",
+    margin: "2px",
+    display: "flex",
+    alignItems: "center",
+    fontSize: "0.85em",
+    minHeight: "20px",
+  }),
+  multiValueLabel: (provided) => ({
+    ...provided,
+    color: "var(--primary-color)",
+    padding: "0",
+    paddingRight: "4px",
+    whiteSpace: "nowrap",
+  }),
+  multiValueRemove: (provided) => ({
+    ...provided,
+    color: "var(--primary-color)",
+    padding: "2px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    "&:hover": {
+      backgroundColor: "var(--primary-color)",
+      color: "white",
+      borderRadius: "50%",
+    },
+  }),
 };
 
 // --- Hero Section Component ---
@@ -152,7 +205,7 @@ const HeroSection = ({ onSearch }) => {
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [selectedMajor, setSelectedMajor] = useState(null);
   const [selectedStudyForm, setSelectedStudyForm] = useState(null);
-  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDay, setSelectedDay] = useState([]);
 
   const levelOptions = tutorLevelData.map((level) => ({
     value: level.level_name,
@@ -165,7 +218,6 @@ const HeroSection = ({ onSearch }) => {
     { value: "OTO", label: "Kỹ thuật ô tô" },
     { value: "KT", label: "Kiến trúc" },
     { value: "NNA", label: "Ngôn ngữ Anh" },
-    // BẠN CẦN THÊM DỮ LIỆU NGÀNH THỰC TẾ Ở ĐÂY
   ];
   const studyFormOptions = [
     { value: "ONLINE", label: "Trực tuyến" },
@@ -188,7 +240,9 @@ const HeroSection = ({ onSearch }) => {
     if (selectedLevel) searchParams.level = selectedLevel.value;
     if (selectedMajor) searchParams.major = selectedMajor.value;
     if (selectedStudyForm) searchParams.studyForm = selectedStudyForm.value;
-    if (selectedDay) searchParams.day = selectedDay.value;
+    if (selectedDay && selectedDay.length > 0) {
+      searchParams.day = selectedDay.map((day) => day.value);
+    }
     onSearch(searchParams);
   };
 
@@ -271,10 +325,13 @@ const HeroSection = ({ onSearch }) => {
               />
               <Select
                 options={dayOptions}
+                isMulti
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
                 value={selectedDay}
                 onChange={setSelectedDay}
                 styles={customSelectStylesForHero}
-                placeholder="Chọn ngày"
+                placeholder="Chọn thứ"
                 aria-label="Chọn ngày học"
                 isClearable
                 className="hero-search-select"
@@ -601,7 +658,7 @@ const TutorProfilesSection = () => {
           infinite: tutors.length > 2,
           autoplay: tutors.length > 2,
         },
-      }, // Giữ 2 cột cho tablet nhỏ
+      },
       {
         breakpoint: 576,
         settings: {
@@ -646,7 +703,7 @@ const TutorProfilesSection = () => {
       ) : (
         <p>Chưa có thông tin về gia sư nổi bật.</p>
       )}
-      {tutors.length > slidesToShowDefault && ( // Chỉ hiển thị nếu có nhiều hơn số slide mặc định
+      {tutors.length > slidesToShowDefault && (
         <button type="button" className="view-all-tutors">
           Xem Tất Cả Gia Sư
         </button>
@@ -845,8 +902,15 @@ const HomePage = () => {
   }, [location.search, navigate, dispatch, location]);
 
   const handleSearch = (searchParams) => {
-    const query = new URLSearchParams(searchParams).toString();
-    navigate(`/tim-kiem-gia-su?${query}`);
+    const queryParams = new URLSearchParams();
+    for (const key in searchParams) {
+      if (Array.isArray(searchParams[key])) {
+        searchParams[key].forEach((val) => queryParams.append(key, val));
+      } else {
+        queryParams.append(key, searchParams[key]);
+      }
+    }
+    navigate(`/tim-kiem-gia-su?${queryParams.toString()}`);
   };
 
   return (

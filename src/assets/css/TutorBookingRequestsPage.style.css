@@ -1,0 +1,347 @@
+/* src/pages/User/TutorBookingRequestsPage.style.css */
+
+/* === Styles cho TutorBookingRequestsPage (Block: tbrp) === */
+.tbrp-container {
+  /* Đổi từ tutor-booking-requests-page */
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.tbrp-title {
+  /* Đổi từ page-title */
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 25px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color, #f26f21);
+  padding-bottom: 10px;
+}
+
+.tbrp-loading-state, /* Đổi từ loading-state */
+.tbrp-error-state, /* Đổi từ error-state */
+.tbrp-no-requests-message {
+  /* Đổi từ no-requests-message */
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  padding: 40px 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tbrp-error-state {
+  color: var(--danger-color, #dc3545);
+}
+
+.tbrp-loading-inline {
+  /* Class mới cho loading khi đã có data */
+  text-align: center;
+  padding: 15px;
+  color: #555;
+  font-style: italic;
+}
+
+.tbrp-filter-controls {
+  /* Đổi từ filter-controls */
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+
+.tbrp-filter-controls__label {
+  /* Element của tbrp-filter-controls */
+  font-weight: 500;
+  color: #333;
+}
+
+.tbrp-filter-controls__select {
+  /* Đổi từ status-filter-select */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  min-width: 180px;
+  background-color: #fff;
+  transition: border-color 0.2s ease-in-out;
+}
+.tbrp-filter-controls__select:focus {
+  outline: none;
+  border-color: var(--primary-color, #f26f21);
+  box-shadow: 0 0 0 2px rgba(242, 111, 33, 0.2);
+}
+
+.tbrp-requests-list {
+  /* Đổi từ requests-list */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 20px;
+}
+
+/* === Styles cho BookingRequestCard (Block: brc) === */
+.brc-card {
+  /* Đổi từ booking-request-card */
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.brc-card--error {
+  /* Modifier cho card lỗi */
+  border: 1px solid var(--danger-color, #dc3545);
+  padding: 15px;
+  color: var(--danger-color, #dc3545);
+}
+
+.brc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.brc-header {
+  /* Đổi từ card-header */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px 20px;
+  background-color: #f7f9fc;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.brc-user-info {
+  /* Đổi từ user-info */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.brc-user-info__avatar {
+  /* Đổi từ user-avatar */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.brc-user-info__details {
+  /* Đổi từ user-details */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.brc-user-info__name {
+  /* Đổi từ user-name */
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.brc-user-info__major {
+  /* Đổi từ user-major */
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brc-status-badge {
+  /* Đổi từ status-badge */
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* Modifier cho status-badge, tên class vẫn giữ nguyên vì chúng là trạng thái chung */
+.brc-status-badge.status-request {
+  background-color: #ffc107;
+  color: #333;
+  border: 1px solid #e0a800;
+}
+.brc-status-badge.status-approved {
+  background-color: #28a745;
+  color: white;
+  border: 1px solid #1e7e34;
+}
+.brc-status-badge.status-rejected {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #b02a37;
+}
+.brc-status-badge.status-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: 1px solid #545b62;
+}
+.brc-status-badge.status-completed {
+  background-color: #17a2b8;
+  color: white;
+  border: 1px solid #117a8b;
+}
+.brc-status-badge.status-default {
+  background-color: #e0e0e0;
+  color: #555;
+  border: 1px solid #c7c7c7;
+}
+
+.brc-body {
+  /* Đổi từ card-body */
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brc-info-row {
+  /* Đổi từ info-row */
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.brc-info-row__icon {
+  /* Element, đổi từ .info-row .fas */
+  margin-right: 8px;
+  color: var(--primary-color, #f26f21);
+  width: 16px;
+  text-align: center;
+}
+
+.brc-info-row__label {
+  /* Đổi từ info-label */
+  font-weight: 500;
+  color: #333;
+  min-width: 150px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brc-info-row__value {
+  /* Đổi từ info-value */
+  flex-grow: 1;
+  word-break: break-word;
+}
+.brc-info-row__value--schedule-detail {
+  /* Modifier cho value, đổi từ .info-value.schedule-detail */
+  line-height: 1.5;
+}
+
+.brc-actions {
+  /* Đổi từ card-actions */
+  padding: 15px 20px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: #fcfdff;
+}
+
+.brc-actions__button {
+  /* Đổi từ action-button */
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.brc-actions__button .fas {
+  /* Icon bên trong button, có thể giữ nguyên hoặc dùng class con */
+  font-size: 0.9em;
+}
+
+.brc-actions__button:hover {
+  transform: translateY(-1px);
+}
+.brc-actions__button:active {
+  transform: translateY(0px);
+}
+
+.brc-actions__button--accept {
+  /* Modifier cho button, đổi từ accept-button */
+  background-color: var(--success-color, #28a745);
+  color: white;
+}
+.brc-actions__button--accept:hover {
+  background-color: #218838;
+}
+
+.brc-actions__button--reject {
+  /* Modifier cho button, đổi từ reject-button */
+  background-color: var(--danger-color, #dc3545);
+  color: white;
+}
+.brc-actions__button--reject:hover {
+  background-color: #c82333;
+}
+
+/* Responsive - Các class bên trong cũng cần được cập nhật */
+@media (max-width: 768px) {
+  .tbrp-requests-list {
+    /* Đổi từ requests-list */
+    grid-template-columns: 1fr;
+  }
+  .tbrp-title {
+    /* Đổi từ page-title */
+    font-size: 1.5rem;
+  }
+  .brc-header {
+    /* Đổi từ card-header */
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .brc-status-badge {
+    /* Đổi từ status-badge */
+    margin-top: 10px;
+    align-self: flex-start;
+  }
+  .brc-info-row {
+    /* Đổi từ info-row */
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .brc-info-row__label {
+    /* Đổi từ info-label */
+    min-width: auto;
+    margin-bottom: 3px;
+  }
+  .tbrp-filter-controls {
+    /* Đổi từ filter-controls */
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tbrp-filter-controls__select {
+    /* Đổi từ status-filter-select */
+    width: 100%;
+  }
+}

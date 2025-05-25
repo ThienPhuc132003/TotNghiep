@@ -232,7 +232,7 @@ const CurriculumList = ({ onAfterCurriculumAdded }) => {
         </div>
       )}
       <h2 id="available-curriculums-title" className="listTitle">
-        Giáo trình có thể sử dụng
+        Giáo trình có thể mua
       </h2>
       <ul className="list" role="list">
         {availableCurriculums.map((curriculum) => (
