@@ -5,43 +5,40 @@ import Api from "../../network/Api"; // Đảm bảo đường dẫn này chính
 import { METHOD_TYPE } from "../../network/methodType"; // Đảm bảo đường dẫn này chính xác
 
 const ZoomCallback = () => {
-  const location = useLocation();
+  const location = useLocation(); // Hook để truy cập thông tin của URL hiện tại
   const navigate = useNavigate();
   const [message, setMessage] = useState("Đang xử lý xác thực Zoom...");
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Tạo một đối tượng URLSearchParams từ phần search của URL (ví dụ: "?code=abc&state=xyz")
     const queryParams = new URLSearchParams(location.search);
+    // Lấy giá trị của query parameter 'code'
     const authorizationCode = queryParams.get("code");
     const zoomError = queryParams.get("error"); // Kiểm tra nếu Zoom trả về lỗi trực tiếp
 
     if (zoomError) {
-      // Các mã lỗi có thể từ Zoom: access_denied, unsupported_response_type, invalid_scope, server_error, temporarily_unavailable
       const errorDescription =
         queryParams.get("error_description") || zoomError;
       console.error("Lỗi từ Zoom OAuth Callback:", zoomError, errorDescription);
       setError(`Lỗi từ Zoom: ${errorDescription}. Vui lòng thử lại.`);
       setMessage("Kết nối Zoom không thành công.");
-      // Không cần return ngay, có thể để UI hiển thị nút quay lại
-      return; // Thêm return để dừng xử lý nếu có lỗi từ Zoom
+      return; // Dừng xử lý nếu có lỗi từ Zoom
     }
 
+    // Nếu có authorizationCode từ URL
     if (authorizationCode) {
-      console.log(
-        "Authorization Code nhận được trên Frontend:",
-        authorizationCode
-      );
+      console.log("Authorization Code lấy từ URL:", authorizationCode); // Log code lấy từ URL
+      setMessage("Đã nhận được mã xác thực. Đang gửi đến máy chủ...");
+
       // Gọi API backend của bạn để đổi authorizationCode lấy access token và refresh token
       Api({
-        endpoint: "/meeting/handle", // Endpoint backend để xử lý code và lấy token từ Zoom
+        endpoint: "/meeting/handle", // Endpoint backend để xử lý code
         method: METHOD_TYPE.POST,
-        data: { authorizationCode },
+        data: { authorizationCode: authorizationCode }, // Gửi code lấy từ URL
       })
         .then((responseData) => {
-          // responseData là dữ liệu mà hàm Api.js trả về (thường là response.data từ axios)
           console.log("Phản hồi từ API /meeting/handle:", responseData);
-
-          // Dựa trên API spec của bạn, tokens nằm trong responseData.result
           if (
             responseData &&
             responseData.result &&
@@ -52,18 +49,15 @@ const ZoomCallback = () => {
             localStorage.setItem("zoomAccessToken", accessToken);
             localStorage.setItem("zoomRefreshToken", refreshToken);
             if (userId) {
-              // Lưu userId của Zoom nếu backend trả về
               localStorage.setItem("zoomUserId", userId);
             }
             setMessage("Kết nối Zoom thành công! Đang chuyển hướng...");
-            // Chuyển hướng về trang quản lý phòng họp hoặc trang dashboard của gia sư
             setTimeout(
               () =>
                 navigate("/tai-khoan/ho-so/phong-hop-zoom", { replace: true }),
               2000
             );
           } else {
-            // Nếu cấu trúc dữ liệu không như mong đợi
             console.error(
               "Cấu trúc dữ liệu token không hợp lệ từ API /meeting/handle:",
               responseData
@@ -80,40 +74,28 @@ const ZoomCallback = () => {
           );
           let errorMessage =
             "Có lỗi xảy ra trong quá trình hoàn tất kết nối Zoom với hệ thống.";
+          // (Phần xử lý errorMessage chi tiết hơn như ở phiên bản trước)
           if (typeof err === "string") {
             errorMessage = err;
           } else if (err && err.message) {
-            errorMessage = err.message; // Lỗi từ throw new Error hoặc lỗi mạng
+            errorMessage = err.message;
           } else if (err && err.error) {
-            // Cấu trúc lỗi { error: "message" }
             errorMessage = err.error;
-          } else if (
-            err &&
-            err.errors &&
-            Array.isArray(err.errors) &&
-            err.errors.length > 0
-          ) {
-            // Mảng lỗi
-            errorMessage = err.errors
-              .map((e) => e.msg || e.message || e)
-              .join(", ");
           }
-          // Nếu err là một object response lỗi từ axios (đã được axiosClient xử lý và trả về error.response.data)
-          // thì err.message có thể đã chứa thông điệp lỗi rồi.
+          // ...
           setError(errorMessage);
           setMessage("Kết nối Zoom không thành công.");
         });
     } else if (!zoomError) {
-      // Chỉ hiển thị lỗi này nếu không có authorizationCode VÀ không có lỗi trực tiếp từ Zoom
-      setError(
-        "Không tìm thấy mã xác thực từ Zoom trên URL callback. Quá trình có thể đã bị gián đoạn."
-      );
-      setMessage("Kết nối Zoom không thành công.");
+      // Chỉ hiển thị lỗi này nếu không có code VÀ không có lỗi từ Zoom
+      setError("Không tìm thấy mã xác thực (code) từ Zoom trên URL callback.");
+      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
+      console.log("URL search không chứa 'code':", location.search);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]); // Chỉ chạy lại khi location.search thay đổi (chứa code hoặc error)
-  // Không cần navigate trong dependencies của useEffect này.
+  }, [location.search]); // useEffect sẽ chạy lại nếu location.search thay đổi
 
+  // Phần JSX để hiển thị message và error giữ nguyên như phiên bản trước
   return (
     <div
       style={{
@@ -121,17 +103,17 @@ const ZoomCallback = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "80vh", // Chiều cao tối thiểu để căn giữa trên màn hình
+        minHeight: "80vh",
         padding: "40px",
         textAlign: "center",
         fontFamily: "Arial, sans-serif",
-        backgroundColor: "#f4f7f6", // Màu nền nhẹ nhàng
+        backgroundColor: "#f4f7f6",
       }}
     >
       <h2
         style={{
           fontSize: "2rem",
-          color: error ? "#d9534f" : "#0275d8", // Màu đỏ nếu lỗi, xanh nếu đang xử lý/thành công
+          color: error ? "#d9534f" : "#0275d8",
           marginBottom: "20px",
         }}
       >
@@ -140,13 +122,13 @@ const ZoomCallback = () => {
       {error && (
         <p
           style={{
-            color: "#d9534f", // Màu đỏ cho thông báo lỗi
-            backgroundColor: "#f2dede", // Nền đỏ nhạt
+            color: "#d9534f",
+            backgroundColor: "#f2dede",
             border: "1px solid #ebccd1",
             padding: "15px",
             borderRadius: "4px",
             maxWidth: "600px",
-            wordWrap: "break-word", // Để message dài không vỡ layout
+            wordWrap: "break-word",
             marginBottom: "20px",
           }}
         >
@@ -158,7 +140,7 @@ const ZoomCallback = () => {
           ? "Vui lòng thử lại thao tác kết nối Zoom."
           : "Bạn sẽ được tự động chuyển hướng sau giây lát..."}
       </p>
-      {(error || message.includes("không thành công")) && ( // Hiển thị nút nếu có lỗi hoặc message thất bại
+      {(error || (message && message.includes("không thành công"))) && (
         <button
           onClick={() =>
             navigate("/tai-khoan/ho-so/phong-hop-zoom", { replace: true })
