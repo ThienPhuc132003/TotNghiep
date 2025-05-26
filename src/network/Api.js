@@ -1,18 +1,16 @@
 // src/utils/Api.js
-
-import Cookies from "js-cookie";
 import { METHOD_TYPE } from "./methodType";
-import axiosClient from "./axiosClient"; // Giả định axiosClient đã có baseURL
+import axiosClient from "./axiosClient"; // Import axiosClient đã cập nhật
 import qs from "qs";
 
 const Api = async ({
-  domain = "https://giasuvlu.click/api/",
+  domain = "https://giasuvlu.click/api/", // Sẽ ít dùng nếu axiosClient đã có baseURL
   endpoint,
   method = METHOD_TYPE.GET,
   data,
   query,
-  requireToken = false, // Cờ này bây giờ sẽ kiểm soát cả việc gửi token qua header
-  sendCredentials = false, // Cờ mới để kiểm soát việc bật withCredentials
+  // requireToken = false, // Cờ này không còn quá cần thiết, axiosClient tự quản lý
+  sendCredentials = false,
 }) => {
   let processedQuery = { ...query };
   // ... (xử lý filter, sort như cũ) ...
@@ -40,77 +38,75 @@ const Api = async ({
   }
 
   let queryString = qs.stringify(processedQuery, { encode: false });
-  const url = `${domain}${endpoint}${queryString ? `?${queryString}` : ""}`;
+  // Nếu domain được truyền, nó sẽ là URL đầy đủ. Nếu không, axiosClient sẽ dùng baseURL + endpoint.
+  const url = domain ? `${domain}${endpoint}` : endpoint;
+  const fullUrlForLog = domain
+    ? url
+    : `${axiosClient.defaults.baseURL || ""}${url}`;
 
-  console.log(`API Request: ${method} ${url}`);
+  console.log(
+    `API Request (via Api.js): ${method} ${fullUrlForLog}${
+      queryString ? `?${queryString}` : ""
+    }`
+  );
   if (data && !(data instanceof FormData))
     console.log("API Request Data:", JSON.stringify(data));
   else if (data instanceof FormData)
     console.log("API Request Data: FormData object");
 
   const config = {
-    headers: {},
-    // Chỉ bật withCredentials khi cờ sendCredentials là true
+    headers: {}, // axiosClient sẽ tự thêm Authorization
     ...(sendCredentials && { withCredentials: true }),
+    // Truyền query string qua params cho GET request để axios xử lý encoding
+    ...(method.toUpperCase() === METHOD_TYPE.GET &&
+      Object.keys(processedQuery).length > 0 && { params: processedQuery }),
   };
 
-  // Nếu yêu cầu token (requireToken = true), lấy token và thêm vào header Authorization
-  // Điều này sẽ hoạt động nếu backend hỗ trợ xác thực qua Bearer token.
-  if (requireToken) {
-    const token = Cookies.get("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("API Request: Added Authorization header (Bearer token).");
-      if (sendCredentials) {
-        console.log(
-          "API Request: withCredentials is TRUE (Cookies should be sent by browser)."
-        );
-      } else {
-        console.log(
-          "API Request: withCredentials is FALSE (Cookies might not be sent by browser for cross-origin)."
-        );
-      }
-    } else {
-      console.error(
-        "API Error: Token required (for header/cookie) but not found in Cookies."
-      );
-      throw new Error("Authentication token not found. Please login again.");
-    }
-  }
+  // Phần requireToken đã được chuyển vào logic của axiosClient
+  // if (requireToken) { ... }
 
   try {
-    let response;
+    let responseData; // Sẽ nhận data trực tiếp từ axiosClient
     const upperCaseMethod = method.toUpperCase();
+    // Nếu là GET và có query string, không cần nối vào URL nữa vì đã đưa vào config.params
+    const requestUrl =
+      upperCaseMethod === METHOD_TYPE.GET && queryString
+        ? url
+        : `${url}${queryString ? `?${queryString}` : ""}`;
+
     switch (upperCaseMethod) {
       case METHOD_TYPE.POST:
-        response = await axiosClient.post(url, data, config);
+        responseData = await axiosClient.post(requestUrl, data, config);
         break;
       case METHOD_TYPE.PUT:
-        response = await axiosClient.put(url, data, config);
+        responseData = await axiosClient.put(requestUrl, data, config);
         break;
       case METHOD_TYPE.PATCH:
-        response = await axiosClient.patch(url, data, config);
+        responseData = await axiosClient.patch(requestUrl, data, config);
         break;
       case METHOD_TYPE.DELETE:
-        response = await axiosClient.delete(url, { ...config, data: data });
+        // data cho DELETE request thường nằm trong config.data
+        responseData = await axiosClient.delete(requestUrl, {
+          ...config,
+          data: data,
+        });
         break;
       case METHOD_TYPE.GET:
       default:
-        response = await axiosClient.get(url, config);
+        // config đã chứa params nếu có
+        responseData = await axiosClient.get(requestUrl, config);
         break;
     }
-    console.log("API Response Status:", response.status);
-    return response;
+    // axiosClient trả về response.data, nên responseData ở đây chính là dữ liệu bạn cần
+    console.log("API Response Data (from Api.js):", responseData);
+    return responseData; // Trả về dữ liệu đã được trích xuất
   } catch (error) {
-    console.error(`API Error (${method} ${url}):`, error);
-    if (error.response) {
-      console.error("API Error Response Data:", error.response.data);
-      console.error("API Error Response Status:", error.response.status);
-    } else if (error.request) {
-      console.error("API Error: No response received.", error.request);
-    } else {
-      console.error("API Error: Request setup failed.", error.message);
-    }
+    // Lỗi đã được axiosClient xử lý (ví dụ: log).
+    // Hàm này chỉ cần ném lại lỗi để component gọi có thể bắt và xử lý UI.
+    console.error(
+      `Error caught in Api.js function (${method} ${fullUrlForLog}):`,
+      error
+    );
     throw error;
   }
 };

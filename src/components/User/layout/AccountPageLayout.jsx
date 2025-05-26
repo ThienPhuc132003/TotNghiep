@@ -1,14 +1,12 @@
+// src/components/User/layout/AccountPageLayout.jsx
 import { useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import "../../../assets/css/AccountPageLayout.style.css"; // Đảm bảo file CSS này tồn tại và được style
+import "../../../assets/css/AccountPageLayout.style.css"; // Đảm bảo file CSS này tồn tại
 import dfMale from "../../../assets/images/df-male.png";
 import dfFemale from "../../../assets/images/df-female.png";
 
-// Component SidebarUserInfo (Giả sử component này không thay đổi và đã có ở nơi khác)
-// Nếu SidebarUserInfo nằm trong file này, bạn có thể giữ nguyên nó.
-// Để cho gọn, tôi sẽ không lặp lại code SidebarUserInfo ở đây.
-// Ví dụ: import SidebarUserInfo from './SidebarUserInfo'; // Nếu bạn tách ra
+// Giả sử SidebarUserInfo không đổi
 const SidebarUserInfo = () => {
   const user = useSelector((state) => state.user.userProfile);
   if (!user || !user.userProfile) {
@@ -58,7 +56,6 @@ const AccountPageLayout = () => {
       navigate("/login", { replace: true, state: { from: location } });
     } else if (isAuthenticated && (!user || !user.userProfile)) {
       // Xử lý trường hợp hiếm: đã xác thực nhưng thiếu profile
-      // Có thể redirect hoặc hiển thị thông báo lỗi
     }
   }, [isAuthenticated, user, navigate, location]);
 
@@ -102,6 +99,12 @@ const AccountPageLayout = () => {
           label: "Hồ Sơ Gia Sư",
           pathBase: "ho-so-gia-su",
           icon: "fas fa-id-badge",
+        },
+        {
+          id: "tutorMeetingRoom", // <<< THÊM MỚI
+          label: "Phòng Họp Zoom", // <<< THÊM MỚI
+          pathBase: "phong-hop-zoom", // <<< THÊM MỚI
+          icon: "fas fa-video", // <<< THÊM MỚI
         },
         {
           id: "tutorBookingRequests",
@@ -160,7 +163,11 @@ const AccountPageLayout = () => {
                 <li
                   key={item.id}
                   className={
-                    location.pathname === `${basePathForLinks}/${item.pathBase}`
+                    location.pathname ===
+                      `${basePathForLinks}/${item.pathBase}` ||
+                    location.pathname.startsWith(
+                      `${basePathForLinks}/${item.pathBase}/`
+                    ) // Để active khi ở route con
                       ? "active"
                       : ""
                   }

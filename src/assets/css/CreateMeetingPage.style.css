@@ -1,0 +1,156 @@
+/* src/pages/User/CreateMeetingPage.style.css */
+.create-meeting-page {
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 700px; /* Giới hạn chiều rộng cho form */
+  margin: 20px auto; /* Căn giữa nếu page không nằm trong layout có sẵn */
+}
+
+.page-title { /* Sử dụng lại style từ TutorMeetingRoomPage hoặc định nghĩa riêng */
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ecf0f1;
+  font-weight: 600;
+  text-align: center;
+}
+
+.error-message { /* Sử dụng lại style */
+  background-color: #fff2f2;
+  color: #d63031;
+  padding: 12px 18px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  border: 1px solid #fab1a0;
+  font-size: 0.95rem;
+}
+
+.create-meeting-form .form-group {
+  margin-bottom: 20px;
+}
+
+.create-meeting-form label {
+  display: block;
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 8px;
+}
+
+.create-meeting-form label .required {
+  color: #e74c3c;
+  margin-left: 4px;
+}
+
+.create-meeting-form input[type="text"],
+.create-meeting-form input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Quan trọng để padding không làm tăng kích thước */
+  transition: border-color 0.2s ease-in-out;
+}
+
+.create-meeting-form input[type="text"]:focus,
+.create-meeting-form input[type="password"]:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.create-meeting-form input::placeholder {
+    color: #95a5a6;
+}
+
+
+/* Button styles (sử dụng lại .btn, .btn-primary từ TutorMeetingRoomPage.style.css nếu import global) */
+/* Nếu không, bạn có thể copy các style button vào đây */
+.create-meeting-form .btn {
+  /* ... copy style .btn ... */
+  padding: 12px 25px;
+  font-size: 1.05rem;
+  border-radius: 6px;
+  /* ... */
+}
+.create-meeting-form .btn-primary {
+  /* ... copy style .btn-primary ... */
+  background-color: #3498db;
+  color: white;
+  width: 100%; /* Cho nút submit full width */
+  margin-top: 10px;
+}
+.create-meeting-form .btn-primary:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+
+.meeting-created-details {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.meeting-created-details h3 {
+  color: #27ae60; /* Màu xanh lá thành công */
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.meeting-created-details p {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.meeting-created-details p strong {
+  color: #2c3e50;
+}
+
+.meeting-created-details a {
+  color: #007bff;
+  text-decoration: none;
+  word-break: break-all; /* Ngăn link dài làm vỡ layout */
+}
+
+.meeting-created-details a:hover {
+  text-decoration: underline;
+}
+
+.meeting-created-details .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 1rem;
+}
+.meeting-created-details .btn-secondary:hover{
+    background-color: #5a6268;
+}
+
+.btn-link-back {
+    display: inline-block;
+    margin-top: 25px;
+    color: #007bff;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 0;
+    font-size: 0.95rem;
+}
+.btn-link-back:hover {
+    text-decoration: underline;
+}
