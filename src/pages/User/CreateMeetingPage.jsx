@@ -1,9 +1,9 @@
 // src/pages/User/CreateMeetingPage.jsx
 import { useState } from "react";
-import Api from "../../utils/Api";
-import { METHOD_TYPE } from "../../utils/methodType";
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate } from "react-router-dom";
-import "./CreateMeetingPage.style.css"; // Tạo file CSS này
+import "../../assets/css/CreateMeetingPage.style.css"; // Tạo file CSS này
 
 const CreateMeetingPage = () => {
   const navigate = useNavigate();
