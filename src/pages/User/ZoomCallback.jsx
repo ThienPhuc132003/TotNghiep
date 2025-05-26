@@ -1,8 +1,8 @@
 // src/pages/User/ZoomCallback.jsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Api from "../../utils/Api"; // Import hàm Api của bạn
-import { METHOD_TYPE } from "../../utils/methodType"; // Import METHOD_TYPE
+import Api from "../../network/Api"; // Import hàm Api của bạn
+import { METHOD_TYPE } from "../../network/methodType"; // Import METHOD_TYPE
 
 const ZoomCallback = () => {
   const location = useLocation();
