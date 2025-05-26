@@ -1,0 +1,114 @@
+/* src/components/User/Modals/RejectReasonModal.style.css */
+.rrm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Đảm bảo modal ở trên cùng */
+}
+
+.rrm-modal-content {
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  animation: rrm-modal-appear 0.3s ease-out;
+}
+
+@keyframes rrm-modal-appear {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rrm-modal-title {
+  font-size: 1.5rem;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rrm-form-group {
+  margin-bottom: 20px;
+}
+
+.rrm-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #454545;
+  font-size: 0.95rem;
+}
+
+.rrm-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical; /* Cho phép resize theo chiều dọc */
+  min-height: 80px;
+  box-sizing: border-box; /* Quan trọng */
+}
+
+.rrm-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #e74c3c);
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+.rrm-textarea--error {
+    border-color: #dc3545;
+}
+
+.rrm-error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.rrm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.rrm-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.rrm-button--cancel {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+}
+.rrm-button--cancel:hover {
+  background-color: #e7e7e7;
+}
+
+.rrm-button--submit {
+  background-color: var(--danger-color, #dc3545); /* Màu cho nút từ chối */
+  color: white;
+}
+.rrm-button--submit:hover {
+  background-color: #c82333;
+}
+.rrm-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

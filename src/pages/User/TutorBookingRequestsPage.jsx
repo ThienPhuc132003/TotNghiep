@@ -1,19 +1,20 @@
 // src/pages/User/TutorBookingRequestsPage.jsx
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import { useSelector } from "react-redux"; // Vẫn dùng để lấy isAuthenticated và userProfile
-import Cookies from "js-cookie"; // Import Cookies
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import "../../assets/css/TutorBookingRequestsPage.style.css"; // Đảm bảo đường dẫn CSS đúng và đã BEM hóa
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import RejectReasonModal from "../../components/User/Modals/RejectReasonModal"; // Đường dẫn tới modal
+import "../../assets/css/TutorBookingRequestsPage.style.css"; // Đảm bảo file CSS này tồn tại
 
 // --- HELPER FUNCTIONS ---
 const getStatusClass = (currentStatus) => {
   switch (currentStatus?.toUpperCase()) {
     case "REQUEST":
       return "status-request";
-    case "APPROVED":
+    case "ACCEPT":
       return "status-approved";
-    case "REJECTED":
+    case "REFUSE":
       return "status-rejected";
     case "CANCEL":
       return "status-cancel";
@@ -28,12 +29,12 @@ const getStatusText = (currentStatus) => {
   switch (currentStatus?.toUpperCase()) {
     case "REQUEST":
       return "Chờ duyệt";
-    case "APPROVED":
+    case "ACCEPT":
       return "Đã chấp nhận";
-    case "REJECTED":
+    case "REFUSE":
       return "Đã từ chối";
     case "CANCEL":
-      return "Đã hủy"; // Hoặc "Đã hủy bởi người học"
+      return "Đã hủy";
     case "COMPLETED":
       return "Đã hoàn thành";
     default:
@@ -42,7 +43,11 @@ const getStatusText = (currentStatus) => {
 };
 
 // --- BookingRequestCard COMPONENT ---
-const BookingRequestCard = ({ request, onUpdateRequestStatus }) => {
+const BookingRequestCard = ({
+  request,
+  onUpdateRequestStatus,
+  onOpenRejectModal,
+}) => {
   const {
     user,
     dateTimeLearn,
@@ -57,7 +62,7 @@ const BookingRequestCard = ({ request, onUpdateRequestStatus }) => {
   } = request;
 
   const getAvatarSrc = (userData) => {
-    if (!userData) return "/assets/images/df-male.png"; // Cung cấp đường dẫn mặc định
+    if (!userData) return "/assets/images/df-male.png";
     if (userData.avatar) return userData.avatar;
     return userData.gender === "FEMALE"
       ? "/assets/images/df-female.png"
@@ -83,7 +88,6 @@ const BookingRequestCard = ({ request, onUpdateRequestStatus }) => {
           const dayInVietnamese = daysOfWeek[item.day] || item.day;
           return `${dayInVietnamese}: ${item.times.join(", ")}`;
         } catch (e) {
-          console.error("Lỗi parse JSON lịch học:", itemStr, e);
           return "Lịch học lỗi";
         }
       })
@@ -96,34 +100,28 @@ const BookingRequestCard = ({ request, onUpdateRequestStatus }) => {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-      ...(includeTime && { hour: "2-digit", minute: "2-digit" }), // Thêm giờ phút nếu includeTime là true
+      ...(includeTime && { hour: "2-digit", minute: "2-digit" }),
     };
     try {
       return new Date(dateString).toLocaleDateString("vi-VN", options);
     } catch (error) {
-      console.error("Lỗi định dạng ngày:", dateString, error);
       return "Ngày không hợp lệ";
     }
   };
 
-  const handleAccept = () => {
-    onUpdateRequestStatus(bookingRequestId, "APPROVED", null);
-  };
+  // Gọi onUpdateRequestStatus trực tiếp cho ACCEPT
+  const handleAccept = () =>
+    onUpdateRequestStatus(bookingRequestId, "ACCEPT", null);
 
-  const handleReject = () => {
-    const reason = prompt("Nhập lý do từ chối (bỏ trống nếu không có):");
-    if (reason !== null) {
-      onUpdateRequestStatus(bookingRequestId, "REJECTED", reason || null);
-    }
-  };
+  // Gọi onOpenRejectModal cho REFUSE
+  const handleReject = () => onOpenRejectModal(bookingRequestId);
 
-  if (!user) {
+  if (!user)
     return (
       <div className="brc-card brc-card--error">
-        <p>Lỗi: Dữ liệu người học từ yêu cầu này không hợp lệ.</p>
+        <p>Lỗi: Dữ liệu người học không hợp lệ.</p>
       </div>
     );
-  }
 
   return (
     <div className="brc-card">
@@ -131,22 +129,16 @@ const BookingRequestCard = ({ request, onUpdateRequestStatus }) => {
         <div className="brc-user-info">
           <img
             src={getAvatarSrc(user)}
-            alt={user.fullname || "Avatar người học"}
+            alt={user.fullname || "Avatar"}
             className="brc-user-info__avatar"
           />
           <div className="brc-user-info__details">
-            <p
-              className="brc-user-info__name"
-              title={user.fullname || "Người học"}
-            >
+            <p className="brc-user-info__name" title={user.fullname}>
               {user.fullname || "Người học"}
             </p>
             {user.major && (
-              <p
-                className="brc-user-info__major"
-                title={user.major.majorName || "Chưa có thông tin ngành"}
-              >
-                {user.major.majorName || "Chưa có thông tin ngành"}
+              <p className="brc-user-info__major" title={user.major.majorName}>
+                {user.major.majorName || "Chưa có ngành"}
               </p>
             )}
           </div>
@@ -213,14 +205,12 @@ const BookingRequestCard = ({ request, onUpdateRequestStatus }) => {
           <button
             className="brc-actions__button brc-actions__button--accept"
             onClick={handleAccept}
-            aria-label="Chấp nhận yêu cầu"
           >
             <i className="fas fa-check-circle"></i> Chấp nhận
           </button>
           <button
             className="brc-actions__button brc-actions__button--reject"
             onClick={handleReject}
-            aria-label="Từ chối yêu cầu"
           >
             <i className="fas fa-times-circle"></i> Từ chối
           </button>
@@ -260,213 +250,477 @@ BookingRequestCard.propTypes = {
     }).isRequired,
   }).isRequired,
   onUpdateRequestStatus: PropTypes.func.isRequired,
+  onOpenRejectModal: PropTypes.func.isRequired, // Thêm prop này
+};
+
+// --- Pagination Component ---
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  disabled = false,
+}) => {
+  if (totalPages <= 1) return null;
+  const pageNumbers = [];
+  const maxPagesToShow = 5;
+  let startPage, endPage;
+  if (totalPages <= maxPagesToShow) {
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    if (currentPage <= Math.ceil(maxPagesToShow / 2)) {
+      startPage = 1;
+      endPage = maxPagesToShow;
+    } else if (currentPage + Math.floor(maxPagesToShow / 2) >= totalPages) {
+      startPage = totalPages - maxPagesToShow + 1;
+      endPage = totalPages;
+    } else {
+      startPage = currentPage - Math.floor(maxPagesToShow / 2);
+      endPage = currentPage + Math.floor(maxPagesToShow / 2);
+    }
+  }
+  for (let i = startPage; i <= endPage; i++) pageNumbers.push(i);
+
+  return (
+    <nav className="tbrp-pagination" aria-label="Phân trang">
+      <ul className="tbrp-pagination__list">
+        <li
+          className={`tbrp-pagination__item ${
+            currentPage === 1 ? "disabled" : ""
+          }`}
+        >
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1 || disabled}
+            className="tbrp-pagination__button"
+          >
+            Trước
+          </button>
+        </li>
+        {startPage > 1 && (
+          <>
+            <li className="tbrp-pagination__item">
+              <button
+                onClick={() => onPageChange(1)}
+                disabled={disabled}
+                className="tbrp-pagination__button"
+              >
+                1
+              </button>
+            </li>
+            {startPage > 2 && (
+              <li className="tbrp-pagination__item tbrp-pagination__item--ellipsis">
+                <span className="tbrp-pagination__ellipsis">...</span>
+              </li>
+            )}
+          </>
+        )}
+        {pageNumbers.map((number) => (
+          <li
+            key={number}
+            className={`tbrp-pagination__item ${
+              currentPage === number ? "active" : ""
+            }`}
+          >
+            <button
+              onClick={() => onPageChange(number)}
+              disabled={currentPage === number || disabled}
+              className="tbrp-pagination__button"
+            >
+              {number}
+            </button>
+          </li>
+        ))}
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && (
+              <li className="tbrp-pagination__item tbrp-pagination__item--ellipsis">
+                <span className="tbrp-pagination__ellipsis">...</span>
+              </li>
+            )}
+            <li className="tbrp-pagination__item">
+              <button
+                onClick={() => onPageChange(totalPages)}
+                disabled={disabled}
+                className="tbrp-pagination__button"
+              >
+                {totalPages}
+              </button>
+            </li>
+          </>
+        )}
+        <li
+          className={`tbrp-pagination__item ${
+            currentPage === totalPages ? "disabled" : ""
+          }`}
+        >
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || disabled}
+            className="tbrp-pagination__button"
+          >
+            Sau
+          </button>
+        </li>
+      </ul>
+    </nav>
+  );
+};
+Pagination.propTypes = {
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
 // --- TutorBookingRequestsPage COMPONENT ---
+const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
+const DEFAULT_ITEMS_PER_PAGE = 10;
+
 const TutorBookingRequestsPage = () => {
   const [bookingRequests, setBookingRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false); // Để xử lý loading khi cập nhật
+  const [isUpdating, setIsUpdating] = useState(false); // Dùng chung cho các hành động tốn thời gian (chuyển trang, submit form)
   const [error, setError] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("");
+  const [activeTab, setActiveTab] = useState("pending");
+  const [historyFilterStatus, setHistoryFilterStatus] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
+  const [sortConfig, setSortConfig] = useState({
+    key: "createdAt",
+    type: "DESC",
+  });
 
-  // Lấy isAuthenticated và userProfile từ Redux để kiểm tra trạng thái UI và điều kiện fetch
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectingRequestId, setRejectingRequestId] = useState(null);
+  // Không cần isSubmittingReject nữa, dùng isUpdating chung
+
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const userProfile = useSelector((state) => state.user.userProfile);
-  // Token sẽ được đọc trực tiếp từ Cookies
 
-  const fetchBookingRequests = useCallback(
-    async (currentFilterStatus) => {
-      const tokenFromCookie = Cookies.get("token"); // Đọc token từ cookies
-
-      if (!isAuthenticated || !tokenFromCookie) {
-        setError("Bạn cần đăng nhập để xem thông tin này.");
-        setIsLoading(false);
-        return;
-      }
-      // Kiểm tra userProfile để đảm bảo thông tin người dùng (ví dụ: vai trò) đã được tải
-      if (!userProfile) {
-        setError(
-          "Thông tin người dùng chưa được tải. Vui lòng đợi hoặc làm mới trang."
-        );
-        setIsLoading(false);
-        return;
-      }
-      // Optional: Kiểm tra vai trò ở đây nếu cần
-      // const currentUserRole = userProfile?.roleId?.toUpperCase() || userProfile?.userProfile?.roleId?.toUpperCase();
-      // if (currentUserRole !== 'TUTOR') {
-      //    setError("Bạn không có quyền truy cập trang này.");
-      //    setIsLoading(false);
-      //    return;
-      // }
-
-      if (bookingRequests.length === 0 && !isUpdating)
-        setIsLoading(true); // Chỉ loading toàn trang nếu chưa có data
-      else setIsUpdating(true); // Nếu có data rồi thì là đang filter hoặc update
-      setError(null);
-
-      try {
-        let apiUrl = `${
-          import.meta.env.VITE_API_URL
-        }/booking-request/get-list-booking`;
-        if (currentFilterStatus) {
-          apiUrl += `?status=${currentFilterStatus}`;
-        }
-
-        const response = await axios.get(apiUrl, {
-          headers: { Authorization: `Bearer ${tokenFromCookie}` }, // Sử dụng token từ cookies
-        });
-
-        if (response.data && Array.isArray(response.data.items)) {
-          setBookingRequests(response.data.items);
-        } else if (
-          response.data &&
-          response.data.items === null &&
-          response.data.total === 0
-        ) {
-          setBookingRequests([]); // Không có yêu cầu nào
-        } else {
-          console.warn(
-            "API response for booking requests was not as expected:",
-            response.data
-          );
-          setBookingRequests([]); // Set rỗng nếu response không đúng dạng
-        }
-      } catch (err) {
-        console.error("Lỗi khi tải danh sách yêu cầu:", err);
-        let errorMessage = "Không thể tải danh sách yêu cầu. Vui lòng thử lại.";
-        if (err.response) {
-          errorMessage =
-            err.response.data?.message ||
-            `Lỗi ${err.response.status}: ${err.response.statusText}`;
-        } else if (err.request) {
-          errorMessage =
-            "Không nhận được phản hồi từ máy chủ. Kiểm tra kết nối mạng.";
-        } else {
-          errorMessage = err.message;
-        }
-        setError(errorMessage);
-        setBookingRequests([]); // Xóa data cũ nếu có lỗi
-      } finally {
-        setIsLoading(false);
-        setIsUpdating(false);
-      }
-    },
-    [isAuthenticated, userProfile, bookingRequests.length, isUpdating]
-  ); // Thêm isUpdating để fetch lại đúng
-
-  useEffect(() => {
-    const tokenFromCookie = Cookies.get("token");
-    // Chỉ fetch khi đã đăng nhập, có token trong cookie và có profile
-    if (isAuthenticated && tokenFromCookie && userProfile) {
-      fetchBookingRequests(filterStatus);
-    } else if (!isAuthenticated || !tokenFromCookie) {
-      setError("Vui lòng đăng nhập để xem danh sách yêu cầu.");
-      setIsLoading(false);
-    } else if (!userProfile) {
-      // Đã auth, có token, nhưng profile chưa load -> hiển thị loading
-      setError(null);
-      setIsLoading(true);
+  const buildQueryString = (page, rpp, sort, filter) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", page.toString());
+    queryParams.append("rpp", rpp.toString());
+    queryParams.append("sort", JSON.stringify(sort));
+    if (filter && filter.length > 0) {
+      queryParams.append("filter", JSON.stringify(filter));
     }
-    // Dependencies là filterStatus, isAuthenticated, userProfile.
-    // fetchBookingRequests đã có tokenFromCookie bên trong nó.
-  }, [filterStatus, isAuthenticated, userProfile, fetchBookingRequests]);
+    return queryParams.toString();
+  };
 
-  const handleActualUpdateStatusAPI = async (requestId, newStatus, note) => {
-    const tokenFromCookie = Cookies.get("token"); // Đọc token từ cookies
-    if (!tokenFromCookie) {
-      // Thông báo cho người dùng bằng toastify thay vì alert
-      // import { toast } from 'react-toastify';
-      // toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+  const fetchBookingRequests = useCallback(async () => {
+    if (!isAuthenticated || !userProfile) {
+      setError(
+        isAuthenticated
+          ? "Thông tin người dùng chưa tải."
+          : "Bạn cần đăng nhập."
+      );
+      setIsLoading(false);
+      setIsUpdating(false);
       return;
     }
-    setIsUpdating(true);
-    try {
-      // TODO: Thay thế bằng API call thực tế của bạn
-      // Ví dụ:
-      // await axios.put(`${import.meta.env.VITE_API_URL}/booking-request/${requestId}/update-status`,
-      //   { status: newStatus, noteOfTutor: note },
-      //   { headers: { Authorization: `Bearer ${tokenFromCookie}` } }
-      // );
-      console.log(
-        `(GIẢ LẬP API) Cập nhật yêu cầu ${requestId} thành ${newStatus} với ghi chú: ${
-          note || "không"
-        }`
-      );
-      await new Promise((resolve) => setTimeout(resolve, 700)); // Giả lập độ trễ API
 
-      // toast.success(`Yêu cầu đã được ${newStatus === 'APPROVED' ? 'chấp nhận' : 'từ chối'}.`);
-      alert(
-        `Yêu cầu đã được ${
-          newStatus === "APPROVED" ? "chấp nhận" : "từ chối"
-        }. (Giả lập)`
+    // Nếu là trang 1 (thường là do filter/tab/sort thay đổi), set isLoading
+    // Nếu không phải trang 1 (chỉ chuyển trang), set isUpdating
+    if (currentPage === 1) setIsLoading(true);
+    else setIsUpdating(true);
+    setError(null);
+
+    try {
+      const filterArray = [];
+      if (activeTab === "pending") {
+        filterArray.push({
+          key: "status",
+          operator: "equal",
+          value: "REQUEST",
+        });
+      } else {
+        if (historyFilterStatus === "ACCEPT") {
+          filterArray.push({
+            key: "status",
+            operator: "equal",
+            value: "ACCEPT",
+          });
+        } else if (historyFilterStatus === "REFUSE") {
+          filterArray.push({
+            key: "status",
+            operator: "equal",
+            value: "REFUSE",
+          });
+        } else {
+          filterArray.push({
+            key: "status",
+            operator: "equal",
+            value: "ACCEPT",
+          });
+          filterArray.push({
+            key: "status",
+            operator: "equal",
+            value: "REFUSE",
+          });
+        }
+      }
+
+      const currentSortArray = [{ key: sortConfig.key, type: sortConfig.type }];
+      const queryString = buildQueryString(
+        currentPage,
+        itemsPerPage,
+        currentSortArray,
+        filterArray
       );
-      fetchBookingRequests(filterStatus); // Tải lại danh sách với filter hiện tại
+      const endpointWithQuery = `/booking-request/get-list-booking?${queryString}`;
+
+      const response = await Api({
+        endpoint: endpointWithQuery,
+        method: METHOD_TYPE.GET,
+        requireToken: true,
+      });
+
+      if (response.success && response.data) {
+        setBookingRequests(
+          Array.isArray(response.data.items) ? response.data.items : []
+        );
+        setTotalPages(Math.ceil((response.data.total || 0) / itemsPerPage));
+      } else {
+        setBookingRequests([]);
+        setTotalPages(0);
+        if (!response.success)
+          setError(response.message || "Không thể tải dữ liệu.");
+      }
+    } catch (err) {
+      setError(
+        err.message || err.response?.data?.message || "Lỗi tải danh sách."
+      );
+      setBookingRequests([]);
+      setTotalPages(0);
+    } finally {
+      setIsLoading(false);
+      setIsUpdating(false);
+    }
+  }, [
+    isAuthenticated,
+    userProfile,
+    currentPage,
+    activeTab,
+    historyFilterStatus,
+    sortConfig,
+    itemsPerPage,
+  ]);
+
+  useEffect(() => {
+    if (isAuthenticated && userProfile) {
+      fetchBookingRequests();
+    } else if (!isAuthenticated) {
+      setError("Vui lòng đăng nhập.");
+      setIsLoading(false);
+      setIsUpdating(false);
+    } else if (!userProfile) {
+      setError(null);
+      setIsLoading(true);
+      setIsUpdating(false);
+    }
+  }, [isAuthenticated, userProfile, fetchBookingRequests]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    setHistoryFilterStatus("");
+  };
+  const handleHistoryFilterChange = (e) => {
+    setHistoryFilterStatus(e.target.value);
+    setCurrentPage(1);
+  };
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+  const handleSortChange = (e) => {
+    const [key, type] = e.target.value.split("_");
+    if (key && type) {
+      setSortConfig({ key, type });
+      setCurrentPage(1);
+    }
+  };
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage)
+      setCurrentPage(newPage);
+  };
+
+  const handleOpenRejectModal = (requestId) => {
+    setRejectingRequestId(requestId);
+    setIsRejectModalOpen(true);
+  };
+  const handleCloseRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setRejectingRequestId(null);
+  };
+
+  const handleActualUpdateStatusAPI = async (
+    requestId,
+    clickAction,
+    noteOfTutor
+  ) => {
+    if (!isAuthenticated) {
+      alert("Bạn cần đăng nhập.");
+      return;
+    }
+
+    setIsUpdating(true); // Dùng chung isUpdating
+    let success = false;
+
+    try {
+      const payload = { click: clickAction };
+      if (clickAction === "REFUSE") {
+        // Chỉ thêm noteOfTutor nếu là REFUSE
+        payload.noteOfTutor = noteOfTutor; // noteOfTutor này từ modal
+      }
+
+      const response = await Api({
+        endpoint: `booking-request/solve-booking/${requestId}`,
+        method: METHOD_TYPE.PATCH,
+        data: payload,
+        requireToken: true,
+      });
+
+      if (response.success) {
+        alert(
+          `Yêu cầu đã được ${
+            clickAction === "ACCEPT" ? "chấp nhận" : "từ chối"
+          }.`
+        );
+        success = true;
+      } else {
+        alert(
+          "Lỗi cập nhật trạng thái: " + (response.message || "Lỗi từ server")
+        );
+      }
     } catch (error) {
-      console.error("Lỗi API khi cập nhật trạng thái:", error);
-      // toast.error("Lỗi cập nhật trạng thái: " + (error.response?.data?.message || error.message));
       alert(
         "Lỗi cập nhật trạng thái: " +
-          (error.response?.data?.message || error.message)
+          (error.message || error.response?.data?.message || "Lỗi không rõ")
       );
     } finally {
-      setIsUpdating(false);
+      // Chỉ fetch lại nếu thành công để tránh fetch lại khi API lỗi
+      if (success) {
+        fetchBookingRequests(); // fetchBookingRequests sẽ tự set lại isLoading/isUpdating
+      } else {
+        setIsUpdating(false); // Nếu không thành công, tự reset isUpdating
+      }
+      if (clickAction === "REFUSE") {
+        handleCloseRejectModal(); // Đóng modal dù thành công hay thất bại (sau khi alert)
+      }
     }
   };
 
-  const handleFilterChange = (e) => {
-    setFilterStatus(e.target.value);
+  const handleSubmitRejectReason = (reason) => {
+    // Hàm này được gọi từ Modal
+    if (rejectingRequestId) {
+      handleActualUpdateStatusAPI(rejectingRequestId, "REFUSE", reason);
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="tbrp-loading-state">Đang tải dữ liệu yêu cầu...</div>
-    );
-  }
-
-  // Nếu có lỗi và không có data nào để hiển thị (sau khi đã qua isLoading)
-  // Hoặc nếu chưa đăng nhập/chưa có profile (lỗi đã được set trong useEffect)
-  if (error && bookingRequests.length === 0 && !isUpdating) {
+  if (isLoading)
+    return <div className="tbrp-loading-state">Đang tải dữ liệu...</div>;
+  if (error && bookingRequests.length === 0 && !isUpdating)
     return <div className="tbrp-error-state">{error}</div>;
-  }
 
   return (
     <div className="tbrp-container">
-      <h2 className="tbrp-title">Yêu Cầu Thuê Gia Sư</h2>
-      <div className="tbrp-filter-controls">
-        <label htmlFor="statusFilter" className="tbrp-filter-controls__label">
-          Lọc theo trạng thái:{" "}
-        </label>
-        <select
-          id="statusFilter"
-          value={filterStatus}
-          onChange={handleFilterChange}
-          className="tbrp-filter-controls__select"
-          aria-label="Lọc yêu cầu theo trạng thái"
+      <h2 className="tbrp-title">Quản Lý Yêu Cầu Thuê</h2>
+      <div className="tbrp-tabs">
+        <button
+          className={`tbrp-tab-button ${
+            activeTab === "pending" ? "active" : ""
+          }`}
+          onClick={() => handleTabChange("pending")}
           disabled={isUpdating || isLoading}
         >
-          <option value="">Tất cả</option>
-          <option value="REQUEST">Chờ duyệt</option>
-          <option value="APPROVED">Đã chấp nhận</option>
-          <option value="REJECTED">Đã từ chối</option>
-          <option value="CANCEL">Đã hủy bởi người học</option>
-          <option value="COMPLETED">Đã hoàn thành</option>
-        </select>
+          Yêu Cầu Chờ Duyệt
+        </button>
+        <button
+          className={`tbrp-tab-button ${
+            activeTab === "history" ? "active" : ""
+          }`}
+          onClick={() => handleTabChange("history")}
+          disabled={isUpdating || isLoading}
+        >
+          Lịch Sử Yêu Cầu
+        </button>
+      </div>
+      <div className="tbrp-controls-bar">
+        {activeTab === "history" && (
+          <div className="tbrp-filter-controls">
+            <label
+              htmlFor="historyStatusFilter"
+              className="tbrp-filter-controls__label"
+            >
+              Trạng thái (Lịch sử):
+            </label>
+            <select
+              id="historyStatusFilter"
+              value={historyFilterStatus}
+              onChange={handleHistoryFilterChange}
+              className="tbrp-filter-controls__select"
+              disabled={isUpdating || isLoading}
+            >
+              <option value="">Tất cả (Đã duyệt)</option>
+              <option value="ACCEPT">Đã chấp nhận</option>
+              <option value="REFUSE">Đã từ chối</option>
+            </select>
+          </div>
+        )}
+        <div className="tbrp-sort-controls">
+          <label htmlFor="sortFilter" className="tbrp-sort-controls__label">
+            Sắp xếp:
+          </label>
+          <select
+            id="sortFilter"
+            value={`${sortConfig.key}_${sortConfig.type}`}
+            onChange={handleSortChange}
+            className="tbrp-sort-controls__select"
+            disabled={isUpdating || isLoading}
+          >
+            <option value="createdAt_DESC">Ngày gửi (Mới nhất)</option>
+            <option value="createdAt_ASC">Ngày gửi (Cũ nhất)</option>
+          </select>
+        </div>
+        <div className="tbrp-rpp-controls">
+          <label htmlFor="itemsPerPage" className="tbrp-rpp-controls__label">
+            Hiển thị:
+          </label>
+          <select
+            id="itemsPerPage"
+            value={itemsPerPage}
+            onChange={handleItemsPerPageChange}
+            className="tbrp-rpp-controls__select"
+            disabled={isUpdating || isLoading}
+          >
+            {ITEMS_PER_PAGE_OPTIONS.map((num) => (
+              <option key={num} value={num}>
+                {num} / trang
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {isUpdating && <div className="tbrp-loading-inline">Đang xử lý...</div>}
-      {/* Hiển thị lỗi nếu có trong quá trình filter/update nhưng vẫn có data cũ */}
+      {isUpdating && !isLoading && (
+        <div className="tbrp-loading-inline">Đang xử lý...</div>
+      )}
       {error && bookingRequests.length > 0 && (
         <div className="tbrp-error-state tbrp-error-state--inline">{error}</div>
       )}
 
-      {!isUpdating && bookingRequests.length === 0 && !error ? (
+      {!isLoading && !isUpdating && bookingRequests.length === 0 && !error ? (
         <p className="tbrp-no-requests-message">
-          Hiện tại không có yêu cầu thuê nào{" "}
-          {filterStatus
-            ? `với trạng thái "${getStatusText(filterStatus)}"`
-            : ""}
+          Không có yêu cầu nào{" "}
+          {activeTab === "pending"
+            ? "đang chờ duyệt"
+            : historyFilterStatus
+            ? `khớp với trạng thái "${getStatusText(historyFilterStatus)}"`
+            : "trong lịch sử"}
           .
         </p>
       ) : null}
@@ -478,12 +732,28 @@ const TutorBookingRequestsPage = () => {
               key={request.bookingRequestId}
               request={request}
               onUpdateRequestStatus={handleActualUpdateStatusAPI}
+              onOpenRejectModal={handleOpenRejectModal}
             />
           ))}
         </div>
       )}
+
+      {totalPages > 0 && !isLoading && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          disabled={isUpdating || isLoading}
+        />
+      )}
+
+      <RejectReasonModal
+        isOpen={isRejectModalOpen}
+        onClose={handleCloseRejectModal}
+        onSubmitReason={handleSubmitRejectReason}
+        isSubmitting={isUpdating} // Dùng chung isUpdating cho modal
+      />
     </div>
   );
 };
-
 export default TutorBookingRequestsPage;
