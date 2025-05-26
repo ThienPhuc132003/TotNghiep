@@ -1,3 +1,4 @@
+// src/App.jsx
 import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -6,19 +7,19 @@ import {
   Navigate,
 } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
-import { persistor } from "./redux/Store";
+import { persistor } from "./redux/Store"; // Đảm bảo đường dẫn đúng
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Layouts
-import HomePageLayout from "./components/User/layout/HomePageLayout";
-import AccountPageLayout from "./components/User/layout/AccountPageLayout";
+import HomePageLayout from "./components/User/layout/HomePageLayout"; // Đảm bảo đường dẫn đúng
+import AccountPageLayout from "./components/User/layout/AccountPageLayout"; // Đảm bảo đường dẫn đúng
 
 // Guards & Utils
-import AdminPrivateRoutes from "./route/AdminPrivateRoutes";
-import OtpProtectedRoute from "./route/OtpProtectedRoute";
-import TutorRegistrationGuard from "./route/TutorRegistrationGuard ";
-import ProtectRoute from "./route/ProtectRoute";
+import AdminPrivateRoutes from "./route/AdminPrivateRoutes"; // Đảm bảo đường dẫn đúng
+import OtpProtectedRoute from "./route/OtpProtectedRoute"; // Đảm bảo đường dẫn đúng
+import TutorRegistrationGuard from "./route/TutorRegistrationGuard "; // Đảm bảo đường dẫn đúng
+import ProtectRoute from "./route/ProtectRoute"; // Chỉ import default
 
 // User Pages
 const HomePage = lazy(() => import("./pages/User/HomePage"));
@@ -27,7 +28,7 @@ const Register = lazy(() => import("./pages/User/Register"));
 const TutorQualificationTestPage = lazy(() =>
   import("./pages/User/TutorQualificationTestPage")
 );
-const Profile = lazy(() => import("./pages/User/Profile")); // Trang hồ sơ cho USER
+const Profile = lazy(() => import("./pages/User/Profile"));
 const ForgotPassword = lazy(() => import("./pages/User/ForgotPassword"));
 const OtpVerify = lazy(() => import("./pages/User/OtpVerify"));
 const OtpVerifyRegister = lazy(() => import("./pages/User/OtpVerifyRegister"));
@@ -35,7 +36,7 @@ const ChangePassword = lazy(() => import("./pages/User/ChangePassword"));
 const AboutUs = lazy(() => import("./pages/User/AboutUs"));
 const TutorSearch = lazy(() => import("./pages/User/TutorSearch"));
 const TutorDetailPage = lazy(() => import("./pages/User/TutorDetailPage"));
-const TutorRegister = lazy(() => import("./pages/User/TutorRegister")); // Dùng cho trang đăng ký VÀ hồ sơ Gia sư
+const TutorRegister = lazy(() => import("./pages/User/TutorRegister"));
 const MicrosoftCallback = lazy(() => import("./pages/MicrosoftCallback"));
 const RulesRegulationsPage = lazy(() =>
   import("./pages/User/RulesRegulationsPage")
@@ -53,8 +54,12 @@ const TutorBookingRequestsPage = lazy(() =>
   import("./pages/User/TutorBookingRequestsPage")
 );
 
-import ZoomCallback from "./pages/User/ZoomCallback";
-import CreateMeeting from "./pages/User/CreateMeeting";
+// Zoom related pages
+const ZoomCallback = lazy(() => import("./pages/User/ZoomCallback"));
+const TutorMeetingRoomPage = lazy(() =>
+  import("./pages/User/TutorMeetingRoomPage")
+);
+const CreateMeetingPage = lazy(() => import("./pages/User/CreateMeetingPage"));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
@@ -66,7 +71,7 @@ const ListOfStudent = lazy(() => import("./pages/Admin/ListOfStudent"));
 const ListOfTutor = lazy(() => import("./pages/Admin/ListOfTutor"));
 const ListOfTutorLevel = lazy(() => import("./pages/Admin/ListOfTutorLevel"));
 const ListOfSubject = lazy(() => import("./pages/Admin/ListOfSubject"));
-const ListOfCurriculumn = lazy(() => import("./pages/Admin/ListOfCurriculumn"));
+const ListOfCurriculumn = lazy(() => import("./pages/Admin/ListOfCurriculumn")); // Lưu ý chính tả có thể là Curriculum
 const ListOfValueConfigs = lazy(() =>
   import("./pages/Admin/ListOfValueConfigs")
 );
@@ -90,9 +95,11 @@ function App() {
               alignItems: "center",
               height: "100vh",
               fontSize: "1.5rem",
+              fontFamily: "Arial, sans-serif",
+              color: "#333",
             }}
           >
-            Loading...
+            Đang tải trang...
           </div>
         }
       >
@@ -133,45 +140,51 @@ function App() {
                 <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
               </Route>
 
-              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN CHUNG (USER & TUTOR) --- */}
+              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN (USER & TUTOR) - CẦN ĐĂNG NHẬP --- */}
               <Route element={<ProtectRoute />}>
                 {" "}
-                {/* Chỉ cần đăng nhập */}
-                <Route
-                  path="/tai-khoan/ho-so" // BASE PATH CHUNG
-                  element={<AccountPageLayout />}
-                >
-                  {/* AccountPageLayout sẽ tự điều hướng đến trang con mặc định dựa trên role */}
-                  {/* === USER (Người học) specific routes === */}
+                {/* Bảo vệ các route con cần đăng nhập */}
+                <Route path="/tai-khoan/ho-so" element={<AccountPageLayout />}>
+                  {/* USER specific routes */}
                   <Route path="thong-tin-ca-nhan" element={<Profile />} />
                   <Route
                     path="gia-su-yeu-thich"
                     element={<FavoriteTutorsPage />}
                   />
-                  {/* === TUTOR (Gia sư) specific routes === */}
-                  <Route path="ho-so-gia-su" element={<TutorRegister />} />{" "}
-                  <Route
-                    path="yeu-cau-day"
-                    element={<TutorBookingRequestsPage />}
-                  />
-                  <Route
-                    path="giao-trinh-ca-nhan"
-                    element={<CurriculumPage />}
-                  />
-                  {/* === SHARED routes for both USER and TUTOR under AccountPageLayout === */}
+
+                  {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}
+                  <Route element={<ProtectRoute role="TUTOR" />}>
+                    {" "}
+                    {/* Layout bảo vệ bởi role TUTOR */}
+                    <Route path="ho-so-gia-su" element={<TutorRegister />} />
+                    <Route
+                      path="phong-hop-zoom"
+                      element={<TutorMeetingRoomPage />}
+                    />
+                    <Route
+                      path="tao-phong-hop-moi"
+                      element={<CreateMeetingPage />}
+                    />
+                    <Route
+                      path="yeu-cau-day"
+                      element={<TutorBookingRequestsPage />}
+                    />
+                    <Route
+                      path="giao-trinh-ca-nhan"
+                      element={<CurriculumPage />}
+                    />
+                  </Route>
+
+                  {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-cua-toi" element={<Wallet />} />
                 </Route>
-              </Route>
-
-              {/* Route Đổi Mật Khẩu */}
-              <Route element={<ProtectRoute />}>
+                {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
                 <Route element={<OtpProtectedRoute />}>
+                  {" "}
+                  {/* Layout bảo vệ bởi OTP */}
                   <Route path="/change-password" element={<ChangePassword />} />
                 </Route>
-              </Route>
-
-              {/* Payment Routes */}
-              <Route element={<ProtectRoute />}>
+                {/* Payment Routes - Cần đăng nhập */}
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
               </Route>
@@ -185,33 +198,48 @@ function App() {
             />
             <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
             <Route
-              path="/admin/auth/callback"
+              path="/admin/auth/callback" // Giữ lại route này nếu bạn có Microsoft login cho admin
               element={<MicrosoftCallback />}
             />
-            <Route path="/api/meeting/callback" element={<ZoomCallback />} />
-            <Route path="/create-meeting" element={<CreateMeeting />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/meeting/callback" element={<ZoomCallback />} />
             {/* ADMIN ROUTES */}
-            <Route path="/admin/*" element={<AdminPrivateRoutes />}>
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="profile" element={<AdminProfile />} />
-              <Route path="nhan-vien" element={<ListOfAdmin />} />
-              <Route path="nganh" element={<ListOfMajor />} />
-              <Route path="yeu-cau" element={<ListOfRequest />} />
-              <Route path="nguoi-hoc" element={<ListOfStudent />} />
-              <Route path="gia-su" element={<ListOfTutor />} />
-              <Route path="hang-gia-su" element={<ListOfTutorLevel />} />
-              <Route path="mon-hoc" element={<ListOfSubject />} />
-              <Route path="giao-trinh" element={<ListOfCurriculumn />} />
-              <Route path="goi-thanh-toan" element={<ListOfValueConfigs />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            {/* AdminPrivateRoutes sẽ là layout cha cho các route admin cần bảo vệ */}
+            <Route element={<AdminPrivateRoutes />}>
+              {/* Các route admin con sẽ được render bên trong AdminPrivateRoutes thông qua Outlet */}
+              {/* Đảm bảo path ở đây là tương đối với path cha của AdminPrivateRoutes nếu có */}
+              {/* Nếu AdminPrivateRoutes được gán cho path="/admin" thì các path con sẽ là "dashboard", "profile", ... */}
+              {/* Nếu AdminPrivateRoutes được gán cho path="/" và kiểm tra role admin, thì path con là "admin/dashboard" */}
+              {/* Dựa trên file App.jsx ban đầu của bạn, AdminPrivateRoutes bọc các route có prefix /admin/* */}
+              {/* Nên các path con sẽ không cần prefix /admin/ nữa */}
               <Route
-                path="thanh-toan-cho-gia-su"
+                path="/admin/dashboard"
+                element={<AdminDashboard />}
+              />{" "}
+              {/* Hoặc chỉ "dashboard" nếu AdminPrivateRoutes đã có path="/admin" */}
+              <Route path="/admin/profile" element={<AdminProfile />} />
+              <Route path="/admin/nhan-vien" element={<ListOfAdmin />} />
+              <Route path="/admin/nganh" element={<ListOfMajor />} />
+              <Route path="/admin/yeu-cau" element={<ListOfRequest />} />
+              <Route path="/admin/nguoi-hoc" element={<ListOfStudent />} />
+              <Route path="/admin/gia-su" element={<ListOfTutor />} />
+              <Route path="/admin/hang-gia-su" element={<ListOfTutorLevel />} />
+              <Route path="/admin/mon-hoc" element={<ListOfSubject />} />
+              <Route path="/admin/giao-trinh" element={<ListOfCurriculumn />} />
+              <Route
+                path="/admin/goi-thanh-toan"
+                element={<ListOfValueConfigs />}
+              />
+              <Route
+                path="/admin/thanh-toan-cho-gia-su"
                 element={<ListOfTutorPayments />}
               />
               <Route
-                path="nap-vi-nguoi-dung"
+                path="/admin/nap-vi-nguoi-dung"
                 element={<ListOfTransactions />}
               />
+              {/* Nếu có trang admin index/mặc định, bạn có thể thêm ở đây */}
+              {/* Ví dụ: <Route index element={<Navigate to="/admin/dashboard" replace />} /> */}
             </Route>
           </Routes>
         </PersistGate>
