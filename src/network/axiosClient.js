@@ -1,12 +1,9 @@
-// src/utils/axiosClient.js
+// src/utils/axiosClient.js (hoặc src/network/axiosClient.js)
 import axios from "axios";
-import Cookies from "js-cookie";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://giasuvlu.click/api/";
+import Cookies from "js-cookie"; // Vẫn dùng cho user token (token đăng nhập hệ thống)
 
 const axiosClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: "https://giasuvlu.click/api/", // Giữ nguyên baseURL của bạn
   headers: {
     "Content-Type": "application/json",
   },
@@ -16,173 +13,130 @@ let isRefreshingZoomToken = false;
 let zoomFailedQueue = [];
 
 const processZoomQueue = (error, token = null) => {
-  zoomFailedQueue.forEach((prom) => {
+  zoomFailedQueue.forEach(prom => {
     if (error) prom.reject(error);
     else prom.resolve(token);
   });
   zoomFailedQueue = [];
 };
 
+// --- Request Interceptor ---
 axiosClient.interceptors.request.use(
   function (config) {
-    const url = config.url || "";
     const userSystemToken = Cookies.get("token");
-    const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+    const zoomAccessToken = localStorage.getItem("zoomAccessToken"); // ĐỔI SANG LOCALSTORAGE
 
-    console.log(`[axiosClient Request] URL: ${config.baseURL}${url}`);
-    console.log(
-      "[axiosClient Request] Headers BEFORE modification:",
-      JSON.parse(JSON.stringify(config.headers))
-    ); // Deep copy for logging
-
-    const noAuthEndpoints = [
-      "auth/login",
-      "auth/register",
-      "meeting/auth",
-      "meeting/handle",
-      "meeting/zoom/refresh",
-    ];
-    const isNoAuthEndpoint = noAuthEndpoints.includes(url);
-
-    if (isNoAuthEndpoint) {
-      delete config.headers.Authorization;
-      console.log(`[axiosClient Request] Endpoint (${url}) requires NO token.`);
-    } else if (url.startsWith("meeting/")) {
-      console.log(
-        `[axiosClient Request] Endpoint (${url}) is a MEETING endpoint.`
-      );
-      if (zoomAccessToken) {
-        config.headers.Authorization = `Bearer ${zoomAccessToken}`;
-        console.log("[axiosClient Request] Zoom Access Token ATTACHED.");
+    // config.url là phần sau baseURL, ví dụ: "meeting/auth", "users/profile"
+    // Ưu tiên kiểm tra các API đặc thù cho Zoom trước
+    // Giả sử các endpoint API của bạn cho Zoom đều bắt đầu bằng "meeting/"
+    if (config.url.startsWith("meeting/")) { // << CÁCH PHÂN BIỆT API ZOOM MỚI
+      const noZoomTokenEndpoints = [
+        "meeting/auth",
+        "meeting/handle",
+        "meeting/zoom/refresh"
+      ];
+      if (!noZoomTokenEndpoints.includes(config.url)) {
+        if (zoomAccessToken) {
+          config.headers.Authorization = `Bearer ${zoomAccessToken}`;
+        } else {
+          // console.warn(`axiosClient: Zoom Access Token (localStorage) not found for ${config.url}`);
+        }
       } else {
-        console.warn(
-          `[axiosClient Request] Zoom Access Token NOT FOUND in localStorage for ${url}.`
-        );
+        delete config.headers.Authorization; // Xóa token nếu có cho các endpoint không cần
       }
-    } else if (userSystemToken) {
-      config.headers.Authorization = `Bearer ${userSystemToken}`;
-      console.log("[axiosClient Request] User System Token ATTACHED.");
-    } else {
-      console.warn(
-        `[axiosClient Request] No User System Token found for ${url}.`
-      );
     }
-    console.log(
-      "[axiosClient Request] Headers AFTER modification:",
-      JSON.parse(JSON.stringify(config.headers))
-    );
+    // Các API khác của hệ thống (không phải Zoom)
+    else if (userSystemToken) {
+      config.headers.Authorization = `Bearer ${userSystemToken}`;
+    }
+
+    // Xử lý FormData giữ nguyên như cũ của bạn
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
     return config;
   },
   function (error) {
-    console.error("[axiosClient Request Error]", error);
     return Promise.reject(error);
   }
 );
 
+// --- Response Interceptor ---
 axiosClient.interceptors.response.use(
   function (response) {
-    console.log(
-      `[axiosClient Response] Success for ${response.config.url}:`,
-      response.data
-    );
-    return response.data; // Trả về response.data trực tiếp
+    return response.data; // << GIỮ NGUYÊN TRẢ VỀ response.data
   },
   async function (error) {
     const originalRequest = error.config;
-    const url = originalRequest.url || "";
-    console.error(
-      `[axiosClient Response Error] for ${url}:`,
-      error.response || error
-    );
 
     if (error.response && error.response.status === 401) {
-      if (
-        url.startsWith("meeting/") &&
-        url !== "meeting/zoom/refresh" &&
-        !originalRequest._retryZoom
-      ) {
+      // Xử lý cho Zoom Token
+      if (originalRequest.url.startsWith("meeting/") && originalRequest.url !== "meeting/zoom/refresh" && !originalRequest._retryZoom) {
         if (isRefreshingZoomToken) {
-          console.log(
-            `[axiosClient Refresh] Queuing request for ${url} as token is already refreshing.`
-          );
-          return new Promise(/* ... queue logic ... */);
+          return new Promise(function(resolve, reject) {
+            zoomFailedQueue.push({ resolve, reject });
+          }).then(token => {
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return axiosClient(originalRequest); // Gọi lại bằng axiosClient
+          }).catch(err => {
+            return Promise.reject(err);
+          });
         }
         originalRequest._retryZoom = true;
         isRefreshingZoomToken = true;
-        const zoomRefreshToken = localStorage.getItem("zoomRefreshToken");
+        const zoomRefreshToken = localStorage.getItem("zoomRefreshToken"); // ĐỔI SANG LOCALSTORAGE
 
         if (zoomRefreshToken) {
           try {
-            console.log(
-              "[axiosClient Refresh] Attempting to refresh Zoom token..."
-            );
+            console.log("[axiosClient] Attempting to refresh Zoom token...");
+            // Dùng axios.post GỐC để tránh vòng lặp, và URL đầy đủ
             const refreshResponse = await axios.post(
-              `${axiosClient.defaults.baseURL}meeting/zoom/refresh`,
+              `${axiosClient.defaults.baseURL}meeting/zoom/refresh`, // Nối baseURL của instance
               { refreshToken: zoomRefreshToken }
             );
-            const backendRefreshResponse = refreshResponse.data; // {status, code, success, message, data: {result: {...}}}
-            console.log(
-              "[axiosClient Refresh] API /meeting/zoom/refresh response:",
-              backendRefreshResponse
-            );
+            // refreshResponse.data ở đây là object mà backend trả về (đã qua JSON.parse nếu là JSON)
+            // Giả sử backend trả về { success: true, data: { result: { accessToken, refreshToken } } }
+            if (refreshResponse.data && refreshResponse.data.success && refreshResponse.data.data && refreshResponse.data.data.result) {
+              const newAccessToken = refreshResponse.data.data.result.accessToken;
+              const newRefreshToken = refreshResponse.data.data.result.refreshToken;
 
-            if (
-              backendRefreshResponse &&
-              backendRefreshResponse.success &&
-              backendRefreshResponse.data &&
-              backendRefreshResponse.data.result
-            ) {
-              const { accessToken, refreshToken: newRefreshToken } =
-                backendRefreshResponse.data.result;
-              localStorage.setItem("zoomAccessToken", accessToken);
-              if (newRefreshToken)
-                localStorage.setItem("zoomRefreshToken", newRefreshToken);
-              console.log(
-                "[axiosClient Refresh] Zoom token REFRESHED successfully."
-              );
-              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-              processZoomQueue(null, accessToken);
+              localStorage.setItem("zoomAccessToken", newAccessToken); // ĐỔI SANG LOCALSTORAGE
+              if (newRefreshToken) {
+                localStorage.setItem("zoomRefreshToken", newRefreshToken); // ĐỔI SANG LOCALSTORAGE
+              }
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+              processZoomQueue(null, newAccessToken);
               isRefreshingZoomToken = false;
-              return axiosClient(originalRequest);
+              return axiosClient(originalRequest); // Thử lại request gốc bằng axiosClient
             } else {
-              const errMsg =
-                backendRefreshResponse?.message ||
-                "Refresh Zoom token response invalid.";
-              console.error(
-                "[axiosClient Refresh] Error: ",
-                errMsg,
-                backendRefreshResponse
-              );
-              throw new Error(errMsg);
+              // Nếu cấu trúc không đúng, hoặc success là false
+              console.error("Refresh Zoom token response invalid structure or success:false", refreshResponse.data);
+              throw new Error(refreshResponse.data?.message || "Refresh Zoom token response invalid.");
             }
           } catch (refreshErrorCatch) {
-            // ... (xử lý lỗi khi refresh thất bại) ...
-            console.error(
-              "[axiosClient Refresh] CATCH Failed to refresh Zoom token:",
-              refreshErrorCatch.response?.data || refreshErrorCatch.message
-            );
+            console.error("axiosClient: Failed to refresh Zoom token (catch block).", refreshErrorCatch.response?.data || refreshErrorCatch.message);
             processZoomQueue(refreshErrorCatch, null);
             localStorage.removeItem("zoomAccessToken");
             localStorage.removeItem("zoomRefreshToken");
             isRefreshingZoomToken = false;
-            return Promise.reject(
-              refreshErrorCatch.response ? refreshErrorCatch : error
-            );
+            // Quan trọng: Ném lỗi để component xử lý, không tự động redirect
+            return Promise.reject(refreshErrorCatch.response ? refreshErrorCatch : error);
           }
         } else {
-          console.warn(
-            "[axiosClient Refresh] No Zoom refresh token found. Cannot refresh."
-          );
+          console.warn("axiosClient: No Zoom refresh token found in localStorage. Cannot refresh.");
           isRefreshingZoomToken = false;
+          // Để lỗi 401 gốc được trả về nếu không có refresh token
         }
-      } else if (!url.startsWith("meeting/")) {
-        console.warn(
-          "[axiosClient Auth] User system token likely expired (401) for non-Zoom API."
-        );
+      }
+      // Xử lý cho User System Token (lỗi 401 từ API không phải Zoom)
+      else if (!originalRequest.url.startsWith("meeting/")) {
+        console.warn("axiosClient: User system token expired or invalid (401).");
         Cookies.remove("token");
+        window.location.href = "/login"; // Giữ lại hành vi redirect cũ của bạn nếu đây là mong muốn
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(error); // Trả về lỗi để Api.js và component có thể bắt
   }
 );
+
 export default axiosClient;
