@@ -12,7 +12,6 @@ RUN npm i -g serve
 
 COPY . .
 
-# 👉 Tăng giới hạn heap lên 2GB
 ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 RUN npm run build
