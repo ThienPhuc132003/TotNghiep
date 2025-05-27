@@ -1,22 +1,38 @@
+# FROM node:20-slim
+
+# WORKDIR /app
+
+# COPY package.json package-lock.json* ./
+
+# RUN npm install --force && npm cache clean --force
+
+# RUN npm i -g serve
+
+# COPY . .
+
+# ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+# RUN npm run build
+
+# EXPOSE 80
+
+# CMD [ "serve", "-s", "dist", "-p", "80" ]
+
+
+# Sử dụng image nhẹ và phổ biến
 FROM node:20-slim
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+# Cài đặt serve
+RUN npm install -g serve
 
-# RUN npm install --force
+# Copy chỉ thư mục dist vào container
+COPY dist ./dist
 
-RUN npm install --force && npm cache clean --force
-
-RUN npm i -g serve
-
-COPY . .
-
-# 👉 Tăng giới hạn heap lên 2GB
+# Chạy với giới hạn bộ nhớ nếu cần
 ENV NODE_OPTIONS="--max-old-space-size=2048"
-
-RUN npm run build
 
 EXPOSE 80
 
-CMD [ "serve", "-s", "dist", "-p", "80" ]
+CMD ["serve", "-s", "dist", "-l", "80"]

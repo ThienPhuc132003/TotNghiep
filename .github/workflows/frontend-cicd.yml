@@ -9,6 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,16 +25,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # - name: Build project
-      #   run: npm run build
+      - name: Build project
+        run: npm run build
 
-      - name: Copy source code to server
+      - name: Copy dist folder and Docker files to server
         uses: appleboy/scp-action@v0.1.1
         with:
           host: ${{ secrets.FRONTEND_SERVER_HOST }}
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
-          source: "./*"
+          source: |
+            dist
+            Dockerfile
+            docker-compose.yml
           target: "/root/DAKL/FE"
 
       - name: Deploy to server
@@ -45,5 +49,5 @@ jobs:
           port: 22
           script: |
             cd /root/DAKL/FE
-            sudo docker compose down       
+            docker compose down
             docker compose up --build -d
