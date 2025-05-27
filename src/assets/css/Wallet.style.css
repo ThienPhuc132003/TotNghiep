@@ -60,9 +60,9 @@
   opacity: 0.9;
 }
 .wallet-balance-section .balance-label {
-  font-size: 0.9em;
+  font-size: 1.9em;
+  font-weight: 700;
   opacity: 0.85;
-  margin-bottom: 4px;
 }
 .wallet-balance-section .balance-amount {
   font-size: 1.9em;
@@ -368,7 +368,11 @@
   margin-top: 0; /* Sát với H1 hơn nếu không có section Balance ở trên */
   margin-bottom: 25px;
 }
-
+.balance-details{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 /* === Responsive adjustments === */
 @media (max-width: 768px) {
   .wallet-container {

@@ -11,7 +11,7 @@ import { setUserProfile } from "../../../redux/userSlice";
 
 const ITEMS_PER_PAGE = 10;
 
-const CurriculumList = ({ onAfterCurriculumAdded }) => {
+const CurriculumList = ({ onAfterCurriculumAdded = () => {} }) => {
   const [availableCurriculums, setAvailableCurriculums] = useState([]);
   const [myCurriculumIds, setMyCurriculumIds] = useState(new Set());
   const [isLoadingAvailable, setIsLoadingAvailable] = useState(true);
@@ -283,9 +283,4 @@ const CurriculumList = ({ onAfterCurriculumAdded }) => {
 CurriculumList.propTypes = {
   onAfterCurriculumAdded: PropTypes.func,
 };
-
-CurriculumList.defaultProps = {
-  onAfterCurriculumAdded: () => {},
-};
-
 export default CurriculumList;
