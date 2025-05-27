@@ -13,7 +13,6 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 const ProfilePage = () => {
   // Lấy toàn bộ object userProfile từ Redux state
   const userProfileFromRedux = useSelector((state) => state.user.userProfile);
-  console.log("user in profile page ", userProfileFromRedux);
   const profileLoading = useSelector((state) => state.user.profileLoading);
   const profileError = useSelector((state) => state.user.profileError);
   const dispatch = useDispatch();

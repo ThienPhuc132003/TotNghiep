@@ -1,193 +1,133 @@
-// src/pages/User/ZoomCallback.jsx
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import Api from "../../network/Api"; // Đảm bảo đường dẫn đúng
-import { METHOD_TYPE } from "../../network/methodType"; // Đảm bảo đường dẫn đúng
-// import './ZoomCallback.style.css'; // Tạo file CSS nếu bạn có
+// src/pages/User/TutorMeetingRoomPage.jsx
+import { useState, useEffect } from "react";
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import { useNavigate, useLocation } from "react-router-dom"; // Thêm useLocation
+import "./TutorMeetingRoomPage.style.css";
 
-const ZoomCallback = () => {
-  const location = useLocation();
+const TutorMeetingRoomPage = () => {
   const navigate = useNavigate();
-  const [message, setMessage] = useState("Đang xử lý xác thực Zoom...");
-  const [error, setError] = useState(null);
+  const location = useLocation(); // Để nhận state từ ZoomCallback
+  const [isZoomConnected, setIsZoomConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); // Lỗi hiển thị trên trang này
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const authorizationCode = queryParams.get("code");
-    const zoomError = queryParams.get("error");
-
-    if (zoomError) {
-      const errorDescription =
-        queryParams.get("error_description") || zoomError;
-      console.error("Lỗi từ Zoom OAuth Callback:", zoomError, errorDescription);
-      setError(`Lỗi từ Zoom: ${errorDescription}. Vui lòng thử lại.`);
-      setMessage("Kết nối Zoom không thành công.");
-      return;
+    // Kiểm tra lỗi được truyền từ ZoomCallback
+    if (location.state && location.state.zoomAuthError) {
+      setError(location.state.zoomAuthError);
+      // Xóa state để không hiển thị lại khi refresh hoặc điều hướng nội bộ
+      navigate(location.pathname, { replace: true, state: {} });
     }
 
-    if (authorizationCode) {
-      console.log("Authorization Code lấy từ URL:", authorizationCode);
-      setMessage("Đã nhận được mã xác thực. Đang gửi đến máy chủ...");
+    const checkZoomConnection = async () => {
+      setIsLoading(true);
+      const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+      if (zoomAccessToken) {
+        // Tùy chọn: Gọi API backend để xác thực token này còn hiệu lực không
+        // Ví dụ:
+        // try {
+        //   const verifyResponse = await Api({ endpoint: "meeting/verify-token", method: METHOD_TYPE.GET });
+        //   if (verifyResponse && verifyResponse.success) {
+        //     setIsZoomConnected(true);
+        //   } else {
+        //     throw new Error(verifyResponse?.message || "Token Zoom không hợp lệ");
+        //   }
+        // } catch (e) {
+        //   localStorage.removeItem("zoomAccessToken");
+        //   localStorage.removeItem("zoomRefreshToken");
+        //   setIsZoomConnected(false);
+        //   setError("Phiên làm việc với Zoom đã hết hạn hoặc token không hợp lệ. Vui lòng kết nối lại.");
+        // }
+        setIsZoomConnected(true); // Tạm thời giả định có token là connected
+      } else {
+        setIsZoomConnected(false);
+      }
+      setIsLoading(false);
+    };
+    checkZoomConnection();
+  }, [location, navigate]); // Thêm location, navigate vào dependency
 
-      Api({
-        endpoint: "meeting/handle", // Endpoint không có / ở đầu
-        method: METHOD_TYPE.POST,
-        data: { authorizationCode: authorizationCode },
-      })
-        .then((response) => {
-          console.log("Phản hồi từ API meeting/handle:", response);
-          const backendResponse = response.data; // {status, code, success, message, data, errors}
-
-          if (
-            backendResponse &&
-            backendResponse.success &&
-            backendResponse.data
-          ) {
-            const tokenResult = backendResponse.data.result; // Dữ liệu token trong data.result
-            if (
-              tokenResult &&
-              tokenResult.accessToken &&
-              tokenResult.refreshToken
-            ) {
-              const { accessToken, refreshToken, userId } = tokenResult;
-              localStorage.setItem("zoomAccessToken", accessToken);
-              localStorage.setItem("zoomRefreshToken", refreshToken);
-              if (userId) {
-                localStorage.setItem("zoomUserId", userId);
-              }
-              setMessage("Kết nối Zoom thành công! Đang chuyển hướng...");
-              setTimeout(
-                () =>
-                  navigate("/tai-khoan/ho-so/phong-hop-zoom", {
-                    replace: true,
-                  }),
-                2000
-              );
-            } else {
-              console.error(
-                "Dữ liệu token không hợp lệ trong backendResponse.data.result:",
-                tokenResult
-              );
-              throw new Error(
-                backendResponse.message ||
-                  "Phản hồi từ máy chủ không chứa thông tin token hợp lệ trong 'result'."
-              );
-            }
-          } else {
-            console.error(
-              "Lỗi hoặc dữ liệu không hợp lệ từ API meeting/handle:",
-              backendResponse
-            );
-            const errorMessage =
-              backendResponse?.message ||
-              backendResponse?.errors?.join(", ") ||
-              "Máy chủ trả về lỗi hoặc dữ liệu không đúng định dạng.";
-            throw new Error(errorMessage);
-          }
-        })
-        .catch((err) => {
-          console.error(
-            "Lỗi khi gọi API meeting/handle:",
-            err.response?.data || err.message || err
-          );
-          let errorMessage =
-            "Có lỗi xảy ra trong quá trình hoàn tất kết nối Zoom.";
-          if (err.response && err.response.data && err.response.data.message) {
-            errorMessage = err.response.data.message;
-          } else if (
-            err.response &&
-            err.response.data &&
-            err.response.data.errors
-          ) {
-            errorMessage = Array.isArray(err.response.data.errors)
-              ? err.response.data.errors.join(", ")
-              : JSON.stringify(err.response.data.errors);
-          } else if (err.message) {
-            errorMessage = err.message;
-          }
-          setError(errorMessage);
-          setMessage("Kết nối Zoom không thành công.");
-        });
-    } else if (!zoomError) {
-      setError("Không tìm thấy mã xác thực (code) từ Zoom trên URL callback.");
-      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
-      console.log("URL search không chứa 'code':", location.search);
+  const handleConnectZoom = async () => {
+    setIsLoading(true);
+    setError(null); // Xóa lỗi cũ trước khi thử kết nối mới
+    try {
+      const backendResponse = await Api({
+        // backendResponse là data từ axiosClient
+        endpoint: "meeting/auth", // Endpoint không có / ở đầu
+        method: METHOD_TYPE.GET,
+      });
+      if (
+        backendResponse &&
+        backendResponse.success &&
+        backendResponse.data &&
+        backendResponse.data.zoomAuthUrl
+      ) {
+        window.location.href = backendResponse.data.zoomAuthUrl;
+      } else {
+        const errMsg =
+          backendResponse?.message || "Không thể lấy URL xác thực Zoom.";
+        setError(errMsg);
+        setIsLoading(false);
+      }
+    } catch (err) {
+      const errMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Lỗi kết nối đến máy chủ.";
+      setError(errMsg);
+      setIsLoading(false);
     }
-  }, [location.search, navigate]);
+  };
 
-  // JSX giữ nguyên
+  const handleCreateMeeting = () => {
+    navigate("/tai-khoan/ho-so/tao-phong-hop-moi");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="loading-container">Đang tải thông tin phòng họp...</div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "80vh",
-        padding: "40px",
-        textAlign: "center",
-        fontFamily: "Arial, sans-serif",
-        backgroundColor: "#f4f7f6",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "2rem",
-          color: error ? "#d9534f" : "#0275d8",
-          marginBottom: "20px",
-        }}
-      >
-        {message}
-      </h2>
-      {error && (
-        <p
-          style={{
-            color: "#d9534f",
-            backgroundColor: "#f2dede",
-            border: "1px solid #ebccd1",
-            padding: "15px",
-            borderRadius: "4px",
-            maxWidth: "600px",
-            wordWrap: "break-word",
-            marginBottom: "20px",
-          }}
-        >
-          <strong>Lỗi:</strong> {error}
-        </p>
-      )}
-      <p style={{ color: "#555", fontSize: "1rem" }}>
-        {error
-          ? "Vui lòng thử lại thao tác kết nối Zoom."
-          : "Bạn sẽ được tự động chuyển hướng sau giây lát..."}
-      </p>
-      {(error || (message && message.includes("không thành công"))) && (
-        <button
-          onClick={() =>
-            navigate("/tai-khoan/ho-so/phong-hop-zoom", { replace: true })
-          }
-          style={{
-            padding: "12px 25px",
-            marginTop: "30px",
-            cursor: "pointer",
-            backgroundColor: "#0275d8",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "background-color 0.2s ease",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "#025aa5")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0275d8")
-          }
-        >
-          Quay lại trang Phòng Họ 
-        </button>
+    <div className="tutor-meeting-room-page">
+      <h2 className="page-title">Quản Lý Phòng Họp Zoom</h2>
+      {error && <p className="error-message">{error}</p>} {/* Hiển thị lỗi */}
+      {!isZoomConnected ? (
+        <div className="zoom-connect-section">
+          <p>
+            Để sử dụng tính năng phòng họp trực tuyến, bạn cần kết nối tài khoản
+            Zoom của mình.
+          </p>
+          <button
+            onClick={handleConnectZoom}
+            className="btn btn-primary btn-connect-zoom"
+            disabled={isLoading}
+          >
+            <i className="fas fa-video" style={{ marginRight: "8px" }}></i>
+            Kết nối tài khoản Zoom
+          </button>
+        </div>
+      ) : (
+        <div className="zoom-connected-section">
+          <div className="connection-status success">
+            <i className="fas fa-check-circle"></i>
+            <span>Tài khoản Zoom của bạn đã được kết nối.</span>
+          </div>
+          <button
+            onClick={handleCreateMeeting}
+            className="btn btn-primary btn-create-meeting"
+          >
+            <i
+              className="fas fa-plus-circle"
+              style={{ marginRight: "8px" }}
+            ></i>
+            Tạo phòng họp mới
+          </button>
+        </div>
       )}
     </div>
   );
 };
-export default ZoomCallback;
+export default TutorMeetingRoomPage;
