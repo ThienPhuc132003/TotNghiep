@@ -1,19 +1,47 @@
 /* src/components/Zoom/ZoomMeetingEmbed.style.css */
 .zoom-meeting-embed-container {
-  width: 800px;  /* << ĐẶT KÍCH THƯỚC MONG MUỐN Ở ĐÂY */
-  height: 600px; /* << ĐẶT KÍCH THƯỚC MONG MUỐN Ở ĐÂY */
-  border: 1px solid #ccc; /* Thêm border để dễ nhìn */
-  position: relative; /* Quan trọng để SDK render đúng bên trong */
-  overflow: hidden; /* Ẩn phần thừa nếu SDK render lớn hơn */
+  width: 800px; /* << ĐẶT CHIỀU RỘNG MONG MUỐN CHO Ô ZOOM */
+  height: 600px; /* << ĐẶT CHIỀU CAO MONG MUỐN CHO Ô ZOOM */
+  /* Hoặc dùng % nếu muốn nó responsive với container cha của nó trong CreateMeetingPage */
+  /* width: 100%; */
+  /* max-width: 800px; */
+  /* aspect-ratio: 16 / 9; */ /* Giữ tỷ lệ khung hình nếu muốn */
+
+  border: 1px solid #ddd; /* Border để dễ nhìn */
+  margin: 20px 0; /* Khoảng cách trên dưới (tùy chọn) */
+  position: relative; /* Rất quan trọng để SDK render đúng bên trong */
+  overflow: hidden; /* Ẩn phần thừa nếu Zoom render lớn hơn */
+  background-color: #222; /* Nền tối để dễ phân biệt với nội dung Zoom */
 }
 
-/* Zoom SDK sẽ render nội dung vào #zmmtg-root */
-#zmmtg-root {
-  width: 100% !important;
-  height: 100% !important;
-  position: relative !important; /* Quan trọng để SDK hiển thị đúng */
+/* 
+  Nếu Zoom SDK (Client View) vẫn cố gắng chiếm toàn màn hình hoặc render sai vị trí,
+  bạn có thể cần thêm các quy tắc CSS mạnh hơn để "ép" div#zmmtg-root (do SDK tạo ra)
+  vào bên trong .zoom-meeting-embed-container.
+  Đặt các quy tắc này trong file CSS global (ví dụ src/index.css) nếu cần ghi đè mạnh.
+*/
+/* Trong file CSS global hoặc dùng !important nếu cần: */
+/*
+body #zmmtg-root { // Chọn #zmmtg-root trong body để có độ ưu tiên cao
+  position: relative !important; // Ghi đè position fixed/absolute của Zoom
+  width: 100% !important;       // Chiếm 100% của container cha (.zoom-meeting-embed-container)
+  height: 100% !important;      // Chiếm 100% của container cha
+  top: 0 !important;
+  left: 0 !important;
+  z-index: auto !important; // Hoặc một giá trị z-index phù hợp
 }
+*/
 
-/* Ẩn một số thành phần không mong muốn của Zoom SDK nếu cần */
-/* Ví dụ: nếu bạn không muốn hiển thị header của trang khi meeting đang chạy */
-/* .meeting-active #header-app { display: none; } */
+.zoom-error-state,
+.zoom-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  height: 100%; /* Để các trạng thái này cũng chiếm kích thước container */
+}
+.zoom-error-state h4 {
+  color: #dc3545;
+}
