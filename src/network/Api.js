@@ -1,96 +1,188 @@
-// src/network/Api.js
-import { METHOD_TYPE } from "./methodType";
-import axiosClient from "./axiosClient"; // axiosClient trả về response.data
-import qs from "qs";
+// src/utils/axiosClient.js
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const joinURLParts = (base, ...parts) => {
-  let result = base;
-  for (const part of parts) {
-    if (!part) continue;
-    if (result.endsWith("/") && part.startsWith("/")) {
-      result += part.substring(1);
-    } else if (!result.endsWith("/") && !part.startsWith("/")) {
-      result += "/" + part;
-    } else {
-      result += part;
-    }
-  }
-  return result;
-};
-
-// DOMAIN MẶC ĐỊNH NẾU `domain` TRONG `Api()` KHÔNG ĐƯỢC TRUYỀN
-// Lấy từ biến môi trường, ví dụ: VITE_API_DOMAIN=https://giasuvlu.click
-// HOẶC bạn có thể muốn nó là VITE_API_BASE_URL nếu nó đã bao gồm /api/
-const DEFAULT_DOMAIN_OR_BASE =
+const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://giasuvlu.click/api/";
 
-const Api = async ({
-  domain = "",
-  endpoint,
-  method = METHOD_TYPE.GET,
-  data,
-  query,
-  sendCredentials = false,
-}) => {
-  let processedQuery = { ...query };
-  // ... (xử lý filter, sort) ...
+const axiosClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-  const baseToUse =
-    domain && domain.trim() !== "" ? domain.trim() : DEFAULT_DOMAIN_OR_BASE;
-  // Nếu baseToUse đã là baseURL từ axiosClient (có /api/), và endpoint là 'meeting/auth'
-  // thì URL sẽ đúng.
-  // Nếu baseToUse là domain (không có /api/), và endpoint là 'api/meeting/auth', URL cũng sẽ đúng.
-  let finalAbsoluteUrl = joinURLParts(baseToUse, endpoint);
+let isRefreshingZoomToken = false;
+let zoomFailedQueue = [];
 
-  const config = {
-    headers: {},
-    ...(sendCredentials && { withCredentials: true }),
-    ...(method.toUpperCase() === METHOD_TYPE.GET &&
-      Object.keys(processedQuery).length > 0 && { params: processedQuery }),
-  };
-
-  if (
-    method.toUpperCase() !== METHOD_TYPE.GET &&
-    Object.keys(processedQuery).length > 0
-  ) {
-    const queryString = qs.stringify(processedQuery, { encode: false });
-    finalAbsoluteUrl = `${finalAbsoluteUrl}${
-      queryString ? `?${queryString}` : ""
-    }`;
-  }
-  if (method.toUpperCase() === METHOD_TYPE.GET) {
-    finalAbsoluteUrl = joinURLParts(baseToUse, endpoint); // Cho GET, Axios sẽ dùng config.params
-  }
-
-  // axiosClient sẽ tự động dùng finalAbsoluteUrl vì nó là URL đầy đủ,
-  // bỏ qua baseURL nội bộ của nó (nếu finalAbsoluteUrl khác với những gì nó tự tính)
-  // Hoặc, nếu finalAbsoluteUrl chỉ là endpoint, axiosClient sẽ nối baseURL của nó.
-  // Vì chúng ta đã loại bỏ baseURL khỏi axiosClient, nên nó sẽ luôn dùng finalAbsoluteUrl.
-  // À không, axiosClient VẪN CÓ baseURL. Logic của hàm Api là tạo URL tuyệt đối để gọi.
-
-  let responseData; // Sẽ nhận data từ axiosClient
-  const upperCaseMethod = method.toUpperCase();
-  switch (upperCaseMethod) {
-    case METHOD_TYPE.POST:
-      responseData = await axiosClient.post(finalAbsoluteUrl, data, config);
-      break;
-    case METHOD_TYPE.PUT:
-      responseData = await axiosClient.put(finalAbsoluteUrl, data, config);
-      break;
-    case METHOD_TYPE.PATCH:
-      responseData = await axiosClient.patch(finalAbsoluteUrl, data, config);
-      break;
-    case METHOD_TYPE.DELETE:
-      responseData = await axiosClient.delete(finalAbsoluteUrl, {
-        ...config,
-        data: data,
-      });
-      break;
-    case METHOD_TYPE.GET:
-    default:
-      responseData = await axiosClient.get(finalAbsoluteUrl, config); // finalAbsoluteUrl cho GET không có query, Axios dùng config.params
-      break;
-  }
-  return responseData; // axiosClient trả về data, nên đây là data
+const processZoomQueue = (error, token = null) => {
+  zoomFailedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  zoomFailedQueue = [];
 };
-export default Api;
+
+axiosClient.interceptors.request.use(
+  function (config) {
+    const url = config.url || "";
+    const userSystemToken = Cookies.get("token");
+    const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+
+    console.log(`[axiosClient Request] URL: ${config.baseURL}${url}`);
+    console.log(
+      "[axiosClient Request] Headers BEFORE modification:",
+      JSON.parse(JSON.stringify(config.headers))
+    ); // Deep copy for logging
+
+    const noAuthEndpoints = [
+      "auth/login",
+      "auth/register",
+      "meeting/auth",
+      "meeting/handle",
+      "meeting/zoom/refresh",
+    ];
+    const isNoAuthEndpoint = noAuthEndpoints.includes(url);
+
+    if (isNoAuthEndpoint) {
+      delete config.headers.Authorization;
+      console.log(`[axiosClient Request] Endpoint (${url}) requires NO token.`);
+    } else if (url.startsWith("meeting/")) {
+      console.log(
+        `[axiosClient Request] Endpoint (${url}) is a MEETING endpoint.`
+      );
+      if (zoomAccessToken) {
+        config.headers.Authorization = `Bearer ${zoomAccessToken}`;
+        console.log("[axiosClient Request] Zoom Access Token ATTACHED.");
+      } else {
+        console.warn(
+          `[axiosClient Request] Zoom Access Token NOT FOUND in localStorage for ${url}.`
+        );
+      }
+    } else if (userSystemToken) {
+      config.headers.Authorization = `Bearer ${userSystemToken}`;
+      console.log("[axiosClient Request] User System Token ATTACHED.");
+    } else {
+      console.warn(
+        `[axiosClient Request] No User System Token found for ${url}.`
+      );
+    }
+    console.log(
+      "[axiosClient Request] Headers AFTER modification:",
+      JSON.parse(JSON.stringify(config.headers))
+    );
+    return config;
+  },
+  function (error) {
+    console.error("[axiosClient Request Error]", error);
+    return Promise.reject(error);
+  }
+);
+
+axiosClient.interceptors.response.use(
+  function (response) {
+    console.log(
+      `[axiosClient Response] Success for ${response.config.url}:`,
+      response.data
+    );
+    return response.data; // Trả về response.data trực tiếp
+  },
+  async function (error) {
+    const originalRequest = error.config;
+    const url = originalRequest.url || "";
+    console.error(
+      `[axiosClient Response Error] for ${url}:`,
+      error.response || error
+    );
+
+    if (error.response && error.response.status === 401) {
+      if (
+        url.startsWith("meeting/") &&
+        url !== "meeting/zoom/refresh" &&
+        !originalRequest._retryZoom
+      ) {
+        if (isRefreshingZoomToken) {
+          console.log(
+            `[axiosClient Refresh] Queuing request for ${url} as token is already refreshing.`
+          );
+          return new Promise(/* ... queue logic ... */);
+        }
+        originalRequest._retryZoom = true;
+        isRefreshingZoomToken = true;
+        const zoomRefreshToken = localStorage.getItem("zoomRefreshToken");
+
+        if (zoomRefreshToken) {
+          try {
+            console.log(
+              "[axiosClient Refresh] Attempting to refresh Zoom token..."
+            );
+            const refreshResponse = await axios.post(
+              `${axiosClient.defaults.baseURL}meeting/zoom/refresh`,
+              { refreshToken: zoomRefreshToken }
+            );
+            const backendRefreshResponse = refreshResponse.data; // {status, code, success, message, data: {result: {...}}}
+            console.log(
+              "[axiosClient Refresh] API /meeting/zoom/refresh response:",
+              backendRefreshResponse
+            );
+
+            if (
+              backendRefreshResponse &&
+              backendRefreshResponse.success &&
+              backendRefreshResponse.data &&
+              backendRefreshResponse.data.result
+            ) {
+              const { accessToken, refreshToken: newRefreshToken } =
+                backendRefreshResponse.data.result;
+              localStorage.setItem("zoomAccessToken", accessToken);
+              if (newRefreshToken)
+                localStorage.setItem("zoomRefreshToken", newRefreshToken);
+              console.log(
+                "[axiosClient Refresh] Zoom token REFRESHED successfully."
+              );
+              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+              processZoomQueue(null, accessToken);
+              isRefreshingZoomToken = false;
+              return axiosClient(originalRequest);
+            } else {
+              const errMsg =
+                backendRefreshResponse?.message ||
+                "Refresh Zoom token response invalid.";
+              console.error(
+                "[axiosClient Refresh] Error: ",
+                errMsg,
+                backendRefreshResponse
+              );
+              throw new Error(errMsg);
+            }
+          } catch (refreshErrorCatch) {
+            // ... (xử lý lỗi khi refresh thất bại) ...
+            console.error(
+              "[axiosClient Refresh] CATCH Failed to refresh Zoom token:",
+              refreshErrorCatch.response?.data || refreshErrorCatch.message
+            );
+            processZoomQueue(refreshErrorCatch, null);
+            localStorage.removeItem("zoomAccessToken");
+            localStorage.removeItem("zoomRefreshToken");
+            isRefreshingZoomToken = false;
+            return Promise.reject(
+              refreshErrorCatch.response ? refreshErrorCatch : error
+            );
+          }
+        } else {
+          console.warn(
+            "[axiosClient Refresh] No Zoom refresh token found. Cannot refresh."
+          );
+          isRefreshingZoomToken = false;
+        }
+      } else if (!url.startsWith("meeting/")) {
+        console.warn(
+          "[axiosClient Auth] User system token likely expired (401) for non-Zoom API."
+        );
+        Cookies.remove("token");
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+export default axiosClient;
