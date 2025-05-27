@@ -1,61 +1,13 @@
 // src/components/Zoom/ZoomMeetingEmbed.jsx
-import { useEffect, useRef, useState, useCallback } from "react";
+// import React, { useEffect, useRef, useState, useCallback } from 'react'; // Bỏ 'React' nếu không dùng trực tiếp
+import { useEffect, useRef, useState, useCallback } from "react"; // Chỉ import những gì cần
 import PropTypes from "prop-types";
-import "../../../assets/css/ZoomMeetingEmbed.style.css"; // Đảm bảo file này tồn tại và có style cơ bản
+import { ZoomMtg } from "@zoom/meetingsdk";
 
-const ZOOM_JSLIB_PUBLIC_PATH = "/lib"; // Trỏ đến public/lib
+import "../../../assets/css/ZoomMeetingEmbed.style.css";
 
-let ZoomMtgInstance =
-  typeof window !== "undefined" ? window.ZoomMtg : undefined;
-let zoomSdkLoadingPromise = null;
-
-const loadZoomSdk = () => {
-  if (ZoomMtgInstance) {
-    return Promise.resolve(ZoomMtgInstance);
-  }
-  if (zoomSdkLoadingPromise) {
-    return zoomSdkLoadingPromise;
-  }
-  console.log(
-    "[ZoomSDKLoader] Attempting to dynamically import @zoomus/websdk..."
-  );
-  zoomSdkLoadingPromise = import("@zoomus/websdk")
-    .then((module) => {
-      console.log("[ZoomSDKLoader] @zoomus/websdk module loaded:", module);
-      if (module.ZoomMtg) {
-        ZoomMtgInstance = module.ZoomMtg;
-      } else if (module.default && module.default.ZoomMtg) {
-        ZoomMtgInstance = module.default.ZoomMtg;
-      } else if (typeof window !== "undefined" && window.ZoomMtg) {
-        ZoomMtgInstance = window.ZoomMtg;
-      }
-
-      if (!ZoomMtgInstance) {
-        console.error(
-          "[ZoomSDKLoader] Failed to obtain ZoomMtg object from the imported module."
-        );
-        throw new Error("Failed to obtain ZoomMtg object.");
-      }
-
-      if (
-        typeof window !== "undefined" &&
-        typeof window.ZoomMtg === "undefined"
-      ) {
-        window.ZoomMtg = ZoomMtgInstance;
-      }
-      console.log("[ZoomSDKLoader] ZoomMtg instance obtained and ready.");
-      return ZoomMtgInstance;
-    })
-    .catch((err) => {
-      console.error(
-        "[ZoomSDKLoader] Critical error loading @zoomus/websdk:",
-        err
-      );
-      zoomSdkLoadingPromise = null;
-      throw err;
-    });
-  return zoomSdkLoadingPromise;
-};
+let sdkPrepared = false;
+// let zoomClientForCleanup = null; // Sẽ không dùng biến global này nữa, quản lý trong component
 
 function ZoomMeetingEmbed({
   sdkKey,
@@ -69,16 +21,21 @@ function ZoomMeetingEmbed({
   onError,
   onMeetingJoined,
 }) {
-  const meetingUiElementContainer = useRef(null); // Ref cho container
-  const [isSdkReadyToInit, setIsSdkReadyToInit] = useState(false);
+  const meetingSDKElementRef = useRef(null); // Có thể dùng ref này nếu SDK cho phép chỉ định target element
+  const [isSdkInitialized, setIsSdkInitialized] = useState(false);
   const [sdkError, setSdkError] = useState(null);
+  const zoomMtgRef = useRef(null); // Lưu trữ instance ZoomMtg để cleanup
 
   const handleSdkError = useCallback(
-    (message, errorCode = null) => {
+    (message, errorCode = null, errorObject = null) => {
       const fullMessage = errorCode
         ? `${message} (Mã lỗi: ${errorCode})`
         : message;
-      console.error("[ZoomMeetingEmbed] SDK Error:", fullMessage);
+      console.error(
+        "[ZoomMeetingEmbed] SDK Error:",
+        fullMessage,
+        errorObject || ""
+      );
       setSdkError(fullMessage);
       if (onError) {
         onError(fullMessage);
@@ -87,39 +44,47 @@ function ZoomMeetingEmbed({
     [onError]
   );
 
-  const initializeAndJoinMeeting = useCallback(
-    async (ZoomMtg) => {
-      if (!sdkKey || !signature || !meetingNumber || !userName) {
-        handleSdkError(
-          "Thiếu thông tin cần thiết (sdkKey, signature, meetingNumber, hoặc userName)."
+  const initAndJoin = useCallback(async () => {
+    if (!sdkKey || !signature || !meetingNumber || !userName) {
+      handleSdkError(
+        "Thiếu thông tin cần thiết (sdkKey, signature, meetingNumber, hoặc userName)."
+      );
+      return;
+    }
+
+    try {
+      // Với @zoom/meetingsdk, ZoomMtg đã được import trực tiếp.
+      // Các bước prepare có thể vẫn cần thiết.
+      if (!sdkPrepared) {
+        console.log(
+          "[ZoomMeetingEmbed] Calling ZoomMtg.preLoadWasm() and ZoomMtg.prepareWebSDK()..."
         );
-        return;
+        // Kiểm tra tài liệu @zoom/meetingsdk để xác nhận các hàm này
+        // Nếu SDK mới tự động quản lý, các dòng này có thể không cần thiết hoặc gây lỗi.
+        // ZoomMtg.setZoomJSLib(ZOOM_JSLIB_PUBLIC_PATH, '/av'); // << XEM XÉT BỎ NẾU SDK MỚI TỰ TẢI TỪ CDN
+        await ZoomMtg.preLoadWasm();
+        await ZoomMtg.prepareWebSDK(); // Hoặc tên hàm tương đương
+        sdkPrepared = true;
+        console.log("[ZoomMeetingEmbed] SDK prepared.");
+      } else {
+        console.log("[ZoomMeetingEmbed] SDK was already prepared.");
       }
-      console.log("[ZoomMeetingEmbed] Initializing Zoom Web SDK with props:", {
-        sdkKey,
-        meetingNumber,
-        userName,
-      });
 
-      ZoomMtg.setZoomJSLib(ZOOM_JSLIB_PUBLIC_PATH, "/av");
-      ZoomMtg.preLoadWasm();
-      ZoomMtg.prepareWebSDK();
+      // Gán instance vào ref để có thể truy cập trong cleanup
+      zoomMtgRef.current = ZoomMtg;
 
-      // Tùy chọn: Tải ngôn ngữ (cần có file lang trong public/lib/lang/vi-VN.json)
-      // try {
-      //   ZoomMtg.i18n.load('vi-VN');
-      //   ZoomMtg.i18n.setLanguage('vi-VN');
-      // } catch (langError) {
-      //   console.warn("Could not load/set Vietnamese language for Zoom SDK", langError);
-      // }
-
+      console.log("[ZoomMeetingEmbed] Initializing ZoomMtg...");
       ZoomMtg.init({
         leaveUrl: customLeaveUrl || `${window.location.origin}/`,
-        isSupportAV: true,
+        patchJsMedia: true, // Theo tài liệu mới cho @zoom/meetingsdk
+        // Thay vì truyền element vào init, Client View thường tự tìm #zmmtg-root
+        // Hoặc nếu bạn dùng Component View, bạn sẽ truyền element vào client.init({ zoomAppRoot: meetingSDKElementRef.current })
         success: function () {
           console.log(
             "[ZoomMeetingEmbed] ZoomMtg.init success. Joining meeting..."
           );
+          setIsSdkInitialized(true);
+
           ZoomMtg.join({
             sdkKey: sdkKey,
             signature: signature,
@@ -132,78 +97,94 @@ function ZoomMeetingEmbed({
               console.log("[ZoomMeetingEmbed] ZoomMtg.join success:", joinRes);
               if (onMeetingJoined) onMeetingJoined(joinRes);
 
-              ZoomMtg.geteventbus().on("meeting.status", (payload) => {
-                console.log(
-                  "[ZoomMeetingEmbed] Event: meeting.status",
-                  payload
+              if (typeof ZoomMtg.getEventBus === "function") {
+                ZoomMtg.getEventBus().on("meeting.status", (payload) => {
+                  console.log(
+                    "[ZoomMeetingEmbed] Event: meeting.status",
+                    payload
+                  );
+                  if (
+                    payload.status === "ended" ||
+                    payload.status === "left" ||
+                    payload.status === 2 ||
+                    payload.status === 3 ||
+                    payload.status === 4
+                  ) {
+                    // Kiểm tra nhiều giá trị có thể
+                    if (onMeetingEnd) onMeetingEnd(String(payload.status));
+                  }
+                });
+              } else {
+                console.warn(
+                  "[ZoomMeetingEmbed] ZoomMtg.getEventBus is not a function."
                 );
-                if (
-                  payload.status === 2 ||
-                  payload.status === 3 ||
-                  payload.status === 4
-                ) {
-                  // Ended, Left, Failed
-                  if (onMeetingEnd) onMeetingEnd(String(payload.status));
-                }
-              });
+              }
             },
             error: function (joinErr) {
               handleSdkError(
-                joinErr.errorMessage || "Lỗi khi tham gia phòng họp.",
-                joinErr.errorCode
+                joinErr.reason || "Lỗi khi tham gia phòng họp.",
+                joinErr.errorCode,
+                joinErr
               );
             },
           });
         },
         error: function (initErr) {
           handleSdkError(
-            initErr.errorMessage || "Lỗi khởi tạo Zoom SDK.",
-            initErr.errorCode
+            initErr.reason || "Lỗi khởi tạo Zoom SDK.",
+            initErr.errorCode,
+            initErr
           );
         },
       });
-    },
-    [
-      sdkKey,
-      signature,
-      meetingNumber,
-      userName,
-      userEmail,
-      passWord,
-      customLeaveUrl,
-      onMeetingJoined,
-      onMeetingEnd,
-      handleSdkError,
-    ]
-  );
+    } catch (err) {
+      handleSdkError(
+        err.message || "Lỗi không xác định khi chuẩn bị SDK.",
+        err.code,
+        err
+      );
+    }
+  }, [
+    sdkKey,
+    signature,
+    meetingNumber,
+    userName,
+    userEmail,
+    passWord,
+    customLeaveUrl,
+    onMeetingJoined,
+    onMeetingEnd,
+    handleSdkError,
+  ]);
 
   useEffect(() => {
-    loadZoomSdk()
-      .then((ZoomMtg) => {
-        if (ZoomMtg) {
-          setIsSdkReadyToInit(true); // Đánh dấu SDK đã tải xong, sẵn sàng cho init
-          initializeAndJoinMeeting(ZoomMtg); // Truyền ZoomMtg vào
-        }
-      })
-      .catch((loadErr) => {
-        handleSdkError(loadErr.message || "Không thể tải thư viện Zoom SDK.");
-      });
+    if (sdkKey && signature && meetingNumber && userName) {
+      initAndJoin();
+    }
 
     return () => {
-      // Dọn dẹp khi component unmount
-      if (
-        ZoomMtgInstance &&
-        typeof ZoomMtgInstance.leaveMeeting === "function"
-      ) {
-        // Việc gọi leaveMeeting ở đây có thể không cần thiết hoặc gây lỗi nếu người dùng đã tự rời
-        // Test kỹ lưỡng nếu bạn muốn thêm logic này.
-        // ZoomMtgInstance.leaveMeeting({});
-        // console.log("[ZoomMeetingEmbed] Attempted to leave meeting on unmount.");
+      // Cleanup khi component unmount
+      const currentZoomMtg = zoomMtgRef.current;
+      if (currentZoomMtg && typeof currentZoomMtg.leaveMeeting === "function") {
+        try {
+          console.log(
+            "[ZoomMeetingEmbed] Attempting to leave meeting on unmount..."
+          );
+          // currentZoomMtg.leaveMeeting({}); // Có thể gây lỗi nếu meeting đã kết thúc
+          // Một cách an toàn hơn là kiểm tra trạng thái trước khi gọi, hoặc dùng destroyClient nếu có
+        } catch (e) {
+          console.error(
+            "[ZoomMeetingEmbed] Error leaving meeting on unmount:",
+            e
+          );
+        }
       }
+      // Nếu SDK mới có hàm destroy client/instance, gọi ở đây
+      // Ví dụ: if (currentZoomMtg && typeof currentZoomMtg.destroyClient === 'function') currentZoomMtg.destroyClient();
+      sdkPrepared = false; // Reset để lần sau có thể prepare lại
+      zoomMtgRef.current = null;
     };
-    // Chạy lại effect này nếu các props dùng để join thay đổi
-    // initializeAndJoinMeeting đã được bọc trong useCallback với các dependency của nó.
-  }, [initializeAndJoinMeeting,handleSdkError]);
+  }, [initAndJoin, sdkKey, signature, meetingNumber, userName]); // Chỉ chạy lại khi các props này thay đổi
 
   if (sdkError) {
     return (
@@ -222,22 +203,20 @@ function ZoomMeetingEmbed({
     );
   }
 
-  if (!isSdkReadyToInit) {
+  if (!isSdkInitialized && !sdkError) {
     return (
       <div className="zoom-meeting-embed-container zoom-loading-state">
-        <p>Đang chuẩn bị giao diện cuộc họp Zoom...</p>
+        <p>Đang khởi tạo giao diện cuộc họp Zoom...</p>
       </div>
     );
   }
 
-  // Zoom SDK sẽ render vào div có id="zmmtg-root" mà nó tự tạo hoặc tìm kiếm.
-  // Đảm bảo container này có kích thước.
   return (
-    <div
-      className="zoom-meeting-embed-container"
-      ref={meetingUiElementContainer}
-    >
-      {/* SDK sẽ chèn #zmmtg-root vào đây hoặc document.body */}
+    // SDK Client View sẽ tìm div#zmmtg-root để render.
+    // Nó thường được SDK tự chèn vào body hoặc một root element được chỉ định.
+    // Container này giúp bạn kiểm soát kích thước và vị trí.
+    <div className="zoom-meeting-embed-container" ref={meetingSDKElementRef}>
+      {/* <div id="zmmtg-root"></div> -- Thông thường không cần tạo thủ công ở đây cho Client View */}
     </div>
   );
 }

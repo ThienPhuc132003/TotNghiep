@@ -18,7 +18,7 @@
     "@mui/material": "^6.4.4",
     "@reduxjs/toolkit": "^2.2.7",
     "@tanstack/react-table": "^8.21.2",
-    "@zoomus/websdk": "^2.18.3",
+    "@zoom/meetingsdk": "^3.13.2",
     "axios": "^1.8.4",
     "chart.js": "^4.4.7",
     "country-flag-icons": "^1.5.13",

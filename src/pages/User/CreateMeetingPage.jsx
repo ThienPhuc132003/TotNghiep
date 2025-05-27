@@ -1,18 +1,17 @@
 // src/pages/User/CreateMeetingPage.jsx
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux"; // Giả sử bạn dùng Redux
+import { useSelector } from "react-redux";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate } from "react-router-dom";
-import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Đảm bảo đường dẫn này đúng
-import "../../assets/css/CreateMeetingPage.style.css"; // Đảm bảo file này tồn tại
+import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Điều chỉnh đường dẫn nếu cần
+import "../../assets/css/CreateMeetingPage.style.css";
 
 const CreateMeetingPage = () => {
   const navigate = useNavigate();
-  // Lấy thông tin người dùng từ Redux. Điều chỉnh selector cho phù hợp.
-  const userProfile = useSelector(
+  const userProfileData = useSelector(
     (state) => state.user.userProfile?.userProfile
-  ); // Giả sử userProfile có userProfile con chứa fullname, email
+  ); // Điều chỉnh cho đúng selector
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   const [topic, setTopic] = useState("");
@@ -24,7 +23,6 @@ const CreateMeetingPage = () => {
   const [signatureData, setSignatureData] = useState(null);
   const [isStartingMeeting, setIsStartingMeeting] = useState(false);
 
-  // Nếu chưa đăng nhập, có thể chuyển hướng hoặc hiển thị thông báo
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", {
@@ -45,7 +43,6 @@ const CreateMeetingPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    // Không reset meetingDetails ở đây nếu muốn giữ lại thông tin sau khi form submit
     if (!topic.trim()) {
       setError("Vui lòng nhập chủ đề cuộc họp.");
       return;
@@ -63,28 +60,24 @@ const CreateMeetingPage = () => {
         "Kết nối Zoom đã hết hạn hoặc không tồn tại. Vui lòng kết nối lại tài khoản Zoom."
       );
       setIsLoading(false);
-      // Cân nhắc navigate về trang phòng họp để kết nối lại
-      // navigate("/tai-khoan/ho-so/phong-hop-zoom", { state: { zoomAuthError: "Cần kết nối Zoom để tạo phòng." }});
       return;
     }
 
     try {
       const backendResponse = await Api({
-        // backendResponse là data từ axiosClient
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
         data: meetingPayload,
       });
 
       if (backendResponse && backendResponse.success && backendResponse.data) {
-        const createdMeetingData = backendResponse.data; // Dữ liệu meeting
+        const createdMeetingData = backendResponse.data;
         if (
           createdMeetingData.zoomMeetingId &&
           createdMeetingData.joinUrl &&
           createdMeetingData.topic
         ) {
           setMeetingDetails(createdMeetingData);
-          // Không reset topic, password để người dùng có thể xem lại và quyết định bắt đầu
         } else {
           throw new Error(
             backendResponse.message ||
@@ -119,17 +112,16 @@ const CreateMeetingPage = () => {
     try {
       const signaturePayload = {
         zoomMeetingId: String(meetingDetails.zoomMeetingId),
-        role: "0", // Gia sư là host
+        role: "0",
       };
       const sigResponse = await Api({
-        // sigResponse là data từ axiosClient
         endpoint: "meeting/signature",
         method: METHOD_TYPE.POST,
         data: signaturePayload,
       });
 
       if (sigResponse && sigResponse.success && sigResponse.data) {
-        const actualSigData = sigResponse.data; // { signature, sdkKey, ... }
+        const actualSigData = sigResponse.data;
         if (actualSigData.signature && actualSigData.sdkKey) {
           setSignatureData(actualSigData);
           setIsStartingMeeting(true);
@@ -159,8 +151,6 @@ const CreateMeetingPage = () => {
     console.log(`Zoom meeting session ended. Reason: ${reason}`);
     setIsStartingMeeting(false);
     setSignatureData(null);
-    // Có thể hiển thị lại chi tiết phòng họp hoặc cho phép tạo phòng mới
-    // setError("Phiên họp đã kết thúc."); // Tùy chọn
   };
 
   const handleSdkErrorFromEmbed = (errorMessage) => {
@@ -170,9 +160,8 @@ const CreateMeetingPage = () => {
   };
 
   if (isStartingMeeting && signatureData && meetingDetails) {
-    // Lấy thông tin người dùng hiện tại cho SDK
-    const userNameForSDK = userProfile?.fullname || "Gia Sư"; // Cung cấp giá trị mặc định
-    const userEmailForSDK = userProfile?.email || ""; // Cung cấp giá trị mặc định
+    const userNameForSDK = userProfileData?.fullname || "Gia Sư";
+    const userEmailForSDK = userProfileData?.email || "";
 
     return (
       <div className="create-meeting-page zoom-active">
@@ -183,13 +172,11 @@ const CreateMeetingPage = () => {
           userName={userNameForSDK}
           userEmail={userEmailForSDK}
           passWord={meetingDetails.password || ""}
-          customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/phong-hop-zoom`} // Quay về trang quản lý
+          customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/phong-hop-zoom`}
           onMeetingEnd={handleMeetingSessionEnd}
           onError={handleSdkErrorFromEmbed}
           onMeetingJoined={() => {
-            console.log(
-              "Meeting successfully joined via SDK in CreateMeetingPage."
-            );
+            console.log("Meeting joined via SDK!");
             setError(null);
           }}
         />
@@ -212,7 +199,6 @@ const CreateMeetingPage = () => {
           {error}
         </p>
       )}
-
       {!meetingDetails ? (
         <form onSubmit={handleSubmit} className="create-meeting-form">
           <div className="form-group">
