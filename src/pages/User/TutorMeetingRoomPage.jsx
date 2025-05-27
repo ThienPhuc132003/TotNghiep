@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom"; // Thêm useLocation
-import "./TutorMeetingRoomPage.style.css";
+import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
   const navigate = useNavigate();
