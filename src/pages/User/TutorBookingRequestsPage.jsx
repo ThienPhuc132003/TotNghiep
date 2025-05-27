@@ -665,9 +665,8 @@ const TutorBookingRequestsPage = () => {
               className="tbrp-filter-controls__select"
               disabled={isUpdating || isLoading}
             >
-              <option value="">Tất cả (Đã duyệt)</option>
-              <option value="ACCEPT">Đã chấp nhận</option>
               <option value="REFUSE">Đã từ chối</option>
+              <option value="ACCEPT">Đã chấp nhận</option>
             </select>
           </div>
         )}
