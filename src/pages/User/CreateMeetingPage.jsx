@@ -4,7 +4,7 @@ import { useSelector } from "react-redux"; // Giả sử bạn dùng Redux
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate } from "react-router-dom";
-import ZoomMeetingEmbed from "../../../components/User/Zoom/ZoomMeetingEmbed"; // Đảm bảo đường dẫn này đúng
+import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Đảm bảo đường dẫn này đúng
 import "../../assets/css/CreateMeetingPage.style.css"; // Đảm bảo file này tồn tại
 
 const CreateMeetingPage = () => {
