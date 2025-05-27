@@ -20,8 +20,8 @@
 .rules-hero {
   /* Giữ lại style nền hoặc đổi nền khác */
   background: linear-gradient(rgba(45, 51, 77, 0.85), rgba(45, 51, 77, 0.85)),
-    url("../../assets/images/vanlang_background_regulations.webp") center
-      center/cover no-repeat; /* Ảnh nền khác nếu có */
+    url("../../assets/images/vanlang_background3.webp") center center/cover
+      no-repeat; /* Ảnh nền khác nếu có */
   color: white;
   padding: 4rem 1rem; /* Giảm padding nếu không có search bar */
   text-align: center;
