@@ -1,0 +1,18 @@
+/* src/components/Zoom/ZoomMeetingEmbed.style.css */
+.zoom-meeting-embed-container {
+  width: 100%;
+  height: 600px; /* Hoặc kích thước bạn muốn, ví dụ 80vh */
+  background-color: #f0f0f0;
+  position: relative; /* Cần thiết nếu các element con của SDK dùng position absolute */
+}
+
+/* Zoom SDK sẽ render nội dung vào #zmmtg-root */
+#zmmtg-root {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important; /* Quan trọng để SDK hiển thị đúng */
+}
+
+/* Ẩn một số thành phần không mong muốn của Zoom SDK nếu cần */
+/* Ví dụ: nếu bạn không muốn hiển thị header của trang khi meeting đang chạy */
+/* .meeting-active #header-app { display: none; } */
