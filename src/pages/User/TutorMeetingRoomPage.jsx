@@ -92,7 +92,7 @@ const TutorMeetingRoomPage = () => {
 
   return (
     <div className="tutor-meeting-room-page">
-      <h2 className="page-title">Quản Lý Phòng Họp Zoom</h2>
+      <h2 className="page-title">Quản Lý Phòng Họp</h2>
       {error && <p className="error-message">{error}</p>} {/* Hiển thị lỗi */}
       {!isZoomConnected ? (
         <div className="zoom-connect-section">

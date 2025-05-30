@@ -1,8 +1,10 @@
 /* admin.style.css */
 
-.admin-account-toolbar{
+.admin-account-toolbar {
   display: flex;
- flex-direction: row;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 .admin-dropdown {
   display: flex;
@@ -90,10 +92,10 @@
   background-color: #3744b9;
 }
 @media (max-width: 1024px) {
-  .admin-details{
+  .admin-details {
     display: none;
   }
-  .admin-dropdown{
+  .admin-dropdown {
     gap: 0px;
   }
 }

@@ -99,7 +99,7 @@ const WalletTopUp = ({
   return (
     <section className="wallet-topup-section section">
       <h2>
-        <FontAwesomeIcon icon={faPlusCircle} /> Nạp Thêm Coin
+        <FontAwesomeIcon icon={faPlusCircle} /> Nạp Thêm Coin (1,000 VND = 1 Coin)
       </h2>
       <form onSubmit={handleSubmit} className="topup-form">
         {isLoadingPackages && (
