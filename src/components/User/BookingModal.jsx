@@ -393,29 +393,6 @@ const BookingModal = ({
         </div>
         <div className="form-grid">
           <div className="form-group">
-            <label htmlFor="lessonsPerWeek">Số buổi / tuần:</label>
-            <input
-              id="lessonsPerWeek"
-              type="number"
-              min="1"
-              max={
-                selectedScheduleSlots.length > 0
-                  ? selectedScheduleSlots.length
-                  : 7
-              }
-              value={lessonsPerWeek}
-              onChange={(e) => setLessonsPerWeek(e.target.value)}
-              required
-              disabled={selectedScheduleSlots.length === 0 || isSubmitting}
-            />
-            {selectedScheduleSlots.length > 0 && (
-              <small className="input-hint">
-                {" "}
-                Tối đa: {selectedScheduleSlots.length} (dựa trên lựa chọn){" "}
-              </small>
-            )}
-          </div>
-          <div className="form-group">
             <label htmlFor="totalLessons">Tổng số buổi:</label>
             <input
               id="totalLessons"
