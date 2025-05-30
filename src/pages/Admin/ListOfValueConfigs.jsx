@@ -143,7 +143,7 @@ const ListOfValueConfigsPage = () => {
       const response = await Api({
         endpoint: `value-config/get-list`,
         method: METHOD_TYPE.GET,
-        query: query,
+        data: query,
       });
 
       if (response.success && response.data) {
