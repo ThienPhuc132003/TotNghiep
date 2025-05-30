@@ -1,16 +1,21 @@
 // src/components/User/Modals/RejectReasonModal.jsx
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import '../../../assets/css/RejectReasonModal.style.css'; // Tạo file CSS cho modal này
+import { useState } from "react";
+import PropTypes from "prop-types";
+import "../../../assets/css/RejectReasonModal.style.css"; // Tạo file CSS cho modal này
 
-const RejectReasonModal = ({ isOpen, onClose, onSubmitReason, isSubmitting }) => {
-  const [reason, setReason] = useState('');
-  const [error, setError] = useState('');
+const RejectReasonModal = ({
+  isOpen,
+  onClose,
+  onSubmitReason,
+  isSubmitting = () => false,
+}) => {
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!reason.trim()) {
-      setError('Vui lòng nhập lý do từ chối.');
+      setError("Vui lòng nhập lý do từ chối.");
       return;
     }
     onSubmitReason(reason);
@@ -18,8 +23,8 @@ const RejectReasonModal = ({ isOpen, onClose, onSubmitReason, isSubmitting }) =>
   };
 
   const handleClose = () => {
-    setReason(''); // Reset reason khi đóng
-    setError('');
+    setReason(""); // Reset reason khi đóng
+    setError("");
     onClose();
   };
 
@@ -33,14 +38,16 @@ const RejectReasonModal = ({ isOpen, onClose, onSubmitReason, isSubmitting }) =>
         <h3 className="rrm-modal-title">Lý Do Từ Chối Yêu Cầu</h3>
         <form onSubmit={handleSubmit}>
           <div className="rrm-form-group">
-            <label htmlFor="rejectReason" className="rrm-label">Lý do (bắt buộc):</label>
+            <label htmlFor="rejectReason" className="rrm-label">
+              Lý do (bắt buộc):
+            </label>
             <textarea
               id="rejectReason"
-              className={`rrm-textarea ${error ? 'rrm-textarea--error' : ''}`}
+              className={`rrm-textarea ${error ? "rrm-textarea--error" : ""}`}
               value={reason}
               onChange={(e) => {
                 setReason(e.target.value);
-                if (error) setError('');
+                if (error) setError("");
               }}
               placeholder="Ví dụ: Lịch dạy của tôi đã kín vào thời điểm này."
               rows="4"
@@ -49,20 +56,20 @@ const RejectReasonModal = ({ isOpen, onClose, onSubmitReason, isSubmitting }) =>
             {error && <p className="rrm-error-message">{error}</p>}
           </div>
           <div className="rrm-modal-actions">
-            <button 
-              type="button" 
-              onClick={handleClose} 
+            <button
+              type="button"
+              onClick={handleClose}
               className="rrm-button rrm-button--cancel"
               disabled={isSubmitting}
             >
               Hủy
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="rrm-button rrm-button--submit"
               disabled={isSubmitting || !reason.trim()}
             >
-              {isSubmitting ? 'Đang gửi...' : 'Xác Nhận Từ Chối'}
+              {isSubmitting ? "Đang gửi..." : "Xác Nhận Từ Chối"}
             </button>
           </div>
         </form>
@@ -77,9 +84,5 @@ RejectReasonModal.propTypes = {
   onSubmitReason: PropTypes.func.isRequired,
   isSubmitting: PropTypes.bool,
 };
-
-RejectReasonModal.defaultProps = {
-    isSubmitting: false,
-}
 
 export default RejectReasonModal;

@@ -1,24 +1,25 @@
+// src/components/Admin/layout/AdminAccountToolbar.jsx
 import React from "react";
 import PropTypes from "prop-types";
-import Admin from "../Admin";
 import SettingButton from "../../SettingButton";
-import NotifiButton from "../../NotifiButton";
-import HelpButton from "../../HelpButton";
-const AdminAccountToolbarComponent = ({ onEditProfile, onLogout }) => {
+import AdminProfileDisplay from "../AdminProfileDisplay"; // <-- Import component mới
+import "../../../assets/css/Admin/Admin.style.css"; // Đảm bảo CSS được import
+const AdminAccountToolbarComponent = ({ onLogout }) => {
   return (
-    <>
-      <div className="admin-account-toolbar">
-        <NotifiButton />
-        <HelpButton />
-        <Admin onEditProfile={onEditProfile} onLogout={onLogout} />
-        <SettingButton endpoint="admin/logout" pathLogout="/admin/login"/>
-      </div>
-    </>
+    <div className="admin-account-toolbar">
+      <AdminProfileDisplay />{" "}
+      <SettingButton
+        isAuthenticated={true}
+        onLogout={onLogout}
+        accountManagementText="Tài khoản Quản trị"
+        accountManagementPath="/admin/profile" // Đảm bảo đường dẫn này tồn tại
+      />
+    </div>
   );
 };
+
 AdminAccountToolbarComponent.propTypes = {
-  onEditProfile: PropTypes.func,
-  onLogout: PropTypes.func,
+  onLogout: PropTypes.func.isRequired,
 };
 
 const AdminAccountToolbar = React.memo(AdminAccountToolbarComponent);

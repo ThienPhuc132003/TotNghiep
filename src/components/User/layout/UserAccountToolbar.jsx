@@ -1,28 +1,40 @@
 // src/components/User/layout/UserAccountToolbar.jsx
 import React from "react";
 import PropTypes from "prop-types";
-import User from "../User"; // User giờ chỉ để hiển thị
-import SettingButton from "../../SettingButton"; // Sử dụng lại SettingButton
+import User from "../User";
+import SettingButton from "../../SettingButton";
 import NotifiButton from "../../NotifiButton";
 import HelpButton from "../../HelpButton";
+
+// Định nghĩa lại ROLES ở đây hoặc import từ file dùng chung nếu có
+const ROLES = {
+  USER: "USER",
+  TUTOR: "TUTOR",
+};
 
 const UserAccountToolbarComponent = ({
   currentUserRole,
   isAuthenticated,
   onLogout, // Nhận từ HomePageLayout
 }) => {
+  const getAccountManagementText = () => {
+    if (currentUserRole === ROLES.TUTOR) {
+      return "Quản Lý Gia Sư";
+    }
+    return "Tài Khoản Của Tôi";
+  };
+
   return (
     <div className="user-account-toolbar">
       <NotifiButton />
       <HelpButton />
-      {/* User component giờ chỉ để hiển thị thông tin, không có dropdown */}
       <User />
-      {/* SettingButton sẽ xử lý dropdown quản lý tài khoản và đăng xuất */}
-      {isAuthenticated && ( // Chỉ hiển thị SettingButton khi đã đăng nhập
+      {isAuthenticated && (
         <SettingButton
-          currentUserRole={currentUserRole}
           isAuthenticated={isAuthenticated}
-          onLogout={onLogout} // Truyền hàm onLogout xuống
+          onLogout={onLogout} // Truyền hàm onLogout từ HomePageLayout
+          accountManagementText={getAccountManagementText()}
+          accountManagementPath="/tai-khoan/ho-so"
         />
       )}
     </div>
@@ -30,9 +42,13 @@ const UserAccountToolbarComponent = ({
 };
 
 UserAccountToolbarComponent.propTypes = {
-  currentUserRole: PropTypes.string.isRequired,
+  currentUserRole: PropTypes.string, // Có thể null nếu chưa xác thực
   isAuthenticated: PropTypes.bool.isRequired,
   onLogout: PropTypes.func.isRequired,
+};
+
+UserAccountToolbarComponent.defaultProps = {
+  currentUserRole: null,
 };
 
 const UserAccountToolbar = React.memo(UserAccountToolbarComponent);

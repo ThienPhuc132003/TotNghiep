@@ -4,30 +4,34 @@
 :root {
   /* Văn Lang Branding */
   --vlu-primary-orange: #f76b1c;
-  --vlu-primary-blue: #003366; /* Có thể dùng cho các yếu tố nhấn nhá khác */
-  --vlu-orange-lighter: rgba(
-    247,
-    107,
-    28,
-    0.08
-  ); /* Nhạt hơn nữa cho nền icon */
+  --vlu-primary-blue: #003366;
+  --vlu-orange-lighter: rgba(247, 107, 28, 0.08);
   --vlu-blue-lighter: rgba(0, 51, 102, 0.07);
 
-  /* Lấy RGB từ var(--success-color), var(--error-color), v.v. từ index.css */
-  /* Ví dụ: nếu --success-color trong index.css là #10B981 */
+  /* Màu sắc cơ bản (nên đồng bộ với index.css hoặc một file theme chung) */
+  --text-dark: #1f2937; /* Ví dụ: Màu chữ chính */
+  --text-medium: #6b7280; /* Ví dụ: Màu chữ phụ */
+  --text-light: #9ca3af; /* Ví dụ: Màu chữ mờ hơn */
+  --background-light: #f8f9fa; /* Nền trang chính */
+  --background-white: #ffffff; /* Nền cho card, modal */
+  --border-color: #e5e7eb; /* Màu viền */
+  --success-color: #10b981; /* Màu thành công */
+  --error-color: #ef4444; /* Màu lỗi */
+
+  /* Các biến dành riêng cho Admin Dashboard */
   --success-color-rgb: 16, 185, 129;
   --success-color-lighter: rgba(var(--success-color-rgb), 0.08);
 
-  --admin-info-color: #0dcaf0; /* Giữ lại màu info nếu index.css không có hoặc muốn khác */
+  --admin-info-color: #0dcaf0;
   --admin-info-color-rgb: 13, 202, 240;
   --admin-info-lighter: rgba(var(--admin-info-color-rgb), 0.08);
 
-  --admin-warning-color: #ffc107; /* Giữ lại màu warning */
+  --admin-warning-color: #ffc107;
   --admin-warning-color-rgb: 255, 193, 7;
   --admin-warning-lighter: rgba(var(--admin-warning-color-rgb), 0.1);
 
-  --admin-card-border-radius: 0.75rem; /* 12px, giống các ví dụ hiện đại */
-  --admin-card-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04); /* Shadow rất nhẹ */
+  --admin-card-border-radius: 0.75rem; /* 12px */
+  --admin-card-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
   --admin-chart-shadow: 0px 5px 15px rgba(0, 0, 0, 0.05);
 
   --admin-gap: 1.5rem;
@@ -37,23 +41,33 @@
 /* --- Page Content Container --- */
 .admin-dashboard-page-content {
   width: 100%;
+  padding: var(--admin-section-gap); /* Padding cho nội dung bên trong */
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-section-gap);
+  box-sizing: border-box;
+  background-color: var(--background-light);
+  flex-grow: 1; /* Để nó cố gắng lấp đầy không gian dọc trong .main-layout-left */
+  min-height: 0;
+}
+.admin-dashboard-page-content--centered {
+  width: 100%;
   padding: var(--admin-section-gap);
   display: flex;
   flex-direction: column;
   gap: var(--admin-section-gap);
   box-sizing: border-box;
-  background-color: var(
-    --background-light
-  ); /* Nên là màu xám rất nhạt, vd: #f8f9fa hoặc #f9fafb */
-}
-.admin-dashboard-page-content--centered {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(
-    100vh - 100px
-  ); /* Adjust based on actual header/sidebar height */
+  background-color: var(--background-light);
+
+  /* Căn giữa nội dung bên trong nó */
+  justify-content: center; /* Căn giữa theo chiều dọc */
+  align-items: center; /* Căn giữa theo chiều ngang */
+
+  /* QUAN TRỌNG: Để nó chiếm không gian còn lại trong .main-layout-left */
+  flex-grow: 1;
+  /* XÓA HOẶC THAY ĐỔI min-height này */
+  /* min-height: calc(100vh - 100px); */ /* DÒNG NÀY GÂY VẤN ĐỀ */
+  min-height: 0; /* Đảm bảo nó có thể co lại nếu cần và hoạt động tốt với flex-grow */
   text-align: center;
 }
 
@@ -62,14 +76,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+  flex-wrap: wrap;
   gap: 1.5rem;
 }
 
 .admin-dashboard__welcome-message {
-  /* Bây giờ là tiêu đề "Bảng Điều Khiển" */
-  font-size: 1.75rem; /* ~28px */
-  font-weight: 600; /* Đậm vừa phải */
+  font-size: 1.75rem;
+  font-weight: 600;
   color: var(--text-dark);
   margin: 0;
   line-height: 1.3;
@@ -78,19 +91,19 @@
 /* --- Time Range Selector --- */
 .admin-dashboard__time-range-selector {
   display: flex;
-  gap: 0.6rem; /* Khoảng cách giữa các nút */
-  background-color: var(--background-white); /* Nền trắng cho cụm nút */
-  padding: 0.3rem; /* Padding nhỏ xung quanh cụm nút */
-  border-radius: 0.625rem; /* Bo góc cho cụm nút ~10px */
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06); /* Shadow nhẹ cho cụm nút */
+  gap: 0.6rem;
+  background-color: var(--background-white);
+  padding: 0.3rem;
+  border-radius: 0.625rem; /* ~10px */
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .time-range-button {
-  padding: 0.55rem 1.1rem; /* Padding cho nút */
-  border: none; /* Bỏ border mặc định */
-  background-color: transparent; /* Nền trong suốt cho nút thường */
-  color: var(--text-medium); /* Màu text cho nút thường */
-  border-radius: 0.5rem; /* Bo góc cho từng nút ~8px */
+  padding: 0.55rem 1.1rem;
+  border: none;
+  background-color: transparent;
+  color: var(--text-medium);
+  border-radius: 0.5rem; /* ~8px */
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
@@ -100,26 +113,21 @@
   gap: 0.4rem;
   white-space: nowrap;
 }
-
 .time-range-button:hover {
-  color: var(--vlu-primary-orange); /* Đổi màu text khi hover */
-  background-color: var(--vlu-orange-lighter); /* Nền cam rất nhạt khi hover */
+  color: var(--vlu-primary-orange);
+  background-color: var(--vlu-orange-lighter);
 }
-
 .time-range-button.active {
   background-color: var(--vlu-primary-orange);
-  color: var(--background-white); /* Text trắng */
+  color: var(--background-white);
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(247, 107, 28, 0.3); /* Shadow cam cho nút active */
+  box-shadow: 0 2px 6px rgba(247, 107, 28, 0.3);
 }
 
 /* --- Cards Grid --- */
 .admin-dashboard__cards-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(260px, 1fr)
-  ); /* Giảm minwidth để có thể có 5 card/hàng trên màn lớn */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--admin-gap);
 }
 
@@ -130,10 +138,9 @@
   box-shadow: var(--admin-card-shadow);
   border: none;
   display: flex;
-  overflow: hidden; /* Quan trọng để icon-wrapper không phá vỡ bo góc */
+  overflow: hidden;
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
-
 .admin-card:hover {
   transform: translateY(-4px);
   box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.07);
@@ -145,41 +152,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Nền được set bởi modifier, không cần bo góc ở đây vì card đã overflow:hidden */
 }
 .admin-card__icon {
-  font-size: 1.8rem; /* Điều chỉnh cho cân đối */
+  font-size: 1.8rem;
 }
 
-/* Modifier cho màu icon-wrapper và icon */
 .admin-card--revenue .admin-card__icon-wrapper {
   background-color: var(--vlu-orange-lighter);
 }
 .admin-card--revenue .admin-card__icon {
   color: var(--vlu-primary-orange);
 }
-
 .admin-card--new-users .admin-card__icon-wrapper {
   background-color: var(--vlu-blue-lighter);
 }
 .admin-card--new-users .admin-card__icon {
   color: var(--vlu-primary-blue);
 }
-
 .admin-card--new-tutors .admin-card__icon-wrapper {
   background-color: var(--success-color-lighter);
 }
 .admin-card--new-tutors .admin-card__icon {
   color: var(--success-color);
 }
-
 .admin-card--tutor-requests .admin-card__icon-wrapper {
   background-color: var(--admin-info-lighter);
 }
 .admin-card--tutor-requests .admin-card__icon {
   color: var(--admin-info-color);
 }
-
 .admin-card--active-classes .admin-card__icon-wrapper {
   background-color: var(--admin-warning-lighter);
 }
@@ -189,31 +190,28 @@
 
 .admin-card__content {
   flex-grow: 1;
-  padding: 1rem 1.25rem; /* Padding vừa phải */
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.15rem; /* Giảm gap giữa các dòng text trong card */
-  min-width: 0; /* Ngăn text tràn */
+  gap: 0.15rem;
+  min-width: 0;
 }
-
 .admin-card__header {
   margin-bottom: 0;
 }
-
 .admin-card__title {
   color: var(--text-light);
   font-weight: 500;
-  font-size: 0.75rem; /* Nhỏ hơn cho tiêu đề card ~12px */
+  font-size: 0.75rem; /* ~12px */
   text-transform: uppercase;
   margin-bottom: 0.25rem;
   letter-spacing: 0.04em;
 }
-
 .admin-card__data {
   display: block;
-  font-size: 1.875rem; /* ~30px, to rõ */
-  font-weight: 600; /* Đậm vừa */
+  font-size: 1.875rem; /* ~30px */
+  font-weight: 600;
   color: var(--text-dark);
   line-height: 1.2;
   margin-bottom: 0.1rem;
@@ -221,20 +219,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .admin-card__change {
   font-size: 0.8rem; /* ~13px */
-  /* color: var(--text-medium);  Không cần set ở đây, vì .admin-card__change-value sẽ có màu riêng */
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
 .admin-card__change-value {
-  /* Class cho phần giá trị thay đổi */
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-weight: 500; /* Trọng lượng cho số % */
+  font-weight: 500;
 }
 .admin-card__change-value.increase {
   color: var(--success-color);
@@ -243,16 +238,16 @@
   color: var(--error-color);
 }
 .admin-card__change-value.no-change {
-  color: var(--text-light); /* Cho "Không đổi" hoặc "N/A" */
+  color: var(--text-light);
 }
 .admin-card__change-value i {
-  font-size: 0.9em; /* Kích thước icon tăng/giảm */
+  font-size: 0.9em;
 }
 
 /* --- Charts Grid --- */
 .admin-dashboard__charts-grid {
   display: grid;
-  grid-template-columns: 1fr; /* Hiện tại chỉ có 1 chart */
+  grid-template-columns: 1fr; /* Default: 1 chart per row */
   gap: var(--admin-gap);
 }
 
@@ -265,22 +260,18 @@
   display: flex;
   flex-direction: column;
 }
-
 .admin-chart-card__header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color); /* Đường kẻ mỏng */
-  background-color: transparent;
-  display: flex; /* Cho phép căn chỉnh title và subtitle */
-  justify-content: space-between; /* Nếu có thêm control bên phải header chart */
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
-
 .admin-chart-card__title {
   margin: 0;
   font-size: 1.125rem; /* ~18px */
   font-weight: 600;
   color: var(--text-dark);
-  background-color: transparent !important; /* Chắc chắn không có nền lạ */
   line-height: 1.3;
 }
 .admin-chart-card__subtitle {
@@ -289,21 +280,19 @@
   font-weight: 400;
   margin-left: 0.5rem;
 }
-
 .admin-chart-card__body {
   padding: 1.5rem;
-  padding-top: 1rem; /* Giảm padding top một chút cho chart */
+  padding-top: 1rem;
   position: relative;
-  height: 320px; /* Điều chỉnh chiều cao chart nếu cần */
+  height: 300px; /* Adjusted height for charts */
   flex-grow: 1;
 }
 .admin-chart-card__body canvas {
   max-width: 100%;
   max-height: 100%;
-  background-color: transparent !important;
 }
 
-/* --- Loading, Error, Auth Messages (Giữ nguyên hoặc tinh chỉnh padding/font) --- */
+/* --- Loading, Error, Auth Messages --- */
 .loading-indicator,
 .status-message {
   padding: 2.5rem;
@@ -316,7 +305,7 @@
 }
 .loading-indicator p,
 .status-message p {
-  font-size: 1.05rem; /* Giảm nhẹ */
+  font-size: 1.05rem;
   font-weight: 500;
   margin-top: 1.25rem;
   margin-bottom: 1.75rem;
@@ -344,15 +333,15 @@
   background-color: var(--vlu-primary-orange);
   color: var(--background-white);
   border: none;
-  padding: 0.7rem 1.4rem; /* Điều chỉnh padding */
-  border-radius: 0.5rem; /* Bo góc nút */
+  padding: 0.7rem 1.4rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  font-weight: 500; /* Giảm nhẹ */
+  font-weight: 500;
   transition: background-color 0.2s ease, transform 0.1s ease;
-  font-size: 0.9rem; /* Kích thước chữ nút */
+  font-size: 0.9rem;
 }
 .status-button:hover {
-  background-color: #e07b18;
+  background-color: #e07b18; /* Darken orange on hover */
   transform: translateY(-1px);
 }
 .status-button:active {
@@ -382,49 +371,57 @@
 }
 
 /* --- Responsive Adjustments --- */
-@media (max-width: 992px) {
+@media (min-width: 992px) {
+  /* Large screens and up */
+  .admin-dashboard__charts-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 charts per row */
+  }
+}
+
+@media (max-width: 991.98px) {
+  /* Medium screens (tablets) */
   .admin-dashboard__cards-grid {
-    grid-template-columns: repeat(
-      auto-fit,
-      minmax(240px, 1fr)
-    ); /* Cho card nhỏ hơn một chút */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
   .admin-chart-card__body {
-    height: 300px;
+    height: 280px; /* Slightly smaller charts on tablets */
   }
   .admin-dashboard__welcome-message {
     font-size: 1.6rem;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
+  /* Small screens (mobile landscape and portrait) */
   :root {
-    /* Giảm gap trên mobile */
     --admin-gap: 1.25rem;
     --admin-section-gap: 1.5rem;
   }
   .admin-dashboard__header {
     flex-direction: column;
-    align-items: stretch;
+    align-items: stretch; /* Make welcome message and time selector full width */
     gap: 1rem;
   }
   .admin-dashboard__welcome-message {
-    text-align: left; /* Hoặc center tùy bạn */
+    text-align: left;
     font-size: 1.5rem;
   }
   .admin-dashboard__time-range-selector {
-    align-self: flex-start; /* Căn cụm nút sang trái */
-    padding: 0.25rem; /* Giảm padding cụm nút */
+    align-self: flex-start; /* Align to start on new line */
+    padding: 0.25rem;
   }
   .time-range-button {
-    padding: 0.5rem 0.9rem; /* Giảm padding nút */
+    padding: 0.5rem 0.9rem;
     font-size: 0.8rem;
   }
 
   .admin-dashboard__cards-grid {
-    grid-template-columns: 1fr; /* 1 card mỗi hàng */
-    gap: var(--admin-gap);
+    grid-template-columns: 1fr; /* 1 card per row */
   }
+  .admin-dashboard__charts-grid {
+    grid-template-columns: 1fr; /* 1 chart per row */
+  }
+
   .admin-card__icon-wrapper {
     width: 60px;
   }
@@ -434,8 +431,9 @@
   .admin-card__data {
     font-size: 1.75rem;
   }
+
   .admin-chart-card__body {
-    height: 280px; /* Giảm chiều cao chart */
+    height: 260px;
     padding: 1rem;
   }
   .admin-chart-card__header {
@@ -446,13 +444,14 @@
   }
   .admin-chart-card__subtitle {
     font-size: 0.75rem;
-    display: block; /* Cho xuống dòng trên mobile nếu cần */
+    display: block; /* Stack subtitle below title */
     margin-left: 0;
     margin-top: 0.2rem;
   }
 }
 
 @media (max-width: 480px) {
+  /* Extra small screens (older mobile phones) */
   .admin-dashboard__welcome-message {
     font-size: 1.3rem;
   }
@@ -470,6 +469,6 @@
     font-size: 0.75rem;
   }
   .admin-chart-card__body {
-    height: 250px;
+    height: 240px;
   }
 }

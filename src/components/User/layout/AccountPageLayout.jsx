@@ -102,7 +102,7 @@ const AccountPageLayout = () => {
         },
         {
           id: "tutorMeetingRoom", // <<< THÊM MỚI
-          label: "Phòng Họp Zoom", // <<< THÊM MỚI
+          label: "Phòng Họp", // <<< THÊM MỚI
           pathBase: "phong-hop-zoom", // <<< THÊM MỚI
           icon: "fas fa-video", // <<< THÊM MỚI
         },

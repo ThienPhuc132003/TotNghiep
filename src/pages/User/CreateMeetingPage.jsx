@@ -256,7 +256,7 @@ const CreateMeetingPage = () => {
   // Giao diện mặc định: form tạo meeting hoặc chi tiết meeting đã tạo
   return (
     <div className="create-meeting-page">
-      <h2 className="page-title">Tạo Phòng Họp Zoom Mới</h2>
+      <h2 className="page-title">Tạo Phòng Họp Mới</h2>
       {error && (
         <p className="error-message" style={{ whiteSpace: "pre-wrap" }}>
           {error}
@@ -332,9 +332,7 @@ const CreateMeetingPage = () => {
               className="btn btn-success btn-start-meeting"
               disabled={isFetchingSignature}
             >
-              {isFetchingSignature
-                ? "Đang chuẩn bị..."
-                : "Bắt đầu (Nhúng vào trang)"}
+              {isFetchingSignature ? "Đang chuẩn bị..." : "Bắt đầu "}
             </button>
             <button
               onClick={resetFormAndState}

@@ -92,12 +92,13 @@
 
 /* --- Left Column (Main Content) --- */
 .main-layout-left {
+  display: flex; /* Để có thể cuộn nội dung bên trong */
+  flex-direction: column; /* Sắp xếp nội dung theo cột */
   flex-grow: 1; /* Cho phép cột trái chiếm không gian chính */
   min-width: 0; /* Quan trọng: Ngăn nội dung đẩy cột rộng ra */
   height: 100%; /* Chiếm toàn bộ chiều cao của cha (.main-layout-content) */
   overflow-y: auto; /* Quan trọng: Cho phép cuộn nội dung chỉ trong cột này */
-  /* Padding nên được đặt BÊN TRONG component con (vd: .admin-dashboard-page-content) */
-  /* padding: 20px; */ /* Bỏ padding ở đây */
+
 }
 
 /* --- Right Column (Optional Sidebar/Info) --- */

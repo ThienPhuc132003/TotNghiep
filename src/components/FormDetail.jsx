@@ -15,7 +15,6 @@ const getNestedValue = (obj, path, defaultValue = undefined) => {
   // Chỉ trả về defaultValue nếu kết quả cuối cùng là undefined hoặc null
   return value !== undefined && value !== null ? value : defaultValue;
 };
-
 const FormDetailComponent = ({
   formData,
   fields,
@@ -25,9 +24,9 @@ const FormDetailComponent = ({
   title,
   onClose,
   errors = {}, // Default trống
-  avatarUrl,
+  avatarUrl = null,
   isSubmitting = false, // Default false
-  children, // <<< Prop children mới
+  children = null, // <<< Prop children mới
 }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -285,15 +284,6 @@ FormDetailComponent.propTypes = {
   avatarUrl: PropTypes.string,
   isSubmitting: PropTypes.bool, // Trạng thái loading cho nút submit mặc định
   children: PropTypes.node, // <<< Prop children mới
-};
-
-FormDetailComponent.defaultProps = {
-  onChange: () => {},
-  onSubmit: () => {},
-  errors: {},
-  avatarUrl: null,
-  isSubmitting: false,
-  children: null, // <<< Default là null
 };
 
 export default React.memo(FormDetailComponent);
