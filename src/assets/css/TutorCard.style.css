@@ -1,10 +1,30 @@
 /* src/assets/css/TutorCard.style.css */
 
-/* :root { 
-  /* Các biến màu này nên được định nghĩa ở file global như index.css */
-/* --rank-bronze: #cd7f32; ... */
-/* --star-filled: #facc15; ... */
-/* } */
+/* 
+  NÊN ĐỊNH NGHĨA CÁC BIẾN NÀY Ở FILE CSS GLOBAL (ví dụ: index.css hoặc App.css)
+  :root { 
+    --primary-color: #d72134; 
+    --primary-color-dark: #b41e2d;
+    --info-color: #007bff; 
+    --info-color-dark: #0056b3;
+    --success-color: #10b981;
+    --danger-color: #dc3545;
+    --star-filled: #facc15;
+    --star-empty: #e0e0e0;
+    --rank-bronze: #cd7f32;
+    --rank-silver: #c0c0c0;
+    --rank-gold: #ffd700;
+    --rank-platinum: #67e8f9;
+    --rank-diamond: #0e7490;
+    --text-primary: #212529;
+    --text-dark: #343a40;
+    --text-medium: #495057;
+    --text-light: #6c757d;
+    --border-color: #dee2e6;
+    --background-white: #fff;
+    --background-light: #f8f9fa;
+  } 
+*/
 
 .tutor-card.redesigned {
   display: flex;
@@ -20,28 +40,23 @@
   transform: translateY(-3px);
 }
 
-/* Trạng thái loading khi bỏ thích hoặc hủy booking */
-.tutor-card.card-removing-favorite,
-.tutor-card.card-cancelling-booking {
+.tutor-card.card-action-processing {
   opacity: 0.7;
-  pointer-events: none; /* Ngăn tương tác khi đang xử lý */
+  pointer-events: none;
 }
 
 /* --- CỘT BÊN TRÁI (AVATAR) --- */
 .tutor-card-left {
   flex-shrink: 0;
-  padding: 20px; /* Padding xung quanh avatar */
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Căn avatar lên trên */
-  /* background-color: #f8f9fa; /* Nền nhẹ cho cột avatar nếu muốn */
-  /* border-right: 1px solid var(--border-color, #e0e0e0); */ /* Đường kẻ phân cách nếu cần */
+  justify-content: flex-start;
 }
-
 .avatar-container {
   position: relative;
-  width: 100px; /* Kích thước avatar */
+  width: 100px;
   height: 100px;
 }
 .tutor-avatar {
@@ -49,7 +64,7 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--background-white, #fff); /* Viền trắng cho avatar */
+  border: 3px solid var(--background-white, #fff);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 .verified-badge-avatar {
@@ -64,11 +79,9 @@
   justify-content: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-.verified-badge-avatar .svg-inline--fa, /* Cho FontAwesome */
 .verified-badge-avatar svg {
-  /* Cho React Icons */
   color: var(--success-color, #10b981);
-  font-size: 1.1rem; /* Kích thước icon tick */
+  font-size: 1.1rem;
 }
 
 /* --- CỘT BÊN PHẢI (THÔNG TIN) --- */
@@ -77,66 +90,60 @@
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Đẩy footer xuống dưới */
-  min-width: 0; /* Quan trọng để text-overflow hoạt động */
+  justify-content: space-between;
+  min-width: 0;
 }
-
 .tutor-card-main-info {
-  margin-bottom: 15px; /* Khoảng cách với footer */
+  margin-bottom: 15px;
 }
-
 .tutor-card-header-info {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Align items to the top */
+  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 10px; /* Tăng margin */
+  margin-bottom: 10px;
 }
-
 .tutor-name {
-  font-size: 1.25rem; /* Tên to hơn */
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-dark, #333);
   margin: 0;
   line-height: 1.3;
   transition: color 0.2s ease;
-  display: inline-flex; /* Cho rank badge nằm cùng hàng */
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
 }
 .tutor-name:hover {
   color: var(--primary-color, #d72134);
 }
 .tutor-rank-badge {
-  font-size: 1.1rem; /* Kích thước rank icon */
+  font-size: 1.1rem;
   display: inline-block;
-  margin-left: 6px; /* Khoảng cách với tên */
-  line-height: 1; /* Căn giữa icon nếu nó cao hơn text */
+  margin-left: 6px;
+  line-height: 1;
 }
-.tutor-rank-badge .svg-inline--fa,
 .tutor-rank-badge svg {
-  /* Cho PiMedalThin */
   vertical-align: middle;
 }
-
 .header-right-actions {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  padding-top: 2px; /* Căn chỉnh nhẹ với tên */
+  padding-top: 2px;
 }
-
 .tutor-rating-display.card-rating-section {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--text-medium);
+  color: var(--text-medium, #555);
   font-size: 0.85rem;
 }
 .rating-value-text {
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--text-dark, #333);
 }
 .stars-wrapper {
   display: flex;
@@ -153,17 +160,16 @@
   color: var(--star-empty, #e0e0e0);
 }
 .review-count-text {
-  color: var(--text-light);
+  color: var(--text-light, #777);
   margin-left: 2px;
 }
-
 .favorite-btn {
   background: none;
   border: none;
   color: var(--favorite-inactive, #cbd5e1);
-  font-size: 1.4rem; /* Icon tim to hơn */
+  font-size: 1.4rem;
   cursor: pointer;
-  padding: 4px; /* Vùng click lớn hơn */
+  padding: 4px;
   transition: color 0.2s ease, transform 0.2s ease;
   line-height: 1;
   align-self: center;
@@ -175,15 +181,13 @@
 .favorite-btn.favorite-active {
   color: var(--favorite-active, #ef4444);
 }
-.favorite-btn.loading .svg-inline--fa {
-  /* Cho FontAwesome spinner */
+.favorite-btn.loading svg {
   animation: fa-spin 1s infinite linear;
-}
+} /* Đảm bảo bạn có keyframes fa-spin */
 .favorite-btn:disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
-
 .tutor-info-row {
   display: flex;
   align-items: center;
@@ -195,35 +199,31 @@
 }
 .tutor-info-row .info-icon {
   color: var(--text-light, #888);
-  font-size: 0.95em; /* Icon nhỏ hơn text một chút */
-  width: 16px; /* Đảm bảo icon thẳng hàng */
+  font-size: 0.95em;
+  width: 16px;
   text-align: center;
   flex-shrink: 0;
 }
 .tutor-subjects {
-  /* Xử lý nếu danh sách môn học quá dài */
   display: -webkit-box;
-  -webkit-line-clamp: 1; /* Giới hạn 1 dòng */
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal; /* Cho phép xuống dòng ảo để ellipsis hoạt động */
+  white-space: normal;
 }
-
 .tutor-description {
   font-size: 0.9rem;
   color: var(--text-light, #777);
   line-height: 1.6;
   margin-top: 10px;
-  /* Giới hạn số dòng hiển thị */
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Hiển thị tối đa 2 dòng */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: calc(
-    1.6em * 2
-  ); /* Đảm bảo chiều cao cho 2 dòng, tránh nhảy layout */
+  min-height: calc(1.6em * 2);
+  cursor: pointer;
   transition: color 0.2s ease;
 }
 .tutor-description:hover {
@@ -232,15 +232,14 @@
 
 /* --- FOOTER CỦA CARD --- */
 .tutor-card-footer-info {
-  margin-top: auto; /* Đẩy footer xuống dưới cùng */
-  padding-top: 15px; /* Khoảng cách với main-info */
+  margin-top: auto;
+  padding-top: 15px;
   border-top: 1px solid var(--border-color, #f0f0f0);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
 }
-
 .tutor-price {
   display: flex;
   align-items: center;
@@ -248,97 +247,133 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--primary-color, #d72134);
-  white-space: nowrap; /* Ngăn giá xuống dòng */
+  white-space: nowrap;
 }
-.tutor-price .price-icon {
-  font-size: 1.1em; /* Icon Coin to hơn chút */
-  color: var(--primary-color, #d72134); /* Icon cùng màu giá */
-}
+.tutor-price .info-icon.price-icon {
+  font-size: 1.1em;
+  color: var(--primary-color, #d72134);
+} /* Đảm bảo class info-icon cũng được áp dụng */
 
 .footer-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
-.action-btn {
-  padding: 8px 16px;
-  border-radius: 20px; /* Bo tròn nhiều hơn */
-  font-size: 0.85rem;
+
+.footer-buttons .action-btn {
+  /* Class chung cho các nút action trong footer */
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid transparent;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
-.action-btn:disabled {
+.footer-buttons .action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
-.action-btn.hire-btn {
+.footer-buttons .action-btn svg {
+  /* Style cho icon bên trong nút */
+  font-size: 0.9em; /* Hơi nhỏ hơn chữ một chút */
+}
+
+/* Nút "Xem YC Duyệt" */
+.footer-buttons .action-btn.btn-view-accepted {
+  background-color: var(--info-color, #007bff);
+  color: white;
+}
+.footer-buttons .action-btn.btn-view-accepted:hover:not(:disabled) {
+  background-color: var(--info-color-dark, #0056b3);
+}
+
+/* Nút "Yêu Cầu Mới" */
+.footer-buttons .action-btn.btn-request-new {
   background-color: var(--primary-color, #d72134);
   color: white;
 }
-.action-btn.hire-btn:hover:not(:disabled) {
+.footer-buttons .action-btn.btn-request-new:hover:not(:disabled) {
   background-color: var(--primary-color-dark, #b41e2d);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-.action-btn.view-profile-btn {
+
+/* Nút "Hồ Sơ" */
+.footer-buttons .action-btn.view-profile-btn {
   background-color: transparent;
   color: var(--text-medium, #555);
   border-color: var(--border-color, #ccc);
 }
-.action-btn.view-profile-btn:hover:not(:disabled) {
+.footer-buttons .action-btn.view-profile-btn:hover:not(:disabled) {
   background-color: var(--background-light, #f8f9fa);
   border-color: var(--text-medium, #555);
   color: var(--text-dark, #333);
 }
-.action-btn.cancel-btn {
-  background-color: var(--cancel-bg, #f8fafc);
-  color: var(--cancel-text, #4b5563);
-  border-color: var(--cancel-border, #e2e8f0);
+
+/* Nút "Hủy" nhỏ trong status-with-action-card */
+.status-with-action-card .action-btn.btn-cancel-small {
+  background-color: transparent;
+  color: var(--danger-color, #dc3545);
+  border: 1px solid var(--danger-color, #dc3545);
+  padding: 5px 10px;
+  font-size: 0.75rem;
 }
-.action-btn.cancel-btn:hover:not(:disabled) {
-  background-color: var(--cancel-hover-bg, #f1f5f9);
-  border-color: var(--cancel-hover-border, #cbd5e1);
-  color: var(--cancel-hover-text, #1f2937);
+.status-with-action-card .action-btn.btn-cancel-small:hover:not(:disabled) {
+  background-color: rgba(220, 53, 69, 0.1);
 }
+.status-with-action-card .action-btn.btn-cancel-small svg {
+  font-size: 0.85em;
+}
+
 .spinner-inline {
   margin-right: 5px;
 }
+
 .booking-status-indicator {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border-radius: 4px;
+  padding: 7px 12px; /* Đồng bộ padding với nút action */
+  border-radius: 20px; /* Đồng bộ bo góc với nút */
   font-size: 0.8rem;
   font-weight: 500;
 }
-.booking-status-indicator.card-approved {
-  background-color: rgba(
-    var(--success-color-rgb, 16, 185, 129),
-    0.1
-  ); /* Cần success-color-rgb */
-  color: var(--success-color, #10b981);
+.booking-status-indicator.card-info.disabled-look {
+  background-color: var(--background-light, #f8f9fa);
+  color: var(--text-light, #6c757d);
+  border: 1px dashed var(--border-color, #ced4da);
 }
-.booking-status-indicator.card-rejected {
-  background-color: rgba(
-    var(--error-color-rgb, 239, 68, 68),
-    0.1
-  ); /* Cần error-color-rgb */
-  color: var(--error-color, #ef4444);
+.booking-status-indicator.card-pending {
+  background-color: rgba(253, 186, 116, 0.2);
+  color: #f97316;
+  border: 1px solid rgba(253, 186, 116, 0.5);
+}
+.booking-status-indicator.card-hired {
+  background-color: rgba(74, 222, 128, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(74, 222, 128, 0.4);
+}
+
+.status-with-action-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Responsive cho TutorCard */
 @media (max-width: 576px) {
   .tutor-card.redesigned {
-    flex-direction: column; /* Xếp chồng trên mobile */
+    flex-direction: column;
   }
   .tutor-card-left {
     padding: 15px;
     border-right: none;
-    /* border-bottom: 1px solid var(--border-color, #e0e0e0); */ /* Có thể thêm đường kẻ nếu muốn */
-    width: auto; /* Để avatar căn giữa */
+    width: auto;
   }
   .avatar-container {
     width: 80px;
@@ -348,13 +383,13 @@
     padding: 15px;
   }
   .tutor-card-header-info {
-    flex-direction: column; /* Tên và actions xếp chồng */
-    align-items: flex-start; /* Căn trái */
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
   }
   .header-right-actions {
     width: 100%;
-    justify-content: space-between; /* Đẩy tim sang phải nếu có sao */
+    justify-content: space-between;
   }
   .tutor-rating-display.card-rating-section {
     font-size: 0.8rem;
@@ -364,18 +399,35 @@
   }
   .tutor-card-footer-info {
     flex-direction: column;
-    align-items: stretch; /* Nút và giá chiếm full width */
+    align-items: stretch;
     gap: 10px;
   }
   .tutor-price {
-    justify-content: center; /* Căn giữa giá */
+    justify-content: center;
   }
   .footer-buttons {
     flex-direction: column;
     gap: 8px;
+    width: 100%;
   }
-  .action-btn {
+  .footer-buttons .action-btn,
+  .footer-buttons .booking-status-indicator.card-info,
+  .footer-buttons .status-with-action-card {
     width: 100%;
     text-align: center;
+    justify-content: center;
+  }
+  .footer-buttons .status-with-action-card {
+    justify-content: space-between; /* Hoặc center tùy ý bạn */
+  }
+}
+
+/* Keyframes cho spinner nếu bạn dùng FontAwesome và chưa có global */
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

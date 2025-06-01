@@ -1,5 +1,4 @@
-// src/components/User/TutorCard.jsx
-import { useState } from "react"; // useEffect có thể cần nếu bạn muốn xử lý side effect khi props thay đổi
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,16 +15,18 @@ import {
   FaClock,
   FaSpinner,
   FaCalendarCheck,
-  FaExclamationTriangle,
-  // FaStarHalfAlt, // Bỏ comment nếu bạn muốn dùng nửa sao
+  FaCalendarPlus,
+  FaTimes,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { PiMedalThin } from "react-icons/pi";
 import { toast } from "react-toastify";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import defaultAvatar from "../../assets/images/df-female.png";
-import "../../assets/css/TutorCard.style.css";
+import "../../assets/css/TutorCard.style.css"; // Đảm bảo import đúng file CSS
 
+// --- HELPER CONSTANTS & FUNCTIONS ---
 const tutorRanks = {
   bronze: {
     name: "Đồng",
@@ -53,7 +54,6 @@ const tutorRanks = {
     icon: <PiMedalThin />,
   },
 };
-
 const formatTeachingTime = (h) => {
   if (h == null || isNaN(h) || h <= 0) return null;
   const H = Math.floor(h);
@@ -62,42 +62,54 @@ const formatTeachingTime = (h) => {
   if (m > 0) r += ` ${m} phút`;
   return r;
 };
+const renderTeachingMethodShort = (m) => {
+  switch (m) {
+    case "ONLINE":
+      return "Online";
+    case "OFFLINE":
+      return "Offline";
+    case "BOTH":
+      return "Cả hai";
+    default:
+      return "N/A";
+  }
+};
+// --- END HELPER ---
 
 const TutorCard = ({
   tutor,
   onOpenBookingModal,
+  onOpenAcceptedRequestsModal,
   onCancelSuccess,
+  onFavoriteStatusChange,
+  isLoggedIn,
   isFavoriteOverride,
   onRemoveFavorite,
   isRemoving,
-  onFavoriteStatusChange,
-  isLoggedIn,
 }) => {
-  const [isFavorite, setIsFavorite] = useState(
-    typeof isFavoriteOverride === "boolean"
-      ? isFavoriteOverride
-      : tutor.isInitiallyFavorite || false
+  const [isFavoriteState, setIsFavoriteState] = useState(
+    tutor.isInitiallyFavorite || false
   );
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
+  const [isProcessingBookingAction, setIsProcessingBookingAction] =
+    useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (typeof isFavoriteOverride === "boolean")
+      setIsFavoriteState(isFavoriteOverride);
+  }, [isFavoriteOverride]);
+
+  const currentIsFavorite =
+    typeof isFavoriteOverride === "boolean"
+      ? isFavoriteOverride
+      : isFavoriteState;
   const isLoadingFavoriteAction =
-    (isRemoving && isFavorite) || isTogglingFavorite;
+    (isRemoving && currentIsFavorite) || isTogglingFavorite;
 
-  const currentBookingStatus = tutor.bookingRequest?.status;
-  const currentBookingId = tutor.bookingRequestId;
-
-  const canHire = isLoggedIn && !currentBookingStatus && onOpenBookingModal;
-  const canCancel =
-    isLoggedIn && currentBookingStatus === "REQUEST" && onCancelSuccess;
-  const isApproved = isLoggedIn && currentBookingStatus === "APPROVED";
-  const isRejected = isLoggedIn && currentBookingStatus === "REJECTED";
-
-  // Xử lý rating và reviewCount từ prop tutor
-  const tutorRating = tutor.rating ? parseFloat(tutor.rating) : 0;
-  const validRating = Math.max(0, Math.min(5, tutorRating)); // Đảm bảo rating trong khoảng 0-5
-  const reviewCount = tutor.reviewCount || 0;
+  const apiIsTutorAcceptingFlagOnCard = tutor.isTutorAcceptingRequestAPIFlag;
+  const detailedStatusOnCard = tutor.bookingInfoCard?.status;
+  const bookingIdOnCard = tutor.bookingInfoCard?.bookingId;
 
   const handleFavoriteClick = async (e) => {
     e.stopPropagation();
@@ -106,114 +118,120 @@ const TutorCard = ({
       navigate("/login", { state: { from: window.location.pathname } });
       return;
     }
-    if (isCancelling || isLoadingFavoriteAction) return;
-    if (onRemoveFavorite && isFavorite) {
-      onRemoveFavorite();
+    if (isProcessingBookingAction || isLoadingFavoriteAction) return;
+    if (onRemoveFavorite && currentIsFavorite) {
+      onRemoveFavorite(tutor.id);
       return;
     }
     setIsTogglingFavorite(true);
-    const newFavoriteStatus = !isFavorite;
+    const newFavStatus = !currentIsFavorite;
     try {
-      const method = newFavoriteStatus ? METHOD_TYPE.POST : METHOD_TYPE.DELETE;
-      const endpoint = newFavoriteStatus
+      const method = newFavStatus ? METHOD_TYPE.POST : METHOD_TYPE.DELETE;
+      const endpoint = newFavStatus
         ? `my-tutor/add`
         : `my-tutor/remove/${tutor.id}`;
       await Api({
-        endpoint: endpoint,
-        method: method,
+        endpoint,
+        method,
         ...(method === METHOD_TYPE.POST && { data: { tutorId: tutor.id } }),
         requireToken: true,
       });
-      setIsFavorite(newFavoriteStatus);
-      if (onFavoriteStatusChange) {
-        onFavoriteStatusChange(tutor.id, newFavoriteStatus);
-      }
+      setIsFavoriteState(newFavStatus);
+      if (onFavoriteStatusChange)
+        onFavoriteStatusChange(tutor.id, newFavStatus);
       toast.success(
-        `Đã ${newFavoriteStatus ? "thêm" : "bỏ"} gia sư ${tutor.name} ${
-          newFavoriteStatus ? "vào" : "khỏi"
+        `Đã ${newFavStatus ? "thêm" : "bỏ"} gia sư ${tutor.name} ${
+          newFavStatus ? "vào" : "khỏi"
         } danh sách yêu thích!`
       );
     } catch (err) {
-      console.error("Lỗi khi cập nhật danh sách yêu thích:", err);
       toast.error(
-        `Không thể ${newFavoriteStatus ? "thêm" : "bỏ"} gia sư ${
-          newFavoriteStatus ? "vào" : "khỏi"
-        } danh sách yêu thích. Vui lòng thử lại.`
+        `Không thể ${
+          newFavStatus ? "thêm" : "bỏ"
+        } gia sư vào danh sách yêu thích. Vui lòng thử lại.`
       );
     } finally {
       setIsTogglingFavorite(false);
     }
   };
 
-  const handleCancelBooking = async (e) => {
+  const handleRequestHireClick = (e) => {
     e.stopPropagation();
-    if (
-      !currentBookingId ||
-      !onCancelSuccess ||
-      isLoadingFavoriteAction ||
-      isCancelling
-    ) {
-      if (!currentBookingId || !onCancelSuccess)
-        toast.error("Không thể hủy yêu cầu thuê này.");
+    if (!isLoggedIn) {
+      toast.info("Vui lòng đăng nhập để gửi yêu cầu thuê gia sư!");
+      navigate("/login", { state: { from: window.location.pathname } });
       return;
     }
     if (
-      !window.confirm(`Bạn có chắc muốn hủy yêu cầu thuê gia sư ${tutor.name}?`)
+      onOpenBookingModal &&
+      !isProcessingBookingAction &&
+      !isLoadingFavoriteAction
+    )
+      onOpenBookingModal(tutor);
+  };
+
+  const handleOpenAcceptedModalClick = (e) => {
+    e.stopPropagation();
+    if (!isLoggedIn) {
+      toast.info("Vui lòng đăng nhập!");
+      return;
+    }
+    if (
+      onOpenAcceptedRequestsModal &&
+      !isProcessingBookingAction &&
+      !isLoadingFavoriteAction
+    )
+      onOpenAcceptedRequestsModal(tutor);
+  };
+
+  const handleCancelRequestOnCard = async (e) => {
+    e.stopPropagation();
+    if (
+      !isLoggedIn ||
+      !bookingIdOnCard ||
+      detailedStatusOnCard !== "REQUEST" ||
+      isProcessingBookingAction ||
+      isLoadingFavoriteAction
     )
       return;
-    setIsCancelling(true);
+    setIsProcessingBookingAction(true);
     try {
       await Api({
-        endpoint: `booking-request/cancel-booking/${currentBookingId}`,
+        endpoint: `booking-request/cancel-booking/${bookingIdOnCard}`,
         method: METHOD_TYPE.PATCH,
         data: { click: "CANCEL" },
         requireToken: true,
       });
-      toast.success(`Đã hủy yêu cầu thuê gia sư ${tutor.name}.`);
+      toast.success(`Đã hủy yêu cầu cho gia sư ${tutor.name}.`);
       if (onCancelSuccess) onCancelSuccess(tutor.id);
     } catch (err) {
-      console.error("Lỗi khi hủy yêu cầu thuê:", err);
-      toast.error(err.response?.data?.message || `Không thể hủy yêu cầu thuê.`);
+      toast.error(err.response?.data?.message || `Không thể hủy yêu cầu.`);
     } finally {
-      setIsCancelling(false);
+      setIsProcessingBookingAction(false);
     }
   };
 
   const handleViewProfile = (e) => {
     e.stopPropagation();
-    if (isCancelling || isLoadingFavoriteAction) return;
+    if (isProcessingBookingAction || isLoadingFavoriteAction) return;
     navigate(`/gia-su/${tutor.id}`);
-  };
-
-  const handleHireClick = (e) => {
-    e.stopPropagation();
-    if (onOpenBookingModal && !isCancelling && !isLoadingFavoriteAction)
-      onOpenBookingModal(tutor);
   };
 
   const renderStars = (ratingValue) => {
     const stars = [];
     const fullStars = Math.floor(ratingValue);
-    // const hasHalfStar = ratingValue % 1 >= 0.5;
-
     for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
+      if (i < fullStars)
         stars.push(
           <FaStar key={`star-filled-${i}`} className="star-icon filled" />
         );
-      }
-      // else if (hasHalfStar && i === fullStars) {
-      //   stars.push(<FaStarHalfAlt key={`star-half-${i}`} className="star-icon filled" />);
-      // }
-      else {
+      else
         stars.push(
           <FaStar key={`star-empty-${i}`} className="star-icon empty" />
         );
-      }
     }
     return stars;
   };
-
   const renderRankBadge = (d) =>
     d ? (
       <span
@@ -226,28 +244,34 @@ const TutorCard = ({
       </span>
     ) : null;
 
-  const renderTeachingMethod = (m) => {
-    switch (m) {
-      case "ONLINE":
-        return "Trực tuyến";
-      case "OFFLINE":
-        return "Trực tiếp";
-      case "BOTH":
-        return "Cả hai";
-      default:
-        return "N/A";
-    }
-  };
-
   const avatar = tutor.imageUrl || defaultAvatar;
   const rankInfo = tutorRanks[tutor.rank] || null;
   const fTeachTime = formatTeachingTime(tutor.teachingTime);
+  const validRating = Math.max(
+    0,
+    Math.min(5, tutor.rating ? parseFloat(tutor.rating) : 0)
+  );
+  const reviewCount = tutor.reviewCount || 0;
+
+  const showViewAcceptedBtnCard =
+    isLoggedIn && apiIsTutorAcceptingFlagOnCard === true;
+  const showNoAcceptedMsgCard =
+    isLoggedIn && apiIsTutorAcceptingFlagOnCard === false;
+  const canSendNewReqCard =
+    isLoggedIn &&
+    (!detailedStatusOnCard ||
+      ["REFUSE", "CANCEL", "COMPLETED"].includes(detailedStatusOnCard));
+  const showPendingApprovalCard =
+    isLoggedIn && detailedStatusOnCard === "REQUEST" && bookingIdOnCard;
+  const showHiredMsgCard = isLoggedIn && detailedStatusOnCard === "HIRED";
 
   return (
     <div
       className={`tutor-card redesigned ${
-        isLoadingFavoriteAction && isFavorite ? "card-removing-favorite" : ""
-      } ${isCancelling ? "card-cancelling-booking" : ""}`}
+        isLoadingFavoriteAction || isProcessingBookingAction
+          ? "card-action-processing"
+          : ""
+      }`}
     >
       <div className="tutor-card-left">
         <div className="avatar-container">
@@ -274,14 +298,12 @@ const TutorCard = ({
             <h4
               className="tutor-name"
               onClick={handleViewProfile}
-              style={{ cursor: "pointer" }}
               title="Xem hồ sơ chi tiết"
             >
               {tutor.name}
               {renderRankBadge(rankInfo)}
             </h4>
             <div className="header-right-actions">
-              {/* Phần hiển thị đánh giá sao - LUÔN HIỂN THỊ */}
               <div
                 className="tutor-rating-display card-rating-section"
                 title={`${validRating.toFixed(
@@ -294,23 +316,20 @@ const TutorCard = ({
                 <div className="stars-wrapper">{renderStars(validRating)}</div>
                 <span className="review-count-text">({reviewCount})</span>
               </div>
-              {/* Kết thúc phần hiển thị đánh giá sao */}
-
               {isLoggedIn && (
                 <button
                   className={`favorite-btn ${
-                    isFavorite ? "favorite-active" : ""
+                    currentIsFavorite ? "favorite-active" : ""
                   } ${isLoadingFavoriteAction ? "loading" : ""}`}
                   onClick={handleFavoriteClick}
-                  title={
-                    isFavorite ? "Bỏ yêu thích" : "Thêm vào danh sách yêu thích"
+                  disabled={
+                    isLoadingFavoriteAction || isProcessingBookingAction
                   }
-                  disabled={isLoadingFavoriteAction || isCancelling}
-                  aria-pressed={isFavorite}
+                  aria-pressed={currentIsFavorite}
                 >
                   {isLoadingFavoriteAction ? (
                     <FaSpinner spin />
-                  ) : isFavorite ? (
+                  ) : currentIsFavorite ? (
                     <FaHeart />
                   ) : (
                     <FaRegHeart />
@@ -351,8 +370,7 @@ const TutorCard = ({
               {" "}
               <FaChalkboardTeacher className="info-icon" />{" "}
               <span>
-                {" "}
-                Phương thức: {renderTeachingMethod(tutor.teachingMethod)}{" "}
+                Phương thức: {renderTeachingMethodShort(tutor.teachingMethod)}{" "}
               </span>{" "}
             </div>
           )}
@@ -360,13 +378,12 @@ const TutorCard = ({
             <div className="tutor-info-row">
               {" "}
               <FaClock className="info-icon" />{" "}
-              <span>Thời lượng buổi dạy: {fTeachTime}</span>{" "}
+              <span>Thời lượng buổi: {fTeachTime}</span>{" "}
             </div>
           )}
           <p
             className="tutor-description"
             onClick={handleViewProfile}
-            style={{ cursor: "pointer" }}
             title="Xem hồ sơ chi tiết để đọc thêm"
           >
             {tutor.description}
@@ -383,51 +400,68 @@ const TutorCard = ({
             </span>
           </div>
           <div className="footer-buttons">
-            {canHire && (
+            {showViewAcceptedBtnCard && onOpenAcceptedRequestsModal && (
               <button
-                className="action-btn hire-btn"
-                onClick={handleHireClick}
-                title={`Thuê gia sư ${tutor.name}`}
-                disabled={isCancelling || isLoadingFavoriteAction}
+                className="action-btn btn-view-accepted"
+                onClick={handleOpenAcceptedModalClick}
+                disabled={isProcessingBookingAction || isLoadingFavoriteAction}
               >
-                {" "}
-                <span>Thuê</span>{" "}
+                <FaCalendarCheck /> Xem YC Duyệt
               </button>
             )}
-            {canCancel && (
-              <button
-                className="action-btn cancel-btn"
-                onClick={handleCancelBooking}
-                title="Hủy yêu cầu thuê đã gửi"
-                disabled={isCancelling || isLoadingFavoriteAction}
-              >
-                {" "}
-                {isCancelling ? (
-                  <FaSpinner spin className="spinner-inline" />
-                ) : (
-                  <span>Hủy Yêu Cầu</span>
-                )}{" "}
-              </button>
-            )}
-            {isApproved && (
-              <span className="booking-status-indicator card-approved">
-                {" "}
-                <FaCalendarCheck /> Đã Nhận Lịch{" "}
+
+            {showNoAcceptedMsgCard && (
+              <span className="booking-status-indicator card-info disabled-look">
+                <FaInfoCircle /> Chưa có yêu cầu được chấp nhận
               </span>
             )}
-            {isRejected && (
-              <span className="booking-status-indicator card-rejected">
+
+            {canSendNewReqCard &&
+              onOpenBookingModal &&
+              !showViewAcceptedBtnCard && (
+                <button
+                  className="action-btn btn-request-new"
+                  onClick={handleRequestHireClick}
+                  disabled={
+                    isProcessingBookingAction || isLoadingFavoriteAction
+                  }
+                >
+                  <FaCalendarPlus /> Yêu Cầu Mới
+                </button>
+              )}
+
+            {showPendingApprovalCard && (
+              <div className="status-with-action-card">
+                <span className="booking-status-indicator card-pending">
+                  {" "}
+                  <FaClock /> Chờ duyệt{" "}
+                </span>
+                <button
+                  className="action-btn btn-cancel-small"
+                  onClick={handleCancelRequestOnCard}
+                  disabled={
+                    isProcessingBookingAction || isLoadingFavoriteAction
+                  }
+                >
+                  {isProcessingBookingAction ? <FaSpinner spin /> : <FaTimes />}{" "}
+                  Hủy
+                </button>
+              </div>
+            )}
+
+            {showHiredMsgCard && (
+              <span className="booking-status-indicator card-hired">
                 {" "}
-                <FaExclamationTriangle /> Bị Từ Chối{" "}
+                <FaCheckCircle /> Đang học{" "}
               </span>
             )}
+
             <button
               className="action-btn view-profile-btn"
               onClick={handleViewProfile}
-              title={`Xem hồ sơ chi tiết của gia sư ${tutor.name}`}
-              disabled={isCancelling || isLoadingFavoriteAction}
+              disabled={isProcessingBookingAction || isLoadingFavoriteAction}
             >
-              Xem Hồ Sơ
+              Hồ Sơ
             </button>
           </div>
         </div>
@@ -454,22 +488,24 @@ TutorCard.propTypes = {
     isVerified: PropTypes.bool,
     rank: PropTypes.oneOf(["bronze", "silver", "gold", "platinum", "diamond"]),
     isInitiallyFavorite: PropTypes.bool,
-    bookingRequest: PropTypes.shape({
-      bookingRequestId: PropTypes.string,
+    isTutorAcceptingRequestAPIFlag: PropTypes.oneOf([true, false, null]),
+    bookingInfoCard: PropTypes.shape({
       status: PropTypes.string,
+      bookingId: PropTypes.string,
     }),
     dateTimeLearn: PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.string, PropTypes.object])
     ),
-    bookingRequestId: PropTypes.string,
   }).isRequired,
   onOpenBookingModal: PropTypes.func,
+  onOpenAcceptedRequestsModal: PropTypes.func, // Đảm bảo prop này được truyền từ TutorList
   onCancelSuccess: PropTypes.func,
+  // onConfirmHireSuccess không còn được truyền xuống TutorCard nữa
+  onFavoriteStatusChange: PropTypes.func,
+  isLoggedIn: PropTypes.bool.isRequired,
   isFavoriteOverride: PropTypes.bool,
   onRemoveFavorite: PropTypes.func,
   isRemoving: PropTypes.bool,
-  onFavoriteStatusChange: PropTypes.func,
-  isLoggedIn: PropTypes.bool.isRequired,
 };
 
 export default TutorCard;

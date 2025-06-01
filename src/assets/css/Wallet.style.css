@@ -234,6 +234,54 @@
   padding-left: 32px; /* Căn lề với text của VNPAY */
 }
 
+/* === Payment User Info Styles === */
+.payment-user-info {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.payment-user-info h4 {
+  margin-bottom: 16px;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.payment-input-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 15px;
+}
+
+.payment-form-control {
+  margin-bottom: 5px;
+}
+
+.payment-form-control label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text-medium);
+}
+
+.payment-form-control input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payment-form-control input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+}
+
 .topup-submit-button {
   background-color: var(--primary-color);
   color: var(--background-white);
@@ -368,7 +416,7 @@
   margin-top: 0; /* Sát với H1 hơn nếu không có section Balance ở trên */
   margin-bottom: 25px;
 }
-.balance-details{
+.balance-details {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -398,6 +446,13 @@
   .transaction-table td {
     padding: 12px 10px;
   }
+  .payment-input-group {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .payment-user-info h4 {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -423,5 +478,11 @@
   }
   .payment-note {
     padding-left: 0; /* Bỏ padding trên mobile nếu cần */
+  }
+  .payment-method-display {
+    padding: 15px 10px;
+  }
+  .payment-form-control input {
+    padding: 8px 10px;
   }
 }

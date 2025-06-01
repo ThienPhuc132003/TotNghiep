@@ -60,7 +60,7 @@ const renderImageUrl = (url) => {
 const searchableValueConfigColumnOptions = [
   { value: "valueConfigId", label: "Mã gói" },
   { value: "price", label: "Giá (VNĐ)", placeholderSuffix: " (số)" },
-  { value: "coinConfig", label: "Số Coin", placeholderSuffix: " (số)" },
+  { value: "coinConfig", label: "Số Xu", placeholderSuffix: " (số)" },
   { value: "description", label: "Mô tả" },
 ];
 
@@ -360,6 +360,7 @@ const ListOfValueConfigsPage = () => {
         method: METHOD_TYPE.POST,
         data: uploadFormData,
       });
+      console.log("Test thử 1 lần", uploadResponse);
       if (!uploadResponse?.success || !uploadResponse?.data?.mediaUrl) {
         throw new Error(uploadResponse?.message || "Upload ảnh gói thất bại.");
       }
@@ -393,12 +394,12 @@ const ListOfValueConfigsPage = () => {
       formData.coinConfig === undefined ||
       String(formData.coinConfig).trim() === ""
     ) {
-      errors.coinConfig = "Vui lòng nhập số coin.";
+      errors.coinConfig = "Vui lòng nhập số Xu.";
     } else if (
       !Number.isInteger(Number(formData.coinConfig)) ||
       Number(formData.coinConfig) <= 0
     ) {
-      errors.coinConfig = "Số coin phải là số nguyên dương.";
+      errors.coinConfig = "Số xu phải là số nguyên dương.";
     }
     if (!modalData.urlConfig?.trim())
       errors.urlConfig = "Vui lòng upload ảnh cho gói.";
@@ -481,7 +482,7 @@ const ListOfValueConfigsPage = () => {
         sortable: true,
         renderCell: formatCurrency,
       },
-      { title: "Số Coin", dataKey: "coinConfig", sortable: true },
+      { title: "Số Xu", dataKey: "coinConfig", sortable: true },
       { title: "Mô tả", dataKey: "description", sortable: false },
       {
         title: "Ảnh",
@@ -504,7 +505,7 @@ const ListOfValueConfigsPage = () => {
       },
       {
         key: "coinConfig",
-        label: "Số Coin",
+        label: "Số Xu",
         type: "number",
         required: true,
         placeholder: "Ví dụ: 50",
@@ -539,7 +540,7 @@ const ListOfValueConfigsPage = () => {
         readOnly: true,
         renderValue: formatCurrency,
       },
-      { key: "coinConfig", label: "Số Coin", readOnly: true },
+      { key: "coinConfig", label: "Số Xu", readOnly: true },
       {
         key: "urlConfig",
         label: "Ảnh gói",

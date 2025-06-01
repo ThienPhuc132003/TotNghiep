@@ -1,4 +1,4 @@
-import React,{ useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -16,58 +16,119 @@ import "../../assets/css/BookingModal.style.css";
 
 const TUTORS_PER_PAGE = 8;
 
-const mapApiTutorToCardProps = (apiTutor) => {
+const mapApiTutorToCardProps = async (
+  apiTutor,
+  isLoggedInFlag,
+) => {
   if (!apiTutor || !apiTutor.tutorProfile || !apiTutor.userId) {
-    console.warn(
-      "[mapApiTutorToCardProps] Invalid apiTutor data, skipping:",
-      apiTutor
-    );
+    console.warn("[mapApiTutorToCardProps] Invalid apiTutor data:", apiTutor);
     return null;
   }
   const profile = apiTutor.tutorProfile;
+  const tutorIdForAPI = profile.userId;
+
   const avatar = profile.avatar || null;
   const fullname = profile.fullname || "Gia sư ẩn danh";
   const coinPerHours = profile.coinPerHours ?? 0;
   const levelName = profile.tutorLevel?.levelName || "Chưa cập nhật";
   let rankKey = "bronze";
-  const lNL = typeof levelName === "string" ? levelName.toLowerCase() : "";
-  if (lNL === "bạc") rankKey = "silver";
-  else if (lNL === "vàng") rankKey = "gold";
-  else if (lNL === "bạch kim") rankKey = "platinum";
-  else if (lNL === "kim cương") rankKey = "diamond";
+  const lNL =
+    typeof levelName === "string"
+      ? levelName.toLowerCase().replace(/\s+/g, "")
+      : "";
+  if (lNL === "bạc" || lNL === "silver") rankKey = "silver";
+  else if (lNL === "vàng" || lNL === "gold") rankKey = "gold";
+  else if (lNL === "bạchkim" || lNL === "platinum") rankKey = "platinum";
+  else if (lNL === "kimcương" || lNL === "diamond") rankKey = "diamond";
+  const apiRating = profile.rating;
+  const apiNumberOfRating = profile.numberOfRating;
 
-  let bookingRequestForCard = null;
-  let idForCancellation = profile.bookingRequestId || null;
+  let finalDetailedStatus = null;
+  let finalBookingId = null;
+  let apiIsTutorAcceptingRequestFlag = null;
 
-  if (profile.isBookingRequest === true) {
-    bookingRequestForCard = {
-      status: "REQUEST",
-      bookingRequestId: idForCancellation,
-    };
-    if (!idForCancellation && profile.isBookingRequest !== null) {
-      console.warn(
-        "[mapApiTutorToCardProps] isBookingRequest=true, but bookingRequestId is null for tutor:",
-        apiTutor.userId
-      );
+  if (isLoggedInFlag) {
+    if (typeof profile.isBookingRequestAccepted === "boolean") {
+      apiIsTutorAcceptingRequestFlag = profile.isBookingRequestAccepted;
     }
-  } else if (
-    profile.bookingRequest &&
-    typeof profile.bookingRequest === "object"
-  ) {
-    bookingRequestForCard = {
-      status: profile.bookingRequest.status,
-      bookingRequestId: profile.bookingRequest.bookingRequestId,
-    };
-    idForCancellation = profile.bookingRequest.bookingRequestId;
+
+    if (apiIsTutorAcceptingRequestFlag === true) {
+      try {
+        const acceptedBookingResponse = await Api({
+          endpoint: `booking-request/get-my-booking-request-accept/${tutorIdForAPI}`,
+          method: METHOD_TYPE.GET,
+          requireToken: true,
+        });
+        if (
+          acceptedBookingResponse?.data?.items &&
+          acceptedBookingResponse.data.items.length > 0
+        ) {
+          const acceptedRequest = acceptedBookingResponse.data.items.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          )[0];
+          if (
+            acceptedRequest &&
+            acceptedRequest.status &&
+            acceptedRequest.status.toUpperCase() === "ACCEPT"
+          ) {
+            finalDetailedStatus = "ACCEPT";
+            finalBookingId = acceptedRequest.bookingRequestId;
+          } else {
+            console.warn(
+              `TutorList: API isBookingRequestAccepted=true cho tutor ${tutorIdForAPI} nhưng API phụ không có YC ACCEPT hợp lệ.`
+            );
+            if (profile.bookingRequest && profile.bookingRequest.status) {
+              finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
+              finalBookingId =
+                profile.bookingRequest.bookingRequestId ||
+                profile.bookingRequestId;
+            }
+          }
+        } else {
+          console.warn(
+            `TutorList: API isBookingRequestAccepted=true cho tutor ${tutorIdForAPI} nhưng API phụ không trả về items.`
+          );
+          if (profile.bookingRequest && profile.bookingRequest.status) {
+            finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
+            finalBookingId =
+              profile.bookingRequest.bookingRequestId ||
+              profile.bookingRequestId;
+          }
+        }
+      } catch (error) {
+        console.error(
+          `TutorList: Lỗi gọi API get-my-booking-request-accept cho tutor ${tutorIdForAPI}:`,
+          error
+        );
+        if (profile.bookingRequest && profile.bookingRequest.status) {
+          finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
+          finalBookingId =
+            profile.bookingRequest.bookingRequestId || profile.bookingRequestId;
+        } else if (
+          profile.isBookingRequest === true &&
+          (profile.bookingRequestId || profile.bookingRequest?.bookingRequestId)
+        ) {
+          finalDetailedStatus = "REQUEST";
+          finalBookingId =
+            profile.bookingRequestId ||
+            profile.bookingRequest?.bookingRequestId;
+        }
+      }
+    } else {
+      if (profile.bookingRequest && profile.bookingRequest.status) {
+        finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
+        finalBookingId =
+          profile.bookingRequest.bookingRequestId || profile.bookingRequestId;
+      } else if (
+        profile.isBookingRequest === true &&
+        (profile.bookingRequestId || profile.bookingRequest?.bookingRequestId)
+      ) {
+        finalDetailedStatus = "REQUEST";
+        finalBookingId =
+          profile.bookingRequestId || profile.bookingRequest?.bookingRequestId;
+      }
+    }
   }
-
-  // SỬA Ở ĐÂY: Lấy đúng key từ API
-  const apiRating = profile.rating; // Dữ liệu API của bạn dùng key "rating"
-  const apiNumberOfRating = profile.numberOfRating; // Dữ liệu API của bạn dùng key "numberOfRating"
-
-  console.log(
-    `[mapApiTutorToCardProps] Tutor: ${profile.fullname}, API rating: ${apiRating}, API numberOfRating: ${apiNumberOfRating}, Mapped hourlyRate: ${coinPerHours}`
-  );
 
   return {
     id: apiTutor.userId,
@@ -87,8 +148,8 @@ const mapApiTutorToCardProps = (apiTutor) => {
         ].filter(Boolean)
       : ["N/A môn dạy"],
     rating:
-      apiRating !== null && apiRating !== undefined ? parseFloat(apiRating) : 0, // Chuyển sang số, mặc định 0
-    reviewCount: apiNumberOfRating || 0, // Mặc định 0 nếu không có
+      apiRating !== null && apiRating !== undefined ? parseFloat(apiRating) : 0,
+    reviewCount: apiNumberOfRating || 0,
     isVerified:
       apiTutor.checkActive === "ACTIVE" && profile.isPublicProfile === true,
     rank: rankKey,
@@ -96,8 +157,11 @@ const mapApiTutorToCardProps = (apiTutor) => {
     teachingTime: profile.teachingTime
       ? parseFloat(profile.teachingTime)
       : null,
-    bookingRequest: bookingRequestForCard,
-    bookingRequestId: idForCancellation,
+    isTutorAcceptingRequestAPIFlag: apiIsTutorAcceptingRequestFlag,
+    bookingInfoCard: {
+      status: finalDetailedStatus,
+      bookingId: finalBookingId,
+    },
     isInitiallyFavorite: profile.isMyFavouriteTutor ?? false,
     teachingPlace: profile.teachingPlace || "N/A",
     description: profile.description || "Chưa có mô tả.",
@@ -118,6 +182,8 @@ const TutorList = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isLoggedIn = useSelector((state) => !!state.user.userProfile?.userId);
+  const currentUserId = useSelector((state) => state.user.userProfile?.userId);
+
   const [tutors, setTutors] = useState([]);
   const [totalTutors, setTotalTutors] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -148,11 +214,6 @@ const TutorList = ({
         if (selectedMajorId) query.majorId = selectedMajorId;
         if (sortBy) query.sortBy = sortBy;
 
-        console.log(
-          `[fetchTutorsData] Fetching page: ${pageToFetch}, LoggedIn: ${isLoggedIn}, Query:`,
-          query
-        );
-
         const response = await Api({
           endpoint: endpoint,
           method: METHOD_TYPE.GET,
@@ -160,22 +221,16 @@ const TutorList = ({
           requireToken: isLoggedIn,
         });
 
-        console.log(
-          "[fetchTutorsData] API Response (r.data.items):",
-          response?.data?.items
-        );
-
         if (response?.data?.items && Array.isArray(response.data.items)) {
-          const mappedTutors = response.data.items
-            .map(mapApiTutorToCardProps)
-            .filter(Boolean); // Loại bỏ các item null (nếu mapApiTutorToCardProps trả về null)
+          const mappedTutorsPromises = response.data.items.map((apiTutor) =>
+            mapApiTutorToCardProps(apiTutor, isLoggedIn, currentUserId)
+          );
+          const mappedTutors = (await Promise.all(mappedTutorsPromises)).filter(
+            Boolean
+          );
           setTutors(mappedTutors);
           setTotalTutors(response.data.total || 0);
         } else {
-          console.warn(
-            "[fetchTutorsData] No items found or invalid data structure",
-            response?.data
-          );
           setTutors([]);
           setTotalTutors(0);
         }
@@ -196,7 +251,14 @@ const TutorList = ({
         setIsLoading(false);
       }
     },
-    [isLoggedIn, searchTerm, selectedLevelId, selectedMajorId, sortBy]
+    [
+      isLoggedIn,
+      currentUserId,
+      searchTerm,
+      selectedLevelId,
+      selectedMajorId,
+      sortBy,
+    ]
   );
 
   useEffect(() => {
@@ -220,13 +282,9 @@ const TutorList = ({
   const handleOpenBookingModal = useCallback(
     (tutorDataFromCard) => {
       if (!isLoggedIn) {
-        requireLogin("thuê gia sư");
+        requireLogin("gửi yêu cầu thuê gia sư");
         return;
       }
-      console.log(
-        "[TutorList DEBUG #1] Tutor data for booking modal (from TutorCard):",
-        tutorDataFromCard
-      );
       setSelectedTutorForBooking(tutorDataFromCard);
       setIsBookingModalOpen(true);
     },
@@ -245,7 +303,10 @@ const TutorList = ({
   }, [currentPage, fetchTutorsData, handleCloseBookingModal]);
 
   const handleCancelSuccessInList = useCallback(() => {
-    toast.success("Đã hủy yêu cầu thuê thành công.");
+    fetchTutorsData(currentPage);
+  }, [currentPage, fetchTutorsData]);
+
+  const handleConfirmHireSuccessInList = useCallback(() => {
     fetchTutorsData(currentPage);
   }, [currentPage, fetchTutorsData]);
 
@@ -262,7 +323,7 @@ const TutorList = ({
 
   const totalPages = Math.ceil(totalTutors / TUTORS_PER_PAGE);
   const indexOfFirstTutor = (currentPage - 1) * TUTORS_PER_PAGE;
-  const indexOfLastOnlineTutorOnPage = Math.min(
+  const indexOfLastTutorOnPage = Math.min(
     indexOfFirstTutor + TUTORS_PER_PAGE,
     totalTutors
   );
@@ -278,11 +339,9 @@ const TutorList = ({
               : !isLoading && totalTutors > 0
               ? `Hiển thị ${
                   totalTutors > 0 ? indexOfFirstTutor + 1 : 0
-                } - ${indexOfLastOnlineTutorOnPage} trên tổng số ${totalTutors} gia sư`
+                } - ${indexOfLastTutorOnPage} của ${totalTutors} gia sư`
               : !isLoading && totalTutors === 0
-              ? "Không tìm thấy gia sư nào phù hợp với tiêu chí của bạn."
-              : isLoading && tutors.length > 0
-              ? `Đang tải thêm... (Tổng số: ${totalTutors})`
+              ? "Không tìm thấy gia sư nào phù hợp."
               : ""}
           </p>
         )}
@@ -302,6 +361,7 @@ const TutorList = ({
                 tutor={tutorProps}
                 onOpenBookingModal={handleOpenBookingModal}
                 onCancelSuccess={handleCancelSuccessInList}
+                onConfirmHireSuccess={handleConfirmHireSuccessInList}
                 isLoggedIn={isLoggedIn}
                 onFavoriteStatusChange={handleFavoriteStatusChangeInList}
               />
@@ -320,22 +380,16 @@ const TutorList = ({
       ) : null}
 
       {selectedTutorForBooking && (
-        <React.Fragment>
-          {console.log(
-            "[TutorList DEBUG #2] Rendering BookingModal with selectedTutor:",
-            selectedTutorForBooking
-          )}
-          <BookingModal
-            isOpen={isBookingModalOpen}
-            onClose={handleCloseBookingModal}
-            tutorId={selectedTutorForBooking.id}
-            tutorName={selectedTutorForBooking.name}
-            onBookingSuccess={handleBookingSuccessInList}
-            maxHoursPerLesson={selectedTutorForBooking.teachingTime}
-            availableScheduleRaw={selectedTutorForBooking.dateTimeLearn || []}
-            hourlyRate={selectedTutorForBooking.hourlyRate}
-          />
-        </React.Fragment>
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={handleCloseBookingModal}
+          tutorId={selectedTutorForBooking.id}
+          tutorName={selectedTutorForBooking.name}
+          onBookingSuccess={handleBookingSuccessInList}
+          maxHoursPerLesson={selectedTutorForBooking.teachingTime}
+          availableScheduleRaw={selectedTutorForBooking.dateTimeLearn || []}
+          hourlyRate={selectedTutorForBooking.hourlyRate}
+        />
       )}
     </section>
   );

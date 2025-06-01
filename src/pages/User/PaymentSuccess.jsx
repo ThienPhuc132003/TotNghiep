@@ -87,7 +87,7 @@ const PaymentSuccess = () => {
             )}
             {!profileLoading && !profileError && (
               <p className="sub-message">
-                Số dư Coin của bạn đã được cập nhật.
+                Số dư Xu của bạn đã được cập nhật.
               </p>
             )}
 
@@ -99,7 +99,7 @@ const PaymentSuccess = () => {
 
             <div className="action-buttons-payment-result">
               <Link to="/tai-khoan/ho-so/vi-ca-nhan" className="btn btn-primary">
-                Xem Ví Coin
+                Xem Ví Xu
               </Link>
               <Link to="/" className="btn btn-secondary">
                 Về Trang Chủ

@@ -3,8 +3,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import User from "../User";
 import SettingButton from "../../SettingButton";
-import NotifiButton from "../../NotifiButton";
-import HelpButton from "../../HelpButton";
+// import NotifiButton from "../../NotifiButton";
+// import HelpButton from "../../HelpButton";
 
 // Định nghĩa lại ROLES ở đây hoặc import từ file dùng chung nếu có
 const ROLES = {
@@ -13,7 +13,7 @@ const ROLES = {
 };
 
 const UserAccountToolbarComponent = ({
-  currentUserRole,
+  currentUserRole = null,
   isAuthenticated,
   onLogout, // Nhận từ HomePageLayout
 }) => {
@@ -26,8 +26,6 @@ const UserAccountToolbarComponent = ({
 
   return (
     <div className="user-account-toolbar">
-      <NotifiButton />
-      <HelpButton />
       <User />
       {isAuthenticated && (
         <SettingButton
@@ -45,10 +43,6 @@ UserAccountToolbarComponent.propTypes = {
   currentUserRole: PropTypes.string, // Có thể null nếu chưa xác thực
   isAuthenticated: PropTypes.bool.isRequired,
   onLogout: PropTypes.func.isRequired,
-};
-
-UserAccountToolbarComponent.defaultProps = {
-  currentUserRole: null,
 };
 
 const UserAccountToolbar = React.memo(UserAccountToolbarComponent);

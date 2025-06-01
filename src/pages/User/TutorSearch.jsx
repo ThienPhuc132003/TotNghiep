@@ -122,8 +122,8 @@ const TutorSearchPage = () => {
                 aria-label="Sắp xếp kết quả tìm kiếm"
               >
                 <option value="rating_desc">Liên quan nhất</option>
-                <option value="price_asc">Coin thấp đến cao</option>
-                <option value="price_desc">Coin cao đến thấp</option>
+                <option value="price_asc">Xu thấp đến cao</option>
+                <option value="price_desc">Xu cao đến thấp</option>
                 <option value="createdAt_desc">Mới nhất</option>
               </select>
             </div>
