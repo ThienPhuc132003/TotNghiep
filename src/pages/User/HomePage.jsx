@@ -4,8 +4,8 @@ import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import "../../assets/css/HomePage.style.css"; // Đảm bảo file CSS này tồn tại
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css"; // Vẫn cần CSS core của Slick để hoạt động
+import "slick-carousel/slick/slick-theme.css"; // Vẫn cần CSS theme nếu bạn muốn dots, etc. hoặc bạn có thể bỏ nếu tự style hết
 import Select from "react-select";
 
 // --- Assets ---
@@ -64,7 +64,7 @@ const customSelectStylesForHero = {
       state.isFocused ? "var(--primary-color)" : "var(--border-color)"
     }`,
     borderRadius: "30px",
-    height: "50px", // Chiều cao cố định cho control
+    height: "50px",
     minHeight: "50px",
     paddingLeft: "2.3rem",
     display: "flex",
@@ -83,7 +83,7 @@ const customSelectStylesForHero = {
     ...provided,
     padding: "0 4px",
     flexWrap: "wrap",
-    height: "calc(100% - 4px)", // Hoặc giá trị pixel cố định như "40px"
+    height: "calc(100% - 4px)",
     maxHeight: "calc(100% - 4px)",
     overflowY: "auto",
     display: "flex",
@@ -119,7 +119,7 @@ const customSelectStylesForHero = {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
-    lineHeight: "normal", // Đảm bảo text không bị cắt
+    lineHeight: "normal",
   }),
   indicatorsContainer: (provided) => ({
     ...provided,
@@ -385,18 +385,18 @@ const BenefitsSection = () => (
   </section>
 );
 
-// --- Arrow Components for Slider ---
+// --- Arrow Components for Slider (ĐÃ CẬP NHẬT) ---
 function SampleNextArrow(props) {
-  const { className, style, onClick } = props;
+  const {  style, onClick } = props;
   return (
     <button
       type="button"
-      className={`${className} custom-slick-arrow custom-slick-next`}
-      style={{ ...style }}
+      className="custom-slick-arrow custom-slick-next" // Sử dụng class tùy chỉnh
+      style={style} // Giữ lại style từ slick nếu cần, CSS sẽ ghi đè nếu cần
       onClick={onClick}
       aria-label="Next Slide"
     >
-      <FontAwesomeIcon icon={faChevronRight} aria-hidden="true" />
+      <FontAwesomeIcon icon={faChevronRight} />
     </button>
   );
 }
@@ -405,17 +405,18 @@ SampleNextArrow.propTypes = {
   style: PropTypes.object,
   onClick: PropTypes.func,
 };
+
 function SamplePrevArrow(props) {
-  const { className, style, onClick } = props;
+  const {  style, onClick } = props;
   return (
     <button
       type="button"
-      className={`${className} custom-slick-arrow custom-slick-prev`}
-      style={{ ...style }}
+      className="custom-slick-arrow custom-slick-prev" // Sử dụng class tùy chỉnh
+      style={style}
       onClick={onClick}
       aria-label="Previous Slide"
     >
-      <FontAwesomeIcon icon={faChevronLeft} aria-hidden="true" />
+      <FontAwesomeIcon icon={faChevronLeft} />
     </button>
   );
 }
@@ -544,7 +545,7 @@ const TestimonialsSection = () => {
     slidesToScroll: 1,
     autoplay: studentReviews.length > 1,
     autoplaySpeed: 5000,
-    arrows: false,
+    arrows: false, // Mũi tên mặc định của slick, có thể không cần nếu đã custom
     pauseOnHover: true,
   };
   return (

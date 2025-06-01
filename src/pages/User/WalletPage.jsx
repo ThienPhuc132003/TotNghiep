@@ -1,11 +1,6 @@
 /* global Intl */
 
 import { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
-import "../../assets/css/Wallet.style.css";
-import Api from "../../network/Api";
-import { METHOD_TYPE } from "../../network/methodType";
-import iconVNPAY from "../../assets/images/Icon_VNPAY.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCoins,
@@ -16,6 +11,10 @@ import {
   faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
+import { METHOD_TYPE } from "../../network/methodType";
+import Api from "../../network/Api";
+import "../../assets/css/Wallet.style.css";
+import iconVNPAY from "../../assets/images/Icon_VNPAY.png";
 
 // --- Helper Function ---
 const formatCurrency = (amount) => {
@@ -39,9 +38,9 @@ const WalletBalance = ({ currentBalance = 0 }) => {
       <div className="balance-card">
         <FontAwesomeIcon icon={faCoins} className="balance-icon" />
         <div className="balance-details">
-          <span className="balance-label">Số dư Coin hiện tại</span>
+          <span className="balance-label">Số dư Xu hiện tại</span>
           <span className="balance-amount">
-            {currentBalance?.toLocaleString("en-US") || 0} Coins
+            {currentBalance?.toLocaleString("en-US") || 0} Xu
           </span>
         </div>
       </div>
@@ -59,6 +58,12 @@ const WalletTopUp = ({
   packagesError,
   onTopUpSubmit,
   isLoadingSubmit,
+  userFullName,
+  setUserFullName,
+  userEmail,
+  setUserEmail,
+  userPhone,
+  setUserPhone,
 }) => {
   const [selectedPackageId, setSelectedPackageId] = useState("");
   const [error, setError] = useState("");
@@ -72,7 +77,7 @@ const WalletTopUp = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!selectedPackageId) {
-      setError("Vui lòng chọn một gói nạp Coin.");
+      setError("Vui lòng chọn một gói nạp Xu.");
       return;
     }
     setError("");
@@ -92,14 +97,14 @@ const WalletTopUp = ({
     if (selectedPackageInfo)
       return `Nạp ${selectedPackageInfo.coinConfig.toLocaleString(
         "en-US"
-      )} Coin (${formatCurrency(selectedPackageInfo.price)}) qua VNPAY`;
-    return "Chọn gói và Xác Nhận Nạp Coin";
+      )} Xu (${formatCurrency(selectedPackageInfo.price)}) qua VNPAY`;
+    return "Chọn gói và Xác Nhận Nạp Xu";
   };
 
   return (
     <section className="wallet-topup-section section">
       <h2>
-        <FontAwesomeIcon icon={faPlusCircle} /> Nạp Thêm Coin (1,000 VND = 1 Coin)
+        <FontAwesomeIcon icon={faPlusCircle} /> Nạp Thêm Xu (1,000 VND = 1 Xu)
       </h2>
       <form onSubmit={handleSubmit} className="topup-form">
         {isLoadingPackages && (
@@ -114,13 +119,13 @@ const WalletTopUp = ({
         )}
         {!isLoadingPackages && !packagesError && packages.length === 0 && (
           <div className="empty-placeholder">
-            <p>Hiện tại chưa có gói nạp Coin nào.</p>
+            <p>Hiện tại chưa có gói nạp Xu nào.</p>
           </div>
         )}
         {!isLoadingPackages && !packagesError && packages.length > 0 && (
           <>
             <div className="form-group package-selection-group">
-              <label>Chọn gói Coin bạn muốn nạp:</label>
+              <label>Chọn gói Xu bạn muốn nạp:</label>
               <div className="package-options">
                 {packages.map((pkg) => (
                   <div
@@ -144,9 +149,7 @@ const WalletTopUp = ({
                     {pkg.urlConfig ? (
                       <img
                         src={pkg.urlConfig}
-                        alt={`Gói ${pkg.coinConfig.toLocaleString(
-                          "en-US"
-                        )} Coin`}
+                        alt={`Gói ${pkg.coinConfig.toLocaleString("en-US")} Xu`}
                         className="package-image-direct"
                         style={{
                           display: "block",
@@ -166,14 +169,14 @@ const WalletTopUp = ({
                         style={{ height: "150px" }}
                       >
                         <FontAwesomeIcon icon={faCoins} />
-                        <span>Gói Coin</span>
+                        <span>Gói Xu</span>
                       </div>
                     )}
                     {/* Phần Nội dung */}
                     <div className="package-content">
                       <span className="package-name">
                         {pkg.description ||
-                          `Gói ${pkg.coinConfig.toLocaleString("en-US")} Coin`}
+                          `Gói ${pkg.coinConfig.toLocaleString("en-US")} Xu`}
                       </span>
                       <span className="package-price">
                         {formatCurrency(pkg.price)}
@@ -183,8 +186,8 @@ const WalletTopUp = ({
                 ))}
               </div>
               {error && <p className="input-error-message">{error}</p>}
-            </div>
-            {/* Phần Payment */}
+            </div>{" "}
+            {/* Phần Payment và Thông tin thanh toán */}
             <div className="form-group payment-method-display">
               <label>Phương thức thanh toán:</label>
               <div className="payment-option-static">
@@ -197,6 +200,40 @@ const WalletTopUp = ({
                 <p className="payment-note">
                   Bạn sẽ được chuyển đến cổng thanh toán VNPAY.
                 </p>
+              </div>
+
+              {/* Thêm form thông tin người dùng vào phương thức thanh toán */}
+              <div className="payment-user-info">
+                <h4>Thông tin người thanh toán</h4>
+                <div className="payment-input-group">
+                  <div className="payment-form-control">
+                    <label>Họ và Tên:</label>
+                    <input
+                      type="text"
+                      value={userFullName}
+                      onChange={(e) => setUserFullName(e.target.value)}
+                      placeholder="Nhập họ và tên"
+                    />
+                  </div>
+                  <div className="payment-form-control">
+                    <label>Email:</label>
+                    <input
+                      type="email"
+                      value={userEmail}
+                      onChange={(e) => setUserEmail(e.target.value)}
+                      placeholder="Nhập email"
+                    />
+                  </div>
+                  <div className="payment-form-control">
+                    <label>Số điện thoại:</label>
+                    <input
+                      type="tel"
+                      value={userPhone}
+                      onChange={(e) => setUserPhone(e.target.value)}
+                      placeholder="Nhập số điện thoại"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             {/* Nút Submit */}
@@ -228,6 +265,12 @@ WalletTopUp.propTypes = {
   packagesError: PropTypes.string,
   onTopUpSubmit: PropTypes.func.isRequired,
   isLoadingSubmit: PropTypes.bool,
+  userFullName: PropTypes.string,
+  setUserFullName: PropTypes.func,
+  userEmail: PropTypes.string,
+  setUserEmail: PropTypes.func,
+  userPhone: PropTypes.string,
+  setUserPhone: PropTypes.func,
 };
 
 // --- Transaction History Section ---
@@ -236,7 +279,7 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
     const upperType = type?.toUpperCase();
     switch (upperType) {
       case "NẠP TIỀN":
-      case "NẠP COIN":
+      case "NẠP XU":
       case "TOPUP":
       case "DEPOSIT":
       case "VNPAY_RETURN":
@@ -244,7 +287,7 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
           <FontAwesomeIcon
             icon={faArrowUp}
             className="icon-credit"
-            title="Nạp Coin / Tăng số dư"
+            title="Nạp Xu / Tăng số dư"
           />
         );
       // --- Cần API khác để hiển thị các loại giao dịch tiêu coin ---
@@ -254,7 +297,7 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
             <FontAwesomeIcon
               icon={faArrowUp}
               className="icon-credit"
-              title="Nạp Coin / Tăng số dư"
+              title="Nạp Xu / Tăng số dư"
             />
           );
         }
@@ -301,7 +344,7 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
                 <th>Thời gian</th>
                 <th>Loại giao dịch</th>
                 <th className="details-col">Chi tiết</th>
-                <th className="amount-col">Số Coin</th>
+                <th className="amount-col">Số Xu</th>
                 <th className="status-col">Trạng thái</th>
               </tr>
             </thead>
@@ -372,10 +415,7 @@ WalletHistory.propTypes = {
 
 // --- Main WalletPage Component ---
 const WalletPage = () => {
-  const userProfileData = useSelector((state) => state.user.userProfile);
-  const [currentCoinAmount, setCurrentCoinAmount] = useState(
-    userProfileData?.coin || 0
-  );
+  const [currentCoinAmount] = useState(0); // Removed 'setCurrentCoinAmount' as it is unused
   const [transactions, setTransactions] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState(null);
@@ -384,6 +424,11 @@ const WalletPage = () => {
   const [coinPackages, setCoinPackages] = useState([]);
   const [isLoadingPackages, setIsLoadingPackages] = useState(false);
   const [packagesError, setPackagesError] = useState(null);
+
+  // New state for user input
+  const [userFullName, setUserFullName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPhone, setUserPhone] = useState("");
 
   // Fetch Coin Packages
   useEffect(() => {
@@ -406,7 +451,7 @@ const WalletPage = () => {
           );
         }
       } catch (error) {
-        console.error("Error fetching coin packages:", error);
+        console.error("Error fetching Xu packages:", error);
         setPackagesError(
           error.message ||
             "Lỗi kết nối hoặc máy chủ khi tải gói nạp. Vui lòng thử lại sau."
@@ -458,13 +503,13 @@ const WalletPage = () => {
               displayStatus = apiStatus;
           }
           const transactionAmount = apiStatus === "PAID" ? coinConfig || 0 : 0;
-          const transactionType = "Nạp Coin";
+          const transactionType = "Nạp Xu";
           return {
             id: item.orderId || item.paymentId,
             date: item.createdAt,
             type: transactionType,
             details:
-              description || `Nạp ${coinConfig || "?"} Coin qua ${payType}`,
+              description || `Nạp ${coinConfig || "?"} Xu qua ${payType}`,
             amount: transactionAmount,
             status: displayStatus,
           };
@@ -493,38 +538,12 @@ const WalletPage = () => {
     fetchHistory();
   }, [fetchHistory]);
 
-  // Update balance from Redux
-  useEffect(() => {
-    const newCoinValue = userProfileData?.coin;
-    if (
-      (typeof newCoinValue === "number" &&
-        newCoinValue !== currentCoinAmount) ||
-      (typeof newCoinValue === "number" &&
-        currentCoinAmount === 0 &&
-        userProfileData)
-    ) {
-      setCurrentCoinAmount(newCoinValue);
-    }
-  }, [userProfileData, currentCoinAmount]);
-
   // Handle Top-up Submission
   const handleTopUpSubmit = useCallback(
     async ({ packageId }) => {
-      const customerFullName =
-        userProfileData?.fullname ||
-        userProfileData?.userProfile?.fullname ||
-        "";
-      const customerEmail =
-        userProfileData?.personalEmail ||
-        userProfileData?.userProfile?.personalEmail ||
-        "";
-      const customerPhone =
-        userProfileData?.phoneNumber ||
-        userProfileData?.userProfile?.phoneNumber ||
-        "";
-      if (!customerFullName || !customerEmail || !customerPhone) {
+      if (!userFullName || !userEmail || !userPhone) {
         setTopupErrorMessage(
-          "Thiếu thông tin người dùng (Họ tên, Email, SĐT) trong hồ sơ. Vui lòng cập nhật hồ sơ và thử lại."
+          "Vui lòng nhập đầy đủ thông tin (Họ tên, Email, SĐT)."
         );
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
@@ -539,9 +558,9 @@ const WalletPage = () => {
       try {
         const orderPayload = {
           valueConfigId: packageId,
-          customerFullname: customerFullName,
-          customerEmail: customerEmail,
-          customerPhone: customerPhone,
+          customerFullname: userFullName,
+          customerEmail: userEmail,
+          customerPhone: userPhone,
           payType: "VNPAY",
         };
         const orderResponse = await Api({
@@ -580,16 +599,16 @@ const WalletPage = () => {
         setIsLoadingSubmit(false);
       }
     },
-    [userProfileData]
+    [userFullName, userEmail, userPhone]
   );
 
   // Render
   return (
     <>
-      <div className="wallet-page-wrapp er">
+      <div className="wallet-page-wrapper">
         <div className="wallet-container">
           <h1>
-            <FontAwesomeIcon icon={faCoins} /> Ví Coin Của Bạn
+            <FontAwesomeIcon icon={faCoins} /> Ví Xu Của Bạn
           </h1>
           {topupErrorMessage && (
             <div className="alert alert-danger global-alert" role="alert">
@@ -600,13 +619,19 @@ const WalletPage = () => {
               {topupErrorMessage}
             </div>
           )}
-          <WalletBalance currentBalance={currentCoinAmount} />
+          <WalletBalance currentBalance={currentCoinAmount} />{" "}
           <WalletTopUp
             packages={coinPackages}
             isLoadingPackages={isLoadingPackages}
             packagesError={packagesError}
             onTopUpSubmit={handleTopUpSubmit}
             isLoadingSubmit={isLoadingSubmit}
+            userFullName={userFullName}
+            setUserFullName={setUserFullName}
+            userEmail={userEmail}
+            setUserEmail={setUserEmail}
+            userPhone={userPhone}
+            setUserPhone={setUserPhone}
           />
           {historyError && !isLoadingHistory && (
             <div className="alert alert-danger" role="alert">

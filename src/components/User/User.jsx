@@ -33,7 +33,7 @@ const UserComponent = () => {
       ? userInfo.userProfile.fullname
       : "Người dùng";
   const userRole = userInfo.tutorProfile ? "Gia sư" : "Học viên";
-  const userCoin = userInfo.coin ? `${userInfo.coin} Coin` : "0 Xu";
+  const userCoin = userInfo.coin ? `${userInfo.coin} Xu` : "0 Xu";
 
   return (
     <div className="user-dropdown">

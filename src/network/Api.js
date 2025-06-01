@@ -59,7 +59,10 @@ const Api = async ({
       }
     }
   }
-
+  console.log(
+    `[API Call] URL: ${axiosClient.defaults.baseURL}${requestUrl}, Method: ${upperCaseMethod}, Query:`,
+    processedQuery
+  );
   // Sẽ nhận trực tiếp `data` từ `axiosClient` (do axiosClient đã trả về response.data)
   switch (upperCaseMethod) {
     case METHOD_TYPE.POST:

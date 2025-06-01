@@ -513,7 +513,7 @@ const ListOfTutorPage = () => {
       },
       {
         key: "coin",
-        label: "Số dư Coin",
+        label: "Số dư Xu",
         renderValue: (val) => (val ?? 0).toLocaleString(),
         section: "Thông tin chung",
       },
@@ -602,7 +602,7 @@ const ListOfTutorPage = () => {
       },
       {
         key: "tutorProfile.coinPerHours",
-        label: "Coin/Giờ",
+        label: "Xu/Giờ",
         renderValue: (v, row) =>
           getSafeNestedValue(
             row,

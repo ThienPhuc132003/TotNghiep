@@ -1,0 +1,198 @@
+/* src/assets/css/AcceptedRequestsModal.style.css */
+
+.arm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Nền mờ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; /* Đảm bảo cao hơn các element khác, có thể cần điều chỉnh */
+    padding: 20px; /* Khoảng đệm để modal không chạm sát viền màn hình nhỏ */
+    overflow-y: auto; /* Cho phép cuộn nếu nội dung modal dài */
+}
+
+.arm-modal-content {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 8px; /* Bo góc mềm mại */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Đổ bóng tinh tế */
+    width: 100%;
+    max-width: 650px; /* Giới hạn chiều rộng tối đa của modal */
+    max-height: 90vh; /* Giới hạn chiều cao tối đa, tránh tràn màn hình */
+    display: flex;
+    flex-direction: column; /* Sắp xếp header, body, footer (nếu có) theo chiều dọc */
+    position: relative; /* Để nút đóng có thể định vị tuyệt đối */
+}
+
+.arm-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef; /* Đường kẻ phân cách nhẹ nhàng */
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.arm-modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem; /* Kích thước tiêu đề rõ ràng */
+    color: var(--text-primary, #333); /* Sử dụng biến màu nếu có */
+    font-weight: 600;
+}
+
+.arm-modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem; /* Kích thước nút đóng lớn hơn cho dễ nhấn */
+    cursor: pointer;
+    color: #868e96; /* Màu xám cho nút đóng */
+    padding: 0;
+    line-height: 1; /* Căn chỉnh tốt hơn */
+}
+.arm-modal-close-btn:hover {
+    color: #343a40; /* Đậm hơn khi hover */
+}
+
+.arm-modal-body {
+    flex-grow: 1; /* Cho phép body mở rộng để chiếm không gian còn lại */
+    overflow-y: auto; /* Cho phép cuộn riêng phần body nếu nội dung quá dài */
+    padding-right: 10px; /* Thêm padding để thanh cuộn không che nội dung */
+    margin-right: -10px; /* Bù lại padding để căn chỉnh */
+}
+
+.arm-loading-state, 
+.arm-error-state, 
+.arm-no-requests {
+    text-align: center;
+    padding: 30px 15px;
+    font-size: 1rem;
+    color: #6c757d; /* Màu chữ nhẹ nhàng hơn cho thông báo */
+}
+.arm-loading-state .fa-spinner {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+.arm-error-state {
+    color: var(--danger-color, #dc3545);
+}
+.arm-error-state .fa-exclamation-triangle {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+.arm-no-requests {
+    font-style: italic;
+}
+
+.arm-requests-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.arm-request-item {
+    border: 1px solid #dee2e6; /* Đường viền rõ ràng hơn */
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f8f9fa; /* Nền sáng hơn một chút */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.arm-request-item:last-child {
+    margin-bottom: 5px; /* Giảm margin cho item cuối */
+}
+
+.arm-request-info p {
+    margin: 8px 0; /* Tăng khoảng cách giữa các dòng thông tin */
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #495057; /* Màu chữ tối hơn cho dễ đọc */
+}
+.arm-request-info p strong {
+    color: #212529; /* Màu chữ đậm hơn cho label */
+    font-weight: 500;
+}
+.arm-request-info .fa-calendar-alt,
+.arm-request-info .fa-clock,
+.arm-request-info .fa-coins {
+    margin-right: 10px;
+    color: var(--primary-color, #007bff); /* Màu icon đồng bộ */
+    width: 16px; /* Đảm bảo icon căn thẳng hàng */
+    text-align: center;
+}
+
+.arm-request-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px; /* Khoảng cách giữa các nút */
+    justify-content: flex-end; /* Căn phải các nút action */
+}
+
+.arm-action-btn {
+    padding: 10px 18px; /* Tăng padding cho nút lớn hơn */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600; /* Chữ đậm hơn */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và chữ */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase; /* Viết hoa chữ trên nút (tùy chọn) */
+    letter-spacing: 0.5px; /* Tăng khoảng cách chữ (tùy chọn) */
+}
+
+.arm-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.arm-confirm-btn {
+    background-color: var(--success-color, #28a745);
+    color: white;
+}
+.arm-confirm-btn:hover:not(:disabled) {
+    background-color: var(--success-dark-color, #218838);
+    box-shadow: 0 2px 5px rgba(40, 167, 69, 0.4);
+}
+
+/* Nếu bạn có nút Từ chối trở lại, có thể dùng style này */
+/*
+.arm-decline-btn {
+    background-color: var(--danger-color, #dc3545);
+    color: white;
+}
+.arm-decline-btn:hover:not(:disabled) {
+    background-color: var(--danger-dark-color, #c82333);
+    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.4);
+}
+*/
+
+/* Responsive cho modal trên màn hình nhỏ */
+@media (max-width: 768px) {
+    .arm-modal-content {
+        padding: 20px;
+        max-height: 85vh;
+    }
+    .arm-modal-header h3 {
+        font-size: 1.25rem;
+    }
+    .arm-request-item {
+        padding: 15px;
+    }
+    .arm-request-actions {
+        flex-direction: column; /* Các nút xếp chồng lên nhau */
+    }
+    .arm-action-btn {
+        width: 100%; /* Nút chiếm toàn bộ chiều rộng */
+        justify-content: center; /* Căn giữa nội dung nút */
+        margin-bottom: 8px;
+    }
+    .arm-request-actions button:last-child {
+        margin-bottom: 0;
+    }
+}

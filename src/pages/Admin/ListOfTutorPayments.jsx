@@ -46,17 +46,17 @@ const searchableTutorPaymentColumnOptions = [
   { value: "user.phoneNumber", label: "SĐT Người Dùng" }, // Giả sử SĐT của người dùng học
   {
     value: "coinOfUserPayment",
-    label: "Coin Thanh Toán",
+    label: "Xu Thanh Toán",
     placeholderSuffix: " (số)",
   },
   {
     value: "coinOfTutorReceive",
-    label: "Coin Gia Sư Nhận",
+    label: "Xu Gia Sư Nhận",
     placeholderSuffix: " (số)",
   },
   {
     value: "coinOfWebReceive",
-    label: "Coin Web Nhận",
+    label: "Xu Web Nhận",
     placeholderSuffix: " (số)",
   }, // <<< THÊM MỚI
   {
@@ -127,19 +127,19 @@ const ListOfTutorPaymentsPage = () => {
           getSafeNestedValue(row, "user.phoneNumber", "..."),
       },
       {
-        title: "Coin Thanh Toán",
+        title: "Xu Thanh Toán",
         dataKey: "coinOfUserPayment",
         sortable: true,
         renderCell: formatCoin,
       },
       {
-        title: "Coin Gia Sư Nhận",
+        title: "Xu Gia Sư Nhận",
         dataKey: "coinOfTutorReceive",
         sortable: true,
         renderCell: formatCoin,
       },
       {
-        title: "Coin Web Nhận",
+        title: "Xu Web Nhận",
         dataKey: "coinOfWebReceive",
         sortable: true,
         renderCell: formatCoin,
