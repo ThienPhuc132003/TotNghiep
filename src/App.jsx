@@ -176,7 +176,7 @@ function App() {
                   </Route>
 
                   {/* SHARED routes for both USER and TUTOR */}
-                  <Route path="vi-cua-toi" element={<Wallet />} />
+                  <Route path="vi-ca-nhan" element={<Wallet />} />
                 </Route>
                 {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
                 <Route element={<OtpProtectedRoute />}>

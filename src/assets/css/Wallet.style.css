@@ -368,6 +368,22 @@
   color: var(--error-color);
 }
 
+/* Styles for failed transactions */
+.transaction-table tbody tr.transaction-failed td {
+  color: var(--danger-color, #dc3545); /* Red color for text in failed rows */
+}
+
+.transaction-table tbody tr.transaction-failed .amount-col {
+  color: var(--danger-color, #dc3545); /* Ensure coin amount is also red */
+  font-weight: bold; /* Optional: make it bold */
+}
+
+.transaction-table .status-badge.status-failed {
+  background-color: var(--danger-color-light, #f8d7da);
+  color: var(--danger-color-dark, #721c24);
+  border: 1px solid var(--danger-color, #f5c6cb);
+}
+
 .transaction-table .status-cell {
   text-align: center;
 }

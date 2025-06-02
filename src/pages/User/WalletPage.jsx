@@ -1,6 +1,7 @@
 /* global Intl */
 
 import { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCoins,
@@ -311,12 +312,18 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
     }
   };
 
-  const getStatusClass = (status) => {
-    if (!status) return "status-unknown";
-    const normalizedStatus = status
+  const getStatusClass = (status, paymentStatus) => {
+    if (paymentStatus === false) {
+      return "status-failed"; // Ensure failed payments get the 'failed' style
+    }
+    const normalizedStatus = (status || "unknown")
       .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[:()]/g, "");
+      .replace(/\\s+/g, "-");
+    // Add more specific classes if needed, e.g., for "Chờ thanh toán"
+    if (normalizedStatus.includes("chờ-thanh-toán")) return "status-pending";
+    if (normalizedStatus.includes("hoàn-thành")) return "status-completed";
+    if (normalizedStatus.includes("thất-bại")) return "status-failed";
+    if (normalizedStatus.includes("đã-hủy")) return "status-cancelled";
     return `status-${normalizedStatus}`;
   };
 
@@ -350,7 +357,12 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
             </thead>
             <tbody>
               {transactions.map((tx) => (
-                <tr key={tx.id}>
+                <tr
+                  key={tx.id}
+                  className={
+                    tx.paymentStatus === false ? "transaction-failed" : ""
+                  }
+                >
                   <td>
                     {tx.date
                       ? new Date(tx.date).toLocaleString("vi-VN", {
@@ -369,23 +381,31 @@ const WalletHistory = ({ transactions = [], isLoading }) => {
                   <td className="details-col">{tx.details || "---"}</td>
                   <td
                     className={`amount-col ${
-                      tx.amount > 0
+                      tx.paymentStatus === false
+                        ? "negative" // Use 'negative' for red color, or a new class if defined
+                        : tx.amount > 0
                         ? "positive"
-                        : tx.amount < 0
+                        : tx.amount < 0 // This case might not be applicable for "+0 Xu"
                         ? "negative"
                         : ""
                     }`}
                   >
-                    {tx.amount !== 0 ? (tx.amount > 0 ? "+" : "") : ""}
-                    {tx.amount !== 0
-                      ? typeof tx.amount === "number"
-                        ? tx.amount.toLocaleString("en-US")
-                        : "0"
-                      : "---"}
+                    {tx.paymentStatus === false
+                      ? "+0 Xu"
+                      : `${tx.amount > 0 ? "+" : ""}${
+                          tx.amount !== 0
+                            ? typeof tx.amount === "number"
+                              ? tx.amount.toLocaleString("en-US")
+                              : "0"
+                            : "---"
+                        } Xu`}
                   </td>
                   <td className="status-cell">
                     <span
-                      className={`status-badge ${getStatusClass(tx.status)}`}
+                      className={`status-badge ${getStatusClass(
+                        tx.status,
+                        tx.paymentStatus
+                      )}`}
                     >
                       {tx.status || "Không rõ"}
                     </span>
@@ -415,7 +435,10 @@ WalletHistory.propTypes = {
 
 // --- Main WalletPage Component ---
 const WalletPage = () => {
-  const [currentCoinAmount] = useState(0); // Removed 'setCurrentCoinAmount' as it is unused
+  // Lấy số dư coin từ Redux userProfile
+  const userProfile = useSelector((state) => state.user.userProfile) || {};
+  const currentCoinAmount =
+    typeof userProfile.coin === "number" ? userProfile.coin : 0;
   const [transactions, setTransactions] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState(null);
@@ -482,28 +505,43 @@ const WalletPage = () => {
           const description = item.items?.[0]?.valueConfig?.description;
           const payType = item.payment?.payType || "Không rõ";
           const apiStatus = item.status || "UNKNOWN";
+          const paymentStatus = item.payment?.paymentStatus; // Store paymentStatus
+
           let displayStatus = "Không rõ";
-          switch (apiStatus.toUpperCase()) {
-            case "PAID":
-              displayStatus = "Hoàn thành";
-              break;
-            case "WAITING_FOR_PAYMENT":
-              displayStatus = "Chờ thanh toán";
-              break;
-            case "FAILED":
-              displayStatus = "Thất bại";
-              break;
-            case "CANCELLED":
-              displayStatus = "Đã hủy";
-              break;
-            case "PROCESSING":
-              displayStatus = "Đang xử lý";
-              break;
-            default:
-              displayStatus = apiStatus;
+          let transactionAmount = 0;
+
+          if (paymentStatus === false) {
+            displayStatus = "Thất bại";
+            transactionAmount = 0;
+          } else {
+            switch (apiStatus.toUpperCase()) {
+              case "PAID":
+                displayStatus = "Hoàn thành";
+                transactionAmount = coinConfig || 0;
+                break;
+              case "WAITING_FOR_PAYMENT":
+                displayStatus = "Chờ thanh toán";
+                // transactionAmount remains 0 as it's not paid
+                break;
+              case "FAILED":
+                displayStatus = "Thất bại";
+                // transactionAmount remains 0
+                break;
+              case "CANCELLED":
+                displayStatus = "Đã hủy";
+                // transactionAmount remains 0
+                break;
+              case "PROCESSING":
+                displayStatus = "Đang xử lý";
+                // transactionAmount remains 0
+                break;
+              default:
+                displayStatus = apiStatus; // Or some other default
+              // transactionAmount remains 0
+            }
           }
-          const transactionAmount = apiStatus === "PAID" ? coinConfig || 0 : 0;
-          const transactionType = "Nạp Xu";
+
+          const transactionType = "Nạp Xu"; // Assuming all these are top-ups
           return {
             id: item.orderId || item.paymentId,
             date: item.createdAt,
@@ -512,6 +550,7 @@ const WalletPage = () => {
               description || `Nạp ${coinConfig || "?"} Xu qua ${payType}`,
             amount: transactionAmount,
             status: displayStatus,
+            paymentStatus: paymentStatus, // Pass paymentStatus to the transaction object
           };
         });
         formattedTransactions.sort(
@@ -619,7 +658,7 @@ const WalletPage = () => {
               {topupErrorMessage}
             </div>
           )}
-          <WalletBalance currentBalance={currentCoinAmount} />{" "}
+          <WalletBalance currentBalance={currentCoinAmount} />
           <WalletTopUp
             packages={coinPackages}
             isLoadingPackages={isLoadingPackages}

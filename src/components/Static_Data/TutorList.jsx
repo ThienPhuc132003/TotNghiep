@@ -1,3 +1,4 @@
+// TutorList.jsx
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
@@ -13,19 +14,16 @@ import Pagination from "../Pagination"; // Đảm bảo đường dẫn đúng
 import "../../assets/css/TutorCardSkeleton.style.css";
 import "../../assets/css/TutorSearch.style.css";
 import "../../assets/css/BookingModal.style.css";
+import AcceptedRequestsModal from "../User/AcceptedRequestsModal";
 
 const TUTORS_PER_PAGE = 8;
 
-const mapApiTutorToCardProps = async (
-  apiTutor,
-  isLoggedInFlag,
-) => {
+const mapApiTutorToCardProps = (apiTutor, isLoggedInFlag) => {
   if (!apiTutor || !apiTutor.tutorProfile || !apiTutor.userId) {
     console.warn("[mapApiTutorToCardProps] Invalid apiTutor data:", apiTutor);
     return null;
   }
   const profile = apiTutor.tutorProfile;
-  const tutorIdForAPI = profile.userId;
 
   const avatar = profile.avatar || null;
   const fullname = profile.fullname || "Gia sư ẩn danh";
@@ -45,76 +43,14 @@ const mapApiTutorToCardProps = async (
 
   let finalDetailedStatus = null;
   let finalBookingId = null;
-  let apiIsTutorAcceptingRequestFlag = null;
+  let apiIsTutorAcceptingRequestFlagOutput = null;
 
   if (isLoggedInFlag) {
     if (typeof profile.isBookingRequestAccepted === "boolean") {
-      apiIsTutorAcceptingRequestFlag = profile.isBookingRequestAccepted;
+      apiIsTutorAcceptingRequestFlagOutput = profile.isBookingRequestAccepted;
     }
 
-    if (apiIsTutorAcceptingRequestFlag === true) {
-      try {
-        const acceptedBookingResponse = await Api({
-          endpoint: `booking-request/get-my-booking-request-accept/${tutorIdForAPI}`,
-          method: METHOD_TYPE.GET,
-          requireToken: true,
-        });
-        if (
-          acceptedBookingResponse?.data?.items &&
-          acceptedBookingResponse.data.items.length > 0
-        ) {
-          const acceptedRequest = acceptedBookingResponse.data.items.sort(
-            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-          )[0];
-          if (
-            acceptedRequest &&
-            acceptedRequest.status &&
-            acceptedRequest.status.toUpperCase() === "ACCEPT"
-          ) {
-            finalDetailedStatus = "ACCEPT";
-            finalBookingId = acceptedRequest.bookingRequestId;
-          } else {
-            console.warn(
-              `TutorList: API isBookingRequestAccepted=true cho tutor ${tutorIdForAPI} nhưng API phụ không có YC ACCEPT hợp lệ.`
-            );
-            if (profile.bookingRequest && profile.bookingRequest.status) {
-              finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
-              finalBookingId =
-                profile.bookingRequest.bookingRequestId ||
-                profile.bookingRequestId;
-            }
-          }
-        } else {
-          console.warn(
-            `TutorList: API isBookingRequestAccepted=true cho tutor ${tutorIdForAPI} nhưng API phụ không trả về items.`
-          );
-          if (profile.bookingRequest && profile.bookingRequest.status) {
-            finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
-            finalBookingId =
-              profile.bookingRequest.bookingRequestId ||
-              profile.bookingRequestId;
-          }
-        }
-      } catch (error) {
-        console.error(
-          `TutorList: Lỗi gọi API get-my-booking-request-accept cho tutor ${tutorIdForAPI}:`,
-          error
-        );
-        if (profile.bookingRequest && profile.bookingRequest.status) {
-          finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
-          finalBookingId =
-            profile.bookingRequest.bookingRequestId || profile.bookingRequestId;
-        } else if (
-          profile.isBookingRequest === true &&
-          (profile.bookingRequestId || profile.bookingRequest?.bookingRequestId)
-        ) {
-          finalDetailedStatus = "REQUEST";
-          finalBookingId =
-            profile.bookingRequestId ||
-            profile.bookingRequest?.bookingRequestId;
-        }
-      }
-    } else {
+    if (apiIsTutorAcceptingRequestFlagOutput !== true) {
       if (profile.bookingRequest && profile.bookingRequest.status) {
         finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
         finalBookingId =
@@ -127,6 +63,12 @@ const mapApiTutorToCardProps = async (
         finalBookingId =
           profile.bookingRequestId || profile.bookingRequest?.bookingRequestId;
       }
+    }
+    if (!finalBookingId) {
+      finalBookingId =
+        profile.bookingRequestId ||
+        profile.bookingRequest?.bookingRequestId ||
+        null;
     }
   }
 
@@ -157,7 +99,7 @@ const mapApiTutorToCardProps = async (
     teachingTime: profile.teachingTime
       ? parseFloat(profile.teachingTime)
       : null,
-    isTutorAcceptingRequestAPIFlag: apiIsTutorAcceptingRequestFlag,
+    isTutorAcceptingRequestAPIFlag: apiIsTutorAcceptingRequestFlagOutput,
     bookingInfoCard: {
       status: finalDetailedStatus,
       bookingId: finalBookingId,
@@ -182,22 +124,27 @@ const TutorList = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isLoggedIn = useSelector((state) => !!state.user.userProfile?.userId);
-  const currentUserId = useSelector((state) => state.user.userProfile?.userId);
 
   const [tutors, setTutors] = useState([]);
   const [totalTutors, setTotalTutors] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedTutorForBooking, setSelectedTutorForBooking] = useState(null);
+
+  const [isAcceptedRequestsModalOpen, setIsAcceptedRequestsModalOpen] =
+    useState(false);
+  const [selectedTutorForAccepted, setSelectedTutorForAccepted] =
+    useState(null);
 
   const requireLogin = useCallback(
     (action = "thực hiện chức năng này") => {
       toast.info(`Vui lòng đăng nhập để ${action}!`);
       navigate("/login", { state: { from: location } });
     },
-    [navigate, location]
+    [navigate, location] // navigate và location là dependencies
   );
 
   const fetchTutorsData = useCallback(
@@ -222,12 +169,9 @@ const TutorList = ({
         });
 
         if (response?.data?.items && Array.isArray(response.data.items)) {
-          const mappedTutorsPromises = response.data.items.map((apiTutor) =>
-            mapApiTutorToCardProps(apiTutor, isLoggedIn, currentUserId)
-          );
-          const mappedTutors = (await Promise.all(mappedTutorsPromises)).filter(
-            Boolean
-          );
+          const mappedTutors = response.data.items
+            .map((apiTutor) => mapApiTutorToCardProps(apiTutor, isLoggedIn)) // Không còn async map ở đây
+            .filter(Boolean);
           setTutors(mappedTutors);
           setTotalTutors(response.data.total || 0);
         } else {
@@ -251,14 +195,7 @@ const TutorList = ({
         setIsLoading(false);
       }
     },
-    [
-      isLoggedIn,
-      currentUserId,
-      searchTerm,
-      selectedLevelId,
-      selectedMajorId,
-      sortBy,
-    ]
+    [isLoggedIn, searchTerm, selectedLevelId, selectedMajorId, sortBy] // Dependencies của fetchTutorsData
   );
 
   useEffect(() => {
@@ -266,18 +203,21 @@ const TutorList = ({
     fetchTutorsData(1);
   }, [fetchTutorsData]);
 
-  const handlePageChange = (pageNumber) => {
-    const totalPagesCalculated = Math.ceil(totalTutors / TUTORS_PER_PAGE);
-    if (
-      pageNumber >= 1 &&
-      pageNumber <= totalPagesCalculated &&
-      pageNumber !== currentPage
-    ) {
-      setCurrentPage(pageNumber);
-      fetchTutorsData(pageNumber);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
+  const handlePageChange = useCallback(
+    (pageNumber) => {
+      const totalPagesCalculated = Math.ceil(totalTutors / TUTORS_PER_PAGE);
+      if (
+        pageNumber >= 1 &&
+        pageNumber <= totalPagesCalculated &&
+        pageNumber !== currentPage
+      ) {
+        setCurrentPage(pageNumber);
+        fetchTutorsData(pageNumber);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+    [totalTutors, currentPage, fetchTutorsData]
+  ); // Dependencies cho handlePageChange
 
   const handleOpenBookingModal = useCallback(
     (tutorDataFromCard) => {
@@ -306,11 +246,8 @@ const TutorList = ({
     fetchTutorsData(currentPage);
   }, [currentPage, fetchTutorsData]);
 
-  const handleConfirmHireSuccessInList = useCallback(() => {
-    fetchTutorsData(currentPage);
-  }, [currentPage, fetchTutorsData]);
-
   const handleFavoriteStatusChangeInList = useCallback(
+    // Dòng 246 ở đây hoặc gần đây
     (tutorId, newIsFavorite) => {
       setTutors((prevTutors) =>
         prevTutors.map((t) =>
@@ -318,8 +255,30 @@ const TutorList = ({
         )
       );
     },
-    []
+    [] // Nếu setTutors không thay đổi, [] là ổn. Nếu có lỗi exhaustive-deps ở đây, có thể setTutors nên là dependency
+    // nhưng thường thì hàm setter của useState không cần.
   );
+
+  const handleOpenAcceptedRequestsModalFromCard = useCallback(
+    (tutorData) => {
+      if (!isLoggedIn) {
+        requireLogin("xem yêu cầu đã duyệt");
+        return;
+      }
+      setSelectedTutorForAccepted(tutorData);
+      setIsAcceptedRequestsModalOpen(true);
+    },
+    [isLoggedIn, requireLogin]
+  );
+
+  const handleCloseAcceptedRequestsModal = useCallback(() => {
+    setIsAcceptedRequestsModalOpen(false);
+    setSelectedTutorForAccepted(null);
+  }, []);
+
+  const handleActionSuccessFromAcceptedModal = useCallback(() => {
+    fetchTutorsData(currentPage);
+  }, [currentPage, fetchTutorsData]);
 
   const totalPages = Math.ceil(totalTutors / TUTORS_PER_PAGE);
   const indexOfFirstTutor = (currentPage - 1) * TUTORS_PER_PAGE;
@@ -360,8 +319,10 @@ const TutorList = ({
                 key={tutorProps.id}
                 tutor={tutorProps}
                 onOpenBookingModal={handleOpenBookingModal}
+                onOpenAcceptedRequestsModal={
+                  handleOpenAcceptedRequestsModalFromCard
+                }
                 onCancelSuccess={handleCancelSuccessInList}
-                onConfirmHireSuccess={handleConfirmHireSuccessInList}
                 isLoggedIn={isLoggedIn}
                 onFavoriteStatusChange={handleFavoriteStatusChangeInList}
               />
@@ -389,6 +350,15 @@ const TutorList = ({
           maxHoursPerLesson={selectedTutorForBooking.teachingTime}
           availableScheduleRaw={selectedTutorForBooking.dateTimeLearn || []}
           hourlyRate={selectedTutorForBooking.hourlyRate}
+        />
+      )}
+      {selectedTutorForAccepted && (
+        <AcceptedRequestsModal
+          isOpen={isAcceptedRequestsModalOpen}
+          onClose={handleCloseAcceptedRequestsModal}
+          tutorId={selectedTutorForAccepted.id}
+          tutorName={selectedTutorForAccepted.name}
+          onActionSuccess={handleActionSuccessFromAcceptedModal}
         />
       )}
     </section>

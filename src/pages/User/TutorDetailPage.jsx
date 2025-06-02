@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 import "../../assets/css/TutorDetailPage.style.css";
 import BookingModal from "../../components/User/BookingModal";
 import YoutubeEmbed from "../../components/User/YoutubeEmbed";
-import AcceptedRequestsModal from "../../components/User/AcceptedRequestsModal"; // IMPORT MODAL MỚI
+import AcceptedRequestsModal from "../../components/User/AcceptedRequestsModal";
 
 // --- HELPER CONSTANTS & FUNCTIONS ---
 const tutorRanks = {
@@ -73,8 +73,8 @@ const renderStars = (rating) => {
   const s = [];
   const fS = Math.floor(rating);
   for (let i = 0; i < 5; i++) {
-    if (i < fS) s.push(<FaStar key={`f-${i}`} className="si filled" />);
-    else s.push(<FaStar key={`e-${i}`} className="si empty" />);
+    if (i < fS) s.push(<FaStar key={`f-${i}`} className="star-icon filled" />);
+    else s.push(<FaStar key={`e-${i}`} className="star-icon empty" />);
   }
   return s;
 };
@@ -82,7 +82,7 @@ const renderRankBadge = (d) => {
   if (!d) return null;
   return (
     <span
-      className="trb detail-rb"
+      className="tutor-rank-badge detail-rank-badge"
       style={{ color: d.color }}
       title={`Hạng: ${d.name}`}
     >
@@ -97,45 +97,43 @@ const renderTeachingMethod = (m) => {
     case "OFFLINE":
       return "Trực tiếp";
     case "BOTH":
-      return "Cả hai";
+      return "Cả hai hình thức";
     default:
-      return "N/A";
+      return "Chưa xác định";
   }
 };
 const formatBirthday = (dS) => {
-  if (!dS) return "N/A";
+  if (!dS) return "Chưa cập nhật";
   try {
     const d = new Date(dS);
-    if (isNaN(d.getTime())) return "Lỗi";
+    if (isNaN(d.getTime())) return "Ngày không hợp lệ";
     return d.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
   } catch (e) {
-    return "Lỗi";
+    return "Ngày không hợp lệ";
   }
 };
 const renderSchedule = (dL) => {
-  if (!dL || !Array.isArray(dL) || dL.length === 0) return <p>Chưa có lịch.</p>;
+  if (!dL || !Array.isArray(dL) || dL.length === 0)
+    return <p>Gia sư chưa cập nhật lịch dạy.</p>;
   const labels = {
-    Mo: "T2",
-    Tu: "T3",
-    We: "T4",
-    Th: "T5",
-    Fr: "T6",
-    Sa: "T7",
-    Su: "CN",
+    Monday: "Thứ Hai",
+    Tuesday: "Thứ Ba",
+    Wednesday: "Thứ Tư",
+    Thursday: "Thứ Năm",
+    Friday: "Thứ Sáu",
+    Saturday: "Thứ Bảy",
+    Sunday: "Chủ Nhật",
   };
   try {
     const pS = dL
       .map((iS) => {
         try {
           let i = typeof iS === "string" ? JSON.parse(iS) : iS;
-          return i &&
-            i.day &&
-            labels[i.day.slice(0, 2)] &&
-            Array.isArray(i.times)
+          return i && i.day && labels[i.day] && Array.isArray(i.times)
             ? i
             : null;
         } catch (pE) {
@@ -143,21 +141,31 @@ const renderSchedule = (dL) => {
         }
       })
       .filter((i) => i !== null);
-    if (pS.length === 0) return <p>Lịch lỗi.</p>;
-    const dO = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6, Su: 7 };
-    pS.sort((a, b) => dO[a.day.slice(0, 2)] - dO[b.day.slice(0, 2)]);
+    if (pS.length === 0) return <p>Lịch dạy không hợp lệ.</p>;
+    const dO = {
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+      Sunday: 7,
+    };
+    pS.sort((a, b) => dO[a.day] - dO[b.day]);
     return (
-      <ul className="sl">
+      <ul className="schedule-list">
         {pS.map((i) => (
           <li key={i.day}>
-            <strong>{labels[i.day.slice(0, 2)] || i.day}:</strong>{" "}
-            {i.times.length > 0 ? i.times.sort().join(", ") : "N/A"}
+            <strong>{labels[i.day]}:</strong>{" "}
+            {i.times.length > 0
+              ? i.times.sort().join(", ")
+              : "Không có khung giờ"}
           </li>
         ))}
       </ul>
     );
   } catch (e) {
-    return <p>Lỗi lịch.</p>;
+    return <p>Lỗi hiển thị lịch.</p>;
   }
 };
 // --- END HELPER ---
@@ -172,7 +180,7 @@ const TutorDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isActionLoading, setIsActionLoading] = useState(false); // Chung cho các action nhỏ lẻ
+  const [isActionLoading, setIsActionLoading] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAcceptedRequestsModalOpen, setIsAcceptedRequestsModalOpen] =
     useState(false);
@@ -229,8 +237,10 @@ const TutorDetailPage = () => {
           if (isLoggedIn) {
             if (typeof profile.isBookingRequestAccepted === "boolean")
               resApiIsTutorAccepting = profile.isBookingRequestAccepted;
-            // Không cần gọi API phụ ở đây nữa, vì nút "Xem YC Duyệt" sẽ mở modal, modal tự fetch
-            // Chỉ xác định detailedStatus dựa trên thông tin có sẵn từ API chính
+
+            // Xác định detailedStatus và bookingId dựa trên thông tin API chính
+            // Kể cả khi apiIsTutorAcceptingRequest là true, chúng ta vẫn có thể có detailedStatus là REQUEST hoặc HIRED, v.v.
+            // từ một booking khác với gia sư này.
             if (profile.bookingRequest && profile.bookingRequest.status) {
               resDetailedStatus = profile.bookingRequest.status.toUpperCase();
               resBookingId =
@@ -241,13 +251,13 @@ const TutorDetailPage = () => {
               (profile.bookingRequestId ||
                 profile.bookingRequest?.bookingRequestId)
             ) {
-              resDetailedStatus = "REQUEST"; // Nếu chỉ có cờ isBookingRequest
+              resDetailedStatus = "REQUEST";
               resBookingId =
                 profile.bookingRequestId ||
                 profile.bookingRequest?.bookingRequestId;
             }
-            // apiIsTutorAcceptingRequest được dùng để quyết định có hiện nút "Xem YC đã duyệt" hay không
-            // detailedStatus và bookingId ở đây dùng cho các trạng thái khác (REQUEST, HIRED,...)
+            // bookingId chính có thể được lấy từ đây nếu không có trong bookingRequest
+            if (!resBookingId) resBookingId = profile.bookingRequestId || null;
           }
           setBookingOverallInfo({
             apiIsTutorAcceptingRequest: resApiIsTutorAccepting,
@@ -281,6 +291,7 @@ const TutorDetailPage = () => {
     }
     window.scrollTo(0, 0);
   }, [tutorIdFromParams, fetchTutorDetail]);
+
   const handleToggleFavorite = async () => {
     if (!isLoggedIn) {
       requireLogin("thêm vào yêu thích");
@@ -327,6 +338,7 @@ const TutorDetailPage = () => {
     toast.success("Đã gửi YC thuê!");
     fetchTutorDetail();
   }, [fetchTutorDetail, handleCloseBookingModal]);
+
   const handleOpenAcceptedRequestsModal = () => {
     if (!isLoggedIn) {
       requireLogin("xem YC đã duyệt");
@@ -337,10 +349,11 @@ const TutorDetailPage = () => {
   const handleCloseAcceptedRequestsModal = () =>
     setIsAcceptedRequestsModalOpen(false);
   const handleActionSuccessFromAcceptedModal = () => {
-    fetchTutorDetail(); /* Có thể đóng modal ở đây nếu muốn, hoặc modal tự đóng */
+    fetchTutorDetail();
+    setIsAcceptedRequestsModalOpen(false);
   };
+
   const handleCancelRequest = async () => {
-    // Chỉ dùng để hủy yêu cầu đang ở trạng thái REQUEST
     if (
       !isLoggedIn ||
       !bookingOverallInfo.bookingId ||
@@ -373,24 +386,26 @@ const TutorDetailPage = () => {
 
   if (isLoading && !tutorData)
     return (
-      <div className="tdp load-state">
-        <FaSpinner spin /> Đang tải...
+      <div className="tutor-detail-page loading-state">
+        <FaSpinner className="spinner" spin />
+        <p>Đang tải...</p>
       </div>
     );
   if (error && !tutorData)
     return (
-      <div className="tdp err-state">
-        <FaExclamationTriangle /> <p>{error}</p>
-        <Link to="/tim-gia-su" className="bl">
+      <div className="tutor-detail-page error-state">
+        <FaExclamationTriangle className="error-icon" />
+        <p>{error}</p>
+        <Link to="/tim-gia-su" className="back-link">
           Quay lại
         </Link>
       </div>
     );
   if (!tutorData || !tutorData.tutorProfile)
     return (
-      <div className="tdp err-state">
+      <div className="tutor-detail-page error-state">
         <p>Không có dữ liệu.</p>
-        <Link to="/tim-gia-su" className="bl">
+        <Link to="/tim-gia-su" className="back-link">
           Quay lại
         </Link>
       </div>
@@ -413,6 +428,7 @@ const TutorDetailPage = () => {
     isLoggedIn && bookingOverallInfo.apiIsTutorAcceptingRequest === true;
   const showNoAcceptedMsg =
     isLoggedIn && bookingOverallInfo.apiIsTutorAcceptingRequest === false;
+  // Nút Gửi Yêu Cầu Mới hiển thị độc lập với showViewAcceptedBtn
   const canSendNewReq =
     isLoggedIn &&
     (!bookingOverallInfo.detailedStatus ||
@@ -429,12 +445,13 @@ const TutorDetailPage = () => {
     isLoggedIn && bookingOverallInfo.detailedStatus === "REFUSE";
   const showCancelledMsg =
     isLoggedIn && bookingOverallInfo.detailedStatus === "CANCEL";
+  const isProcessingAnyAction = isActionLoading; // Sử dụng chung cho các nút chính
 
   return (
     <>
       <div className="tutor-detail-page">
         {error && tutorData && (
-          <div className="detail-fetch-error-toast temp-err">
+          <div className="detail-fetch-error-toast temporary-error">
             <FaExclamationTriangle /> {error}
           </div>
         )}
@@ -458,7 +475,7 @@ const TutorDetailPage = () => {
           </div>
           <div className="header-main">
             <h1 className="detail-name">
-              {profile.fullname || "GS"}
+              {profile.fullname || "Gia Sư"}
               {renderRankBadge(rI)}
             </h1>
             <div className="detail-rating-fav">
@@ -475,15 +492,13 @@ const TutorDetailPage = () => {
               {isLoggedIn && (
                 <button
                   className={`favorite-btn dfb ${isFavorite ? "active" : ""} ${
-                    isActionLoading && !bookingOverallInfo.detailedStatus
-                      ? "loading"
-                      : ""
+                    isProcessingAnyAction ? "loading" : ""
                   }`}
                   onClick={handleToggleFavorite}
-                  disabled={isActionLoading}
+                  disabled={isProcessingAnyAction}
                   aria-pressed={isFavorite}
                 >
-                  {isActionLoading && !bookingOverallInfo.detailedStatus ? (
+                  {isProcessingAnyAction ? (
                     <FaSpinner spin />
                   ) : isFavorite ? (
                     <FaHeart />
@@ -494,70 +509,78 @@ const TutorDetailPage = () => {
               )}
             </div>
             <p className="detail-basic-info">
-              <FaGraduationCap className="ii" />{" "}
+              <FaGraduationCap className="info-icon" />{" "}
               {profile.tutorLevel?.levelName || "N/A"} -{" "}
               {profile.univercity || "N/A"}
             </p>
             <p className="detail-basic-info">
-              <FaBook className="ii" /> CN: {profile.major?.majorName || "N/A"}
+              <FaBook className="info-icon" /> CN:{" "}
+              {profile.major?.majorName || "N/A"}
             </p>
             <div className="header-actions">
               {showViewAcceptedBtn && (
                 <button
-                  className="abtn primary-action view-accepted-btn"
+                  className="action-btn primary-action view-accepted-btn"
                   onClick={handleOpenAcceptedRequestsModal}
-                  disabled={isActionLoading}
+                  disabled={isProcessingAnyAction}
                 >
-                  <FaCalendarCheck /> Xem YC Đã Duyệt
+                  <FaCalendarCheck /> Xem Yêu Cầu Đã Duyệt
                 </button>
               )}
-              {showNoAcceptedMsg && (
-                <span className="bsi info disabled-look">
+
+              {/* Thông báo "Chưa có yêu cầu được chấp nhận" chỉ hiển thị nếu không có nút "Xem YC Duyệt" */}
+              {showNoAcceptedMsg && !showViewAcceptedBtn && (
+                <span className="booking-status-indicator info disabled-look">
                   <FaInfoCircle /> Chưa có yêu cầu được chấp nhận
                 </span>
               )}
-              {canSendNewReq && !showViewAcceptedBtn && (
+
+              {canSendNewReq && (
                 <button
-                  className="abtn primary-action request-new-btn"
+                  className="action-btn primary-action request-new-btn"
                   onClick={handleOpenBookingModal}
-                  disabled={isActionLoading}
+                  disabled={isProcessingAnyAction}
                 >
                   <FaCalendarPlus /> Gửi Yêu Cầu Mới
                 </button>
               )}
+
               {showPendingApproval && (
                 <div className="status-with-action">
-                  <span className="bsi pending">
-                    <FaClock /> Chờ duyệt...
+                  <span className="booking-status-indicator pending">
+                    <FaClock /> Đang chờ gia sư duyệt...
                   </span>
                   <button
-                    className="abtn cancel-action"
+                    className="action-btn cancel-action"
                     onClick={handleCancelRequest}
-                    disabled={isActionLoading}
+                    disabled={isProcessingAnyAction}
                   >
-                    {isActionLoading ? <FaSpinner spin /> : <FaTimes />} Hủy YC
+                    {isProcessingAnyAction ? <FaSpinner spin /> : <FaTimes />}{" "}
+                    Hủy Yêu Cầu
                   </button>
                 </div>
               )}
+
               {showHiredMsg && (
-                <span className="bsi hired">
+                <span className="booking-status-indicator hired">
                   <FaCheckCircle /> Đang học
                 </span>
               )}
               {showRefusedMsg && (
-                <span className="bsi rejected">
-                  <FaExclamationTriangle /> YC bị từ chối
+                <span className="booking-status-indicator rejected">
+                  <FaExclamationTriangle /> Yêu cầu bị từ chối
                 </span>
               )}
               {showCancelledMsg && (
-                <span className="bsi cancelled">
-                  <FaExclamationTriangle /> Bạn đã hủy YC
+                <span className="booking-status-indicator cancelled">
+                  <FaExclamationTriangle /> Bạn đã hủy yêu cầu
                 </span>
               )}
+
               {!isLoggedIn && (
                 <button
-                  className="abtn primary-action login-btn"
-                  onClick={() => requireLogin("tương tác")}
+                  className="action-btn primary-action login-btn"
+                  onClick={() => requireLogin("tương tác với gia sư")}
                 >
                   <FaCalendarPlus /> Đăng Nhập
                 </button>
@@ -567,21 +590,21 @@ const TutorDetailPage = () => {
         </section>
         <section className="detail-content">
           <div className="detail-section">
-            <h3>Giới thiệu</h3>
+            <h3>Giới thiệu bản thân</h3>
             <p className="detail-description">
-              {profile.description || "Chưa có."}
+              {profile.description || "Chưa có thông tin."}
             </p>
           </div>
           <div className="detail-section two-columns">
             <div className="column">
-              <h3>TT Cơ Bản</h3>
+              <h3>Thông tin Cơ Bản</h3>
               <ul className="info-list">
                 <li>
-                  <FaBirthdayCake className="ii" />
+                  <FaBirthdayCake className="info-icon" />
                   NS: {formatBirthday(profile.birthday)}
                 </li>
                 <li>
-                  <FaVenusMars className="ii" />
+                  <FaVenusMars className="info-icon" />
                   GT:{" "}
                   {profile.gender === "MALE"
                     ? "Nam"
@@ -590,17 +613,17 @@ const TutorDetailPage = () => {
                     : "N/A"}
                 </li>
                 <li>
-                  <FaUserGraduate className="ii" />
+                  <FaUserGraduate className="info-icon" />
                   GPA: {profile.GPA || "N/A"}
                 </li>
                 {profile.evidenceOfGPA && (
                   <li>
-                    <FaLink className="ii" />
+                    <FaLink className="info-icon" />
                     <a
                       href={profile.evidenceOfGPA}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="el"
+                      className="evidence-link"
                     >
                       Xem MC GPA
                     </a>
@@ -609,28 +632,28 @@ const TutorDetailPage = () => {
               </ul>
             </div>
             <div className="column">
-              <h3>PP & Địa Điểm</h3>
+              <h3>Phương pháp & Địa Điểm</h3>
               <ul className="info-list">
                 <li>
-                  <FaChalkboardTeacher className="ii" />
+                  <FaChalkboardTeacher className="info-icon" />
                   PP: {renderTeachingMethod(profile.teachingMethod)}
                 </li>
                 <li>
-                  <FaMapMarkerAlt className="ii" />
+                  <FaMapMarkerAlt className="info-icon" />
                   KV: {profile.teachingPlace || "N/A"}
                 </li>
                 {formatTeachingTime(
                   profile.teachingTime ? parseFloat(profile.teachingTime) : null
                 ) && (
                   <li>
-                    <FaClock className="ii" />
+                    <FaClock className="info-icon" />
                     TL: {formatTeachingTime(parseFloat(profile.teachingTime))}
                   </li>
                 )}
                 <li>
-                  <FaCoins className="ii" />
+                  <FaCoins className="info-icon" />
                   Giá:{" "}
-                  <strong className="dpi">
+                  <strong className="detail-price-inline">
                     {profile.coinPerHours
                       ? `${profile.coinPerHours.toLocaleString("vi-VN")} Xu/giờ`
                       : "Thỏa thuận"}
@@ -643,7 +666,7 @@ const TutorDetailPage = () => {
             <h3>Kỹ Năng & Môn Dạy</h3>
             <ul className="info-list subjects-list">
               <li>
-                <FaBook className="ii" />
+                <FaBook className="info-icon" />
                 Môn chính:{" "}
                 <strong>{profile.subject?.subjectName || "N/A"}</strong>{" "}
                 {profile.evidenceOfSubject && (
@@ -651,33 +674,33 @@ const TutorDetailPage = () => {
                     href={profile.evidenceOfSubject}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="el"
+                    className="evidence-link"
                   >
                     (MC)
                   </a>
                 )}{" "}
                 {profile.descriptionOfSubject && (
-                  <p className="sd">
+                  <p className="subject-desc">
                     <em>{profile.descriptionOfSubject}</em>
                   </p>
                 )}
               </li>
               {profile.subjectId2 && profile.subject2?.subjectName && (
                 <li>
-                  <FaBook className="ii" />
+                  <FaBook className="info-icon" />
                   Môn 2: <strong>{profile.subject2.subjectName}</strong>{" "}
                   {profile.evidenceOfSubject2 && (
                     <a
                       href={profile.evidenceOfSubject2}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="el"
+                      className="evidence-link"
                     >
                       (MC)
                     </a>
                   )}{" "}
                   {profile.descriptionOfSubject2 && (
-                    <p className="sd">
+                    <p className="subject-desc">
                       <em>{profile.descriptionOfSubject2}</em>
                     </p>
                   )}
@@ -685,20 +708,20 @@ const TutorDetailPage = () => {
               )}
               {profile.subjectId3 && profile.subject3?.subjectName && (
                 <li>
-                  <FaBook className="ii" />
+                  <FaBook className="info-icon" />
                   Môn 3: <strong>{profile.subject3.subjectName}</strong>{" "}
                   {profile.evidenceOfSubject3 && (
                     <a
                       href={profile.evidenceOfSubject3}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="el"
+                      className="evidence-link"
                     >
                       (MC)
                     </a>
                   )}{" "}
                   {profile.descriptionOfSubject3 && (
-                    <p className="sd">
+                    <p className="subject-desc">
                       <em>{profile.descriptionOfSubject3}</em>
                     </p>
                   )}
@@ -707,15 +730,15 @@ const TutorDetailPage = () => {
             </ul>
           </div>
           <div className="detail-section">
-            <h3>Lịch Dạy</h3>
+            <h3>Lịch Dạy Có Thể Đáp Ứng</h3>
             {renderSchedule(profile.dateTimeLearn)}
           </div>
           {profile.videoUrl && (
             <div className="detail-section">
-              <h3>Video</h3>
+              <h3>Video Giới Thiệu</h3>
               <YoutubeEmbed
                 videoUrl={profile.videoUrl}
-                title={`Video của ${profile.fullname || "GS"}`}
+                title={`Video của ${profile.fullname || "Gia Sư"}`}
               />
             </div>
           )}
@@ -725,7 +748,7 @@ const TutorDetailPage = () => {
             isOpen={isBookingModalOpen}
             onClose={handleCloseBookingModal}
             tutorId={tutorData.userId}
-            tutorName={profile.fullname || "GS"}
+            tutorName={profile.fullname || "Gia Sư"}
             onBookingSuccess={handleBookingSuccess}
             maxHoursPerLesson={
               profile.teachingTime ? parseFloat(profile.teachingTime) : null
@@ -738,7 +761,7 @@ const TutorDetailPage = () => {
             isOpen={isAcceptedRequestsModalOpen}
             onClose={handleCloseAcceptedRequestsModal}
             tutorId={profile.userId}
-            tutorName={profile.fullname || "GS"}
+            tutorName={profile.fullname || "Gia Sư"}
             onActionSuccess={handleActionSuccessFromAcceptedModal}
           />
         )}

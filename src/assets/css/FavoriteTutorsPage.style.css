@@ -1,5 +1,47 @@
+/* Style riêng cho TutorCard khi ở trang FavoriteTutorsPage */
+.favorite-tutor-card {
+  border: 2.5px solid var(--primary-color) !important;
+  box-shadow: 0 6px 20px 0 rgba(215, 33, 52, 0.15) !important;
+  background: linear-gradient(145deg, #fffdfa, #fef7f7) !important;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.favorite-tutor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px 0 rgba(215, 33, 52, 0.2) !important;
+}
+.favorite-tutor-card .favorite-btn {
+  font-size: 1.5rem !important; /* Giảm kích thước nút */
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--favorite-active, #ef4444) !important;
+  filter: drop-shadow(0 2px 8px rgba(239, 68, 68, 0.2)) !important;
+  background: #fff !important;
+  border: 1.5px solid var(--favorite-active, #ef4444);
+  border-radius: 50%;
+  top: 10px;
+  right: 10px;
+  z-index: 5; /* Tăng z-index để đảm bảo hiển thị đúng */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.favorite-tutor-card .favorite-btn:hover:not(:disabled) {
+  background-color: var(--favorite-hover, #f87171) !important;
+  transform: scale(1.05);
+}
+.favorite-tutor-card .header-right-actions {
+  z-index: 2;
+}
+.favorite-tutor-card .tutor-card {
+  background: transparent !important;
+}
 /* src/assets/css/FavoriteTutorsPage.style.css */
-
 
 .favorite-tutors-container h1 {
   font-size: 1.8rem;
@@ -59,27 +101,75 @@
 
 .favorite-tutor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: 1fr; /* Chỉ hiển thị một cột */
   gap: 1.5rem;
 }
 
 @media (max-width: 768px) {
-  .favorite-tutors-container h1 {
-    font-size: 1.6rem;
-  }
   .favorite-tutor-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    grid-template-columns: 1fr; /* Đảm bảo một cột trên màn hình nhỏ */
   }
 }
 
 @media (max-width: 480px) {
-  .favorite-tutors-container h1 {
-    font-size: 1.4rem;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-  }
   .favorite-tutor-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Một cột trên màn hình rất nhỏ */
   }
+}
+
+/* Thêm CSS đặc biệt cho phần đánh giá để không bị che khuất */
+.favorite-tutor-card .rating-container {
+  position: relative;
+  z-index: 2;
+  margin-right: 50px; /* Tạo khoảng cách cho nút yêu thích */
+}
+
+/* Điều chỉnh vị trí nút yêu thích để không chồng lên phần đánh giá */
+/* Nút yêu thích được định nghĩa ở trên, không cần lặp lại */
+
+/* Thêm margin cho container chứa đánh giá để tránh chồng lấn */
+.favorite-tutor-card .tutor-rating-container,
+.favorite-tutor-card .rating-container {
+  display: flex;
+  align-items: center;
+  width: calc(
+    100% - 50px
+  ); /* Giới hạn chiều rộng để tránh chồng lấn với nút yêu thích */
+  gap: 8px; /* Thêm khoảng cách giữa các phần tử bên trong */
+  position: relative; /* Đảm bảo vị trí tương đối */
+}
+
+/* Đảm bảo phần thông tin đánh giá được hiển thị đúng */
+.favorite-tutor-card .tutor-rating {
+  display: inline-flex;
+  align-items: center;
+  margin-right: auto;
+  max-width: 100%; /* Đảm bảo không bị tràn */
+  gap: 5px; /* Thêm khoảng cách giữa số sao và biểu tượng sao */
+  overflow: hidden; /* Tránh tràn nội dung */
+  text-overflow: ellipsis; /* Hiển thị dấu ... nếu nội dung quá dài */
+}
+
+/* Điều chỉnh vị trí các phần tử khác trong card */
+.favorite-tutor-card .tutor-info-container {
+  padding-right: 45px; /* Tăng khoảng cách để tránh chồng lấn với nút yêu thích */
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Tăng khoảng cách giữa các phần tử */
+  position: relative; /* Thêm vị trí tương đối */
+}
+
+/* Thêm class mới để xử lý đặc biệt cho phần rating */
+.favorite-tutor-card .stars-container {
+  display: flex;
+  align-items: center;
+  max-width: calc(100% - 40px);
+  overflow: hidden;
+}
+
+/* Đảm bảo đánh giá hiển thị rõ ràng và không bị che phủ */
+.favorite-tutor-card .rating-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

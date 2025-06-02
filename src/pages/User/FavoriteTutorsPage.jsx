@@ -263,16 +263,16 @@ const FavoriteTutorsPage = () => {
       <div className="tutor-list redesigned-list favorite-tutor-grid">
         {mappedTutors.map((tutorCardProps) => (
           <TutorCard
-            key={tutorCardProps.id} // tutorCardProps.id chính là tutor.userId
-            tutor={tutorCardProps} // Truyền toàn bộ object props đã được map
-            isFavoriteOverride={true} // Luôn hiển thị là yêu thích trên trang này
+            key={tutorCardProps.id}
+            tutor={tutorCardProps}
+            isFavoriteOverride={true}
             onRemoveFavorite={() =>
               handleRemoveFavorite(tutorCardProps.id, tutorCardProps.name)
             }
-            isRemoving={removingId === tutorCardProps.id} // Để TutorCard hiển thị trạng thái loading khi đang xóa
+            isRemoving={removingId === tutorCardProps.id}
             onViewProfile={() => handleViewProfile(tutorCardProps.id)}
-            isLoggedIn={isAuthenticated} // Truyền trạng thái đăng nhập
-            // Không cần onOpenBookingModal và onCancelSuccess ở đây nếu không có chức năng đặt lịch từ trang này
+            isLoggedIn={isAuthenticated}
+            className="favorite-tutor-card"
           />
         ))}
       </div>
