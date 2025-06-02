@@ -1,7 +1,11 @@
 // src/components/User/layout/AccountPageLayout.jsx
 import { useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import Cookies from "js-cookie";
+import Api from "../../../network/Api";
+import { METHOD_TYPE } from "../../../network/methodType";
+import { clearUserProfile } from "../../../redux/userSlice";
 import "../../../assets/css/AccountPageLayout.style.css"; // Đảm bảo file CSS này tồn tại
 import dfMale from "../../../assets/images/df-male.png";
 import dfFemale from "../../../assets/images/df-female.png";
@@ -50,6 +54,7 @@ const AccountPageLayout = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.userProfile);
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -115,7 +120,7 @@ const AccountPageLayout = () => {
         {
           id: "tutorWallet",
           label: "Ví Cá Nhân",
-          pathBase: "vi-cua-toi",
+          pathBase: "vi-ca-nhan",
           icon: "fas fa-wallet",
         },
         {
@@ -142,7 +147,7 @@ const AccountPageLayout = () => {
         {
           id: "userWallet",
           label: "Ví Cá Nhân",
-          pathBase: "vi-cua-toi",
+          pathBase: "vi-ca-nhan",
           icon: "fas fa-wallet",
         },
       ];
@@ -151,6 +156,20 @@ const AccountPageLayout = () => {
 
   const sidebarMenuItems = getSidebarMenuItems();
   const basePathForLinks = "/tai-khoan/ho-so";
+
+  const handleLogout = async () => {
+    try {
+      await Api({ endpoint: "user/logout", method: METHOD_TYPE.POST });
+    } catch (error) {
+      // Không cần báo lỗi, chỉ log nếu cần
+      console.error("Lỗi API đăng xuất (tiếp tục logout client):", error);
+    } finally {
+      Cookies.remove("token");
+      Cookies.remove("role");
+      dispatch(clearUserProfile());
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="account-page-container">
@@ -167,7 +186,7 @@ const AccountPageLayout = () => {
                       `${basePathForLinks}/${item.pathBase}` ||
                     location.pathname.startsWith(
                       `${basePathForLinks}/${item.pathBase}/`
-                    ) // Để active khi ở route con
+                    )
                       ? "active"
                       : ""
                   }
@@ -179,6 +198,29 @@ const AccountPageLayout = () => {
                 </li>
               ))}
             </ul>
+            <button
+              className="account-logout-btn"
+              onClick={handleLogout}
+              style={{
+                marginTop: "auto",
+                width: "100%",
+                padding: "10px 0",
+                background: "#fff",
+                border: "none",
+                borderTop: "1px solid #eee",
+                color: "#d9534f",
+                fontWeight: 600,
+                fontSize: "16px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                justifyContent: "center",
+              }}
+            >
+              <i className="fas fa-sign-out-alt"></i>
+              Đăng xuất
+            </button>
           </nav>
         </aside>
         <main className="account-content-main">

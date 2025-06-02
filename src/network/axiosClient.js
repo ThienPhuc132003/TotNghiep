@@ -8,9 +8,7 @@ const API_BASE_URL =
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // Do NOT set default Content-Type here. It will be set per-request as needed.
 });
 
 let isRefreshingZoomToken = false;
@@ -57,7 +55,14 @@ axiosClient.interceptors.request.use(
     }
 
     if (config.data instanceof FormData) {
-      // Axios tự xử lý Content-Type cho FormData
+      // Remove Content-Type if present, let Axios set it for FormData
+      if (config.headers && config.headers["Content-Type"]) {
+        delete config.headers["Content-Type"];
+      }
+    } else {
+      // For non-FormData requests, ensure Content-Type is application/json
+      config.headers = config.headers || {};
+      config.headers["Content-Type"] = "application/json";
     }
     return config;
   },

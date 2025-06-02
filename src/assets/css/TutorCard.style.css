@@ -130,10 +130,18 @@
 .header-right-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-shrink: 0;
   padding-top: 2px;
 }
+
+/* New styles for the container */
+.rating-and-favorite-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Adjust gap as needed */
+}
+
 .tutor-rating-display.card-rating-section {
   display: flex;
   align-items: center;
@@ -167,23 +175,31 @@
   background: none;
   border: none;
   color: var(--favorite-inactive, #cbd5e1);
-  font-size: 1.4rem;
+  font-size: 1.5rem; /* Reduced font size */
   cursor: pointer;
-  padding: 4px;
+  padding: 4px; /* Reduced padding */
   transition: color 0.2s ease, transform 0.2s ease;
   line-height: 1;
-  align-self: center;
+  align-self: center; /* Changed from flex-start to center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: content-box;
+  overflow: visible;
 }
 .favorite-btn:hover:not(:disabled) {
   color: var(--favorite-hover, #f87171);
-  transform: scale(1.1);
+  transform: scale(1.15);
+  filter: drop-shadow(0 2px 6px rgba(239, 68, 68, 0.15));
 }
 .favorite-btn.favorite-active {
   color: var(--favorite-active, #ef4444);
+  filter: drop-shadow(0 2px 8px rgba(239, 68, 68, 0.18));
 }
 .favorite-btn.loading svg {
   animation: fa-spin 1s infinite linear;
-} /* Đảm bảo bạn có keyframes fa-spin */
+  opacity: 0.7;
+}
 .favorite-btn:disabled {
   cursor: not-allowed;
   opacity: 0.7;
