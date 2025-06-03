@@ -19,18 +19,18 @@ const testMeetingAPI = async (classroomId) => {
       console.error("No user token found in cookies");
       return;
     }
-
     console.log("Testing API call with classroomId:", classroomId);
 
-    const url = `http://localhost:8080/api/meeting/get-meeting?classroomId=${classroomId}`;
+    const url = `http://localhost:8080/api/meeting/get-meeting`;
 
     const response = await fetch(url, {
-      method: "GET",
+      method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
         "X-Require-Token": "true",
       },
+      body: JSON.stringify({ classroomId: classroomId }),
     });
 
     console.log("Response status:", response.status);

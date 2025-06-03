@@ -153,8 +153,8 @@ const TutorClassroomPage = () => {
       const loadingToastId = toast.loading("Đang tải thông tin phòng học..."); // Call API to get meeting information (same endpoint for both student and tutor)
       const response = await Api({
         endpoint: "meeting/get-meeting",
-        method: METHOD_TYPE.GET,
-        query: {
+        method: METHOD_TYPE.POST,
+        data: {
           classroomId: classroomId,
         },
         requireToken: true,

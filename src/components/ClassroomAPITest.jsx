@@ -65,8 +65,8 @@ const ClassroomAPITest = () => {
     try {
       const response = await Api({
         endpoint: "meeting/get-meeting",
-        method: METHOD_TYPE.GET,
-        query: { classroomId },
+        method: METHOD_TYPE.POST,
+        data: { classroomId },
         requireToken: true,
       });
 

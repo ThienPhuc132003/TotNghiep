@@ -7,8 +7,9 @@ import { toast } from "react-toastify";
 import "../../assets/css/StudentClassroomPage.style.css";
 import dfMale from "../../assets/images/df-male.png";
 import ClassroomEvaluationModal from "../../components/User/ClassroomEvaluationModal";
-import ClassroomAPITest from "../../components/ClassroomAPITest";
-import QuickDebug from "../../components/QuickDebug";
+// Debug components - only for development
+// import ClassroomAPITest from "../../components/ClassroomAPITest";
+// import QuickDebug from "../../components/QuickDebug";
 
 // Helper function to format date
 const formatDate = (dateString) => {
@@ -161,8 +162,8 @@ const StudentClassroomPage = () => {
       const loadingToastId = toast.loading("Đang tải thông tin phòng học..."); // Call API to get meeting information (same endpoint for both student and tutor)
       const response = await Api({
         endpoint: "meeting/get-meeting",
-        method: METHOD_TYPE.GET,
-        query: {
+        method: METHOD_TYPE.POST,
+        data: {
           classroomId: classroomId,
         },
         requireToken: true,
@@ -463,9 +464,9 @@ const StudentClassroomPage = () => {
           onClose={handleCloseEvaluationModal}
         />
       )}
-      {/* Debug Components */}
-      <QuickDebug />
-      <ClassroomAPITest />
+      {/* Debug Components - only for development */}
+      {/* <QuickDebug /> */}
+      {/* <ClassroomAPITest /> */}
     </div>
   );
 };
