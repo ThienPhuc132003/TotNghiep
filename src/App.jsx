@@ -183,9 +183,9 @@ function App() {
                     <Route
                       path="phong-hop-zoom"
                       element={<TutorMeetingRoomPage />}
-                    />
+                    />{" "}
                     <Route
-                      path="tao-phong-hop"
+                      path="tao-phong-hop-moi"
                       element={<CreateMeetingPage />}
                     />
                     <Route
