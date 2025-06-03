@@ -10,7 +10,7 @@ import ClassroomEvaluationModal from "../../components/User/ClassroomEvaluationM
 // Debug components - only for development
 // import ClassroomAPITest from "../../components/ClassroomAPITest";
 // import QuickDebug from "../../components/QuickDebug";
-import CreateMeetingTest from "../../components/CreateMeetingTest";
+// import CreateMeetingTest from "../../components/CreateMeetingTest";
 
 // Helper function to format date
 const formatDate = (dateString) => {
@@ -468,7 +468,7 @@ const StudentClassroomPage = () => {
       {/* Debug Components - only for development */}
       {/* <QuickDebug /> */}
       {/* <ClassroomAPITest /> */}
-      <CreateMeetingTest />
+      {/* <CreateMeetingTest /> */}
     </div>
   );
 };

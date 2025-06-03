@@ -5,7 +5,7 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate } from "react-router-dom";
 import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Điều chỉnh đường dẫn nếu cần
-import CreateMeetingTest from "../../components/CreateMeetingTest";
+// import CreateMeetingTest from "../../components/CreateMeetingTest";
 import "../../assets/css/CreateMeetingPage.style.css";
 
 const CreateMeetingPage = () => {
@@ -353,7 +353,7 @@ const CreateMeetingPage = () => {
       >
         Quay lại Quản lý phòng họp
       </button>
-      <CreateMeetingTest />
+      {/* <CreateMeetingTest /> */}
     </div>
   );
 };
