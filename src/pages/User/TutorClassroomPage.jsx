@@ -195,6 +195,82 @@ const TutorClassroomPage = () => {
     }
   };
 
+  // Function to create Zoom meeting for classroom
+  const handleCreateZoomMeeting = async (classroomId, classroomName) => {
+    console.log(
+      "Creating Zoom meeting for classroom:",
+      classroomId,
+      classroomName
+    );
+
+    // Check if Zoom token exists
+    const zoomToken = localStorage.getItem("zoomAccessToken");
+    if (!zoomToken) {
+      toast.error("Vui lòng kết nối tài khoản Zoom trước khi tạo phòng học!");
+      return;
+    }
+
+    try {
+      // Show loading toast
+      const loadingToastId = toast.loading("Đang tạo phòng học Zoom...");
+
+      const meetingPayload = {
+        topic: `Lớp học: ${classroomName}`,
+        password: Math.random().toString(36).substring(2, 8), // Generate random password
+        classroomId: classroomId, // Add classroomId to the payload
+        type: 2, // Scheduled meeting
+        duration: 60,
+        start_time: new Date().toISOString(),
+        settings: {
+          join_before_host: true,
+          waiting_room: false,
+          mute_upon_entry: false,
+          use_pmi: false,
+          approval_type: 2,
+        },
+      };
+
+      console.log("Creating meeting with payload:", meetingPayload);
+
+      // Call API to create meeting
+      const response = await Api({
+        endpoint: "meeting/create",
+        method: METHOD_TYPE.POST,
+        data: meetingPayload,
+        requireToken: true,
+      });
+
+      // Dismiss loading toast
+      toast.dismiss(loadingToastId);
+
+      console.log("Create meeting response:", response);
+
+      if (response && response.success && response.data) {
+        toast.success("Tạo phòng học Zoom thành công!");
+
+        // Navigate to the meeting room with created meeting data
+        navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+          state: {
+            meetingData: response.data,
+            classroomName: classroomName,
+            classroomId: classroomId,
+            isNewMeeting: true,
+          },
+        });
+      } else {
+        const errorMessage =
+          response?.message || "Không thể tạo phòng học Zoom";
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error creating Zoom meeting:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi tạo phòng học Zoom. Vui lòng thử lại."
+      );
+    }
+  };
+
   if (!currentUser?.userId) {
     return (
       <div className="tutor-classroom-page">
@@ -337,6 +413,29 @@ const TutorClassroomPage = () => {
                 </div>{" "}
                 <div className="tcp-card-footer">
                   <div className="tcp-action-buttons">
+                    {/* Tạo phòng học Zoom button - always visible */}
+                    <button
+                      className="tcp-action-btn tcp-create-meeting-btn"
+                      onClick={() =>
+                        handleCreateZoomMeeting(
+                          classroom.classroomId,
+                          classroomName
+                        )
+                      }
+                      disabled={!classroom.classroomId}
+                      style={{
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        marginRight: "10px",
+                      }}
+                    >
+                      <i
+                        className="fas fa-video"
+                        style={{ marginRight: "5px" }}
+                      ></i>
+                      Tạo phòng học Zoom
+                    </button>
+
                     {classroom.status === "IN_SESSION" && (
                       <button
                         className="tcp-action-btn tcp-enter-btn"

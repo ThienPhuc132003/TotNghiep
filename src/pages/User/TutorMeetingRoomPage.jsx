@@ -2,17 +2,30 @@
 import { useState, useEffect } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
-import { useNavigate, useLocation } from "react-router-dom"; // Thêm useLocation
+import { useNavigate, useLocation } from "react-router-dom";
+import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed";
 import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Để nhận state từ ZoomCallback
+  const location = useLocation();
   const [isZoomConnected, setIsZoomConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null); // Lỗi hiển thị trên trang này
+  const [error, setError] = useState(null);
+  const [meetingData, setMeetingData] = useState(null);
+  const [classroomInfo, setClassroomInfo] = useState(null);
 
   useEffect(() => {
+    // Check if meeting data was passed from TutorClassroomPage
+    if (location.state && location.state.meetingData) {
+      setMeetingData(location.state.meetingData);
+      setClassroomInfo({
+        name: location.state.classroomName,
+        id: location.state.classroomId,
+        isNewMeeting: location.state.isNewMeeting || false,
+      });
+    }
+
     // Kiểm tra lỗi được truyền từ ZoomCallback
     if (location.state && location.state.zoomAuthError) {
       setError(location.state.zoomAuthError);
@@ -24,29 +37,14 @@ const TutorMeetingRoomPage = () => {
       setIsLoading(true);
       const zoomAccessToken = localStorage.getItem("zoomAccessToken");
       if (zoomAccessToken) {
-        // Tùy chọn: Gọi API backend để xác thực token này còn hiệu lực không
-        // Ví dụ:
-        // try {
-        //   const verifyResponse = await Api({ endpoint: "meeting/verify-token", method: METHOD_TYPE.GET });
-        //   if (verifyResponse && verifyResponse.success) {
-        //     setIsZoomConnected(true);
-        //   } else {
-        //     throw new Error(verifyResponse?.message || "Token Zoom không hợp lệ");
-        //   }
-        // } catch (e) {
-        //   localStorage.removeItem("zoomAccessToken");
-        //   localStorage.removeItem("zoomRefreshToken");
-        //   setIsZoomConnected(false);
-        //   setError("Phiên làm việc với Zoom đã hết hạn hoặc token không hợp lệ. Vui lòng kết nối lại.");
-        // }
-        setIsZoomConnected(true); // Tạm thời giả định có token là connected
+        setIsZoomConnected(true);
       } else {
         setIsZoomConnected(false);
       }
       setIsLoading(false);
     };
     checkZoomConnection();
-  }, [location, navigate]); // Thêm location, navigate vào dependency
+  }, [location, navigate]);
 
   const handleConnectZoom = async () => {
     setIsLoading(true);
@@ -79,9 +77,9 @@ const TutorMeetingRoomPage = () => {
       setIsLoading(false);
     }
   };
-
   const handleCreateMeeting = () => {
-    navigate("/tai-khoan/ho-so/tao-phong-hop-moi");
+    // Redirect back to classroom management page since create meeting functionality is now integrated there
+    navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
   };
 
   if (isLoading) {
@@ -90,10 +88,41 @@ const TutorMeetingRoomPage = () => {
     );
   }
 
+  // If we have meeting data, show the Zoom meeting embed
+  if (meetingData && isZoomConnected) {
+    return (
+      <div className="tutor-meeting-room-page">
+        <div className="meeting-header">
+          <h2 className="page-title">
+            {classroomInfo?.name || "Phòng học Zoom"}
+            {classroomInfo?.isNewMeeting && (
+              <span className="new-meeting-badge">Phòng học mới</span>
+            )}
+          </h2>
+          <button
+            onClick={() => navigate("/tai-khoan/ho-so/quan-ly-lop-hoc")}
+            className="btn btn-secondary btn-back"
+          >
+            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
+            Quay lại quản lý lớp học
+          </button>
+        </div>
+
+        <ZoomMeetingEmbed
+          meetingId={meetingData.zoomMeetingId}
+          password={meetingData.password}
+          role="1" // Host role for tutor
+          displayName={`Gia sư - ${classroomInfo?.name || "Phòng học"}`}
+          customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/quan-ly-lop-hoc`}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="tutor-meeting-room-page">
       <h2 className="page-title">Quản Lý Phòng Họp</h2>
-      {error && <p className="error-message">{error}</p>} {/* Hiển thị lỗi */}
+      {error && <p className="error-message">{error}</p>}
       {!isZoomConnected ? (
         <div className="zoom-connect-section">
           <p>
@@ -115,15 +144,19 @@ const TutorMeetingRoomPage = () => {
             <i className="fas fa-check-circle"></i>
             <span>Tài khoản Zoom của bạn đã được kết nối.</span>
           </div>
+          <p className="info-text">
+            Chức năng tạo phòng học Zoom hiện đã được tích hợp vào trang quản lý
+            lớp học. Bạn có thể tạo phòng học trực tiếp từ mỗi lớp học.
+          </p>
           <button
             onClick={handleCreateMeeting}
             className="btn btn-primary btn-create-meeting"
           >
             <i
-              className="fas fa-plus-circle"
+              className="fas fa-chalkboard-teacher"
               style={{ marginRight: "8px" }}
             ></i>
-            Tạo phòng họp mới
+            Đi đến quản lý lớp học
           </button>
         </div>
       )}
