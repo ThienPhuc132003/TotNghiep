@@ -5,6 +5,7 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate } from "react-router-dom";
 import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Điều chỉnh đường dẫn nếu cần
+import CreateMeetingTest from "../../components/CreateMeetingTest";
 import "../../assets/css/CreateMeetingPage.style.css";
 
 const CreateMeetingPage = () => {
@@ -264,7 +265,6 @@ const CreateMeetingPage = () => {
           {error}
         </p>
       )}
-
       {!meetingDetails ? (
         <form onSubmit={handleSubmit} className="create-meeting-form">
           <div className="form-group">
@@ -346,13 +346,14 @@ const CreateMeetingPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )}{" "}
       <button
         onClick={() => navigate("/tai-khoan/ho-so/phong-hop-zoom")}
         className="btn btn-link-back"
       >
         Quay lại Quản lý phòng họp
       </button>
+      <CreateMeetingTest />
     </div>
   );
 };

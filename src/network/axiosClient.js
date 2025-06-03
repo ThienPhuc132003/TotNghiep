@@ -40,12 +40,8 @@ axiosClient.interceptors.request.use(
     ];
     const isNoAuthEndpoint = noAuthEndpoints.includes(url);
 
-    // API endpoints that need Zoom token specifically
-    const zoomTokenEndpoints = [
-      "meeting/auth",
-      "meeting/handle",
-      "meeting/zoom/refresh",
-    ];
+    // API endpoints that need Zoom token specifically (when they require auth)
+    const zoomTokenEndpoints = ["meeting/create", "meeting/signature"];
     const needsZoomToken = zoomTokenEndpoints.some((endpoint) =>
       url.startsWith(endpoint)
     );
