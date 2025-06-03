@@ -65,7 +65,7 @@ const ZoomCallback = lazy(() => import("./pages/User/ZoomCallback"));
 const TutorMeetingRoomPage = lazy(() =>
   import("./pages/User/TutorMeetingRoomPage")
 );
-const CreateMeetingPage = lazy(() => import("./pages/User/CreateMeetingPage"));
+// CreateMeetingPage removed - functionality moved to TutorClassroomPage
 
 // Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
@@ -179,15 +179,12 @@ function App() {
                       path="quan-ly-lop-hoc"
                       element={<TutorClassroomPage />}
                     />{" "}
-                    {/* <<< SỬA LỖI */}
+                    {/* <<< SỬA LỖI */}{" "}
                     <Route
                       path="phong-hop-zoom"
                       element={<TutorMeetingRoomPage />}
                     />{" "}
-                    <Route
-                      path="tao-phong-hop-moi"
-                      element={<CreateMeetingPage />}
-                    />
+                    {/* Route tao-phong-hop-moi removed - functionality moved to TutorClassroomPage */}
                     <Route
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}

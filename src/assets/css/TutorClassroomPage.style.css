@@ -53,6 +53,33 @@
   background-color: #449d44;
 }
 
+.tcp-create-meeting-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.tcp-create-meeting-btn:hover {
+  background-color: #0056b3;
+}
+
+.tcp-create-meeting-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.tcp-create-meeting-btn:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
 .tcp-classroom-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
@@ -220,9 +247,11 @@
 
 .tcp-action-buttons {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: flex-end;
   align-items: center;
+  margin-top: 10px;
 }
 
 .tcp-action-btn {

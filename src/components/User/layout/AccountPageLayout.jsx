@@ -106,12 +106,6 @@ const AccountPageLayout = () => {
           icon: "fas fa-id-badge",
         },
         {
-          id: "tutorMeetingRoom", // <<< THÊM MỚI
-          label: "Phòng Họp", // <<< THÊM MỚI
-          pathBase: "phong-hop-zoom", // <<< THÊM MỚI
-          icon: "fas fa-video", // <<< THÊM MỚI
-        },
-        {
           id: "tutorBookingRequests",
           label: "Yêu Cầu Thuê",
           pathBase: "yeu-cau-day",
