@@ -127,8 +127,15 @@ const AccountPageLayout = () => {
           id: "personalSyllabus",
           label: "Giáo Trình Cá Nhân",
           pathBase: "giao-trinh-ca-nhan",
-          icon: "fas fa-book-open",
+          icon: "fas fa-book-open", // Or another suitable icon
+        }, // <<< THÊM MỚI >>>
+        {
+          id: "tutorClassroom",
+          label: "Quản lý lớp học",
+          pathBase: "quan-ly-lop-hoc",
+          icon: "fas fa-chalkboard-teacher", // Example icon
         },
+        // <<< KẾT THÚC THÊM MỚI >>>
       ];
     } else {
       return [
@@ -143,6 +150,12 @@ const AccountPageLayout = () => {
           label: "Gia Sư Yêu Thích",
           pathBase: "gia-su-yeu-thich",
           icon: "fas fa-heart",
+        },
+        {
+          id: "studentClassroom",
+          label: "Lớp học của tôi",
+          pathBase: "lop-hoc-cua-toi",
+          icon: "fas fa-chalkboard-teacher",
         },
         {
           id: "userWallet",

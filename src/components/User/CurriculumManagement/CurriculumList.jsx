@@ -30,7 +30,7 @@ const CurriculumList = ({ onAfterCurriculumAdded = () => {} }) => {
     setIsLoadingMyCurriculums(true);
     try {
       const response = await Api({
-        endpoint: "/my-curriculumn/get-my-curriculumn",
+        endpoint: "my-curriculumn/get-my-curriculumn",
         method: METHOD_TYPE.GET,
         requireToken: true,
       });
@@ -80,12 +80,12 @@ const CurriculumList = ({ onAfterCurriculumAdded = () => {} }) => {
         { key: "status", operator: "equal", value: "ACTIVE" },
       ];
       const queryParams = {
-        filter: filterParams,
+        filter: JSON.stringify(filterParams), // Stringify the filter array
         rpp: ITEMS_PER_PAGE,
         page: pageToFetch,
       };
       const response = await Api({
-        endpoint: "/curriculumn/search-for-tutor",
+        endpoint: "curriculumn/search-for-tutor",
         method: METHOD_TYPE.GET,
         query: queryParams,
       });
@@ -151,7 +151,7 @@ const CurriculumList = ({ onAfterCurriculumAdded = () => {} }) => {
     setProcessingCurriculumId(curriculumIdToAdd);
     try {
       const response = await Api({
-        endpoint: "/my-curriculumn/add-to-my-curriculumn",
+        endpoint: "my-curriculumn/add-to-my-curriculumn",
         method: METHOD_TYPE.POST,
         data: { curriculumnId: curriculumIdToAdd },
         requireToken: true,

@@ -17,7 +17,7 @@ const CurriculumManagementPage = () => {
     setMyListError(null);
     try {
       const response = await Api({
-        endpoint: "/my-curriculumn/get-my-curriculumn",
+        endpoint: "my-curriculumn/get-my-curriculumn",
         method: METHOD_TYPE.GET,
         requireToken: true,
       });
