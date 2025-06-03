@@ -1,35 +1,21 @@
-# Multi-stage build for better optimization
-FROM node:20-slim as builder
+FROM node:20-slim
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --only=production=false --silent && npm cache clean --force
+# RUN npm install --force
 
-# Copy source code
+RUN npm install --force && npm cache clean --force
+
+RUN npm i -g serve
+
 COPY . .
 
-# Set Node.js memory options
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
-# Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
-
-# Copy built files to nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD [ "serve", "-s", "dist", "-p", "80" ]
