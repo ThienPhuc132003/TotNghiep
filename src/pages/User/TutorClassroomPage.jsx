@@ -417,7 +417,6 @@ const TutorClassroomPage = () => {
     setSelectedClassroom({ classroomId, classroomName });
     setIsModalOpen(true);
   };
-
   // Function to handle meeting creation with form data
   const handleCreateMeetingSubmit = async (formData) => {
     if (!selectedClassroom) return;
@@ -432,16 +431,6 @@ const TutorClassroomPage = () => {
         topic: formData.topic,
         password: formData.password,
         classroomId: classroomId,
-        type: 2, // Scheduled meeting
-        duration: 60,
-        start_time: new Date().toISOString(),
-        settings: {
-          join_before_host: true,
-          waiting_room: false,
-          mute_upon_entry: false,
-          use_pmi: false,
-          approval_type: 2,
-        },
       };
 
       console.log("Creating meeting with payload:", meetingPayload);
