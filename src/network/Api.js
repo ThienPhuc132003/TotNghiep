@@ -31,11 +31,15 @@ const Api = async ({
   let processedQuery = { ...query };
 
   let requestUrl = endpoint; // axiosClient sẽ tự nối baseURL
-
   const config = {
     headers: {}, // axiosClient sẽ thêm Authorization header nếu có từ interceptor
     ...(sendCredentials && { withCredentials: true }),
   };
+
+  // Thêm header để báo cho axiosClient biết request này cần token
+  if (requireToken) {
+    config.headers["X-Require-Token"] = "true";
+  }
 
   const upperCaseMethod = method.toUpperCase();
 
