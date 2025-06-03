@@ -14,6 +14,7 @@ import qs from "qs";
  *                                  Đối với các method khác, qs.stringify sẽ được dùng.
  *                                  Lưu ý: `filter` và `sort` trong `query` nên được JSON.stringify từ component gọi nếu backend yêu cầu dạng chuỗi JSON.
  * @param {boolean} [params.sendCredentials=false] - Có gửi kèm credentials (cookies) hay không.
+ * @param {boolean} [params.requireToken=false] - Có yêu cầu token authentication hay không.
  * @returns {Promise<any>} - Trả về data từ response của API (đã qua interceptor của axiosClient).
  * @throws {Error} - Ném lỗi nếu API call thất bại (đã qua interceptor của axiosClient).
  */
@@ -23,6 +24,7 @@ const Api = async ({
   data, // Body data cho POST, PUT, PATCH
   query, // Query params cho GET hoặc các method khác nếu backend hỗ trợ
   sendCredentials = false,
+  requireToken = false, // Thêm tham số requireToken
 }) => {
   // processedQuery sẽ chứa các tham số đã được chuẩn bị sẵn từ component gọi
   // ví dụ: filter và sort đã được JSON.stringify nếu cần

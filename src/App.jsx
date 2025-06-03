@@ -53,6 +53,12 @@ const CurriculumPage = lazy(() =>
 const TutorBookingRequestsPage = lazy(() =>
   import("./pages/User/TutorBookingRequestsPage")
 );
+const TutorClassroomPage = lazy(() =>
+  import("./pages/User/TutorClassroomPage")
+); // <<< THÊM MỚI
+const StudentClassroomPage = lazy(() =>
+  import("./pages/User/StudentClassroomPage")
+);
 
 // Zoom related pages
 const ZoomCallback = lazy(() => import("./pages/User/ZoomCallback"));
@@ -132,6 +138,7 @@ function App() {
                 path="/trac-nghiem-gia-su"
                 element={<TutorQualificationTestPage />}
               />
+              <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/login" element={<UserLogin />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -145,36 +152,47 @@ function App() {
                 {" "}
                 {/* Bảo vệ các route con cần đăng nhập */}
                 <Route path="/tai-khoan/ho-so" element={<AccountPageLayout />}>
+                  {" "}
                   {/* USER specific routes */}
                   <Route path="thong-tin-ca-nhan" element={<Profile />} />
                   <Route
                     path="gia-su-yeu-thich"
                     element={<FavoriteTutorsPage />}
                   />
-
+                  {/* <<< THÊM ROUTE CHO CURRICULUM PAGE >>> */}
+                  <Route
+                    path="giao-trinh-ca-nhan"
+                    element={<CurriculumPage />}
+                  />
+                  {/* <<< THÊM ROUTE CHO STUDENT CLASSROOM PAGE >>> */}
+                  <Route
+                    path="lop-hoc-cua-toi"
+                    element={<StudentClassroomPage />}
+                  />{" "}
                   {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}
                   <Route element={<ProtectRoute role="TUTOR" />}>
                     {" "}
                     {/* Layout bảo vệ bởi role TUTOR */}
                     <Route path="ho-so-gia-su" element={<TutorRegister />} />
+                    {/* Add new classroom route for tutors */}
+                    <Route
+                      path="quan-ly-lop-hoc"
+                      element={<TutorClassroomPage />}
+                    />{" "}
+                    {/* <<< SỬA LỖI */}
                     <Route
                       path="phong-hop-zoom"
                       element={<TutorMeetingRoomPage />}
                     />
                     <Route
-                      path="tao-phong-hop-moi"
+                      path="tao-phong-hop"
                       element={<CreateMeetingPage />}
                     />
                     <Route
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}
                     />
-                    <Route
-                      path="giao-trinh-ca-nhan"
-                      element={<CurriculumPage />}
-                    />
                   </Route>
-
                   {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
                 </Route>
@@ -182,7 +200,6 @@ function App() {
                 <Route element={<OtpProtectedRoute />}>
                   {" "}
                   {/* Layout bảo vệ bởi OTP */}
-                  <Route path="/change-password" element={<ChangePassword />} />
                 </Route>
                 {/* Payment Routes - Cần đăng nhập */}
                 <Route path="/payment/success" element={<PaymentSuccess />} />

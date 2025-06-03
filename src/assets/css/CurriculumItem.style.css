@@ -9,7 +9,9 @@
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* Đẩy actions xuống dưới */
   gap: 10px; /* Khoảng cách giữa các phần tử con */
+  height: 100%; /* Đảm bảo các item có chiều cao bằng nhau nếu trong grid/flex container */
 }
 
 .curriculumItem:hover {
@@ -52,11 +54,18 @@
 
 .itemDetail {
   display: flex;
-  align-items: flex-start; /* Căn các item lên trên nếu text dài */
+  flex-direction: row; /* Stack details vertically */
   gap: 8px;
   font-size: 0.9rem;
   color: var(--text-medium, #555);
   line-height: 1.5;
+  flex-grow: 1; /* Cho phép phần này mở rộng để đẩy actions xuống */
+}
+
+.itemDetail .detailRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .itemDetail .icon {
@@ -87,12 +96,13 @@
 }
 
 .itemActions {
-  margin-top: 12px; /* Tăng khoảng cách với nội dung trên */
+  margin-top: auto; /* Đẩy actions xuống dưới cùng */
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
   border-top: 1px solid var(--border-color, #eee);
+  width: 100%; /* Đảm bảo actions chiếm toàn bộ chiều rộng */
 }
 
 .addCurriculumButton {
