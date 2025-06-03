@@ -1,17 +1,12 @@
-version: "3.8"
+version: "3"
 services:
   dakl-fe:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
       - "4590:80"
     container_name: DAKLFE
-    restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: "1.0"
-          memory: 512M
-        reservations:
-          memory: 256M
+          cpus: "0.5"
+          memory: 50M
