@@ -72,7 +72,7 @@ const ForgotPasswordPage = () => {
     <LoginLayout>
       <div className="form-container">
         <h1 className="FormName">{t("login.forgotPasswordTitle")}</h1>
-        <p className="description">{t("login.forgotPasswordSubtitle")}</p>
+        <p className="description">{t("login.forgotPasswordSubtitle")}</p>{" "}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -80,25 +80,16 @@ const ForgotPasswordPage = () => {
           }}
           className="form-box"
         >
-          <div className="form-container">
-            <label htmlFor="emailOrPhone">
-              {t("login.emailOrPhoneNumber")}
-            </label>
-            <InputField
-              type="email"
-              id="email"
-              value={emailOrPhone}
-              placeholder={t("login.emailOrPhonePlaceholder")}
-              errorMessage={errorMessages.email}
-              onChange={handleEmailChange}
-              className={`input-field ${
-                errorMessages.email ? "error-message" : ""
-              }`}
-            />
-            {errorMessages.email && (
-              <p className="error-message">{errorMessages.email}</p>
-            )}
-          </div>
+          <label htmlFor="emailOrPhone">{t("login.emailOrPhoneNumber")}</label>
+          <InputField
+            type="email"
+            id="email"
+            value={emailOrPhone}
+            placeholder={t("login.emailOrPhonePlaceholder")}
+            errorMessage={errorMessages.email}
+            onChange={handleEmailChange}
+            className={`input-field ${errorMessages.email ? "error" : ""}`}
+          />
           {successMessage && (
             <p className="success-message">{successMessage}</p>
           )}
