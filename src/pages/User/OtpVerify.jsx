@@ -131,7 +131,7 @@ const OtpVerifyPage = () => {
           }}
           className="form-box"
         >
-          <label htmlFor="otp">{t("login.otpPlaceholder")}</label>
+          <label htmlFor="otp">{t("login.otpPlaceholder")}</label>{" "}
           <div className="otp-inputs">
             {Array(6)
               .fill()
@@ -144,13 +144,6 @@ const OtpVerifyPage = () => {
                   onChange={handleOtpChange(index)}
                   onKeyDown={handleKeyDown(index)}
                   ref={(el) => (otpInputRefs.current[index] = el)}
-                  className="input-field"
-                  style={{
-                    width: "3rem",
-                    height: "3rem",
-                    textAlign: "center",
-                    fontSize: "1.5rem",
-                  }}
                 />
               ))}
           </div>

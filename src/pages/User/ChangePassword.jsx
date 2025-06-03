@@ -118,26 +118,25 @@ const ChangePasswordPage = () => {
           }}
           className="form-box"
         >
+          {" "}
           <InputField
             type="password"
             id="password"
             value={password}
             placeholder={t("login.newPasswordPlaceholder")}
-            errorMessage={errorMessages.password}
+            error={errorMessages.password}
             onChange={handlePasswordChange}
-            className={`input-field ${
-              errorMessages.password ? "error-message" : ""
-            }`}
-          />
+            className={`input-field ${errorMessages.password ? "error" : ""}`}
+          />{" "}
           <InputField
             type="password"
             id="confirmPassword"
             value={confirmPassword}
             placeholder={t("login.confirmPasswordPlaceholder")}
-            errorMessage={errorMessages.confirmPassword}
+            error={errorMessages.confirmPassword}
             onChange={handleConfirmPasswordChange}
             className={`input-field ${
-              errorMessages.confirmPassword ? "error-message" : ""
+              errorMessages.confirmPassword ? "error" : ""
             }`}
           />
           {successMessage && (
