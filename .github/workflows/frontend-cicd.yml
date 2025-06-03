@@ -35,8 +35,7 @@ jobs:
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
           target: "/root/DAKL/FE"
-          strip_components: 1
-          debug: true
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
         with:
