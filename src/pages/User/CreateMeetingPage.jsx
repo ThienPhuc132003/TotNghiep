@@ -73,7 +73,6 @@ const CreateMeetingPage = () => {
       setIsLoading(false);
       return;
     }
-
     try {
       // Gọi API tạo meeting. axiosClient (trong Api.js) sẽ tự đính kèm token.
       // backendResponse ở đây là data đã được trích xuất bởi axiosClient (nếu bạn cấu hình nó trả về response.data)
@@ -81,6 +80,7 @@ const CreateMeetingPage = () => {
         endpoint: "meeting/create", // Endpoint không có / ở đầu
         method: METHOD_TYPE.POST,
         data: meetingPayload,
+        requireToken: true,
       });
 
       console.log(
@@ -158,11 +158,13 @@ const CreateMeetingPage = () => {
         zoomMeetingId: String(meetingDetails.zoomMeetingId),
         role: "0", // Gia sư là host
       };
+
       const sigResponse = await Api({
         // sigResponse là data từ axiosClient
         endpoint: "meeting/signature", // Endpoint không có / ở đầu
         method: METHOD_TYPE.POST,
         data: signaturePayload,
+        requireToken: true,
       });
       console.log(
         "[CreateMeetingPage] API meeting/signature response:",
@@ -327,12 +329,13 @@ const CreateMeetingPage = () => {
             </p>
           )}
           <div className="actions-after-create" style={{ marginTop: "15px" }}>
+            {" "}
             <button
               onClick={handleStartMeeting}
               className="btn btn-success btn-start-meeting"
               disabled={isFetchingSignature}
             >
-              {isFetchingSignature ? "Đang chuẩn bị..." : "Bắt đầu "}
+              {isFetchingSignature ? "Đang chuẩn bị..." : "Bắt đầu họp"}
             </button>
             <button
               onClick={resetFormAndState}
