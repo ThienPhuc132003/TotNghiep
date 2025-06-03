@@ -26,15 +26,32 @@ jobs:
 
       # - name: Build project
       #   run: npm run build
-
-      - name: Copy source code to server
+      - name: Clean up old frontend files on server
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.FRONTEND_SERVER_HOST }}
+          username: ${{ secrets.FRONTEND_SERVER_USER }}
+          password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
+          script: |
+            rm -rf /root/DAKL/FE/*
+      - name: Copy built files to server
         uses: appleboy/scp-action@v0.1.1
         with:
           host: ${{ secrets.FRONTEND_SERVER_HOST }}
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
-          source: "./*"
+          source: "dist/"
           target: "/root/DAKL/FE"
+          strip_components: 1
+          debug: true
+      # - name: Copy source code to server
+      #   uses: appleboy/scp-action@v0.1.1
+      #   with:
+      #     host: ${{ secrets.FRONTEND_SERVER_HOST }}
+      #     username: ${{ secrets.FRONTEND_SERVER_USER }}
+      #     password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
+      #     source: "./*"
+      #     target: "/root/DAKL/FE"
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
