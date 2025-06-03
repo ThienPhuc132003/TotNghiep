@@ -65,8 +65,8 @@ const ClassroomAPITest = () => {
     try {
       const response = await Api({
         endpoint: "meeting/get-meeting",
-        method: METHOD_TYPE.GET,
-        query: { classroomId },
+        method: METHOD_TYPE.POST,
+        data: { classroomId },
         requireToken: true,
       });
 
@@ -208,7 +208,7 @@ const ClassroomAPITest = () => {
         >
           {logs.length === 0 ? (
             <div style={{ color: "#6c757d", fontStyle: "italic" }}>
-              No logs yet. Click "Test Classrooms" to start.
+              No logs yet. Click Test Classrooms to start.
             </div>
           ) : (
             logs.map((log, index) => (
