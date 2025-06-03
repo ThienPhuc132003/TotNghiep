@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useSelector } from "react-redux";
@@ -40,6 +41,218 @@ const statusLabels = {
   CANCELLED: "Đã hủy",
 };
 
+// Modal component for creating Zoom meeting
+const CreateMeetingModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  classroomName,
+  defaultTopic,
+}) => {
+  const [formData, setFormData] = useState({
+    topic: defaultTopic || `Lớp học: ${classroomName}`,
+    password: Math.random().toString(36).substring(2, 8),
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        topic: defaultTopic || `Lớp học: ${classroomName}`,
+        password: Math.random().toString(36).substring(2, 8),
+      });
+    }
+  }, [isOpen, classroomName, defaultTopic]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.topic.trim()) {
+      toast.error("Vui lòng nhập chủ đề phòng họp!");
+      return;
+    }
+    if (!formData.password.trim()) {
+      toast.error("Vui lòng nhập mật khẩu phòng họp!");
+      return;
+    }
+    onSubmit(formData);
+  };
+
+  const generateRandomPassword = () => {
+    const newPassword = Math.random().toString(36).substring(2, 8);
+    setFormData((prev) => ({
+      ...prev,
+      password: newPassword,
+    }));
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="tcp-modal-overlay" onClick={onClose}>
+      <div className="tcp-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="tcp-modal-header">
+          <h3>Tạo phòng học Zoom</h3>
+          <button className="tcp-modal-close" onClick={onClose}>
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="tcp-meeting-form">
+          <div className="tcp-form-group">
+            <label htmlFor="topic">Chủ đề phòng học:</label>
+            <input
+              type="text"
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleInputChange}
+              placeholder="Nhập chủ đề phòng học..."
+              maxLength={200}
+              required
+            />
+          </div>
+          <div className="tcp-form-group">
+            <label htmlFor="password">Mật khẩu phòng học:</label>
+            <div className="tcp-password-input-group">
+              <input
+                type="text"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Nhập mật khẩu..."
+                maxLength={10}
+                required
+              />
+              <button
+                type="button"
+                className="tcp-generate-password-btn"
+                onClick={generateRandomPassword}
+                title="Tạo mật khẩu ngẫu nhiên"
+              >
+                <i className="fas fa-random"></i>
+              </button>
+            </div>
+            <small className="tcp-form-note">
+              Mật khẩu từ 1-10 ký tự, có thể bao gồm chữ cái và số
+            </small>
+          </div>
+          <div className="tcp-form-actions">
+            <button
+              type="button"
+              className="tcp-btn tcp-btn-cancel"
+              onClick={onClose}
+            >
+              Hủy
+            </button>
+            <button type="submit" className="tcp-btn tcp-btn-primary">
+              <i className="fas fa-video" style={{ marginRight: "8px" }}></i>
+              Tạo phòng học
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// PropTypes for CreateMeetingModal
+CreateMeetingModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  classroomName: PropTypes.string.isRequired,
+  defaultTopic: PropTypes.string,
+};
+
+// Modal component for displaying meeting list
+const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="tcp-modal-overlay" onClick={onClose}>
+      <div
+        className="tcp-modal-content tcp-meeting-list-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="tcp-modal-header">
+          <h3>Danh sách phòng học - {classroomName}</h3>
+          <button className="tcp-modal-close" onClick={onClose}>
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+        <div className="tcp-meeting-list">
+          {meetings && meetings.length > 0 ? (
+            meetings.map((meeting, index) => (
+              <div key={meeting.id || index} className="tcp-meeting-item">
+                <div className="tcp-meeting-info">
+                  <h4 className="tcp-meeting-topic">{meeting.topic}</h4>
+                  <div className="tcp-meeting-details">
+                    <p>
+                      <strong>ID:</strong> {meeting.id}
+                    </p>
+                    <p>
+                      <strong>Mật khẩu:</strong>{" "}
+                      {meeting.password || "Không có"}
+                    </p>
+                    <p>
+                      <strong>Thời gian tạo:</strong>{" "}
+                      {new Date(meeting.created_at).toLocaleString("vi-VN")}
+                    </p>
+                  </div>
+                </div>
+                <div className="tcp-meeting-actions">
+                  <a
+                    href={meeting.join_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tcp-btn tcp-btn-join"
+                  >
+                    <i
+                      className="fas fa-sign-in-alt"
+                      style={{ marginRight: "8px" }}
+                    ></i>
+                    Tham gia
+                  </a>
+                  <button
+                    className="tcp-btn tcp-btn-copy"
+                    onClick={() => {
+                      navigator.clipboard.writeText(meeting.join_url);
+                      toast.success("Đã sao chép link tham gia!");
+                    }}
+                    title="Sao chép link"
+                  >
+                    <i className="fas fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="tcp-no-meetings">
+              <i className="fas fa-video-slash"></i>
+              <p>Chưa có phòng học nào được tạo cho lớp này.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// PropTypes for MeetingListModal
+MeetingListModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  meetings: PropTypes.array,
+  classroomName: PropTypes.string.isRequired,
+};
+
 const parseDateTimeLearn = (dateTimeLearn) => {
   if (!dateTimeLearn || !Array.isArray(dateTimeLearn)) return [];
   return dateTimeLearn.map((item) => {
@@ -49,9 +262,9 @@ const parseDateTimeLearn = (dateTimeLearn) => {
         day: dayLabels[parsed.day] || parsed.day,
         times: parsed.times.join(", "),
       };
-    } catch (e) {
-      console.error("Error parsing dateTimeLearn item:", item, e);
-      return { day: "Lỗi", times: "Lỗi" };
+    } catch (error) {
+      console.error("Error parsing dateTimeLearn item:", error);
+      return { day: "N/A", times: "N/A" };
     }
   });
 };
@@ -87,6 +300,10 @@ const TutorClassroomPage = () => {
   const [totalClassrooms, setTotalClassrooms] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Or get from a config
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [meetingList, setMeetingList] = useState([]);
+  const [isMeetingListOpen, setIsMeetingListOpen] = useState(false);
 
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate(); // <<< THÊM MỚI
@@ -150,7 +367,9 @@ const TutorClassroomPage = () => {
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       // Show loading toast
-      const loadingToastId = toast.loading("Đang tải thông tin phòng học..."); // Call API to get meeting information (same endpoint for both student and tutor)
+      const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
+
+      // Call API to get meeting information
       const response = await Api({
         endpoint: "meeting/get-meeting",
         method: METHOD_TYPE.POST,
@@ -169,40 +388,25 @@ const TutorClassroomPage = () => {
         response.data.items &&
         response.data.items.length > 0
       ) {
-        const meetingData = response.data.items[0]; // Get first meeting item
-
-        // Navigate to meeting room with meeting data
-        navigate("/tai-khoan/ho-so/phong-hop-zoom", {
-          state: {
-            meetingData: meetingData,
-            classroomName: classroomName,
-            classroomId: classroomId,
-          },
-        });
-
-        toast.success("Đang chuyển đến phòng học...");
+        // Show meeting list modal instead of navigating directly
+        setMeetingList(response.data.items);
+        setSelectedClassroom({ classroomId, classroomName });
+        setIsMeetingListOpen(true);
       } else {
         toast.error(
-          "Không tìm thấy thông tin phòng học. Vui lòng thử lại sau."
+          "Không tìm thấy phòng học nào. Vui lòng tạo phòng học trước."
         );
       }
     } catch (error) {
       console.error("Error fetching meeting data:", error);
       toast.error(
         error.response?.data?.message ||
-          "Có lỗi xảy ra khi tải thông tin phòng học. Vui lòng thử lại."
+          "Có lỗi xảy ra khi tải danh sách phòng học. Vui lòng thử lại."
       );
     }
   };
-
-  // Function to create Zoom meeting for classroom
-  const handleCreateZoomMeeting = async (classroomId, classroomName) => {
-    console.log(
-      "Creating Zoom meeting for classroom:",
-      classroomId,
-      classroomName
-    );
-
+  // Function to open create meeting modal
+  const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
     // Check if Zoom token exists
     const zoomToken = localStorage.getItem("zoomAccessToken");
     if (!zoomToken) {
@@ -210,14 +414,24 @@ const TutorClassroomPage = () => {
       return;
     }
 
+    setSelectedClassroom({ classroomId, classroomName });
+    setIsModalOpen(true);
+  };
+
+  // Function to handle meeting creation with form data
+  const handleCreateMeetingSubmit = async (formData) => {
+    if (!selectedClassroom) return;
+
+    const { classroomId, classroomName } = selectedClassroom;
+
     try {
       // Show loading toast
       const loadingToastId = toast.loading("Đang tạo phòng học Zoom...");
 
       const meetingPayload = {
-        topic: `Lớp học: ${classroomName}`,
-        password: Math.random().toString(36).substring(2, 8), // Generate random password
-        classroomId: classroomId, // Add classroomId to the payload
+        topic: formData.topic,
+        password: formData.password,
+        classroomId: classroomId,
         type: 2, // Scheduled meeting
         duration: 60,
         start_time: new Date().toISOString(),
@@ -247,6 +461,7 @@ const TutorClassroomPage = () => {
 
       if (response && response.success && response.data) {
         toast.success("Tạo phòng học Zoom thành công!");
+        setIsModalOpen(false);
 
         // Navigate to the meeting room with created meeting data
         navigate("/tai-khoan/ho-so/phong-hop-zoom", {
@@ -283,7 +498,6 @@ const TutorClassroomPage = () => {
   return (
     <div className="tutor-classroom-page">
       <h2 className="tcp-page-title">Quản lý lớp học ({totalClassrooms})</h2>
-
       {isLoading && (
         <div className="tcp-skeleton-container">
           {[...Array(3)].map((_, index) => (
@@ -292,7 +506,6 @@ const TutorClassroomPage = () => {
         </div>
       )}
       {error && <p className="tcp-error-message">{error}</p>}
-
       {!isLoading && !error && classrooms.length === 0 && (
         <div className="tcp-empty-state">
           <p>Bạn hiện không có lớp học nào đang hoạt động.</p>
@@ -304,7 +517,6 @@ const TutorClassroomPage = () => {
           </button>
         </div>
       )}
-
       {!isLoading && !error && classrooms.length > 0 && (
         <div className="tcp-classroom-list">
           {classrooms.map((classroom) => {
@@ -413,13 +625,14 @@ const TutorClassroomPage = () => {
                 </div>{" "}
                 <div className="tcp-card-footer">
                   <div className="tcp-action-buttons">
+                    {" "}
                     {/* Tạo phòng học Zoom button - always visible */}
                     <button
                       className="tcp-action-btn tcp-create-meeting-btn"
                       onClick={() =>
-                        handleCreateZoomMeeting(
+                        handleOpenCreateMeetingModal(
                           classroom.classroomId,
-                          classroomName
+                          classroom.nameOfRoom
                         )
                       }
                       disabled={!classroom.classroomId}
@@ -435,7 +648,6 @@ const TutorClassroomPage = () => {
                       ></i>
                       Tạo phòng học Zoom
                     </button>
-
                     {classroom.status === "IN_SESSION" && (
                       <button
                         className="tcp-action-btn tcp-enter-btn"
@@ -474,7 +686,6 @@ const TutorClassroomPage = () => {
           })}
         </div>
       )}
-
       {!isLoading && totalClassrooms > itemsPerPage && (
         <div className="tcp-pagination">
           <button
@@ -493,6 +704,25 @@ const TutorClassroomPage = () => {
             Sau
           </button>
         </div>
+      )}{" "}
+      {/* Create Meeting Modal */}
+      {isModalOpen && selectedClassroom && (
+        <CreateMeetingModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreateMeetingSubmit}
+          classroomName={selectedClassroom.nameOfRoom}
+          defaultTopic={`Lớp học: ${selectedClassroom.nameOfRoom}`}
+        />
+      )}{" "}
+      {/* Meeting List Modal */}
+      {isMeetingListOpen && selectedClassroom && (
+        <MeetingListModal
+          isOpen={isMeetingListOpen}
+          onClose={() => setIsMeetingListOpen(false)}
+          meetings={meetingList}
+          classroomName={selectedClassroom.nameOfRoom}
+        />
       )}
     </div>
   );
