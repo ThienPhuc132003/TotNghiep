@@ -635,7 +635,7 @@ const TutorClassroomPage = () => {
                         className="fas fa-video"
                         style={{ marginRight: "5px" }}
                       ></i>
-                      Tạo phòng học Zoom
+                      Tạo phòng học
                     </button>
                     {classroom.status === "IN_SESSION" && (
                       <button

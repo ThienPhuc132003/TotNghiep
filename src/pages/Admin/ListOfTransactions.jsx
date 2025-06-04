@@ -59,7 +59,7 @@ const searchableTransactionColumnOptions = [
   }, // Tìm theo giá trị gốc
   {
     value: "items.valueConfig.coinConfig",
-    label: "Số coin",
+    label: "Số Xu",
     placeholderSuffix: " (số)",
   }, // Tìm theo giá trị gốc
   { value: "createdAt", label: "Ngày tạo", placeholderSuffix: " (YYYY-MM-DD)" },
@@ -157,7 +157,7 @@ const ListOfTransactionsPage = () => {
         },
       },
       {
-        title: "Số coin",
+        title: "Số Xu",
         dataKey: "items",
         sortKey: "items.valueConfig.coinConfig",
         sortable: true,

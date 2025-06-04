@@ -13,5 +13,17 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>
+    <!-- API Debug Script - Only in development -->
+    <script>
+      if (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      ) {
+        const script = document.createElement("script");
+        script.src = "/api-debug.js";
+        script.onload = () => console.log("🔧 API Debug tools loaded!");
+        document.head.appendChild(script);
+      }
+    </script>
   </body>
 </html>

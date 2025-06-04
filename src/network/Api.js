@@ -2,6 +2,7 @@
 import { METHOD_TYPE } from "./methodType";
 import axiosClient from "./axiosClient"; // Giả định axiosClient có baseURL và trả về response.data
 import qs from "qs";
+import apiLogger from "../utils/apiLogger";
 
 /**
  * Hàm gọi API chung.
@@ -65,31 +66,54 @@ const Api = async ({
       }
     }
   }
-  console.log(
-    `[API Call] URL: ${axiosClient.defaults.baseURL}${requestUrl}, Method: ${upperCaseMethod}, Query:`,
+
+  // === SIMPLE API LOGGING ===
+  apiLogger.logRequest(
+    upperCaseMethod,
+    `${axiosClient.defaults.baseURL}${requestUrl}`,
+    data,
     processedQuery
   );
-  // Sẽ nhận trực tiếp `data` từ `axiosClient` (do axiosClient đã trả về response.data)
-  switch (upperCaseMethod) {
-    case METHOD_TYPE.POST:
-      return await axiosClient.post(requestUrl, data, config);
-    case METHOD_TYPE.PUT:
-      return await axiosClient.put(requestUrl, data, config);
-    case METHOD_TYPE.DELETE:
-      // DELETE request thường không có body (data), nhưng axios cho phép truyền config.data
-      // Nếu API của bạn không cần body cho DELETE, có thể chỉ truyền requestUrl và config (bỏ {data} trong ...config)
-      // Tuy nhiên, để nhất quán, việc truyền { ...config, data } là an toàn, axios sẽ xử lý.
-      // Một số server có thể đọc body của DELETE request.
-      return await axiosClient.delete(requestUrl, {
-        ...config,
-        data,
-      });
-    case METHOD_TYPE.PATCH:
-      return await axiosClient.patch(requestUrl, data, config);
-    case METHOD_TYPE.GET:
-    default:
-      // config đã chứa params cho GET nếu có
-      return await axiosClient.get(requestUrl, config);
+
+  try {
+    let result;
+    // Sẽ nhận trực tiếp `data` từ `axiosClient` (do axiosClient đã trả về response.data)
+    switch (upperCaseMethod) {
+      case METHOD_TYPE.POST:
+        result = await axiosClient.post(requestUrl, data, config);
+        break;
+      case METHOD_TYPE.PUT:
+        result = await axiosClient.put(requestUrl, data, config);
+        break;
+      case METHOD_TYPE.DELETE:
+        // DELETE request thường không có body (data), nhưng axios cho phép truyền config.data
+        // Nếu API của bạn không cần body cho DELETE, có thể chỉ truyền requestUrl và config (bỏ {data} trong ...config)
+        // Tuy nhiên, để nhất quán, việc truyền { ...config, data } là an toàn, axios sẽ xử lý.
+        // Một số server có thể đọc body của DELETE request.
+        result = await axiosClient.delete(requestUrl, {
+          ...config,
+          data,
+        });
+        break;
+      case METHOD_TYPE.PATCH:
+        result = await axiosClient.patch(requestUrl, data, config);
+        break;
+      case METHOD_TYPE.GET:
+      default:
+        // config đã chứa params cho GET nếu có
+        result = await axiosClient.get(requestUrl, config);
+        break;
+    }
+
+    // === SUCCESS RESPONSE ===
+    apiLogger.logResponse(result);
+
+    return result;
+  } catch (error) {
+    // === ERROR RESPONSE ===
+    apiLogger.logError(error.response?.data || error.message, requestUrl);
+
+    throw error;
   }
 };
 
