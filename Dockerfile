@@ -7,23 +7,20 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies with optimizations
-RUN npm ci --only=production --silent --no-audit --no-fund && \
+RUN npm ci --only=production --silent && \
     npm cache clean --force && \
-    rm -rf ~/.npm /tmp/*
+    rm -rf ~/.npm
 
 # Copy source files
 COPY . .
 
 # Set memory limits for build process
-ENV NODE_OPTIONS="--max-old-space-size=3072"
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 ENV NODE_ENV="production"
-ENV GENERATE_SOURCEMAP="false"
 
-# Build the application with memory optimization
+# Build the application
 RUN npm run build && \
-    npm prune --production && \
-    rm -rf node_modules src public *.md *.json *.js *.ts && \
-    rm -rf .git .gitignore
+    npm prune --production
 
 # Production stage
 FROM nginx:alpine AS production

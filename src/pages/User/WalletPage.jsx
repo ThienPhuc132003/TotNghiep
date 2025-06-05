@@ -485,9 +485,7 @@ const WalletPage = () => {
       }
     };
     fetchPackages();
-  }, []);
-
-  // Fetch Transaction History (API mới)
+  }, []); // Fetch Transaction History (API mới)
   const fetchHistory = useCallback(async () => {
     setIsLoadingHistory(true);
     setHistoryError(null);
@@ -572,10 +570,11 @@ const WalletPage = () => {
     } finally {
       setIsLoadingHistory(false);
     }
-  }, []);
+  }, []); // Empty dependency array is fine since we don't depend on any props or state that changes
+
   useEffect(() => {
     fetchHistory();
-  }, [fetchHistory]);
+  }, [fetchHistory]); // Now this is safe because fetchHistory won't change
 
   // Handle Top-up Submission
   const handleTopUpSubmit = useCallback(

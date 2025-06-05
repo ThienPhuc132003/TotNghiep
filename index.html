@@ -25,6 +25,13 @@
         script.src = "/api-debug.js";
         script.onload = () => console.log("🔧 API Debug tools loaded!");
         document.head.appendChild(script);
+
+        // Load test script for validating fixes
+        const testScript = document.createElement("script");
+        testScript.src = "/test-fixes.js";
+        testScript.onload = () =>
+          console.log("🧪 Fix validation tools loaded!");
+        document.head.appendChild(testScript);
       }
     </script>
   </body>
