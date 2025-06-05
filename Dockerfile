@@ -3,15 +3,17 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
+# Install git for commit information
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 # Copy package files first for better layer caching
 COPY package.json package-lock.json* ./
 
-# Install dependencies with optimizations
-RUN npm ci --only=production --silent && \
-    npm cache clean --force && \
-    rm -rf ~/.npm
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci --silent && \
+    npm cache clean --force
 
-# Copy source files
+# Copy source files (including .git for commit info)
 COPY . .
 
 # Set memory limits for build process
