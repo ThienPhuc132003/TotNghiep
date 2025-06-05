@@ -42,8 +42,9 @@ jobs:
           host: ${{ secrets.FRONTEND_SERVER_HOST }}
           username: ${{ secrets.FRONTEND_SERVER_USER }}
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
-          source: "./*"
+          source: "./dist/*" # Adjust this based on your build output directory
           target: "/root/DAKL/FE"
+          port: 22
           debug: true
 
       - name: Deploy to server
