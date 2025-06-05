@@ -1,3 +1,4 @@
+import { memo } from "react";
 import "../../assets/css/RulesRegulationsPage.style.css"; // Đổi tên file CSS
 
 // --- Icons (Có thể giữ lại nếu cần cho các mục nhỏ) ---
@@ -372,9 +373,9 @@ const RulesRegulationsPage = () => {
       <div className="rules-page-wrapper">
         <RulesHeroSection />
         <RegulationsContentSection />
-      </div>
+      </div>{" "}
     </>
   );
 };
 
-export default RulesRegulationsPage;
+export default memo(RulesRegulationsPage);

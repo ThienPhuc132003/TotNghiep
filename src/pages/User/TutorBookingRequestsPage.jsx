@@ -1,5 +1,5 @@
 // src/pages/User/TutorBookingRequestsPage.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import Api from "../../network/Api";
@@ -755,4 +755,4 @@ const TutorBookingRequestsPage = () => {
     </div>
   );
 };
-export default TutorBookingRequestsPage;
+export default memo(TutorBookingRequestsPage);

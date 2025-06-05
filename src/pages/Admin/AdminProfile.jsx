@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "../../assets/css/Admin/AdminProfile.style.css";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -192,4 +192,4 @@ const AdminProfilePage = () => {
   );
 };
 
-export default AdminProfilePage;
+export default memo(AdminProfilePage);

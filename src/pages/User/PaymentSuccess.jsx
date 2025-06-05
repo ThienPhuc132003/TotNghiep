@@ -1,4 +1,4 @@
-import { useEffect } from "react"; // Import useEffect
+import { useEffect, memo } from "react"; // Import useEffect
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux"; // Import useDispatch và useSelector
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -86,9 +86,7 @@ const PaymentSuccess = () => {
               </p>
             )}
             {!profileLoading && !profileError && (
-              <p className="sub-message">
-                Số dư Xu của bạn đã được cập nhật.
-              </p>
+              <p className="sub-message">Số dư Xu của bạn đã được cập nhật.</p>
             )}
 
             {/* Optional: Hiển thị chi tiết giao dịch nếu có */}
@@ -98,7 +96,10 @@ const PaymentSuccess = () => {
                         </div> */}
 
             <div className="action-buttons-payment-result">
-              <Link to="/tai-khoan/ho-so/vi-ca-nhan" className="btn btn-primary">
+              <Link
+                to="/tai-khoan/ho-so/vi-ca-nhan"
+                className="btn btn-primary"
+              >
                 Xem Ví Xu
               </Link>
               <Link to="/" className="btn btn-secondary">
@@ -112,4 +113,4 @@ const PaymentSuccess = () => {
   );
 };
 
-export default PaymentSuccess;
+export default memo(PaymentSuccess);

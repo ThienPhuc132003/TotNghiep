@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -221,4 +221,4 @@ AdminFormComponent.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
-export default AdminFormComponent;
+export default memo(AdminFormComponent);

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
@@ -387,7 +387,7 @@ const BenefitsSection = () => (
 
 // --- Arrow Components for Slider (ĐÃ CẬP NHẬT) ---
 function SampleNextArrow(props) {
-  const {  style, onClick } = props;
+  const { style, onClick } = props;
   return (
     <button
       type="button"
@@ -407,7 +407,7 @@ SampleNextArrow.propTypes = {
 };
 
 function SamplePrevArrow(props) {
-  const {  style, onClick } = props;
+  const { style, onClick } = props;
   return (
     <button
       type="button"
@@ -940,4 +940,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default memo(HomePage);

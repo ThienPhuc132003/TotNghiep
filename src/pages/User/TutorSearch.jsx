@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import majorList from "../../components/Static_Data/MajorList"; // *** Đảm bảo file và đường dẫn đúng ***
 import tutorLevel from "../../components/Static_Data/TutorLevelList"; // *** Đảm bảo file và đường dẫn đúng ***
 import "../../assets/css/TutorSearch.style.css"; // *** Điều chỉnh đường dẫn ***
@@ -10,7 +10,7 @@ const TutorSearchPage = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedLevelId, setSelectedLevelId] = useState("");
   const [selectedMajorId, setSelectedMajorId] = useState("");
-  const [sortBy, setSortBy] = useState("rating_desc"); 
+  const [sortBy, setSortBy] = useState("rating_desc");
 
   // Debounce search input
   useEffect(() => {
@@ -196,4 +196,4 @@ const TutorSearchPage = () => {
   );
 };
 
-export default TutorSearchPage;
+export default memo(TutorSearchPage);

@@ -1,5 +1,5 @@
 // src/route/TutorRegistrationGuard.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Api from "../network/Api"; // Điều chỉnh đường dẫn nếu cần
 import { METHOD_TYPE } from "../network/methodType"; // Điều chỉnh đường dẫn nếu cần
@@ -143,9 +143,8 @@ const TutorRegistrationGuard = () => {
     // Render component con (TutorRegistrationForm)
     return <Outlet />;
   }
-
   // Fallback
   return <div>Trạng thái không xác định.</div>;
 };
 
-export default TutorRegistrationGuard;
+export default memo(TutorRegistrationGuard);

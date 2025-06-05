@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Thêm React nếu chưa có
+import { useState, useEffect, memo } from "react"; // Thêm React nếu chưa có
 import { useNavigate, Link, useLocation } from "react-router-dom"; // *** THÊM useLocation ***
 import Api from "../../network/Api";
 import LoginLayout from "../../components/User/layout/LoginLayout";
@@ -320,5 +320,5 @@ const SigninPageComponent = () => {
   );
 };
 
-// Không cần React.memo cho trang login thường trừ khi có lý do tối ưu đặc biệt
-export default SigninPageComponent;
+// Optimized with React.memo for performance
+export default memo(SigninPageComponent);

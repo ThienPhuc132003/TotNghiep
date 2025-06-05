@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"; // Cần có React Router
+import { memo } from "react"; // Import memo for optimization
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons"; // Chọn 1 icon
 import "../../assets/css/PaymentResult.style.css"; // Dùng chung file CSS
@@ -37,7 +38,10 @@ const PaymentFailed = () => {
             </div> */}
 
             <div className="action-buttons-payment-result">
-              <Link to="/tai-khoan/ho-so/vi-ca-nhan" className="btn btn-primary">
+              <Link
+                to="/tai-khoan/ho-so/vi-ca-nhan"
+                className="btn btn-primary"
+              >
                 {" "}
                 {/* Nút thử lại */}
                 Thử Nạp Lại
@@ -59,4 +63,4 @@ const PaymentFailed = () => {
   );
 };
 
-export default PaymentFailed;
+export default memo(PaymentFailed);

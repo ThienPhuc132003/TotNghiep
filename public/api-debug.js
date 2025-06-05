@@ -19,14 +19,47 @@ const checkUserToken = () => {
 
 const checkZoomToken = () => {
   const zoomToken = localStorage.getItem("zoomAccessToken");
+  const refreshToken = localStorage.getItem("zoomRefreshToken");
+
   console.log(
-    "🎯 Zoom Token from localStorage:",
+    "🎯 Zoom Access Token from localStorage:",
     zoomToken ? "EXISTS ✅" : "NOT FOUND ❌"
   );
+
+  console.log(
+    "🔄 Zoom Refresh Token from localStorage:",
+    refreshToken ? "EXISTS ✅" : "NOT FOUND ❌"
+  );
+
   if (zoomToken) {
     console.log("🔑 Zoom Token Preview:", zoomToken.substring(0, 30) + "...");
+
+    // Check if token is expired (basic check)
+    try {
+      const tokenData = JSON.parse(atob(zoomToken.split(".")[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const isExpired = tokenData.exp && tokenData.exp < now;
+      console.log(
+        "⏰ Token Expiry Status:",
+        isExpired ? "EXPIRED ❌" : "VALID ✅"
+      );
+      if (tokenData.exp) {
+        console.log(
+          "📅 Token Expires At:",
+          new Date(tokenData.exp * 1000).toLocaleString()
+        );
+      }
+    } catch (e) {
+      console.warn("⚠️ Could not parse token expiry:", e.message);
+    }
+  } else {
+    console.log("💡 To get Zoom token, user needs to:");
+    console.log("   1. Go to Zoom meeting page");
+    console.log("   2. Click 'Login with Zoom'");
+    console.log("   3. Complete OAuth flow");
   }
-  return zoomToken;
+
+  return { zoomToken, refreshToken };
 };
 
 // === ENHANCED API TESTING ===
@@ -34,6 +67,8 @@ const testMeetingAPI = async (classroomId) => {
   console.group("🧪 [TEST] Meeting Get API");
   try {
     const token = checkUserToken();
+    const { zoomToken, refreshToken } = checkZoomToken();
+
     if (!token) {
       console.error("❌ No user token found in cookies");
       console.groupEnd();
@@ -42,6 +77,24 @@ const testMeetingAPI = async (classroomId) => {
 
     console.log("📋 Testing with classroomId:", classroomId);
     console.log("🌐 API Base URL:", window.location.origin);
+
+    // Check if this is a Zoom-related endpoint
+    const needsZoomAuth =
+      classroomId && classroomId.toString().includes("zoom");
+
+    if (needsZoomAuth && !zoomToken) {
+      console.warn(
+        "⚠️ This appears to be a Zoom meeting but no Zoom token found"
+      );
+      console.log("💡 To authenticate with Zoom:");
+      console.log("   1. Navigate to a meeting page");
+      console.log("   2. Click 'Join with Zoom' or 'Create Meeting'");
+      console.log("   3. Complete Zoom OAuth flow");
+
+      if (!refreshToken) {
+        console.log("   4. No refresh token available - full re-auth needed");
+      }
+    }
 
     const url = `${window.location.origin}/api/meeting/get-meeting`;
     const payload = { classroomId: classroomId };

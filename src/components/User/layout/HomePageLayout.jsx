@@ -1,5 +1,5 @@
 // src/components/User/layout/HomePageLayout.jsx
-import React, { useEffect, useState, useCallback } from "react"; // Bỏ useRef vì lastScrollY đã bị xóa
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useSelector, useDispatch } from "react-redux";
@@ -104,8 +104,7 @@ const HomePageLayoutComponent = () => {
       navigate("/login");
     }
   }, [dispatch, navigate, closeMobileMenu]);
-
-  const getHeaderMenuItems = () => {
+  const getHeaderMenuItems = useMemo(() => {
     let items = [
       {
         id: "home",
@@ -143,8 +142,8 @@ const HomePageLayoutComponent = () => {
       });
     }
     return items.filter((item) => item.roles.includes(currentUserRole));
-  };
-  const headerMenuItems = getHeaderMenuItems();
+  }, [currentUserRole]);
+  const headerMenuItems = getHeaderMenuItems;
 
   return (
     <div className="home-page-container">
@@ -265,7 +264,7 @@ const HomePageLayoutComponent = () => {
               </p>
             </div>
             <div className="footer-section footer-map-section">
-              <h3>Bản đồ</h3>
+              <h3>Bản đồ</h3>{" "}
               <div className="map-responsive-container">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.7877999948746!2d106.69745087573634!3d10.827544858247297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528f4a62fce9b%3A0xc99902aa1e26ef02!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBWxINuIExhbmcgLSBDxqEgc-G7nyBjaMOtbmg!5e0!3m2!1svi!2sus!4v1743440267185!5m2!1svi!2sus"
@@ -274,7 +273,36 @@ const HomePageLayoutComponent = () => {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Bản đồ vị trí Đại học Văn Lang"
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                  onError={(e) => {
+                    console.warn("Google Maps iframe failed to load:", e);
+                    e.target.style.display = "none";
+                    const fallback =
+                      e.target.parentNode.querySelector(".map-fallback");
+                    if (fallback) fallback.style.display = "block";
+                  }}
                 ></iframe>
+                <div
+                  className="map-fallback"
+                  style={{
+                    display: "none",
+                    padding: "20px",
+                    textAlign: "center",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "8px",
+                    color: "#666",
+                  }}
+                >
+                  <p>Bản đồ không thể tải. Vui lòng thử lại sau.</p>
+                  <a
+                    href="https://maps.google.com/maps?q=Trường+Đại+học+Văn+Lang+-+Cơ+sở+chính&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#007bff", textDecoration: "underline" }}
+                  >
+                    Xem trên Google Maps
+                  </a>
+                </div>
               </div>
             </div>
             <div className="footer-section footer-contact-section">
@@ -312,5 +340,8 @@ const HomePageLayoutComponent = () => {
   );
 };
 
-const HomePageLayout = React.memo(HomePageLayoutComponent);
+const HomePageLayout = React.memo(HomePageLayoutComponent, () => {
+  // HomePageLayout không có props, nên luôn trả về true để ngăn re-render không cần thiết
+  return true;
+});
 export default HomePageLayout;

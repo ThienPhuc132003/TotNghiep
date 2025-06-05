@@ -1,5 +1,5 @@
 // src/pages/User/TutorMeetingRoomPage.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -163,4 +163,4 @@ const TutorMeetingRoomPage = () => {
     </div>
   );
 };
-export default TutorMeetingRoomPage;
+export default memo(TutorMeetingRoomPage);

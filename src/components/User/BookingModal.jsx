@@ -1,6 +1,6 @@
 // src/components/User/BookingModal.jsx
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
@@ -516,4 +516,4 @@ BookingModal.propTypes = {
   hourlyRate: PropTypes.number,
 };
 
-export default BookingModal;
+export default memo(BookingModal);

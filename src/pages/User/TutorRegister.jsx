@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 // src/pages/User/TutorRegistrationForm.jsx
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, memo } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/TutorRegister.style.css";
@@ -1379,12 +1379,12 @@ const TutorRegistrationForm = () => {
                     Ngành học <span className="required-asterisk">*</span>{" "}
                   </label>{" "}
                   <MajorList
-                    name="majorId" 
+                    name="majorId"
                     value={formData.majorId}
                     onChange={handleInputChange}
                     required={true}
                     disabled={isLoading}
-                    placeholder="Chọn ngành học của bạn" 
+                    placeholder="Chọn ngành học của bạn"
                   />{" "}
                   {renderFieldError("majorId")}{" "}
                 </div>
@@ -1982,4 +1982,4 @@ const TutorRegistrationForm = () => {
   );
 };
 
-export default TutorRegistrationForm;
+export default memo(TutorRegistrationForm);

@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --host --force",
+    "build": "vite build --mode production",
+    "build:clean": "npm run clean && vite build --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --host",
+    "clean": "rimraf dist node_modules/.vite node_modules/.cache",
+    "clean:all": "npm run clean && npm cache clean --force",
+    "deploy": "npm run build:clean && npm run deploy:docker",
+    "deploy:docker": "docker build -t my-app . && docker run -p 80:80 my-app"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Api from "../../network/Api";
@@ -769,4 +769,4 @@ const TutorDetailPage = () => {
     </>
   );
 };
-export default TutorDetailPage;
+export default memo(TutorDetailPage);

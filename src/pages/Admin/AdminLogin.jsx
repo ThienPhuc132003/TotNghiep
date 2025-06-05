@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Bỏ import React nếu không dùng
+import { useState, useEffect, memo } from "react"; // Bỏ import React nếu không dùng
 import { useNavigate } from "react-router-dom"; // Bỏ Link nếu không dùng
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
@@ -288,4 +288,4 @@ const AdminLoginPage = () => {
   );
 };
 
-export default AdminLoginPage;
+export default memo(AdminLoginPage);

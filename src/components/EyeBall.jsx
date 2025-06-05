@@ -1,13 +1,13 @@
-import  { useState } from 'react';
-import '../assets/css/EyeBall.style.css';
+import { useState, memo } from "react";
+import "../assets/css/EyeBall.style.css";
 
 const Eyeball = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left; 
-    const mouseY = e.clientY - rect.top; 
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
     setPosition({ x: mouseX, y: mouseY });
   };
 
@@ -17,7 +17,9 @@ const Eyeball = () => {
         <div
           className="pupil"
           style={{
-            transform: `translate(${position.x / 10 - 5}px, ${position.y / 10 - 5}px)`,
+            transform: `translate(${position.x / 10 - 5}px, ${
+              position.y / 10 - 5
+            }px)`,
           }}
         />
       </div>
@@ -25,4 +27,4 @@ const Eyeball = () => {
   );
 };
 
-export default Eyeball;
+export default memo(Eyeball);

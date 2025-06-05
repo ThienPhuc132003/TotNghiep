@@ -9,6 +9,8 @@ const API_BASE_URL =
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   // Do NOT set default Content-Type here. It will be set per-request as needed.
+  timeout: 10000, // 10 second timeout
+  withCredentials: false, // Avoid CORS preflight for simple requests
 });
 
 let isRefreshingZoomToken = false;
@@ -183,4 +185,24 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Add response interceptor for better error handling
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle CORS errors
+    if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+      console.warn("Network error detected, possibly CORS:", error);
+      // Don't auto-redirect on CORS errors, let component handle it
+    }
+
+    // Handle timeout errors
+    if (error.code === "ECONNABORTED") {
+      console.warn("Request timeout:", error);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default axiosClient;
