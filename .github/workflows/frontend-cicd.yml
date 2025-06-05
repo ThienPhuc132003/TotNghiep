@@ -27,6 +27,15 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Create target directory
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.FRONTEND_SERVER_HOST }}
+          username: ${{ secrets.FRONTEND_SERVER_USER }}
+          password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
+          port: 22
+          script: mkdir -p /root/DAKL/FE
+
       - name: Copy source code to server
         uses: appleboy/scp-action@v0.1.1
         with:
@@ -35,6 +44,7 @@ jobs:
           password: ${{ secrets.FRONTEND_SERVER_PASSWORD }}
           source: "./*"
           target: "/root/DAKL/FE"
+          debug: true
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.4
