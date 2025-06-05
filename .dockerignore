@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Don't ignore .git directory (needed for commit information during build)
+# .git

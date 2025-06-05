@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build --mode production",
+    "build:production": "cross-env NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=2048\" vite build --mode production",
     "build:memory": "cross-env NODE_OPTIONS=\"--max-old-space-size=3072\" vite build --mode production",
     "build:analyze": "vite build --mode production && npx vite-bundle-analyzer dist/stats.json",
     "lint": "eslint .",

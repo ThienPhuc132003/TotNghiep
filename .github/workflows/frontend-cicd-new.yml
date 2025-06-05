@@ -43,10 +43,9 @@ jobs:
           npm ls vite
 
       - name: Build project
-        run: npm run build:production
+        run: npm run build --verbose
         env:
           NODE_ENV: production
-          CI: true
 
       - name: Copy source code to server
         uses: appleboy/scp-action@v0.1.7
