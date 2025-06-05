@@ -4,17 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --force",
+    "dev": "vite --host",
     "build": "vite build --mode production",
     "build:memory": "cross-env NODE_OPTIONS=\"--max-old-space-size=3072\" vite build --mode production",
-    "build:clean": "npm run clean && npm run build:memory",
+    "build:analyze": "vite build --mode production && npx vite-bundle-analyzer dist/stats.json",
     "lint": "eslint .",
     "preview": "vite preview --host",
-    "clean": "rimraf dist node_modules/.vite node_modules/.cache",
-    "clean:all": "npm run clean && npm cache clean --force",
-    "deploy": "npm run build:clean && npm run deploy:docker",
+    "clean": "rm -rf dist node_modules/.vite",
+    "clean:cache": "npm cache clean --force && rm -rf node_modules/.cache",
+    "prebuild": "npm run clean:cache",
     "deploy:docker": "docker build -t my-app . && docker run -p 80:80 my-app",
-    "prebuild": "npm run clean"
+    "memory:check": "node --expose-gc -e \"global.gc(); console.log(process.memoryUsage());\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

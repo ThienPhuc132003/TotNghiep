@@ -3,16 +3,15 @@ import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()], // Build optimizations for production
+  plugins: [react()],
+
+  // Build optimizations
   build: {
-    // Aggressive minification
+    // Reduce bundle size
     minify: "esbuild",
     target: "esnext",
 
-    // Disable source maps for smaller builds
-    sourcemap: false,
-
-    // More aggressive code splitting
+    // Code splitting to prevent large bundles
     rollupOptions: {
       output: {
         manualChunks: {
@@ -22,47 +21,37 @@ export default defineConfig({
           charts: ["chart.js"],
           zoom: ["@zoom/meetingsdk"],
         },
-        // Generate smaller chunk names
-        chunkFileNames: "js/[name]-[hash:8].js",
-        entryFileNames: "js/[name]-[hash:8].js",
-        assetFileNames: "assets/[name]-[hash:8].[ext]",
       },
-      // Reduce memory usage during build
-      maxParallelFileOps: 1,
     },
 
-    // Smaller chunk size limit
-    chunkSizeWarningLimit: 500,
+    // Chunk size warnings
+    chunkSizeWarningLimit: 1000,
 
-    // Disable compression reporting to save memory
-    reportCompressedSize: false,
-
-    // Optimize for memory
-    emptyOutDir: true,
+    // Enable source maps for production debugging but smaller
+    sourcemap: false,
   },
+
   // Development server optimizations
   server: {
     host: true,
-    port: 5173, // Use Vite default port
+    port: 3000,
 
-    // Minimal HMR for less cache
+    // Hot reload optimizations
     hmr: {
-      overlay: false,
+      overlay: false, // Disable error overlay to prevent memory buildup
     },
-
-    // Clear cache on restart
-    force: true,
   },
 
-  // Dependency optimization - minimal caching
+  // Dependency optimization
   optimizeDeps: {
-    include: ["react", "react-dom"],
+    include: ["react", "react-dom", "@reduxjs/toolkit", "react-redux", "axios"],
+
+    // Exclude heavy libs from optimization
     exclude: ["@zoom/meetingsdk", "lib-jitsi-meet"],
-    force: true, // Force re-optimization
   },
 
-  // Disable cache directory for minimal cache
-  cacheDir: false,
+  // Cache directory configuration
+  cacheDir: "node_modules/.vite",
 
   // Preview server config
   preview: {

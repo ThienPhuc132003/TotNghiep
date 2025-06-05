@@ -73,7 +73,7 @@ const store = configureStore({
       },
     }),
   // Enable DevTools only in development
-  devTools: import.meta.env.DEV,
+  devTools: !import.meta.env.PROD,
 });
 
 // Create persistor with garbage collection
@@ -85,7 +85,7 @@ export const persistor = persistStore(store, null, () => {
     if (userState) {
       try {
         JSON.parse(userState);
-        // Data is valid, keep it
+        // Add timestamp check here if needed
       } catch (error) {
         // Clear corrupted data
         storage.removeItem("persist:user");
