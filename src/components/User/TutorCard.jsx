@@ -173,6 +173,11 @@ const TutorCard = ({
     )
       onOpenAcceptedRequestsModal(tutor);
   };
+  /**
+   * Handle cancel booking request functionality
+   * This function allows users to cancel their pending booking requests
+   * when isBookingRequest is true and status is "REQUEST"
+   */
   const handleCancelRequestOnCard = async (e) => {
     e.stopPropagation();
     if (
@@ -183,18 +188,32 @@ const TutorCard = ({
       isLoadingFavoriteAction
     )
       return;
+
+    // Improved confirmation dialog with more details
+    if (
+      !window.confirm(
+        `Bạn có chắc chắn muốn hủy yêu cầu thuê gia sư ${tutor.name}?\n\nLưu ý: Sau khi hủy, bạn có thể gửi yêu cầu mới bất cứ lúc nào.`
+      )
+    )
+      return;
+
     setIsProcessingBookingAction(true);
     try {
+      // Call API endpoint to cancel booking request
       await Api({
         endpoint: `booking-request/cancel-booking/${bookingIdOnCard}`,
         method: METHOD_TYPE.PATCH,
         data: { click: "CANCEL" },
         requireToken: true,
       });
-      toast.success(`Đã hủy YC cho ${tutor.name}.`);
+      toast.success(`Đã hủy yêu cầu thuê gia sư ${tutor.name} thành công!`);
       if (onCancelSuccess) onCancelSuccess(tutor.id);
     } catch (err) {
-      toast.error(err.response?.data?.message || `Lỗi hủy YC.`);
+      const errorMessage =
+        err.response?.data?.message ||
+        `Lỗi khi hủy yêu cầu thuê gia sư ${tutor.name}`;
+      toast.error(errorMessage);
+      console.error("Cancel booking request error:", err);
     } finally {
       setIsProcessingBookingAction(false);
     }
@@ -397,7 +416,7 @@ const TutorCard = ({
               >
                 <FaCalendarPlus /> Yêu Cầu Mới
               </button>
-            )}
+            )}{" "}
             {showPendingApprovalCard && (
               <div className="status-with-action-card">
                 <span className="booking-status-indicator card-pending">
@@ -409,9 +428,10 @@ const TutorCard = ({
                   disabled={
                     isProcessingBookingAction || isLoadingFavoriteAction
                   }
+                  title="Hủy yêu cầu thuê gia sư này"
                 >
                   {isProcessingBookingAction ? <FaSpinner spin /> : <FaTimes />}{" "}
-                  Hủy
+                  Hủy Yêu Cầu
                 </button>
               </div>
             )}
