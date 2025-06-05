@@ -1,6 +1,7 @@
+import { memo } from "react";
 import "../../assets/css/TutorCardSkeleton.style.css"; // *** Điều chỉnh đường dẫn ***
 
-const TutorCardSkeleton = () => {
+const TutorCardSkeleton = memo(() => {
   return (
     <div className="tutor-card-skeleton">
       <div className="skeleton-left">
@@ -35,5 +36,8 @@ const TutorCardSkeleton = () => {
       </div>
     </div>
   );
-};
+});
+
+TutorCardSkeleton.displayName = "TutorCardSkeleton";
+
 export default TutorCardSkeleton;

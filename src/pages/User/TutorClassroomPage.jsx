@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Api from "../../network/Api";
@@ -635,7 +635,7 @@ const TutorClassroomPage = () => {
                         className="fas fa-video"
                         style={{ marginRight: "5px" }}
                       ></i>
-                      Tạo phòng học Zoom
+                      Tạo phòng học
                     </button>
                     {classroom.status === "IN_SESSION" && (
                       <button
@@ -717,4 +717,4 @@ const TutorClassroomPage = () => {
   );
 };
 
-export default TutorClassroomPage;
+export default memo(TutorClassroomPage);

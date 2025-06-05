@@ -1,5 +1,5 @@
 // src/pages/User/CreateMeetingPage.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useSelector } from "react-redux";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -358,4 +358,4 @@ const CreateMeetingPage = () => {
   );
 };
 
-export default CreateMeetingPage;
+export default memo(CreateMeetingPage);

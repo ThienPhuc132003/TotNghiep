@@ -1,7 +1,7 @@
 // src/components/Admin/layout/AdminDashboardLayout.jsx
-import { useMemo, useCallback } from "react"; // Thêm useCallback
+import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
-import { useLocation, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Cookies from "js-cookie";
 import "../../../assets/css/Admin/AdminDashboardLayout.style.css";
@@ -28,10 +28,21 @@ const AdminDashboardLayoutInner = (props) => {
   const adminProfile = useSelector((state) => state.admin.profile);
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
-  const adminIdFromProfile = adminProfile?.adminId;
-  const hasValidCookies =
-    !!Cookies.get("token") && Cookies.get("role") === "admin";
-  const isAdminAuthenticated = !!adminIdFromProfile || hasValidCookies;
+  // Memoize authentication check
+  const authenticationData = useMemo(() => {
+    const adminIdFromProfile = adminProfile?.adminId;
+    const hasValidCookies =
+      !!Cookies.get("token") && Cookies.get("role") === "admin";
+    const isAdminAuthenticated = !!adminIdFromProfile || hasValidCookies;
+
+    return {
+      adminIdFromProfile,
+      hasValidCookies,
+      isAdminAuthenticated,
+    };
+  }, [adminProfile?.adminId]);
+
+  const { isAdminAuthenticated } = authenticationData;
 
   // ... (các useEffect khác) ...
 
@@ -49,6 +60,10 @@ const AdminDashboardLayoutInner = (props) => {
       navigate("/admin/login"); // Chuyển hướng về trang login của Admin
     }
   }, [navigate]); // Thêm dispatch nếu dùng
+  // Memoize toggle sidebar function
+  const handleToggleSidebar = useCallback(() => {
+    dispatch(toggleSidebar());
+  }, [dispatch]);
 
   return (
     <div
@@ -60,7 +75,7 @@ const AdminDashboardLayoutInner = (props) => {
       <div className="content-area">
         <button
           className="toggle-sidebar-btn"
-          onClick={() => dispatch(toggleSidebar())}
+          onClick={handleToggleSidebar}
           aria-label={isSidebarVisible ? "Ẩn thanh bên" : "Hiện thanh bên"}
         >
           <i
@@ -104,4 +119,13 @@ AdminDashboardLayoutInner.propTypes = {
   currentPage: PropTypes.string,
 };
 
-export default AdminDashboardLayoutInner; // Không dùng React.memo nếu đang debug, nếu không thì có thể thêm lại
+export default React.memo(AdminDashboardLayoutInner, (prevProps, nextProps) => {
+  // Chỉ re-render khi có sự thay đổi quan trọng
+  return (
+    prevProps.currentPage === nextProps.currentPage &&
+    prevProps.children === nextProps.children &&
+    prevProps.childrenMiddleContentLower ===
+      nextProps.childrenMiddleContentLower &&
+    prevProps.rightChildren === nextProps.rightChildren
+  );
+});

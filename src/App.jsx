@@ -1,5 +1,5 @@
 // src/App.jsx
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,6 +10,12 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistor } from "./redux/Store"; // Đảm bảo đường dẫn đúng
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+// Error Boundary for catching React errors
+import ErrorBoundary from "./components/ErrorBoundary";
+
+// Memory Management
+import memoryService from "./services/memoryService";
 
 // Layouts
 import HomePageLayout from "./components/User/layout/HomePageLayout"; // Đảm bảo đường dẫn đúng
@@ -90,6 +96,38 @@ const ListOfTutorPayments = lazy(() =>
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
+  // Initialize memory management
+  useEffect(() => {
+    // Log initial memory status
+    memoryService.logMemoryStatus();
+    // Setup periodic memory checks in development
+    if (import.meta.env.DEV) {
+      const memoryCheckInterval = setInterval(() => {
+        memoryService.logMemoryStatus();
+      }, 30000); // Every 30 seconds
+
+      // Register cleanup for the interval
+      memoryService.registerTimer(memoryCheckInterval);
+    }
+
+    // Setup error handler for memory-related errors
+    const handleError = (event) => {
+      if (event.error && event.error.message) {
+        const message = event.error.message.toLowerCase();
+        if (message.includes("memory") || message.includes("out of heap")) {
+          console.warn("🚨 Memory-related error detected:", event.error);
+          memoryService.performGarbageCollection();
+        }
+      }
+    };
+
+    window.addEventListener("error", handleError);
+
+    return () => {
+      window.removeEventListener("error", handleError);
+    };
+  }, []);
+
   return (
     <Router>
       <Suspense
@@ -122,140 +160,167 @@ function App() {
             pauseOnHover
             theme="light"
           />
-          <Routes>
-            {/* --- CÁC ROUTE SỬ DỤNG HomePageLayout --- */}
-            <Route element={<HomePageLayout />}>
-              <Route index element={<Navigate to="/trang-chu" replace />} />
-              <Route path="/trang-chu" element={<HomePage />} />
-              <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
-              <Route path="/gia-su/:userId" element={<TutorDetailPage />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route
-                path="/quy-dinh-noi-quy-huong-dan"
-                element={<RulesRegulationsPage />}
-              />
-              <Route
-                path="/trac-nghiem-gia-su"
-                element={<TutorQualificationTestPage />}
-              />
-              <Route path="/change-password" element={<ChangePassword />} />
-              <Route path="/login" element={<UserLogin />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
+          <ErrorBoundary
+            onError={(error, errorInfo) => {
+              // Enhanced error reporting with memory info
+              const memInfo = memoryService.getMemoryInfo();
+              console.error("ErrorBoundary caught error:", {
+                error: error.message,
+                stack: error.stack,
+                componentStack: errorInfo.componentStack,
+                memoryInfo: memInfo,
+                timestamp: new Date().toISOString(),
+              });
+            }}
+            showDetails={import.meta.env.DEV}
+          >
+            <Routes>
+              {/* --- CÁC ROUTE SỬ DỤNG HomePageLayout --- */}
+              <Route element={<HomePageLayout />}>
+                <Route index element={<Navigate to="/trang-chu" replace />} />
+                <Route path="/trang-chu" element={<HomePage />} />
+                <Route path="/tim-kiem-gia-su" element={<TutorSearch />} />
+                <Route path="/gia-su/:userId" element={<TutorDetailPage />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route
+                  path="/quy-dinh-noi-quy-huong-dan"
+                  element={<RulesRegulationsPage />}
+                />
+                <Route
+                  path="/trac-nghiem-gia-su"
+                  element={<TutorQualificationTestPage />}
+                />
+                <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/login" element={<UserLogin />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
-              <Route element={<TutorRegistrationGuard />}>
-                <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
-              </Route>
+                <Route element={<TutorRegistrationGuard />}>
+                  <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
+                </Route>
 
-              {/* --- ROUTE QUẢN LÝ TÀI KHOẢN (USER & TUTOR) - CẦN ĐĂNG NHẬP --- */}
-              <Route element={<ProtectRoute />}>
-                {" "}
-                {/* Bảo vệ các route con cần đăng nhập */}
-                <Route path="/tai-khoan/ho-so" element={<AccountPageLayout />}>
+                {/* --- ROUTE QUẢN LÝ TÀI KHOẢN (USER & TUTOR) - CẦN ĐĂNG NHẬP --- */}
+                <Route element={<ProtectRoute />}>
                   {" "}
-                  {/* USER specific routes */}
-                  <Route path="thong-tin-ca-nhan" element={<Profile />} />
+                  {/* Bảo vệ các route con cần đăng nhập */}
                   <Route
-                    path="gia-su-yeu-thich"
-                    element={<FavoriteTutorsPage />}
-                  />
-                  {/* <<< THÊM ROUTE CHO CURRICULUM PAGE >>> */}
-                  <Route
-                    path="giao-trinh-ca-nhan"
-                    element={<CurriculumPage />}
-                  />
-                  {/* <<< THÊM ROUTE CHO STUDENT CLASSROOM PAGE >>> */}
-                  <Route
-                    path="lop-hoc-cua-toi"
-                    element={<StudentClassroomPage />}
-                  />{" "}
-                  {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}
-                  <Route element={<ProtectRoute role="TUTOR" />}>
+                    path="/tai-khoan/ho-so"
+                    element={<AccountPageLayout />}
+                  >
                     {" "}
-                    {/* Layout bảo vệ bởi role TUTOR */}
-                    <Route path="ho-so-gia-su" element={<TutorRegister />} />
-                    {/* Add new classroom route for tutors */}
+                    {/* USER specific routes */}
+                    <Route path="thong-tin-ca-nhan" element={<Profile />} />
                     <Route
-                      path="quan-ly-lop-hoc"
-                      element={<TutorClassroomPage />}
-                    />{" "}
-                    {/* <<< SỬA LỖI */}{" "}
-                    <Route
-                      path="phong-hop-zoom"
-                      element={<TutorMeetingRoomPage />}
-                    />{" "}
-                    {/* Route tao-phong-hop-moi removed - functionality moved to TutorClassroomPage */}
-                    <Route
-                      path="yeu-cau-day"
-                      element={<TutorBookingRequestsPage />}
+                      path="gia-su-yeu-thich"
+                      element={<FavoriteTutorsPage />}
                     />
+                    {/* <<< THÊM ROUTE CHO CURRICULUM PAGE >>> */}
+                    <Route
+                      path="giao-trinh-ca-nhan"
+                      element={<CurriculumPage />}
+                    />
+                    {/* <<< THÊM ROUTE CHO STUDENT CLASSROOM PAGE >>> */}
+                    <Route
+                      path="lop-hoc-cua-toi"
+                      element={<StudentClassroomPage />}
+                    />{" "}
+                    {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}
+                    <Route element={<ProtectRoute role="TUTOR" />}>
+                      {" "}
+                      {/* Layout bảo vệ bởi role TUTOR */}
+                      <Route path="ho-so-gia-su" element={<TutorRegister />} />
+                      {/* Add new classroom route for tutors */}
+                      <Route
+                        path="quan-ly-lop-hoc"
+                        element={<TutorClassroomPage />}
+                      />{" "}
+                      {/* <<< SỬA LỖI */}{" "}
+                      <Route
+                        path="phong-hop-zoom"
+                        element={<TutorMeetingRoomPage />}
+                      />{" "}
+                      {/* Route tao-phong-hop-moi removed - functionality moved to TutorClassroomPage */}
+                      <Route
+                        path="yeu-cau-day"
+                        element={<TutorBookingRequestsPage />}
+                      />
+                    </Route>
+                    {/* SHARED routes for both USER and TUTOR */}
+                    <Route path="vi-ca-nhan" element={<Wallet />} />
                   </Route>
-                  {/* SHARED routes for both USER and TUTOR */}
-                  <Route path="vi-ca-nhan" element={<Wallet />} />
+                  {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
+                  <Route element={<OtpProtectedRoute />}>
+                    {" "}
+                    {/* Layout bảo vệ bởi OTP */}
+                  </Route>
+                  {/* Payment Routes - Cần đăng nhập */}
+                  <Route path="/payment/success" element={<PaymentSuccess />} />
+                  <Route path="/payment/failed" element={<PaymentFailed />} />
                 </Route>
-                {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
-                <Route element={<OtpProtectedRoute />}>
-                  {" "}
-                  {/* Layout bảo vệ bởi OTP */}
-                </Route>
-                {/* Payment Routes - Cần đăng nhập */}
-                <Route path="/payment/success" element={<PaymentSuccess />} />
-                <Route path="/payment/failed" element={<PaymentFailed />} />
+              </Route>{" "}
+              {/* Kết thúc các Route sử dụng HomePageLayout */}
+              {/* Các route không dùng HomePageLayout (standalone) */}
+              <Route path="/otp-verify" element={<OtpVerify />} />
+              <Route
+                path="/otp-verify-register"
+                element={<OtpVerifyRegister />}
+              />
+              <Route
+                path="/user/auth/callback"
+                element={<MicrosoftCallback />}
+              />
+              <Route
+                path="/admin/auth/callback" // Giữ lại route này nếu bạn có Microsoft login cho admin
+                element={<MicrosoftCallback />}
+              />
+              <Route path="/meeting/callback" element={<ZoomCallback />} />
+              {/* ADMIN ROUTES */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              {/* AdminPrivateRoutes sẽ là layout cha cho các route admin cần bảo vệ */}
+              <Route element={<AdminPrivateRoutes />}>
+                {/* Các route admin con sẽ được render bên trong AdminPrivateRoutes thông qua Outlet */}
+                {/* Đảm bảo path ở đây là tương đối với path cha của AdminPrivateRoutes nếu có */}
+                {/* Nếu AdminPrivateRoutes được gán cho path="/admin" thì các path con sẽ là "dashboard", "profile", ... */}
+                {/* Nếu AdminPrivateRoutes được gán cho path="/" và kiểm tra role admin, thì path con là "admin/dashboard" */}
+                {/* Dựa trên file App.jsx ban đầu của bạn, AdminPrivateRoutes bọc các route có prefix /admin/* */}
+                {/* Nên các path con sẽ không cần prefix /admin/ nữa */}
+                <Route
+                  path="/admin/dashboard"
+                  element={<AdminDashboard />}
+                />{" "}
+                {/* Hoặc chỉ "dashboard" nếu AdminPrivateRoutes đã có path="/admin" */}
+                <Route path="/admin/profile" element={<AdminProfile />} />
+                <Route path="/admin/nhan-vien" element={<ListOfAdmin />} />
+                <Route path="/admin/nganh" element={<ListOfMajor />} />
+                <Route path="/admin/yeu-cau" element={<ListOfRequest />} />
+                <Route path="/admin/nguoi-hoc" element={<ListOfStudent />} />
+                <Route path="/admin/gia-su" element={<ListOfTutor />} />
+                <Route
+                  path="/admin/hang-gia-su"
+                  element={<ListOfTutorLevel />}
+                />
+                <Route path="/admin/mon-hoc" element={<ListOfSubject />} />
+                <Route
+                  path="/admin/giao-trinh"
+                  element={<ListOfCurriculumn />}
+                />
+                <Route
+                  path="/admin/goi-thanh-toan"
+                  element={<ListOfValueConfigs />}
+                />
+                <Route
+                  path="/admin/thanh-toan-cho-gia-su"
+                  element={<ListOfTutorPayments />}
+                />
+                <Route
+                  path="/admin/nap-vi-nguoi-dung"
+                  element={<ListOfTransactions />}
+                />
+                {/* Nếu có trang admin index/mặc định, bạn có thể thêm ở đây */}
+                {/* Ví dụ: <Route index element={<Navigate to="/admin/dashboard" replace />} /> */}
               </Route>
-            </Route>{" "}
-            {/* Kết thúc các Route sử dụng HomePageLayout */}
-            {/* Các route không dùng HomePageLayout (standalone) */}
-            <Route path="/otp-verify" element={<OtpVerify />} />
-            <Route
-              path="/otp-verify-register"
-              element={<OtpVerifyRegister />}
-            />
-            <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
-            <Route
-              path="/admin/auth/callback" // Giữ lại route này nếu bạn có Microsoft login cho admin
-              element={<MicrosoftCallback />}
-            />
-            <Route path="/meeting/callback" element={<ZoomCallback />} />
-            {/* ADMIN ROUTES */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            {/* AdminPrivateRoutes sẽ là layout cha cho các route admin cần bảo vệ */}
-            <Route element={<AdminPrivateRoutes />}>
-              {/* Các route admin con sẽ được render bên trong AdminPrivateRoutes thông qua Outlet */}
-              {/* Đảm bảo path ở đây là tương đối với path cha của AdminPrivateRoutes nếu có */}
-              {/* Nếu AdminPrivateRoutes được gán cho path="/admin" thì các path con sẽ là "dashboard", "profile", ... */}
-              {/* Nếu AdminPrivateRoutes được gán cho path="/" và kiểm tra role admin, thì path con là "admin/dashboard" */}
-              {/* Dựa trên file App.jsx ban đầu của bạn, AdminPrivateRoutes bọc các route có prefix /admin/* */}
-              {/* Nên các path con sẽ không cần prefix /admin/ nữa */}
-              <Route
-                path="/admin/dashboard"
-                element={<AdminDashboard />}
-              />{" "}
-              {/* Hoặc chỉ "dashboard" nếu AdminPrivateRoutes đã có path="/admin" */}
-              <Route path="/admin/profile" element={<AdminProfile />} />
-              <Route path="/admin/nhan-vien" element={<ListOfAdmin />} />
-              <Route path="/admin/nganh" element={<ListOfMajor />} />
-              <Route path="/admin/yeu-cau" element={<ListOfRequest />} />
-              <Route path="/admin/nguoi-hoc" element={<ListOfStudent />} />
-              <Route path="/admin/gia-su" element={<ListOfTutor />} />
-              <Route path="/admin/hang-gia-su" element={<ListOfTutorLevel />} />
-              <Route path="/admin/mon-hoc" element={<ListOfSubject />} />
-              <Route path="/admin/giao-trinh" element={<ListOfCurriculumn />} />
-              <Route
-                path="/admin/goi-thanh-toan"
-                element={<ListOfValueConfigs />}
-              />
-              <Route
-                path="/admin/thanh-toan-cho-gia-su"
-                element={<ListOfTutorPayments />}
-              />
-              <Route
-                path="/admin/nap-vi-nguoi-dung"
-                element={<ListOfTransactions />}
-              />
-              {/* Nếu có trang admin index/mặc định, bạn có thể thêm ở đây */}
-              {/* Ví dụ: <Route index element={<Navigate to="/admin/dashboard" replace />} /> */}
-            </Route>
-          </Routes>
+            </Routes>
+          </ErrorBoundary>
         </PersistGate>
       </Suspense>
     </Router>

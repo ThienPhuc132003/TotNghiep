@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import Api from "../../network/Api";
@@ -172,4 +172,4 @@ ClassroomEvaluationModal.propTypes = {
   onEvaluationSubmitted: PropTypes.func.isRequired,
 };
 
-export default ClassroomEvaluationModal;
+export default memo(ClassroomEvaluationModal);

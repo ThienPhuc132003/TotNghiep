@@ -1,5 +1,5 @@
 // src/pages/User/Profile.jsx
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "../../assets/css/Profile.style.css";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -392,4 +392,4 @@ const ProfilePage = () => {
     </>
   );
 };
-export default ProfilePage;
+export default memo(ProfilePage);

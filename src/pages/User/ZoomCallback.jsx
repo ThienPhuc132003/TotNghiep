@@ -1,5 +1,5 @@
 // src/pages/User/ZoomCallback.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -153,8 +153,8 @@ const ZoomCallback = () => {
           ? "Vui lòng thử lại thao tác kết nối Zoom."
           : "Bạn sẽ được tự động chuyển hướng sau giây lát..."}
       </p>
-      {/* Nút quay lại có thể không cần nếu luôn tự động redirect */}
+      {/* Nút quay lại có thể không cần nếu luôn tự động redirect */}{" "}
     </div>
   );
 };
-export default ZoomCallback;
+export default memo(ZoomCallback);

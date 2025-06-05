@@ -16,6 +16,8 @@ import {
   faUpload,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+// Import media service for CORS handling
+import SafeImage from "./SafeImage";
 
 // --- Hàm tiện ích tạo Blob từ ảnh đã crop (Giữ nguyên từ trước) ---
 async function getCroppedImgBlob(image, pixelCrop) {
@@ -317,7 +319,7 @@ const AvatarUploader = ({
               tabIndex="0"
               aria-label="Nhấn để thay đổi ảnh"
             >
-              <img
+              <SafeImage
                 src={displayImageUrl}
                 alt="Ảnh đại diện"
                 className="final-avatar-preview"

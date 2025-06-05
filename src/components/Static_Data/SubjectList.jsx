@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import Select from "react-select";
 import Api from "../../network/Api"; // <-- Import Api
 import { METHOD_TYPE } from "../../network/methodType"; // <-- Import METHOD_TYPE
@@ -112,4 +112,4 @@ SubjectList.propTypes = {
   placeholder: PropTypes.string,
 };
 
-export default SubjectList;
+export default memo(SubjectList);

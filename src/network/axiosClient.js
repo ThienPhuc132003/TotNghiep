@@ -9,6 +9,8 @@ const API_BASE_URL =
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   // Do NOT set default Content-Type here. It will be set per-request as needed.
+  timeout: 10000, // 10 second timeout
+  withCredentials: false, // Avoid CORS preflight for simple requests
 });
 
 let isRefreshingZoomToken = false;
@@ -22,14 +24,11 @@ const processZoomQueue = (error, token = null) => {
   zoomFailedQueue = [];
 };
 
-// --- Request Interceptor ---
 axiosClient.interceptors.request.use(
   function (config) {
     const url = config.url || ""; // Endpoint (phần sau baseURL)
     const userSystemToken = Cookies.get("token");
     const zoomAccessToken = localStorage.getItem("zoomAccessToken");
-
-    // console.log(`[axiosClient Request] START ${config.method?.toUpperCase()} ${config.baseURL}${url}`); // Optional: log chi tiết request
 
     const noAuthEndpoints = [
       "auth/login",
@@ -52,12 +51,12 @@ axiosClient.interceptors.request.use(
       // API cho Zoom
       if (zoomAccessToken) {
         config.headers.Authorization = `Bearer ${zoomAccessToken}`;
-      } else {
-        // console.warn(`[axiosClient] Zoom Access Token missing for ${url}`);
       }
     } else if (userSystemToken) {
       // API hệ thống khác (bao gồm meeting/get-meeting)
       config.headers.Authorization = `Bearer ${userSystemToken}`;
+    } else {
+      console.warn("⚠️ No authentication token available for", url);
     }
 
     if (config.data instanceof FormData) {
@@ -70,73 +69,32 @@ axiosClient.interceptors.request.use(
       config.headers = config.headers || {};
       config.headers["Content-Type"] = "application/json";
     }
+
     return config;
   },
   function (error) {
-    console.error(
-      `[axiosClient Request Error] for ${error.config?.url}:`,
-      error.message,
-      error
-    );
+    console.log("❌ Request Error:", error.message);
     return Promise.reject(error);
   }
 );
 
-// --- Response Interceptor ---
 axiosClient.interceptors.response.use(
   function (response) {
-    // Log message từ response thành công
-    if (response.data && typeof response.data.message !== "undefined") {
-      // Kiểm tra sự tồn tại của message
-      console.log(
-        `[axiosClient Response Success] Message for ${response.config.method?.toUpperCase()} ${
-          response.config.url
-        }:`,
-        response.data.message
-      );
-    } else {
-      console.log(
-        `[axiosClient Response Success] for ${response.config.method?.toUpperCase()} ${
-          response.config.url
-        } (No 'message' field). Data:`,
-        response.data
-      );
-    }
     return response.data; // Trả về response.data trực tiếp
   },
   async function (error) {
     const originalRequest = error.config || {}; // Đảm bảo originalRequest luôn là object
     const url = originalRequest.url || "unknown_url";
 
-    // Log message từ response lỗi
-    if (
-      error.response &&
-      error.response.data &&
-      typeof error.response.data.message !== "undefined"
-    ) {
-      console.error(
-        `[axiosClient Response Error] Message for ${originalRequest.method?.toUpperCase()} ${url}:`,
-        error.response.data.message,
-        `(Status: ${error.response.status}) Full error data:`,
-        error.response.data
-      );
-    } else if (error.response && error.response.data) {
-      console.error(
-        `[axiosClient Response Error] for ${originalRequest.method?.toUpperCase()} ${url} (No 'message' field). Error data:`,
-        error.response.data,
-        `(Status: ${error.response.status})`
-      );
-    } else if (error.message) {
-      console.error(
-        `[axiosClient Network/Setup Error] for ${originalRequest.method?.toUpperCase()} ${url}:`,
-        error.message
-      );
-    } else {
-      console.error(
-        `[axiosClient Unknown Error] for ${originalRequest.method?.toUpperCase()} ${url}:`,
-        error
-      );
-    }
+    // === SIMPLE ERROR LOGGING ===
+    console.log(
+      `❌ [${
+        error.response?.status || "ERR"
+      }] ${originalRequest.method?.toUpperCase()} ${
+        originalRequest.baseURL
+      }${url}`
+    );
+    console.log("Error:", error.response?.data || error.message);
 
     // Logic refresh token cho Zoom
     if (error.response && error.response.status === 401) {
@@ -227,4 +185,24 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Add response interceptor for better error handling
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle CORS errors
+    if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
+      console.warn("Network error detected, possibly CORS:", error);
+      // Don't auto-redirect on CORS errors, let component handle it
+    }
+
+    // Handle timeout errors
+    if (error.code === "ECONNABORTED") {
+      console.warn("Request timeout:", error);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default axiosClient;

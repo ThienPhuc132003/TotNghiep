@@ -1,5 +1,5 @@
 // src/pages/User/TutorQualificationTestPage.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -316,4 +316,4 @@ const TutorQualificationTestPage = () => {
   );
 };
 
-export default TutorQualificationTestPage;
+export default memo(TutorQualificationTestPage);

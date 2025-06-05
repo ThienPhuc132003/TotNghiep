@@ -1,102 +1,86 @@
 // src/components/User/layout/AccountPageLayout.jsx
-import { useEffect } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Cookies from "js-cookie";
 import Api from "../../../network/Api";
 import { METHOD_TYPE } from "../../../network/methodType";
 import { clearUserProfile } from "../../../redux/userSlice";
-import "../../../assets/css/AccountPageLayout.style.css"; // Đảm bảo file CSS này tồn tại
+import "../../../assets/css/AccountPageLayout.style.css";
 import dfMale from "../../../assets/images/df-male.png";
 import dfFemale from "../../../assets/images/df-female.png";
 
-// Giả sử SidebarUserInfo không đổi
-const SidebarUserInfo = () => {
+// Optimized SidebarUserInfo component
+const SidebarUserInfo = React.memo(() => {
   const user = useSelector((state) => state.user.userProfile);
-  if (!user || !user.userProfile) {
-    return (
-      <div className="sidebar-user-info">
-        <img
-          src={dfMale}
-          alt="User Avatar Placeholder"
-          className="sidebar-avatar"
-        />
-        <div className="sidebar-user-details">
-          <span className="sidebar-user-fullname">Người dùng</span>
-        </div>
-      </div>
-    );
-  }
-  const getAvatar = () =>
-    user.avatar ? user.avatar : user.gender === "FEMALE" ? dfFemale : dfMale;
+
+  const userDisplayData = useMemo(() => {
+    if (!user || !user.userProfile) {
+      return {
+        avatar: dfMale,
+        fullname: "Người dùng",
+        altText: "User Avatar Placeholder",
+      };
+    }
+
+    const getAvatar = () =>
+      user.avatar ? user.avatar : user.gender === "FEMALE" ? dfFemale : dfMale;
+
+    return {
+      avatar: getAvatar(),
+      fullname: user.userProfile.fullname || "Người dùng",
+      altText: user.userProfile.fullname || "User Avatar",
+    };
+  }, [user]);
 
   return (
     <div className="sidebar-user-info">
       <img
-        src={getAvatar()}
-        alt={user.userProfile.fullname || "User Avatar"}
+        src={userDisplayData.avatar}
+        alt={userDisplayData.altText}
         className="sidebar-avatar"
       />
       <div className="sidebar-user-details">
         <span
           className="sidebar-user-fullname"
-          title={user.userProfile.fullname || "Người dùng"}
+          title={userDisplayData.fullname}
         >
-          {user.userProfile.fullname || "Người dùng"}
+          {userDisplayData.fullname}
         </span>
       </div>
     </div>
   );
-};
+});
 
-const AccountPageLayout = () => {
+SidebarUserInfo.displayName = "SidebarUserInfo";
+
+const AccountPageLayoutComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.userProfile);
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { replace: true, state: { from: location } });
-    } else if (isAuthenticated && (!user || !user.userProfile)) {
-      // Xử lý trường hợp hiếm: đã xác thực nhưng thiếu profile
-    }
-  }, [isAuthenticated, user, navigate, location]);
+  // Memoize user role calculation
+  const isTutor = useMemo(() => {
+    return (
+      isAuthenticated &&
+      user?.userProfile &&
+      String(user.roleId).toUpperCase() === "TUTOR"
+    );
+  }, [isAuthenticated, user?.userProfile, user?.roleId]);
 
-  const isTutor =
-    isAuthenticated &&
-    user?.userProfile &&
-    String(user.roleId).toUpperCase() === "TUTOR";
-  const defaultUserPath = "thong-tin-ca-nhan";
-  const defaultTutorPath = "ho-so-gia-su";
+  // Memoize default paths
+  const defaultPaths = useMemo(
+    () => ({
+      user: "thong-tin-ca-nhan",
+      tutor: "ho-so-gia-su",
+    }),
+    []
+  );
 
-  useEffect(() => {
-    if (isAuthenticated && user && user.userProfile) {
-      const baseAccountPath = "/tai-khoan/ho-so";
-      if (
-        location.pathname === baseAccountPath ||
-        location.pathname === `${baseAccountPath}/`
-      ) {
-        const targetPath = isTutor ? defaultTutorPath : defaultUserPath;
-        navigate(`${baseAccountPath}/${targetPath}`, { replace: true });
-      }
-    }
-  }, [
-    location.pathname,
-    navigate,
-    isAuthenticated,
-    user,
-    isTutor,
-    defaultUserPath,
-    defaultTutorPath,
-  ]);
-
-  if (!isAuthenticated || !user || !user.userProfile) {
-    return null; // Hoặc một component loading
-  }
-
-  const getSidebarMenuItems = () => {
+  // Memoize sidebar menu items
+  const sidebarMenuItems = useMemo(() => {
     if (isTutor) {
       return [
         {
@@ -121,15 +105,14 @@ const AccountPageLayout = () => {
           id: "personalSyllabus",
           label: "Giáo Trình Cá Nhân",
           pathBase: "giao-trinh-ca-nhan",
-          icon: "fas fa-book-open", // Or another suitable icon
-        }, // <<< THÊM MỚI >>>
+          icon: "fas fa-book-open",
+        },
         {
           id: "tutorClassroom",
           label: "Quản lý lớp học",
           pathBase: "quan-ly-lop-hoc",
-          icon: "fas fa-chalkboard-teacher", // Example icon
+          icon: "fas fa-chalkboard-teacher",
         },
-        // <<< KẾT THÚC THÊM MỚI >>>
       ];
     } else {
       return [
@@ -159,16 +142,13 @@ const AccountPageLayout = () => {
         },
       ];
     }
-  };
+  }, [isTutor]);
 
-  const sidebarMenuItems = getSidebarMenuItems();
-  const basePathForLinks = "/tai-khoan/ho-so";
-
-  const handleLogout = async () => {
+  // Memoize logout handler
+  const handleLogout = useCallback(async () => {
     try {
       await Api({ endpoint: "user/logout", method: METHOD_TYPE.POST });
     } catch (error) {
-      // Không cần báo lỗi, chỉ log nếu cần
       console.error("Lỗi API đăng xuất (tiếp tục logout client):", error);
     } finally {
       Cookies.remove("token");
@@ -176,13 +156,49 @@ const AccountPageLayout = () => {
       dispatch(clearUserProfile());
       navigate("/login");
     }
-  };
+  }, [dispatch, navigate]);
+
+  // Memoize base path
+  const basePathForLinks = useMemo(() => "/tai-khoan/ho-so", []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login", { replace: true, state: { from: location } });
+    } else if (isAuthenticated && (!user || !user.userProfile)) {
+      // Xử lý trường hợp hiếm: đã xác thực nhưng thiếu profile
+    }
+  }, [isAuthenticated, user, navigate, location]);
+
+  useEffect(() => {
+    if (isAuthenticated && user && user.userProfile) {
+      const baseAccountPath = "/tai-khoan/ho-so";
+      if (
+        location.pathname === baseAccountPath ||
+        location.pathname === `${baseAccountPath}/`
+      ) {
+        const targetPath = isTutor ? defaultPaths.tutor : defaultPaths.user;
+        navigate(`${baseAccountPath}/${targetPath}`, { replace: true });
+      }
+    }
+  }, [
+    location.pathname,
+    navigate,
+    isAuthenticated,
+    user,
+    isTutor,
+    defaultPaths.user,
+    defaultPaths.tutor,
+  ]);
+
+  if (!isAuthenticated || !user || !user.userProfile) {
+    return null; // Hoặc một component loading
+  }
 
   return (
     <div className="account-page-container">
       <div className="account-page-layout-grid">
         <aside className="account-sidebar">
-          <SidebarUserInfo />
+          <SidebarUserInfo />{" "}
           <nav className="account-menu-nav">
             <ul>
               {sidebarMenuItems.map((item) => (
@@ -238,4 +254,8 @@ const AccountPageLayout = () => {
   );
 };
 
-export default AccountPageLayout;
+AccountPageLayoutComponent.displayName = "AccountPageLayout";
+
+// Export the component with explicit naming
+const AccountPageLayout = AccountPageLayoutComponent;
+export { AccountPageLayout as default };

@@ -1,5 +1,5 @@
 // src/components/User/CurriculumManagement/CurriculumList.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import Api from "../../../network/Api";
@@ -283,4 +283,4 @@ const CurriculumList = ({ onAfterCurriculumAdded = () => {} }) => {
 CurriculumList.propTypes = {
   onAfterCurriculumAdded: PropTypes.func,
 };
-export default CurriculumList;
+export default memo(CurriculumList);

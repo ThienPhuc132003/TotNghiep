@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import {
@@ -472,4 +472,12 @@ TutorCard.propTypes = {
   className: PropTypes.string,
 };
 
-export default TutorCard;
+export default memo(TutorCard, (prevProps, nextProps) => {
+  // Custom comparison function
+  return (
+    prevProps.tutor.id === nextProps.tutor.id &&
+    prevProps.isLoggedIn === nextProps.isLoggedIn &&
+    prevProps.isFavoriteOverride === nextProps.isFavoriteOverride &&
+    prevProps.isRemoving === nextProps.isRemoving
+  );
+});

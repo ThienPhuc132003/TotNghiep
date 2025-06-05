@@ -1,4 +1,5 @@
 // src/route/ProtectRoute.jsx
+import { memo } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types"; // Nên thêm PropTypes
@@ -68,4 +69,4 @@ ProtectRoute.propTypes = {
   role: PropTypes.oneOf(Object.values(ROLES)), // role có thể là một trong các giá trị của ROLES hoặc undefined
 };
 
-export default ProtectRoute;
+export default memo(ProtectRoute);

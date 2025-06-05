@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -473,4 +473,4 @@ const StudentClassroomPage = () => {
   );
 };
 
-export default StudentClassroomPage;
+export default memo(StudentClassroomPage);

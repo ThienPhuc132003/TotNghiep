@@ -1,6 +1,6 @@
 /* global Intl */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -701,4 +701,4 @@ const WalletPage = () => {
   );
 };
 
-export default WalletPage;
+export default memo(WalletPage);

@@ -201,8 +201,8 @@
   margin-bottom: 0;
 }
 .admin-card__title {
-  color: var(--text-light);
-  font-weight: 500;
+  color: rgb(116, 116, 116);
+  font-weight: 700;
   font-size: 0.75rem; /* ~12px */
   text-transform: uppercase;
   margin-bottom: 0.25rem;
