@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite --host --force",
     "build": "vite build --mode production",
-    "build:clean": "npm run clean && vite build --mode production",
+    "build:memory": "cross-env NODE_OPTIONS=\"--max-old-space-size=3072\" vite build --mode production",
+    "build:clean": "npm run clean && npm run build:memory",
     "lint": "eslint .",
     "preview": "vite preview --host",
     "clean": "rimraf dist node_modules/.vite node_modules/.cache",
     "clean:all": "npm run clean && npm cache clean --force",
     "deploy": "npm run build:clean && npm run deploy:docker",
-    "deploy:docker": "docker build -t my-app . && docker run -p 80:80 my-app"
+    "deploy:docker": "docker build -t my-app . && docker run -p 80:80 my-app",
+    "prebuild": "npm run clean"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -64,6 +66,7 @@
     "@eslint/js": "^9.11.1",
     "@types/react": "^18.3.3",
     "@vitejs/plugin-react": "^4.3.2",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^4.6.2",

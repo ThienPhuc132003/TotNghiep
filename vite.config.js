@@ -3,8 +3,7 @@ import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  // Build optimizations for production
+  plugins: [react()], // Build optimizations for production
   build: {
     // Aggressive minification
     minify: "esbuild",
@@ -28,13 +27,18 @@ export default defineConfig({
         entryFileNames: "js/[name]-[hash:8].js",
         assetFileNames: "assets/[name]-[hash:8].[ext]",
       },
+      // Reduce memory usage during build
+      maxParallelFileOps: 1,
     },
 
     // Smaller chunk size limit
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 500,
 
-    // Enable compression
-    reportCompressedSize: false, // Disable for faster builds
+    // Disable compression reporting to save memory
+    reportCompressedSize: false,
+
+    // Optimize for memory
+    emptyOutDir: true,
   },
   // Development server optimizations
   server: {
