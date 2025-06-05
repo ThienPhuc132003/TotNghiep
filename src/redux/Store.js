@@ -13,7 +13,7 @@ const userPersistConfig = {
   key: "user",
   storage,
   // Only persist essential user data
-  whitelist: ["profile", "token", "isAuthenticated"],
+  whitelist: ["userProfile", "isAuthenticated"],
   // Set expiration for user session
   version: 1,
 };
