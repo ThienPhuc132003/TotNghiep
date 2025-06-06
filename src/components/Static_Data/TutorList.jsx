@@ -40,30 +40,32 @@ const mapApiTutorToCardProps = (apiTutor, isLoggedInFlag) => {
   else if (lNL === "kimcương" || lNL === "diamond") rankKey = "diamond";
   const apiRating = profile.rating;
   const apiNumberOfRating = profile.numberOfRating;
-
   let finalDetailedStatus = null;
   let finalBookingId = null;
   let apiIsTutorAcceptingRequestFlagOutput = null;
-
   if (isLoggedInFlag) {
     if (typeof profile.isBookingRequestAccepted === "boolean") {
       apiIsTutorAcceptingRequestFlagOutput = profile.isBookingRequestAccepted;
+    } // Always process booking status regardless of isBookingRequestAccepted
+    // This matches the logic in TutorDetailPage
+    // Previously, the condition `if (apiIsTutorAcceptingRequestFlagOutput !== true)`
+    // was skipping booking status logic when isBookingRequestAccepted = true,
+    // which caused cancel buttons to not show for pending requests.
+    // The isBookingRequestAccepted flag indicates if tutor accepts requests,
+    // not whether there are existing pending requests to process.
+    if (profile.bookingRequest && profile.bookingRequest.status) {
+      finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
+      finalBookingId =
+        profile.bookingRequest.bookingRequestId || profile.bookingRequestId;
+    } else if (
+      profile.isBookingRequest === true &&
+      (profile.bookingRequestId || profile.bookingRequest?.bookingRequestId)
+    ) {
+      finalDetailedStatus = "REQUEST";
+      finalBookingId =
+        profile.bookingRequestId || profile.bookingRequest?.bookingRequestId;
     }
 
-    if (apiIsTutorAcceptingRequestFlagOutput !== true) {
-      if (profile.bookingRequest && profile.bookingRequest.status) {
-        finalDetailedStatus = profile.bookingRequest.status.toUpperCase();
-        finalBookingId =
-          profile.bookingRequest.bookingRequestId || profile.bookingRequestId;
-      } else if (
-        profile.isBookingRequest === true &&
-        (profile.bookingRequestId || profile.bookingRequest?.bookingRequestId)
-      ) {
-        finalDetailedStatus = "REQUEST";
-        finalBookingId =
-          profile.bookingRequestId || profile.bookingRequest?.bookingRequestId;
-      }
-    }
     if (!finalBookingId) {
       finalBookingId =
         profile.bookingRequestId ||
@@ -146,11 +148,13 @@ const TutorList = ({
     },
     [navigate, location] // navigate và location là dependencies
   );
-
   const fetchTutorsData = useCallback(
     async (pageToFetch = 1) => {
       setIsLoading(true);
       setError(null);
+      // DEBUG: Clear previous debug data
+      localStorage.removeItem("tutorDebugData");
+
       const endpoint = isLoggedIn
         ? "user/get-list-tutor-public"
         : "user/get-list-tutor-public-without-login";
@@ -167,8 +171,16 @@ const TutorList = ({
           query: query,
           requireToken: isLoggedIn,
         });
-
         if (response?.data?.items && Array.isArray(response.data.items)) {
+          // DEBUG: Log raw API response for first tutor
+          if (response.data.items.length > 0) {
+            console.log("[DEBUG API Response] First tutor raw data:", {
+              tutorProfile: response.data.items[0].tutorProfile,
+              userId: response.data.items[0].userId,
+              checkActive: response.data.items[0].checkActive,
+            });
+          }
+
           const mappedTutors = response.data.items
             .map((apiTutor) => mapApiTutorToCardProps(apiTutor, isLoggedIn)) // Không còn async map ở đây
             .filter(Boolean);

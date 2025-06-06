@@ -15,14 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch full git history for commit information      - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
+          fetch-depth: 0 # Fetch full git history for commit information
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
           node-version: "20"
           cache: "npm"
 

@@ -3,8 +3,6 @@
   // Store original console methods
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
-  const originalConsoleLog = console.log;
-  const originalConsoleInfo = console.info;
 
   // Aggressive Google Maps error suppression - intercept at the source
   const isGoogleMapsError = (input) => {
@@ -533,8 +531,82 @@
       window.location.reload();
     }, 1000);
   };
-
   console.log("🛠️  Redux Persist Debug Tools Available:");
   console.log("📝 clearReduxStorage() - Clear all Redux persist data");
   console.log("🔧 fixReduxPersist() - Auto-fix and reload page");
+
+  // Tutor debug functions
+  window.getTutorDebugData = function () {
+    const data = localStorage.getItem("tutorDebugData");
+    if (data) {
+      const parsed = JSON.parse(data);
+      console.log("=== TUTOR DEBUG DATA ===");
+      parsed.forEach((item, index) => {
+        console.log(`${index + 1}. ${item.tutorName}:`, item);
+      });
+      return parsed;
+    } else {
+      console.log("No tutor debug data found");
+      return [];
+    }
+  };
+
+  window.getFirstTutorDebug = function () {
+    const data = window.getTutorDebugData();
+    if (data.length > 0) {
+      console.log("=== FIRST TUTOR DEBUG ===");
+      console.log(data[0]);
+      return data[0];
+    } else {
+      console.log("No tutor data available");
+      return null;
+    }
+  };
+
+  window.clearTutorDebugData = function () {
+    localStorage.removeItem("tutorDebugData");
+    console.log("Tutor debug data cleared");
+  };
+
+  window.debugBookingIssue = function () {
+    const data = window.getTutorDebugData();
+    if (data.length > 0) {
+      const firstTutor = data[0];
+      console.log("=== BOOKING ISSUE DEBUG ===");
+      console.log("First tutor:", firstTutor.tutorName);
+      console.log(
+        "Expected: Cancel button should show because isBookingRequest is true"
+      );
+      console.log("Actual status:", firstTutor.finalDetailedStatus);
+      console.log("Actual booking ID:", firstTutor.finalBookingId);
+      console.log("Conditions check:", firstTutor.conditions);
+      console.log("Raw data:", firstTutor.rawData);
+
+      // Check what should trigger the cancel button
+      console.log("\n=== CANCEL BUTTON LOGIC CHECK ===");
+      console.log(
+        "showPendingApprovalCard should be:",
+        'isLoggedIn && detailedStatusOnCard === "REQUEST" && bookingIdOnCard'
+      );
+      console.log("Current values:");
+      console.log("- detailedStatusOnCard:", firstTutor.finalDetailedStatus);
+      console.log("- bookingIdOnCard:", firstTutor.finalBookingId);
+      console.log(
+        "- Should show cancel:",
+        firstTutor.finalDetailedStatus === "REQUEST" &&
+          !!firstTutor.finalBookingId
+      );
+
+      return firstTutor;
+    } else {
+      console.log("No tutor data to debug");
+      return null;
+    }
+  };
+
+  console.log("🐛 Tutor Debug Tools Available:");
+  console.log("📊 getTutorDebugData() - Get all tutor debug data");
+  console.log("🎯 getFirstTutorDebug() - Get first tutor debug data");
+  console.log("🚯 clearTutorDebugData() - Clear tutor debug data");
+  console.log("🔍 debugBookingIssue() - Analyze booking issue");
 })();
