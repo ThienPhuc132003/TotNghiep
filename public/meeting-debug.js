@@ -28,21 +28,17 @@ window.testMeetingCreation = async function (
 
   try {
     // Test with fetch to see raw response
-    console.log("🌐 Making direct API call...");
-
-    const response = await fetch("/api/meeting/create", {
+    console.log("🌐 Making direct API call...");    const response = await fetch("/api/meeting/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken?.split("=")[1] || ""}`,
-        "X-Zoom-Token": `Bearer ${zoomToken}`,
-        "X-Require-Token": "true",
+        Authorization: `Bearer ${zoomToken}`, // CORRECTED: Only Zoom Bearer token
       },
       body: JSON.stringify({
         topic: "Test Meeting from Debug Tool",
         password: "123456",
         classroomId: classroomId,
-        // zoomAccessToken được gửi qua header, không qua body
+        // CORRECTED: No zoomAccessToken in payload
       }),
     });
 

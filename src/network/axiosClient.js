@@ -42,7 +42,6 @@ axiosClient.interceptors.request.use(
 
     const userSystemToken = Cookies.get("token");
     const zoomAccessToken = localStorage.getItem("zoomAccessToken");
-
     const noAuthEndpoints = [
       "auth/login",
       "auth/register",
@@ -50,30 +49,30 @@ axiosClient.interceptors.request.use(
       "meeting/handle",
       "meeting/zoom/refresh",
     ];
-    const isNoAuthEndpoint = noAuthEndpoints.includes(url); // API endpoints that need Zoom token specifically (when they require auth)
-    const zoomTokenEndpoints = ["meeting/create", "meeting/signature"];
+    const isNoAuthEndpoint = noAuthEndpoints.includes(url);
+
+    // API endpoints that need Zoom token specifically (when they require auth)
+    const zoomTokenEndpoints = [
+      "meeting/create",
+      "meeting/signature",
+      "meeting/search",
+    ];
     const needsZoomToken = zoomTokenEndpoints.some((endpoint) =>
       url.startsWith(endpoint)
     );
     if (isNoAuthEndpoint) {
       delete config.headers.Authorization;
     } else if (needsZoomToken) {
-      // API cho Zoom - cần cả user token và zoom token
-      console.log("🔑 Meeting API detected - setting both tokens");
-      console.log("📝 User token available:", !!userSystemToken);
+      // API cho Zoom - chỉ cần Zoom token
+      console.log("🔑 Meeting API detected - setting Zoom token only");
       console.log("📝 Zoom token available:", !!zoomAccessToken);
 
-      if (userSystemToken) {
-        config.headers.Authorization = `Bearer ${userSystemToken}`;
-      }
       if (zoomAccessToken) {
-        config.headers["X-Zoom-Token"] = `Bearer ${zoomAccessToken}`;
+        config.headers.Authorization = `Bearer ${zoomAccessToken}`;
       }
-    } else if (userSystemToken) {
-      // API hệ thống khác (bao gồm meeting/get-meeting)
-      config.headers.Authorization = `Bearer ${userSystemToken}`;
     } else {
-      console.warn("⚠️ No authentication token available for", url);
+      // API hệ thống khác (bao gồm meeting/get-meeting, meeting/search)
+      config.headers.Authorization = `Bearer ${userSystemToken}`;
     }
 
     if (config.data instanceof FormData) {
