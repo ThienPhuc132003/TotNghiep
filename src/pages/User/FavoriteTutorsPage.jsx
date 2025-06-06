@@ -1,7 +1,7 @@
 // src/pages/User/FavoriteTutorsPage.jsx
 
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import TutorCard from "../../components/User/TutorCard";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -15,6 +15,8 @@ import "../../assets/css/FavoriteTutorsPage.style.css";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import BookingModal from "../../components/User/BookingModal";
+import AcceptedRequestsModal from "../../components/User/AcceptedRequestsModal";
 
 // --- Component phụ (EmptyState, ErrorState) ---
 const EmptyState = () => (
@@ -54,7 +56,20 @@ const FavoriteTutorsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [removingId, setRemovingId] = useState(null); // ID của tutor (userId) đang trong quá trình bị xóa
+  const [refreshKey, setRefreshKey] = useState(0); // Force re-render key
+
+  // Booking modal states
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedTutorForBooking, setSelectedTutorForBooking] = useState(null);
+
+  // Accepted requests modal states
+  const [isAcceptedRequestsModalOpen, setIsAcceptedRequestsModalOpen] =
+    useState(false);
+  const [selectedTutorForAccepted, setSelectedTutorForAccepted] =
+    useState(null);
+
   const navigate = useNavigate();
+  const location = useLocation();
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   const fetchFavoriteTutors = useCallback(async () => {
@@ -97,7 +112,6 @@ const FavoriteTutorsPage = () => {
       setFavoriteTutorsData([]); // Đảm bảo danh sách rỗng
     }
   }, [fetchFavoriteTutors, isAuthenticated]);
-
   const mapFavoriteApiToCardProps = (apiItem) => {
     const tutor = apiItem?.tutor; // Thông tin gia sư nằm trong object 'tutor'
     if (!tutor || !tutor.userId) {
@@ -123,8 +137,37 @@ const FavoriteTutorsPage = () => {
     const rating = tutor.rating ? parseFloat(tutor.rating) : 0;
     const reviewCount = tutor.numberOfRating || 0;
 
-    // API my-tutor/me hiện không có bookingRequest trong tutor object
-    const bookingRequest = null;
+    // Map booking request status for favorites page
+    let finalDetailedStatus = null;
+    let finalBookingId = null;
+    let apiIsTutorAcceptingRequestFlagOutput = null;
+
+    if (isAuthenticated) {
+      if (typeof tutor.isBookingRequestAccepted === "boolean") {
+        apiIsTutorAcceptingRequestFlagOutput = tutor.isBookingRequestAccepted;
+      }
+
+      // Process booking status similar to TutorList logic
+      if (tutor.bookingRequest && tutor.bookingRequest.status) {
+        finalDetailedStatus = tutor.bookingRequest.status.toUpperCase();
+        finalBookingId =
+          tutor.bookingRequest.bookingRequestId || tutor.bookingRequestId;
+      } else if (
+        tutor.isBookingRequest === true &&
+        (tutor.bookingRequestId || tutor.bookingRequest?.bookingRequestId)
+      ) {
+        finalDetailedStatus = "REQUEST";
+        finalBookingId =
+          tutor.bookingRequestId || tutor.bookingRequest?.bookingRequestId;
+      }
+
+      if (!finalBookingId) {
+        finalBookingId =
+          tutor.bookingRequestId ||
+          tutor.bookingRequest?.bookingRequestId ||
+          null;
+      }
+    }
 
     return {
       id: tutor.userId, // Quan trọng: dùng userId làm ID chính cho TutorCard
@@ -145,8 +188,14 @@ const FavoriteTutorsPage = () => {
       isVerified: tutor.isPublicProfile === true,
       rank: rankKey,
       teachingPlace: tutor.teachingPlace || null,
-      bookingRequest: bookingRequest,
-      // Thêm các trường khác mà TutorCard có thể cần từ object `tutor`
+      // Booking information for TutorCard
+      isTutorAcceptingRequestAPIFlag: apiIsTutorAcceptingRequestFlagOutput,
+      bookingInfoCard: {
+        status: finalDetailedStatus,
+        bookingId: finalBookingId,
+      },
+      isInitiallyFavorite: true, // Always true for favorites page
+      // Additional fields for booking
       dateTimeLearn: tutor.dateTimeLearn || [],
     };
   };
@@ -201,6 +250,112 @@ const FavoriteTutorsPage = () => {
     },
     [] // Dependencies rỗng vì các hàm bên trong không thay đổi
   );
+
+  const requireLogin = useCallback(
+    (action = "thực hiện chức năng này") => {
+      toast.info(`Vui lòng đăng nhập để ${action}!`);
+      navigate("/login", { state: { from: location } });
+    },
+    [navigate, location]
+  );
+
+  const handleOpenBookingModal = useCallback(
+    (tutorDataFromCard) => {
+      if (!isAuthenticated) {
+        requireLogin("gửi yêu cầu thuê gia sư");
+        return;
+      }
+      setSelectedTutorForBooking(tutorDataFromCard);
+      setIsBookingModalOpen(true);
+    },
+    [isAuthenticated, requireLogin]
+  );
+
+  const handleCloseBookingModal = useCallback(() => {
+    setIsBookingModalOpen(false);
+    setSelectedTutorForBooking(null);
+  }, []);
+
+  const handleBookingSuccessInFavorites = useCallback(
+    async (tutorId, newBookingStatus) => {
+      console.log("[DEBUG handleBookingSuccessInFavorites] Called with:", {
+        tutorId,
+        newBookingStatus,
+      });
+
+      handleCloseBookingModal();
+      toast.success("Yêu cầu thuê đã được gửi thành công!");
+
+      // Refresh the favorites list to get updated booking status
+      try {
+        await fetchFavoriteTutors();
+        setRefreshKey((prev) => prev + 1);
+        console.log("[DEBUG] Favorites list refreshed after booking success");
+      } catch (error) {
+        console.error("[DEBUG] Error during favorites refresh:", error);
+      }
+    },
+    [handleCloseBookingModal, fetchFavoriteTutors]
+  );
+
+  const handleCancelSuccessInFavorites = useCallback(async () => {
+    // Refresh favorites list after cancel success
+    console.log(
+      "[API REFRESH] Refreshing favorites list after cancel success..."
+    );
+
+    try {
+      await fetchFavoriteTutors();
+      setRefreshKey((prev) => prev + 1);
+      console.log("[DEBUG] Favorites list refreshed after cancel success");
+      toast.success("Đã hủy yêu cầu thành công!");
+    } catch (error) {
+      console.error(
+        "[DEBUG] Error during favorites refresh after cancel:",
+        error
+      );
+      toast.error("Đã hủy yêu cầu nhưng có lỗi khi cập nhật danh sách!");
+    }
+  }, [fetchFavoriteTutors]);
+
+  const handleFavoriteStatusChangeInFavorites = useCallback(
+    (tutorId, newIsFavorite) => {
+      if (!newIsFavorite) {
+        // If unfavorited, remove from the favorites list
+        setFavoriteTutorsData((prevData) =>
+          prevData.filter((item) => item.tutor.userId !== tutorId)
+        );
+        toast.success("Đã bỏ yêu thích gia sư");
+      }
+    },
+    []
+  );
+
+  const handleOpenAcceptedRequestsModalFromCard = useCallback(
+    (tutorData) => {
+      if (!isAuthenticated) {
+        requireLogin("xem yêu cầu đã duyệt");
+        return;
+      }
+      setSelectedTutorForAccepted(tutorData);
+      setIsAcceptedRequestsModalOpen(true);
+    },
+    [isAuthenticated, requireLogin]
+  );
+
+  const handleCloseAcceptedRequestsModal = useCallback(() => {
+    setIsAcceptedRequestsModalOpen(false);
+    setSelectedTutorForAccepted(null);
+  }, []);
+
+  const handleActionSuccessFromAcceptedModal = useCallback(() => {
+    // Refresh favorites list after accepted modal action
+    console.log(
+      "[API REFRESH] Refreshing favorites list after accepted modal action..."
+    );
+    fetchFavoriteTutors();
+    setRefreshKey((prev) => prev + 1);
+  }, [fetchFavoriteTutors]);
 
   const handleViewProfile = useCallback(
     (tutorId) => {
@@ -258,12 +413,11 @@ const FavoriteTutorsPage = () => {
     if (mappedTutors.length === 0) {
       return <EmptyState />;
     }
-
     return (
       <div className="tutor-list redesigned-list favorite-tutor-grid">
         {mappedTutors.map((tutorCardProps) => (
           <TutorCard
-            key={tutorCardProps.id}
+            key={`${tutorCardProps.id}-${refreshKey}`}
             tutor={tutorCardProps}
             isFavoriteOverride={true}
             onRemoveFavorite={() =>
@@ -273,12 +427,18 @@ const FavoriteTutorsPage = () => {
             onViewProfile={() => handleViewProfile(tutorCardProps.id)}
             isLoggedIn={isAuthenticated}
             className="favorite-tutor-card"
+            // Add booking functionality
+            onOpenBookingModal={handleOpenBookingModal}
+            onOpenAcceptedRequestsModal={
+              handleOpenAcceptedRequestsModalFromCard
+            }
+            onCancelSuccess={handleCancelSuccessInFavorites}
+            onFavoriteStatusChange={handleFavoriteStatusChangeInFavorites}
           />
         ))}
       </div>
     );
   };
-
   return (
     <>
       {/* Class wrapper này có thể không cần thiết nếu .account-content-main đã style nền và padding */}
@@ -288,6 +448,31 @@ const FavoriteTutorsPage = () => {
         {renderContent()}
       </div>
       {/* </div> */}
+
+      {/* Booking Modal */}
+      {selectedTutorForBooking && (
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={handleCloseBookingModal}
+          tutorId={selectedTutorForBooking.id}
+          tutorName={selectedTutorForBooking.name}
+          onBookingSuccess={handleBookingSuccessInFavorites}
+          maxHoursPerLesson={selectedTutorForBooking.teachingTime}
+          availableScheduleRaw={selectedTutorForBooking.dateTimeLearn || []}
+          hourlyRate={selectedTutorForBooking.hourlyRate}
+        />
+      )}
+
+      {/* Accepted Requests Modal */}
+      {selectedTutorForAccepted && (
+        <AcceptedRequestsModal
+          isOpen={isAcceptedRequestsModalOpen}
+          onClose={handleCloseAcceptedRequestsModal}
+          tutorId={selectedTutorForAccepted.id}
+          tutorName={selectedTutorForAccepted.name}
+          onActionSuccess={handleActionSuccessFromAcceptedModal}
+        />
+      )}
     </>
   );
 };
