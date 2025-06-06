@@ -9,7 +9,7 @@ import "../../../assets/css/CurriculumList.style.css";
 import { toast } from "react-toastify";
 import { setUserProfile } from "../../../redux/userSlice";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 4;
 
 const CurriculumList = ({ onAfterCurriculumAdded = () => {} }) => {
   const [availableCurriculums, setAvailableCurriculums] = useState([]);
