@@ -253,11 +253,20 @@ const TutorCard = ({
     Math.min(5, tutor.rating ? parseFloat(tutor.rating) : 0)
   );
   const reviewCount = tutor.reviewCount || 0;
-
   const showViewAcceptedBtnCard =
     isLoggedIn && apiIsTutorAcceptingFlagOnCard === true;
   const showNoAcceptedMsgCard =
     isLoggedIn && apiIsTutorAcceptingFlagOnCard === false;
+
+  // Debug logging for isBookingRequestAccepted logic
+  console.log(`[DEBUG TutorCard] ${tutor.name}:`, {
+    isLoggedIn,
+    apiIsTutorAcceptingFlagOnCard,
+    showViewAcceptedBtnCard,
+    showNoAcceptedMsgCard,
+    detailedStatusOnCard,
+    bookingIdOnCard,
+  });
   // Nút Gửi Yêu Cầu Mới hiển thị độc lập
   const canSendNewReqCard =
     isLoggedIn &&
@@ -394,13 +403,14 @@ const TutorCard = ({
             </span>
           </div>
           <div className="footer-buttons">
+            {" "}
             {showViewAcceptedBtnCard && onOpenAcceptedRequestsModal && (
               <button
                 className="action-btn btn-view-accepted"
                 onClick={handleOpenAcceptedModalClick}
                 disabled={isProcessingBookingAction || isLoadingFavoriteAction}
               >
-                <FaCalendarCheck /> Xem YC Duyệt
+                <FaCalendarCheck /> Xem Yêu Cầu Được Duyệt
               </button>
             )}
             {showNoAcceptedMsgCard && !showViewAcceptedBtnCard && (
