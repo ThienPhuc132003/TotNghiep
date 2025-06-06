@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Creation Test Tool</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .test-section {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+      }
+
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+      }
+      .btn-warning {
+        background-color: #ffc107;
+        color: #212529;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      .log-container {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      .token-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 5px 0;
+      }
+
+      .token-available {
+        background-color: #d4edda;
+      }
+      .token-missing {
+        background-color: #f8d7da;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+      .form-col {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Meeting Creation Test Tool</h1>
+      <p>
+        This tool tests the dual-token authentication system for meeting
+        creation APIs.
+      </p>
+
+      <!-- Token Status Section -->
+      <div class="test-section info">
+        <h3>🔑 Authentication Status</h3>
+        <div id="tokenStatus"></div>
+        <button onclick="checkTokens()">🔄 Refresh Token Status</button>
+        <button onclick="clearTokens()" class="btn-warning">
+          🗑️ Clear All Tokens
+        </button>
+      </div>
+
+      <!-- Meeting Creation Test Section -->
+      <div class="test-section">
+        <h3>📋 Meeting Creation Test</h3>
+        <div class="form-row">
+          <div class="form-col">
+            <label>Topic:</label>
+            <input
+              type="text"
+              id="meetingTopic"
+              value="Test Meeting Room"
+              placeholder="Meeting topic"
+            />
+          </div>
+          <div class="form-col">
+            <label>Password:</label>
+            <input
+              type="text"
+              id="meetingPassword"
+              value="123456"
+              placeholder="Meeting password"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-col">
+            <label>Classroom ID:</label>
+            <input
+              type="text"
+              id="classroomId"
+              value="test_classroom_123"
+              placeholder="Classroom ID"
+            />
+          </div>
+          <div class="form-col">
+            <label>API Endpoint:</label>
+            <input
+              type="text"
+              id="apiEndpoint"
+              value="/api/meeting/create"
+              placeholder="API endpoint"
+            />
+          </div>
+        </div>
+
+        <button
+          onclick="testMeetingCreation()"
+          id="createMeetingBtn"
+          class="btn-success"
+        >
+          🚀 Test Meeting Creation
+        </button>
+        <button onclick="testWithoutZoomToken()" class="btn-warning">
+          ⚠️ Test Without Zoom Token
+        </button>
+      </div>
+
+      <!-- API Response Section -->
+      <div class="test-section">
+        <h3>📊 API Response</h3>
+        <div id="apiResponse" class="log-container">
+          <em>API responses will appear here...</em>
+        </div>
+        <button onclick="clearLogs()">🗑️ Clear Logs</button>
+      </div>
+
+      <!-- Token Management Section -->
+      <div class="test-section">
+        <h3>🔧 Token Management</h3>
+        <div class="form-row">
+          <div class="form-col">
+            <label>User Token (Cookie):</label>
+            <input type="text" id="userToken" placeholder="Enter user token" />
+            <button onclick="setUserToken()">Set User Token</button>
+          </div>
+          <div class="form-col">
+            <label>Zoom Access Token:</label>
+            <input type="text" id="zoomToken" placeholder="Enter zoom token" />
+            <button onclick="setZoomToken()">Set Zoom Token</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let logs = [];
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `[${timestamp}] ${message}`;
+        logs.push({ timestamp, message, type });
+        updateLogDisplay();
+      }
+
+      function updateLogDisplay() {
+        const container = document.getElementById("apiResponse");
+        container.innerHTML = logs
+          .map(
+            (entry) =>
+              `<div style="color: ${getLogColor(entry.type)}">[${
+                entry.timestamp
+              }] ${entry.message}</div>`
+          )
+          .join("");
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function getLogColor(type) {
+        switch (type) {
+          case "success":
+            return "#28a745";
+          case "error":
+            return "#dc3545";
+          case "warning":
+            return "#ffc107";
+          default:
+            return "#6c757d";
+        }
+      }
+
+      function clearLogs() {
+        logs = [];
+        document.getElementById("apiResponse").innerHTML =
+          "<em>Logs cleared...</em>";
+      }
+
+      function checkTokens() {
+        const userToken = getCookie("token");
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+        const zoomRefreshToken = localStorage.getItem("zoomRefreshToken");
+
+        const statusContainer = document.getElementById("tokenStatus");
+        statusContainer.innerHTML = `
+                <div class="token-status ${
+                  userToken ? "token-available" : "token-missing"
+                }">
+                    <span>👤 User Token: ${
+                      userToken ? "✅ Available" : "❌ Missing"
+                    }</span>
+                    <span>${
+                      userToken
+                        ? userToken.substring(0, 20) + "..."
+                        : "Not found in cookies"
+                    }</span>
+                </div>
+                <div class="token-status ${
+                  zoomToken ? "token-available" : "token-missing"
+                }">
+                    <span>🎥 Zoom Access Token: ${
+                      zoomToken ? "✅ Available" : "❌ Missing"
+                    }</span>
+                    <span>${
+                      zoomToken
+                        ? zoomToken.substring(0, 20) + "..."
+                        : "Not found in localStorage"
+                    }</span>
+                </div>
+                <div class="token-status ${
+                  zoomRefreshToken ? "token-available" : "token-missing"
+                }">
+                    <span>🔄 Zoom Refresh Token: ${
+                      zoomRefreshToken ? "✅ Available" : "❌ Missing"
+                    }</span>
+                    <span>${
+                      zoomRefreshToken
+                        ? zoomRefreshToken.substring(0, 20) + "..."
+                        : "Not found in localStorage"
+                    }</span>
+                </div>
+            `;
+
+        log(
+          `Token check completed. User: ${!!userToken}, Zoom: ${!!zoomToken}, ZoomRefresh: ${!!zoomRefreshToken}`,
+          "info"
+        );
+      }
+
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return null;
+      }
+
+      function setCookie(name, value, days = 7) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+      }
+
+      function setUserToken() {
+        const token = document.getElementById("userToken").value;
+        if (token) {
+          setCookie("token", token);
+          log(`User token set: ${token.substring(0, 20)}...`, "success");
+          checkTokens();
+        }
+      }
+
+      function setZoomToken() {
+        const token = document.getElementById("zoomToken").value;
+        if (token) {
+          localStorage.setItem("zoomAccessToken", token);
+          log(`Zoom token set: ${token.substring(0, 20)}...`, "success");
+          checkTokens();
+        }
+      }
+
+      function clearTokens() {
+        // Clear cookies
+        document.cookie =
+          "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        // Clear localStorage
+        localStorage.removeItem("zoomAccessToken");
+        localStorage.removeItem("zoomRefreshToken");
+
+        log("All tokens cleared", "warning");
+        checkTokens();
+      }
+
+      async function testMeetingCreation() {
+        const button = document.getElementById("createMeetingBtn");
+        button.disabled = true;
+        button.textContent = "🔄 Testing...";
+
+        try {
+          log("🚀 Starting meeting creation test...", "info");
+
+          const userToken = getCookie("token");
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+
+          if (!userToken) {
+            log("❌ User token missing - cannot proceed", "error");
+            return;
+          }
+
+          if (!zoomToken) {
+            log("❌ Zoom token missing - cannot proceed", "error");
+            return;
+          }
+
+          const payload = {
+            topic: document.getElementById("meetingTopic").value,
+            password: document.getElementById("meetingPassword").value,
+            classroomId: document.getElementById("classroomId").value,
+            zoomAccessToken: zoomToken,
+          };
+
+          log(`📦 Payload: ${JSON.stringify(payload, null, 2)}`, "info");
+
+          const response = await fetch(
+            document.getElementById("apiEndpoint").value,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${userToken}`,
+                "X-Zoom-Token": `Bearer ${zoomToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            }
+          );
+
+          log(
+            `📊 Response Status: ${response.status} ${response.statusText}`,
+            response.ok ? "success" : "error"
+          );
+
+          const data = await response.json();
+          log(
+            `📥 Response Data: ${JSON.stringify(data, null, 2)}`,
+            response.ok ? "success" : "error"
+          );
+
+          if (response.ok && data.success) {
+            log("✅ Meeting creation test PASSED!", "success");
+          } else {
+            log("❌ Meeting creation test FAILED!", "error");
+          }
+        } catch (error) {
+          log(`💥 Network Error: ${error.message}`, "error");
+          log(`🔍 Error Details: ${JSON.stringify(error, null, 2)}`, "error");
+        } finally {
+          button.disabled = false;
+          button.textContent = "🚀 Test Meeting Creation";
+        }
+      }
+
+      async function testWithoutZoomToken() {
+        log("⚠️ Testing meeting creation WITHOUT Zoom token...", "warning");
+
+        const userToken = getCookie("token");
+        if (!userToken) {
+          log("❌ User token missing - cannot proceed with test", "error");
+          return;
+        }
+
+        const payload = {
+          topic: document.getElementById("meetingTopic").value,
+          password: document.getElementById("meetingPassword").value,
+          classroomId: document.getElementById("classroomId").value,
+        };
+
+        try {
+          const response = await fetch(
+            document.getElementById("apiEndpoint").value,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${userToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            }
+          );
+
+          const data = await response.json();
+          log(
+            `📊 Response (No Zoom Token): ${response.status} - ${JSON.stringify(
+              data,
+              null,
+              2
+            )}`,
+            response.ok ? "warning" : "error"
+          );
+        } catch (error) {
+          log(`💥 Error (No Zoom Token): ${error.message}`, "error");
+        }
+      }
+
+      // Initialize on page load
+      window.onload = function () {
+        checkTokens();
+        log("🎯 Meeting Creation Test Tool initialized", "info");
+        log("👉 Use the buttons above to test different scenarios", "info");
+      };
+    </script>
+  </body>
+</html>
