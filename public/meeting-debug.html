@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Creation Debug</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .debug-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .status-item {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .status-ok {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .status-error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .status-warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      .log-output {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+        font-size: 12px;
+      }
+      .token-display {
+        font-family: monospace;
+        font-size: 11px;
+        word-break: break-all;
+        background: #f8f9fa;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+      }
+      .form-group {
+        margin: 15px 0;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Meeting Creation Debug Tool</h1>
+
+    <div class="debug-section">
+      <h2>🔑 Token Status</h2>
+      <div id="token-status"></div>
+      <div class="form-group">
+        <label>User Token:</label>
+        <div id="user-token" class="token-display">Loading...</div>
+      </div>
+      <div class="form-group">
+        <label>Zoom Token:</label>
+        <div id="zoom-token" class="token-display">Loading...</div>
+      </div>
+    </div>
+
+    <div class="debug-section">
+      <h2>🎯 Quick Tests</h2>
+      <button onclick="checkTokens()">Check Tokens</button>
+      <button onclick="checkAPIEndpoints()">Check API Endpoints</button>
+      <button onclick="testMeetingCreation()">Test Meeting Creation</button>
+      <button onclick="testTokenConfigurations()">Test Token Configs</button>
+      <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <div class="debug-section">
+      <h2>📝 Meeting Creation Test</h2>
+      <div class="form-group">
+        <label for="test-topic">Meeting Topic:</label>
+        <input type="text" id="test-topic" value="Debug Test Meeting" />
+      </div>
+      <div class="form-group">
+        <label for="test-password">Password:</label>
+        <input type="text" id="test-password" value="123456" />
+      </div>
+      <div class="form-group">
+        <label for="test-classroom-id">Classroom ID:</label>
+        <input type="text" id="test-classroom-id" value="test-classroom-123" />
+      </div>
+      <button onclick="customMeetingTest()">Create Test Meeting</button>
+    </div>
+
+    <div class="debug-section">
+      <h2>📋 Debug Logs</h2>
+      <div id="logs" class="log-output"></div>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const logsDiv = document.getElementById("logs");
+        const timestamp = new Date().toLocaleTimeString();
+        const prefix =
+          type === "error" ? "❌" : type === "success" ? "✅" : "ℹ️";
+        logsDiv.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+        console.log(message);
+      }
+
+      function clearLogs() {
+        document.getElementById("logs").textContent = "";
+      }
+
+      function updateTokenDisplay() {
+        const userTokenCookie = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="));
+        const userToken = userTokenCookie
+          ? userTokenCookie.split("=")[1]
+          : null;
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+
+        document.getElementById("user-token").textContent = userToken
+          ? `${userToken.substring(0, 50)}...`
+          : "Not found";
+        document.getElementById("zoom-token").textContent = zoomToken
+          ? `${zoomToken.substring(0, 50)}...`
+          : "Not found";
+
+        const statusDiv = document.getElementById("token-status");
+        statusDiv.innerHTML = `
+                <div class="status-item ${
+                  userToken ? "status-ok" : "status-error"
+                }">
+                    <span>User Token</span>
+                    <span>${userToken ? "✅ Available" : "❌ Missing"}</span>
+                </div>
+                <div class="status-item ${
+                  zoomToken ? "status-ok" : "status-error"
+                }">
+                    <span>Zoom Token</span>
+                    <span>${zoomToken ? "✅ Available" : "❌ Missing"}</span>
+                </div>
+            `;
+      }
+
+      function checkTokens() {
+        log("Checking authentication tokens...");
+        updateTokenDisplay();
+
+        const userToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="));
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+
+        if (userToken && zoomToken) {
+          log("Both tokens available - ready for testing", "success");
+        } else if (!userToken) {
+          log("User token missing - please login", "error");
+        } else if (!zoomToken) {
+          log("Zoom token missing - please connect Zoom account", "error");
+        }
+      }
+
+      async function checkAPIEndpoints() {
+        log("Checking API endpoint availability...");
+
+        const endpoints = [
+          { path: "/api/meeting/auth", method: "GET" },
+          { path: "/api/meeting/create", method: "POST" },
+          { path: "/api/meeting/get-meeting", method: "POST" },
+        ];
+
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(endpoint.path, {
+              method: endpoint.method,
+              headers: { "Content-Type": "application/json" },
+              body: endpoint.method === "POST" ? JSON.stringify({}) : undefined,
+            });
+
+            log(
+              `${endpoint.method} ${endpoint.path}: ${response.status}`,
+              response.status < 400 ? "success" : "error"
+            );
+          } catch (error) {
+            log(
+              `${endpoint.method} ${endpoint.path}: ERROR - ${error.message}`,
+              "error"
+            );
+          }
+        }
+      }
+
+      async function testMeetingCreation() {
+        log("Testing meeting creation with current tokens...");
+
+        const userTokenCookie = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="));
+        const userToken = userTokenCookie
+          ? userTokenCookie.split("=")[1]
+          : null;
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+
+        if (!userToken || !zoomToken) {
+          log("Missing required tokens for testing", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/meeting/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userToken}`,
+              "X-Zoom-Token": `Bearer ${zoomToken}`,
+              "X-Require-Token": "true",
+            },
+            body: JSON.stringify({
+              topic: "Debug Test Meeting",
+              password: "123456",
+              classroomId: "test-classroom-123",
+              zoomAccessToken: zoomToken,
+            }),
+          });
+
+          log(`Response status: ${response.status}`);
+
+          const responseText = await response.text();
+          log(`Response body: ${responseText}`);
+
+          if (response.ok) {
+            log("Meeting creation test PASSED!", "success");
+          } else {
+            log("Meeting creation test FAILED", "error");
+          }
+        } catch (error) {
+          log(`Meeting creation test ERROR: ${error.message}`, "error");
+        }
+      }
+
+      async function customMeetingTest() {
+        const topic = document.getElementById("test-topic").value;
+        const password = document.getElementById("test-password").value;
+        const classroomId = document.getElementById("test-classroom-id").value;
+
+        log(`Creating custom meeting: ${topic}`);
+
+        const userTokenCookie = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="));
+        const userToken = userTokenCookie
+          ? userTokenCookie.split("=")[1]
+          : null;
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+
+        if (!userToken || !zoomToken) {
+          log("Missing required tokens", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/meeting/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${userToken}`,
+              "X-Zoom-Token": `Bearer ${zoomToken}`,
+              "X-Require-Token": "true",
+            },
+            body: JSON.stringify({
+              topic: topic,
+              password: password,
+              classroomId: classroomId,
+              zoomAccessToken: zoomToken,
+            }),
+          });
+
+          const responseData = await response.json();
+
+          if (response.ok && responseData.success) {
+            log(
+              `Meeting created successfully! ID: ${
+                responseData.data?.id || "N/A"
+              }`,
+              "success"
+            );
+            log(`Join URL: ${responseData.data?.join_url || "N/A"}`);
+          } else {
+            log(
+              `Failed to create meeting: ${
+                responseData.message || "Unknown error"
+              }`,
+              "error"
+            );
+          }
+        } catch (error) {
+          log(`Error creating meeting: ${error.message}`, "error");
+        }
+      }
+
+      async function testTokenConfigurations() {
+        log("Testing different token configuration approaches...");
+
+        const userTokenCookie = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="));
+        const userToken = userTokenCookie
+          ? userTokenCookie.split("=")[1]
+          : null;
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+
+        const configs = [
+          {
+            name: "User token only",
+            headers: { Authorization: `Bearer ${userToken}` },
+            body: {
+              topic: "Test 1",
+              password: "123456",
+              classroomId: "test",
+              zoomAccessToken: zoomToken,
+            },
+          },
+          {
+            name: "Zoom token only",
+            headers: { Authorization: `Bearer ${zoomToken}` },
+            body: { topic: "Test 2", password: "123456", classroomId: "test" },
+          },
+          {
+            name: "Both in headers",
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+              "X-Zoom-Token": `Bearer ${zoomToken}`,
+            },
+            body: { topic: "Test 3", password: "123456", classroomId: "test" },
+          },
+          {
+            name: "User in header, Zoom in body",
+            headers: { Authorization: `Bearer ${userToken}` },
+            body: {
+              topic: "Test 4",
+              password: "123456",
+              classroomId: "test",
+              zoomAccessToken: zoomToken,
+            },
+          },
+        ];
+
+        for (const config of configs) {
+          try {
+            const response = await fetch("/api/meeting/create", {
+              method: "POST",
+              headers: {
+                ...config.headers,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(config.body),
+            });
+
+            if (response.ok) {
+              log(`✅ SUCCESS with "${config.name}"`, "success");
+              return;
+            } else {
+              log(
+                `❌ FAILED with "${config.name}": ${response.status}`,
+                "error"
+              );
+            }
+          } catch (error) {
+            log(`❌ ERROR with "${config.name}": ${error.message}`, "error");
+          }
+        }
+      }
+
+      // Initialize
+      window.addEventListener("load", () => {
+        log("🚀 Meeting Creation Debug Tool loaded");
+        updateTokenDisplay();
+        checkTokens();
+      });
+    </script>
+  </body>
+</html>

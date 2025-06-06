@@ -460,8 +460,7 @@ const TutorClassroomPage = () => {
 
     setSelectedClassroom({ classroomId, classroomName });
     setIsModalOpen(true);
-  };
-  // Function to handle meeting creation with form data
+  }; // Function to handle meeting creation with form data
   const handleCreateMeetingSubmit = async (formData) => {
     if (!selectedClassroom) return;
 
@@ -469,22 +468,35 @@ const TutorClassroomPage = () => {
 
     try {
       // Show loading toast
-      const loadingToastId = toast.loading("Đang tạo phòng học Zoom...");
+      const loadingToastId = toast.loading("Đang tạo phòng học Zoom..."); // Get tokens
+      const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+
+      if (!zoomAccessToken) {
+        toast.dismiss(loadingToastId);
+        toast.error(
+          "Không tìm thấy Zoom access token. Vui lòng kết nối lại Zoom."
+        );
+        return;
+      }
+      console.log("Zoom token available:", !!zoomAccessToken);
+      console.log("Zoom token length:", zoomAccessToken?.length);
 
       const meetingPayload = {
         topic: formData.topic,
         password: formData.password,
         classroomId: classroomId,
+        // Thử cả 2 cách: gửi token qua header (axiosClient) và qua body
+        zoomAccessToken: zoomAccessToken,
       };
 
       console.log("Creating meeting with payload:", meetingPayload);
 
-      // Call API to create meeting
+      // Call API to create meeting with both tokens
       const response = await Api({
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
         data: meetingPayload,
-        requireToken: true,
+        requireToken: true, // Để gửi user token trong header
       });
 
       // Dismiss loading toast

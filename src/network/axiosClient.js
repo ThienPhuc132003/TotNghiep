@@ -50,20 +50,24 @@ axiosClient.interceptors.request.use(
       "meeting/handle",
       "meeting/zoom/refresh",
     ];
-    const isNoAuthEndpoint = noAuthEndpoints.includes(url);
-
-    // API endpoints that need Zoom token specifically (when they require auth)
+    const isNoAuthEndpoint = noAuthEndpoints.includes(url); // API endpoints that need Zoom token specifically (when they require auth)
     const zoomTokenEndpoints = ["meeting/create", "meeting/signature"];
     const needsZoomToken = zoomTokenEndpoints.some((endpoint) =>
       url.startsWith(endpoint)
     );
-
     if (isNoAuthEndpoint) {
       delete config.headers.Authorization;
     } else if (needsZoomToken) {
-      // API cho Zoom
+      // API cho Zoom - cần cả user token và zoom token
+      console.log("🔑 Meeting API detected - setting both tokens");
+      console.log("📝 User token available:", !!userSystemToken);
+      console.log("📝 Zoom token available:", !!zoomAccessToken);
+
+      if (userSystemToken) {
+        config.headers.Authorization = `Bearer ${userSystemToken}`;
+      }
       if (zoomAccessToken) {
-        config.headers.Authorization = `Bearer ${zoomAccessToken}`;
+        config.headers["X-Zoom-Token"] = `Bearer ${zoomAccessToken}`;
       }
     } else if (userSystemToken) {
       // API hệ thống khác (bao gồm meeting/get-meeting)
