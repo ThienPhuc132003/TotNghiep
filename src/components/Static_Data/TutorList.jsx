@@ -16,6 +16,7 @@ import "../../assets/css/TutorSearch.style.css";
 import "../../assets/css/BookingModal.style.css";
 import AcceptedRequestsModal from "../User/AcceptedRequestsModal";
 import { updateTutorFavoriteStatus } from "../../utils/bookingStateHelpers";
+import { useDebugTutorState } from "../../hooks/useDebugTutorState"; // Import debug hook
 
 const TUTORS_PER_PAGE = 8;
 
@@ -139,6 +140,7 @@ const TutorList = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0); // Force re-render key
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [selectedTutorForBooking, setSelectedTutorForBooking] = useState(null);
@@ -147,6 +149,9 @@ const TutorList = ({
     useState(false);
   const [selectedTutorForAccepted, setSelectedTutorForAccepted] =
     useState(null);
+
+  // Debug state changes
+  useDebugTutorState(tutors, refreshKey);
 
   const requireLogin = useCallback(
     (action = "thực hiện chức năng này") => {
@@ -196,12 +201,33 @@ const TutorList = ({
               });
             });
           }
-
           const mappedTutors = response.data.items
             .map((apiTutor) => mapApiTutorToCardProps(apiTutor, isLoggedIn)) // Không còn async map ở đây
             .filter(Boolean);
+
+          // DEBUG: Log tutors data AFTER API refresh
+          console.log(
+            "[DEBUG] AFTER API refresh - mapped tutors:",
+            mappedTutors.length,
+            "tutors"
+          );
+          if (mappedTutors.length > 0) {
+            console.log("[DEBUG] First tutor AFTER refresh:", {
+              id: mappedTutors[0].id,
+              name: mappedTutors[0].name,
+              isTutorAcceptingRequestAPIFlag:
+                mappedTutors[0].isTutorAcceptingRequestAPIFlag,
+              bookingInfoCard: mappedTutors[0].bookingInfoCard,
+            });
+          }
           setTutors(mappedTutors);
           setTotalTutors(response.data.total || 0);
+          // Force re-render of all TutorCard components
+          setRefreshKey((prev) => prev + 1);
+
+          console.log(
+            "[DEBUG] State updated with new tutors data, refresh key incremented"
+          );
         } else {
           setTutors([]);
           setTotalTutors(0);
@@ -264,11 +290,32 @@ const TutorList = ({
     setSelectedTutorForBooking(null);
   }, []);
   const handleBookingSuccessInList = useCallback(
-    (tutorId, newBookingStatus) => {
+    async (tutorId, newBookingStatus) => {
       console.log("[DEBUG handleBookingSuccessInList] Called with:", {
         tutorId,
         newBookingStatus,
       });
+
+      // Log current tutors state BEFORE refresh using functional update
+      setTutors((prevTutors) => {
+        console.log(
+          "[DEBUG] Current tutors state BEFORE refresh:",
+          prevTutors.length,
+          "tutors"
+        );
+        const targetTutor = prevTutors.find((t) => t.id === tutorId);
+        if (targetTutor) {
+          console.log("[DEBUG] Target tutor BEFORE refresh:", {
+            id: targetTutor.id,
+            name: targetTutor.name,
+            isTutorAcceptingRequestAPIFlag:
+              targetTutor.isTutorAcceptingRequestAPIFlag,
+            bookingInfoCard: targetTutor.bookingInfoCard,
+          });
+        }
+        return prevTutors; // Return unchanged for now, will be updated by API refresh
+      });
+
       handleCloseBookingModal();
       toast.success("Yêu cầu thuê đã được gửi thành công!");
 
@@ -277,16 +324,30 @@ const TutorList = ({
       console.log(
         "[API REFRESH] Refreshing tutor list after booking success..."
       );
-      fetchTutorsData(currentPage);
+
+      // Wait for API refresh to complete
+      try {
+        await fetchTutorsData(currentPage);
+        console.log("[DEBUG] API refresh completed after booking success");
+      } catch (error) {
+        console.error("[DEBUG] Error during API refresh:", error);
+      }
     },
     [handleCloseBookingModal, fetchTutorsData, currentPage]
   );
-  const handleCancelSuccessInList = useCallback(() => {
+  const handleCancelSuccessInList = useCallback(async () => {
     // Call API to refresh tutor list data instead of optimistic updates
     // This ensures we get the correct isBookingRequestAccepted values from server
     console.log("[API REFRESH] Refreshing tutor list after cancel success...");
-    fetchTutorsData(currentPage);
-    toast.success("Đã hủy yêu cầu thành công!");
+
+    try {
+      await fetchTutorsData(currentPage);
+      console.log("[DEBUG] API refresh completed after cancel success");
+      toast.success("Đã hủy yêu cầu thành công!");
+    } catch (error) {
+      console.error("[DEBUG] Error during API refresh after cancel:", error);
+      toast.error("Đã hủy yêu cầu nhưng có lỗi khi cập nhật danh sách!");
+    }
   }, [fetchTutorsData, currentPage]);
   const handleFavoriteStatusChangeInList = useCallback(
     (tutorId, newIsFavorite) => {
@@ -355,20 +416,26 @@ const TutorList = ({
         </div>
       ) : !error && tutors.length > 0 ? (
         <>
+          {" "}
           <div className="tutor-list redesigned-list">
-            {tutors.map((tutorProps) => (
-              <TutorCard
-                key={tutorProps.id}
-                tutor={tutorProps}
-                onOpenBookingModal={handleOpenBookingModal}
-                onOpenAcceptedRequestsModal={
-                  handleOpenAcceptedRequestsModalFromCard
-                }
-                onCancelSuccess={handleCancelSuccessInList}
-                isLoggedIn={isLoggedIn}
-                onFavoriteStatusChange={handleFavoriteStatusChangeInList}
-              />
-            ))}
+            {tutors.map((tutorProps) => {
+              console.log(
+                `[DEBUG RENDER] Rendering TutorCard for ${tutorProps.name} with key: ${tutorProps.id}-${refreshKey}`
+              );
+              return (
+                <TutorCard
+                  key={`${tutorProps.id}-${refreshKey}`}
+                  tutor={tutorProps}
+                  onOpenBookingModal={handleOpenBookingModal}
+                  onOpenAcceptedRequestsModal={
+                    handleOpenAcceptedRequestsModalFromCard
+                  }
+                  onCancelSuccess={handleCancelSuccessInList}
+                  isLoggedIn={isLoggedIn}
+                  onFavoriteStatusChange={handleFavoriteStatusChangeInList}
+                />
+              );
+            })}
           </div>
           {totalPages > 1 && (
             <Pagination
