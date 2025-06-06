@@ -5,8 +5,11 @@
 
 // Simulate localStorage for testing
 const localStorage = {
-  data: {},
-  getItem(key) {
+  data: {},  console.log("✅ Validation:");
+  console.log(`  Has topic: ${!!samplePayload.topic}`);
+  console.log(`  Has password: ${!!samplePayload.password}`);
+  console.log(`  Has classroomId: ${!!samplePayload.classroomId}`);
+  // zoomAccessToken sẽ được gửi qua header, không qua payloadetItem(key) {
     return this.data[key] || null;
   },
   setItem(key, value) {
@@ -167,22 +170,20 @@ function testMissingTokens() {
 // Test the meeting payload structure
 function testMeetingPayload() {
   console.log("\n🧪 Testing Meeting Payload Structure\n");
-
   const samplePayload = {
     topic: "Test Meeting Room",
     password: "123456",
     classroomId: "classroom_123",
-    zoomAccessToken: "zoom_token_67890",
+    // zoomAccessToken được gửi qua header, không qua payload
   };
 
   console.log("📦 Sample Meeting Payload:");
   console.log(JSON.stringify(samplePayload, null, 2));
-
   console.log("\n✅ Validation:");
   console.log(`  Has topic: ${!!samplePayload.topic}`);
   console.log(`  Has password: ${!!samplePayload.password}`);
   console.log(`  Has classroomId: ${!!samplePayload.classroomId}`);
-  console.log(`  Has zoomAccessToken: ${!!samplePayload.zoomAccessToken}`);
+  console.log("  zoomAccessToken: Sent via header, not in payload");
 }
 
 // Run all tests

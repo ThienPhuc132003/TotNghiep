@@ -42,7 +42,7 @@ window.testMeetingCreation = async function (
         topic: "Test Meeting from Debug Tool",
         password: "123456",
         classroomId: classroomId,
-        zoomAccessToken: zoomToken,
+        // zoomAccessToken được gửi qua header, không qua body
       }),
     });
 
@@ -101,7 +101,7 @@ window.testTokenConfigurations = async function () {
         topic: "Test 1",
         password: "123456",
         classroomId: "test-123",
-        zoomAccessToken: zoomToken,
+        // zoomAccessToken không được gửi qua body
       },
     },
     {
@@ -139,7 +139,7 @@ window.testTokenConfigurations = async function () {
         topic: "Test 4",
         password: "123456",
         classroomId: "test-123",
-        zoomAccessToken: zoomToken,
+        // zoomAccessToken không được gửi qua body
       },
     },
   ];

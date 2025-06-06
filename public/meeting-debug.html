@@ -315,7 +315,7 @@
               topic: topic,
               password: password,
               classroomId: classroomId,
-              zoomAccessToken: zoomToken,
+              // zoomAccessToken được gửi qua header, không qua body
             }),
           });
 
@@ -361,7 +361,7 @@
               topic: "Test 1",
               password: "123456",
               classroomId: "test",
-              zoomAccessToken: zoomToken,
+              // zoomAccessToken không được gửi qua body
             },
           },
           {
@@ -384,7 +384,7 @@
               topic: "Test 4",
               password: "123456",
               classroomId: "test",
-              zoomAccessToken: zoomToken,
+              // zoomAccessToken không được gửi qua body
             },
           },
         ];

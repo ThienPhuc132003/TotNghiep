@@ -30,7 +30,7 @@ const meetingPayload = {
   topic: formData.topic,
   password: formData.password,
   classroomId: classroomId, // ✅ NEW: Links meeting to classroom
-  zoomAccessToken: zoomAccessToken, // ✅ NEW: Fallback token in body
+  // zoomAccessToken is sent via X-Zoom-Token header, NOT in payload
 };
 
 // axiosClient automatically adds headers:
@@ -115,8 +115,8 @@ const meetingPayload = {
 {
   "topic": "Lớp học: Toán nâng cao",
   "password": "abc123",
-  "classroomId": "classroom_123",              // Links to specific classroom
-  "zoomAccessToken": "{zoomToken}"             // Fallback token
+  "classroomId": "classroom_123"              // Links to specific classroom
+  // zoomAccessToken is sent via X-Zoom-Token header, NOT in body
 }
 ```
 
