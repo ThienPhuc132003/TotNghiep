@@ -153,3 +153,36 @@
   margin-bottom: 20px;
   font-style: italic;
 }
+
+/* Classroom Connection Info Styles */
+.classroom-connection-info {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.connection-notice {
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #1565c0;
+}
+
+.connection-notice strong {
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+.classroom-connection-info p {
+  margin-bottom: 0;
+  color: #495057;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}

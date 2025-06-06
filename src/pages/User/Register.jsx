@@ -5,6 +5,7 @@ import LoginLayout from "../../components/User/layout/LoginLayout";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/Register.style.css";
+import "../../assets/css/MajorList.register.css"; // CSS riêng cho MajorList trong Register
 import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
 import MajorList from "../../components/Static_Data/MajorList"; // <<<--- 1. IMPORT MajorList
 
@@ -102,7 +103,6 @@ const RegisterPage = () => {
       if (Object.keys(errors).length > 0) {
         return;
       }
-
       setIsSubmitting(true);
       setFormErrors({}); // Xóa lỗi chung cũ
 
@@ -120,14 +120,11 @@ const RegisterPage = () => {
       };
 
       try {
-        console.log("Sending registration data:", data); // Log dữ liệu gửi đi
         const response = await Api({
           endpoint: "user/send-otp", // Endpoint để gửi OTP đăng ký
           method: METHOD_TYPE.POST,
           data: data,
         });
-
-        console.log("Send OTP response:", response); // Log response
 
         if (response.success === true) {
           // Chuyển hướng đến trang xác thực OTP, gửi email qua state
@@ -299,17 +296,20 @@ const RegisterPage = () => {
                 {formErrors.homeAddress && (
                   <p className="error-message">{formErrors.homeAddress}</p>
                 )}
-              </div>
+              </div>{" "}
               {/* <<<--- 5. SỬ DỤNG MajorList component ---<<< */}
               <div className="form-group">
                 <label htmlFor="majorId">Ngành học</label>
-                <MajorList
-                  name="majorId" // Truyền name
-                  value={formData.majorId} // Truyền value từ state
-                  onChange={handleMajorChange} // Truyền hàm xử lý riêng
-                  required // Đánh dấu là bắt buộc (cho validation và isClearable)
-                  placeholder="Chọn ngành học của bạn"
-                />
+                <div className="register-major-select-wrapper">
+                  <MajorList
+                    name="majorId" // Truyền name
+                    value={formData.majorId} // Truyền value từ state
+                    onChange={handleMajorChange} // Truyền hàm xử lý riêng
+                    required // Đánh dấu là bắt buộc (cho validation và isClearable)
+                    placeholder="Chọn ngành học của bạn"
+                    classNamePrefix="register-major-select" // CSS riêng cho Register
+                  />
+                </div>
                 {/* Hiển thị lỗi bên dưới component */}
                 {formErrors.majorId && (
                   <p className="error-message">{formErrors.majorId}</p>

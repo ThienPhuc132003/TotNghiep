@@ -55,11 +55,27 @@ const ZoomCallback = () => {
             localStorage.setItem("zoomRefreshToken", refreshToken);
             if (userId) localStorage.setItem("zoomUserId", userId);
             setMessage("Kết nối Zoom thành công! Đang chuyển hướng...");
-            setTimeout(
-              () =>
-                navigate("/tai-khoan/ho-so/phong-hop-zoom", { replace: true }),
-              2000
-            );
+
+            // Check if user came from classroom page for Zoom connection
+            const returnPath = sessionStorage.getItem("zoomReturnPath");
+            const returnState = sessionStorage.getItem("zoomReturnState");
+
+            setTimeout(() => {
+              if (returnPath) {
+                // Clear stored return info
+                sessionStorage.removeItem("zoomReturnPath");
+                sessionStorage.removeItem("zoomReturnState");
+
+                // Navigate back to the original page with state
+                navigate(returnPath, {
+                  replace: true,
+                  state: returnState ? JSON.parse(returnState) : {},
+                });
+              } else {
+                // Default return to meeting room page
+                navigate("/tai-khoan/ho-so/phong-hop-zoom", { replace: true });
+              }
+            }, 2000);
           } else {
             const errMsg =
               backendResponse?.message ||

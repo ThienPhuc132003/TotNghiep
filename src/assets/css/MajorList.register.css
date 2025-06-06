@@ -1,0 +1,356 @@
+/* CSS RIÊNG CHO REGISTER - SPECIFICITY CAO ĐỂ OVERRIDE MỌI STYLE KHÁC */
+/* Sử dụng classNamePrefix="register-major-select" */
+
+/* === WRAPPER CONTAINER === */
+.register-form .form-group .register-major-select-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  flex: 1 !important; /* Giống form-group trong form-row */
+}
+
+/* === CONTAINER CHÍNH === */
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__control {
+  background-color: transparent !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 16px !important;
+  width: 100% !important;
+  height: 39px !important; /* Giống chính xác với input khác */
+  min-height: 39px !important;
+  max-height: 39px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  outline: none !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__control:hover {
+  border-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__control--is-focused {
+  border-color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__control--is-disabled {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: transparent !important;
+  cursor: not-allowed !important;
+}
+
+/* === VALUE CONTAINER - CONTAINER CHỨA NỘI DUNG === */
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__value-container {
+  padding: 0.5rem !important; /* Giống input thông thường */
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  width: 100% !important;
+  min-height: 27px !important; /* Height - 2 * padding = 39px - 2*0.5rem = 27px */
+  height: 27px !important;
+  font-size: 1rem !important; /* Đảm bảo font-size giống input */
+  line-height: 1.5 !important;
+}
+
+/* === PLACEHOLDER - TEXT GỢI Ý === */
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 0.7 !important; /* Giống placeholder của input */
+  font-style: italic !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  padding: 0 0.75rem !important; /* Thêm padding trái giống input */
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1.5 !important;
+  font-size: 1rem !important; /* Chính xác giống input */
+  font-family: inherit !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* === SINGLE VALUE - GIÁ TRỊ ĐÃ CHỌN === */
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__single-value {
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  padding: 0 0.75rem !important; /* Thêm padding trái giống input */
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1.5 !important;
+  font-size: 1rem !important; /* Chính xác giống input */
+  font-family: inherit !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* === INPUT CONTAINER === */
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__input-container {
+  margin: 0 !important;
+  padding: 0 0.75rem !important; /* Thêm padding trái giống input */
+  display: flex !important;
+  align-items: center !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__input {
+  color: #ffffff !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__input
+  input {
+  color: #ffffff !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+}
+
+/* === INDICATORS CONTAINER (DROPDOWN ARROW VÀ CLEAR BUTTON) === */
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__indicators {
+  display: flex !important;
+  align-items: center !important;
+  padding-right: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__dropdown-indicator {
+  color: rgba(255, 255, 255, 0.7) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__dropdown-indicator:hover {
+  color: #ffffff !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__clear-indicator {
+  color: rgba(255, 255, 255, 0.7) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin-right: 0.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__clear-indicator:hover {
+  color: #ffffff !important;
+}
+
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__indicator-separator {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  margin: 0 0.25rem !important;
+  width: 1px !important;
+  height: 16px !important;
+}
+
+/* === DROPDOWN MENU === */
+.register-form .form-group .register-major-select__menu {
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e9ecef !important;
+  margin-top: 2px !important;
+  z-index: 1000 !important;
+  position: absolute !important;
+}
+
+.register-form .form-group .register-major-select__menu-list {
+  padding: 0 !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+/* --- Option --- */
+.register-major-select__option {
+  padding: 0.5rem 0.75rem !important;
+  cursor: pointer !important;
+  color: #333333 !important;
+  background-color: transparent !important;
+  border-bottom: 1px solid #f8f9fa !important;
+}
+
+.register-major-select__option:last-child {
+  border-bottom: none !important;
+}
+
+.register-major-select__option--is-focused {
+  background-color: #f8f9fa !important;
+  color: #333333 !important;
+}
+
+.register-major-select__option--is-selected {
+  background-color: #007bff !important;
+  color: #ffffff !important;
+}
+
+.register-major-select__option--is-selected.register-major-select__option--is-focused {
+  background-color: #0056b3 !important;
+}
+
+/* --- Loading Message --- */
+.register-major-select__loading-message {
+  padding: 0.5rem 0.75rem !important;
+  color: #6c757d !important;
+  text-align: center !important;
+}
+
+/* --- No Options Message --- */
+.register-major-select__no-options-message {
+  padding: 0.5rem 0.75rem !important;
+  color: #6c757d !important;
+  text-align: center !important;
+}
+
+/* === OVERRIDE FALLBACK - ĐỂ ĐẢM BẢO KHÔNG BỊ STYLE KHÁC ẢNH HƯỞNG === */
+div.register-major-select__control {
+  width: 100% !important;
+  height: 39px !important;
+  min-height: 39px !important;
+  max-height: 39px !important;
+  box-sizing: border-box !important;
+}
+
+div.register-major-select__value-container {
+  align-items: center !important;
+  padding: 0.5rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  height: 27px !important;
+  min-height: 27px !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+div.register-major-select__placeholder,
+div.register-major-select__single-value {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  padding: 0 0.75rem !important; /* Thêm padding trái */
+  font-size: 1rem !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* === ADDITIONAL WIDTH CONSTRAINTS TO MATCH OTHER INPUTS === */
+/* Đảm bảo form-group chứa major select có cùng flex behavior */
+.register-form .form-row .form-group:has(.register-major-select-wrapper) {
+  flex: 1 !important;
+}
+
+/* Đảm bảo wrapper và control có cùng width constraints như input khác */
+.register-form .form-group .register-major-select-wrapper,
+.register-form
+  .form-group
+  .register-major-select-wrapper
+  .register-major-select__control {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+  flex-grow: 1 !important;
+}
+
+/* Override bất kỳ style nào có thể làm cho select rộng hơn */
+.register-form .form-group .register-major-select-wrapper * {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}

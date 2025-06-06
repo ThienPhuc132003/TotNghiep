@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CORS & Fixes Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-result {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .log-output {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 CORS & Fixes Test Dashboard</h1>
+
+    <div class="test-section">
+      <h2>🌐 CORS Proxy Test</h2>
+      <p>Tests if the Vite proxy is working to bypass CORS issues</p>
+      <button onclick="testCORS()">Test CORS Proxy</button>
+      <div id="cors-result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎯 Environment Configuration</h2>
+      <p>Shows current environment settings</p>
+      <button onclick="showEnvironment()">Show Environment</button>
+      <div id="env-result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>📱 Register Page Dropdown</h2>
+      <p>Tests the major selection dropdown alignment fix</p>
+      <button onclick="window.open('/register', '_blank')">
+        Open Register Page
+      </button>
+      <div class="test-result warning">
+        ⚠️ This test requires opening the register page and checking the "Ngành
+        học" dropdown alignment
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎥 Zoom Connection Flow</h2>
+      <p>Tests the Zoom connection and return navigation</p>
+      <button onclick="testZoomStorage()">Check Zoom Storage</button>
+      <button onclick="window.open('/tutor-classroom', '_blank')">
+        Open Tutor Classroom
+      </button>
+      <div id="zoom-result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>📋 Test Logs</h2>
+      <button onclick="clearLogs()">Clear Logs</button>
+      <div id="logs" class="log-output"></div>
+    </div>
+
+    <script>
+      function log(message) {
+        const logsDiv = document.getElementById("logs");
+        const timestamp = new Date().toLocaleTimeString();
+        logsDiv.textContent += `[${timestamp}] ${message}\n`;
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+        console.log(message);
+      }
+
+      function clearLogs() {
+        document.getElementById("logs").textContent = "";
+      }
+
+      function showResult(elementId, message, type = "success") {
+        const resultDiv = document.getElementById(elementId);
+        resultDiv.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+      }
+
+      async function testCORS() {
+        log("Testing CORS proxy...");
+        try {
+          const response = await fetch("/api/auth/test", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            showResult(
+              "cors-result",
+              `✅ CORS Proxy working! Status: ${response.status}`,
+              "success"
+            );
+            log(`✅ CORS test passed: ${response.status}`);
+          } else {
+            showResult(
+              "cors-result",
+              `⚠️ CORS Proxy responded with status: ${response.status}`,
+              "warning"
+            );
+            log(`⚠️ CORS test status: ${response.status}`);
+          }
+        } catch (error) {
+          showResult(
+            "cors-result",
+            `❌ CORS Proxy failed: ${error.message}`,
+            "error"
+          );
+          log(`❌ CORS test failed: ${error.message}`);
+        }
+      }
+
+      function showEnvironment() {
+        log("Checking environment configuration...");
+        const isDev = location.hostname === "localhost";
+        const apiUrl = isDev
+          ? "http://localhost:3000/api/"
+          : "https://giasuvlu.click/api/";
+
+        const envInfo = `
+                Environment: ${isDev ? "Development" : "Production"}
+                Hostname: ${location.hostname}
+                Port: ${location.port}
+                API URL: ${apiUrl}
+                Using Proxy: ${isDev ? "Yes" : "No"}
+            `;
+
+        showResult("env-result", `<pre>${envInfo}</pre>`, "success");
+        log(`Environment info: ${envInfo.replace(/\n/g, " | ")}`);
+      }
+
+      function testZoomStorage() {
+        log("Checking Zoom storage...");
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+        const zoomRefresh = localStorage.getItem("zoomRefreshToken");
+        const returnPath = sessionStorage.getItem("zoomReturnPath");
+        const returnState = sessionStorage.getItem("zoomReturnState");
+
+        const zoomInfo = `
+                Access Token: ${zoomToken ? "✅ Present" : "❌ Not found"}
+                Refresh Token: ${zoomRefresh ? "✅ Present" : "❌ Not found"}
+                Return Path: ${returnPath || "❌ Not set"}
+                Return State: ${returnState || "❌ Not set"}
+            `;
+
+        const hasTokens = zoomToken || zoomRefresh;
+        showResult(
+          "zoom-result",
+          `<pre>${zoomInfo}</pre>`,
+          hasTokens ? "success" : "warning"
+        );
+        log(`Zoom storage: ${zoomInfo.replace(/\n/g, " | ")}`);
+      }
+
+      // Auto-run basic tests on page load
+      window.addEventListener("load", () => {
+        log("🚀 Test dashboard loaded");
+        showEnvironment();
+        testZoomStorage();
+      });
+    </script>
+  </body>
+</html>

@@ -30,8 +30,7 @@ export default defineConfig({
     // Enable source maps for production debugging but smaller
     sourcemap: false,
   },
-
-  // Development server optimizations
+  // Development server optimizations with API proxy to handle CORS
   server: {
     host: true,
     port: 3000,
@@ -39,6 +38,24 @@ export default defineConfig({
     // Hot reload optimizations
     hmr: {
       overlay: false, // Disable error overlay to prevent memory buildup
+    }, // API proxy to handle CORS in development
+    proxy: {
+      "/api": {
+        target: "https://giasuvlu.click",
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy) => {
+          proxy.on("error", (err) => {
+            console.log("🔥 Proxy error:", err.message);
+          });
+          proxy.on("proxyReq", (proxyReq, req) => {
+            console.log("🌐 Proxying request:", req.method, req.url);
+          });
+          proxy.on("proxyRes", (proxyRes, req) => {
+            console.log("✅ Proxy response:", proxyRes.statusCode, req.url);
+          });
+        },
+      },
     },
   },
 
@@ -49,7 +66,6 @@ export default defineConfig({
     // Exclude heavy libs from optimization
     exclude: ["@zoom/meetingsdk", "lib-jitsi-meet"],
   },
-
   // Cache directory configuration
   cacheDir: "node_modules/.vite",
 

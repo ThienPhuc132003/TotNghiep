@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -306,7 +306,27 @@ const TutorClassroomPage = () => {
   const [isMeetingListOpen, setIsMeetingListOpen] = useState(false);
 
   const currentUser = useSelector((state) => state.user.userProfile);
-  const navigate = useNavigate(); // <<< THÊM MỚI
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Handle return from Zoom connection
+  useEffect(() => {
+    if (location.state?.fromClassroom && location.state?.zoomConnected) {
+      const { classroomId, classroomName } = location.state;
+      toast.success(
+        "Kết nối Zoom thành công! Bây giờ bạn có thể tạo phòng học."
+      );
+      // Auto-open create meeting modal for the classroom
+      if (classroomId && classroomName) {
+        setTimeout(() => {
+          setSelectedClassroom({ classroomId, nameOfRoom: classroomName });
+          setIsModalOpen(true);
+        }, 1000);
+      }
+
+      // Clear the state to prevent re-triggering
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, location.pathname, navigate]);
 
   const fetchTutorClassrooms = useCallback(
     async (page) => {
@@ -404,13 +424,37 @@ const TutorClassroomPage = () => {
           "Có lỗi xảy ra khi tải danh sách phòng học. Vui lòng thử lại."
       );
     }
-  };
-  // Function to open create meeting modal
+  }; // Function to open create meeting modal
   const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
     // Check if Zoom token exists
     const zoomToken = localStorage.getItem("zoomAccessToken");
     if (!zoomToken) {
-      toast.error("Vui lòng kết nối tài khoản Zoom trước khi tạo phòng học!");
+      toast.error("Bạn cần kết nối tài khoản Zoom để tạo phòng học!");
+
+      // Store return information for ZoomCallback
+      sessionStorage.setItem(
+        "zoomReturnPath",
+        "/tai-khoan/ho-so/quan-ly-lop-hoc"
+      );
+      sessionStorage.setItem(
+        "zoomReturnState",
+        JSON.stringify({
+          zoomConnected: true,
+          fromClassroom: true,
+          classroomId: classroomId,
+          classroomName: classroomName,
+        })
+      );
+
+      // Redirect to Zoom connection page with classroom info
+      navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+        state: {
+          needZoomConnection: true,
+          returnTo: "classroom",
+          classroomId: classroomId,
+          classroomName: classroomName,
+        },
+      });
       return;
     }
 

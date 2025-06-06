@@ -292,6 +292,24 @@
   max-height: 100%;
 }
 
+/* --- Specific Chart Types Styling --- */
+.admin-chart-card:nth-child(3) .admin-chart-card__body,
+.admin-chart-card:nth-child(4) .admin-chart-card__body {
+  /* Doughnut và Polar Area charts cần chiều cao lớn hơn cho legend */
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive adjustments for different chart types */
+@media (max-width: 991.98px) {
+  .admin-chart-card:nth-child(3) .admin-chart-card__body,
+  .admin-chart-card:nth-child(4) .admin-chart-card__body {
+    height: 300px;
+  }
+}
+
 /* --- Loading, Error, Auth Messages --- */
 .loading-indicator,
 .status-message {
