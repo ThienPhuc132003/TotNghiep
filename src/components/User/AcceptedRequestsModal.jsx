@@ -106,7 +106,6 @@ const AcceptedRequestsModal = ({
   useEffect(() => {
     fetchAcceptedRequests();
   }, [fetchAcceptedRequests]);
-
   const handleHireTutor = async (bookingRequestId) => {
     if (processingId) return;
     if (
@@ -124,8 +123,16 @@ const AcceptedRequestsModal = ({
         method: METHOD_TYPE.PUT,
         requireToken: true,
       });
+
       toast.success("Đã xác nhận thuê gia sư thành công!");
-      onActionSuccess(); // Gọi callback để refresh trang/danh sách cha
+
+      // Pass the updated status back for local state update
+      const updatedStatus = {
+        status: "HIRED", // or get from response if available
+        bookingId: bookingRequestId,
+      };
+
+      onActionSuccess(tutorId, updatedStatus); // Pass tutorId and new status
       onClose(); // Đóng modal
     } catch (err) {
       toast.error(
@@ -223,7 +230,7 @@ AcceptedRequestsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   tutorId: PropTypes.string, // tutorId của gia sư để fetch đúng yêu cầu
   tutorName: PropTypes.string,
-  onActionSuccess: PropTypes.func.isRequired, // Callback để refresh lại dữ liệu ở trang cha
+  onActionSuccess: PropTypes.func.isRequired, // Callback with (tutorId, updatedStatus) parameters
 };
 
 export default AcceptedRequestsModal;

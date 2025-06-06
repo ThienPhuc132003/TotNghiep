@@ -15,6 +15,11 @@ import "../../assets/css/TutorCardSkeleton.style.css";
 import "../../assets/css/TutorSearch.style.css";
 import "../../assets/css/BookingModal.style.css";
 import AcceptedRequestsModal from "../User/AcceptedRequestsModal";
+import {
+  updateTutorBookingStatus,
+  clearTutorBookingStatus,
+  updateTutorFavoriteStatus,
+} from "../../utils/bookingStateHelpers";
 
 const TUTORS_PER_PAGE = 8;
 
@@ -247,28 +252,30 @@ const TutorList = ({
     setIsBookingModalOpen(false);
     setSelectedTutorForBooking(null);
   }, []);
+  const handleBookingSuccessInList = useCallback(
+    (tutorId, newBookingStatus) => {
+      handleCloseBookingModal();
+      toast.success("Yêu cầu thuê đã được gửi thành công!");
 
-  const handleBookingSuccessInList = useCallback(() => {
-    handleCloseBookingModal();
-    toast.success("Yêu cầu thuê đã được gửi thành công!");
-    fetchTutorsData(currentPage);
-  }, [currentPage, fetchTutorsData, handleCloseBookingModal]);
-
-  const handleCancelSuccessInList = useCallback(() => {
-    fetchTutorsData(currentPage);
-  }, [currentPage, fetchTutorsData]);
-
-  const handleFavoriteStatusChangeInList = useCallback(
-    // Dòng 246 ở đây hoặc gần đây
-    (tutorId, newIsFavorite) => {
+      // Update local state using helper function
       setTutors((prevTutors) =>
-        prevTutors.map((t) =>
-          t.id === tutorId ? { ...t, isInitiallyFavorite: newIsFavorite } : t
-        )
+        updateTutorBookingStatus(prevTutors, tutorId, newBookingStatus)
       );
     },
-    [] // Nếu setTutors không thay đổi, [] là ổn. Nếu có lỗi exhaustive-deps ở đây, có thể setTutors nên là dependency
-    // nhưng thường thì hàm setter của useState không cần.
+    [handleCloseBookingModal]
+  );
+  const handleCancelSuccessInList = useCallback((tutorId) => {
+    // Update local state using helper function
+    setTutors((prevTutors) => clearTutorBookingStatus(prevTutors, tutorId));
+    toast.success("Đã hủy yêu cầu thành công!");
+  }, []);
+  const handleFavoriteStatusChangeInList = useCallback(
+    (tutorId, newIsFavorite) => {
+      setTutors((prevTutors) =>
+        updateTutorFavoriteStatus(prevTutors, tutorId, newIsFavorite)
+      );
+    },
+    []
   );
 
   const handleOpenAcceptedRequestsModalFromCard = useCallback(
@@ -287,10 +294,20 @@ const TutorList = ({
     setIsAcceptedRequestsModalOpen(false);
     setSelectedTutorForAccepted(null);
   }, []);
-
-  const handleActionSuccessFromAcceptedModal = useCallback(() => {
-    fetchTutorsData(currentPage);
-  }, [currentPage, fetchTutorsData]);
+  const handleActionSuccessFromAcceptedModal = useCallback(
+    (tutorId, updatedStatus) => {
+      // Update local state using helper function instead of fetching all data
+      if (tutorId && updatedStatus) {
+        setTutors((prevTutors) =>
+          updateTutorBookingStatus(prevTutors, tutorId, updatedStatus)
+        );
+      } else {
+        // Fallback to full refresh if no specific update info provided
+        fetchTutorsData(currentPage);
+      }
+    },
+    [currentPage, fetchTutorsData]
+  );
 
   const totalPages = Math.ceil(totalTutors / TUTORS_PER_PAGE);
   const indexOfFirstTutor = (currentPage - 1) * TUTORS_PER_PAGE;
