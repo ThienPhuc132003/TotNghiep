@@ -65,12 +65,13 @@ const AdminDashboardPage = () => {
     newTutorRequest: { value: 0, change: null },
     newClassActive: { value: 0, change: null },
   });
-
   const [chartData, setChartData] = useState({
     revenueTrend: { labels: [], datasets: [] },
     newUserTrend: { labels: [], datasets: [] },
     newTutorTrend: { labels: [], datasets: [] },
     newRequestTrend: { labels: [], datasets: [] },
+    doughnutChartOptions: {},
+    polarAreaChartOptions: {},
   });
 
   // Helper để tạo options cho biểu đồ
@@ -447,7 +448,35 @@ const AdminDashboardPage = () => {
             pointBorderWidth: 2,
             pointHoverBackgroundColor: "#fff",
             pointHoverBorderColor: borderColor,
-          });
+          }); // Tạo màu sắc đa dạng cho doughnut và polar area charts
+          const generateColorPalette = (count) => {
+            const colors = [
+              vluOrange,
+              vluBlue,
+              successColor,
+              infoColor,
+              "#8B5CF6",
+              "#F59E0B",
+              "#EF4444",
+              "#10B981",
+              "#3B82F6",
+              "#F97316",
+            ];
+            return colors.slice(0, count);
+          };
+
+          // Tạo dữ liệu cho doughnut chart (gia sư mới)
+          const tutorColors = generateColorPalette(newTutorLabels.length);
+          const tutorBackgroundColors = tutorColors.map(
+            (color) => `rgba(${parseColorToRgb(color)}, 0.8)`
+          );
+          const tutorBorderColors = tutorColors;
+
+          // Tạo dữ liệu cho polar area chart (yêu cầu gia sư)
+          const requestColors = generateColorPalette(newRequestLabels.length);
+          const requestBackgroundColors = requestColors.map(
+            (color) => `rgba(${parseColorToRgb(color)}, 0.6)`
+          );
 
           setChartData({
             revenueTrend: {
@@ -463,8 +492,13 @@ const AdminDashboardPage = () => {
               labels: newUserLabels,
               datasets: [
                 {
-                  ...chartDatasetDefaults(vluBlue, "Người dùng mới"),
+                  label: "Người dùng mới",
                   data: newUserValues,
+                  backgroundColor: `rgba(${parseColorToRgb(vluBlue)}, 0.8)`,
+                  borderColor: vluBlue,
+                  borderWidth: 2,
+                  borderRadius: 4,
+                  borderSkipped: false,
                 },
               ],
             },
@@ -472,8 +506,12 @@ const AdminDashboardPage = () => {
               labels: newTutorLabels,
               datasets: [
                 {
-                  ...chartDatasetDefaults(successColor, "Gia sư mới"),
+                  label: "Gia sư mới",
                   data: newTutorValues,
+                  backgroundColor: tutorBackgroundColors,
+                  borderColor: tutorBorderColors,
+                  borderWidth: 2,
+                  hoverOffset: 4,
                 },
               ],
             },
@@ -481,10 +519,88 @@ const AdminDashboardPage = () => {
               labels: newRequestLabels,
               datasets: [
                 {
-                  ...chartDatasetDefaults(infoColor, "Yêu cầu mới"),
+                  label: "Yêu cầu mới",
                   data: newRequestValues,
+                  backgroundColor: requestBackgroundColors,
+                  borderColor: requestColors,
+                  borderWidth: 2,
                 },
               ],
+            },
+            // Options cho các loại biểu đồ khác nhau
+            doughnutChartOptions: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    color: getCssVariable("--text-dark") || "#1f2937",
+                    font: { size: 12, weight: "500" },
+                    padding: 15,
+                    usePointStyle: true,
+                  },
+                },
+                tooltip: {
+                  backgroundColor:
+                    getCssVariable("--text-dark") || "rgba(0,0,0,0.85)",
+                  titleColor: "#fff",
+                  bodyColor: "#fff",
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || "";
+                      const value = context.parsed || 0;
+                      const total = context.dataset.data.reduce(
+                        (a, b) => a + b,
+                        0
+                      );
+                      const percentage = ((value / total) * 100).toFixed(1);
+                      return `${label}: ${value} (${percentage}%)`;
+                    },
+                  },
+                },
+              },
+              cutout: "60%",
+            },
+            polarAreaChartOptions: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    color: getCssVariable("--text-dark") || "#1f2937",
+                    font: { size: 12, weight: "500" },
+                    padding: 15,
+                    usePointStyle: true,
+                  },
+                },
+                tooltip: {
+                  backgroundColor:
+                    getCssVariable("--text-dark") || "rgba(0,0,0,0.85)",
+                  titleColor: "#fff",
+                  bodyColor: "#fff",
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || "";
+                      const value = context.parsed.r || 0;
+                      return `${label}: ${value.toLocaleString("vi-VN")}`;
+                    },
+                  },
+                },
+              },
+              scales: {
+                r: {
+                  beginAtZero: true,
+                  grid: {
+                    color: "rgba(0, 0, 0, 0.1)",
+                  },
+                  ticks: {
+                    color: getCssVariable("--text-light") || "#6b7280",
+                    font: { size: 11 },
+                  },
+                },
+              },
             },
           });
         } else {
@@ -823,11 +939,11 @@ const AdminDashboardPage = () => {
                   options={revenueChartOptions}
                 />
               </div>
-            </div>
+            </div>{" "}
             <div className="admin-chart-card">
               <div className="admin-chart-card__header">
                 <h2 className="admin-chart-card__title">
-                  Xu hướng người dùng mới
+                  Thống kê người dùng mới
                   <span className="admin-chart-card__subtitle">
                     (
                     {timeRange === "week"
@@ -841,7 +957,7 @@ const AdminDashboardPage = () => {
               </div>
               <div className="admin-chart-card__body">
                 <ChartComponent
-                  type="line"
+                  type="bar"
                   data={chartData.newUserTrend}
                   options={commonChartOptions}
                 />
@@ -850,7 +966,7 @@ const AdminDashboardPage = () => {
             <div className="admin-chart-card">
               <div className="admin-chart-card__header">
                 <h2 className="admin-chart-card__title">
-                  Xu hướng gia sư mới
+                  Phân bố gia sư mới
                   <span className="admin-chart-card__subtitle">
                     (
                     {timeRange === "week"
@@ -864,16 +980,16 @@ const AdminDashboardPage = () => {
               </div>
               <div className="admin-chart-card__body">
                 <ChartComponent
-                  type="line"
+                  type="doughnut"
                   data={chartData.newTutorTrend}
-                  options={commonChartOptions}
+                  options={chartData.doughnutChartOptions}
                 />
               </div>
             </div>
             <div className="admin-chart-card">
               <div className="admin-chart-card__header">
                 <h2 className="admin-chart-card__title">
-                  Xu hướng yêu cầu gia sư mới
+                  Phân tích yêu cầu gia sư
                   <span className="admin-chart-card__subtitle">
                     (
                     {timeRange === "week"
@@ -887,9 +1003,9 @@ const AdminDashboardPage = () => {
               </div>
               <div className="admin-chart-card__body">
                 <ChartComponent
-                  type="line"
+                  type="polarArea"
                   data={chartData.newRequestTrend}
-                  options={commonChartOptions}
+                  options={chartData.polarAreaChartOptions}
                 />
               </div>
             </div>

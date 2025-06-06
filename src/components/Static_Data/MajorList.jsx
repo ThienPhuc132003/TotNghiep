@@ -18,6 +18,7 @@ const MajorList = ({
   name = "majorId", // name này sẽ được dùng cho instanceId
   placeholder = "Chọn ngành học của bạn",
   disabled = false, // Prop để vô hiệu hóa từ bên ngoài
+  classNamePrefix = "select-majorId", // Cho phép tùy chỉnh classNamePrefix từ bên ngoài
 }) => {
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +42,7 @@ const MajorList = ({
             value: major.majorId,
             label: major.majorName,
           }));
+          console.log("MajorList: Loaded options:", formattedOptions); // Debug log
           setOptions(formattedOptions);
         } else {
           console.error(
@@ -63,17 +65,21 @@ const MajorList = ({
 
   const selectedOption =
     options.find((option) => option.value === value) || null;
-
   const handleChange = (selected) => {
-    onChange(name, selected ? selected.value : "");
+    console.log("MajorList handleChange called:", { selected, name }); // Debug log
+    const value = selected ? selected.value : "";
+    console.log("Calling onChange with:", { name, value }); // Debug log
+    onChange(name, value);
   };
 
   const trulyDisabled = disabled || isLoading || !!error;
 
   return (
     <>
+      {" "}
       <Select
         instanceId={selectInstanceId} // QUAN TRỌNG: Giữ lại để CSS có thể nhắm mục tiêu
+        classNamePrefix={classNamePrefix} // Sử dụng classNamePrefix được truyền vào
         name={name}
         options={options}
         value={selectedOption}
@@ -115,6 +121,7 @@ MajorList.propTypes = {
   name: PropTypes.string,
   placeholder: PropTypes.string,
   disabled: PropTypes.bool,
+  classNamePrefix: PropTypes.string,
 };
 
 export default MajorList;

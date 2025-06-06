@@ -2,202 +2,249 @@
 
 /* 
   LƯU Ý QUAN TRỌNG:
-  Các class name dưới đây được viết dựa trên giả định instanceId của Select component là "select-majorId".
-  Nếu prop `name` của MajorList component thay đổi, bạn cần cập nhật các class name này cho phù hợp.
-  Ví dụ, nếu name="facultyId", thì instanceId sẽ là "select-facultyId" và class sẽ là ".select-facultyId__control", ...
+  CSS này sử dụng classNamePrefix="custom-select" cho tất cả MajorList components
+  Điều này đảm bảo styling nhất quán không phụ thuộc vào tên cụ thể của component
 */
 
 /* --- Control: Khung chính của select --- */
-.select-majorId__control {
-    background-color: transparent !important; /* !important để ghi đè style mặc định của react-select */
-    border-color: #ffffff !important;
-    border-width: 2px !important;
-    border-radius: 16px !important;
-    min-height: auto !important; /* Để CSS form cha kiểm soát chiều cao */
-    height: auto !important; /* Để CSS form cha kiểm soát chiều cao */
-    box-shadow: none !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: stretch !important;
-    padding: 0 !important; /* Control không padding, để valueContainer xử lý */
-    box-sizing: border-box !important;
-  }
-  
-  .select-majorId__control:hover {
-    border-color: rgba(255, 255, 255, 0.85) !important;
-  }
-  
-  .select-majorId__control--is-focused {
-    border-color: #ffffff !important;
-    box-shadow: none !important; /* Ghi đè box-shadow khi focus nếu có */
-  }
-  .select-majorId__control--is-focused:hover {
-    border-color: #ffffff !important; /* Giữ màu khi focus và hover */
-  }
-  
-  .select-majorId__control--is-disabled {
-    border-color: rgba(255, 255, 255, 0.5) !important;
-    background-color: transparent !important; /* Đảm bảo nền vẫn trong suốt khi disabled */
-    cursor: not-allowed !important;
-  }
-  .select-majorId__control--is-disabled:hover {
-    border-color: rgba(255, 255, 255, 0.5) !important;
-  }
-  
-  /* --- Value Container: Chứa giá trị được chọn hoặc placeholder --- */
-  .select-majorId__value-container {
-    padding-top: 0.9rem !important;
-    padding-bottom: 0.9rem !important;
-    /* Trừ đi 2px border mỗi bên để padding trực quan đúng với thiết kế */
-    padding-left: calc(1.2rem - 2px) !important;
-    padding-right: calc(1.2rem - 2px) !important;
-    display: flex !important;
-    align-items: center !important;
-    flex-grow: 1 !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-  }
-  
-  /* --- Placeholder --- */
-  .select-majorId__placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    font-style: italic !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    margin-left: 0 !important; /* Để padding của valueContainer kiểm soát */
-  }
-  .select-majorId__control--is-disabled .select-majorId__placeholder {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-  
-  /* --- Single Value: Giá trị đã chọn (cho select đơn) --- */
-  .select-majorId__single-value {
-    color: #ffffff !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-  .select-majorId__control--is-disabled .select-majorId__single-value {
-    color: rgba(255, 255, 255, 0.5) !important;
-  }
-  
-  /* --- Input: Trường nhập liệu khi tìm kiếm --- */
-  .select-majorId__input-container { /* react-select v5+ */
-    margin: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    box-sizing: border-box !important;
-    /* Để đảm bảo input chiếm không gian cần thiết và căn chỉnh đúng */
-    display: flex;
-    align-items: center;
-    flex-grow: 1; /* Cho phép input co giãn */
-  }
-  .select-majorId__input {
-    color: #ffffff !important;
-    width: 100% !important; /* Đảm bảo input chiếm đủ chiều rộng */
-  }
-  .select-majorId__control--is-disabled .select-majorId__input {
-    color: rgba(255, 255, 255, 0.5) !important;
-  }
-  
-  
-  /* --- Indicators Container: Chứa các icon (dropdown, clear) --- */
-  .select-majorId__indicators-container, /* Tên class có thể là __indicators */
+.custom-select__control {
+  background-color: transparent !important; /* !important để ghi đè style mặc định của react-select */
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+  border-radius: 16px !important;
+  min-height: 39px !important; /* Đồng bộ với input height trong Register form */
+  height: 39px !important; /* Đồng bộ với input height trong Register form */
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important; /* Center content vertically */
+  padding: 0 !important; /* Control không padding, để valueContainer xử lý */
+  box-sizing: border-box !important;
+}
+
+.custom-select__control:hover {
+  border-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.custom-select__control--is-focused {
+  border-color: #ffffff !important;
+  box-shadow: none !important; /* Ghi đè box-shadow khi focus nếu có */
+}
+
+.custom-select__control--is-focused:hover {
+  border-color: #ffffff !important; /* Giữ màu khi focus và hover */
+}
+
+.custom-select__control--is-disabled {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: transparent !important; /* Đảm bảo nền vẫn trong suốt khi disabled */
+  cursor: not-allowed !important;
+}
+
+.custom-select__control--is-disabled:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* --- Value Container: Chứa giá trị được chọn hoặc placeholder --- */
+.custom-select__value-container {
+  padding-top: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-bottom: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-left: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-right: 0.5rem !important; /* Đồng bộ với Register input padding */
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.select-majorId__control:hover {
+  border-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.select-majorId__control--is-focused {
+  border-color: #ffffff !important;
+  box-shadow: none !important; /* Ghi đè box-shadow khi focus nếu có */
+}
+.select-majorId__control--is-focused:hover {
+  border-color: #ffffff !important; /* Giữ màu khi focus và hover */
+}
+
+.select-majorId__control--is-disabled {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: transparent !important; /* Đảm bảo nền vẫn trong suốt khi disabled */
+  cursor: not-allowed !important;
+}
+.select-majorId__control--is-disabled:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+/* --- Value Container: Chứa giá trị được chọn hoặc placeholder --- */
+.select-majorId__value-container {
+  padding-top: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-bottom: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-left: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-right: 0.5rem !important; /* Đồng bộ với Register input padding */
+  padding-left: calc(1.2rem - 2px) !important;
+  padding-right: calc(1.2rem - 2px) !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* --- Placeholder --- */
+.select-majorId__placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-style: italic !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin-left: 0 !important; /* Để padding của valueContainer kiểm soát */
+}
+.select-majorId__control--is-disabled .select-majorId__placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* --- Single Value: Giá trị đã chọn (cho select đơn) --- */
+.select-majorId__single-value {
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.select-majorId__control--is-disabled .select-majorId__single-value {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* --- Input: Trường nhập liệu khi tìm kiếm --- */
+.select-majorId__input-container {
+  /* react-select v5+ */
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+  /* Để đảm bảo input chiếm không gian cần thiết và căn chỉnh đúng */
+  display: flex;
+  align-items: center;
+  flex-grow: 1; /* Cho phép input co giãn */
+}
+.select-majorId__input {
+  color: #ffffff !important;
+  width: 100% !important; /* Đảm bảo input chiếm đủ chiều rộng */
+}
+.select-majorId__control--is-disabled .select-majorId__input {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* --- Indicators Container: Chứa các icon (dropdown, clear) --- */
+.select-majorId__indicators-container, /* Tên class có thể là __indicators */
   .select-majorId__indicators {
-    align-self: stretch !important;
-    box-sizing: border-box !important;
-    display: flex !important; /* Để căn chỉnh các icon bên trong */
-    align-items: center !important;
-  }
-  
-  /* --- Dropdown Indicator: Icon mũi tên xổ xuống --- */
-  .select-majorId__dropdown-indicator {
-    padding: 8px !important;
-    color: #ffffff !important;
-    display: flex !important;
-    align-items: center !important;
-  }
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  display: flex !important; /* Để căn chỉnh các icon bên trong */
+  align-items: center !important;
+}
+
+/* --- Dropdown Indicator: Icon mũi tên xổ xuống --- */
+.select-majorId__dropdown-indicator {
+  padding: 8px !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.select-majorId__dropdown-indicator:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+.select-majorId__control--is-disabled .select-majorId__dropdown-indicator,
+.select-majorId__control--is-disabled
   .select-majorId__dropdown-indicator:hover {
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-  .select-majorId__control--is-disabled .select-majorId__dropdown-indicator,
-  .select-majorId__control--is-disabled .select-majorId__dropdown-indicator:hover {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-  
-  /* --- Clear Indicator: Icon xóa (X) --- */
-  .select-majorId__clear-indicator {
-    padding: 8px !important;
-    color: #ffffff !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-  .select-majorId__clear-indicator:hover {
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-  .select-majorId__control--is-disabled .select-majorId__clear-indicator,
-  .select-majorId__control--is-disabled .select-majorId__clear-indicator:hover {
-    color: rgba(255, 255, 255, 0.4) !important;
-  }
-  
-  /* --- Indicator Separator: Đường kẻ giữa các indicator --- */
-  .select-majorId__indicator-separator {
-    display: none !important;
-  }
-  
-  /* --- Menu: Danh sách các option xổ xuống --- */
-  .select-majorId__menu {
-    z-index: 10 !important; /* Đảm bảo menu hiển thị trên các phần tử khác */
-    background-color: #ffffff !important;
-    border-radius: 8px !important;
-    margin-top: 4px !important; /* Khoảng cách từ control đến menu */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Thêm bóng đổ cho menu đẹp hơn */
-  }
-  
-  /* --- Menu List: Container chứa các option, có thể cuộn --- */
-  .select-majorId__menu-list {
-    padding-top: 4px !important; /* Khoảng đệm nhỏ ở đầu và cuối danh sách */
-    padding-bottom: 4px !important;
-    max-height: 200px; /* Giới hạn chiều cao, thêm thanh cuộn nếu cần */
-    overflow-y: auto;
-  }
-  
-  /* --- Option: Từng mục trong danh sách --- */
-  .select-majorId__option {
-    background-color: #ffffff !important;
-    color: #212529 !important; /* Màu chữ tối cho dễ đọc trên nền trắng */
-    padding: 10px 15px !important;
-    cursor: pointer !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-  
-  .select-majorId__option--is-selected {
-    background-color: rgba(180, 30, 45, 0.9) !important; /* Màu Văn Lang */
-    color: #ffffff !important;
-  }
-  /* Giữ style khi option đã selected được focus/hover */
-  .select-majorId__option--is-selected:hover,
-  .select-majorId__option--is-selected.select-majorId__option--is-focused {
-    background-color: rgba(180, 30, 45, 1) !important; /* Có thể làm đậm hơn một chút */
-    color: #ffffff !important;
-  }
-  
-  .select-majorId__option--is-focused {
-    background-color: rgba(180, 30, 45, 0.1) !important; /* Màu hover/focus nhẹ nhàng */
-    color: #212529 !important; /* Giữ màu chữ gốc khi chỉ focus (chưa select) */
-  }
-  
-  .select-majorId__option:active { /* Khi click chuột xuống */
-    background-color: rgba(180, 30, 45, 0.2) !important;
-  }
-  
-  /* --- No Options/Loading Message --- */
-  .select-majorId__menu-notice--no-options,
-  .select-majorId__menu-notice--loading {
-    color: #6c757d !important;
-    padding: 10px 15px !important;
-    text-align: center;
-  }
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* --- Clear Indicator: Icon xóa (X) --- */
+.select-majorId__clear-indicator {
+  padding: 8px !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.select-majorId__clear-indicator:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+.select-majorId__control--is-disabled .select-majorId__clear-indicator,
+.select-majorId__control--is-disabled .select-majorId__clear-indicator:hover {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* --- Indicator Separator: Đường kẻ giữa các indicator --- */
+.select-majorId__indicator-separator {
+  display: none !important;
+}
+
+/* --- Menu: Danh sách các option xổ xuống --- */
+.select-majorId__menu {
+  z-index: 10 !important; /* Đảm bảo menu hiển thị trên các phần tử khác */
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  margin-top: 4px !important; /* Khoảng cách từ control đến menu */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Thêm bóng đổ cho menu đẹp hơn */
+}
+
+/* --- Menu List: Container chứa các option, có thể cuộn --- */
+.select-majorId__menu-list {
+  padding-top: 4px !important; /* Khoảng đệm nhỏ ở đầu và cuối danh sách */
+  padding-bottom: 4px !important;
+  max-height: 200px; /* Giới hạn chiều cao, thêm thanh cuộn nếu cần */
+  overflow-y: auto;
+}
+
+/* --- Option: Từng mục trong danh sách --- */
+.select-majorId__option {
+  background-color: #ffffff !important;
+  color: #212529 !important; /* Màu chữ tối cho dễ đọc trên nền trắng */
+  padding: 10px 15px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.select-majorId__option--is-selected {
+  background-color: rgba(180, 30, 45, 0.9) !important; /* Màu Văn Lang */
+  color: #ffffff !important;
+}
+/* Giữ style khi option đã selected được focus/hover */
+.select-majorId__option--is-selected:hover,
+.select-majorId__option--is-selected.select-majorId__option--is-focused {
+  background-color: rgba(
+    180,
+    30,
+    45,
+    1
+  ) !important; /* Có thể làm đậm hơn một chút */
+  color: #ffffff !important;
+}
+
+.select-majorId__option--is-focused {
+  background-color: rgba(
+    180,
+    30,
+    45,
+    0.1
+  ) !important; /* Màu hover/focus nhẹ nhàng */
+  color: #212529 !important; /* Giữ màu chữ gốc khi chỉ focus (chưa select) */
+}
+
+.select-majorId__option:active {
+  /* Khi click chuột xuống */
+  background-color: rgba(180, 30, 45, 0.2) !important;
+}
+
+/* --- No Options/Loading Message --- */
+.select-majorId__menu-notice--no-options,
+.select-majorId__menu-notice--loading {
+  color: #6c757d !important;
+  padding: 10px 15px !important;
+  text-align: center;
+}

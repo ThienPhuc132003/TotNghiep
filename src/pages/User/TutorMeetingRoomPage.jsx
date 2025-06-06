@@ -14,7 +14,6 @@ const TutorMeetingRoomPage = () => {
   const [error, setError] = useState(null);
   const [meetingData, setMeetingData] = useState(null);
   const [classroomInfo, setClassroomInfo] = useState(null);
-
   useEffect(() => {
     // Check if meeting data was passed from TutorClassroomPage
     if (location.state && location.state.meetingData) {
@@ -23,6 +22,15 @@ const TutorMeetingRoomPage = () => {
         name: location.state.classroomName,
         id: location.state.classroomId,
         isNewMeeting: location.state.isNewMeeting || false,
+      });
+    }
+
+    // Check if redirected from classroom page for Zoom connection
+    if (location.state && location.state.needZoomConnection) {
+      setClassroomInfo({
+        name: location.state.classroomName,
+        id: location.state.classroomId,
+        needConnection: true,
       });
     }
 
@@ -118,17 +126,39 @@ const TutorMeetingRoomPage = () => {
       </div>
     );
   }
-
   return (
     <div className="tutor-meeting-room-page">
-      <h2 className="page-title">Quản Lý Phòng Họp</h2>
+      <h2 className="page-title">
+        {classroomInfo?.needConnection
+          ? `Kết nối Zoom cho lớp: ${classroomInfo.name}`
+          : "Quản Lý Phòng Họp"}
+      </h2>
       {error && <p className="error-message">{error}</p>}
       {!isZoomConnected ? (
         <div className="zoom-connect-section">
-          <p>
-            Để sử dụng tính năng phòng họp trực tuyến, bạn cần kết nối tài khoản
-            Zoom của mình.
-          </p>
+          {classroomInfo?.needConnection ? (
+            <div className="classroom-connection-info">
+              <div className="connection-notice">
+                <i
+                  className="fas fa-info-circle"
+                  style={{ marginRight: "8px", color: "#007bff" }}
+                ></i>
+                <span>
+                  Bạn cần kết nối tài khoản Zoom để tạo phòng học cho lớp:{" "}
+                  <strong>{classroomInfo.name}</strong>
+                </span>
+              </div>
+              <p>
+                Sau khi kết nối thành công, bạn sẽ được đưa về trang quản lý lớp
+                học để tiếp tục tạo phòng học Zoom.
+              </p>
+            </div>
+          ) : (
+            <p>
+              Để sử dụng tính năng phòng họp trực tuyến, bạn cần kết nối tài
+              khoản Zoom của mình.
+            </p>
+          )}
           <button
             onClick={handleConnectZoom}
             className="btn btn-primary btn-connect-zoom"

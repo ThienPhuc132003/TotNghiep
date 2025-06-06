@@ -1,16 +1,21 @@
 // src/utils/axiosClient.js
 import axios from "axios";
 import Cookies from "js-cookie";
+import {
+  API_CONFIG,
+  logApiCall,
+  logApiResponse,
+  logApiError,
+} from "../utils/envConfig";
 
-// Lấy VITE_API_BASE_URL từ file .env, đảm bảo kết thúc bằng /
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://giasuvlu.click/api/";
+// Use environment-specific API base URL
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   // Do NOT set default Content-Type here. It will be set per-request as needed.
-  timeout: 10000, // 10 second timeout
-  withCredentials: false, // Avoid CORS preflight for simple requests
+  timeout: API_CONFIG.TIMEOUT,
+  withCredentials: API_CONFIG.WITH_CREDENTIALS,
 });
 
 let isRefreshingZoomToken = false;
@@ -26,7 +31,15 @@ const processZoomQueue = (error, token = null) => {
 
 axiosClient.interceptors.request.use(
   function (config) {
+    const startTime = Date.now();
+    config.metadata = { startTime };
+
     const url = config.url || ""; // Endpoint (phần sau baseURL)
+    const method = config.method?.toUpperCase() || "GET";
+
+    // Log API call if in development
+    logApiCall(method, url, config.data);
+
     const userSystemToken = Cookies.get("token");
     const zoomAccessToken = localStorage.getItem("zoomAccessToken");
 
@@ -80,21 +93,33 @@ axiosClient.interceptors.request.use(
 
 axiosClient.interceptors.response.use(
   function (response) {
+    const config = response.config;
+    const duration = Date.now() - (config.metadata?.startTime || 0);
+
+    // Log API response if in development
+    logApiResponse(
+      config.method?.toUpperCase() || "GET",
+      config.url || "",
+      response.status,
+      duration,
+      response.data
+    );
+
     return response.data; // Trả về response.data trực tiếp
   },
   async function (error) {
     const originalRequest = error.config || {}; // Đảm bảo originalRequest luôn là object
     const url = originalRequest.url || "unknown_url";
+    const duration = Date.now() - (originalRequest.metadata?.startTime || 0);
 
-    // === SIMPLE ERROR LOGGING ===
-    console.log(
-      `❌ [${
-        error.response?.status || "ERR"
-      }] ${originalRequest.method?.toUpperCase()} ${
-        originalRequest.baseURL
-      }${url}`
+    // Log API error if in development
+    logApiError(
+      originalRequest.method?.toUpperCase() || "GET",
+      url,
+      error.response?.status || 0,
+      duration,
+      error.response?.data || error.message
     );
-    console.log("Error:", error.response?.data || error.message);
 
     // Logic refresh token cho Zoom
     if (error.response && error.response.status === 401) {
@@ -182,25 +207,6 @@ axiosClient.interceptors.response.use(
         // window.location.href = "/login"; // Cân nhắc việc tự động redirect
       }
     }
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor for better error handling
-axiosClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Handle CORS errors
-    if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
-      console.warn("Network error detected, possibly CORS:", error);
-      // Don't auto-redirect on CORS errors, let component handle it
-    }
-
-    // Handle timeout errors
-    if (error.code === "ECONNABORTED") {
-      console.warn("Request timeout:", error);
-    }
-
     return Promise.reject(error);
   }
 );
