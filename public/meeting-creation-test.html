@@ -373,12 +373,11 @@
             log("❌ Zoom token missing - cannot proceed", "error");
             return;
           }
-
           const payload = {
             topic: document.getElementById("meetingTopic").value,
             password: document.getElementById("meetingPassword").value,
             classroomId: document.getElementById("classroomId").value,
-            zoomAccessToken: zoomToken,
+            // zoomAccessToken được gửi qua header, không qua payload
           };
 
           log(`📦 Payload: ${JSON.stringify(payload, null, 2)}`, "info");

@@ -480,13 +480,11 @@ const TutorClassroomPage = () => {
       }
       console.log("Zoom token available:", !!zoomAccessToken);
       console.log("Zoom token length:", zoomAccessToken?.length);
-
       const meetingPayload = {
         topic: formData.topic,
         password: formData.password,
         classroomId: classroomId,
-        // Thử cả 2 cách: gửi token qua header (axiosClient) và qua body
-        zoomAccessToken: zoomAccessToken,
+        // Token được gửi qua header bởi axiosClient, không qua payload
       };
 
       console.log("Creating meeting with payload:", meetingPayload);
