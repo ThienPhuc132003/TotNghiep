@@ -302,13 +302,17 @@ const BookingModal = ({
         data: payload,
       });
 
-      toast.success(`Đã gửi yêu cầu thuê gia sư ${tutorName}`);
-
-      // Pass back the new booking information for local state update
+      toast.success(`Đã gửi yêu cầu thuê gia sư ${tutorName}`); // Pass back the new booking information for local state update
       const newBookingStatus = {
         status: "REQUEST",
         bookingId: response.data?.bookingRequestId || response.data?.id || null,
       };
+
+      console.log("[DEBUG BookingModal] Calling onBookingSuccess with:", {
+        tutorId,
+        newBookingStatus,
+        responseData: response.data,
+      });
 
       if (onBookingSuccess) onBookingSuccess(tutorId, newBookingStatus);
       onClose();

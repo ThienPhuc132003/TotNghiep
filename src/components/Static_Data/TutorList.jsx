@@ -254,13 +254,85 @@ const TutorList = ({
   }, []);
   const handleBookingSuccessInList = useCallback(
     (tutorId, newBookingStatus) => {
+      console.log("[DEBUG handleBookingSuccessInList] Called with:", {
+        tutorId,
+        newBookingStatus,
+      });
+
       handleCloseBookingModal();
       toast.success("Yêu cầu thuê đã được gửi thành công!");
 
       // Update local state using helper function
-      setTutors((prevTutors) =>
-        updateTutorBookingStatus(prevTutors, tutorId, newBookingStatus)
-      );
+      setTutors((prevTutors) => {
+        console.log("[DEBUG handleBookingSuccessInList] Before update:", {
+          prevTutors: prevTutors.map((t) => ({
+            id: t.id,
+            name: t.name,
+            bookingInfoCard: t.bookingInfoCard,
+          })),
+          tutorToUpdate: prevTutors.find((t) => t.id === tutorId)
+            ?.bookingInfoCard,
+          totalTutors: prevTutors.length,
+        });
+
+        // Find the tutor being updated
+        const tutorToUpdate = prevTutors.find((t) => t.id === tutorId);
+        if (!tutorToUpdate) {
+          console.error(
+            "[DEBUG handleBookingSuccessInList] Tutor not found with ID:",
+            tutorId
+          );
+          console.log(
+            "[DEBUG handleBookingSuccessInList] Available tutor IDs:",
+            prevTutors.map((t) => t.id)
+          );
+          return prevTutors; // Return unchanged if tutor not found
+        }
+
+        const updatedTutors = updateTutorBookingStatus(
+          prevTutors,
+          tutorId,
+          newBookingStatus
+        );
+
+        console.log("[DEBUG handleBookingSuccessInList] After update:", {
+          updatedTutors: updatedTutors.map((t) => ({
+            id: t.id,
+            name: t.name,
+            bookingInfoCard: t.bookingInfoCard,
+          })),
+          updatedTutor: updatedTutors.find((t) => t.id === tutorId)
+            ?.bookingInfoCard,
+          updateSuccess: !!updatedTutors.find(
+            (t) =>
+              t.id === tutorId &&
+              t.bookingInfoCard?.status === newBookingStatus.status
+          ),
+        });
+
+        // Force re-render by creating a completely new array reference
+        return [...updatedTutors];
+      });
+
+      // Add a small delay to check if the state actually updated
+      setTimeout(() => {
+        console.log(
+          "[DEBUG handleBookingSuccessInList] State verification after timeout:"
+        );
+        setTutors((currentTutors) => {
+          const verifyTutor = currentTutors.find((t) => t.id === tutorId);
+          console.log("Current tutor state after update:", {
+            tutorId,
+            foundTutor: !!verifyTutor,
+            bookingInfoCard: verifyTutor?.bookingInfoCard,
+            expectedStatus: newBookingStatus.status,
+            actualStatus: verifyTutor?.bookingInfoCard?.status,
+            statusMatch:
+              verifyTutor?.bookingInfoCard?.status === newBookingStatus.status,
+          });
+          return currentTutors; // Don't change state, just verify
+        });
+      }, 100);
     },
     [handleCloseBookingModal]
   );
