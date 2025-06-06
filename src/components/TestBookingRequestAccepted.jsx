@@ -1,5 +1,4 @@
 // Test component để kiểm tra logic isBookingRequestAccepted
-import React from "react";
 import TutorCard from "../User/TutorCard";
 
 const TestBookingRequestAccepted = () => {
@@ -101,14 +100,16 @@ const TestBookingRequestAccepted = () => {
           borderRadius: "8px",
         }}
       >
+        {" "}
         <h3>Expected Behavior:</h3>
         <ul>
           <li>
-            <strong>Gia sư A (true):</strong> Should show "Xem YC Duyệt" button
+            <strong>Gia sư A (true):</strong> Should show &quot;Xem Yêu Cầu Được
+            Duyệt&quot; button
           </li>
           <li>
-            <strong>Gia sư B (false):</strong> Should show "Chưa có yêu cầu được
-            chấp nhận" message
+            <strong>Gia sư B (false):</strong> Should show &quot;Chưa có yêu cầu
+            được chấp nhận&quot; message
           </li>
           <li>
             <strong>Gia sư C (undefined):</strong> Should not show either button

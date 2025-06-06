@@ -15,11 +15,7 @@ import "../../assets/css/TutorCardSkeleton.style.css";
 import "../../assets/css/TutorSearch.style.css";
 import "../../assets/css/BookingModal.style.css";
 import AcceptedRequestsModal from "../User/AcceptedRequestsModal";
-import {
-  updateTutorBookingStatusOptimistic,
-  clearTutorBookingStatusOptimistic,
-  updateTutorFavoriteStatus,
-} from "../../utils/bookingStateHelpers";
+import { updateTutorFavoriteStatus } from "../../utils/bookingStateHelpers";
 
 const TUTORS_PER_PAGE = 8;
 
@@ -273,90 +269,25 @@ const TutorList = ({
         tutorId,
         newBookingStatus,
       });
-
       handleCloseBookingModal();
       toast.success("Yêu cầu thuê đã được gửi thành công!");
 
-      // Update local state using helper function
-      setTutors((prevTutors) => {
-        console.log("[DEBUG handleBookingSuccessInList] Before update:", {
-          prevTutors: prevTutors.map((t) => ({
-            id: t.id,
-            name: t.name,
-            bookingInfoCard: t.bookingInfoCard,
-          })),
-          tutorToUpdate: prevTutors.find((t) => t.id === tutorId)
-            ?.bookingInfoCard,
-          totalTutors: prevTutors.length,
-        });
-
-        // Find the tutor being updated
-        const tutorToUpdate = prevTutors.find((t) => t.id === tutorId);
-        if (!tutorToUpdate) {
-          console.error(
-            "[DEBUG handleBookingSuccessInList] Tutor not found with ID:",
-            tutorId
-          );
-          console.log(
-            "[DEBUG handleBookingSuccessInList] Available tutor IDs:",
-            prevTutors.map((t) => t.id)
-          );
-          return prevTutors; // Return unchanged if tutor not found
-        }
-        const updatedTutors = updateTutorBookingStatusOptimistic(
-          prevTutors,
-          tutorId,
-          newBookingStatus
-        );
-
-        console.log("[DEBUG handleBookingSuccessInList] After update:", {
-          updatedTutors: updatedTutors.map((t) => ({
-            id: t.id,
-            name: t.name,
-            bookingInfoCard: t.bookingInfoCard,
-          })),
-          updatedTutor: updatedTutors.find((t) => t.id === tutorId)
-            ?.bookingInfoCard,
-          updateSuccess: !!updatedTutors.find(
-            (t) =>
-              t.id === tutorId &&
-              t.bookingInfoCard?.status === newBookingStatus.status
-          ),
-        });
-
-        // Force re-render by creating a completely new array reference
-        return [...updatedTutors];
-      });
-
-      // Add a small delay to check if the state actually updated
-      setTimeout(() => {
-        console.log(
-          "[DEBUG handleBookingSuccessInList] State verification after timeout:"
-        );
-        setTutors((currentTutors) => {
-          const verifyTutor = currentTutors.find((t) => t.id === tutorId);
-          console.log("Current tutor state after update:", {
-            tutorId,
-            foundTutor: !!verifyTutor,
-            bookingInfoCard: verifyTutor?.bookingInfoCard,
-            expectedStatus: newBookingStatus.status,
-            actualStatus: verifyTutor?.bookingInfoCard?.status,
-            statusMatch:
-              verifyTutor?.bookingInfoCard?.status === newBookingStatus.status,
-          });
-          return currentTutors; // Don't change state, just verify
-        });
-      }, 100);
+      // Call API to refresh tutor list data instead of optimistic updates
+      // This ensures we get the correct isBookingRequestAccepted values from server
+      console.log(
+        "[API REFRESH] Refreshing tutor list after booking success..."
+      );
+      fetchTutorsData(currentPage);
     },
-    [handleCloseBookingModal]
+    [handleCloseBookingModal, fetchTutorsData, currentPage]
   );
-  const handleCancelSuccessInList = useCallback((tutorId) => {
-    // Update local state using optimistic helper function
-    setTutors((prevTutors) =>
-      clearTutorBookingStatusOptimistic(prevTutors, tutorId)
-    );
+  const handleCancelSuccessInList = useCallback(() => {
+    // Call API to refresh tutor list data instead of optimistic updates
+    // This ensures we get the correct isBookingRequestAccepted values from server
+    console.log("[API REFRESH] Refreshing tutor list after cancel success...");
+    fetchTutorsData(currentPage);
     toast.success("Đã hủy yêu cầu thành công!");
-  }, []);
+  }, [fetchTutorsData, currentPage]);
   const handleFavoriteStatusChangeInList = useCallback(
     (tutorId, newIsFavorite) => {
       setTutors((prevTutors) =>
@@ -377,25 +308,19 @@ const TutorList = ({
     },
     [isLoggedIn, requireLogin]
   );
-
   const handleCloseAcceptedRequestsModal = useCallback(() => {
     setIsAcceptedRequestsModalOpen(false);
     setSelectedTutorForAccepted(null);
   }, []);
-  const handleActionSuccessFromAcceptedModal = useCallback(
-    (tutorId, updatedStatus) => {
-      // Update local state using helper function instead of fetching all data
-      if (tutorId && updatedStatus) {
-        setTutors((prevTutors) =>
-          updateTutorBookingStatusOptimistic(prevTutors, tutorId, updatedStatus)
-        );
-      } else {
-        // Fallback to full refresh if no specific update info provided
-        fetchTutorsData(currentPage);
-      }
-    },
-    [currentPage, fetchTutorsData]
-  );
+
+  const handleActionSuccessFromAcceptedModal = useCallback(() => {
+    // Call API to refresh tutor list data instead of optimistic updates
+    // This ensures we get the correct isBookingRequestAccepted values from server
+    console.log(
+      "[API REFRESH] Refreshing tutor list after accepted modal action..."
+    );
+    fetchTutorsData(currentPage);
+  }, [currentPage, fetchTutorsData]);
 
   const totalPages = Math.ceil(totalTutors / TUTORS_PER_PAGE);
   const indexOfFirstTutor = (currentPage - 1) * TUTORS_PER_PAGE;
