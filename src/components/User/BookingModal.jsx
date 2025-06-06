@@ -295,15 +295,22 @@ const BookingModal = ({
       "Payload:",
       JSON.stringify(payload, null, 2)
     );
-
     try {
-      await Api({
+      const response = await Api({
         endpoint: `booking-request/create/${tutorId}`,
         method: METHOD_TYPE.POST,
         data: payload,
       });
+
       toast.success(`Đã gửi yêu cầu thuê gia sư ${tutorName}`);
-      if (onBookingSuccess) onBookingSuccess(tutorId);
+
+      // Pass back the new booking information for local state update
+      const newBookingStatus = {
+        status: "REQUEST",
+        bookingId: response.data?.bookingRequestId || response.data?.id || null,
+      };
+
+      if (onBookingSuccess) onBookingSuccess(tutorId, newBookingStatus);
       onClose();
     } catch (err) {
       console.error("Lỗi khi gửi yêu cầu thuê:", err);
