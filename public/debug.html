@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Debug Helper</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        background: #007cba;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #005a87;
+      }
+      #output {
+        background: #000;
+        color: #00ff00;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+      .instructions {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🐛 Tutor Booking Debug Helper</h1>
+
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+          <li>
+            First, go to the main application:
+            <a href="http://localhost:5173/tim-kiem-gia-su" target="_blank"
+              >Tutor Search Page</a
+            >
+          </li>
+          <li>Make sure you're logged in</li>
+          <li>Wait for the tutors to load</li>
+          <li>Come back here and click the debug buttons below</li>
+        </ol>
+      </div>
+
+      <div>
+        <button onclick="openMainApp()">🔗 Open Main App</button>
+        <button onclick="getDebugData()">📊 Get Debug Data</button>
+        <button onclick="debugFirstTutor()">🎯 Debug First Tutor</button>
+        <button onclick="analyzeBookingIssue()">
+          🔍 Analyze Booking Issue
+        </button>
+        <button onclick="clearOutput()">🗑️ Clear Output</button>
+      </div>
+
+      <div id="output">
+        Click buttons above to debug the tutor booking issue...
+      </div>
+    </div>
+
+    <script>
+      const output = document.getElementById("output");
+
+      function log(message) {
+        output.textContent += message + "\n";
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function clearOutput() {
+        output.textContent = "";
+      }
+
+      function openMainApp() {
+        window.open("http://localhost:5173/tim-kiem-gia-su", "_blank");
+        log("🔗 Opened main application in new tab");
+      }
+
+      function getDebugData() {
+        try {
+          const data = JSON.parse(
+            localStorage.getItem("tutorDebugData") || "[]"
+          );
+          if (data.length === 0) {
+            log("❌ No debug data found. Make sure to:");
+            log("   1. Go to the main app");
+            log("   2. Make sure you are logged in");
+            log("   3. Navigate to tutor search page");
+            log("   4. Wait for tutors to load");
+            return;
+          }
+
+          log("=== TUTOR DEBUG DATA ===");
+          data.forEach((tutor, index) => {
+            log(`${index + 1}. ${tutor.tutorName}:`);
+            log(`   Status: ${tutor.finalDetailedStatus}`);
+            log(`   Booking ID: ${tutor.finalBookingId}`);
+            log(`   isBookingRequest: ${tutor.rawData?.isBookingRequest}`);
+            log("");
+          });
+        } catch (error) {
+          log("❌ Error getting debug data: " + error.message);
+        }
+      }
+
+      function debugFirstTutor() {
+        try {
+          const data = JSON.parse(
+            localStorage.getItem("tutorDebugData") || "[]"
+          );
+          if (data.length === 0) {
+            log("❌ No debug data found");
+            return;
+          }
+
+          const firstTutor = data[0];
+          log("=== FIRST TUTOR DEBUG ===");
+          log(`Name: ${firstTutor.tutorName}`);
+          log(`Final Status: ${firstTutor.finalDetailedStatus}`);
+          log(`Final Booking ID: ${firstTutor.finalBookingId}`);
+          log("");
+          log("Raw Data:");
+          log(`  isBookingRequest: ${firstTutor.rawData?.isBookingRequest}`);
+          log(`  bookingRequestId: ${firstTutor.rawData?.bookingRequestId}`);
+          log(
+            `  isBookingRequestAccepted: ${firstTutor.rawData?.isBookingRequestAccepted}`
+          );
+          log(
+            `  bookingRequest object: ${JSON.stringify(
+              firstTutor.rawData?.bookingRequest,
+              null,
+              2
+            )}`
+          );
+        } catch (error) {
+          log("❌ Error debugging first tutor: " + error.message);
+        }
+      }
+
+      function analyzeBookingIssue() {
+        try {
+          const data = JSON.parse(
+            localStorage.getItem("tutorDebugData") || "[]"
+          );
+          if (data.length === 0) {
+            log("❌ No debug data found");
+            return;
+          }
+
+          const firstTutor = data[0];
+          log("=== BOOKING ISSUE ANALYSIS ===");
+          log(`Tutor: ${firstTutor.tutorName}`);
+          log("");
+          log("EXPECTED BEHAVIOR:");
+          log("- User reported: isBookingRequest = true");
+          log("- Cancel button should show in search results");
+          log("- Cancel button shows correctly on profile page");
+          log("");
+          log("ACTUAL VALUES:");
+          log(`- finalDetailedStatus: ${firstTutor.finalDetailedStatus}`);
+          log(`- finalBookingId: ${firstTutor.finalBookingId}`);
+          log(`- isBookingRequest: ${firstTutor.rawData?.isBookingRequest}`);
+          log("");
+          log("CANCEL BUTTON LOGIC:");
+          log(
+            'showPendingApprovalCard = isLoggedIn && detailedStatusOnCard === "REQUEST" && bookingIdOnCard'
+          );
+          log("");
+          log("DIAGNOSIS:");
+          const shouldShowCancel =
+            firstTutor.finalDetailedStatus === "REQUEST" &&
+            !!firstTutor.finalBookingId;
+          log(`- Should show cancel button: ${shouldShowCancel}`);
+
+          if (!shouldShowCancel) {
+            log("");
+            log("ISSUE IDENTIFIED:");
+            if (firstTutor.finalDetailedStatus !== "REQUEST") {
+              log(
+                `❌ Status is "${firstTutor.finalDetailedStatus}" but should be "REQUEST"`
+              );
+            }
+            if (!firstTutor.finalBookingId) {
+              log("❌ Missing booking ID");
+            }
+
+            log("");
+            log("LIKELY CAUSE:");
+            log("The mapping logic in mapApiTutorToCardProps is not correctly");
+            log("processing the booking request data for the first tutor.");
+          }
+        } catch (error) {
+          log("❌ Error analyzing booking issue: " + error.message);
+        }
+      }
+    </script>
+  </body>
+</html>
