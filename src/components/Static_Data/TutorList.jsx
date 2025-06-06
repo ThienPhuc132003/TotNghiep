@@ -16,8 +16,8 @@ import "../../assets/css/TutorSearch.style.css";
 import "../../assets/css/BookingModal.style.css";
 import AcceptedRequestsModal from "../User/AcceptedRequestsModal";
 import {
-  updateTutorBookingStatus,
-  clearTutorBookingStatus,
+  updateTutorBookingStatusOptimistic,
+  clearTutorBookingStatusOptimistic,
   updateTutorFavoriteStatus,
 } from "../../utils/bookingStateHelpers";
 
@@ -51,6 +51,12 @@ const mapApiTutorToCardProps = (apiTutor, isLoggedInFlag) => {
   if (isLoggedInFlag) {
     if (typeof profile.isBookingRequestAccepted === "boolean") {
       apiIsTutorAcceptingRequestFlagOutput = profile.isBookingRequestAccepted;
+      console.log(`[DEBUG isBookingRequestAccepted] Tutor ${fullname}:`, {
+        isBookingRequestAccepted: profile.isBookingRequestAccepted,
+        tutorId: apiTutor.userId,
+        hasBookingRequest: !!profile.bookingRequest,
+        bookingRequestStatus: profile.bookingRequest?.status,
+      });
     } // Always process booking status regardless of isBookingRequestAccepted
     // This matches the logic in TutorDetailPage
     // Previously, the condition `if (apiIsTutorAcceptingRequestFlagOutput !== true)`
@@ -177,12 +183,21 @@ const TutorList = ({
           requireToken: isLoggedIn,
         });
         if (response?.data?.items && Array.isArray(response.data.items)) {
-          // DEBUG: Log raw API response for first tutor
+          // DEBUG: Log raw API response for isBookingRequestAccepted analysis
           if (response.data.items.length > 0) {
-            console.log("[DEBUG API Response] First tutor raw data:", {
-              tutorProfile: response.data.items[0].tutorProfile,
-              userId: response.data.items[0].userId,
-              checkActive: response.data.items[0].checkActive,
+            console.log(
+              "[DEBUG API Response] Raw tutor data for isBookingRequestAccepted analysis:"
+            );
+            response.data.items.slice(0, 3).forEach((item, index) => {
+              console.log(`  Tutor ${index + 1}:`, {
+                tutorName: item.tutorProfile?.fullname || "Unknown",
+                userId: item.userId,
+                isBookingRequestAccepted:
+                  item.tutorProfile?.isBookingRequestAccepted,
+                isBookingRequest: item.tutorProfile?.isBookingRequest,
+                bookingRequest: item.tutorProfile?.bookingRequest,
+                bookingRequestId: item.tutorProfile?.bookingRequestId,
+              });
             });
           }
 
@@ -288,8 +303,7 @@ const TutorList = ({
           );
           return prevTutors; // Return unchanged if tutor not found
         }
-
-        const updatedTutors = updateTutorBookingStatus(
+        const updatedTutors = updateTutorBookingStatusOptimistic(
           prevTutors,
           tutorId,
           newBookingStatus
@@ -337,8 +351,10 @@ const TutorList = ({
     [handleCloseBookingModal]
   );
   const handleCancelSuccessInList = useCallback((tutorId) => {
-    // Update local state using helper function
-    setTutors((prevTutors) => clearTutorBookingStatus(prevTutors, tutorId));
+    // Update local state using optimistic helper function
+    setTutors((prevTutors) =>
+      clearTutorBookingStatusOptimistic(prevTutors, tutorId)
+    );
     toast.success("Đã hủy yêu cầu thành công!");
   }, []);
   const handleFavoriteStatusChangeInList = useCallback(
@@ -371,7 +387,7 @@ const TutorList = ({
       // Update local state using helper function instead of fetching all data
       if (tutorId && updatedStatus) {
         setTutors((prevTutors) =>
-          updateTutorBookingStatus(prevTutors, tutorId, updatedStatus)
+          updateTutorBookingStatusOptimistic(prevTutors, tutorId, updatedStatus)
         );
       } else {
         // Fallback to full refresh if no specific update info provided
