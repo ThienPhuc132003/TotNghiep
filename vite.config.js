@@ -38,22 +38,20 @@ export default defineConfig({
     // Hot reload optimizations
     hmr: {
       overlay: false, // Disable error overlay to prevent memory buildup
-    },
-
-    // API proxy to handle CORS in development
+    }, // API proxy to handle CORS in development
     proxy: {
       "/api": {
         target: "https://giasuvlu.click",
         changeOrigin: true,
         secure: true,
-        configure: (proxy, _options) => {
-          proxy.on("error", (err, _req, _res) => {
+        configure: (proxy) => {
+          proxy.on("error", (err) => {
             console.log("🔥 Proxy error:", err.message);
           });
-          proxy.on("proxyReq", (proxyReq, req, _res) => {
+          proxy.on("proxyReq", (proxyReq, req) => {
             console.log("🌐 Proxying request:", req.method, req.url);
           });
-          proxy.on("proxyRes", (proxyRes, req, _res) => {
+          proxy.on("proxyRes", (proxyRes, req) => {
             console.log("✅ Proxy response:", proxyRes.statusCode, req.url);
           });
         },

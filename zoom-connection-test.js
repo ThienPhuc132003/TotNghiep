@@ -42,15 +42,15 @@
 // Test helper functions for manual testing in browser console:
 
 // 1. Clear Zoom token to simulate disconnected state
-function clearZoomToken() {
+window.clearZoomToken = function () {
   localStorage.removeItem("zoomAccessToken");
   localStorage.removeItem("zoomRefreshToken");
   localStorage.removeItem("zoomUserId");
   console.log("Zoom tokens cleared - ready to test connection flow");
-}
+};
 
 // 2. Check current Zoom connection state
-function checkZoomState() {
+window.checkZoomState = function () {
   const token = localStorage.getItem("zoomAccessToken");
   const returnPath = sessionStorage.getItem("zoomReturnPath");
   const returnState = sessionStorage.getItem("zoomReturnState");
@@ -61,10 +61,10 @@ function checkZoomState() {
     returnPath,
     returnState: returnState ? JSON.parse(returnState) : null,
   });
-}
+};
 
 // 3. Simulate successful Zoom connection (for testing return flow)
-function simulateZoomConnection() {
+window.simulateZoomConnection = function () {
   // Set return info
   sessionStorage.setItem("zoomReturnPath", "/tai-khoan/ho-so/quan-ly-lop-hoc");
   sessionStorage.setItem(
@@ -83,10 +83,10 @@ function simulateZoomConnection() {
   console.log(
     "Simulated Zoom connection - navigate to classroom page to test return flow"
   );
-}
+};
 
 // 4. Reset all test state
-function resetTestState() {
+window.resetTestState = function () {
   // Clear tokens
   localStorage.removeItem("zoomAccessToken");
   localStorage.removeItem("zoomRefreshToken");
@@ -97,7 +97,15 @@ function resetTestState() {
   sessionStorage.removeItem("zoomReturnState");
 
   console.log("All test state reset");
-}
+};
+
+// Export for use in other test files
+window.zoomTestHelpers = {
+  clearZoomToken: window.clearZoomToken,
+  checkZoomState: window.checkZoomState,
+  simulateZoomConnection: window.simulateZoomConnection,
+  resetTestState: window.resetTestState,
+};
 
 // Usage instructions:
 console.log(`
