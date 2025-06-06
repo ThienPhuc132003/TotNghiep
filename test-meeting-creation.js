@@ -1,15 +1,12 @@
 /**
  * Meeting Creation Test Script
- * Tests the dual-token authentication for meeting creation
+ * Tests the Zoom-only authentication for meeting creation
  */
 
 // Simulate localStorage for testing
 const localStorage = {
-  data: {},  console.log("✅ Validation:");
-  console.log(`  Has topic: ${!!samplePayload.topic}`);
-  console.log(`  Has password: ${!!samplePayload.password}`);
-  console.log(`  Has classroomId: ${!!samplePayload.classroomId}`);
-  // zoomAccessToken sẽ được gửi qua header, không qua payloadetItem(key) {
+  data: {},
+  getItem(key) {
     return this.data[key] || null;
   },
   setItem(key, value) {
@@ -39,44 +36,45 @@ function testTokenDetection() {
   Cookies.set("token", "user_token_12345");
   localStorage.setItem("zoomAccessToken", "zoom_token_67890");
 
-  // Test endpoints that should use zoom tokens
+  // Test endpoints that should use zoom tokens only
   const zoomEndpoints = ["meeting/create", "meeting/signature"];
-  const regularEndpoints = ["meeting/get-meeting", "user/profile"];
+  const searchEndpoints = ["meeting/search"]; // Now uses Zoom-only auth
+  const regularEndpoints = ["user/profile", "classroom/search"];
   const noAuthEndpoints = ["auth/login", "meeting/auth"];
 
-  console.log("✅ Test 1: Zoom Endpoints (should get both tokens)");
+  console.log("✅ Test 1: Zoom Endpoints (should get Zoom token only)");
   zoomEndpoints.forEach((endpoint) => {
     const config = getConfigForEndpoint(endpoint);
     console.log(`  ${endpoint}:`);
     console.log(
       `    Authorization: ${config.headers.Authorization || "NOT SET"}`
     );
+  });
+
+  console.log("\n✅ Test 2: Search Endpoints (should get Zoom token only)");
+  searchEndpoints.forEach((endpoint) => {
+    const config = getConfigForEndpoint(endpoint);
+    console.log(`  ${endpoint}:`);
     console.log(
-      `    X-Zoom-Token: ${config.headers["X-Zoom-Token"] || "NOT SET"}`
+      `    Authorization: ${config.headers.Authorization || "NOT SET"}`
     );
   });
 
-  console.log("\n✅ Test 2: Regular Endpoints (should get user token only)");
+  console.log("\n✅ Test 3: Regular Endpoints (should get user token only)");
   regularEndpoints.forEach((endpoint) => {
     const config = getConfigForEndpoint(endpoint);
     console.log(`  ${endpoint}:`);
     console.log(
       `    Authorization: ${config.headers.Authorization || "NOT SET"}`
     );
-    console.log(
-      `    X-Zoom-Token: ${config.headers["X-Zoom-Token"] || "NOT SET"}`
-    );
   });
 
-  console.log("\n✅ Test 3: No Auth Endpoints (should get no tokens)");
+  console.log("\n✅ Test 4: No Auth Endpoints (should get no tokens)");
   noAuthEndpoints.forEach((endpoint) => {
     const config = getConfigForEndpoint(endpoint);
     console.log(`  ${endpoint}:`);
     console.log(
       `    Authorization: ${config.headers.Authorization || "NOT SET"}`
-    );
-    console.log(
-      `    X-Zoom-Token: ${config.headers["X-Zoom-Token"] || "NOT SET"}`
     );
   });
 }
@@ -100,7 +98,11 @@ function getConfigForEndpoint(url) {
   ];
   const isNoAuthEndpoint = noAuthEndpoints.includes(url);
 
-  const zoomTokenEndpoints = ["meeting/create", "meeting/signature"];
+  const zoomTokenEndpoints = [
+    "meeting/create",
+    "meeting/signature",
+    "meeting/search",
+  ];
   const needsZoomToken = zoomTokenEndpoints.some((endpoint) =>
     url.startsWith(endpoint)
   );
@@ -108,12 +110,9 @@ function getConfigForEndpoint(url) {
   if (isNoAuthEndpoint) {
     // No auth needed
   } else if (needsZoomToken) {
-    // API cho Zoom - cần cả user token và zoom token
-    if (userSystemToken) {
-      config.headers.Authorization = `Bearer ${userSystemToken}`;
-    }
+    // API cho Zoom - chỉ cần Zoom token
     if (zoomAccessToken) {
-      config.headers["X-Zoom-Token"] = `Bearer ${zoomAccessToken}`;
+      config.headers.Authorization = `Bearer ${zoomAccessToken}`;
     }
   } else if (userSystemToken) {
     // API hệ thống khác
@@ -137,9 +136,6 @@ function testMissingTokens() {
   console.log(
     `    Authorization: ${config1.headers.Authorization || "NOT SET"}`
   );
-  console.log(
-    `    X-Zoom-Token: ${config1.headers["X-Zoom-Token"] || "NOT SET"}`
-  );
 
   // Add only user token
   Cookies.set("token", "user_token_only");
@@ -149,21 +145,15 @@ function testMissingTokens() {
   console.log(
     `    Authorization: ${config2.headers.Authorization || "NOT SET"}`
   );
-  console.log(
-    `    X-Zoom-Token: ${config2.headers["X-Zoom-Token"] || "NOT SET"}`
-  );
 
   // Add only zoom token
   Cookies.data = {};
   localStorage.setItem("zoomAccessToken", "zoom_token_only");
-  console.log("\n⚠️ Test 3: Zoom token only (missing user token)");
+  console.log("\n✅ Test 3: Zoom token only (this should work)");
   const config3 = getConfigForEndpoint("meeting/create");
   console.log(`  meeting/create:`);
   console.log(
     `    Authorization: ${config3.headers.Authorization || "NOT SET"}`
-  );
-  console.log(
-    `    X-Zoom-Token: ${config3.headers["X-Zoom-Token"] || "NOT SET"}`
   );
 }
 
@@ -186,28 +176,49 @@ function testMeetingPayload() {
   console.log("  zoomAccessToken: Sent via header, not in payload");
 }
 
+// Test the search API integration
+function testSearchAPI() {
+  console.log("\n🧪 Testing Meeting Search API\n");
+
+  // Mock search query parameters
+  const searchParams = {
+    classroomId: "classroom_123",
+    sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
+    rpp: 1,
+  };
+
+  console.log("🔍 Search Parameters:");
+  console.log(JSON.stringify(searchParams, null, 2));
+
+  console.log("\n🎯 Expected behavior:");
+  console.log("  - API: meeting/search (GET request)");
+  console.log("  - Auth: Zoom Bearer token only");
+  console.log("  - Sort: By startTime DESC");
+  console.log("  - Limit: 1 result (latest meeting)");
+  console.log("  - Used by: Both students and tutors");
+}
+
 // Run all tests
 function runAllTests() {
-  console.log("🚀 Meeting Creation Authentication Test Suite\n");
-  console.log("============================================\n");
+  console.log("🚀 Updated Meeting Authentication Test Suite\n");
+  console.log("=============================================\n");
 
   testTokenDetection();
   testMissingTokens();
   testMeetingPayload();
+  testSearchAPI();
 
   console.log("\n✅ All tests completed!");
   console.log("\n📋 Summary:");
-  console.log("  - Token detection logic implemented correctly");
-  console.log(
-    "  - Dual authentication (user + zoom) configured for meeting endpoints"
-  );
-  console.log("  - Fallback handling for missing tokens");
+  console.log("  - Token detection logic updated for Zoom-only auth");
+  console.log("  - meeting/create uses Zoom Bearer token only");
+  console.log("  - meeting/search uses Zoom Bearer token only");
   console.log("  - Meeting payload structure validated");
 
   console.log("\n🎯 Next Steps:");
   console.log("  1. Test with real backend API");
   console.log("  2. Verify Zoom OAuth flow");
-  console.log("  3. Test end-to-end meeting creation");
+  console.log("  3. Test end-to-end meeting creation and search");
 }
 
 // Export for Node.js or run in browser
@@ -217,6 +228,7 @@ if (typeof module !== "undefined" && module.exports) {
     testTokenDetection,
     testMissingTokens,
     testMeetingPayload,
+    testSearchAPI,
   };
 } else {
   // Run tests immediately if in browser

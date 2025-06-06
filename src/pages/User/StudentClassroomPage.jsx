@@ -160,14 +160,18 @@ const StudentClassroomPage = () => {
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       // Show loading toast
-      const loadingToastId = toast.loading("Đang tải thông tin phòng học..."); // Call API to get meeting information (same endpoint for both student and tutor)
+      const loadingToastId = toast.loading("Đang tải thông tin phòng học...");
+
+      // Call API to search for the latest meeting using the new search API
       const response = await Api({
-        endpoint: "meeting/get-meeting",
-        method: METHOD_TYPE.POST,
-        data: {
+        endpoint: "meeting/search",
+        method: METHOD_TYPE.GET,
+        query: {
           classroomId: classroomId,
+          sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
+          rpp: 1,
         },
-        requireToken: true,
+        requireToken: false, // axiosClient handles Zoom Bearer token
       });
 
       // Dismiss loading toast
@@ -179,7 +183,7 @@ const StudentClassroomPage = () => {
         response.data.items &&
         response.data.items.length > 0
       ) {
-        const meetingData = response.data.items[0]; // Get first meeting item
+        const meetingData = response.data.items[0]; // Get latest meeting
 
         // Navigate to meeting room with meeting data
         navigate("/tai-khoan/ho-so/phong-hop-zoom", {
