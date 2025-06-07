@@ -16,6 +16,7 @@ const TutorMeetingRoomPage = () => {
   const [classroomInfo, setClassroomInfo] = useState(null);
   const [zoomSignature, setZoomSignature] = useState(null);
   const [zoomSdkKey, setZoomSdkKey] = useState(null);
+  const [userRole, setUserRole] = useState("host"); // Default to host for tutor
 
   useEffect(() => {
     // Check if meeting data was passed from TutorClassroomPage
@@ -26,6 +27,13 @@ const TutorMeetingRoomPage = () => {
         id: location.state.classroomId,
         isNewMeeting: location.state.isNewMeeting || false,
       });
+
+      // Set user role based on navigation source
+      if (location.state.userRole === "student") {
+        setUserRole("participant");
+      } else {
+        setUserRole("host"); // Default for tutor
+      }
     }
 
     // Check if redirected from classroom page for Zoom connection
@@ -56,7 +64,6 @@ const TutorMeetingRoomPage = () => {
     };
     checkZoomConnection();
   }, [location, navigate]);
-
   // Fetch Zoom signature when we have meeting data
   useEffect(() => {
     const fetchZoomSignature = async () => {
@@ -67,12 +74,16 @@ const TutorMeetingRoomPage = () => {
           "Fetching Zoom signature for meeting:",
           meetingData.zoomMeetingId
         );
+
+        // Determine role: 1 for host (tutor), 0 for participant (student)
+        const roleValue = userRole === "host" ? 1 : 0;
+
         const response = await Api({
           endpoint: "meeting/signature",
           method: METHOD_TYPE.POST,
           data: {
             zoomMeetingId: meetingData.zoomMeetingId,
-            role: 1, // Host role for tutor
+            role: roleValue,
           },
           requireToken: false, // axiosClient handles Zoom Bearer token
         });
@@ -93,7 +104,7 @@ const TutorMeetingRoomPage = () => {
     };
 
     fetchZoomSignature();
-  }, [meetingData, isZoomConnected]);
+  }, [meetingData, isZoomConnected, userRole]);
 
   const handleConnectZoom = async () => {
     setIsLoading(true);
@@ -146,26 +157,45 @@ const TutorMeetingRoomPage = () => {
             {classroomInfo?.isNewMeeting && (
               <span className="new-meeting-badge">Phòng học mới</span>
             )}
-          </h2>
+          </h2>{" "}
           <button
-            onClick={() => navigate("/tai-khoan/ho-so/quan-ly-lop-hoc")}
+            onClick={() => {
+              const redirectUrl =
+                userRole === "host"
+                  ? "/tai-khoan/ho-so/quan-ly-lop-hoc"
+                  : "/tai-khoan/ho-so/lop-hoc-cua-toi";
+              navigate(redirectUrl);
+            }}
             className="btn btn-secondary btn-back"
           >
             <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
-            Quay lại quản lý lớp học
+            {userRole === "host"
+              ? "Quay lại quản lý lớp học"
+              : "Quay lại lớp học của tôi"}
           </button>
-        </div>
-
+        </div>{" "}
         <ZoomMeetingEmbed
           sdkKey={zoomSdkKey}
           signature={zoomSignature}
           meetingNumber={meetingData.zoomMeetingId}
-          userName={`Gia sư - ${classroomInfo?.name || "Phòng học"}`}
+          userName={
+            userRole === "host"
+              ? `Gia sư - ${classroomInfo?.name || "Phòng học"}`
+              : `Học viên - ${classroomInfo?.name || "Phòng học"}`
+          }
           passWord={meetingData.password}
-          customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/quan-ly-lop-hoc`}
+          customLeaveUrl={
+            userRole === "host"
+              ? `${window.location.origin}/tai-khoan/ho-so/quan-ly-lop-hoc`
+              : `${window.location.origin}/tai-khoan/ho-so/lop-hoc-cua-toi`
+          }
           onMeetingEnd={() => {
             console.log("Meeting ended");
-            navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
+            const redirectUrl =
+              userRole === "host"
+                ? "/tai-khoan/ho-so/quan-ly-lop-hoc"
+                : "/tai-khoan/ho-so/lop-hoc-cua-toi";
+            navigate(redirectUrl);
           }}
           onError={(error) => {
             console.error("Zoom meeting error:", error);
@@ -178,13 +208,41 @@ const TutorMeetingRoomPage = () => {
       </div>
     );
   }
-
   // Show loading state if we have meeting data but no signature yet
   if (meetingData && isZoomConnected && (!zoomSignature || !zoomSdkKey)) {
     return (
       <div className="tutor-meeting-room-page">
         <div className="loading-container">
           <p>Đang chuẩn bị phòng học Zoom...</p>
+          <div style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
+            <p>Meeting ID: {meetingData.zoomMeetingId}</p>
+            <p>
+              Role:{" "}
+              {userRole === "host" ? "Gia sư (Host)" : "Học viên (Participant)"}
+            </p>
+            <p>Signature: {zoomSignature ? "✅" : "⏳ Đang lấy..."}</p>
+            <p>SDK Key: {zoomSdkKey ? "✅" : "⏳ Đang lấy..."}</p>
+          </div>
+          {error && (
+            <div
+              style={{
+                color: "red",
+                marginTop: "15px",
+                padding: "10px",
+                border: "1px solid red",
+                borderRadius: "5px",
+              }}
+            >
+              <strong>Lỗi:</strong> {error}
+              <br />
+              <button
+                onClick={() => window.location.reload()}
+                style={{ marginTop: "10px", padding: "5px 10px" }}
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
