@@ -4,7 +4,6 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom";
 // import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Temporarily disabled
-import ZoomDebugComponent from "../../components/User/Zoom/ZoomDebugComponent";
 import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
