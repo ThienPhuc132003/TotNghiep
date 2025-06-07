@@ -366,6 +366,175 @@
   }
 }
 
+/* Meeting List Modal Styles */
+.scp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.scp-meeting-list-modal {
+  max-width: 800px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.scp-modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.scp-modal-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 12px 12px 0 0;
+}
+
+.scp-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.scp-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.scp-modal-close:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.scp-meeting-list {
+  padding: 20px 25px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.scp-meeting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.scp-meeting-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.scp-meeting-info {
+  flex: 1;
+}
+
+.scp-meeting-topic {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.scp-meeting-details p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.scp-meeting-details strong {
+  color: #333;
+}
+
+.scp-meeting-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.scp-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.scp-btn-join {
+  background-color: #28a745;
+  color: white;
+}
+
+.scp-btn-join:hover {
+  background-color: #218838;
+  color: white;
+  text-decoration: none;
+}
+
+.scp-btn-copy {
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 12px;
+}
+
+.scp-btn-copy:hover {
+  background-color: #545b62;
+}
+
+.scp-no-meetings {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.scp-no-meetings i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: #dee2e6;
+}
+
+.scp-no-meetings p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .scp-classroom-list {
@@ -417,6 +586,29 @@
   .scp-classroom-name {
     max-width: 100%;
   }
+
+  .scp-modal-overlay {
+    padding: 10px;
+  }
+
+  .scp-meeting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .scp-meeting-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .scp-modal-header {
+    padding: 15px 20px;
+  }
+
+  .scp-meeting-list {
+    padding: 15px 20px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -430,5 +622,14 @@
 
   .scp-classroom-card {
     margin-bottom: 15px;
+  }
+
+  .scp-meeting-actions {
+    justify-content: center;
+  }
+
+  .scp-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
   }
 }
