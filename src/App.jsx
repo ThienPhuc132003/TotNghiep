@@ -162,8 +162,7 @@ function App() {
                   <Route
                     path="lop-hoc-cua-toi"
                     element={<StudentClassroomPage />}
-                  />
-
+                  />{" "}
                   {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}
                   <Route element={<ProtectRoute role="TUTOR" />}>
                     <Route path="ho-so-gia-su" element={<TutorRegister />} />
@@ -172,17 +171,16 @@ function App() {
                       element={<TutorClassroomPage />}
                     />
                     <Route
-                      path="phong-hop-zoom"
-                      element={<TutorMeetingRoomPage />}
-                    />
-                    <Route
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}
                     />
                   </Route>
-
                   {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
+                  <Route
+                    path="phong-hop-zoom"
+                    element={<TutorMeetingRoomPage />}
+                  />
                 </Route>
 
                 {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
