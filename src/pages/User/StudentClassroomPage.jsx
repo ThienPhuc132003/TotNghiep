@@ -252,10 +252,23 @@ const StudentClassroomPage = () => {
     setShowEvaluationModal(false);
     setSelectedClassroomForEvaluation(null);
   };
-
   // Modal component for displaying meeting list
   const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
     if (!isOpen) return null;
+
+    const handleJoinMeeting = (meeting) => {
+      // Navigate to TutorMeetingRoomPage with meeting data for embedded Zoom
+      navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+        state: {
+          meetingData: meeting,
+          classroomName: classroomName,
+          classroomId: meeting.classroomId,
+          userRole: "student", // Student is participant
+          isNewMeeting: false,
+        },
+      });
+      onClose(); // Close the modal
+    };
 
     return (
       <div className="scp-modal-overlay" onClick={onClose}>
@@ -293,17 +306,24 @@ const StudentClassroomPage = () => {
                     </div>
                   </div>
                   <div className="scp-meeting-actions">
-                    <a
-                      href={meeting.joinUrl || meeting.join_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
                       className="scp-btn scp-btn-join"
+                      onClick={() => handleJoinMeeting(meeting)}
                     >
                       <i
                         className="fas fa-sign-in-alt"
                         style={{ marginRight: "8px" }}
                       ></i>
-                      Tham gia
+                      Tham gia (Embedded)
+                    </button>
+                    <a
+                      href={meeting.joinUrl || meeting.join_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="scp-btn scp-btn-external"
+                      title="Mở trong tab mới"
+                    >
+                      <i className="fas fa-external-link-alt"></i>
                     </a>
                     <button
                       className="scp-btn scp-btn-copy"

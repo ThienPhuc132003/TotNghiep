@@ -173,7 +173,23 @@ CreateMeetingModal.propTypes = {
 
 // Modal component for displaying meeting list
 const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
+
+  const handleJoinMeeting = (meeting) => {
+    // Navigate to TutorMeetingRoomPage with meeting data for embedded Zoom
+    navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+      state: {
+        meetingData: meeting,
+        classroomName: classroomName,
+        classroomId: meeting.classroomId,
+        userRole: "host", // Tutor is always host
+        isNewMeeting: false,
+      },
+    });
+    onClose(); // Close the modal
+  };
 
   return (
     <div className="tcp-modal-overlay" onClick={onClose}>
@@ -191,7 +207,6 @@ const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
           {meetings && meetings.length > 0 ? (
             meetings.map((meeting, index) => (
               <div key={meeting.id || index} className="tcp-meeting-item">
-                {" "}
                 <div className="tcp-meeting-info">
                   <h4 className="tcp-meeting-topic">{meeting.topic}</h4>
                   <div className="tcp-meeting-details">
@@ -212,17 +227,24 @@ const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
                   </div>
                 </div>
                 <div className="tcp-meeting-actions">
-                  <a
-                    href={meeting.joinUrl || meeting.join_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
                     className="tcp-btn tcp-btn-join"
+                    onClick={() => handleJoinMeeting(meeting)}
                   >
                     <i
                       className="fas fa-sign-in-alt"
                       style={{ marginRight: "8px" }}
                     ></i>
-                    Tham gia
+                    Tham gia (Embedded)
+                  </button>
+                  <a
+                    href={meeting.joinUrl || meeting.join_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tcp-btn tcp-btn-external"
+                    title="Mở trong tab mới"
+                  >
+                    <i className="fas fa-external-link-alt"></i>
                   </a>
                   <button
                     className="tcp-btn tcp-btn-copy"
