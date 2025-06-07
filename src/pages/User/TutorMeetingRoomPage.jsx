@@ -3,7 +3,8 @@ import { useState, useEffect, memo } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom";
-import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed";
+// import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Temporarily disabled
+import ZoomDebugComponent from "../../components/User/Zoom/ZoomDebugComponent";
 import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
@@ -172,9 +173,10 @@ const TutorMeetingRoomPage = () => {
             {userRole === "host"
               ? "Quay lại quản lý lớp học"
               : "Quay lại lớp học của tôi"}
-          </button>
+          </button>{" "}
         </div>{" "}
-        <ZoomMeetingEmbed
+        {/* Temporary debug component to diagnose black screen issue */}
+        <ZoomDebugComponent
           sdkKey={zoomSdkKey}
           signature={zoomSignature}
           meetingNumber={meetingData.zoomMeetingId}
@@ -184,27 +186,15 @@ const TutorMeetingRoomPage = () => {
               : `Học viên - ${classroomInfo?.name || "Phòng học"}`
           }
           passWord={meetingData.password}
-          customLeaveUrl={
-            userRole === "host"
-              ? `${window.location.origin}/tai-khoan/ho-so/quan-ly-lop-hoc`
-              : `${window.location.origin}/tai-khoan/ho-so/lop-hoc-cua-toi`
-          }
-          onMeetingEnd={() => {
-            console.log("Meeting ended");
-            const redirectUrl =
-              userRole === "host"
-                ? "/tai-khoan/ho-so/quan-ly-lop-hoc"
-                : "/tai-khoan/ho-so/lop-hoc-cua-toi";
-            navigate(redirectUrl);
-          }}
           onError={(error) => {
-            console.error("Zoom meeting error:", error);
-            setError(`Lỗi khi tham gia phòng học: ${error}`);
-          }}
-          onMeetingJoined={() => {
-            console.log("Successfully joined meeting");
+            console.error("Zoom debug error:", error);
+            setError(`Debug error: ${error}`);
           }}
         />
+        {/* 
+        Original ZoomMeetingEmbed - temporarily disabled for debugging
+        Will re-enable after fixing black screen issue
+        */}
       </div>
     );
   }
