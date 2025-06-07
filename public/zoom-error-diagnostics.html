@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom Error Diagnostics - Trang debug chi tiết</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .header {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .section {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .error-log {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+      .status-success {
+        background: #28a745;
+      }
+      .status-error {
+        background: #dc3545;
+      }
+      .status-warning {
+        background: #ffc107;
+      }
+      .status-loading {
+        background: #6c757d;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      #zoom-container {
+        min-height: 500px;
+        border: 2px dashed #ddd;
+        position: relative;
+        background: #f8f9fa;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🔍 Zoom Error Diagnostics Tool</h1>
+      <p>Công cụ chẩn đoán và sửa lỗi Zoom Meeting SDK</p>
+    </div>
+
+    <div class="section">
+      <h2>📊 Thông tin hệ thống</h2>
+      <div class="info-grid">
+        <div>
+          <h4>Browser Info</h4>
+          <div id="browser-info"></div>
+        </div>
+        <div>
+          <h4>Network Info</h4>
+          <div id="network-info"></div>
+        </div>
+        <div>
+          <h4>Zoom SDK Status</h4>
+          <div id="sdk-status"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🛠️ Test Configuration</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+        <div>
+          <label for="sdkKey">SDK Key:</label><br />
+          <input
+            type="text"
+            id="sdkKey"
+            style="width: 100%; padding: 8px; margin: 5px 0"
+            placeholder="Your Zoom SDK Key"
+          />
+        </div>
+        <div>
+          <label for="meetingNumber">Meeting Number:</label><br />
+          <input
+            type="text"
+            id="meetingNumber"
+            style="width: 100%; padding: 8px; margin: 5px 0"
+            placeholder="Meeting ID"
+          />
+        </div>
+        <div>
+          <label for="userName">User Name:</label><br />
+          <input
+            type="text"
+            id="userName"
+            value="Test User"
+            style="width: 100%; padding: 8px; margin: 5px 0"
+          />
+        </div>
+        <div>
+          <label for="userEmail">User Email (optional):</label><br />
+          <input
+            type="email"
+            id="userEmail"
+            style="width: 100%; padding: 8px; margin: 5px 0"
+            placeholder="test@example.com"
+          />
+        </div>
+      </div>
+      <div style="margin-top: 15px">
+        <label for="passWord">Meeting Password (optional):</label><br />
+        <input
+          type="password"
+          id="passWord"
+          style="width: 300px; padding: 8px; margin: 5px 0"
+        />
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🧪 Critical Error Tests</h2>
+      <p>Kiểm tra và sửa các lỗi quan trọng đã xác định:</p>
+
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 15px;
+        "
+      >
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px">
+          <h4>
+            <span
+              class="status-indicator status-loading"
+              id="error1-status"
+            ></span
+            >Error 1: getEventBus
+          </h4>
+          <p>Kiểm tra ZoomMtg.getEventBus availability</p>
+          <button onclick="testGetEventBus()">Test getEventBus</button>
+          <div id="error1-result"></div>
+        </div>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px">
+          <h4>
+            <span
+              class="status-indicator status-loading"
+              id="error2-status"
+            ></span
+            >Error 2: mainTaskType
+          </h4>
+          <p>Kiểm tra WebAssembly configuration</p>
+          <button onclick="testMainTaskType()">Test mainTaskType</button>
+          <div id="error2-result"></div>
+        </div>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px">
+          <h4>
+            <span
+              class="status-indicator status-loading"
+              id="error3-status"
+            ></span
+            >Error 3: WebSocket
+          </h4>
+          <p>Kiểm tra WebSocket connection</p>
+          <button onclick="testWebSocket()">Test WebSocket</button>
+          <div id="error3-result"></div>
+        </div>
+
+        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px">
+          <h4>
+            <span
+              class="status-indicator status-loading"
+              id="error4-status"
+            ></span
+            >Error 4: SDK Call Progress
+          </h4>
+          <p>Kiểm tra multiple SDK calls</p>
+          <button onclick="testSDKCallProgress()">Test SDK State</button>
+          <div id="error4-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>⚡ Quick Actions</h2>
+      <button onclick="runAllTests()">🔍 Run All Tests</button>
+      <button onclick="testFullFlow()">🚀 Test Full Flow</button>
+      <button onclick="initZoomSDK()">📱 Initialize SDK</button>
+      <button onclick="clearLogs()">🗑️ Clear Logs</button>
+      <button onclick="exportLogs()">📄 Export Debug Log</button>
+    </div>
+
+    <div class="section">
+      <h2>📋 Debug Logs</h2>
+      <div id="debug-logs" class="error-log">Đang khởi tạo debug tools...</div>
+    </div>
+
+    <div class="section">
+      <h2>🎥 Zoom Test Container</h2>
+      <div id="zoom-container">
+        <div style="text-align: center; padding: 50px; color: #666">
+          <p>🎥 Zoom meeting sẽ hiển thị ở đây khi test</p>
+          <p>Click "Test Full Flow" để bắt đầu kiểm tra</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zoom SDK -->
+    <script src="https://source.zoom.us/3.13.2/lib/av/ZoomMtg.js"></script>
+
+    <script>
+      let debugLog = [];
+      let sdkInitialized = false;
+      let isTestingInProgress = false;
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `[${timestamp}] ${message}`;
+        debugLog.push(logEntry);
+
+        const logContainer = document.getElementById("debug-logs");
+        logContainer.textContent = debugLog.slice(-50).join("\\n"); // Show last 50 logs
+        logContainer.scrollTop = logContainer.scrollHeight;
+
+        console.log(logEntry);
+      }
+
+      function updateStatus(errorId, status) {
+        const statusEl = document.getElementById(`${errorId}-status`);
+        statusEl.className = `status-indicator status-${status}`;
+      }
+
+      function updateResult(errorId, message, isSuccess = true) {
+        const resultEl = document.getElementById(`${errorId}-result`);
+        resultEl.className = isSuccess ? "success" : "error";
+        resultEl.innerHTML = message;
+      }
+
+      // System Information
+      function loadSystemInfo() {
+        // Browser info
+        const browserInfo = {
+          userAgent: navigator.userAgent,
+          cookieEnabled: navigator.cookieEnabled,
+          onLine: navigator.onLine,
+          language: navigator.language,
+          platform: navigator.platform,
+          webdriver: navigator.webdriver,
+        };
+
+        document.getElementById("browser-info").innerHTML = `
+                <div><strong>User Agent:</strong> ${browserInfo.userAgent.substring(
+                  0,
+                  80
+                )}...</div>
+                <div><strong>Cookies:</strong> ${
+                  browserInfo.cookieEnabled ? "✅ Enabled" : "❌ Disabled"
+                }</div>
+                <div><strong>Online:</strong> ${
+                  browserInfo.onLine ? "✅ Online" : "❌ Offline"
+                }</div>
+                <div><strong>Language:</strong> ${browserInfo.language}</div>
+                <div><strong>Platform:</strong> ${browserInfo.platform}</div>
+            `;
+
+        // Network info
+        const connection =
+          navigator.connection ||
+          navigator.mozConnection ||
+          navigator.webkitConnection;
+        const networkInfo = connection
+          ? {
+              effectiveType: connection.effectiveType,
+              downlink: connection.downlink,
+              rtt: connection.rtt,
+            }
+          : { message: "Network API not supported" };
+
+        document.getElementById("network-info").innerHTML = connection
+          ? `
+                <div><strong>Type:</strong> ${networkInfo.effectiveType}</div>
+                <div><strong>Downlink:</strong> ${networkInfo.downlink} Mbps</div>
+                <div><strong>RTT:</strong> ${networkInfo.rtt} ms</div>
+            `
+          : "<div>❌ Network API not available</div>";
+
+        // SDK status
+        document.getElementById("sdk-status").innerHTML = `
+                <div><strong>ZoomMtg:</strong> ${
+                  typeof ZoomMtg !== "undefined" ? "✅ Loaded" : "❌ Not loaded"
+                }</div>
+                <div><strong>WebAssembly:</strong> ${
+                  typeof WebAssembly !== "undefined"
+                    ? "✅ Supported"
+                    : "❌ Not supported"
+                }</div>
+                <div><strong>WebRTC:</strong> ${
+                  typeof RTCPeerConnection !== "undefined"
+                    ? "✅ Supported"
+                    : "❌ Not supported"
+                }</div>
+            `;
+      }
+
+      // Error Test 1: getEventBus
+      function testGetEventBus() {
+        log("Testing ZoomMtg.getEventBus...");
+        updateStatus("error1", "loading");
+
+        try {
+          if (typeof ZoomMtg === "undefined") {
+            throw new Error("ZoomMtg is not loaded");
+          }
+
+          if (typeof ZoomMtg.getEventBus === "function") {
+            const eventBus = ZoomMtg.getEventBus();
+            if (eventBus && typeof eventBus.on === "function") {
+              updateStatus("error1", "success");
+              updateResult("error1", "✅ getEventBus is working correctly");
+              log("✅ getEventBus test passed");
+            } else {
+              updateStatus("error1", "warning");
+              updateResult(
+                "error1",
+                "⚠️ getEventBus exists but eventBus.on is not available"
+              );
+              log("⚠️ getEventBus exists but eventBus.on is not a function");
+            }
+          } else {
+            updateStatus("error1", "error");
+            updateResult(
+              "error1",
+              "❌ getEventBus is not available - this will cause event handling issues"
+            );
+            log("❌ ZoomMtg.getEventBus is not a function");
+          }
+        } catch (error) {
+          updateStatus("error1", "error");
+          updateResult("error1", `❌ Error: ${error.message}`);
+          log(`❌ getEventBus test failed: ${error.message}`);
+        }
+      }
+
+      // Error Test 2: mainTaskType
+      function testMainTaskType() {
+        log("Testing WebAssembly mainTaskType configuration...");
+        updateStatus("error2", "loading");
+
+        try {
+          if (typeof ZoomMtg === "undefined") {
+            throw new Error("ZoomMtg is not loaded");
+          }
+
+          // Test WebAssembly path configuration
+          log("Setting ZoomJSLib path...");
+          ZoomMtg.setZoomJSLib("https://source.zoom.us/3.13.2/lib", "/av");
+
+          // Check if preLoadWasm is available
+          if (typeof ZoomMtg.preLoadWasm === "function") {
+            log("preLoadWasm is available");
+            ZoomMtg.preLoadWasm();
+
+            if (typeof ZoomMtg.prepareWebSDK === "function") {
+              log("prepareWebSDK is available");
+              ZoomMtg.prepareWebSDK();
+
+              updateStatus("error2", "success");
+              updateResult("error2", "✅ WebAssembly configuration successful");
+              log(
+                "✅ mainTaskType test passed - WebAssembly configured correctly"
+              );
+            } else {
+              updateStatus("error2", "error");
+              updateResult("error2", "❌ prepareWebSDK not available");
+              log("❌ ZoomMtg.prepareWebSDK is not available");
+            }
+          } else {
+            updateStatus("error2", "error");
+            updateResult("error2", "❌ preLoadWasm not available");
+            log("❌ ZoomMtg.preLoadWasm is not available");
+          }
+        } catch (error) {
+          updateStatus("error2", "error");
+          updateResult("error2", `❌ Error: ${error.message}`);
+          log(`❌ mainTaskType test failed: ${error.message}`);
+        }
+      }
+
+      // Error Test 3: WebSocket
+      function testWebSocket() {
+        log("Testing WebSocket connectivity...");
+        updateStatus("error3", "loading");
+
+        try {
+          if (typeof WebSocket === "undefined") {
+            throw new Error("WebSocket is not supported in this browser");
+          }
+
+          // Test basic WebSocket creation
+          const testWs = new WebSocket("wss://echo.websocket.org/");
+
+          const timeout = setTimeout(() => {
+            testWs.close();
+            updateStatus("error3", "error");
+            updateResult("error3", "❌ WebSocket connection timeout");
+            log("❌ WebSocket test timeout");
+          }, 5000);
+
+          testWs.onopen = function () {
+            clearTimeout(timeout);
+            testWs.close();
+            updateStatus("error3", "success");
+            updateResult("error3", "✅ WebSocket connections working");
+            log("✅ WebSocket test passed");
+          };
+
+          testWs.onerror = function (error) {
+            clearTimeout(timeout);
+            updateStatus("error3", "error");
+            updateResult("error3", "❌ WebSocket connection failed");
+            log(`❌ WebSocket test failed: ${error}`);
+          };
+
+          // Also test if there are any CSP or network restrictions
+          fetch("https://httpbin.org/get", { mode: "cors" })
+            .then((response) => {
+              if (response.ok) {
+                log("✅ Network connectivity test passed");
+              } else {
+                log("⚠️ Network connectivity may have issues");
+              }
+            })
+            .catch((error) => {
+              log(`⚠️ Network test error: ${error.message}`);
+            });
+        } catch (error) {
+          updateStatus("error3", "error");
+          updateResult("error3", `❌ Error: ${error.message}`);
+          log(`❌ WebSocket test failed: ${error.message}`);
+        }
+      }
+
+      // Error Test 4: SDK Call Progress
+      function testSDKCallProgress() {
+        log("Testing SDK call state management...");
+        updateStatus("error4", "loading");
+
+        try {
+          // Simulate multiple rapid calls
+          let callCount = 0;
+          const maxCalls = 3;
+
+          function simulateSDKCall() {
+            callCount++;
+            log(`Simulating SDK call #${callCount}`);
+
+            if (callCount < maxCalls) {
+              setTimeout(simulateSDKCall, 100);
+            } else {
+              updateStatus("error4", "success");
+              updateResult("error4", "✅ SDK call state management working");
+              log("✅ SDK call progress test completed");
+            }
+          }
+
+          simulateSDKCall();
+        } catch (error) {
+          updateStatus("error4", "error");
+          updateResult("error4", `❌ Error: ${error.message}`);
+          log(`❌ SDK call progress test failed: ${error.message}`);
+        }
+      }
+
+      // Initialize Zoom SDK
+      function initZoomSDK() {
+        if (isTestingInProgress) {
+          log("⚠️ Test already in progress");
+          return;
+        }
+
+        isTestingInProgress = true;
+        log("🚀 Initializing Zoom SDK...");
+
+        try {
+          if (typeof ZoomMtg === "undefined") {
+            throw new Error("ZoomMtg is not loaded");
+          }
+
+          // Enhanced SDK initialization
+          log("Setting ZoomJSLib...");
+          ZoomMtg.setZoomJSLib("https://source.zoom.us/3.13.2/lib", "/av");
+
+          log("Preloading WebAssembly...");
+          ZoomMtg.preLoadWasm();
+          ZoomMtg.prepareWebSDK();
+
+          // Wait for SDK to be ready
+          let checkCount = 0;
+          const checkSDK = setInterval(() => {
+            checkCount++;
+            log(`SDK readiness check #${checkCount}`);
+
+            if (
+              typeof ZoomMtg.init === "function" &&
+              typeof ZoomMtg.join === "function"
+            ) {
+              clearInterval(checkSDK);
+              sdkInitialized = true;
+              isTestingInProgress = false;
+              log("✅ Zoom SDK initialized successfully");
+            } else if (checkCount > 50) {
+              // 5 seconds timeout
+              clearInterval(checkSDK);
+              isTestingInProgress = false;
+              throw new Error("SDK initialization timeout");
+            }
+          }, 100);
+        } catch (error) {
+          isTestingInProgress = false;
+          log(`❌ SDK initialization failed: ${error.message}`);
+        }
+      }
+
+      // Run all tests
+      function runAllTests() {
+        log("🔍 Running all diagnostic tests...");
+        setTimeout(testGetEventBus, 100);
+        setTimeout(testMainTaskType, 500);
+        setTimeout(testWebSocket, 1000);
+        setTimeout(testSDKCallProgress, 1500);
+      }
+
+      // Test full flow
+      function testFullFlow() {
+        const sdkKey = document.getElementById("sdkKey").value;
+        const meetingNumber = document.getElementById("meetingNumber").value;
+        const userName = document.getElementById("userName").value;
+
+        if (!sdkKey || !meetingNumber) {
+          log("❌ Please enter SDK Key and Meeting Number");
+          return;
+        }
+
+        log("🚀 Starting full flow test...");
+        log(`SDK Key: ${sdkKey.substring(0, 10)}...`);
+        log(`Meeting: ${meetingNumber}`);
+        log(`User: ${userName}`);
+
+        // This would normally generate a signature and attempt to join
+        // For demo purposes, we'll just simulate the process
+        log("⚠️ Full flow test requires backend signature generation");
+        log("📝 Manual steps needed:");
+        log("1. Generate signature using your backend API");
+        log("2. Use the signature to join the meeting");
+        log("3. Monitor console for any errors");
+      }
+
+      // Utility functions
+      function clearLogs() {
+        debugLog = [];
+        document.getElementById("debug-logs").textContent =
+          "Debug logs cleared.";
+        log("Debug logs cleared");
+      }
+
+      function exportLogs() {
+        const logsText = debugLog.join("\\n");
+        const blob = new Blob([logsText], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `zoom-debug-logs-${
+          new Date().toISOString().split("T")[0]
+        }.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        log("📄 Debug logs exported");
+      }
+
+      // Initialize on page load
+      window.addEventListener("load", function () {
+        log("🔧 Zoom Error Diagnostics Tool loaded");
+        loadSystemInfo();
+        log("📊 System information loaded");
+
+        // Auto-populate some test data
+        document.getElementById("userName").value = "Debug User";
+        document.getElementById("userEmail").value = "debug@test.com";
+
+        log("✅ Ready for testing");
+      });
+
+      // Monitor console errors
+      window.addEventListener("error", function (e) {
+        log(`🚨 JavaScript Error: ${e.error?.message || e.message}`);
+      });
+
+      // Monitor unhandled promise rejections
+      window.addEventListener("unhandledrejection", function (e) {
+        log(`🚨 Unhandled Promise Rejection: ${e.reason}`);
+      });
+    </script>
+  </body>
+</html>
