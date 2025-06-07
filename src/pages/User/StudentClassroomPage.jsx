@@ -185,12 +185,13 @@ const StudentClassroomPage = () => {
       ) {
         const meetingData = response.data.items[0]; // Get latest meeting
 
-        // Navigate to meeting room with meeting data
+        // Navigate to meeting room with meeting data and student role
         navigate("/tai-khoan/ho-so/phong-hop-zoom", {
           state: {
             meetingData: meetingData,
             classroomName: classroomName,
             classroomId: classroomId,
+            userRole: "student", // Add role indicator for student
           },
         });
 
