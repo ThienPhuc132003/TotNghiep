@@ -14,6 +14,9 @@ const TutorMeetingRoomPage = () => {
   const [error, setError] = useState(null);
   const [meetingData, setMeetingData] = useState(null);
   const [classroomInfo, setClassroomInfo] = useState(null);
+  const [zoomSignature, setZoomSignature] = useState(null);
+  const [zoomSdkKey, setZoomSdkKey] = useState(null);
+
   useEffect(() => {
     // Check if meeting data was passed from TutorClassroomPage
     if (location.state && location.state.meetingData) {
@@ -53,6 +56,44 @@ const TutorMeetingRoomPage = () => {
     };
     checkZoomConnection();
   }, [location, navigate]);
+
+  // Fetch Zoom signature when we have meeting data
+  useEffect(() => {
+    const fetchZoomSignature = async () => {
+      if (!meetingData || !isZoomConnected) return;
+
+      try {
+        console.log(
+          "Fetching Zoom signature for meeting:",
+          meetingData.zoomMeetingId
+        );
+        const response = await Api({
+          endpoint: "meeting/signature",
+          method: METHOD_TYPE.POST,
+          data: {
+            meetingNumber: meetingData.zoomMeetingId,
+            role: 1, // Host role for tutor
+          },
+          requireToken: false, // axiosClient handles Zoom Bearer token
+        });
+
+        if (response.success && response.data) {
+          setZoomSignature(response.data.signature);
+          setZoomSdkKey(response.data.sdkKey);
+          console.log("Zoom signature fetched successfully");
+        } else {
+          throw new Error(response.message || "Failed to get Zoom signature");
+        }
+      } catch (error) {
+        console.error("Error fetching Zoom signature:", error);
+        setError(
+          "Không thể lấy thông tin để tham gia phòng học. Vui lòng thử lại."
+        );
+      }
+    };
+
+    fetchZoomSignature();
+  }, [meetingData, isZoomConnected]);
 
   const handleConnectZoom = async () => {
     setIsLoading(true);
@@ -95,9 +136,8 @@ const TutorMeetingRoomPage = () => {
       <div className="loading-container">Đang tải thông tin phòng họp...</div>
     );
   }
-
-  // If we have meeting data, show the Zoom meeting embed
-  if (meetingData && isZoomConnected) {
+  // If we have meeting data and signature, show the Zoom meeting embed
+  if (meetingData && isZoomConnected && zoomSignature && zoomSdkKey) {
     return (
       <div className="tutor-meeting-room-page">
         <div className="meeting-header">
@@ -117,12 +157,35 @@ const TutorMeetingRoomPage = () => {
         </div>
 
         <ZoomMeetingEmbed
-          meetingId={meetingData.zoomMeetingId}
-          password={meetingData.password}
-          role="1" // Host role for tutor
-          displayName={`Gia sư - ${classroomInfo?.name || "Phòng học"}`}
+          sdkKey={zoomSdkKey}
+          signature={zoomSignature}
+          meetingNumber={meetingData.zoomMeetingId}
+          userName={`Gia sư - ${classroomInfo?.name || "Phòng học"}`}
+          passWord={meetingData.password}
           customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/quan-ly-lop-hoc`}
+          onMeetingEnd={() => {
+            console.log("Meeting ended");
+            navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
+          }}
+          onError={(error) => {
+            console.error("Zoom meeting error:", error);
+            setError(`Lỗi khi tham gia phòng học: ${error}`);
+          }}
+          onMeetingJoined={() => {
+            console.log("Successfully joined meeting");
+          }}
         />
+      </div>
+    );
+  }
+
+  // Show loading state if we have meeting data but no signature yet
+  if (meetingData && isZoomConnected && (!zoomSignature || !zoomSdkKey)) {
+    return (
+      <div className="tutor-meeting-room-page">
+        <div className="loading-container">
+          <p>Đang chuẩn bị phòng học Zoom...</p>
+        </div>
       </div>
     );
   }
