@@ -71,7 +71,7 @@ const TutorMeetingRoomPage = () => {
           endpoint: "meeting/signature",
           method: METHOD_TYPE.POST,
           data: {
-            meetingNumber: meetingData.zoomMeetingId,
+            zoomMeetingId: meetingData.zoomMeetingId,
             role: 1, // Host role for tutor
           },
           requireToken: false, // axiosClient handles Zoom Bearer token
