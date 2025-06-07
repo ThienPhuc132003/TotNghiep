@@ -242,9 +242,10 @@ function ZoomMeetingEmbed({
                           if (onMeetingEnd)
                             onMeetingEnd("polling_detected_end");
                         }
-                      } else {
-                        console.log("Polling error (non-critical):", e);
-                      }
+                      } else
+                        (e) => {
+                          console.log("Polling error (non-critical):", e);
+                        };
                     } catch (e) {
                       console.log("Polling error (non-critical):", e);
                     }
