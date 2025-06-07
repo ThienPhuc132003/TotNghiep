@@ -1,6 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
+// Dynamically load Zoom SDK for debugging
+const loadZoomSDK = () => {
+  return new Promise((resolve, reject) => {
+    // Check if already loaded
+    if (window.ZoomMtg) {
+      resolve(window.ZoomMtg);
+      return;
+    }
+
+    // Create script tag to load Zoom SDK
+    const script = document.createElement("script");
+    script.src = "https://source.zoom.us/3.13.2/lib/ZoomMtg.js";
+    script.onload = () => {
+      console.log("✅ Zoom SDK loaded via script tag");
+      resolve(window.ZoomMtg);
+    };
+    script.onerror = () => {
+      reject(new Error("Failed to load Zoom SDK"));
+    };
+    document.head.appendChild(script);
+  });
+};
+
 // Simplified Zoom Debug Component
 function ZoomDebugComponent({
   sdkKey,
@@ -19,6 +42,7 @@ function ZoomDebugComponent({
     initSuccess: false,
     joinSuccess: false,
     error: null,
+    loading: true,
   });
 
   const meetingContainerRef = useRef(null);
@@ -32,67 +56,136 @@ function ZoomDebugComponent({
       passWord: passWord ? "Present" : "Missing",
     });
 
-    // Check if Zoom SDK is loaded
-    if (typeof ZoomMtg === "undefined") {
-      const error = "Zoom SDK not loaded";
-      setDebugInfo(prev => ({ ...prev, error }));
-      if (onError) onError(error);
-      return;
-    }
+    // Load Zoom SDK dynamically
+    loadZoomSDK()
+      .then((ZoomMtg) => {
+        console.log("✅ Zoom SDK loaded successfully");
+        setDebugInfo((prev) => ({ ...prev, sdkLoaded: true, loading: false }));
 
-    setDebugInfo(prev => ({ ...prev, sdkLoaded: true }));
-
-    // Simple test without actual meeting join
-    try {
-      // Test basic SDK functions
-      if (typeof ZoomMtg.init === "function") {
-        console.log("✅ ZoomMtg.init is available");
-      } else {
-        throw new Error("ZoomMtg.init is not a function");
-      }
-
-      if (typeof ZoomMtg.join === "function") {
-        console.log("✅ ZoomMtg.join is available");
-      } else {
-        throw new Error("ZoomMtg.join is not a function");
-      }
-
-      setDebugInfo(prev => ({ ...prev, initSuccess: true }));
-
-    } catch (error) {
-      console.error("❌ Zoom SDK test failed:", error);
-      setDebugInfo(prev => ({ ...prev, error: error.message }));
-      if (onError) onError(error.message);
-    }
-
+        // Test basic SDK functionality
+        if (typeof ZoomMtg.init === "function") {
+          console.log("✅ ZoomMtg.init is available");
+          setDebugInfo((prev) => ({ ...prev, initSuccess: true }));
+        } else {
+          throw new Error("ZoomMtg.init is not a function");
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Failed to load Zoom SDK:", error);
+        const errorMessage = error.message || "Zoom SDK loading failed";
+        setDebugInfo((prev) => ({
+          ...prev,
+          error: errorMessage,
+          loading: false,
+        }));
+        if (onError) onError(errorMessage);
+      });
   }, [sdkKey, signature, meetingNumber, userName, passWord, onError]);
 
   const testDirectZoomURL = () => {
-    const zoomURL = `https://zoom.us/j/${meetingNumber}${passWord ? `?pwd=${passWord}` : ''}`;
-    window.open(zoomURL, '_blank');
+    if (!meetingNumber) {
+      alert("Meeting number is required for direct URL test");
+      return;
+    }
+
+    const directURL = `https://zoom.us/j/${meetingNumber}`;
+    console.log(`🔗 Testing direct Zoom URL: ${directURL}`);
+    window.open(directURL, "_blank");
+  };
+
+  const reloadPage = () => {
+    window.location.reload();
   };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h2>🔍 Zoom Integration Debug</h2>
-      
-      <div style={{ background: "#f5f5f5", padding: "15px", marginBottom: "20px", borderRadius: "8px" }}>
+      <h2>🔧 Zoom Integration Debug</h2>
+
+      {/* Debug Information */}
+      <div
+        style={{
+          backgroundColor: "#f5f5f5",
+          padding: "15px",
+          marginBottom: "20px",
+          borderRadius: "5px",
+        }}
+      >
         <h3>Debug Information:</h3>
-        <ul>
-          <li>SDK Key: {debugInfo.sdkKey ? "✅ Present" : "❌ Missing"}</li>
-          <li>Signature: {debugInfo.signature ? "✅ Present" : "❌ Missing"}</li>
-          <li>Meeting Number: {debugInfo.meetingNumber ? "✅ Present" : "❌ Missing"}</li>
-          <li>User Name: {debugInfo.userName ? "✅ Present" : "❌ Missing"}</li>
-          <li>SDK Loaded: {debugInfo.sdkLoaded ? "✅ Yes" : "❌ No"}</li>
-          <li>Init Success: {debugInfo.initSuccess ? "✅ Yes" : "❌ No"}</li>
-          <li>Join Success: {debugInfo.joinSuccess ? "✅ Yes" : "❌ No"}</li>
-          {debugInfo.error && <li style={{color: "red"}}>Error: {debugInfo.error}</li>}
-        </ul>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "150px 1fr",
+            gap: "10px",
+          }}
+        >
+          <span>SDK Key:</span>
+          <span style={{ color: debugInfo.sdkKey ? "#28a745" : "#dc3545" }}>
+            {debugInfo.sdkKey ? "✅ Present" : "❌ Missing"}
+          </span>
+
+          <span>Signature:</span>
+          <span style={{ color: debugInfo.signature ? "#28a745" : "#dc3545" }}>
+            {debugInfo.signature ? "✅ Present" : "❌ Missing"}
+          </span>
+
+          <span>Meeting Number:</span>
+          <span
+            style={{ color: debugInfo.meetingNumber ? "#28a745" : "#dc3545" }}
+          >
+            {debugInfo.meetingNumber ? "✅ Present" : "❌ Missing"}
+          </span>
+
+          <span>User Name:</span>
+          <span style={{ color: debugInfo.userName ? "#28a745" : "#dc3545" }}>
+            {debugInfo.userName ? "✅ Present" : "❌ Missing"}
+          </span>
+
+          <span>SDK Loaded:</span>
+          <span style={{ color: debugInfo.sdkLoaded ? "#28a745" : "#dc3545" }}>
+            {debugInfo.loading
+              ? "⏳ Loading..."
+              : debugInfo.sdkLoaded
+              ? "✅ Yes"
+              : "❌ No"}
+          </span>
+
+          <span>Init Success:</span>
+          <span
+            style={{ color: debugInfo.initSuccess ? "#28a745" : "#dc3545" }}
+          >
+            {debugInfo.initSuccess ? "✅ Yes" : "❌ No"}
+          </span>
+
+          <span>Join Success:</span>
+          <span
+            style={{ color: debugInfo.joinSuccess ? "#28a745" : "#dc3545" }}
+          >
+            {debugInfo.joinSuccess ? "✅ Yes" : "❌ No"}
+          </span>
+
+          {debugInfo.error && (
+            <>
+              <span>Error:</span>
+              <span style={{ color: "#dc3545" }}>{debugInfo.error}</span>
+            </>
+          )}
+        </div>
       </div>
 
-      <div style={{ background: "#e3f2fd", padding: "15px", marginBottom: "20px", borderRadius: "8px" }}>
+      {/* Zoom Free Account Information */}
+      <div
+        style={{
+          backgroundColor: "#fff3cd",
+          border: "1px solid #ffeaa7",
+          padding: "15px",
+          marginBottom: "20px",
+          borderRadius: "5px",
+        }}
+      >
         <h3>Zoom Free Account Information:</h3>
-        <p><strong>⚠️ Lưu ý về Zoom Free Account:</strong></p>
+        <p>
+          <strong>⚠️ Lưu ý về Zoom Free Account:</strong>
+        </p>
         <ul>
           <li>Zoom Free có thể hạn chế SDK usage</li>
           <li>Một số tính năng embedded có thể không hoạt động</li>
@@ -100,69 +193,93 @@ function ZoomDebugComponent({
         </ul>
       </div>
 
+      {/* Test Options */}
       <div style={{ marginBottom: "20px" }}>
         <h3>Test Options:</h3>
         <button
           onClick={testDirectZoomURL}
           style={{
-            padding: "12px 24px",
-            background: "#2196F3",
+            marginRight: "10px",
+            padding: "10px 15px",
+            backgroundColor: "#007bff",
             color: "white",
             border: "none",
-            borderRadius: "5px",
+            borderRadius: "4px",
             cursor: "pointer",
-            marginRight: "10px"
           }}
         >
           🔗 Test External Zoom URL
         </button>
-        
+
         <button
-          onClick={() => window.location.reload()}
+          onClick={reloadPage}
           style={{
-            padding: "12px 24px",
-            background: "#ff9800",
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
             color: "white",
             border: "none",
-            borderRadius: "5px",
-            cursor: "pointer"
+            borderRadius: "4px",
+            cursor: "pointer",
           }}
         >
           🔄 Reload Page
         </button>
       </div>
 
-      <div style={{ background: "#fff3cd", padding: "15px", borderRadius: "8px" }}>
+      {/* Troubleshooting */}
+      <div
+        style={{
+          backgroundColor: "#f8d7da",
+          border: "1px solid #f5c6cb",
+          padding: "15px",
+          borderRadius: "5px",
+        }}
+      >
         <h3>🚨 Possible Issues:</h3>
-        <ol>
-          <li><strong>Zoom Free Account Limitation:</strong> SDK features might be restricted</li>
-          <li><strong>CORS Issues:</strong> Zoom SDK might be blocked by browser</li>
-          <li><strong>Signature Generation:</strong> Backend might not generate valid signature</li>
-          <li><strong>Meeting Access:</strong> Meeting might require paid account features</li>
-        </ol>
+        <ul>
+          <li>
+            <strong>Zoom Free Account Limitation:</strong> SDK features might be
+            restricted
+          </li>
+          <li>
+            <strong>CORS Issues:</strong> Zoom SDK might be blocked by browser
+          </li>
+          <li>
+            <strong>Signature Generation:</strong> Backend might not generate
+            valid signature
+          </li>
+          <li>
+            <strong>Meeting Access:</strong> Meeting might require paid account
+            features
+          </li>
+        </ul>
       </div>
 
-      {/* Zoom Container */}
-      <div 
+      {/* Meeting Container for potential SDK embedding */}
+      <div
         ref={meetingContainerRef}
-        id="zoom-meeting-container"
+        id="zmmtg-root"
         style={{
           width: "100%",
-          height: "600px",
+          height: "400px",
+          backgroundColor: "#f0f0f0",
           border: "2px dashed #ccc",
-          borderRadius: "8px",
-          marginTop: "20px",
-          background: "#fafafa",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
+          justifyContent: "center",
+          marginTop: "20px",
+          borderRadius: "5px",
         }}
       >
         <div style={{ textAlign: "center", color: "#666" }}>
-          <div style={{ fontSize: "48px", marginBottom: "10px" }}>🎥</div>
+          <div style={{ fontSize: "48px", marginBottom: "10px" }}>📹</div>
           <div>Zoom Meeting Container</div>
-          <div style={{ fontSize: "12px" }}>
-            {debugInfo.error ? `Error: ${debugInfo.error}` : "Waiting for Zoom to load..."}
+          <div style={{ fontSize: "12px", marginTop: "5px" }}>
+            {debugInfo.loading
+              ? "Loading SDK..."
+              : debugInfo.error
+              ? `Error: ${debugInfo.error}`
+              : "Ready for debugging"}
           </div>
         </div>
       </div>
