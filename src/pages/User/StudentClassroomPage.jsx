@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useSelector } from "react-redux";
@@ -92,11 +93,15 @@ const StudentClassroomPage = () => {
   const [totalClassrooms, setTotalClassrooms] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   // Evaluation modal state
   const [showEvaluationModal, setShowEvaluationModal] = useState(false);
   const [selectedClassroomForEvaluation, setSelectedClassroomForEvaluation] =
     useState(null);
+
+  // Meeting list modal state
+  const [meetingList, setMeetingList] = useState([]);
+  const [isMeetingListOpen, setIsMeetingListOpen] = useState(false);
+  const [selectedClassroom, setSelectedClassroom] = useState(null);
 
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
@@ -160,16 +165,16 @@ const StudentClassroomPage = () => {
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       // Show loading toast
-      const loadingToastId = toast.loading("Đang tải thông tin phòng học...");
+      const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
 
-      // Call API to search for the latest meeting using the new search API
+      // Call API to search for ALL meetings (not just the latest one)
       const response = await Api({
         endpoint: "meeting/search",
         method: METHOD_TYPE.GET,
         query: {
           classroomId: classroomId,
           sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
-          rpp: 1,
+          // Remove rpp: 1 to fetch all meetings
         },
         requireToken: false, // axiosClient handles Zoom Bearer token
       });
@@ -183,19 +188,16 @@ const StudentClassroomPage = () => {
         response.data.items &&
         response.data.items.length > 0
       ) {
-        const meetingData = response.data.items[0]; // Get latest meeting
-
-        // Navigate to meeting room with meeting data and student role
-        navigate("/tai-khoan/ho-so/phong-hop-zoom", {
-          state: {
-            meetingData: meetingData,
-            classroomName: classroomName,
-            classroomId: classroomId,
-            userRole: "student", // Add role indicator for student
-          },
+        // Set meeting list and show modal instead of auto-navigating
+        setMeetingList(response.data.items);
+        setSelectedClassroom({
+          classroomId,
+          classroomName,
+          nameOfRoom: classroomName,
         });
+        setIsMeetingListOpen(true);
 
-        toast.success("Đang chuyển đến phòng học...");
+        toast.success("Đã tải danh sách phòng học!");
       } else {
         toast.error(
           "Không tìm thấy thông tin phòng học. Vui lòng thử lại sau."
@@ -249,6 +251,93 @@ const StudentClassroomPage = () => {
   const handleCloseEvaluationModal = () => {
     setShowEvaluationModal(false);
     setSelectedClassroomForEvaluation(null);
+  };
+
+  // Modal component for displaying meeting list
+  const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="scp-modal-overlay" onClick={onClose}>
+        <div
+          className="scp-modal-content scp-meeting-list-modal"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="scp-modal-header">
+            <h3>Danh sách phòng học - {classroomName}</h3>
+            <button className="scp-modal-close" onClick={onClose}>
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+          <div className="scp-meeting-list">
+            {meetings && meetings.length > 0 ? (
+              meetings.map((meeting, index) => (
+                <div key={meeting.id || index} className="scp-meeting-item">
+                  <div className="scp-meeting-info">
+                    <h4 className="scp-meeting-topic">{meeting.topic}</h4>
+                    <div className="scp-meeting-details">
+                      <p>
+                        <strong>Meeting ID:</strong>{" "}
+                        {meeting.zoomMeetingId || meeting.id}
+                      </p>
+                      <p>
+                        <strong>Mật khẩu:</strong>{" "}
+                        {meeting.password || "Không có"}
+                      </p>
+                      <p>
+                        <strong>Thời gian tạo:</strong>{" "}
+                        {new Date(
+                          meeting.createdAt || meeting.created_at
+                        ).toLocaleString("vi-VN")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="scp-meeting-actions">
+                    <a
+                      href={meeting.joinUrl || meeting.join_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="scp-btn scp-btn-join"
+                    >
+                      <i
+                        className="fas fa-sign-in-alt"
+                        style={{ marginRight: "8px" }}
+                      ></i>
+                      Tham gia
+                    </a>
+                    <button
+                      className="scp-btn scp-btn-copy"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          meeting.joinUrl || meeting.join_url
+                        );
+                        toast.success("Đã sao chép link tham gia!");
+                      }}
+                      title="Sao chép link"
+                    >
+                      <i className="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="scp-no-meetings">
+                <i className="fas fa-video-slash"></i>
+                <p>Chưa có phòng học nào được tạo cho lớp này.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // PropTypes for MeetingListModal
+  MeetingListModal.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    meetings: PropTypes.array,
+    classroomName: PropTypes.string.isRequired,
   };
 
   if (!currentUser?.userId) {
@@ -460,6 +549,15 @@ const StudentClassroomPage = () => {
             Sau
           </button>{" "}
         </div>
+      )}{" "}
+      {/* Meeting List Modal */}
+      {isMeetingListOpen && selectedClassroom && (
+        <MeetingListModal
+          isOpen={isMeetingListOpen}
+          onClose={() => setIsMeetingListOpen(false)}
+          meetings={meetingList}
+          classroomName={selectedClassroom.nameOfRoom}
+        />
       )}{" "}
       {/* Evaluation Modal */}
       {showEvaluationModal && selectedClassroomForEvaluation && (

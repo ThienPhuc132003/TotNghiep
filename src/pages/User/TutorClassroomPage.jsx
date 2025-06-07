@@ -191,11 +191,13 @@ const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
           {meetings && meetings.length > 0 ? (
             meetings.map((meeting, index) => (
               <div key={meeting.id || index} className="tcp-meeting-item">
+                {" "}
                 <div className="tcp-meeting-info">
                   <h4 className="tcp-meeting-topic">{meeting.topic}</h4>
                   <div className="tcp-meeting-details">
                     <p>
-                      <strong>ID:</strong> {meeting.id}
+                      <strong>Meeting ID:</strong>{" "}
+                      {meeting.zoomMeetingId || meeting.id}
                     </p>
                     <p>
                       <strong>Mật khẩu:</strong>{" "}
@@ -203,13 +205,15 @@ const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
                     </p>
                     <p>
                       <strong>Thời gian tạo:</strong>{" "}
-                      {new Date(meeting.created_at).toLocaleString("vi-VN")}
+                      {new Date(
+                        meeting.createdAt || meeting.created_at
+                      ).toLocaleString("vi-VN")}
                     </p>
                   </div>
                 </div>
                 <div className="tcp-meeting-actions">
                   <a
-                    href={meeting.join_url}
+                    href={meeting.joinUrl || meeting.join_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="tcp-btn tcp-btn-join"
@@ -223,7 +227,9 @@ const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
                   <button
                     className="tcp-btn tcp-btn-copy"
                     onClick={() => {
-                      navigator.clipboard.writeText(meeting.join_url);
+                      navigator.clipboard.writeText(
+                        meeting.joinUrl || meeting.join_url
+                      );
                       toast.success("Đã sao chép link tham gia!");
                     }}
                     title="Sao chép link"
@@ -302,7 +308,7 @@ const TutorClassroomPage = () => {
   const itemsPerPage = 10; // Or get from a config
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
-  const [meetingList] = useState([]); // Reserved for future meeting list feature
+  const [meetingList, setMeetingList] = useState([]); // For storing meeting list
   const [isMeetingListOpen, setIsMeetingListOpen] = useState(false);
 
   const currentUser = useSelector((state) => state.user.userProfile);
@@ -387,39 +393,39 @@ const TutorClassroomPage = () => {
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       // Show loading toast
-      const loadingToastId = toast.loading("Đang tải danh sách phòng học..."); // Call API to search for the latest meeting using the new search API
+      const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
+
+      // Call API to search for ALL meetings (not just the latest one)
       const response = await Api({
         endpoint: "meeting/search",
         method: METHOD_TYPE.GET,
         query: {
           classroomId: classroomId,
           sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
-          rpp: 1,
+          // Remove rpp: 1 to fetch all meetings
         },
         requireToken: false, // axiosClient handles Zoom Bearer token
       });
 
       // Dismiss loading toast
       toast.dismiss(loadingToastId);
+
       if (
         response.success &&
         response.data &&
         response.data.items &&
         response.data.items.length > 0
       ) {
-        // Get the latest meeting and navigate directly to it
-        const latestMeeting = response.data.items[0];
-
-        // Navigate to meeting room with meeting data
-        navigate("/tai-khoan/ho-so/phong-hop-zoom", {
-          state: {
-            meetingData: latestMeeting,
-            classroomName: classroomName,
-            classroomId: classroomId,
-          },
+        // Set meeting list and show modal instead of auto-navigating
+        setMeetingList(response.data.items);
+        setSelectedClassroom({
+          classroomId,
+          classroomName,
+          nameOfRoom: classroomName,
         });
+        setIsMeetingListOpen(true);
 
-        toast.success("Đang chuyển đến phòng học...");
+        toast.success("Đã tải danh sách phòng học!");
       } else {
         toast.error(
           "Không tìm thấy phòng học nào. Vui lòng tạo phòng học trước."
@@ -472,7 +478,7 @@ const TutorClassroomPage = () => {
   const handleCreateMeetingSubmit = async (formData) => {
     if (!selectedClassroom) return;
 
-    const { classroomId, classroomName } = selectedClassroom;
+    const { classroomId } = selectedClassroom;
 
     try {
       // Show loading toast
@@ -507,20 +513,20 @@ const TutorClassroomPage = () => {
       toast.dismiss(loadingToastId);
 
       console.log("Create meeting response:", response);
-
       if (response && response.success && response.data) {
         toast.success("Tạo phòng học Zoom thành công!");
         setIsModalOpen(false);
 
-        // Navigate to the meeting room with created meeting data
-        navigate("/tai-khoan/ho-so/phong-hop-zoom", {
-          state: {
-            meetingData: response.data,
-            classroomName: classroomName,
-            classroomId: classroomId,
-            isNewMeeting: true,
-          },
-        });
+        // Instead of auto-navigating, show a success message and let user manually enter classroom
+        toast.info(
+          "Bạn có thể vào lớp học để xem danh sách phòng học đã tạo!",
+          {
+            autoClose: 5000,
+          }
+        );
+
+        // Optionally refresh the classroom list to show updated status
+        fetchTutorClassrooms(currentPage);
       } else {
         const errorMessage =
           response?.message || "Không thể tạo phòng học Zoom";

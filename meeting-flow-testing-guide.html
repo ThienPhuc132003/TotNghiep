@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Flow Implementation - Manual Testing Guide</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #34495e;
+        margin-top: 30px;
+      }
+      h3 {
+        color: #2980b9;
+      }
+      .status {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin: 5px;
+      }
+      .completed {
+        background-color: #2ecc71;
+        color: white;
+      }
+      .testing {
+        background-color: #f39c12;
+        color: white;
+      }
+      .test-section {
+        background-color: #ecf0f1;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+      .checklist li {
+        background: white;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #3498db;
+        position: relative;
+      }
+      .checklist li:before {
+        content: "☐";
+        font-size: 18px;
+        color: #3498db;
+        margin-right: 10px;
+      }
+      .highlight {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+      }
+      .code {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        margin: 10px 0;
+      }
+      .step-number {
+        background-color: #3498db;
+        color: white;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-weight: bold;
+      }
+      .quick-access {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 20px 0;
+      }
+      .quick-access a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        border-radius: 25px;
+        margin: 0 10px;
+        display: inline-block;
+        transition: background-color 0.3s;
+      }
+      .quick-access a:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 Meeting Flow Implementation - Manual Testing Guide</h1>
+
+      <div class="quick-access">
+        <h3>🚀 Quick Access</h3>
+        <a href="http://localhost:5173" target="_blank">Open Application</a>
+        <a href="#tutor-testing">Tutor Testing</a>
+        <a href="#student-testing">Student Testing</a>
+        <a href="#verification">Verification</a>
+      </div>
+
+      <div class="highlight success">
+        <h3>✅ Implementation Status</h3>
+        <span class="status completed">TutorClassroomPage - COMPLETED</span>
+        <span class="status completed">StudentClassroomPage - COMPLETED</span>
+        <span class="status completed">CSS Styling - COMPLETED</span>
+        <span class="status testing">Manual Testing - IN PROGRESS</span>
+      </div>
+
+      <h2>🎯 What Changed</h2>
+      <div class="test-section">
+        <h3>Before:</h3>
+        <ul>
+          <li>
+            Clicking "Vào lớp" would automatically join the LATEST meeting
+          </li>
+          <li>Creating a meeting would auto-navigate to meeting room</li>
+          <li>Users had no choice in which meeting to join</li>
+        </ul>
+
+        <h3>After:</h3>
+        <ul>
+          <li>Clicking "Vào lớp" shows a list of ALL available meetings</li>
+          <li>
+            Creating a meeting shows success message, requires manual classroom
+            entry
+          </li>
+          <li>Users can choose which specific meeting to join</li>
+          <li>Meeting list shows ID, password, and creation time</li>
+        </ul>
+      </div>
+
+      <h2 id="tutor-testing">👨‍🏫 Tutor Testing Guide</h2>
+      <div class="test-section">
+        <h3><span class="step-number">1</span>Login and Navigation</h3>
+        <ul class="checklist">
+          <li>
+            Open
+            <a href="http://localhost:5173" target="_blank"
+              >http://localhost:5173</a
+            >
+          </li>
+          <li>Login with tutor credentials</li>
+          <li>Navigate to "Quản lý lớp học" from sidebar</li>
+          <li>Verify classroom list loads correctly</li>
+        </ul>
+
+        <h3><span class="step-number">2</span>Meeting Creation Flow</h3>
+        <ul class="checklist">
+          <li>Find a classroom with "IN_SESSION" or "PENDING" status</li>
+          <li>Click "Tạo phòng học" button</li>
+          <li>Fill in meeting details in modal</li>
+          <li>Click "Tạo phòng học" to submit</li>
+          <li>
+            <strong>Verify:</strong> Success message appears (no
+            auto-navigation)
+          </li>
+          <li><strong>Verify:</strong> Modal closes automatically</li>
+          <li>
+            <strong>Verify:</strong> Info toast about manual classroom entry
+          </li>
+        </ul>
+
+        <h3><span class="step-number">3</span>Meeting List Flow</h3>
+        <ul class="checklist">
+          <li>Click "Vào lớp học" button for the same classroom</li>
+          <li><strong>Verify:</strong> Meeting list modal appears</li>
+          <li>
+            <strong>Verify:</strong> All meetings are shown (not just latest)
+          </li>
+          <li>
+            <strong>Verify:</strong> Meeting details display correctly:
+            <div class="code">
+              - Meeting ID: [number]<br />
+              - Password: [if available]<br />
+              - Created: [date/time]<br />
+              - Topic: [meeting topic]
+            </div>
+          </li>
+          <li>Test "Join Meeting" button - should open in new tab</li>
+          <li>Test "Copy URL" button - should copy to clipboard</li>
+          <li>Click outside modal to close it</li>
+        </ul>
+      </div>
+
+      <h2 id="student-testing">👨‍🎓 Student Testing Guide</h2>
+      <div class="test-section">
+        <h3><span class="step-number">1</span>Login and Navigation</h3>
+        <ul class="checklist">
+          <li>Logout from tutor account</li>
+          <li>Login with student credentials</li>
+          <li>Navigate to "Lớp học của tôi" from sidebar</li>
+          <li>Verify classroom list loads correctly</li>
+        </ul>
+
+        <h3><span class="step-number">2</span>Meeting Access Flow</h3>
+        <ul class="checklist">
+          <li>Find a classroom with "IN_SESSION" status</li>
+          <li>Click "Vào lớp học" button</li>
+          <li>
+            <strong>Verify:</strong> Meeting list modal appears (student
+            version)
+          </li>
+          <li>
+            <strong>Verify:</strong> Modal has "scp-" CSS styling (different
+            from tutor)
+          </li>
+          <li><strong>Verify:</strong> All available meetings are listed</li>
+          <li>
+            <strong>Verify:</strong> Meeting information is displayed correctly
+          </li>
+          <li>Test join functionality</li>
+          <li>Test modal responsiveness on different screen sizes</li>
+        </ul>
+      </div>
+
+      <h2 id="verification">🔍 Verification Checklist</h2>
+      <div class="test-section">
+        <h3>API Behavior</h3>
+        <ul class="checklist">
+          <li>Open browser Developer Tools (F12)</li>
+          <li>Go to Network tab</li>
+          <li>Click "Vào lớp học" button</li>
+          <li>
+            <strong>Verify:</strong> API call to
+            <code>meeting/search</code> does NOT include <code>rpp=1</code>
+          </li>
+          <li>
+            <strong>Verify:</strong> Response includes multiple meetings (if
+            available)
+          </li>
+          <li>
+            <strong>Verify:</strong> Response includes <code>joinUrl</code> and
+            <code>zoomMeetingId</code> fields
+          </li>
+        </ul>
+
+        <h3>Modal Functionality</h3>
+        <ul class="checklist">
+          <li>
+            <strong>Desktop:</strong> Modal appears centered and properly sized
+          </li>
+          <li><strong>Mobile:</strong> Modal is responsive and scrollable</li>
+          <li><strong>Keyboard:</strong> Can close modal with Escape key</li>
+          <li>
+            <strong>Click Outside:</strong> Modal closes when clicking overlay
+          </li>
+          <li><strong>Join Links:</strong> Open in new tab/window</li>
+          <li><strong>Copy Function:</strong> URL is copied to clipboard</li>
+        </ul>
+
+        <h3>Error Handling</h3>
+        <ul class="checklist">
+          <li>Test with classroom that has no meetings</li>
+          <li><strong>Verify:</strong> "No meetings" message displays</li>
+          <li>Test with network disconnected</li>
+          <li>
+            <strong>Verify:</strong> Error toast appears with helpful message
+          </li>
+        </ul>
+      </div>
+
+      <h2>📱 Mobile Testing</h2>
+      <div class="test-section">
+        <div class="highlight warning">
+          <strong>Important:</strong> Test on actual mobile devices or browser
+          dev tools mobile emulation
+        </div>
+        <ul class="checklist">
+          <li>Open app on mobile device</li>
+          <li>Test tutor flow on mobile</li>
+          <li>Test student flow on mobile</li>
+          <li><strong>Verify:</strong> Modal fits screen properly</li>
+          <li><strong>Verify:</strong> Buttons are touch-friendly</li>
+          <li><strong>Verify:</strong> Text is readable</li>
+          <li><strong>Verify:</strong> Scrolling works if content overflows</li>
+        </ul>
+      </div>
+
+      <h2>✅ Success Criteria</h2>
+      <div class="highlight success">
+        <h3>Meeting flow is successful if:</h3>
+        <ul>
+          <li>✅ No automatic navigation to meeting rooms</li>
+          <li>✅ Users can see and choose from all available meetings</li>
+          <li>✅ Meeting information is clearly displayed</li>
+          <li>✅ Join and copy functions work correctly</li>
+          <li>✅ Modal is responsive and user-friendly</li>
+          <li>✅ Error states are handled gracefully</li>
+          <li>✅ No breaking changes to existing functionality</li>
+        </ul>
+      </div>
+
+      <div class="highlight">
+        <h3>🐛 Found Issues?</h3>
+        <p>If you encounter any problems during testing:</p>
+        <ol>
+          <li>Note the exact steps to reproduce</li>
+          <li>Check browser console for errors</li>
+          <li>Test on different browsers if needed</li>
+          <li>Document the expected vs actual behavior</li>
+        </ol>
+      </div>
+
+      <div class="quick-access">
+        <h3>🎉 Testing Complete!</h3>
+        <p>
+          Once all tests pass, the meeting flow implementation is ready for
+          production!
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactivity to the checklist
+      document.addEventListener("DOMContentLoaded", function () {
+        const checklistItems = document.querySelectorAll(".checklist li");
+
+        checklistItems.forEach((item) => {
+          item.style.cursor = "pointer";
+          item.addEventListener("click", function () {
+            if (this.style.opacity === "0.6") {
+              this.style.opacity = "1";
+              this.style.textDecoration = "none";
+              this.querySelector("::before")
+                ? this.style.setProperty("--check", "☐")
+                : null;
+            } else {
+              this.style.opacity = "0.6";
+              this.style.textDecoration = "line-through";
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
