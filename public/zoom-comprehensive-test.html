@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom Integration Debug & Test</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 30px;
+      }
+      .test-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #007bff;
+      }
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 8px;
+        font-size: 14px;
+        transition: transform 0.2s;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .status {
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-weight: bold;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .status.warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .status.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      .zoom-container {
+        width: 100%;
+        height: 500px;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        position: relative;
+        background: #f8f9fa;
+        margin: 20px 0;
+      }
+      #zmmtg-root {
+        width: 100% !important;
+        height: 100% !important;
+        position: relative !important;
+      }
+      .log-panel {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        margin: 20px 0;
+      }
+      .progress {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 10px 0;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎥 Zoom Integration Comprehensive Test</h1>
+        <p>Debug và test toàn bộ flow Zoom meeting integration</p>
+      </div>
+
+      <div class="content">
+        <div class="test-section">
+          <h3>📊 Trạng thái hệ thống</h3>
+          <div id="systemStatus" class="status info">Đang kiểm tra...</div>
+          <div class="progress">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <h3>🔧 Test Controls</h3>
+          <button class="btn" onclick="testSystemStatus()">
+            🔍 Check System Status
+          </button>
+          <button class="btn" onclick="testZoomAuth()">
+            🔐 Test Zoom Auth
+          </button>
+          <button class="btn" onclick="testMeetingSearch()">
+            📅 Test Meeting Search
+          </button>
+          <button class="btn" onclick="testSignatureGeneration()">
+            📝 Test Signature
+          </button>
+          <button class="btn" onclick="testZoomSDK()">⚙️ Test Zoom SDK</button>
+          <button class="btn" onclick="simulateFullFlow()">
+            🚀 Simulate Full Flow
+          </button>
+          <button class="btn" onclick="clearLogs()">🧹 Clear Logs</button>
+        </div>
+
+        <div class="test-section">
+          <h3>🎥 Zoom Meeting Container</h3>
+          <p>Đây là nơi Zoom meeting sẽ được hiển thị:</p>
+          <div class="zoom-container" id="zoomContainer">
+            <div id="zmmtg-root"></div>
+            <div
+              style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+              "
+            >
+              <p style="color: #6c757d">Zoom Meeting Interface</p>
+              <p style="color: #adb5bd; font-size: 14px">
+                Click "Simulate Full Flow" để test
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <h3>📋 Debug Logs</h3>
+          <div id="logPanel" class="log-panel">
+            <div style="color: #68d391">
+              [SYSTEM] Zoom Integration Test Tool loaded
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:5000/api";
+      let testResults = {};
+      let currentStep = 0;
+      const totalSteps = 6;
+
+      function updateProgress(step) {
+        currentStep = step;
+        const percentage = (step / totalSteps) * 100;
+        document.getElementById("progressBar").style.width = percentage + "%";
+      }
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logPanel = document.getElementById("logPanel");
+        const colors = {
+          info: "#e2e8f0",
+          success: "#68d391",
+          error: "#f56565",
+          warning: "#ed8936",
+          system: "#90cdf4",
+        };
+
+        logPanel.innerHTML += `
+                <div style="color: ${colors[type]}; margin: 2px 0;">
+                    [${timestamp}] ${message}
+                </div>
+            `;
+        logPanel.scrollTop = logPanel.scrollHeight;
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+
+      function updateStatus(message, type = "info") {
+        const statusElement = document.getElementById("systemStatus");
+        statusElement.className = `status ${type}`;
+        statusElement.innerHTML = message;
+      }
+
+      function clearLogs() {
+        document.getElementById("logPanel").innerHTML =
+          '<div style="color: #68d391;">[SYSTEM] Logs cleared</div>';
+      }
+
+      async function testSystemStatus() {
+        log("Starting system status check...", "system");
+        updateProgress(1);
+
+        try {
+          // Check if running on localhost
+          if (!window.location.href.includes("localhost:3000")) {
+            throw new Error("Not running on localhost:3000");
+          }
+          log("✅ Running on correct localhost", "success");
+
+          // Check if API is accessible
+          const response = await fetch(`${API_BASE}/health`, { method: "GET" });
+          if (response.ok) {
+            log("✅ API server is accessible", "success");
+          } else {
+            log("⚠️ API server response not OK", "warning");
+          }
+
+          // Check Zoom SDK availability
+          try {
+            if (typeof window.ZoomMtg !== "undefined") {
+              log("✅ Zoom SDK already loaded", "success");
+            } else {
+              log("ℹ️ Zoom SDK not yet loaded (normal)", "info");
+            }
+          } catch (e) {
+            log("ℹ️ Zoom SDK check failed (normal if not loaded)", "info");
+          }
+
+          testResults.systemStatus = true;
+          updateStatus("✅ System status: OK", "success");
+        } catch (error) {
+          log(`❌ System status check failed: ${error.message}`, "error");
+          testResults.systemStatus = false;
+          updateStatus("❌ System status: Failed", "error");
+        }
+      }
+
+      async function testZoomAuth() {
+        log("Testing Zoom authentication...", "system");
+        updateProgress(2);
+
+        try {
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+          if (!zoomToken) {
+            throw new Error("No Zoom access token found");
+          }
+
+          log("✅ Zoom access token found", "success");
+          log(`Token preview: ${zoomToken.substring(0, 20)}...`, "info");
+
+          testResults.zoomAuth = true;
+          updateStatus("✅ Zoom authentication: OK", "success");
+        } catch (error) {
+          log(`❌ Zoom auth failed: ${error.message}`, "error");
+          log(
+            "💡 To fix: Visit /tai-khoan/ho-so/phong-hop-zoom and connect Zoom",
+            "warning"
+          );
+          testResults.zoomAuth = false;
+          updateStatus("❌ Zoom authentication: Failed", "error");
+        }
+      }
+
+      async function testMeetingSearch() {
+        log("Testing meeting search API...", "system");
+        updateProgress(3);
+
+        try {
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+          if (!zoomToken) {
+            throw new Error("No Zoom token available");
+          }
+
+          const response = await fetch(
+            `${API_BASE}/meeting/search?sort=[{"key":"startTime","type":"DESC"}]&rpp=1`,
+            {
+              headers: {
+                Authorization: `Bearer ${zoomToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success && data.data && data.data.length > 0) {
+            const meeting = data.data[0];
+            log("✅ Latest meeting found", "success");
+            log(`Meeting ID: ${meeting.zoomMeetingId}`, "info");
+            log(`Meeting Topic: ${meeting.topic || "N/A"}`, "info");
+
+            testResults.meetingSearch = meeting;
+            updateStatus("✅ Meeting search: OK", "success");
+          } else {
+            throw new Error("No meetings found");
+          }
+        } catch (error) {
+          log(`❌ Meeting search failed: ${error.message}`, "error");
+          testResults.meetingSearch = false;
+          updateStatus("❌ Meeting search: Failed", "error");
+        }
+      }
+
+      async function testSignatureGeneration() {
+        log("Testing Zoom signature generation...", "system");
+        updateProgress(4);
+
+        try {
+          if (!testResults.meetingSearch) {
+            throw new Error(
+              "No meeting data available. Run meeting search first."
+            );
+          }
+
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+          const response = await fetch(`${API_BASE}/meeting/signature`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${zoomToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              meetingNumber: testResults.meetingSearch.zoomMeetingId,
+              role: 1,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.data) {
+            log("✅ Signature generated successfully", "success");
+            log(`SDK Key: ${data.data.sdkKey}`, "info");
+            log(
+              `Signature preview: ${data.data.signature.substring(0, 50)}...`,
+              "info"
+            );
+
+            testResults.signature = data.data;
+            updateStatus("✅ Signature generation: OK", "success");
+          } else {
+            throw new Error(data.message || "Failed to generate signature");
+          }
+        } catch (error) {
+          log(`❌ Signature generation failed: ${error.message}`, "error");
+          testResults.signature = false;
+          updateStatus("❌ Signature generation: Failed", "error");
+        }
+      }
+
+      async function testZoomSDK() {
+        log("Testing Zoom SDK loading and initialization...", "system");
+        updateProgress(5);
+
+        try {
+          log("Loading Zoom SDK scripts...", "info");
+
+          // Load Zoom SDK scripts in sequence
+          await loadScript(
+            "https://source.zoom.us/3.13.2/lib/vendor/react.min.js"
+          );
+          await loadScript(
+            "https://source.zoom.us/3.13.2/lib/vendor/react-dom.min.js"
+          );
+          await loadScript(
+            "https://source.zoom.us/3.13.2/lib/vendor/redux.min.js"
+          );
+          await loadScript(
+            "https://source.zoom.us/3.13.2/lib/vendor/lodash.min.js"
+          );
+          await loadScript("https://source.zoom.us/3.13.2/lib/ZoomMtg.js");
+
+          log("✅ Zoom SDK scripts loaded", "success");
+
+          if (typeof window.ZoomMtg !== "undefined") {
+            log("✅ ZoomMtg object available", "success");
+
+            // Test SDK functions
+            const functions = [
+              "setZoomJSLib",
+              "preLoadWasm",
+              "prepareWebSDK",
+              "init",
+              "join",
+            ];
+            for (const func of functions) {
+              if (typeof window.ZoomMtg[func] === "function") {
+                log(`✅ ZoomMtg.${func} available`, "success");
+              } else {
+                log(`❌ ZoomMtg.${func} not available`, "error");
+              }
+            }
+
+            testResults.zoomSDK = true;
+            updateStatus("✅ Zoom SDK: OK", "success");
+          } else {
+            throw new Error("ZoomMtg object not available after loading");
+          }
+        } catch (error) {
+          log(`❌ Zoom SDK test failed: ${error.message}`, "error");
+          testResults.zoomSDK = false;
+          updateStatus("❌ Zoom SDK: Failed", "error");
+        }
+      }
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      async function simulateFullFlow() {
+        log("🚀 Starting full Zoom meeting flow simulation...", "system");
+        updateProgress(6);
+
+        try {
+          // Check prerequisites
+          if (
+            !testResults.signature ||
+            !testResults.meetingSearch ||
+            !testResults.zoomSDK
+          ) {
+            throw new Error(
+              "Prerequisites not met. Run all previous tests first."
+            );
+          }
+
+          const ZoomMtg = window.ZoomMtg;
+          const meeting = testResults.meetingSearch;
+          const signature = testResults.signature;
+
+          log("Configuring Zoom SDK...", "info");
+          ZoomMtg.setZoomJSLib("https://source.zoom.us/3.13.2/lib", "/av");
+
+          log("Preparing Zoom SDK...", "info");
+          await ZoomMtg.preLoadWasm();
+          await ZoomMtg.prepareWebSDK();
+
+          log("Initializing Zoom meeting...", "info");
+
+          ZoomMtg.init({
+            leaveUrl: window.location.href,
+            patchJsMedia: true,
+            success: function () {
+              log("✅ Zoom SDK initialized successfully", "success");
+
+              log("Attempting to join meeting...", "info");
+              ZoomMtg.join({
+                sdkKey: signature.sdkKey,
+                signature: signature.signature,
+                meetingNumber: String(meeting.zoomMeetingId),
+                userName: "Test User",
+                userEmail: "test@example.com",
+                passWord: meeting.password || "",
+                tk: "",
+                success: function (joinRes) {
+                  log("🎉 Successfully joined Zoom meeting!", "success");
+                  log(`Join result: ${JSON.stringify(joinRes)}`, "info");
+                  updateStatus("🎉 Full flow: SUCCESS!", "success");
+
+                  // Check if Zoom interface is visible
+                  setTimeout(() => {
+                    const zoomRoot = document.getElementById("zmmtg-root");
+                    if (zoomRoot && zoomRoot.children.length > 0) {
+                      log("✅ Zoom interface is rendering", "success");
+                    } else {
+                      log("⚠️ Zoom interface may not be visible", "warning");
+                    }
+                  }, 2000);
+                },
+                error: function (joinErr) {
+                  log(`❌ Failed to join meeting: ${joinErr.reason}`, "error");
+                  updateStatus("❌ Full flow: Join failed", "error");
+                },
+              });
+            },
+            error: function (initErr) {
+              log(`❌ SDK initialization failed: ${initErr.reason}`, "error");
+              updateStatus("❌ Full flow: Init failed", "error");
+            },
+          });
+        } catch (error) {
+          log(`❌ Full flow simulation failed: ${error.message}`, "error");
+          updateStatus("❌ Full flow: Failed", "error");
+        }
+      }
+
+      // Auto-run system status check on load
+      window.addEventListener("load", () => {
+        setTimeout(testSystemStatus, 1000);
+      });
+    </script>
+  </body>
+</html>

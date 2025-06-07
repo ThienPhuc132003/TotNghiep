@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom Meeting Debug Tool</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .debug-section {
+        background: white;
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .status-good {
+        color: #28a745;
+      }
+      .status-warning {
+        color: #ffc107;
+      }
+      .status-error {
+        color: #dc3545;
+      }
+      .test-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .test-button:hover {
+        background: #0056b3;
+      }
+      .test-result {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+      }
+      .log-entry {
+        padding: 5px;
+        margin: 2px 0;
+        border-left: 3px solid #007bff;
+        padding-left: 10px;
+      }
+      .log-error {
+        border-left-color: #dc3545;
+        background-color: #f8d7da;
+      }
+      .log-success {
+        border-left-color: #28a745;
+        background-color: #d4edda;
+      }
+      .log-warning {
+        border-left-color: #ffc107;
+        background-color: #fff3cd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Zoom Meeting Integration Debug Tool</h1>
+
+    <div class="debug-section">
+      <h2>📋 System Status Check</h2>
+      <div id="system-status">
+        <p>Checking system status...</p>
+      </div>
+      <button class="test-button" onclick="checkSystemStatus()">
+        Refresh Status
+      </button>
+    </div>
+
+    <div class="debug-section">
+      <h2>🔑 Zoom Token Verification</h2>
+      <div id="token-status">
+        <p>Checking Zoom token...</p>
+      </div>
+      <button class="test-button" onclick="checkZoomToken()">
+        Check Token
+      </button>
+      <button class="test-button" onclick="clearZoomToken()">
+        Clear Token
+      </button>
+    </div>
+
+    <div class="debug-section">
+      <h2>🧪 API Testing</h2>
+      <div>
+        <button class="test-button" onclick="testMeetingCreation()">
+          Test Meeting Creation
+        </button>
+        <button class="test-button" onclick="testMeetingSearch()">
+          Test Meeting Search
+        </button>
+        <button class="test-button" onclick="testSignatureGeneration()">
+          Test Signature
+        </button>
+      </div>
+      <div id="api-results"></div>
+    </div>
+
+    <div class="debug-section">
+      <h2>📝 Debug Logs</h2>
+      <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+      <div id="debug-logs"></div>
+    </div>
+
+    <script>
+      // Logging system
+      function addLog(message, type = "info") {
+        const logsContainer = document.getElementById("debug-logs");
+        const logEntry = document.createElement("div");
+        logEntry.className = `log-entry log-${type}`;
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logsContainer.appendChild(logEntry);
+        logsContainer.scrollTop = logsContainer.scrollHeight;
+      }
+
+      function clearLogs() {
+        document.getElementById("debug-logs").innerHTML = "";
+      }
+
+      // System status check
+      function checkSystemStatus() {
+        addLog("Checking system status...", "info");
+        const statusDiv = document.getElementById("system-status");
+
+        let statusHTML = "";
+
+        // Check browser compatibility
+        if (
+          navigator.userAgent.includes("Chrome") ||
+          navigator.userAgent.includes("Firefox")
+        ) {
+          statusHTML += '<p class="status-good">✅ Browser: Compatible</p>';
+          addLog("Browser compatibility: OK", "success");
+        } else {
+          statusHTML +=
+            '<p class="status-warning">⚠️ Browser: May have compatibility issues</p>';
+          addLog("Browser compatibility: Warning", "warning");
+        }
+
+        // Check localStorage availability
+        try {
+          localStorage.setItem("test", "test");
+          localStorage.removeItem("test");
+          statusHTML += '<p class="status-good">✅ LocalStorage: Available</p>';
+          addLog("LocalStorage: Available", "success");
+        } catch (e) {
+          statusHTML +=
+            '<p class="status-error">❌ LocalStorage: Not available</p>';
+          addLog("LocalStorage: Not available", "error");
+        }
+
+        // Check current URL
+        const currentUrl = window.location.href;
+        statusHTML += `<p class="status-good">🌐 Current URL: ${currentUrl}</p>`;
+        addLog(`Current URL: ${currentUrl}`, "info");
+
+        statusDiv.innerHTML = statusHTML;
+      }
+
+      // Zoom token verification
+      function checkZoomToken() {
+        addLog("Checking Zoom token...", "info");
+        const tokenDiv = document.getElementById("token-status");
+
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+
+        if (zoomToken) {
+          tokenDiv.innerHTML = `
+                    <p class="status-good">✅ Zoom Token: Found</p>
+                    <p>Length: ${zoomToken.length} characters</p>
+                    <p>Starts with: ${zoomToken.substring(0, 20)}...</p>
+                `;
+          addLog(`Zoom token found: ${zoomToken.length} characters`, "success");
+        } else {
+          tokenDiv.innerHTML = `
+                    <p class="status-error">❌ Zoom Token: Not found</p>
+                    <p>You need to connect your Zoom account first.</p>
+                `;
+          addLog("Zoom token not found", "error");
+        }
+      }
+
+      function clearZoomToken() {
+        localStorage.removeItem("zoomAccessToken");
+        addLog("Zoom token cleared", "warning");
+        checkZoomToken();
+      }
+
+      // API Testing functions
+      async function testMeetingCreation() {
+        addLog("Testing meeting creation...", "info");
+        const resultsDiv = document.getElementById("api-results");
+
+        try {
+          // Simulate API call structure
+          const payload = {
+            topic: "Debug Test Meeting",
+            password: "123456",
+            classroomId: "debug-test-123",
+            type: 2,
+            duration: 60,
+          };
+
+          addLog("Meeting creation payload prepared", "success");
+          resultsDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Meeting Creation Test</strong>
+                        Payload: ${JSON.stringify(payload, null, 2)}
+                        
+                        📝 To test with real API:
+                        1. Open browser console
+                        2. Make sure Zoom token exists
+                        3. Call: fetch('/api/meeting/create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        })
+                    </div>
+                `;
+        } catch (error) {
+          addLog(`Meeting creation test failed: ${error.message}`, "error");
+          resultsDiv.innerHTML = `<div class="test-result status-error">Error: ${error.message}</div>`;
+        }
+      }
+
+      async function testMeetingSearch() {
+        addLog("Testing meeting search...", "info");
+        const resultsDiv = document.getElementById("api-results");
+
+        try {
+          const query = {
+            classroomId: "debug-test-123",
+            sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
+            rpp: 1,
+          };
+
+          addLog("Meeting search query prepared", "success");
+          resultsDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Meeting Search Test</strong>
+                        Query: ${JSON.stringify(query, null, 2)}
+                        
+                        📝 To test with real API:
+                        1. Open browser console
+                        2. Call: fetch('/api/meeting/search?' + new URLSearchParams(query))
+                    </div>
+                `;
+        } catch (error) {
+          addLog(`Meeting search test failed: ${error.message}`, "error");
+          resultsDiv.innerHTML = `<div class="test-result status-error">Error: ${error.message}</div>`;
+        }
+      }
+
+      async function testSignatureGeneration() {
+        addLog("Testing signature generation...", "info");
+        const resultsDiv = document.getElementById("api-results");
+
+        try {
+          const payload = {
+            meetingNumber: "123456789",
+            role: 1,
+          };
+
+          addLog("Signature generation payload prepared", "success");
+          resultsDiv.innerHTML = `
+                    <div class="test-result">
+                        <strong>Signature Generation Test</strong>
+                        Payload: ${JSON.stringify(payload, null, 2)}
+                        
+                        📝 To test with real API:
+                        1. Open browser console
+                        2. Make sure you have a meeting ID
+                        3. Call: fetch('/api/meeting/signature', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        })
+                    </div>
+                `;
+        } catch (error) {
+          addLog(`Signature generation test failed: ${error.message}`, "error");
+          resultsDiv.innerHTML = `<div class="test-result status-error">Error: ${error.message}</div>`;
+        }
+      }
+
+      // Initialize on page load
+      window.addEventListener("load", function () {
+        addLog("Debug tool loaded", "success");
+        checkSystemStatus();
+        checkZoomToken();
+      });
+
+      // Console helper functions
+      window.debugZoom = {
+        checkLocalStorage: () => {
+          console.log("=== LocalStorage Contents ===");
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const value = localStorage.getItem(key);
+            console.log(`${key}:`, value);
+          }
+        },
+
+        simulateApiCall: async (endpoint, method = "GET", data = null) => {
+          console.log(`Simulating ${method} call to ${endpoint}`);
+          console.log("Data:", data);
+
+          // This would be replaced with actual API calls
+          return {
+            success: true,
+            data: { message: "This is a simulation" },
+          };
+        },
+
+        testZoomComponent: () => {
+          console.log("=== ZoomMeetingEmbed Test Props ===");
+          const props = {
+            sdkKey: "test-sdk-key",
+            signature: "test.jwt.signature",
+            meetingNumber: "123456789",
+            userName: "Debug User",
+            passWord: "123456",
+          };
+          console.log("Props:", props);
+          console.log(
+            "All required props present:",
+            ["sdkKey", "signature", "meetingNumber", "userName"].every(
+              (prop) => props[prop]
+            )
+          );
+        },
+      };
+
+      console.log("🔍 Zoom Debug Tool loaded");
+      console.log("Available functions:");
+      console.log("- debugZoom.checkLocalStorage()");
+      console.log("- debugZoom.simulateApiCall(endpoint, method, data)");
+      console.log("- debugZoom.testZoomComponent()");
+    </script>
+  </body>
+</html>

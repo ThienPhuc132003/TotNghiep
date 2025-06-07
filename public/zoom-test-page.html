@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Zoom Meeting Integration</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .zoom-test-container {
+        width: 100%;
+        height: 600px;
+        border: 2px solid #007bff;
+        margin: 20px 0;
+        position: relative;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+      }
+      #zmmtg-root {
+        width: 100% !important;
+        height: 100% !important;
+        position: relative !important;
+      }
+      .btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .btn:hover {
+        background-color: #0056b3;
+      }
+      .info-panel {
+        background-color: #e9ecef;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .error {
+        color: #dc3545;
+        background-color: #f8d7da;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .success {
+        color: #155724;
+        background-color: #d4edda;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .log-container {
+        background-color: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎥 Test Zoom Meeting Integration</h1>
+
+      <div class="info-panel">
+        <h3>Trạng thái kết nối:</h3>
+        <div id="status">Chưa kết nối</div>
+      </div>
+
+      <div>
+        <button class="btn" onclick="testZoomConnection()">
+          🔗 Test Zoom Connection
+        </button>
+        <button class="btn" onclick="getLatestMeeting()">
+          📅 Get Latest Meeting
+        </button>
+        <button class="btn" onclick="testZoomSignature()">
+          📝 Test Zoom Signature
+        </button>
+        <button class="btn" onclick="joinTestMeeting()">
+          🚀 Join Test Meeting
+        </button>
+        <button class="btn" onclick="clearLogs()">🧹 Clear Logs</button>
+      </div>
+
+      <div class="zoom-test-container" id="zoomContainer">
+        <div id="zmmtg-root"></div>
+        <div
+          style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+          "
+        >
+          <p>Zoom Meeting sẽ hiển thị ở đây</p>
+          <p><small>Click "Join Test Meeting" để thử nghiệm</small></p>
+        </div>
+      </div>
+
+      <div class="log-container" id="logContainer">
+        <div><strong>📋 Debug Logs:</strong></div>
+        <div id="logs"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:5000/api";
+      let currentMeetingData = null;
+      let zoomSignature = null;
+      let zoomSdkKey = null;
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logElement = document.getElementById("logs");
+        const colors = {
+          info: "#e2e8f0",
+          success: "#68d391",
+          error: "#f56565",
+          warning: "#ed8936",
+        };
+
+        logElement.innerHTML += `
+                <div style="color: ${colors[type]}; margin: 2px 0;">
+                    [${timestamp}] ${message}
+                </div>
+            `;
+        logElement.scrollTop = logElement.scrollHeight;
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+
+      function clearLogs() {
+        document.getElementById("logs").innerHTML = "";
+      }
+
+      function updateStatus(message, type = "info") {
+        const statusElement = document.getElementById("status");
+        const colors = {
+          info: "#6c757d",
+          success: "#28a745",
+          error: "#dc3545",
+          warning: "#ffc107",
+        };
+        statusElement.innerHTML = `<span style="color: ${colors[type]};">${message}</span>`;
+      }
+
+      async function testZoomConnection() {
+        log("Testing Zoom API connection...", "info");
+        updateStatus("Đang kiểm tra kết nối...", "warning");
+
+        try {
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+          if (!zoomToken) {
+            throw new Error("Không tìm thấy Zoom access token");
+          }
+
+          const response = await fetch(`${API_BASE}/meeting/test`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${zoomToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            log("✅ Zoom API connection successful", "success");
+            updateStatus("✅ Kết nối Zoom thành công", "success");
+          } else {
+            throw new Error(data.message || "Unknown error");
+          }
+        } catch (error) {
+          log(`❌ Zoom connection failed: ${error.message}`, "error");
+          updateStatus("❌ Kết nối Zoom thất bại", "error");
+        }
+      }
+
+      async function getLatestMeeting() {
+        log("Fetching latest meeting...", "info");
+
+        try {
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+          const response = await fetch(
+            `${API_BASE}/meeting/search?sort=[{"key":"startTime","type":"DESC"}]&rpp=1`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${zoomToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success && data.data && data.data.length > 0) {
+            currentMeetingData = data.data[0];
+            log(
+              `✅ Latest meeting found: ${currentMeetingData.zoomMeetingId}`,
+              "success"
+            );
+            log(
+              `Meeting details: ${JSON.stringify(currentMeetingData, null, 2)}`,
+              "info"
+            );
+            updateStatus(
+              `✅ Meeting ID: ${currentMeetingData.zoomMeetingId}`,
+              "success"
+            );
+          } else {
+            throw new Error("No meetings found");
+          }
+        } catch (error) {
+          log(`❌ Failed to get meeting: ${error.message}`, "error");
+          updateStatus("❌ Không tìm thấy meeting", "error");
+        }
+      }
+
+      async function testZoomSignature() {
+        if (!currentMeetingData) {
+          log(
+            "❌ No meeting data available. Get latest meeting first.",
+            "error"
+          );
+          return;
+        }
+
+        log("Fetching Zoom signature...", "info");
+
+        try {
+          const zoomToken = localStorage.getItem("zoomAccessToken");
+          const response = await fetch(`${API_BASE}/meeting/signature`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${zoomToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              meetingNumber: currentMeetingData.zoomMeetingId,
+              role: 1,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.data) {
+            zoomSignature = data.data.signature;
+            zoomSdkKey = data.data.sdkKey;
+            log("✅ Zoom signature obtained successfully", "success");
+            log(`SDK Key: ${zoomSdkKey}`, "info");
+            log(`Signature: ${zoomSignature.substring(0, 50)}...`, "info");
+            updateStatus("✅ Signature sẵn sàng", "success");
+          } else {
+            throw new Error(data.message || "Failed to get signature");
+          }
+        } catch (error) {
+          log(`❌ Failed to get signature: ${error.message}`, "error");
+          updateStatus("❌ Lấy signature thất bại", "error");
+        }
+      }
+
+      async function joinTestMeeting() {
+        if (!currentMeetingData || !zoomSignature || !zoomSdkKey) {
+          log(
+            "❌ Missing meeting data or signature. Run previous tests first.",
+            "error"
+          );
+          return;
+        }
+
+        log("Attempting to join Zoom meeting...", "info");
+        updateStatus("Đang tham gia meeting...", "warning");
+
+        try {
+          // Import Zoom SDK
+          if (!window.ZoomMtg) {
+            log("Loading Zoom SDK...", "info");
+            await loadZoomSDK();
+          }
+
+          const ZoomMtg = window.ZoomMtg;
+
+          log("Preparing Zoom SDK...", "info");
+          await ZoomMtg.preLoadWasm();
+          await ZoomMtg.prepareWebSDK();
+
+          log("Initializing Zoom Meeting...", "info");
+          ZoomMtg.init({
+            leaveUrl: window.location.href,
+            patchJsMedia: true,
+            success: function () {
+              log("✅ Zoom SDK initialized successfully", "success");
+
+              ZoomMtg.join({
+                sdkKey: zoomSdkKey,
+                signature: zoomSignature,
+                meetingNumber: String(currentMeetingData.zoomMeetingId),
+                userName: "Test User",
+                userEmail: "test@example.com",
+                passWord: currentMeetingData.password || "",
+                tk: "",
+                success: function (joinRes) {
+                  log("✅ Successfully joined Zoom meeting!", "success");
+                  log(`Join result: ${JSON.stringify(joinRes)}`, "info");
+                  updateStatus("✅ Đã tham gia meeting", "success");
+                },
+                error: function (joinErr) {
+                  log(`❌ Failed to join meeting: ${joinErr.reason}`, "error");
+                  updateStatus("❌ Tham gia meeting thất bại", "error");
+                },
+              });
+            },
+            error: function (initErr) {
+              log(`❌ SDK initialization failed: ${initErr.reason}`, "error");
+              updateStatus("❌ Khởi tạo SDK thất bại", "error");
+            },
+          });
+        } catch (error) {
+          log(`❌ Error joining meeting: ${error.message}`, "error");
+          updateStatus("❌ Lỗi tham gia meeting", "error");
+        }
+      }
+
+      function loadZoomSDK() {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://source.zoom.us/3.13.2/lib/vendor/react.min.js";
+          script.onload = () => {
+            const script2 = document.createElement("script");
+            script2.src =
+              "https://source.zoom.us/3.13.2/lib/vendor/react-dom.min.js";
+            script2.onload = () => {
+              const script3 = document.createElement("script");
+              script3.src =
+                "https://source.zoom.us/3.13.2/lib/vendor/redux.min.js";
+              script3.onload = () => {
+                const script4 = document.createElement("script");
+                script4.src =
+                  "https://source.zoom.us/3.13.2/lib/vendor/lodash.min.js";
+                script4.onload = () => {
+                  const script5 = document.createElement("script");
+                  script5.src = "https://source.zoom.us/3.13.2/lib/ZoomMtg.js";
+                  script5.onload = resolve;
+                  script5.onerror = reject;
+                  document.head.appendChild(script5);
+                };
+                script4.onerror = reject;
+                document.head.appendChild(script4);
+              };
+              script3.onerror = reject;
+              document.head.appendChild(script3);
+            };
+            script2.onerror = reject;
+            document.head.appendChild(script2);
+          };
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      // Initialize
+      log("🚀 Zoom Test Page loaded", "success");
+      updateStatus("Sẵn sàng để test", "info");
+    </script>
+  </body>
+</html>
