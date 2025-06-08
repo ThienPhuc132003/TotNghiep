@@ -187,7 +187,7 @@ function App() {
                     <Route
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}
-                    />
+                    />{" "}
                   </Route>
                   {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
@@ -195,6 +195,7 @@ function App() {
                     path="phong-hop-zoom"
                     element={<TutorMeetingRoomPage />}
                   />
+                  <Route path="phong-hoc" element={<TutorMeetingRoomPage />} />
                 </Route>
 
                 {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
