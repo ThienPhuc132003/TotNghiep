@@ -156,24 +156,48 @@ const SmartZoomLoader = (props) => {
         : "Use ZoomMeetingEmbed",
     });
   }, [detectEnvironment, selectComponent]);
-
-  // Component renderer
+  // Component renderer with proper parameter mapping
   const renderComponent = () => {
+    const { meetingConfig, ...otherProps } = props;
+
+    // Common props for all components
     const commonProps = {
-      ...props,
+      ...otherProps,
       environmentInfo,
       onComponentSwitch: setForceComponent,
     };
 
+    // Map meetingConfig to individual props for ZoomMeetingEmbed and ZoomDebugComponent
+    const embeddableProps = meetingConfig
+      ? {
+          ...commonProps,
+          sdkKey: meetingConfig.apiKey,
+          signature: meetingConfig.signature,
+          meetingNumber: meetingConfig.meetingNumber,
+          userName: meetingConfig.userName,
+          userEmail: meetingConfig.userEmail || "",
+          passWord: meetingConfig.passWord || "",
+          customLeaveUrl: meetingConfig.leaveUrl,
+        }
+      : commonProps;
+
     switch (selectedComponent) {
       case "production":
-        return <ProductionZoomSDK {...commonProps} />;
+        // ProductionZoomSDK expects meetingConfig object
+        return (
+          <ProductionZoomSDK {...commonProps} meetingConfig={meetingConfig} />
+        );
       case "debug":
-        return <ZoomDebugComponent {...commonProps} />;
+        // ZoomDebugComponent expects individual props
+        return <ZoomDebugComponent {...embeddableProps} />;
       case "embed":
-        return <ZoomMeetingEmbed {...commonProps} />;
+        // ZoomMeetingEmbed expects individual props
+        return <ZoomMeetingEmbed {...embeddableProps} />;
       default:
-        return <ProductionZoomSDK {...commonProps} />; // Safe fallback
+        // Safe fallback to ProductionZoomSDK
+        return (
+          <ProductionZoomSDK {...commonProps} meetingConfig={meetingConfig} />
+        );
     }
   };
 

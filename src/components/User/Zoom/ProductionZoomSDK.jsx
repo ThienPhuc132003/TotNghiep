@@ -329,7 +329,6 @@ const ProductionZoomSDK = ({
       }
     };
   }, [loadZoomSDK, log]);
-
   // Join meeting function
   const joinMeeting = useCallback(() => {
     if (!window.ZoomMtg || !meetingConfig) {
@@ -337,7 +336,29 @@ const ProductionZoomSDK = ({
       return;
     }
 
-    log("info", "Initializing meeting join...");
+    // Enhanced parameter validation
+    const requiredParams = ["signature", "apiKey", "meetingNumber", "userName"];
+
+    const missingParams = requiredParams.filter((param) => {
+      const value = meetingConfig[param];
+      return !value || (typeof value === "string" && value.trim() === "");
+    });
+
+    if (missingParams.length > 0) {
+      const errorMsg = `Missing required parameters: ${missingParams.join(
+        ", "
+      )}`;
+      log("error", errorMsg, meetingConfig);
+      onError?.(errorMsg);
+      return;
+    }
+
+    log("info", "Initializing meeting join with validated parameters...", {
+      hasSignature: !!meetingConfig.signature,
+      hasApiKey: !!meetingConfig.apiKey,
+      meetingNumber: meetingConfig.meetingNumber,
+      userName: meetingConfig.userName,
+    });
 
     try {
       window.ZoomMtg.init({
@@ -364,14 +385,14 @@ const ProductionZoomSDK = ({
         logDirSizeLimit: -1,
         success: () => {
           log("info", "SDK initialized successfully");
-
           window.ZoomMtg.join({
             signature: meetingConfig.signature,
-            apiKey: meetingConfig.apiKey,
-            meetingNumber: meetingConfig.meetingNumber,
-            passWord: meetingConfig.passWord,
+            sdkKey: meetingConfig.apiKey, // Fix: Map apiKey to sdkKey for Zoom SDK
+            meetingNumber: String(meetingConfig.meetingNumber), // Ensure string format
+            passWord: meetingConfig.passWord || "",
             userName: meetingConfig.userName,
             userEmail: meetingConfig.userEmail || "",
+            tk: "", // Required empty token parameter
             success: (success) => {
               log("info", "Successfully joined meeting", success);
               onJoinMeeting?.(success);
