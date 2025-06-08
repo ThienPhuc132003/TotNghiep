@@ -76,6 +76,9 @@ const QuickZoomTest = lazy(() =>
 const SimpleZoomTest = lazy(() =>
   import("./components/User/Zoom/SimpleZoomTest")
 );
+const SmartZoomLoader = lazy(() =>
+  import("./components/User/Zoom/SmartZoomLoader")
+);
 
 // Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
@@ -214,10 +217,26 @@ function App() {
               element={<MicrosoftCallback />}
             />
             <Route path="/meeting/callback" element={<ZoomCallback />} />
-            {/* Zoom SDK Testing Routes */}
+            {/* Zoom SDK Testing Routes */}{" "}
             <Route path="/zoom-debug" element={<ZoomDebugComponent />} />
             <Route path="/zoom-quick-test" element={<QuickZoomTest />} />
             <Route path="/zoom-simple-test" element={<SimpleZoomTest />} />
+            <Route
+              path="/zoom-production-test"
+              element={
+                <SmartZoomLoader
+                  meetingConfig={{
+                    apiKey: "test-key",
+                    signature: "test-signature",
+                    meetingNumber: "123456789",
+                    passWord: "test123",
+                    userName: "Production Test User",
+                    userEmail: "test@example.com",
+                    leaveUrl: "/",
+                  }}
+                />
+              }
+            />
             {/* ADMIN ROUTES */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<AdminPrivateRoutes />}>
