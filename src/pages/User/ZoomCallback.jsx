@@ -22,15 +22,13 @@ const ZoomCallback = () => {
         queryParams.get("error_description") || zoomErrorFromUrl;
       setInternalError(`Lỗi từ Zoom: ${errorDescription}.`);
       setMessage("Kết nối Zoom không thành công.");
-      // Chuyển hướng về trang phòng họp với thông báo lỗi
-      setTimeout(
+      // Chuyển hướng về trang phòng họp với thông báo lỗi        setTimeout(
         () =>
-          navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+          navigate("/tai-khoan/ho-so/phong-hoc", {
             replace: true,
             state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
           }),
         3000
-      );
       return;
     }
 
@@ -70,21 +68,18 @@ const ZoomCallback = () => {
                 navigate(returnPath, {
                   replace: true,
                   state: returnState ? JSON.parse(returnState) : {},
-                });
-              } else {
+                });              } else {
                 // Default return to meeting room page
-                navigate("/tai-khoan/ho-so/phong-hop-zoom", { replace: true });
+                navigate("/tai-khoan/ho-so/phong-hoc", { replace: true });
               }
-            }, 2000);
-          } else {
-            const errMsg =
+            }, 2000);          } else {            const errMsg =
               backendResponse?.message ||
               "Phản hồi từ máy chủ không chứa token hợp lệ.";
             setInternalError(errMsg);
             setMessage("Kết nối Zoom không thành công.");
             setTimeout(
               () =>
-                navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+                navigate("/tai-khoan/ho-so/phong-hoc", {
                   replace: true,
                   state: { zoomAuthError: errMsg },
                 }),
@@ -96,12 +91,11 @@ const ZoomCallback = () => {
           const errMsg =
             err.response?.data?.message ||
             err.message ||
-            "Lỗi kết nối đến máy chủ khi xử lý Zoom token.";
-          setInternalError(errMsg);
+            "Lỗi kết nối đến máy chủ khi xử lý Zoom token.";          setInternalError(errMsg);
           setMessage("Kết nối Zoom không thành công.");
           setTimeout(
             () =>
-              navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+              navigate("/tai-khoan/ho-so/phong-hoc", {
                 replace: true,
                 state: { zoomAuthError: errMsg },
               }),
@@ -112,11 +106,10 @@ const ZoomCallback = () => {
       // Không có code và cũng không có zoomErrorFromUrl
       const errMsg =
         "Không tìm thấy mã xác thực (code) từ Zoom trên URL callback.";
-      setInternalError(errMsg);
-      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
+      setInternalError(errMsg);      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
       setTimeout(
         () =>
-          navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+          navigate("/tai-khoan/ho-so/phong-hoc", {
             replace: true,
             state: { zoomAuthError: errMsg },
           }),

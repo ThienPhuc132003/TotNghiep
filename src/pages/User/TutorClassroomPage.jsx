@@ -482,7 +482,7 @@ const TutorClassroomPage = () => {
       );
 
       // Redirect to Zoom connection page with classroom info
-      navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+      navigate("/tai-khoan/ho-so/phong-hoc", {
         state: {
           needZoomConnection: true,
           returnTo: "classroom",

@@ -235,7 +235,7 @@ const CreateMeetingPage = () => {
           userName={userNameForSDK}
           userEmail={userEmailForSDK}
           passWord={meetingDetails.password || ""}
-          customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/phong-hop-zoom`} // Quay về trang quản lý phòng họp
+          customLeaveUrl={`${window.location.origin}/tai-khoan/ho-so/phong-hoc`} // Quay về trang quản lý phòng họp
           onMeetingEnd={handleMeetingSessionEnd}
           onError={handleSdkErrorFromEmbed}
           onMeetingJoined={() => {
@@ -348,7 +348,7 @@ const CreateMeetingPage = () => {
         </div>
       )}{" "}
       <button
-        onClick={() => navigate("/tai-khoan/ho-so/phong-hop-zoom")}
+        onClick={() => navigate("/tai-khoan/ho-so/phong-hoc")}
         className="btn btn-link-back"
       >
         Quay lại Quản lý phòng họp

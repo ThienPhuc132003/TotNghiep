@@ -172,7 +172,7 @@ function App() {
                       element={<TutorClassroomPage />}
                     />
                     <Route
-                      path="phong-hop-zoom"
+                      path="phong-hoc"
                       element={<TutorMeetingRoomPage />}
                     />
                     <Route
