@@ -71,16 +71,24 @@ const TutorMeetingRoomPage = () => {
       // Xóa state để không hiển thị lại khi refresh hoặc điều hướng nội bộ
       navigate(location.pathname, { replace: true, state: {} });
     }
-
     const checkZoomConnection = async () => {
       setIsLoading(true);
       const zoomAccessToken = localStorage.getItem("zoomAccessToken");
       console.log("🔍 Checking Zoom connection:", {
         hasToken: !!zoomAccessToken,
         tokenLength: zoomAccessToken?.length,
+        userRole,
+        hasMeetingData: !!meetingData,
       });
 
-      if (zoomAccessToken) {
+      // For students joining existing meetings, we don't need Zoom OAuth token
+      // They can join via meeting/signature API using meetingData from meeting/search
+      if (userRole === "student" || userRole === "participant") {
+        console.log(
+          "👨‍🎓 Student joining existing meeting - no OAuth token needed"
+        );
+        setIsZoomConnected(true);
+      } else if (zoomAccessToken) {
         setIsZoomConnected(true);
         console.log("✅ Zoom is connected");
       } else {
@@ -90,7 +98,7 @@ const TutorMeetingRoomPage = () => {
       setIsLoading(false);
     };
     checkZoomConnection();
-  }, [location, navigate]);
+  }, [location, navigate, userRole, meetingData]);
   // Reset when user role changes (if needed)
   useEffect(() => {
     // No password verification needed - Zoom SDK handles this natively
@@ -110,11 +118,18 @@ const TutorMeetingRoomPage = () => {
     setError(`Lỗi từ Zoom SDK: ${errorMessage}`);
     setIsStartingMeeting(false);
     setSignatureData(null);
-  };
-  // Manual meeting start function (like CreateMeetingPage pattern)
+  }; // Manual meeting start function (like CreateMeetingPage pattern)
   const handleStartMeeting = async () => {
-    if (!meetingData || !isZoomConnected) {
-      setError("Meeting data or Zoom connection not available");
+    // For students, they don't need Zoom OAuth connection - they can join via signature API
+    const needsZoomConnection = userRole === "host" && !isZoomConnected;
+
+    if (!meetingData) {
+      setError("Meeting data not available");
+      return;
+    }
+
+    if (needsZoomConnection) {
+      setError("Zoom connection required for host role");
       return;
     }
 
@@ -243,9 +258,12 @@ const TutorMeetingRoomPage = () => {
       </div>
     );
   }
-
-  // Show meeting info and start button if we have meeting data (like CreateMeetingPage)
-  if (meetingData && isZoomConnected) {
+  // Show meeting info and start button if we have meeting data
+  // For students, they don't need Zoom OAuth token - they can join via signature API
+  if (
+    meetingData &&
+    (isZoomConnected || userRole === "student" || userRole === "participant")
+  ) {
     return (
       <div className="tutor-meeting-room-page">
         <div className="meeting-header">
@@ -333,70 +351,102 @@ const TutorMeetingRoomPage = () => {
       </div>
     );
   }
+
+  // Only show Zoom connection section for hosts (tutors) who need to create meetings
+  // Students don't need Zoom OAuth token to join existing meetings
+  if (!isZoomConnected && (userRole === "host" || !meetingData)) {
+    return (
+      <div className="tutor-meeting-room-page">
+        <h2 className="page-title">
+          {classroomInfo?.needConnection
+            ? `Kết nối Zoom cho lớp: ${classroomInfo.name}`
+            : "Quản Lý Phòng Họp"}
+        </h2>
+        {error && <p className="error-message">{error}</p>}
+        {!isZoomConnected ? (
+          <div className="zoom-connect-section">
+            {classroomInfo?.needConnection ? (
+              <div className="classroom-connection-info">
+                <div className="connection-notice">
+                  <i
+                    className="fas fa-info-circle"
+                    style={{ marginRight: "8px", color: "#007bff" }}
+                  ></i>
+                  <span>
+                    Bạn cần kết nối tài khoản Zoom để tạo phòng học cho lớp:{" "}
+                    <strong>{classroomInfo.name}</strong>
+                  </span>
+                </div>
+                <p>
+                  Sau khi kết nối thành công, bạn sẽ được đưa về trang quản lý
+                  lớp học để tiếp tục tạo phòng học Zoom.
+                </p>
+              </div>
+            ) : (
+              <p>
+                Để sử dụng tính năng phòng họp trực tuyến, bạn cần kết nối tài
+                khoản Zoom của mình.
+              </p>
+            )}
+            <button
+              onClick={handleConnectZoom}
+              className="btn btn-primary btn-connect-zoom"
+              disabled={isLoading}
+            >
+              <i className="fas fa-video" style={{ marginRight: "8px" }}></i>
+              Kết nối tài khoản Zoom
+            </button>
+          </div>
+        ) : (
+          <div className="zoom-connected-section">
+            <div className="connection-status success">
+              <i className="fas fa-check-circle"></i>
+              <span>Tài khoản Zoom của bạn đã được kết nối.</span>
+            </div>
+            <p className="info-text">
+              Chức năng tạo phòng học Zoom hiện đã được tích hợp vào trang quản
+              lý lớp học. Bạn có thể tạo phòng học trực tiếp từ mỗi lớp học.
+            </p>
+            <button
+              onClick={handleCreateMeeting}
+              className="btn btn-primary btn-create-meeting"
+            >
+              <i
+                className="fas fa-chalkboard-teacher"
+                style={{ marginRight: "8px" }}
+              ></i>{" "}
+              Đi đến quản lý lớp học
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback: If student has meeting data but something went wrong
+  // This should rarely happen with the above logic fixes
   return (
     <div className="tutor-meeting-room-page">
-      <h2 className="page-title">
-        {classroomInfo?.needConnection
-          ? `Kết nối Zoom cho lớp: ${classroomInfo.name}`
-          : "Quản Lý Phòng Họp"}
-      </h2>
+      <h2 className="page-title">Đang tải phòng học...</h2>
       {error && <p className="error-message">{error}</p>}
-      {!isZoomConnected ? (
-        <div className="zoom-connect-section">
-          {classroomInfo?.needConnection ? (
-            <div className="classroom-connection-info">
-              <div className="connection-notice">
-                <i
-                  className="fas fa-info-circle"
-                  style={{ marginRight: "8px", color: "#007bff" }}
-                ></i>
-                <span>
-                  Bạn cần kết nối tài khoản Zoom để tạo phòng học cho lớp:{" "}
-                  <strong>{classroomInfo.name}</strong>
-                </span>
-              </div>
-              <p>
-                Sau khi kết nối thành công, bạn sẽ được đưa về trang quản lý lớp
-                học để tiếp tục tạo phòng học Zoom.
-              </p>
-            </div>
-          ) : (
-            <p>
-              Để sử dụng tính năng phòng họp trực tuyến, bạn cần kết nối tài
-              khoản Zoom của mình.
-            </p>
-          )}
+      <div className="loading-message">
+        <p>Đang chuẩn bị phòng học cho bạn...</p>
+        {meetingData && (
           <button
-            onClick={handleConnectZoom}
-            className="btn btn-primary btn-connect-zoom"
-            disabled={isLoading}
+            onClick={() => {
+              const redirectUrl =
+                userRole === "host"
+                  ? "/tai-khoan/ho-so/quan-ly-lop-hoc"
+                  : "/tai-khoan/ho-so/lop-hoc-cua-toi";
+              navigate(redirectUrl);
+            }}
+            className="btn btn-secondary"
           >
-            <i className="fas fa-video" style={{ marginRight: "8px" }}></i>
-            Kết nối tài khoản Zoom
+            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
+            Quay lại
           </button>
-        </div>
-      ) : (
-        <div className="zoom-connected-section">
-          <div className="connection-status success">
-            <i className="fas fa-check-circle"></i>
-            <span>Tài khoản Zoom của bạn đã được kết nối.</span>
-          </div>
-          <p className="info-text">
-            Chức năng tạo phòng học Zoom hiện đã được tích hợp vào trang quản lý
-            lớp học. Bạn có thể tạo phòng học trực tiếp từ mỗi lớp học.
-          </p>
-          <button
-            onClick={handleCreateMeeting}
-            className="btn btn-primary btn-create-meeting"
-          >
-            <i
-              className="fas fa-chalkboard-teacher"
-              style={{ marginRight: "8px" }}
-            ></i>
-            Đi đến quản lý lớp học
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
