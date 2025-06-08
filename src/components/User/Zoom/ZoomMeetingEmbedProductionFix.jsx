@@ -335,7 +335,6 @@ function ZoomMeetingEmbedProductionFix({
       }
 
       setSdkReady(true);
-
       console.log(
         "[ZoomMeetingEmbedProductionFix] Initializing ZoomMtg with config:",
         {
@@ -346,6 +345,46 @@ function ZoomMeetingEmbedProductionFix({
           timestamp: new Date().toISOString(),
         }
       );
+
+      // CRITICAL DEBUG: Log signature details for stuck join issue
+      try {
+        if (signature) {
+          const parts = signature.split(".");
+          if (parts.length === 3) {
+            const payload = JSON.parse(
+              atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
+            );
+            const now = Math.floor(Date.now() / 1000);
+            const timeLeft = payload.exp - now;
+            console.log(
+              "[ZoomMeetingEmbedProductionFix] 🔐 Signature Analysis:",
+              {
+                hasSignature: true,
+                expiresAt: new Date(payload.exp * 1000).toISOString(),
+                timeLeftSeconds: timeLeft,
+                isExpired: timeLeft <= 0,
+                meetingNumberInToken: payload.mn,
+                role: payload.role,
+              }
+            );
+
+            if (timeLeft <= 0) {
+              console.error(
+                "[ZoomMeetingEmbedProductionFix] ❌ SIGNATURE EXPIRED! This will cause join to fail."
+              );
+            } else if (timeLeft < 300) {
+              console.warn(
+                "[ZoomMeetingEmbedProductionFix] ⚠️ Signature expires in less than 5 minutes"
+              );
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(
+          "[ZoomMeetingEmbedProductionFix] Could not decode signature:",
+          e.message
+        );
+      }
 
       // Critical fix: Enhanced initialization configuration
       const initConfig = {
@@ -377,7 +416,19 @@ function ZoomMeetingEmbedProductionFix({
           );
           sdkInitialized = true;
 
-          // Critical fix: Enhanced join configuration
+          // Add timeout for join process to prevent infinite loading
+          const joinTimeout = setTimeout(() => {
+            console.error(
+              "[ZoomMeetingEmbedProductionFix] ❌ Join timeout after 30 seconds"
+            );
+            setIsSdkCallInProgress(false);
+            handleSdkError(
+              "Timeout khi tham gia phòng họp. Vui lòng thử lại.",
+              "JOIN_TIMEOUT"
+            );
+          }, 30000);
+
+          // Critical fix: Enhanced join configuration with timeout
           const joinConfig = {
             sdkKey: sdkKey,
             signature: signature,
@@ -387,6 +438,7 @@ function ZoomMeetingEmbedProductionFix({
             passWord: passWord || "",
             tk: "",
             success: function (joinRes) {
+              clearTimeout(joinTimeout); // Clear timeout on success
               console.log(
                 "[ZoomMeetingEmbedProductionFix] ✅ Meeting joined successfully:",
                 {
@@ -484,6 +536,7 @@ function ZoomMeetingEmbedProductionFix({
               }
             },
             error: function (joinErr) {
+              clearTimeout(joinTimeout); // Clear timeout on error
               console.error(
                 "[ZoomMeetingEmbedProductionFix] ❌ Join error:",
                 joinErr
