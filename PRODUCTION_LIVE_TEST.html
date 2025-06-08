@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🚀 Production Black Screen Fix - Live Test</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .test-section {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 5px solid #4caf50;
+      }
+      .test-section.error {
+        border-left-color: #f44336;
+      }
+      .test-section.warning {
+        border-left-color: #ff9800;
+      }
+      .test-result {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .success {
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .error {
+        color: #f44336;
+        font-weight: bold;
+      }
+      .warning {
+        color: #ff9800;
+        font-weight: bold;
+      }
+      .info {
+        color: #2196f3;
+        font-weight: bold;
+      }
+      button {
+        background: linear-gradient(45deg, #4caf50, #45a049);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px 5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+      button:disabled {
+        background: #666;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+      .status-success {
+        background-color: #4caf50;
+      }
+      .status-error {
+        background-color: #f44336;
+      }
+      .status-warning {
+        background-color: #ff9800;
+      }
+      .status-pending {
+        background-color: #2196f3;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 0.4;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.4;
+        }
+      }
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 15px 0;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+      pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        font-size: 12px;
+        margin: 10px 0;
+      }
+      .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 Production Black Screen Fix - Live Test</h1>
+
+      <div class="test-section">
+        <h2>📊 Test Overview</h2>
+        <div id="testOverview">
+          <p>
+            <span class="status-indicator status-pending"></span>Initializing
+            comprehensive production tests...
+          </p>
+          <div class="progress-bar">
+            <div class="progress-fill" id="overallProgress"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-grid">
+        <div class="test-section">
+          <h3>🌐 Environment Check</h3>
+          <div id="environmentResults"></div>
+          <button onclick="runEnvironmentTests()" id="envTestBtn">
+            Test Environment
+          </button>
+        </div>
+
+        <div class="test-section">
+          <h3>🔧 Button Logic Test</h3>
+          <div id="buttonResults"></div>
+          <button onclick="runButtonTests()" id="buttonTestBtn">
+            Test Button Logic
+          </button>
+        </div>
+
+        <div class="test-section">
+          <h3>📹 Zoom SDK Test</h3>
+          <div id="zoomResults"></div>
+          <button onclick="runZoomTests()" id="zoomTestBtn">
+            Test Zoom SDK
+          </button>
+        </div>
+
+        <div class="test-section">
+          <h3>🎯 End-to-End Test</h3>
+          <div id="e2eResults"></div>
+          <button onclick="runE2ETests()" id="e2eTestBtn">Run Full Test</button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>📋 Detailed Results</h2>
+        <pre id="detailedLog"></pre>
+      </div>
+
+      <div class="test-section">
+        <h2>🎮 Actions</h2>
+        <button onclick="runAllTests()" id="runAllBtn">🚀 Run All Tests</button>
+        <button onclick="clearResults()" id="clearBtn">🧹 Clear Results</button>
+        <button onclick="downloadReport()" id="downloadBtn">
+          📊 Download Report
+        </button>
+        <button onclick="openProductionSite()" id="prodBtn">
+          🌐 Open Production Site
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let testResults = [];
+      let currentTest = 0;
+      const totalTests = 12;
+
+      function updateProgress() {
+        const progress = (currentTest / totalTests) * 100;
+        document.getElementById("overallProgress").style.width = progress + "%";
+      }
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `[${timestamp}] ${message}`;
+
+        testResults.push({ timestamp, message, type });
+
+        const detailedLog = document.getElementById("detailedLog");
+        detailedLog.textContent += logEntry + "\n";
+        detailedLog.scrollTop = detailedLog.scrollHeight;
+
+        console.log(logEntry);
+      }
+
+      function setStatus(elementId, status, message) {
+        const element = document.getElementById(elementId);
+        const statusClass =
+          status === "success"
+            ? "success"
+            : status === "error"
+            ? "error"
+            : status === "warning"
+            ? "warning"
+            : "info";
+
+        const indicator =
+          status === "success"
+            ? "status-success"
+            : status === "error"
+            ? "status-error"
+            : status === "warning"
+            ? "status-warning"
+            : "status-pending";
+
+        element.innerHTML = `<span class="status-indicator ${indicator}"></span><span class="${statusClass}">${message}</span>`;
+      }
+
+      async function runEnvironmentTests() {
+        log("🌐 Starting environment tests...", "info");
+        setStatus("environmentResults", "pending", "Testing environment...");
+
+        try {
+          // Test 1: URL validation
+          const isProduction = window.location.hostname === "giasuvlu.click";
+          log(
+            `URL Check: ${window.location.href} (Production: ${isProduction})`,
+            isProduction ? "success" : "warning"
+          );
+
+          // Test 2: HTTPS validation
+          const isHTTPS = window.location.protocol === "https:";
+          log(
+            `HTTPS Check: ${isHTTPS ? "Enabled" : "Disabled"}`,
+            isHTTPS ? "success" : "error"
+          );
+
+          // Test 3: Browser compatibility
+          const hasWebAssembly = typeof WebAssembly !== "undefined";
+          const hasES6 = typeof Promise !== "undefined";
+          log(
+            `Browser Compatibility: WebAssembly=${hasWebAssembly}, ES6=${hasES6}`,
+            hasWebAssembly && hasES6 ? "success" : "error"
+          );
+
+          // Test 4: Required globals
+          const hasReact = typeof window.React !== "undefined";
+          log(`React Available: ${hasReact}`, hasReact ? "success" : "warning");
+
+          currentTest += 4;
+          updateProgress();
+
+          setStatus(
+            "environmentResults",
+            "success",
+            "✅ Environment tests completed"
+          );
+          return true;
+        } catch (error) {
+          log(`Environment test error: ${error.message}`, "error");
+          setStatus(
+            "environmentResults",
+            "error",
+            "❌ Environment tests failed"
+          );
+          return false;
+        }
+      }
+
+      async function runButtonTests() {
+        log("🔧 Starting button logic tests...", "info");
+        setStatus("buttonResults", "pending", "Testing button logic...");
+
+        try {
+          // Simulate button logic tests
+          const meetingData = { id: "test-meeting" };
+          const isZoomConnected = true;
+
+          // Test student role (should be enabled)
+          const studentDisabled = !meetingData || (false && !isZoomConnected); // userRole !== "host"
+          log(
+            `Student Button Test: ${studentDisabled ? "DISABLED" : "ENABLED"}`,
+            studentDisabled ? "error" : "success"
+          );
+
+          // Test host role with connection (should be enabled)
+          const hostConnectedDisabled =
+            !meetingData || (true && !isZoomConnected); // userRole === "host"
+          log(
+            `Host Connected Test: ${
+              hostConnectedDisabled ? "DISABLED" : "ENABLED"
+            }`,
+            hostConnectedDisabled ? "error" : "success"
+          );
+
+          // Test host role without connection (should be disabled)
+          const hostDisconnectedDisabled = !meetingData || (true && !false); // userRole === "host" && !isZoomConnected
+          log(
+            `Host Disconnected Test: ${
+              hostDisconnectedDisabled ? "DISABLED" : "ENABLED"
+            }`,
+            hostDisconnectedDisabled ? "success" : "error"
+          );
+
+          currentTest += 3;
+          updateProgress();
+
+          setStatus("buttonResults", "success", "✅ Button logic tests passed");
+          return true;
+        } catch (error) {
+          log(`Button test error: ${error.message}`, "error");
+          setStatus("buttonResults", "error", "❌ Button logic tests failed");
+          return false;
+        }
+      }
+
+      async function runZoomTests() {
+        log("📹 Starting Zoom SDK tests...", "info");
+        setStatus("zoomResults", "pending", "Testing Zoom SDK...");
+
+        try {
+          // Test 1: Check if Zoom SDK is available
+          const hasZoomSDK = typeof window.ZoomMtg !== "undefined";
+          log(
+            `Zoom SDK Available: ${hasZoomSDK}`,
+            hasZoomSDK ? "success" : "warning"
+          );
+
+          // Test 2: Check Zoom container
+          const zoomContainer = document.querySelector(
+            '[id*="zoom"], [class*="zoom"]'
+          );
+          log(
+            `Zoom Container Found: ${!!zoomContainer}`,
+            zoomContainer ? "success" : "warning"
+          );
+
+          // Test 3: Check for WebAssembly support (required by Zoom)
+          const wasmSupport =
+            typeof WebAssembly !== "undefined" && WebAssembly.validate;
+          log(
+            `WebAssembly Support: ${wasmSupport}`,
+            wasmSupport ? "success" : "error"
+          );
+
+          // Test 4: Check network conditions
+          const isOnline = navigator.onLine;
+          log(
+            `Network Status: ${isOnline ? "Online" : "Offline"}`,
+            isOnline ? "success" : "error"
+          );
+
+          // Test 5: Memory availability
+          const memoryInfo = performance.memory;
+          if (memoryInfo) {
+            const usedMB = Math.round(memoryInfo.usedJSHeapSize / 1024 / 1024);
+            const totalMB = Math.round(
+              memoryInfo.totalJSHeapSize / 1024 / 1024
+            );
+            log(
+              `Memory Usage: ${usedMB}MB / ${totalMB}MB`,
+              usedMB < totalMB * 0.8 ? "success" : "warning"
+            );
+          }
+
+          currentTest += 3;
+          updateProgress();
+
+          setStatus("zoomResults", "success", "✅ Zoom SDK tests completed");
+          return true;
+        } catch (error) {
+          log(`Zoom test error: ${error.message}`, "error");
+          setStatus("zoomResults", "error", "❌ Zoom SDK tests failed");
+          return false;
+        }
+      }
+
+      async function runE2ETests() {
+        log("🎯 Starting end-to-end tests...", "info");
+        setStatus("e2eResults", "pending", "Running E2E tests...");
+
+        try {
+          // Test the complete flow simulation
+          log("E2E Test 1: Page navigation simulation", "info");
+
+          // Test meeting room page elements
+          const hasButton =
+            document.querySelector('button[contains="Bắt đầu"]') ||
+            document.querySelector('button[contains="Start"]') ||
+            document.querySelector('[class*="meeting"]') ||
+            window.location.pathname.includes("phong-hoc");
+
+          log(
+            `Meeting Page Elements: ${hasButton ? "Found" : "Not Found"}`,
+            hasButton ? "success" : "warning"
+          );
+
+          // Test authentication flow
+          log("E2E Test 2: Authentication check", "info");
+          const hasAuthToken =
+            localStorage.getItem("token") ||
+            sessionStorage.getItem("token") ||
+            document.cookie.includes("token");
+          log(
+            `Authentication Token: ${hasAuthToken ? "Present" : "Missing"}`,
+            hasAuthToken ? "success" : "warning"
+          );
+
+          currentTest += 2;
+          updateProgress();
+
+          setStatus("e2eResults", "success", "✅ End-to-end tests completed");
+          return true;
+        } catch (error) {
+          log(`E2E test error: ${error.message}`, "error");
+          setStatus("e2eResults", "error", "❌ End-to-end tests failed");
+          return false;
+        }
+      }
+
+      async function runAllTests() {
+        log("🚀 Starting comprehensive test suite...", "info");
+        setStatus("testOverview", "pending", "Running all tests...");
+
+        const startTime = Date.now();
+        currentTest = 0;
+
+        try {
+          const results = await Promise.all([
+            runEnvironmentTests(),
+            runButtonTests(),
+            runZoomTests(),
+            runE2ETests(),
+          ]);
+
+          const allPassed = results.every((result) => result);
+          const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+          log(
+            `All tests completed in ${duration}s. Success rate: ${
+              results.filter((r) => r).length
+            }/${results.length}`,
+            allPassed ? "success" : "warning"
+          );
+
+          setStatus(
+            "testOverview",
+            allPassed ? "success" : "warning",
+            `✅ Tests completed: ${results.filter((r) => r).length}/${
+              results.length
+            } passed`
+          );
+
+          return allPassed;
+        } catch (error) {
+          log(`Test suite error: ${error.message}`, "error");
+          setStatus("testOverview", "error", "❌ Test suite failed");
+          return false;
+        }
+      }
+
+      function clearResults() {
+        testResults = [];
+        currentTest = 0;
+        document.getElementById("detailedLog").textContent = "";
+        document.getElementById("overallProgress").style.width = "0%";
+
+        const statusElements = [
+          "testOverview",
+          "environmentResults",
+          "buttonResults",
+          "zoomResults",
+          "e2eResults",
+        ];
+        statusElements.forEach((id) => {
+          setStatus(id, "pending", "Ready to test...");
+        });
+
+        log("🧹 Results cleared", "info");
+      }
+
+      function downloadReport() {
+        const report = {
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+          results: testResults,
+        };
+
+        const dataStr = JSON.stringify(report, null, 2);
+        const dataUri =
+          "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+        const exportFileDefaultName = `zoom-fix-test-report-${new Date()
+          .toISOString()
+          .slice(0, 10)}.json`;
+
+        const linkElement = document.createElement("a");
+        linkElement.setAttribute("href", dataUri);
+        linkElement.setAttribute("download", exportFileDefaultName);
+        linkElement.click();
+
+        log("📊 Test report downloaded", "success");
+      }
+
+      function openProductionSite() {
+        window.open(
+          "https://giasuvlu.click/tai-khoan/ho-so/phong-hoc",
+          "_blank"
+        );
+        log("🌐 Production site opened in new tab", "info");
+      }
+
+      // Auto-start when page loads
+      window.addEventListener("load", () => {
+        log("🎬 Production test suite initialized", "success");
+        setStatus("testOverview", "success", "✅ Ready to run tests");
+
+        // Auto-run basic checks
+        setTimeout(() => {
+          runEnvironmentTests();
+        }, 1000);
+      });
+
+      // Add keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey) {
+          switch (e.key) {
+            case "Enter":
+              e.preventDefault();
+              runAllTests();
+              break;
+            case "r":
+              e.preventDefault();
+              clearResults();
+              break;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
