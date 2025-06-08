@@ -258,7 +258,7 @@ const StudentClassroomPage = () => {
 
     const handleJoinMeeting = (meeting) => {
       // Navigate to TutorMeetingRoomPage with meeting data for embedded Zoom
-      navigate("/tai-khoan/ho-so/phong-hop-zoom", {
+      navigate("/tai-khoan/ho-so/phong-hoc", {
         state: {
           meetingData: meeting,
           classroomName: classroomName,
