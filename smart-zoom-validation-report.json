@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-06-08T07:49:33.612Z",
+  "results": [
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "report": {
+    "totalTests": 5,
+    "passedTests": 5,
+    "successRate": 100,
+    "status": "EXCELLENT"
+  },
+  "environment": {
+    "nodeVersion": "v20.13.1",
+    "platform": "win32",
+    "cwd": "C:\\Users\\PHUC\\Documents\\GitHub\\TotNghiep"
+  }
+}
