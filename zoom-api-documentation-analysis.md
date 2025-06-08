@@ -4,6 +4,14 @@
 
 This document provides a comprehensive analysis of the 5 meeting-related API endpoints in the Zoom SDK integration project, identifying any missing body parameters or response documentation.
 
+## Important Note
+
+All endpoints require proper authentication tokens (user token + Zoom token system) handled by `axiosClient.js`.
+
+**Custom API Implementation**: Request bodies are sent using a `data` key structure as implemented in `src/network/Api.js`.
+
+Base URL: Use your backend API base URL
+
 ---
 
 ## 📊 API Endpoints Analysis
@@ -64,9 +72,11 @@ This document provides a comprehensive analysis of the 5 meeting-related API end
   "success": true,
   "message": "Zoom account connected successfully",
   "data": {
-    "accessToken": "zoom_access_token",
-    "refreshToken": "zoom_refresh_token",
-    "expiresIn": 3600
+    "result": {
+      "userId": "KjvHejFnSKaHRXLtdnRhUA",
+      "accessToken": "eyJzdiI6IjAwMDAwMiIsImFsZyI6IkhTNTEyIiwidiI6IjIuMCIsImtpZCI6Ijk0Zjc3ZjgyLWMzMzYtNDY2ZS1hY2VhLWZkN2QxMWFmNzdhNiJ9...",
+      "refreshToken": "eyJzdiI6IjAwMDAwMiIsImFsZyI6IkhTNTEyIiwidiI6IjIuMCIsImtpZCI6IjhhODkzNzgxLWYwMTEtNGQyYS1iMmE3LTNiNTA2NzgxZGIxYSJ9..."
+    }
   }
 }
 ```
@@ -90,19 +100,22 @@ This document provides a comprehensive analysis of the 5 meeting-related API end
 #### **Request Structure** ✅ **Complete**
 
 ```javascript
+// Note: Requests are sent with a 'data' key wrapper via custom API implementation
 {
-  "topic": "Meeting Title",          // Required - Meeting title
-  "password": "meeting_password",    // Required - Meeting password
-  "classroomId": "classroom_123",    // Required - Links to classroom
-  "type": 2,                        // Optional - Meeting type (scheduled)
-  "duration": 60,                   // Optional - Duration in minutes
-  "start_time": "2024-01-01T10:00:00Z", // Optional - Start time
-  "settings": {                     // Optional - Meeting settings
-    "join_before_host": true,
-    "waiting_room": false,
-    "mute_upon_entry": false,
-    "use_pmi": false,
-    "approval_type": 2
+  "data": {
+    "topic": "Meeting Title",          // Required - Meeting title
+    "password": "meeting_password",    // Required - Meeting password
+    "classroomId": "classroom_123",    // Required - Links to classroom
+    "type": 2,                        // Optional - Meeting type (scheduled)
+    "duration": 60,                   // Optional - Duration in minutes
+    "start_time": "2024-01-01T10:00:00Z", // Optional - Start time
+    "settings": {                     // Optional - Meeting settings
+      "join_before_host": true,
+      "waiting_room": false,
+      "mute_upon_entry": false,
+      "use_pmi": false,
+      "approval_type": 2
+    }
   }
 }
 ```
@@ -114,15 +127,11 @@ This document provides a comprehensive analysis of the 5 meeting-related API end
   "success": true,
   "message": "Meeting created successfully",
   "data": {
-    "id": "meeting_db_id",           // Database ID
-    "zoomMeetingId": "123456789",    // Zoom meeting ID
-    "topic": "Meeting Title",        // Meeting title
-    "password": "meeting_password",  // Meeting password
-    "joinUrl": "https://zoom.us/j/123456789",     // Join URL
-    "startUrl": "https://zoom.us/s/123456789",    // Host start URL
-    "join_url": "https://zoom.us/j/123456789",    // Alternative field name
-    "start_url": "https://zoom.us/s/123456789",   // Alternative field name
-    "created_at": "2024-01-01T10:00:00Z"
+    "meetingId": "854e4f00-e117-46c4-a825-c73fa09864f0",    // Database meeting ID
+    "zoomMeetingId": "71832087500",                         // Zoom meeting ID (string)
+    "topic": "Team Sync Meeting",                           // Meeting title
+    "startTime": "2025-05-25T12:32:55.000Z",               // Meeting start time
+    "joinUrl": "https://us04web.zoom.us/j/71832087500?pwd=oNaENAm3UJYIZi0zBkzDSk4PdzegR8.1"  // Join URL with password
   }
 }
 ```
@@ -146,10 +155,12 @@ This document provides a comprehensive analysis of the 5 meeting-related API end
 #### **Request Structure** ✅ **Complete**
 
 ```javascript
+// Note: Requests are sent with a 'data' key wrapper via custom API implementation
 {
-  "meetingNumber": "123456789",     // Required - Zoom meeting ID (string)
-  "zoomMeetingId": "123456789",     // Alternative field name (string)
-  "role": 1                         // Required - User role (1=host, 0=participant)
+  "data": {
+    "zoomMeetingId": "71832087500",   // Required - Zoom meeting ID (string)
+    "role": 1                         // Required - User role (1=host, 0=participant, default: 1)
+  }
 }
 ```
 
@@ -160,8 +171,10 @@ This document provides a comprehensive analysis of the 5 meeting-related API end
   "success": true,
   "message": "Signature generated successfully",
   "data": {
+    "sdkKey": "UvOcMaoRbiqZ4UZonTmWw",                     // SDK App Key
     "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // JWT signature
-    "sdkKey": "zoom_sdk_key_12345"   // SDK App Key
+    "meetingNumber": "75413613885",                        // Meeting number for SDK
+    "password": "12345"                                    // Meeting password
   }
 }
 ```
