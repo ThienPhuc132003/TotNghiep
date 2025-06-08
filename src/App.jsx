@@ -188,13 +188,9 @@ function App() {
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}
                     />{" "}
-                  </Route>
+                  </Route>{" "}
                   {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
-                  <Route
-                    path="phong-hop-zoom"
-                    element={<TutorMeetingRoomPage />}
-                  />
                   <Route path="phong-hoc" element={<TutorMeetingRoomPage />} />
                 </Route>
 

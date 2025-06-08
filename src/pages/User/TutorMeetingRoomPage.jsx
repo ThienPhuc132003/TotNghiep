@@ -18,6 +18,7 @@ const TutorMeetingRoomPage = () => {
   const [zoomSignature, setZoomSignature] = useState(null);
   const [zoomSdkKey, setZoomSdkKey] = useState(null);
   const [userRole, setUserRole] = useState("host"); // Default to host for tutor
+  const [isStartingMeeting, setIsStartingMeeting] = useState(false); // New state for manual control
   // Removed useDebugComponent - now using SmartZoomLoader for automatic selection
   useEffect(() => {
     console.log("📍 TutorMeetingRoomPage - Navigation state received:", {
@@ -90,63 +91,57 @@ const TutorMeetingRoomPage = () => {
       setIsLoading(false);
     };
     checkZoomConnection();
-  }, [location, navigate]); // Fetch Zoom signature when we have meeting data
-  useEffect(() => {
-    const fetchZoomSignature = async () => {
-      if (!meetingData || !isZoomConnected) {
-        console.log("🔍 Skipping signature fetch:", {
-          hasMeetingData: !!meetingData,
-          isZoomConnected,
-          userRole,
+  }, [location, navigate]); // Manual meeting start function (like CreateMeetingPage pattern)
+  const handleStartMeeting = async () => {
+    if (!meetingData || !isZoomConnected) {
+      setError("Meeting data or Zoom connection not available");
+      return;
+    }
+
+    try {
+      setError(null);
+      console.log("🔑 Starting meeting with params:", {
+        meetingId: meetingData.zoomMeetingId,
+        userRole,
+        roleValue: userRole === "host" ? 1 : 0,
+        zoomToken: !!localStorage.getItem("zoomAccessToken"),
+      });
+
+      // Determine role: 1 for host (tutor), 0 for participant (student)
+      const roleValue = userRole === "host" ? 1 : 0;
+      const response = await Api({
+        endpoint: "meeting/signature",
+        method: METHOD_TYPE.POST,
+        data: {
+          zoomMeetingId: meetingData.zoomMeetingId,
+          role: roleValue,
+        },
+        requireToken: true, // Same as working CreateMeetingPage
+      });
+
+      console.log("📡 Signature API response:", response);
+
+      if (response.success && response.data) {
+        setZoomSignature(response.data.signature);
+        setZoomSdkKey(response.data.sdkKey);
+        setIsStartingMeeting(true); // Direct control like old flow
+        console.log("✅ Zoom signature fetched successfully:", {
+          hasSignature: !!response.data.signature,
+          hasSdkKey: !!response.data.sdkKey,
         });
-        return;
+      } else {
+        console.error("❌ Signature API failed:", response);
+        throw new Error(response.message || "Failed to get Zoom signature");
       }
-
-      try {
-        console.log("🔑 Fetching Zoom signature with params:", {
-          meetingId: meetingData.zoomMeetingId,
-          userRole,
-          roleValue: userRole === "host" ? 1 : 0,
-          zoomToken: !!localStorage.getItem("zoomAccessToken"),
-        });
-
-        // Determine role: 1 for host (tutor), 0 for participant (student)
-        const roleValue = userRole === "host" ? 1 : 0;
-        const response = await Api({
-          endpoint: "meeting/signature",
-          method: METHOD_TYPE.POST,
-          data: {
-            zoomMeetingId: meetingData.zoomMeetingId,
-            role: roleValue,
-          },
-          requireToken: true, // FIX: Use same token config as working CreateMeetingPage
-        });
-
-        console.log("📡 Signature API response:", response);
-
-        if (response.success && response.data) {
-          setZoomSignature(response.data.signature);
-          setZoomSdkKey(response.data.sdkKey);
-          console.log("✅ Zoom signature fetched successfully:", {
-            hasSignature: !!response.data.signature,
-            hasSdkKey: !!response.data.sdkKey,
-          });
-        } else {
-          console.error("❌ Signature API failed:", response);
-          throw new Error(response.message || "Failed to get Zoom signature");
-        }
-      } catch (error) {
-        console.error("🚨 Error fetching Zoom signature:", error);
-        setError(
-          `Không thể lấy thông tin để tham gia phòng học: ${
-            error.message || error
-          }. Vui lòng thử lại.`
-        );
-      }
-    };
-
-    fetchZoomSignature();
-  }, [meetingData, isZoomConnected, userRole]);
+    } catch (error) {
+      console.error("🚨 Error fetching Zoom signature:", error);
+      setError(
+        `Không thể lấy thông tin để tham gia phòng học: ${
+          error.message || error
+        }. Vui lòng thử lại.`
+      );
+    }
+  };
 
   const handleConnectZoom = async () => {
     setIsLoading(true);
@@ -183,40 +178,16 @@ const TutorMeetingRoomPage = () => {
     // Redirect back to classroom management page since create meeting functionality is now integrated there
     navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
   };
-
   if (isLoading) {
     return (
       <div className="loading-container">Đang tải thông tin phòng họp...</div>
     );
   }
-  // If we have meeting data and signature, show the Zoom meeting embed
-  if (meetingData && isZoomConnected && zoomSignature && zoomSdkKey) {
+
+  // If starting meeting with signature, show Zoom embed (like CreateMeetingPage pattern)
+  if (isStartingMeeting && zoomSignature && zoomSdkKey && meetingData) {
     return (
-      <div className="tutor-meeting-room-page">
-        <div className="meeting-header">
-          <h2 className="page-title">
-            {classroomInfo?.name || "Phòng học Zoom"}
-            {classroomInfo?.isNewMeeting && (
-              <span className="new-meeting-badge">Phòng học mới</span>
-            )}
-          </h2>{" "}
-          <button
-            onClick={() => {
-              const redirectUrl =
-                userRole === "host"
-                  ? "/tai-khoan/ho-so/quan-ly-lop-hoc"
-                  : "/tai-khoan/ho-so/lop-hoc-cua-toi";
-              navigate(redirectUrl);
-            }}
-            className="btn btn-secondary btn-back"
-          >
-            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
-            {userRole === "host"
-              ? "Quay lại quản lý lớp học"
-              : "Quay lại lớp học của tôi"}
-          </button>{" "}
-        </div>{" "}
-        {/* Smart Zoom Loader - Automatically selects best component for environment */}
+      <div className="tutor-meeting-room-page zoom-active">
         <ZoomErrorBoundary
           meetingConfig={{
             apiKey: zoomSdkKey,
@@ -228,7 +199,7 @@ const TutorMeetingRoomPage = () => {
                 ? `Gia sư - ${classroomInfo?.name || "Phòng học"}`
                 : `Học viên - ${classroomInfo?.name || "Phòng học"}`,
             userEmail: "",
-            leaveUrl: "/classroom",
+            leaveUrl: "/tai-khoan/ho-so/quan-ly-lop-hoc",
           }}
           fallbackUrl={`https://zoom.us/j/${meetingData.zoomMeetingId}`}
           onError={(error) => {
@@ -247,55 +218,111 @@ const TutorMeetingRoomPage = () => {
                   ? `Gia sư - ${classroomInfo?.name || "Phòng học"}`
                   : `Học viên - ${classroomInfo?.name || "Phòng học"}`,
               userEmail: "",
-              leaveUrl: "/classroom",
+              leaveUrl: "/tai-khoan/ho-so/quan-ly-lop-hoc",
             }}
             onJoinMeeting={(success) => {
               console.log("🎯 Meeting joined successfully:", success);
-              setIsZoomConnected(true);
             }}
             onLeaveMeeting={() => {
               console.log("👋 Meeting left");
-              navigate("/classroom");
+              setIsStartingMeeting(false); // Exit meeting mode
+              navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
             }}
             onError={(error) => {
               console.error("🚨 SmartZoomLoader error:", error);
               setError(`Smart Loader Error: ${error}`);
-            }}
-            onZoomError={(error) => {
-              console.error("🚨 Zoom error:", error);
-              setError(`Zoom Error: ${error}`);
-            }}
-            onSDKReady={(sdk) => {
-              console.log("🚀 SDK ready:", typeof sdk);
-            }}
-            onZoomReady={(sdk) => {
-              console.log("🚀 Zoom SDK ready:", typeof sdk);
+              setIsStartingMeeting(false);
             }}
           />
         </ZoomErrorBoundary>
+
+        {/* Manual leave button like CreateMeetingPage */}
+        <button
+          onClick={() => {
+            setIsStartingMeeting(false);
+            setZoomSignature(null);
+            setZoomSdkKey(null);
+          }}
+          className="btn btn-danger btn-leave-meeting-manually"
+          style={{ marginTop: "15px" }}
+        >
+          Đóng Giao Diện Họp
+        </button>
       </div>
     );
   }
-  // Show loading state if we have meeting data but no signature yet
-  if (meetingData && isZoomConnected && (!zoomSignature || !zoomSdkKey)) {
+
+  // Show meeting info and start button if we have meeting data (like CreateMeetingPage)
+  if (meetingData && isZoomConnected) {
     return (
       <div className="tutor-meeting-room-page">
-        <div className="loading-container">
-          <p>Đang chuẩn bị phòng học Zoom...</p>
-          <div style={{ fontSize: "14px", color: "#666", marginTop: "10px" }}>
-            <p>Meeting ID: {meetingData.zoomMeetingId}</p>
+        <div className="meeting-header">
+          <h2 className="page-title">
+            {classroomInfo?.name || "Phòng học Zoom"}
+            {classroomInfo?.isNewMeeting && (
+              <span className="new-meeting-badge">Phòng học mới</span>
+            )}
+          </h2>
+          <button
+            onClick={() => {
+              const redirectUrl =
+                userRole === "host"
+                  ? "/tai-khoan/ho-so/quan-ly-lop-hoc"
+                  : "/tai-khoan/ho-so/lop-hoc-cua-toi";
+              navigate(redirectUrl);
+            }}
+            className="btn btn-secondary btn-back"
+          >
+            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
+            {userRole === "host"
+              ? "Quay lại quản lý lớp học"
+              : "Quay lại lớp học của tôi"}
+          </button>
+        </div>
+
+        {/* Meeting details like CreateMeetingPage */}
+        <div className="meeting-details">
+          <h3>Thông tin phòng học</h3>
+          <p>
+            <strong>Chủ đề:</strong> {meetingData.topic}
+          </p>
+          <p>
+            <strong>ID Phòng Zoom:</strong> {meetingData.zoomMeetingId}
+          </p>
+          {meetingData.startTime && (
             <p>
-              Role:{" "}
-              {userRole === "host" ? "Gia sư (Host)" : "Học viên (Participant)"}
+              <strong>Thời gian bắt đầu:</strong>{" "}
+              {new Date(meetingData.startTime).toLocaleString("vi-VN")}
             </p>
-            <p>Signature: {zoomSignature ? "✅" : "⏳ Đang lấy..."}</p>
-            <p>SDK Key: {zoomSdkKey ? "✅" : "⏳ Đang lấy..."}</p>
+          )}
+          {meetingData.password && (
+            <p>
+              <strong>Mật khẩu:</strong> {meetingData.password}
+            </p>
+          )}
+          <p>
+            <strong>Role:</strong>{" "}
+            {userRole === "host" ? "Gia sư (Host)" : "Học viên (Participant)"}
+          </p>
+
+          {/* Start button like CreateMeetingPage */}
+          <div className="meeting-actions" style={{ marginTop: "20px" }}>
+            <button
+              onClick={handleStartMeeting}
+              className="btn btn-success btn-start-meeting"
+              disabled={!meetingData || !isZoomConnected}
+            >
+              {zoomSignature ? "Đang chuẩn bị..." : "Bắt đầu phòng học"}
+            </button>
           </div>
-          {error && (
+        </div>
+
+        {error && (
+          <div className="error-section" style={{ marginTop: "20px" }}>
             <div
+              className="error-message"
               style={{
                 color: "red",
-                marginTop: "15px",
                 padding: "10px",
                 border: "1px solid red",
                 borderRadius: "5px",
@@ -304,14 +331,14 @@ const TutorMeetingRoomPage = () => {
               <strong>Lỗi:</strong> {error}
               <br />
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => setError(null)}
                 style={{ marginTop: "10px", padding: "5px 10px" }}
               >
-                Thử lại
+                Đóng
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }

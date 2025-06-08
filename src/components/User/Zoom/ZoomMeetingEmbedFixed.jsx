@@ -156,7 +156,7 @@ function ZoomMeetingEmbed({
       ZoomMtg.init({
         leaveUrl:
           customLeaveUrl ||
-          `${window.location.origin}/tai-khoan/ho-so/phong-hop-zoom`,
+          `${window.location.origin}/tai-khoan/ho-so/phong-hoc`,
         patchJsMedia: true,
         // Add configuration to prevent WebSocket issues
         isSupportAV: true,
