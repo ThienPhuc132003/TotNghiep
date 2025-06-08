@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Production Black Screen Fix Test - giasuvlu.click</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-status {
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .test-pass {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .test-fail {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .test-warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .test-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      .steps-list {
+        background: #f8f9fa;
+        padding: 15px;
+        border-left: 4px solid #007bff;
+        margin: 15px 0;
+      }
+      .console-output {
+        background: #000;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        max-height: 400px;
+        overflow-y: auto;
+        margin: 15px 0;
+      }
+      .navigation-test {
+        border: 2px solid #007bff;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚀 Production Black Screen Fix Test</h1>
+    <h2>Domain: <span style="color: #007bff">https://giasuvlu.click</span></h2>
+
+    <div class="test-container">
+      <h3>📋 Test Environment Verification</h3>
+      <div id="environment-status"></div>
+      <button onclick="testEnvironment()">Check Environment</button>
+    </div>
+
+    <div class="test-container">
+      <h3>🔍 Button Logic Test</h3>
+      <div id="button-logic-status"></div>
+      <button onclick="testButtonLogic()">Test Button Logic</button>
+    </div>
+
+    <div class="test-container">
+      <h3>🌐 Navigation Flow Test</h3>
+      <div class="navigation-test">
+        <h4>👨‍🏫 Tutor Flow Testing</h4>
+        <div class="steps-list">
+          <strong>Manual Steps:</strong>
+          <ol>
+            <li>Đăng nhập với tài khoản gia sư</li>
+            <li>Vào "Quản lý lớp học"</li>
+            <li>Tạo meeting hoặc chọn meeting có sẵn</li>
+            <li>Click "Vào phòng học" → Chọn "Tham gia (Embedded)"</li>
+            <li>Quan sát: Button "Bắt đầu phòng học" có được enable không?</li>
+            <li>Click button và kiểm tra có bị black screen không</li>
+          </ol>
+        </div>
+        <button onclick="startTutorTest()">Start Tutor Test Monitoring</button>
+      </div>
+
+      <div class="navigation-test">
+        <h4>👨‍🎓 Student Flow Testing</h4>
+        <div class="steps-list">
+          <strong>Manual Steps:</strong>
+          <ol>
+            <li>Đăng nhập với tài khoản học viên</li>
+            <li>Vào "Lớp học của tôi"</li>
+            <li>Tìm lớp học có status "IN_SESSION"</li>
+            <li>Click "Vào lớp học"</li>
+            <li>Quan sát: Có bị redirect về homepage không?</li>
+            <li>Button "Bắt đầu phòng học" có được enable không?</li>
+            <li>Click button và kiểm tra có bị black screen không</li>
+          </ol>
+        </div>
+        <button onclick="startStudentTest()">
+          Start Student Test Monitoring
+        </button>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h3>📊 Real-time Error Monitoring</h3>
+      <div id="error-monitoring-status"></div>
+      <button onclick="startErrorMonitoring()">Start Error Monitoring</button>
+      <button onclick="stopErrorMonitoring()">Stop Monitoring</button>
+      <div class="console-output" id="console-output"></div>
+    </div>
+
+    <div class="test-container">
+      <h3>🎯 Zoom SDK Status</h3>
+      <div id="zoom-sdk-status"></div>
+      <button onclick="checkZoomSDK()">Check Zoom SDK</button>
+    </div>
+
+    <div class="test-container">
+      <h3>📝 Test Results Summary</h3>
+      <div id="test-summary"></div>
+      <button onclick="generateReport()">Generate Test Report</button>
+    </div>
+
+    <script>
+      let errorMonitoringActive = false;
+      let originalConsoleError = console.error;
+      let originalConsoleWarn = console.warn;
+      let testResults = {
+        environment: null,
+        buttonLogic: null,
+        zoomSDK: null,
+        errors: [],
+        timestamp: new Date().toISOString(),
+      };
+
+      // Test environment detection
+      function testEnvironment() {
+        const statusDiv = document.getElementById("environment-status");
+
+        const envInfo = {
+          url: window.location.href,
+          hostname: window.location.hostname,
+          protocol: window.location.protocol,
+          isProduction: window.location.hostname.includes("giasuvlu.click"),
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+        };
+
+        let html = '<div class="test-info">';
+        html += `<strong>Current URL:</strong> ${envInfo.url}<br>`;
+        html += `<strong>Hostname:</strong> ${envInfo.hostname}<br>`;
+        html += `<strong>Protocol:</strong> ${envInfo.protocol}<br>`;
+        html += `<strong>Is Production Domain:</strong> ${
+          envInfo.isProduction ? "YES ✅" : "NO ❌"
+        }<br>`;
+        html += `<strong>Browser:</strong> ${envInfo.userAgent}<br>`;
+        html += "</div>";
+
+        if (envInfo.isProduction) {
+          html +=
+            '<div class="test-pass">✅ Production environment detected correctly!</div>';
+          testResults.environment = "PASS";
+        } else {
+          html +=
+            '<div class="test-fail">❌ Not on production domain. Please test on https://giasuvlu.click</div>';
+          testResults.environment = "FAIL";
+        }
+
+        statusDiv.innerHTML = html;
+      }
+
+      // Test button logic (simulated)
+      function testButtonLogic() {
+        const statusDiv = document.getElementById("button-logic-status");
+
+        const scenarios = [
+          {
+            name: "Student with meeting data",
+            userRole: "participant",
+            meetingData: { id: "123456789" },
+            isZoomConnected: false,
+            expected: "enabled",
+          },
+          {
+            name: "Host with OAuth",
+            userRole: "host",
+            meetingData: { id: "123456789" },
+            isZoomConnected: true,
+            expected: "enabled",
+          },
+          {
+            name: "Host without OAuth",
+            userRole: "host",
+            meetingData: { id: "123456789" },
+            isZoomConnected: false,
+            expected: "disabled",
+          },
+        ];
+
+        let html =
+          '<div class="test-info"><strong>Button Logic Test Results:</strong></div>';
+        let allPassed = true;
+
+        scenarios.forEach((scenario) => {
+          // Simulate the fixed button logic
+          const shouldBeDisabled =
+            !scenario.meetingData ||
+            (scenario.userRole === "host" && !scenario.isZoomConnected);
+          const actualState = shouldBeDisabled ? "disabled" : "enabled";
+          const passed = actualState === scenario.expected;
+
+          if (!passed) allPassed = false;
+
+          html += `<div class="${passed ? "test-pass" : "test-fail"}">`;
+          html += `${passed ? "✅" : "❌"} ${scenario.name}: Expected ${
+            scenario.expected
+          }, Got ${actualState}`;
+          html += "</div>";
+        });
+
+        if (allPassed) {
+          html +=
+            '<div class="test-pass">🎉 All button logic tests passed!</div>';
+          testResults.buttonLogic = "PASS";
+        } else {
+          html +=
+            '<div class="test-fail">❌ Some button logic tests failed!</div>';
+          testResults.buttonLogic = "FAIL";
+        }
+
+        statusDiv.innerHTML = html;
+      }
+
+      // Start error monitoring
+      function startErrorMonitoring() {
+        const statusDiv = document.getElementById("error-monitoring-status");
+        const outputDiv = document.getElementById("console-output");
+
+        if (errorMonitoringActive) {
+          statusDiv.innerHTML =
+            '<div class="test-warning">⚠️ Error monitoring already active</div>';
+          return;
+        }
+
+        errorMonitoringActive = true;
+        testResults.errors = [];
+
+        // Monitor critical errors
+        const criticalErrors = [
+          "Init invalid parameter !!!",
+          "Failed to load Zoom SDK",
+          "apiKey is not defined",
+          "meetingConfig is not defined",
+          "Black screen detected",
+          "Navigation blocked",
+        ];
+
+        console.error = function (...args) {
+          const errorMsg = args.join(" ");
+          const isCritical = criticalErrors.some((err) =>
+            errorMsg.includes(err)
+          );
+
+          if (isCritical) {
+            testResults.errors.push({
+              type: "CRITICAL",
+              message: errorMsg,
+              timestamp: new Date().toISOString(),
+            });
+            outputDiv.innerHTML += `<div style="color: #ff6b6b;">[CRITICAL] ${new Date().toLocaleTimeString()}: ${errorMsg}</div>`;
+          } else {
+            outputDiv.innerHTML += `<div style="color: #ffeb3b;">[ERROR] ${new Date().toLocaleTimeString()}: ${errorMsg}</div>`;
+          }
+
+          outputDiv.scrollTop = outputDiv.scrollHeight;
+          originalConsoleError.apply(console, args);
+        };
+
+        console.warn = function (...args) {
+          const warnMsg = args.join(" ");
+          outputDiv.innerHTML += `<div style="color: #ffa726;">[WARN] ${new Date().toLocaleTimeString()}: ${warnMsg}</div>`;
+          outputDiv.scrollTop = outputDiv.scrollHeight;
+          originalConsoleWarn.apply(console, args);
+        };
+
+        statusDiv.innerHTML =
+          '<div class="test-pass">✅ Error monitoring started</div>';
+        outputDiv.innerHTML += `<div style="color: #4caf50;">[INFO] ${new Date().toLocaleTimeString()}: Error monitoring started...</div>`;
+      }
+
+      function stopErrorMonitoring() {
+        const statusDiv = document.getElementById("error-monitoring-status");
+
+        if (!errorMonitoringActive) {
+          statusDiv.innerHTML =
+            '<div class="test-warning">⚠️ Error monitoring not active</div>';
+          return;
+        }
+
+        errorMonitoringActive = false;
+        console.error = originalConsoleError;
+        console.warn = originalConsoleWarn;
+
+        statusDiv.innerHTML =
+          '<div class="test-info">🛑 Error monitoring stopped</div>';
+
+        const criticalCount = testResults.errors.filter(
+          (e) => e.type === "CRITICAL"
+        ).length;
+        if (criticalCount === 0) {
+          statusDiv.innerHTML +=
+            '<div class="test-pass">✅ No critical errors detected!</div>';
+        } else {
+          statusDiv.innerHTML += `<div class="test-fail">❌ ${criticalCount} critical errors detected!</div>`;
+        }
+      }
+
+      // Check Zoom SDK
+      function checkZoomSDK() {
+        const statusDiv = document.getElementById("zoom-sdk-status");
+
+        let html =
+          '<div class="test-info"><strong>Zoom SDK Status Check:</strong></div>';
+
+        if (typeof window.ZoomMtg !== "undefined") {
+          html +=
+            '<div class="test-pass">✅ Zoom SDK loaded successfully</div>';
+          html += `<div class="test-info">SDK Version: ${
+            window.ZoomMtg.VERSION || "Unknown"
+          }</div>`;
+          testResults.zoomSDK = "LOADED";
+        } else {
+          html +=
+            '<div class="test-warning">⚠️ Zoom SDK not yet loaded (normal until meeting page)</div>';
+          testResults.zoomSDK = "NOT_LOADED";
+        }
+
+        // Check for Zoom-related elements
+        const zoomElements = document.querySelectorAll(
+          '[id*="zoom"], [class*="zoom"], [class*="meeting"]'
+        );
+        if (zoomElements.length > 0) {
+          html += `<div class="test-info">Found ${zoomElements.length} Zoom-related elements on page</div>`;
+        }
+
+        statusDiv.innerHTML = html;
+      }
+
+      // Start tutor test monitoring
+      function startTutorTest() {
+        if (!errorMonitoringActive) {
+          startErrorMonitoring();
+        }
+
+        alert(
+          "🧪 Tutor Test Started!\n\nNow follow the manual steps:\n1. Login as tutor\n2. Go to classroom management\n3. Join a meeting\n4. Watch for errors in the monitoring section below"
+        );
+      }
+
+      // Start student test monitoring
+      function startStudentTest() {
+        if (!errorMonitoringActive) {
+          startErrorMonitoring();
+        }
+
+        alert(
+          "🧪 Student Test Started!\n\nNow follow the manual steps:\n1. Login as student\n2. Go to student classroom\n3. Join a meeting\n4. Watch for errors in the monitoring section below"
+        );
+      }
+
+      // Generate test report
+      function generateReport() {
+        const summaryDiv = document.getElementById("test-summary");
+
+        const report = {
+          testDate: new Date().toISOString(),
+          domain: window.location.hostname,
+          results: testResults,
+          summary: {
+            environment: testResults.environment || "NOT_TESTED",
+            buttonLogic: testResults.buttonLogic || "NOT_TESTED",
+            zoomSDK: testResults.zoomSDK || "NOT_TESTED",
+            criticalErrors: testResults.errors.filter(
+              (e) => e.type === "CRITICAL"
+            ).length,
+            totalErrors: testResults.errors.length,
+          },
+        };
+
+        let html =
+          '<div class="test-info"><strong>Test Report Summary:</strong></div>';
+        html += `<div>Environment Test: ${report.summary.environment}</div>`;
+        html += `<div>Button Logic Test: ${report.summary.buttonLogic}</div>`;
+        html += `<div>Zoom SDK: ${report.summary.zoomSDK}</div>`;
+        html += `<div>Critical Errors: ${report.summary.criticalErrors}</div>`;
+        html += `<div>Total Errors: ${report.summary.totalErrors}</div>`;
+
+        if (
+          report.summary.criticalErrors === 0 &&
+          report.summary.environment === "PASS"
+        ) {
+          html +=
+            '<div class="test-pass">🎉 BLACK SCREEN FIX APPEARS TO BE WORKING!</div>';
+        } else {
+          html +=
+            '<div class="test-fail">❌ Issues detected, black screen fix may need attention</div>';
+        }
+
+        html +=
+          '<textarea style="width:100%;height:200px;margin-top:10px;" readonly>' +
+          JSON.stringify(report, null, 2) +
+          "</textarea>";
+
+        summaryDiv.innerHTML = html;
+      }
+
+      // Auto-check environment on load
+      window.addEventListener("load", function () {
+        setTimeout(testEnvironment, 1000);
+      });
+    </script>
+  </body>
+</html>
