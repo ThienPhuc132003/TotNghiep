@@ -1,13 +1,13 @@
 // src/components/Zoom/ZoomMeetingEmbed.jsx
 import { useEffect, useRef, useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import { ZoomMtg } from "@zoom/meetingsdk";
 import "../../../assets/css/ZoomMeetingEmbed.style.css";
 
 // Global variables to track SDK state
 let sdkGloballyPrepared = false;
 let isSDKLoading = false;
 let sdkInitialized = false;
+let ZoomMtg = null; // Will be loaded dynamically
 
 function ZoomMeetingEmbed({
   sdkKey,
@@ -42,7 +42,6 @@ function ZoomMeetingEmbed({
     },
     [onError]
   );
-
   // Enhanced SDK preparation to fix critical errors
   const prepareSDK = useCallback(async () => {
     if (sdkGloballyPrepared || isSDKLoading) {
@@ -53,7 +52,60 @@ function ZoomMeetingEmbed({
     try {
       console.log("[ZoomMeetingEmbed] Setting up Zoom SDK...");
 
-      // Critical: Set WebAssembly path correctly to avoid mainTaskType errors
+      // Step 1: Load ZoomMtg dynamically if not already loaded
+      if (!ZoomMtg) {
+        console.log("[ZoomMeetingEmbed] Loading Zoom SDK dynamically...");
+
+        try {
+          const module = await import("@zoom/meetingsdk");
+          if (module.ZoomMtg) {
+            ZoomMtg = module.ZoomMtg;
+            window.ZoomMtg = module.ZoomMtg;
+          } else if (module.default && module.default.ZoomMtg) {
+            ZoomMtg = module.default.ZoomMtg;
+            window.ZoomMtg = module.default.ZoomMtg;
+          } else if (module.default) {
+            ZoomMtg = module.default;
+            window.ZoomMtg = module.default;
+          } else {
+            throw new Error("ZoomMtg not found in package");
+          }
+          console.log("[ZoomMeetingEmbed] ✅ Zoom SDK loaded via import");
+        } catch (importError) {
+          console.log("[ZoomMeetingEmbed] ❌ Import failed, trying CDN...");
+
+          // Fallback to CDN loading
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://source.zoom.us/3.13.2/lib/ZoomMtg.js";
+            script.crossOrigin = "anonymous";
+
+            script.onload = () => {
+              if (window.ZoomMtg) {
+                ZoomMtg = window.ZoomMtg;
+                console.log("[ZoomMeetingEmbed] ✅ Zoom SDK loaded via CDN");
+                resolve();
+              } else {
+                reject(new Error("CDN loaded but ZoomMtg not found"));
+              }
+            };
+
+            script.onerror = () => {
+              reject(new Error("Failed to load from CDN"));
+            };
+
+            setTimeout(() => {
+              if (!window.ZoomMtg) {
+                reject(new Error("CDN load timeout"));
+              }
+            }, 15000);
+
+            document.head.appendChild(script);
+          });
+        }
+      }
+
+      // Step 2: Configure SDK
       console.log(
         "[ZoomMeetingEmbed] Setting Zoom JS library with WebAssembly..."
       );

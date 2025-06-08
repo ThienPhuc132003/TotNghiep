@@ -66,6 +66,17 @@ const TutorMeetingRoomPage = lazy(() =>
   import("./pages/User/TutorMeetingRoomPage")
 );
 
+// Zoom Test Components for debugging
+const ZoomDebugComponent = lazy(() =>
+  import("./components/User/Zoom/ZoomDebugComponent")
+);
+const QuickZoomTest = lazy(() =>
+  import("./components/User/Zoom/QuickZoomTest")
+);
+const SimpleZoomTest = lazy(() =>
+  import("./components/User/Zoom/SimpleZoomTest")
+);
+
 // Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
@@ -190,8 +201,7 @@ function App() {
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/failed" element={<PaymentFailed />} />
               </Route>
-            </Route>
-
+            </Route>{" "}
             {/* Các route không dùng HomePageLayout (standalone) */}
             <Route path="/otp-verify" element={<OtpVerify />} />
             <Route
@@ -204,7 +214,10 @@ function App() {
               element={<MicrosoftCallback />}
             />
             <Route path="/meeting/callback" element={<ZoomCallback />} />
-
+            {/* Zoom SDK Testing Routes */}
+            <Route path="/zoom-debug" element={<ZoomDebugComponent />} />
+            <Route path="/zoom-quick-test" element={<QuickZoomTest />} />
+            <Route path="/zoom-simple-test" element={<SimpleZoomTest />} />
             {/* ADMIN ROUTES */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<AdminPrivateRoutes />}>

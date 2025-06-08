@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom SDK Loading Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .test-section {
+        border: 1px solid #ddd;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .success {
+        color: #28a745;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .warning {
+        color: #ffc107;
+      }
+      .info {
+        color: #17a2b8;
+      }
+      .log {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        margin: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .success-btn {
+        background: #28a745;
+      }
+      .danger-btn {
+        background: #dc3545;
+      }
+      .warning-btn {
+        background: #ffc107;
+        color: #212529;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔧 Zoom SDK Loading Test</h1>
+
+    <div class="test-section">
+      <h2>📋 Test Results</h2>
+      <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎮 Manual Tests</h2>
+      <button onclick="testPackageImport()">Test Package Import</button>
+      <button onclick="testCDNLoading()">Test CDN Loading</button>
+      <button onclick="testNetworkConnectivity()">Test Network</button>
+      <button onclick="testZoomDirectURL()">Test Direct Zoom URL</button>
+      <button class="danger-btn" onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-section">
+      <h2>📊 Live Log</h2>
+      <div id="liveLog" class="log"></div>
+    </div>
+
+    <script>
+      let logBuffer = [];
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `[${timestamp}] ${message}`;
+
+        logBuffer.push(logEntry);
+        console.log(message);
+
+        const logDiv = document.getElementById("liveLog");
+        logDiv.textContent = logBuffer.slice(-50).join("\n");
+        logDiv.scrollTop = logDiv.scrollHeight;
+
+        updateResults();
+      }
+
+      function updateResults() {
+        const results = document.getElementById("results");
+        const hasZoom = !!window.ZoomMtg;
+        const networkStatus = navigator.onLine ? "Online" : "Offline";
+
+        results.innerHTML = `
+                <div><strong>Network Status:</strong> <span class="${
+                  navigator.onLine ? "success" : "error"
+                }">${networkStatus}</span></div>
+                <div><strong>Zoom SDK Loaded:</strong> <span class="${
+                  hasZoom ? "success" : "error"
+                }">${hasZoom ? "Yes" : "No"}</span></div>
+                <div><strong>Browser:</strong> ${navigator.userAgent}</div>
+                <div><strong>Protocol:</strong> ${
+                  window.location.protocol
+                }</div>
+                <div><strong>Secure Context:</strong> <span class="${
+                  window.isSecureContext ? "success" : "warning"
+                }">${window.isSecureContext}</span></div>
+            `;
+      }
+
+      async function testPackageImport() {
+        log("🔍 Testing @zoom/meetingsdk package import...");
+
+        try {
+          const module = await import("@zoom/meetingsdk");
+          log("✅ Package imported successfully");
+          log(`📦 Module keys: ${Object.keys(module).join(", ")}`);
+
+          if (module.ZoomMtg) {
+            window.ZoomMtg = module.ZoomMtg;
+            log("✅ ZoomMtg assigned to window");
+            log(
+              `🔧 ZoomMtg methods: ${Object.getOwnPropertyNames(module.ZoomMtg)
+                .slice(0, 10)
+                .join(", ")}...`
+            );
+          } else {
+            log("❌ ZoomMtg not found in module", "error");
+          }
+        } catch (error) {
+          log(`❌ Package import failed: ${error.message}`, "error");
+          log("📡 Will need to use CDN loading", "warning");
+        }
+      }
+
+      async function testCDNLoading() {
+        log("📡 Testing CDN loading...");
+
+        const cdnUrls = [
+          "https://source.zoom.us/3.13.2/lib/ZoomMtg.js",
+          "https://source.zoom.us/lib/ZoomMtg.js",
+          "https://dmogdx0jrul3u.cloudfront.net/3.13.2/lib/ZoomMtg.js",
+        ];
+
+        for (let i = 0; i < cdnUrls.length; i++) {
+          const url = cdnUrls[i];
+          log(`📡 Testing CDN ${i + 1}: ${url}`);
+
+          try {
+            const response = await fetch(url, { method: "HEAD" });
+            if (response.ok) {
+              log(`✅ CDN ${i + 1} accessible (${response.status})`, "success");
+
+              // Try to actually load it
+              await loadScriptFromCDN(url);
+              break;
+            } else {
+              log(`❌ CDN ${i + 1} returned ${response.status}`, "error");
+            }
+          } catch (error) {
+            log(`❌ CDN ${i + 1} failed: ${error.message}`, "error");
+          }
+        }
+      }
+
+      function loadScriptFromCDN(url) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = url;
+          script.crossOrigin = "anonymous";
+
+          const startTime = Date.now();
+
+          script.onload = () => {
+            const loadTime = Date.now() - startTime;
+            log(`✅ Script loaded from CDN (${loadTime}ms)`, "success");
+
+            if (window.ZoomMtg) {
+              log("✅ ZoomMtg available on window", "success");
+              resolve();
+            } else {
+              log("❌ Script loaded but ZoomMtg not found", "error");
+              reject(new Error("ZoomMtg not found"));
+            }
+          };
+
+          script.onerror = (error) => {
+            const loadTime = Date.now() - startTime;
+            log(`❌ Script failed to load (${loadTime}ms)`, "error");
+            reject(error);
+          };
+
+          setTimeout(() => {
+            if (!window.ZoomMtg) {
+              log("⏱️ Script load timeout", "warning");
+              reject(new Error("Timeout"));
+            }
+          }, 15000);
+
+          document.head.appendChild(script);
+        });
+      }
+
+      async function testNetworkConnectivity() {
+        log("🌐 Testing network connectivity...");
+
+        const testUrls = [
+          "https://www.google.com/favicon.ico",
+          "https://source.zoom.us/favicon.ico",
+          "https://zoom.us/favicon.ico",
+        ];
+
+        for (const url of testUrls) {
+          try {
+            const response = await fetch(url, {
+              method: "HEAD",
+              mode: "no-cors",
+            });
+            log(`✅ Connectivity test passed: ${url}`, "success");
+          } catch (error) {
+            log(
+              `❌ Connectivity test failed: ${url} - ${error.message}`,
+              "error"
+            );
+          }
+        }
+      }
+
+      function testZoomDirectURL() {
+        const meetingNumber = prompt(
+          "Enter meeting number for direct URL test:"
+        );
+        if (meetingNumber) {
+          const directURL = `https://zoom.us/j/${meetingNumber}`;
+          log(`🔗 Opening direct Zoom URL: ${directURL}`);
+          window.open(directURL, "_blank");
+        }
+      }
+
+      function clearResults() {
+        logBuffer = [];
+        document.getElementById("liveLog").textContent = "";
+        log("🗑️ Log cleared");
+      }
+
+      // Auto-run basic tests on load
+      window.addEventListener("load", () => {
+        log("🚀 Page loaded, starting automatic tests...");
+        updateResults();
+
+        setTimeout(() => {
+          testNetworkConnectivity();
+        }, 1000);
+
+        setTimeout(() => {
+          testPackageImport();
+        }, 2000);
+      });
+
+      // Monitor network status
+      window.addEventListener("online", () => {
+        log("🌐 Network connection restored", "success");
+        updateResults();
+      });
+
+      window.addEventListener("offline", () => {
+        log("🌐 Network connection lost", "warning");
+        updateResults();
+      });
+
+      // Initial update
+      updateResults();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom SDK Fix Validation Dashboard</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #007bff;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-success {
+        background-color: #28a745;
+      }
+      .status-warning {
+        background-color: #ffc107;
+      }
+      .status-error {
+        background-color: #dc3545;
+      }
+      .status-pending {
+        background-color: #6c757d;
+      }
+
+      .test-routes {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .route-link {
+        display: block;
+        padding: 12px 15px;
+        margin: 8px 0;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #495057;
+        transition: all 0.2s;
+      }
+
+      .route-link:hover {
+        background: #e9ecef;
+        border-color: #007bff;
+        color: #007bff;
+      }
+
+      .console-output {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        height: 400px;
+        overflow-y: auto;
+        margin-top: 20px;
+        white-space: pre-wrap;
+      }
+
+      .action-buttons {
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        margin: 0 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #0056b3;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #545b62;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 15px 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+
+      .alert {
+        padding: 15px;
+        margin: 15px 0;
+        border: 1px solid transparent;
+        border-radius: 5px;
+      }
+
+      .alert-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+      }
+
+      .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+
+      .alert-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🎯 Zoom SDK Fix Validation Dashboard</h1>
+      <p>Comprehensive testing of the "Failed to load Zoom SDK" error fixes</p>
+      <small
+        >Real-time validation of SDK loading, component functionality, and error
+        handling</small
+      >
+    </div>
+
+    <div class="alert alert-info">
+      <strong>ℹ️ Information:</strong> This dashboard validates all the fixes
+      implemented for the Zoom SDK loading issues. All tests run automatically
+      when you load this page.
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <h3>
+          <span class="status-indicator status-pending" id="pkg-status"></span
+          >Package Installation
+        </h3>
+        <p id="pkg-details">Checking @zoom/meetingsdk package...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="pkg-progress"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          <span class="status-indicator status-pending" id="sdk-status"></span
+          >SDK Loading
+        </h3>
+        <p id="sdk-details">Testing dynamic import and CDN fallback...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="sdk-progress"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          <span
+            class="status-indicator status-pending"
+            id="routes-status"
+          ></span
+          >Route Accessibility
+        </h3>
+        <p id="routes-details">Validating test route accessibility...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="routes-progress"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          <span class="status-indicator status-pending" id="error-status"></span
+          >Error Handling
+        </h3>
+        <p id="error-details">Testing error boundaries and fallbacks...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="error-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-routes">
+      <h3>🧪 Test Routes - Click to Test Components</h3>
+      <p>Use these links to manually test each component:</p>
+
+      <a href="/zoom-debug" class="route-link" target="_blank">
+        <strong>🔍 Debug Component</strong> - /zoom-debug<br />
+        <small>Comprehensive SDK debugging with detailed logging</small>
+      </a>
+
+      <a href="/zoom-quick-test" class="route-link" target="_blank">
+        <strong>⚡ Quick Test</strong> - /zoom-quick-test<br />
+        <small>Fast SDK loading verification</small>
+      </a>
+
+      <a href="/zoom-simple-test" class="route-link" target="_blank">
+        <strong>🎯 Simple Test</strong> - /zoom-simple-test<br />
+        <small>Basic SDK functionality test</small>
+      </a>
+
+      <a href="/tutor/meeting-room" class="route-link" target="_blank">
+        <strong>🏫 Production Component</strong> - Meeting Room<br />
+        <small>Test the component toggle in TutorMeetingRoomPage</small>
+      </a>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="runValidation()">
+        🔄 Run Validation Again
+      </button>
+      <button class="btn btn-secondary" onclick="exportResults()">
+        📄 Export Results
+      </button>
+      <button class="btn btn-secondary" onclick="clearConsole()">
+        🧹 Clear Console
+      </button>
+    </div>
+
+    <div class="console-output" id="console-output">
+      Loading validation script...
+    </div>
+
+    <script>
+      // Console output capture
+      const consoleOutput = document.getElementById("console-output");
+      const originalLog = console.log;
+      const originalError = console.error;
+
+      function appendToConsole(message, type = "log") {
+        const timestamp = new Date().toLocaleTimeString();
+        const prefix = type === "error" ? "❌" : type === "warn" ? "⚠️" : "💬";
+        consoleOutput.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+      }
+
+      console.log = function (...args) {
+        const message = args
+          .map((arg) =>
+            typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg)
+          )
+          .join(" ");
+        appendToConsole(message, "log");
+        originalLog.apply(console, args);
+      };
+
+      console.error = function (...args) {
+        const message = args
+          .map((arg) =>
+            typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg)
+          )
+          .join(" ");
+        appendToConsole(message, "error");
+        originalError.apply(console, args);
+      };
+
+      // Status update functions
+      function updateStatus(element, status, message) {
+        const statusEl = document.getElementById(element + "-status");
+        const detailsEl = document.getElementById(element + "-details");
+        const progressEl = document.getElementById(element + "-progress");
+
+        statusEl.className = `status-indicator status-${status}`;
+        if (detailsEl) detailsEl.textContent = message;
+        if (progressEl) {
+          progressEl.style.width =
+            status === "success"
+              ? "100%"
+              : status === "warning"
+              ? "75%"
+              : status === "error"
+              ? "25%"
+              : "0%";
+        }
+      }
+
+      // Action functions
+      function runValidation() {
+        consoleOutput.textContent = "";
+        appendToConsole("🔄 Restarting validation...", "log");
+
+        // Reset all statuses
+        updateStatus("pkg", "pending", "Restarting package check...");
+        updateStatus("sdk", "pending", "Restarting SDK test...");
+        updateStatus("routes", "pending", "Restarting route test...");
+        updateStatus("error", "pending", "Restarting error test...");
+
+        if (window.validateZoomSDKFixes) {
+          window.validateZoomSDKFixes();
+        } else {
+          loadValidationScript();
+        }
+      }
+
+      function exportResults() {
+        const results = window.getValidationResults
+          ? window.getValidationResults()
+          : {};
+        const blob = new Blob([JSON.stringify(results, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `zoom-validation-results-${new Date()
+          .toISOString()
+          .slice(0, 19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function clearConsole() {
+        consoleOutput.textContent = "";
+        appendToConsole("Console cleared", "log");
+      }
+
+      // Load validation script
+      function loadValidationScript() {
+        const script = document.createElement("script");
+        script.src = "/validate-zoom-sdk-fixes.js";
+        script.onload = () => {
+          appendToConsole("✅ Validation script loaded successfully", "log");
+
+          // Monitor validation progress
+          const checkProgress = setInterval(() => {
+            const results = window.getValidationResults
+              ? window.getValidationResults()
+              : {};
+
+            if (results.packageInstallation) {
+              updateStatus(
+                "pkg",
+                results.packageInstallation.status,
+                results.packageInstallation.message ||
+                  results.packageInstallation.error
+              );
+            }
+
+            if (results.sdkLoading) {
+              updateStatus(
+                "sdk",
+                results.sdkLoading.status,
+                results.sdkLoading.message || results.sdkLoading.error
+              );
+            }
+
+            if (results.routeAccessibility) {
+              updateStatus(
+                "routes",
+                results.routeAccessibility.status,
+                `${results.routeAccessibility.successful}/${results.routeAccessibility.total} routes accessible`
+              );
+            }
+
+            if (results.errorHandling) {
+              updateStatus(
+                "error",
+                results.errorHandling.status,
+                results.errorHandling.message || results.errorHandling.error
+              );
+            }
+
+            if (results.overallStatus) {
+              clearInterval(checkProgress);
+
+              // Show final status
+              const alertDiv = document.createElement("div");
+              alertDiv.className = `alert alert-${
+                results.overallStatus.success ? "success" : "warning"
+              }`;
+              alertDiv.innerHTML = `
+                            <strong>${
+                              results.overallStatus.success
+                                ? "🎉 SUCCESS!"
+                                : "⚠️ ISSUES DETECTED"
+                            }</strong>
+                            Success Rate: ${results.overallStatus.successRate}% 
+                            (${results.overallStatus.passed}/${
+                results.overallStatus.total
+              } tests passed)
+                        `;
+
+              document
+                .querySelector(".action-buttons")
+                .insertAdjacentElement("beforebegin", alertDiv);
+            }
+          }, 1000);
+        };
+
+        script.onerror = () => {
+          appendToConsole("❌ Failed to load validation script", "error");
+          updateStatus("pkg", "error", "Script loading failed");
+          updateStatus("sdk", "error", "Script loading failed");
+          updateStatus("routes", "error", "Script loading failed");
+          updateStatus("error", "error", "Script loading failed");
+        };
+
+        document.head.appendChild(script);
+      }
+
+      // Start validation on page load
+      window.addEventListener("load", () => {
+        appendToConsole(
+          "🚀 Starting Zoom SDK Fix Validation Dashboard...",
+          "log"
+        );
+        loadValidationScript();
+      });
+    </script>
+  </body>
+</html>
