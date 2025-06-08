@@ -28,6 +28,7 @@ function ZoomMeetingEmbedProductionFix({
   const [sdkError, setSdkError] = useState(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [meetingJoined, setMeetingJoined] = useState(false); // Track successful join
 
   const handleSdkError = useCallback(
     (message, errorCode = null, errorObject = null) => {
@@ -395,17 +396,18 @@ function ZoomMeetingEmbedProductionFix({
               );
 
               setIsSdkCallInProgress(false);
+              setMeetingJoined(true); // Mark meeting as successfully joined
               if (onMeetingJoined) onMeetingJoined(joinRes);
 
-              // Critical fix: Ensure Zoom interface visibility
+              // Critical fix: Show Zoom container when join is successful
               setTimeout(() => {
                 const zoomRoot = document.getElementById("zmmtg-root");
                 if (zoomRoot) {
                   console.log(
-                    "[ZoomMeetingEmbedProductionFix] Configuring Zoom container visibility..."
+                    "[ZoomMeetingEmbedProductionFix] Showing Zoom container after successful join..."
                   );
 
-                  // Force visibility and proper styling
+                  // Show the Zoom container with proper styling
                   zoomRoot.style.cssText = `
                     display: block !important;
                     visibility: visible !important;
@@ -748,21 +750,24 @@ function ZoomMeetingEmbedProductionFix({
       </div>
     );
   }
-
   // Main container UI
   return (
     <div className="zoom-meeting-embed-container" ref={meetingContainerRef}>
-      {/* Critical: Zoom SDK render target */}
+      {/* Critical: Zoom SDK render target */}{" "}
       <div
         id="zmmtg-root"
         style={{
           width: "100%",
-          height: "100%",
+          height: isSdkCallInProgress ? "auto" : "100%", // Fix: Allow auto height during loading
           minHeight: "600px",
           position: "relative",
+          display: meetingJoined
+            ? "block"
+            : isSdkCallInProgress
+            ? "none"
+            : "block", // Show when meeting joined, hide during loading
         }}
       ></div>
-
       {/* Fallback content when Zoom is not loading */}
       {!isSdkCallInProgress && !sdkError && (
         <div
