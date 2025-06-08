@@ -18,7 +18,6 @@ const TutorMeetingRoomPage = () => {
   const [isStartingMeeting, setIsStartingMeeting] = useState(false);
   const [signatureData, setSignatureData] = useState(null);
 
-  // Removed useDebugComponent - now using SmartZoomLoader for automatic selection
   useEffect(() => {
     console.log("📍 TutorMeetingRoomPage - Navigation state received:", {
       hasLocationState: !!location.state,
@@ -91,10 +90,6 @@ const TutorMeetingRoomPage = () => {
     };
     checkZoomConnection();
   }, [location, navigate]);
-  // Reset when user role changes (if needed)
-  useEffect(() => {
-    // No password verification needed - Zoom SDK handles this natively
-  }, [userRole]);
 
   // Meeting session end handler (like CreateMeetingPage)
   const handleMeetingSessionEnd = (reason) => {
@@ -111,6 +106,7 @@ const TutorMeetingRoomPage = () => {
     setIsStartingMeeting(false);
     setSignatureData(null);
   };
+
   // Manual meeting start function (like CreateMeetingPage pattern)
   const handleStartMeeting = async () => {
     if (!meetingData || !isZoomConnected) {
@@ -196,15 +192,18 @@ const TutorMeetingRoomPage = () => {
       setIsLoading(false);
     }
   };
+
   const handleCreateMeeting = () => {
     // Redirect back to classroom management page since create meeting functionality is now integrated there
     navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
   };
+
   if (isLoading) {
     return (
       <div className="loading-container">Đang tải thông tin phòng họp...</div>
     );
   }
+
   // If starting meeting with signature, show Zoom embed (like CreateMeetingPage pattern)
   if (isStartingMeeting && signatureData && meetingData) {
     // Get user info for SDK with defaults like CreateMeetingPage
@@ -291,20 +290,38 @@ const TutorMeetingRoomPage = () => {
             <p>
               <strong>Mật khẩu:</strong> {meetingData.password}
             </p>
-          )}{" "}
+          )}
           <p>
             <strong>Role:</strong>{" "}
             {userRole === "host" ? "Gia sư (Host)" : "Học viên (Participant)"}
-          </p>{" "}
-          {/* Start button - can start without password verification (Zoom SDK handles it) */}
+          </p>
+
+          {/* Start button - available for both Host and Student */}
           <div className="meeting-actions" style={{ marginTop: "20px" }}>
             <button
               onClick={handleStartMeeting}
               className="btn btn-success btn-start-meeting"
               disabled={!meetingData || !isZoomConnected}
             >
-              {signatureData ? "Đang chuẩn bị..." : "Bắt đầu phòng học"}
+              {signatureData
+                ? "Đang chuẩn bị..."
+                : "Bắt đầu phòng học (nhúng vào trang)"}
             </button>
+
+            <p
+              style={{
+                fontSize: "14px",
+                color: "#666",
+                marginTop: "10px",
+                fontStyle: "italic",
+              }}
+            >
+              <i
+                className="fas fa-info-circle"
+                style={{ marginRight: "5px" }}
+              ></i>
+              Zoom sẽ tự động yêu cầu mật khẩu nếu cần thiết
+            </p>
           </div>
         </div>
 
@@ -333,6 +350,7 @@ const TutorMeetingRoomPage = () => {
       </div>
     );
   }
+
   return (
     <div className="tutor-meeting-room-page">
       <h2 className="page-title">
@@ -400,4 +418,5 @@ const TutorMeetingRoomPage = () => {
     </div>
   );
 };
+
 export default memo(TutorMeetingRoomPage);
