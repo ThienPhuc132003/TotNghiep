@@ -3,7 +3,8 @@ import { useState, useEffect, memo } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom";
-import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed";
+import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbedFixed";
+import ZoomDebugComponent from "../../components/User/Zoom/ZoomDebugComponent";
 import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
@@ -17,6 +18,7 @@ const TutorMeetingRoomPage = () => {
   const [userRole, setUserRole] = useState("host"); // Default to host for tutor
   const [isStartingMeeting, setIsStartingMeeting] = useState(false);
   const [signatureData, setSignatureData] = useState(null);
+  const [debugMode, setDebugMode] = useState(false);
 
   // Removed useDebugComponent - now using SmartZoomLoader for automatic selection
   useEffect(() => {
@@ -247,14 +249,49 @@ const TutorMeetingRoomPage = () => {
             );
             setError(null); // Clear any errors
           }}
-        />
-        <button
-          onClick={() => handleMeetingSessionEnd("manual_close")}
-          className="btn btn-danger btn-leave-meeting-manually"
-          style={{ marginTop: "15px" }}
+        />{" "}
+        <div
+          className="meeting-controls"
+          style={{ marginTop: "15px", display: "flex", gap: "10px" }}
         >
-          Đóng Giao Diện Họp
-        </button>
+          <button
+            onClick={() => handleMeetingSessionEnd("manual_close")}
+            className="btn btn-danger btn-leave-meeting-manually"
+          >
+            Đóng Giao Diện Họp
+          </button>
+          <button
+            onClick={() => setDebugMode(!debugMode)}
+            className="btn btn-secondary btn-toggle-debug"
+            style={{ fontSize: "12px" }}
+          >
+            {debugMode ? "Ẩn Debug" : "Hiện Debug"}
+          </button>
+        </div>
+        {debugMode && signatureData && meetingData && (
+          <div
+            className="debug-section"
+            style={{
+              marginTop: "15px",
+              padding: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "5px",
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            <h4 style={{ marginBottom: "10px", fontSize: "14px" }}>
+              🔧 Debug Information
+            </h4>
+            <ZoomDebugComponent
+              sdkKey={signatureData.sdkKey}
+              signature={signatureData.signature}
+              meetingNumber={meetingData.zoomMeetingId}
+              userName={userNameForSDK}
+              userEmail={userEmailForSDK}
+              passWord={meetingData.password || ""}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -314,12 +351,14 @@ const TutorMeetingRoomPage = () => {
             <strong>Role:</strong>{" "}
             {userRole === "host" ? "Gia sư (Host)" : "Học viên (Participant)"}
           </p>{" "}
-          {/* Start button - can start without password verification (Zoom SDK handles it) */}
+          {/* Start button - can start without password verification (Zoom SDK handles it) */}{" "}
           <div className="meeting-actions" style={{ marginTop: "20px" }}>
             <button
               onClick={handleStartMeeting}
               className="btn btn-success btn-start-meeting"
-              disabled={!meetingData || !isZoomConnected}
+              disabled={
+                !meetingData || (userRole === "host" && !isZoomConnected)
+              }
             >
               {signatureData ? "Đang chuẩn bị..." : "Bắt đầu phòng học"}
             </button>
