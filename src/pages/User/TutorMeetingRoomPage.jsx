@@ -3,8 +3,8 @@ import { useState, useEffect, memo } from "react";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom";
-// import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Temporarily disabled
-import ZoomDebugComponent from "../../components/User/Zoom/ZoomDebugComponent"; // Add for debugging
+import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbed"; // Re-enabled after fixing critical import issue
+import ZoomDebugComponent from "../../components/User/Zoom/ZoomDebugComponent"; // Keep for debugging
 import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
@@ -18,6 +18,7 @@ const TutorMeetingRoomPage = () => {
   const [zoomSignature, setZoomSignature] = useState(null);
   const [zoomSdkKey, setZoomSdkKey] = useState(null);
   const [userRole, setUserRole] = useState("host"); // Default to host for tutor
+  const [useDebugComponent, setUseDebugComponent] = useState(true); // Toggle between debug and production component
   useEffect(() => {
     console.log("📍 TutorMeetingRoomPage - Navigation state received:", {
       hasLocationState: !!location.state,
@@ -216,25 +217,100 @@ const TutorMeetingRoomPage = () => {
               : "Quay lại lớp học của tôi"}
           </button>{" "}
         </div>{" "}
-        {/* Temporary debug component to diagnose black screen issue */}
-        <ZoomDebugComponent
-          sdkKey={zoomSdkKey}
-          signature={zoomSignature}
-          meetingNumber={meetingData.zoomMeetingId}
-          userName={
-            userRole === "host"
-              ? `Gia sư - ${classroomInfo?.name || "Phòng học"}`
-              : `Học viên - ${classroomInfo?.name || "Phòng học"}`
-          }
-          passWord={meetingData.password}
-          onError={(error) => {
-            console.error("Zoom debug error:", error);
-            setError(`Debug error: ${error}`);
+        {/* Component Toggle */}
+        <div
+          style={{
+            marginBottom: "15px",
+            padding: "10px",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "5px",
+            border: "1px solid #dee2e6",
           }}
-        />
+        >
+          <label style={{ marginRight: "10px", fontWeight: "bold" }}>
+            Chọn component Zoom:
+          </label>
+          <button
+            onClick={() => setUseDebugComponent(true)}
+            style={{
+              marginRight: "10px",
+              padding: "5px 15px",
+              backgroundColor: useDebugComponent ? "#007bff" : "#6c757d",
+              color: "white",
+              border: "none",
+              borderRadius: "3px",
+              cursor: "pointer",
+            }}
+          >
+            Debug Component {useDebugComponent ? "✓" : ""}
+          </button>
+          <button
+            onClick={() => setUseDebugComponent(false)}
+            style={{
+              padding: "5px 15px",
+              backgroundColor: !useDebugComponent ? "#28a745" : "#6c757d",
+              color: "white",
+              border: "none",
+              borderRadius: "3px",
+              cursor: "pointer",
+            }}
+          >
+            Production Component {!useDebugComponent ? "✓" : ""}
+          </button>
+          <small
+            style={{ display: "block", marginTop: "5px", color: "#6c757d" }}
+          >
+            Debug: Thông tin chi tiết về SDK loading | Production: Component
+            chính đã được sửa
+          </small>
+        </div>
+        {/* Conditional Zoom Component Rendering */}
+        {useDebugComponent ? (
+          <ZoomDebugComponent
+            sdkKey={zoomSdkKey}
+            signature={zoomSignature}
+            meetingNumber={meetingData.zoomMeetingId}
+            userName={
+              userRole === "host"
+                ? `Gia sư - ${classroomInfo?.name || "Phòng học"}`
+                : `Học viên - ${classroomInfo?.name || "Phòng học"}`
+            }
+            passWord={meetingData.password}
+            onError={(error) => {
+              console.error("Zoom debug error:", error);
+              setError(`Debug error: ${error}`);
+            }}
+          />
+        ) : (
+          <ZoomMeetingEmbed
+            sdkKey={zoomSdkKey}
+            signature={zoomSignature}
+            meetingNumber={meetingData.zoomMeetingId}
+            userName={
+              userRole === "host"
+                ? `Gia sư - ${classroomInfo?.name || "Phòng học"}`
+                : `Học viên - ${classroomInfo?.name || "Phòng học"}`
+            }
+            userEmail="test@example.com"
+            passWord={meetingData.password}
+            customLeaveUrl="/"
+            onMeetingEnd={() => {
+              console.log("Meeting ended");
+              navigate("/tutor/classroom");
+            }}
+            onError={(error) => {
+              console.error("Zoom production error:", error);
+              setError(`Production error: ${error}`);
+            }}
+            onMeetingJoined={() => {
+              console.log("Meeting joined successfully");
+            }}
+          />
+        )}
         {/* 
-        Original ZoomMeetingEmbed - temporarily disabled for debugging
-        Will re-enable after fixing black screen issue
+        Note: Both components now available with toggle
+        - ZoomDebugComponent: Comprehensive debugging and error reporting
+        - ZoomMeetingEmbed: Fixed production component with dynamic SDK loading
         */}
       </div>
     );
