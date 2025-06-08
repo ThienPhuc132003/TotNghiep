@@ -234,7 +234,7 @@ function ZoomMeetingEmbed({
             signature: signature,
             meetingNumber: String(meetingNumber),
             userName: userName,
-            userEmail: userEmail || "dangnam1834@gmail.com",
+            userEmail: userEmail || "",
             passWord: passWord || "",
             tk: "",
             success: function (joinRes) {
@@ -499,7 +499,7 @@ ZoomMeetingEmbed.propTypes = {
 };
 
 ZoomMeetingEmbed.defaultProps = {
-  userEmail: "dangnam1834@gmail.com",
+  userEmail: "",
   passWord: "",
   customLeaveUrl:
     typeof window !== "undefined" ? `${window.location.origin}/` : "/",
