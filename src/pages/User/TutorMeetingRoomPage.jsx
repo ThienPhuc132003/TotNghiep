@@ -15,10 +15,11 @@ const TutorMeetingRoomPage = () => {
   const [error, setError] = useState(null);
   const [meetingData, setMeetingData] = useState(null);
   const [classroomInfo, setClassroomInfo] = useState(null);
-  const [zoomSignature, setZoomSignature] = useState(null);  const [zoomSdkKey, setZoomSdkKey] = useState(null);
+  const [zoomSignature, setZoomSignature] = useState(null);
+  const [zoomSdkKey, setZoomSdkKey] = useState(null);
   const [userRole, setUserRole] = useState("host"); // Default to host for tutor
   const [isStartingMeeting, setIsStartingMeeting] = useState(false); // New state for manual control
-  
+
   // Password authentication states for Host
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [enteredPassword, setEnteredPassword] = useState("");
@@ -95,7 +96,16 @@ const TutorMeetingRoomPage = () => {
       setIsLoading(false);
     };
     checkZoomConnection();
-  }, [location, navigate]); // Password verification function for Host
+  }, [location, navigate]);
+
+  // Reset password verification when user role changes
+  useEffect(() => {
+    if (userRole !== "host") {
+      resetPasswordVerification();
+    }
+  }, [userRole]);
+
+  // Password verification function for Host
   const handlePasswordVerification = () => {
     if (!meetingData || !meetingData.password) {
       setPasswordError("Không tìm thấy mật khẩu meeting");
@@ -124,7 +134,8 @@ const TutorMeetingRoomPage = () => {
     setPasswordError("");
   };
 
-  // Manual meeting start function (like CreateMeetingPage pattern)  const handleStartMeeting = async () => {
+  // Manual meeting start function (like CreateMeetingPage pattern)
+  const handleStartMeeting = async () => {
     if (!meetingData || !isZoomConnected) {
       setError("Meeting data or Zoom connection not available");
       return;
@@ -143,7 +154,8 @@ const TutorMeetingRoomPage = () => {
         userRole,
         roleValue: userRole === "host" ? 1 : 0,
         zoomToken: !!localStorage.getItem("zoomAccessToken"),
-        passwordVerified: userRole === "host" ? isPasswordVerified : "N/A (Student)",
+        passwordVerified:
+          userRole === "host" ? isPasswordVerified : "N/A (Student)",
       });
 
       // Determine role: 1 for host (tutor), 0 for participant (student)
@@ -338,103 +350,141 @@ const TutorMeetingRoomPage = () => {
             <p>
               <strong>Mật khẩu:</strong> {meetingData.password}
             </p>
-          )}          <p>
+          )}{" "}
+          <p>
             <strong>Role:</strong>{" "}
             {userRole === "host" ? "Gia sư (Host)" : "Học viên (Participant)"}
           </p>
-
           {/* Password verification for Host */}
-          {userRole === "host" && meetingData.password && !isPasswordVerified && (
-            <div className="password-verification-section" style={{ 
-              marginTop: "20px", 
-              padding: "15px", 
-              border: "1px solid #ddd", 
-              borderRadius: "5px",
-              backgroundColor: "#f9f9f9"
-            }}>
-              <h4 style={{ color: "#333", marginBottom: "10px" }}>
-                <i className="fas fa-lock" style={{ marginRight: "8px" }}></i>
-                Xác thực mật khẩu Host
-              </h4>
-              <p style={{ color: "#666", fontSize: "14px", marginBottom: "15px" }}>
-                Để bắt đầu phòng học với quyền Host, vui lòng nhập mật khẩu meeting:
-              </p>
-              <div className="password-input-group" style={{ marginBottom: "10px" }}>
-                <input
-                  type="password"
-                  value={enteredPassword}
-                  onChange={(e) => setEnteredPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu meeting"
+          {userRole === "host" &&
+            meetingData.password &&
+            !isPasswordVerified && (
+              <div
+                className="password-verification-section"
+                style={{
+                  marginTop: "20px",
+                  padding: "15px",
+                  border: "1px solid #ddd",
+                  borderRadius: "5px",
+                  backgroundColor: "#f9f9f9",
+                }}
+              >
+                <h4 style={{ color: "#333", marginBottom: "10px" }}>
+                  <i className="fas fa-lock" style={{ marginRight: "8px" }}></i>
+                  Xác thực mật khẩu Host
+                </h4>
+                <p
                   style={{
-                    padding: "8px 12px",
-                    border: passwordError ? "1px solid #d9534f" : "1px solid #ddd",
-                    borderRadius: "4px",
-                    width: "200px",
-                    marginRight: "10px"
+                    color: "#666",
+                    fontSize: "14px",
+                    marginBottom: "15px",
                   }}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      handlePasswordVerification();
-                    }
-                  }}
-                />
-                <button
-                  onClick={handlePasswordVerification}
-                  className="btn btn-primary"
-                  style={{ padding: "8px 16px" }}
-                  disabled={!enteredPassword.trim()}
                 >
-                  <i className="fas fa-check" style={{ marginRight: "5px" }}></i>
-                  Xác thực
-                </button>
-              </div>
-              {passwordError && (
-                <p style={{ color: "#d9534f", fontSize: "14px", margin: "5px 0" }}>
-                  <i className="fas fa-exclamation-triangle" style={{ marginRight: "5px" }}></i>
-                  {passwordError}
+                  Để bắt đầu phòng học với quyền Host, vui lòng nhập mật khẩu
+                  meeting:
                 </p>
-              )}
-            </div>
-          )}
-
+                <div
+                  className="password-input-group"
+                  style={{ marginBottom: "10px" }}
+                >
+                  <input
+                    type="password"
+                    value={enteredPassword}
+                    onChange={(e) => setEnteredPassword(e.target.value)}
+                    placeholder="Nhập mật khẩu meeting"
+                    style={{
+                      padding: "8px 12px",
+                      border: passwordError
+                        ? "1px solid #d9534f"
+                        : "1px solid #ddd",
+                      borderRadius: "4px",
+                      width: "200px",
+                      marginRight: "10px",
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handlePasswordVerification();
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={handlePasswordVerification}
+                    className="btn btn-primary"
+                    style={{ padding: "8px 16px" }}
+                    disabled={!enteredPassword.trim()}
+                  >
+                    <i
+                      className="fas fa-check"
+                      style={{ marginRight: "5px" }}
+                    ></i>
+                    Xác thực
+                  </button>
+                </div>
+                {passwordError && (
+                  <p
+                    style={{
+                      color: "#d9534f",
+                      fontSize: "14px",
+                      margin: "5px 0",
+                    }}
+                  >
+                    <i
+                      className="fas fa-exclamation-triangle"
+                      style={{ marginRight: "5px" }}
+                    ></i>
+                    {passwordError}
+                  </p>
+                )}
+              </div>
+            )}
           {/* Success message for verified Host */}
           {userRole === "host" && isPasswordVerified && (
-            <div className="password-verified-section" style={{ 
-              marginTop: "20px", 
-              padding: "10px", 
-              border: "1px solid #5cb85c", 
-              borderRadius: "5px",
-              backgroundColor: "#dff0d8",
-              color: "#3c763d"
-            }}>
-              <i className="fas fa-check-circle" style={{ marginRight: "8px" }}></i>
+            <div
+              className="password-verified-section"
+              style={{
+                marginTop: "20px",
+                padding: "10px",
+                border: "1px solid #5cb85c",
+                borderRadius: "5px",
+                backgroundColor: "#dff0d8",
+                color: "#3c763d",
+              }}
+            >
+              <i
+                className="fas fa-check-circle"
+                style={{ marginRight: "8px" }}
+              ></i>
               Xác thực mật khẩu thành công! Bạn có thể bắt đầu phòng học.
             </div>
           )}
-
           {/* Start button - only show for verified Host or Student */}
           <div className="meeting-actions" style={{ marginTop: "20px" }}>
             <button
               onClick={handleStartMeeting}
               className="btn btn-success btn-start-meeting"
               disabled={
-                !meetingData || 
-                !isZoomConnected || 
+                !meetingData ||
+                !isZoomConnected ||
                 (userRole === "host" && !isPasswordVerified)
               }
             >
               {zoomSignature ? "Đang chuẩn bị..." : "Bắt đầu phòng học"}
             </button>
-            
+
             {/* Show hint for Host about password requirement */}
             {userRole === "host" && !isPasswordVerified && (
-              <p style={{ 
-                fontSize: "14px", 
-                color: "#777", 
-                marginTop: "10px",
-                fontStyle: "italic"
-              }}>
-                <i className="fas fa-info-circle" style={{ marginRight: "5px" }}></i>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "#777",
+                  marginTop: "10px",
+                  fontStyle: "italic",
+                }}
+              >
+                <i
+                  className="fas fa-info-circle"
+                  style={{ marginRight: "5px" }}
+                ></i>
                 Vui lòng xác thực mật khẩu để bắt đầu phòng học
               </p>
             )}
