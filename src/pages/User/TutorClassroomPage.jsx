@@ -522,13 +522,14 @@ const TutorClassroomPage = () => {
         classroomId: classroomId,
         // Token được gửi qua header bởi axiosClient, không qua payload
       };
+      console.log("Creating meeting with payload:", meetingPayload);
 
-      console.log("Creating meeting with payload:", meetingPayload); // Call API to create meeting with Zoom token only
+      // Call API to create meeting with proper token configuration
       const response = await Api({
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
         data: meetingPayload,
-        requireToken: false, // axiosClient handles Zoom Bearer token
+        requireToken: true, // FIX: Use same token config as working CreateMeetingPage
       });
 
       // Dismiss loading toast

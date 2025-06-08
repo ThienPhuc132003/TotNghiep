@@ -176,7 +176,7 @@ const StudentClassroomPage = () => {
           sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
           // Remove rpp: 1 to fetch all meetings
         },
-        requireToken: false, // axiosClient handles Zoom Bearer token
+        requireToken: true, // FIX: Use same token config as working CreateMeetingPage
       });
 
       // Dismiss loading toast

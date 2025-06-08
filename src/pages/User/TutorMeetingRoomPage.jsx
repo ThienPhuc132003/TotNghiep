@@ -112,7 +112,6 @@ const TutorMeetingRoomPage = () => {
 
         // Determine role: 1 for host (tutor), 0 for participant (student)
         const roleValue = userRole === "host" ? 1 : 0;
-
         const response = await Api({
           endpoint: "meeting/signature",
           method: METHOD_TYPE.POST,
@@ -120,7 +119,7 @@ const TutorMeetingRoomPage = () => {
             zoomMeetingId: meetingData.zoomMeetingId,
             role: roleValue,
           },
-          requireToken: false, // axiosClient handles Zoom Bearer token
+          requireToken: true, // FIX: Use same token config as working CreateMeetingPage
         });
 
         console.log("📡 Signature API response:", response);
