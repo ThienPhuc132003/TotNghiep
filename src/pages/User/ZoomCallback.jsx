@@ -29,7 +29,6 @@ const ZoomCallback = () => {
             state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
           }),
         3000
-      );
       return;
     }
 
