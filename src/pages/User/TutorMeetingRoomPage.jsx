@@ -5,6 +5,7 @@ import { METHOD_TYPE } from "../../network/methodType";
 import { useNavigate, useLocation } from "react-router-dom";
 import ZoomMeetingEmbed from "../../components/User/Zoom/ZoomMeetingEmbedProductionFix";
 import ZoomDebugComponent from "../../components/User/Zoom/ZoomDebugComponent";
+import ZoomPasswordEntry from "../../components/User/Zoom/ZoomPasswordEntry";
 import "../../assets/css/TutorMeetingRoomPage.style.css";
 
 const TutorMeetingRoomPage = () => {
@@ -19,6 +20,7 @@ const TutorMeetingRoomPage = () => {
   const [isStartingMeeting, setIsStartingMeeting] = useState(false);
   const [signatureData, setSignatureData] = useState(null);
   const [debugMode, setDebugMode] = useState(false);
+  const [showPasswordEntry, setShowPasswordEntry] = useState(false);
 
   // Removed useDebugComponent - now using SmartZoomLoader for automatic selection
   useEffect(() => {
@@ -120,7 +122,7 @@ const TutorMeetingRoomPage = () => {
     setError(`Lỗi từ Zoom SDK: ${errorMessage}`);
     setIsStartingMeeting(false);
     setSignatureData(null);
-  }; // Manual meeting start function (like CreateMeetingPage pattern)
+  };  // Show password entry screen first
   const handleStartMeeting = async () => {
     // For students, they don't need Zoom OAuth connection - they can join via signature API
     const needsZoomConnection = userRole === "host" && !isZoomConnected;
@@ -135,13 +137,19 @@ const TutorMeetingRoomPage = () => {
       return;
     }
 
+    // Show password entry screen instead of direct join
+    setShowPasswordEntry(true);
+  };
+
+  // Handle password submission and join meeting
+  const handlePasswordSubmit = async (enteredPassword) => {
     try {
       setError(null);
-      console.log("🔑 Starting meeting with params:", {
+      console.log("🔑 Joining meeting with password:", {
         meetingId: meetingData.zoomMeetingId,
         userRole,
         roleValue: userRole === "host" ? 1 : 0,
-        zoomToken: !!localStorage.getItem("zoomAccessToken"),
+        hasPassword: !!enteredPassword,
       });
 
       // Determine role: 1 for host (tutor), 0 for participant (student)
@@ -153,17 +161,24 @@ const TutorMeetingRoomPage = () => {
           zoomMeetingId: meetingData.zoomMeetingId,
           role: roleValue,
         },
-        requireToken: true, // Same as working CreateMeetingPage
+        requireToken: true,
       });
 
       console.log("📡 Signature API response:", response);
 
       if (response.success && response.data) {
+        // Update meeting data with entered password
+        setMeetingData({ ...meetingData, password: enteredPassword });
+        
         setSignatureData({
           signature: response.data.signature,
           sdkKey: response.data.sdkKey,
         });
-        setIsStartingMeeting(true); // Direct control like old flow
+        
+        // Hide password entry and start meeting
+        setShowPasswordEntry(false);
+        setIsStartingMeeting(true);
+        
         console.log("✅ Zoom signature fetched successfully:", {
           hasSignature: !!response.data.signature,
           hasSdkKey: !!response.data.sdkKey,
@@ -180,6 +195,12 @@ const TutorMeetingRoomPage = () => {
         }. Vui lòng thử lại.`
       );
     }
+  };
+
+  // Handle password entry cancellation
+  const handlePasswordCancel = () => {
+    setShowPasswordEntry(false);
+    setError(null);
   };
 
   const handleConnectZoom = async () => {
@@ -294,7 +315,18 @@ const TutorMeetingRoomPage = () => {
         )}
       </div>
     );
+  }  // Show password entry screen if requested
+  if (showPasswordEntry && meetingData) {
+    return (
+      <ZoomPasswordEntry
+        meetingData={meetingData}
+        userRole={userRole}
+        onPasswordSubmit={handlePasswordSubmit}
+        onCancel={handlePasswordCancel}
+      />
+    );
   }
+
   // Show meeting info and start button if we have meeting data
   // For students, they don't need Zoom OAuth token - they can join via signature API
   if (
