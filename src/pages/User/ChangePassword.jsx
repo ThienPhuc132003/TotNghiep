@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
@@ -17,24 +16,23 @@ const ChangePasswordPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { emailOrPhone, otp } = location.state || {};
-  const { t } = useTranslation();
-
   const validateFields = useCallback(() => {
     const errors = {};
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (password === "") {
-      errors.password = t("login.emptyNewPassword");
+      errors.password = "Vui lòng nhập mật khẩu mới";
     } else if (!passwordRegex.test(password)) {
-      errors.password = t("login.invalidPassword");
+      errors.password =
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt";
     }
     if (confirmPassword === "") {
-      errors.confirmPassword = t("login.emptyConfirmPassword");
+      errors.confirmPassword = "Vui lòng xác nhận mật khẩu";
     } else if (password !== confirmPassword) {
-      errors.confirmPassword = t("login.passwordNotMatch");
+      errors.confirmPassword = "Mật khẩu xác nhận không khớp";
     }
     return errors;
-  }, [password, confirmPassword, t]);
+  }, [password, confirmPassword]);
 
   const handleChangePassword = useCallback(async () => {
     const errors = validateFields();
@@ -56,25 +54,17 @@ const ChangePasswordPage = () => {
       });
       if (response.success === true) {
         localStorage.removeItem("otpVerified");
-        setSuccessMessage(t("login.passwordChanged"));
+        setSuccessMessage("Mật khẩu đã được thay đổi thành công");
         setTimeout(() => navigate("/login"), 2000);
       } else {
-        setErrorMessages({ password: t("login.error") });
+        setErrorMessages({ password: "Có lỗi xảy ra, vui lòng thử lại" });
       }
     } catch (error) {
-      setErrorMessages({ password: t("login.error") });
+      setErrorMessages({ password: "Có lỗi xảy ra, vui lòng thử lại" });
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    password,
-    confirmPassword,
-    emailOrPhone,
-    otp,
-    validateFields,
-    navigate,
-    t,
-  ]);
+  }, [password, confirmPassword, emailOrPhone, otp, validateFields, navigate]);
 
   const handlePasswordChange = useCallback(
     (e) => {
@@ -109,8 +99,9 @@ const ChangePasswordPage = () => {
   return (
     <LoginLayout>
       <div className="form-container">
-        <h1 className="FormName">{t("login.changePasswordTitle")}</h1>
-        <p className="description">{t("login.changePasswordSubtitle")}</p>
+        {" "}
+        <h1 className="FormName">Đổi mật khẩu</h1>
+        <p className="description">Nhập mật khẩu mới cho tài khoản của bạn</p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -123,7 +114,7 @@ const ChangePasswordPage = () => {
             type="password"
             id="password"
             value={password}
-            placeholder={t("login.newPasswordPlaceholder")}
+            placeholder="Nhập mật khẩu mới"
             error={errorMessages.password}
             onChange={handlePasswordChange}
             className={`input-field ${errorMessages.password ? "error" : ""}`}
@@ -132,7 +123,7 @@ const ChangePasswordPage = () => {
             type="password"
             id="confirmPassword"
             value={confirmPassword}
-            placeholder={t("login.confirmPasswordPlaceholder")}
+            placeholder="Xác nhận mật khẩu mới"
             error={errorMessages.confirmPassword}
             onChange={handleConfirmPasswordChange}
             className={`input-field ${
@@ -143,11 +134,12 @@ const ChangePasswordPage = () => {
             <p className="success-message">{successMessage}</p>
           )}
           <div className="submit-cancel">
+            {" "}
             <Button className="submit" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t("common.sending") : t("common.confirm")}
+              {isSubmitting ? "Đang gửi" : "Xác nhận"}
             </Button>
             <Button className="cancel" onClick={handleBackPage}>
-              {t("common.cancel")}
+              Hủy
             </Button>
           </div>
         </form>

@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import InputField from "../../components/InputField";
@@ -9,20 +8,18 @@ import LoginLayout from "../../components/User/layout/LoginLayout";
 import "../../assets/css/ForgotPasswordFlow.style.css";
 
 const ForgotPasswordPage = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-
   const validateFields = useCallback(() => {
     const errors = {};
     if (!emailOrPhone) {
-      errors.email = t("login.emptyEmail");
+      errors.email = "Vui lòng nhập email hoặc số điện thoại";
     }
     return errors;
-  }, [emailOrPhone, t]);
+  }, [emailOrPhone]);
 
   const handleForgotPassword = useCallback(async () => {
     const errors = validateFields();
@@ -38,17 +35,17 @@ const ForgotPasswordPage = () => {
         data: { emailOrPhoneNumber: emailOrPhone },
       });
       if (response.success === true) {
-        setSuccessMessage(t("login.resetLinkSent"));
+        setSuccessMessage("Liên kết đặt lại mật khẩu đã được gửi");
         navigate("/otp-verify", { state: { emailOrPhone } });
       } else {
-        setErrorMessages({ email: t("login.emailNotFound") });
+        setErrorMessages({ email: "Email hoặc số điện thoại không tồn tại" });
       }
     } catch (error) {
-      setErrorMessages({ email: t("login.error") });
+      setErrorMessages({ email: "Có lỗi xảy ra, vui lòng thử lại" });
     } finally {
       setIsSubmitting(false);
     }
-  }, [emailOrPhone, validateFields, t, navigate]);
+  }, [emailOrPhone, validateFields, navigate]);
 
   const handleEmailChange = useCallback(
     (e) => {
@@ -71,8 +68,11 @@ const ForgotPasswordPage = () => {
   return (
     <LoginLayout>
       <div className="form-container">
-        <h1 className="FormName">{t("login.forgotPasswordTitle")}</h1>
-        <p className="description">{t("login.forgotPasswordSubtitle")}</p>{" "}
+        {" "}
+        <h1 className="FormName">Quên mật khẩu</h1>
+        <p className="description">
+          Nhập email hoặc số điện thoại để nhận mã xác thực
+        </p>{" "}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -80,12 +80,13 @@ const ForgotPasswordPage = () => {
           }}
           className="form-box"
         >
-          <label htmlFor="emailOrPhone">{t("login.emailOrPhoneNumber")}</label>
+          {" "}
+          <label htmlFor="emailOrPhone">Email hoặc số điện thoại</label>
           <InputField
             type="email"
             id="email"
             value={emailOrPhone}
-            placeholder={t("login.emailOrPhonePlaceholder")}
+            placeholder="Nhập email hoặc số điện thoại"
             errorMessage={errorMessages.email}
             onChange={handleEmailChange}
             className={`input-field ${errorMessages.email ? "error" : ""}`}
@@ -94,10 +95,10 @@ const ForgotPasswordPage = () => {
             <p className="success-message">{successMessage}</p>
           )}
           <div className="submit-cancel">
+            {" "}
             <Button className="submit" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Đang xác nhận" : t("common.confirm")}
+              {isSubmitting ? "Đang xác nhận" : "Xác nhận"}
             </Button>
-
             <p className="cancel" onClick={handleBackPage}>
               <i className="fa-solid fa-arrow-left"></i>
               Quay về trang đăng nhập

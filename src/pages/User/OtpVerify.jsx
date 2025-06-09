@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import LoginLayout from "../../components/User/layout/LoginLayout";
 import Button from "../../components/Button";
 import Api from "../../network/Api";
@@ -17,7 +16,6 @@ const OtpVerifyPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { emailOrPhone } = location.state || {};
-  const { t } = useTranslation();
   const otpInputRefs = useRef([]);
 
   useEffect(() => {
@@ -27,14 +25,13 @@ const OtpVerifyPage = () => {
 
     return () => clearInterval(timer);
   }, []);
-
   const validateFields = useCallback(() => {
     const errors = {};
     if (otp.some((digit) => digit === "")) {
-      errors.otp = t("login.emptyOtp");
+      errors.otp = "Vui lòng nhập đầy đủ mã OTP";
     }
     return errors;
-  }, [otp, t]);
+  }, [otp]);
 
   const handleOtpVerification = useCallback(async () => {
     const errors = validateFields();
@@ -52,7 +49,7 @@ const OtpVerifyPage = () => {
       });
       if (response.success === true) {
         localStorage.setItem("otpVerified", "true");
-        setSuccessMessage(t("login.otpVerified"));
+        setSuccessMessage("Xác thực OTP thành công");
         setTimeout(
           () =>
             navigate("/change-password", {
@@ -61,14 +58,14 @@ const OtpVerifyPage = () => {
           2000
         ); // Pass combined OTP
       } else {
-        setErrorMessages({ otp: t("login.invalidOtp") });
+        setErrorMessages({ otp: "Mã OTP không hợp lệ" });
       }
     } catch (error) {
-      setErrorMessages({ otp: t("login.error") });
+      setErrorMessages({ otp: "Có lỗi xảy ra, vui lòng thử lại" });
     } finally {
       setIsSubmitting(false);
     }
-  }, [otp, emailOrPhone, validateFields, navigate, t]);
+  }, [otp, emailOrPhone, validateFields, navigate]);
 
   const handleOtpChange = (index) => (e) => {
     const value = e.target.value;
@@ -104,16 +101,16 @@ const OtpVerifyPage = () => {
       });
       if (response.success === true) {
         setResendTimer(60);
-        setSuccessMessage(t("login.otpResent"));
+        setSuccessMessage("Mã OTP đã được gửi lại");
       } else {
-        setErrorMessages({ otp: t("login.errorResendingOtp") });
+        setErrorMessages({ otp: "Lỗi khi gửi lại mã OTP" });
       }
     } catch (error) {
-      setErrorMessages({ otp: t("login.errorResendingOtp") });
+      setErrorMessages({ otp: "Lỗi khi gửi lại mã OTP" });
     } finally {
       setIsResending(false);
     }
-  }, [emailOrPhone, t]);
+  }, [emailOrPhone]);
 
   const handleBackPage = useCallback(() => {
     navigate("/forgot-password");
@@ -122,8 +119,11 @@ const OtpVerifyPage = () => {
   return (
     <LoginLayout>
       <div className="form-container">
-        <h1 className="FormName">{t("login.otpVerifyTitle")}</h1>
-        <p className="description">{t("login.otpVerifySubtitle")}</p>
+        {" "}
+        <h1 className="FormName">Xác thực OTP</h1>
+        <p className="description">
+          Nhập mã OTP được gửi về email hoặc số điện thoại của bạn
+        </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -131,7 +131,7 @@ const OtpVerifyPage = () => {
           }}
           className="form-box"
         >
-          <label htmlFor="otp">{t("login.otpPlaceholder")}</label>{" "}
+          <label htmlFor="otp">Mã OTP</label>{" "}
           <div className="otp-inputs">
             {Array(6)
               .fill()
@@ -155,12 +155,13 @@ const OtpVerifyPage = () => {
           )}
           <div className="submit-cancel">
             <div className="submite-field">
+              {" "}
               <Button
                 className="submit"
                 onClick={handleOtpVerification}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? t("common.sending") : t("common.confirm")}
+                {isSubmitting ? "Đang gửi" : "Xác nhận"}
               </Button>
             </div>{" "}
             <div className="resend-box">
