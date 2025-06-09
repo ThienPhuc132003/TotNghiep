@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import '../../assets/css/ForgotPasswordFlow.style.css';
+import '../../../assets/css/ForgotPasswordFlow.style.css';
 
 const ZoomPasswordEntry = ({ meetingData, userRole, onPasswordSubmit, onCancel }) => {
   const [password, setPassword] = useState('');
