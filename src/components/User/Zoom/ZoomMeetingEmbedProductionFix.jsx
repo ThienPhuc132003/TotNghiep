@@ -811,14 +811,10 @@ function ZoomMeetingEmbedProductionFix({
         id="zmmtg-root"
         style={{
           width: "100%",
-          height: isSdkCallInProgress ? "auto" : "100%", // Fix: Allow auto height during loading
+          height: meetingJoined ? "100%" : "auto", // Only use 100% when meeting is joined
           minHeight: "600px",
           position: "relative",
-          display: meetingJoined
-            ? "block"
-            : isSdkCallInProgress
-            ? "none"
-            : "block", // Show when meeting joined, hide during loading
+          display: meetingJoined ? "block" : "none", // Only show when meeting successfully joined
         }}
       ></div>
       {/* Fallback content when Zoom is not loading */}
