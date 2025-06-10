@@ -5,7 +5,6 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../../assets/css/TutorRevenueStable.style.css";
 
 const TutorRevenueStable = () => {
   const userProfile = useSelector((state) => state.user.userProfile);
