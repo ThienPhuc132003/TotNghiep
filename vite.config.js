@@ -29,11 +29,10 @@ export default defineConfig({
 
     // Enable source maps for production debugging but smaller
     sourcemap: false,
-  },
-  // Development server optimizations with API proxy to handle CORS
+  }, // Development server optimizations with API proxy to handle CORS
   server: {
     host: true,
-    port: 3000,
+    port: 5173,
 
     // Hot reload optimizations
     hmr: {

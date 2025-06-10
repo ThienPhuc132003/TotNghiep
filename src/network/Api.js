@@ -66,9 +66,8 @@ const Api = async ({
       }
     }
   }
-
-  // === SIMPLE API LOGGING ===
-  apiLogger.logRequest(
+  // === ENHANCED API LOGGING ===
+  const requestId = apiLogger.logRequest(
     upperCaseMethod,
     `${axiosClient.defaults.baseURL}${requestUrl}`,
     data,
@@ -103,15 +102,17 @@ const Api = async ({
         // config đã chứa params cho GET nếu có
         result = await axiosClient.get(requestUrl, config);
         break;
-    }
-
-    // === SUCCESS RESPONSE ===
-    apiLogger.logResponse(result);
+    } // === SUCCESS RESPONSE ===
+    apiLogger.logResponse(result, requestId);
 
     return result;
   } catch (error) {
     // === ERROR RESPONSE ===
-    apiLogger.logError(error.response?.data || error.message, requestUrl);
+    apiLogger.logError(
+      error.response?.data || error.message,
+      requestUrl,
+      requestId
+    );
 
     throw error;
   }

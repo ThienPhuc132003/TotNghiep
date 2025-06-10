@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧪 Complete TutorRevenueStatistics Testing Guide</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        line-height: 1.6;
+      }
+      .container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+      .test-section {
+        background: #f8f9fa;
+        margin: 25px 0;
+        padding: 25px;
+        border-radius: 10px;
+        border-left: 5px solid #007bff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.4em;
+        font-weight: bold;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+      }
+      .step-number {
+        background: #007bff;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+      }
+      .test-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        margin: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .test-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .warning {
+        background: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .code {
+        background: #f1f3f4;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        margin: 10px 0;
+        overflow-x: auto;
+      }
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      .status-online {
+        background: #28a745;
+      }
+      .status-offline {
+        background: #dc3545;
+      }
+      .status-unknown {
+        background: #ffc107;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Complete TutorRevenueStatistics Testing Guide</h1>
+      <p style="font-size: 1.1em; color: #666">
+        Comprehensive testing guide for the TutorRevenueStatistics page after
+        moving from User to Admin directory
+      </p>
+
+      <div class="test-section">
+        <h2 class="test-title">🔧 Pre-Testing Setup</h2>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Development Server Status</strong>
+          <div id="server-status">
+            <span class="status-indicator status-unknown"></span>
+            Checking server status...
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Page Accessibility</strong>
+          <div>
+            <a
+              href="http://localhost:5173/admin/doanh-thu-gia-su"
+              target="_blank"
+              class="test-button"
+            >
+              🌐 Open TutorRevenueStatistics Page
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🔐 Authentication Testing</h2>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Check Current Authentication Status</strong>
+          <div>
+            <button class="test-button" onclick="checkAuth()">
+              🔍 Check Auth Status
+            </button>
+            <div id="auth-status"></div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Login as Admin</strong>
+          <div>
+            <a
+              href="http://localhost:5173/dang-nhap"
+              target="_blank"
+              class="test-button"
+            >
+              🔑 Open Login Page
+            </a>
+            <div class="info">
+              <strong>Note:</strong> Login with admin credentials to access the
+              admin panel
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <strong>Verify Admin Access</strong>
+          <div>
+            <a
+              href="http://localhost:5173/admin"
+              target="_blank"
+              class="test-button"
+            >
+              👨‍💼 Open Admin Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🌐 API Endpoint Testing</h2>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Test API Endpoint Without Auth</strong>
+          <div>
+            <button class="test-button" onclick="testAPINoAuth()">
+              🚫 Test Without Auth
+            </button>
+            <div id="api-no-auth-result"></div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Test API Endpoint With Auth</strong>
+          <div>
+            <button class="test-button" onclick="testAPIWithAuth()">
+              ✅ Test With Auth
+            </button>
+            <div id="api-auth-result"></div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <strong>Test Different Parameters</strong>
+          <div>
+            <button class="test-button" onclick="testAPIParams()">
+              📊 Test Different Params
+            </button>
+            <div id="api-params-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🎯 Page Functionality Testing</h2>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Page Load and Display</strong>
+          <div class="info">
+            After logging in as admin, visit the page and check:
+            <ul>
+              <li>Page loads without errors</li>
+              <li>All UI components are visible</li>
+              <li>No console errors</li>
+              <li>Loading states work properly</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Filter Testing</strong>
+          <div class="info">
+            Test the period filters:
+            <ul>
+              <li>Change period type (Day/Week/Month/Year)</li>
+              <li>Change period value (numbers)</li>
+              <li>Verify data updates correctly</li>
+              <li>Check total revenue calculation</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <strong>Table Functionality</strong>
+          <div class="info">
+            Test table features:
+            <ul>
+              <li>Data displays in correct columns</li>
+              <li>Sorting works on all columns</li>
+              <li>Pagination functions properly</li>
+              <li>Currency formatting is correct (VNĐ)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🐛 Error Scenarios Testing</h2>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Unauthenticated Access</strong>
+          <div>
+            <button class="test-button" onclick="testUnauthAccess()">
+              🚫 Test Unauthorized Access
+            </button>
+            <div id="unauth-result"></div>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Network Error Handling</strong>
+          <div class="info">
+            Test how the page handles:
+            <ul>
+              <li>Server downtime</li>
+              <li>Slow network responses</li>
+              <li>Invalid API responses</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">📋 Test Results Summary</h2>
+        <div id="test-summary">
+          <div class="warning">
+            <strong>Status:</strong> Ready for testing. Please follow the steps
+            above to validate the page functionality.
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🔧 Debug Tools</h2>
+        <div class="step">
+          <strong>Browser Console Debug Script</strong>
+          <div class="code" id="debug-script">
+            // Run this in the browser console while on the admin page
+            console.log("🔍 TutorRevenueStatistics Debug Started"); // Check
+            authentication const cookies = document.cookie; const userData =
+            localStorage.getItem('user'); console.log("🍪 Cookies:", cookies);
+            console.log("👤 User data:", userData); // Test API endpoint
+            fetch('/api/manage-payment/search-with-time-for-tutor-revenue?rpp=10&page=1&periodType=MONTH&periodValue=2024-12',
+            { method: 'GET', credentials: 'include' }).then(response => {
+            console.log("📊 API Response Status:", response.status); return
+            response.text(); }).then(data => { console.log("📋 API Response
+            Data:", data); }).catch(error => { console.error("💥 API Error:",
+            error); });
+          </div>
+          <button class="test-button" onclick="copyDebugScript()">
+            📋 Copy Debug Script
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Check server status on page load
+      window.addEventListener("load", function () {
+        fetch("http://localhost:5173/api/health", { method: "GET" })
+          .then((response) => {
+            const statusDiv = document.getElementById("server-status");
+            if (response.ok) {
+              statusDiv.innerHTML =
+                '<span class="status-indicator status-online"></span>Development server is running on port 5173';
+            } else {
+              statusDiv.innerHTML =
+                '<span class="status-indicator status-offline"></span>Server responded but may have issues';
+            }
+          })
+          .catch((error) => {
+            // Try to access the main page instead
+            fetch("http://localhost:5173/", { method: "GET" })
+              .then((response) => {
+                const statusDiv = document.getElementById("server-status");
+                statusDiv.innerHTML =
+                  '<span class="status-indicator status-online"></span>Development server is running on port 5173';
+              })
+              .catch((err) => {
+                const statusDiv = document.getElementById("server-status");
+                statusDiv.innerHTML =
+                  '<span class="status-indicator status-offline"></span>Development server appears to be offline';
+              });
+          });
+      });
+
+      function checkAuth() {
+        const resultDiv = document.getElementById("auth-status");
+        const cookies = document.cookie;
+        const userData = localStorage.getItem("user");
+        const hasAuth =
+          cookies.includes("token") || cookies.includes("auth") || userData;
+
+        resultDiv.innerHTML = `
+                <div class="${hasAuth ? "success" : "error"}">
+                    <strong>🔐 Authentication Status:</strong> ${
+                      hasAuth ? "Authenticated" : "Not authenticated"
+                    }<br>
+                    <strong>🍪 Cookies:</strong> ${cookies || "None"}<br>
+                    <strong>👤 User Data:</strong> ${
+                      userData ? "Present" : "None"
+                    }
+                </div>
+            `;
+      }
+
+      async function testAPINoAuth() {
+        const resultDiv = document.getElementById("api-no-auth-result");
+        resultDiv.innerHTML =
+          '<div class="info">🌐 Testing API without authentication...</div>';
+
+        try {
+          const response = await fetch(
+            "/api/manage-payment/search-with-time-for-tutor-revenue?rpp=5&page=1&periodType=MONTH&periodValue=2024-12"
+          );
+          const text = await response.text();
+
+          resultDiv.innerHTML = `
+                    <div class="${
+                      response.status === 401 ? "success" : "warning"
+                    }">
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Response:</strong> ${text}<br>
+                        <strong>Expected:</strong> ${
+                          response.status === 401
+                            ? "✅ Correctly rejected (401)"
+                            : "⚠️ Unexpected response"
+                        }
+                    </div>
+                `;
+        } catch (error) {
+          resultDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+        }
+      }
+
+      async function testAPIWithAuth() {
+        const resultDiv = document.getElementById("api-auth-result");
+        resultDiv.innerHTML =
+          '<div class="info">🌐 Testing API with authentication...</div>';
+
+        try {
+          const response = await fetch(
+            "/api/manage-payment/search-with-time-for-tutor-revenue?rpp=5&page=1&periodType=MONTH&periodValue=2024-12",
+            {
+              credentials: "include",
+            }
+          );
+          const text = await response.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch {
+            data = text;
+          }
+
+          resultDiv.innerHTML = `
+                    <div class="${response.ok ? "success" : "error"}">
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Response:</strong> <pre>${JSON.stringify(
+                          data,
+                          null,
+                          2
+                        )}</pre>
+                    </div>
+                `;
+        } catch (error) {
+          resultDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+        }
+      }
+
+      async function testAPIParams() {
+        const resultDiv = document.getElementById("api-params-result");
+        resultDiv.innerHTML =
+          '<div class="info">🌐 Testing API with different parameters...</div>';
+
+        const testCases = [
+          { periodType: "DAY", periodValue: "7", desc: "Last 7 days" },
+          { periodType: "WEEK", periodValue: "4", desc: "Last 4 weeks" },
+          { periodType: "MONTH", periodValue: "3", desc: "Last 3 months" },
+          { periodType: "YEAR", periodValue: "1", desc: "Last 1 year" },
+        ];
+
+        let results =
+          '<div class="info"><strong>Testing different parameter combinations:</strong></div>';
+
+        for (const testCase of testCases) {
+          try {
+            const response = await fetch(
+              `/api/manage-payment/search-with-time-for-tutor-revenue?rpp=5&page=1&periodType=${testCase.periodType}&periodValue=${testCase.periodValue}`,
+              {
+                credentials: "include",
+              }
+            );
+
+            results += `
+                        <div class="${
+                          response.ok ? "success" : "error"
+                        }" style="margin: 5px 0;">
+                            <strong>${testCase.desc}:</strong> Status ${
+              response.status
+            }
+                        </div>
+                    `;
+          } catch (error) {
+            results += `
+                        <div class="error" style="margin: 5px 0;">
+                            <strong>${testCase.desc}:</strong> Error - ${error.message}
+                        </div>
+                    `;
+          }
+        }
+
+        resultDiv.innerHTML = results;
+      }
+
+      function testUnauthAccess() {
+        const resultDiv = document.getElementById("unauth-result");
+        resultDiv.innerHTML = `
+                <div class="info">
+                    <strong>🚫 Unauthenticated Access Test:</strong><br>
+                    1. Open an incognito/private browser window<br>
+                    2. Navigate to: <a href="http://localhost:5173/admin/doanh-thu-gia-su" target="_blank">http://localhost:5173/admin/doanh-thu-gia-su</a><br>
+                    3. Expected: Should redirect to login page or show access denied<br>
+                    4. Should not be able to access admin content
+                </div>
+            `;
+      }
+
+      function copyDebugScript() {
+        const script = document.getElementById("debug-script").textContent;
+        navigator.clipboard
+          .writeText(script)
+          .then(() => {
+            alert(
+              "Debug script copied to clipboard! Paste it in your browser console."
+            );
+          })
+          .catch((err) => {
+            alert(
+              "Could not copy to clipboard. Please select and copy manually."
+            );
+          });
+      }
+    </script>
+  </body>
+</html>

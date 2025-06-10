@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Admin Authentication</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+      .success {
+        background-color: #28a745;
+      }
+      .danger {
+        background-color: #dc3545;
+      }
+      .info {
+        background-color: #17a2b8;
+      }
+      .status {
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .status.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .status.info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #b6d4d7;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+        border: 1px solid #dee2e6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 Admin Authentication Test - Tutor Revenue Page</h1>
+
+      <div id="status" class="status info">
+        Chưa kiểm tra trạng thái authentication...
+      </div>
+
+      <div>
+        <h3>Thao tác:</h3>
+        <button class="button" onclick="checkCurrentAuth()">
+          Kiểm tra Auth hiện tại
+        </button>
+        <button class="button success" onclick="setMockAdminAuth()">
+          Thiết lập Mock Admin Auth
+        </button>
+        <button class="button danger" onclick="clearAuth()">Xóa Auth</button>
+        <button class="button info" onclick="testTutorRevenuePage()">
+          Test Trang Doanh Thu
+        </button>
+      </div>
+
+      <div>
+        <h3>Logs:</h3>
+        <pre id="logs">Logs sẽ hiển thị ở đây...</pre>
+      </div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById("status");
+      const logsEl = document.getElementById("logs");
+
+      function log(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        logsEl.textContent += `[${timestamp}] ${message}\n`;
+        logsEl.scrollTop = logsEl.scrollHeight;
+        console.log(message);
+      }
+
+      function updateStatus(message, type = "info") {
+        statusEl.textContent = message;
+        statusEl.className = `status ${type}`;
+      }
+
+      function checkCurrentAuth() {
+        log("🔍 Kiểm tra authentication hiện tại...");
+
+        // Check cookies
+        const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+          const [key, value] = cookie.trim().split("=");
+          acc[key] = value;
+          return acc;
+        }, {});
+
+        const token = cookies.token;
+        const role = cookies.role;
+
+        log(`Token: ${token ? "Có" : "Không có"}`);
+        log(`Role: ${role || "Không có"}`);
+
+        // Check localStorage for admin data
+        const adminEmail = localStorage.getItem("admin_emailOrPhoneNumber");
+        const adminPassword = localStorage.getItem("admin_password");
+
+        log(`Admin Email saved: ${adminEmail ? "Có" : "Không có"}`);
+        log(`Admin Password saved: ${adminPassword ? "Có" : "Không có"}`);
+
+        if (token && role === "admin") {
+          updateStatus("✅ Đã đăng nhập với quyền Admin", "success");
+          log("✅ Authentication OK - có thể truy cập admin pages");
+        } else if (token && role) {
+          updateStatus(
+            `⚠️ Đã đăng nhập nhưng role không phải admin: ${role}`,
+            "error"
+          );
+          log("❌ Authentication không đủ quyền admin");
+        } else {
+          updateStatus("❌ Chưa đăng nhập hoặc thiếu thông tin auth", "error");
+          log("❌ Cần đăng nhập admin");
+        }
+      }
+
+      function setMockAdminAuth() {
+        log("🔧 Thiết lập mock admin authentication...");
+
+        // Set mock admin cookies
+        const mockToken = "mock_admin_token_" + Date.now();
+        document.cookie = `token=${mockToken}; path=/; max-age=3600`;
+        document.cookie = `role=admin; path=/; max-age=3600`;
+
+        // Set mock admin localStorage data
+        localStorage.setItem("admin_emailOrPhoneNumber", "admin@test.com");
+        localStorage.setItem("admin_password", "test123");
+
+        log("✅ Đã thiết lập mock admin auth");
+        log(`Mock token: ${mockToken}`);
+
+        updateStatus("✅ Mock Admin Auth đã được thiết lập", "success");
+
+        setTimeout(() => {
+          checkCurrentAuth();
+        }, 500);
+      }
+
+      function clearAuth() {
+        log("🧹 Xóa tất cả authentication data...");
+
+        // Clear cookies
+        document.cookie = "token=; path=/; max-age=0";
+        document.cookie = "role=; path=/; max-age=0";
+
+        // Clear localStorage
+        localStorage.removeItem("admin_emailOrPhoneNumber");
+        localStorage.removeItem("admin_password");
+
+        log("✅ Đã xóa auth data");
+        updateStatus("🧹 Auth data đã được xóa", "info");
+
+        setTimeout(() => {
+          checkCurrentAuth();
+        }, 500);
+      }
+
+      function testTutorRevenuePage() {
+        log("🚀 Testing truy cập trang Doanh Thu Gia Sư...");
+
+        checkCurrentAuth();
+
+        setTimeout(() => {
+          log("🌐 Mở trang /admin/doanh-thu-gia-su...");
+          window.open("http://localhost:3000/admin/doanh-thu-gia-su", "_blank");
+        }, 1000);
+      }
+
+      // Initial check
+      document.addEventListener("DOMContentLoaded", function () {
+        log("📱 Admin Auth Test Tool đã khởi tạo");
+        checkCurrentAuth();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Trang Thống Kê Doanh Thu Gia Sư</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .test-result {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      .test-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .test-button:hover {
+        background-color: #0056b3;
+      }
+      .url-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .url-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Test Trang Thống Kê Doanh Thu Gia Sư</h1>
+
+    <div class="test-section">
+      <h2 class="test-title">📋 Thông Tin Trang</h2>
+      <div class="test-result info">
+        <strong>URL:</strong>
+        <a
+          href="http://localhost:5173/admin/doanh-thu-gia-su"
+          class="url-link"
+          target="_blank"
+        >
+          http://localhost:5173/admin/doanh-thu-gia-su
+        </a>
+      </div>
+      <div class="test-result info">
+        <strong>Component:</strong> TutorRevenueStatistics.jsx
+      </div>
+      <div class="test-result info">
+        <strong>API Endpoint:</strong>
+        manage-payment/search-with-time-for-tutor-revenue
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">✅ Các Tính Năng Đã Implement</h2>
+      <div class="test-result success">
+        ✓ Bộ lọc theo loại thời gian (Ngày/Tuần/Tháng/Năm)
+      </div>
+      <div class="test-result success">
+        ✓ Bộ lọc theo giá trị thời gian (số lượng)
+      </div>
+      <div class="test-result success">
+        ✓ Bảng hiển thị với các cột: STT, Mã học viên, Tên học viên, Mã gia sư,
+        Tên gia sư, Tiền học viên đóng, Tiền trả gia sư, Doanh thu
+      </div>
+      <div class="test-result success">
+        ✓ Hiển thị tổng doanh thu (totalRevenue)
+      </div>
+      <div class="test-result success">✓ Pagination (phân trang)</div>
+      <div class="test-result success">✓ Sorting (sắp xếp)</div>
+      <div class="test-result success">✓ Loading states</div>
+      <div class="test-result success">✓ Error handling</div>
+      <div class="test-result success">✓ Currency formatting (VNĐ)</div>
+      <div class="test-result success">✓ Responsive design</div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">🔗 Route Setup</h2>
+      <div class="test-result success">✓ Route đã được thêm vào App.jsx</div>
+      <div class="test-result success">✓ Component được lazy load</div>
+      <div class="test-result success">
+        ✓ Protected route (AdminPrivateRoutes)
+      </div>
+    </div>
+    <div class="test-section">
+      <h2 class="test-title">🔐 Authentication Testing</h2>
+      <button class="test-button" onclick="checkAuthStatus()">
+        Check Auth Status
+      </button>
+      <button class="test-button" onclick="testAPIEndpoint()">
+        Test API Endpoint
+      </button>
+      <button class="test-button" onclick="openLoginPage()">
+        Open Login Page
+      </button>
+      <button class="test-button" onclick="openAdminPage()">
+        Open Admin Page
+      </button>
+      <div id="auth-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">📋 Test Cases</h2>
+      <button class="test-button" onclick="testDirectAccess()">
+        Test 1: Truy cập trực tiếp
+      </button>
+      <button class="test-button" onclick="testFilters()">
+        Test 2: Test bộ lọc
+      </button>
+      <button class="test-button" onclick="testPagination()">
+        Test 3: Test phân trang
+      </button>
+      <button class="test-button" onclick="testSorting()">
+        Test 4: Test sắp xếp
+      </button>
+
+      <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">⚠️ Lưu Ý</h2>
+      <div class="test-result info">
+        <strong>Menu Admin:</strong> Menu item chưa xuất hiện trong sidebar vì
+        menu được load động từ API <code>menu/me</code>. Backend cần cập nhật để
+        thêm menu item cho trang này.
+      </div>
+      <div class="test-result info">
+        <strong>Quyền truy cập:</strong> Cần đăng nhập với tài khoản admin để
+        truy cập trang này.
+      </div>
+      <div class="test-result info">
+        <strong>API Data:</strong> Trang sẽ hiển thị dữ liệu thực từ API
+        endpoint <code>manage-payment/search-with-time-for-tutor-revenue</code>.
+      </div>
+    </div>
+    <script>
+      // Authentication testing functions
+      function checkAuthStatus() {
+        const resultsDiv = document.getElementById("auth-results");
+        const cookies = document.cookie;
+        const userData = localStorage.getItem("user");
+        const hasAuthCookie =
+          cookies.includes("token") || cookies.includes("auth");
+
+        resultsDiv.innerHTML = `
+          <div class="test-result ${hasAuthCookie ? "success" : "error"}">
+            <strong>🍪 Cookies:</strong> ${cookies || "No cookies found"}<br>
+            <strong>👤 User Data:</strong> ${
+              userData || "No user data in localStorage"
+            }<br>
+            <strong>✅ Has Auth:</strong> ${hasAuthCookie ? "Yes" : "No"}
+          </div>
+        `;
+      }
+
+      async function testAPIEndpoint() {
+        const resultsDiv = document.getElementById("auth-results");
+        resultsDiv.innerHTML =
+          '<div class="test-result info">🌐 Testing API endpoint...</div>';
+
+        try {
+          const response = await fetch(
+            "/api/manage-payment/search-with-time-for-tutor-revenue?rpp=10&page=1&periodType=MONTH&periodValue=2024-12",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            }
+          );
+
+          const responseText = await response.text();
+          let responseData;
+          try {
+            responseData = JSON.parse(responseText);
+          } catch {
+            responseData = responseText;
+          }
+
+          resultsDiv.innerHTML = `
+            <div class="test-result ${response.ok ? "success" : "error"}">
+              <strong>📊 Status:</strong> ${response.status}<br>
+              <strong>📋 Response:</strong> <pre>${JSON.stringify(
+                responseData,
+                null,
+                2
+              )}</pre>
+            </div>
+          `;
+        } catch (error) {
+          resultsDiv.innerHTML = `
+            <div class="test-result error">
+              <strong>💥 Error:</strong> ${error.message}
+            </div>
+          `;
+        }
+      }
+
+      function openLoginPage() {
+        window.open("http://localhost:5173/dang-nhap", "_blank");
+      }
+
+      function openAdminPage() {
+        window.open("http://localhost:5173/admin", "_blank");
+      }
+
+      function testDirectAccess() {
+        const resultsDiv = document.getElementById("test-results");
+        resultsDiv.innerHTML =
+          '<div class="test-result info">🚀 Đang mở trang trong tab mới...</div>';
+        window.open("http://localhost:5173/admin/doanh-thu-gia-su", "_blank");
+      }
+
+      function testFilters() {
+        const resultsDiv = document.getElementById("test-results");
+        resultsDiv.innerHTML = `
+                <div class="test-result info">
+                    📝 <strong>Test Manual cho Bộ Lọc:</strong><br>
+                    1. Thử thay đổi loại thời gian (Ngày/Tuần/Tháng/Năm)<br>
+                    2. Thử thay đổi giá trị thời gian (1, 2, 3...)<br>
+                    3. Kiểm tra xem dữ liệu có cập nhật đúng không<br>
+                    4. Kiểm tra tổng doanh thu có thay đổi theo
+                </div>
+            `;
+      }
+
+      function testPagination() {
+        const resultsDiv = document.getElementById("test-results");
+        resultsDiv.innerHTML = `
+                <div class="test-result info">
+                    📄 <strong>Test Manual cho Phân Trang:</strong><br>
+                    1. Thử chuyển trang bằng các nút Previous/Next<br>
+                    2. Thử thay đổi số item per page (10, 20, 50)<br>
+                    3. Kiểm tra tổng số trang hiển thị đúng<br>
+                    4. Kiểm tra dữ liệu load đúng cho mỗi trang
+                </div>
+            `;
+      }
+
+      function testSorting() {
+        const resultsDiv = document.getElementById("test-results");
+        resultsDiv.innerHTML = `
+                <div class="test-result info">
+                    🔄 <strong>Test Manual cho Sắp Xếp:</strong><br>
+                    1. Click vào các header column để sort<br>
+                    2. Kiểm tra sort ascending/descending<br>
+                    3. Kiểm tra sort với các cột khác nhau<br>
+                    4. Kiểm tra sort icon hiển thị đúng
+                </div>
+            `;
+      }
+    </script>
+  </body>
+</html>

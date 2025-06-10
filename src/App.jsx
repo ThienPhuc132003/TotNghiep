@@ -59,6 +59,9 @@ const TutorClassroomPage = lazy(() =>
 const StudentClassroomPage = lazy(() =>
   import("./pages/User/StudentClassroomPage")
 );
+const TutorPersonalRevenueStatistics = lazy(() =>
+  import("./pages/User/TutorPersonalRevenueStatisticsFixed")
+);
 
 // Zoom related pages
 const ZoomCallback = lazy(() => import("./pages/User/ZoomCallback"));
@@ -99,6 +102,16 @@ const ListOfTransactions = lazy(() =>
 );
 const ListOfTutorPayments = lazy(() =>
   import("./pages/Admin/ListOfTutorPayments")
+);
+const RevenueStatistics = lazy(() => import("./pages/Admin/RevenueStatistics"));
+const TutorHireStatistics = lazy(() =>
+  import("./pages/Admin/TutorHireStatistics")
+);
+const TutorRevenueStatistics = lazy(() =>
+  import("./pages/Admin/TutorRevenueStatistics")
+);
+const TutorAssessmentStatistics = lazy(() =>
+  import("./pages/Admin/TutorAssessmentStatistics")
 );
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
@@ -177,7 +190,7 @@ function App() {
                     path="lop-hoc-cua-toi"
                     element={<StudentClassroomPage />}
                   />{" "}
-                  {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}
+                  {/* TUTOR specific routes - được bảo vệ thêm bởi role="TUTOR" */}{" "}
                   <Route element={<ProtectRoute role="TUTOR" />}>
                     <Route path="ho-so-gia-su" element={<TutorRegister />} />
                     <Route
@@ -187,7 +200,11 @@ function App() {
                     <Route
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}
-                    />{" "}
+                    />
+                    <Route
+                      path="thong-ke-doanh-thu"
+                      element={<TutorPersonalRevenueStatistics />}
+                    />
                   </Route>{" "}
                   {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
@@ -250,10 +267,23 @@ function App() {
               <Route
                 path="/admin/goi-thanh-toan"
                 element={<ListOfValueConfigs />}
-              />
+              />{" "}
               <Route
                 path="/admin/thanh-toan-cho-gia-su"
                 element={<ListOfTutorPayments />}
+              />{" "}
+              <Route path="/admin/doanh-thu" element={<RevenueStatistics />} />
+              <Route
+                path="/admin/luot-thue-gia-su"
+                element={<TutorHireStatistics />}
+              />{" "}
+              <Route
+                path="/admin/doanh-thu-gia-su"
+                element={<TutorRevenueStatistics />}
+              />
+              <Route
+                path="/admin/danh-gia-gia-su"
+                element={<TutorAssessmentStatistics />}
               />
               <Route
                 path="/admin/nap-vi-nguoi-dung"

@@ -84,7 +84,6 @@ const AdminDashboardLayoutInner = (props) => {
             }`}
           ></i>
         </button>
-
         <div className="main-layout-header">
           <h1 className="current-page">
             {currentPage || t("common.dashboard", "Dashboard")}
@@ -97,10 +96,13 @@ const AdminDashboardLayoutInner = (props) => {
           ) : (
             (console.log("AdminDashboardLayout: Toolbar NOT rendered."), null)
           )}
-        </div>
+        </div>{" "}
         <div className="main-layout-content">
           <div className="main-layout-left">
-            {children || <p>{t("common.noContent", "Không có nội dung")}</p>}
+            {children ||
+              (!childrenMiddleContentLower && (
+                <p>{t("common.noContent", "Không có nội dung")}</p>
+              ))}
             {childrenMiddleContentLower}
           </div>
           {rightChildren && (

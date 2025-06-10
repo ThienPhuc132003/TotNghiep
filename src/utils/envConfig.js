@@ -11,7 +11,7 @@ const isProduction = import.meta.env.PROD;
 export const API_CONFIG = {
   // Use proxy in development to avoid CORS, direct URL in production
   BASE_URL: isDevelopment
-    ? "http://localhost:3000/api/"
+    ? "http://localhost:5173/api/"
     : import.meta.env.VITE_API_BASE_URL || "https://giasuvlu.click/api/",
 
   TIMEOUT: 10000,
