@@ -29,12 +29,12 @@ const TutorRevenueStable = () => {
           role.name?.toLowerCase() === "tutor"
       );
     }
-    
+
     // Method 2: Check roleId field
     if (userProfile.roleId) {
       return String(userProfile.roleId).toUpperCase() === "TUTOR";
     }
-    
+
     return false;
   }, [isAuthenticated, userProfile]);
 
@@ -170,7 +170,8 @@ const TutorRevenueStable = () => {
           Thống kê Doanh thu
         </h1>
         <p className="trs-page-subtitle">
-          Chào mừng gia sư: <strong>{userProfile?.name || userProfile?.username || "N/A"}</strong>
+          Chào mừng gia sư:{" "}
+          <strong>{userProfile?.name || userProfile?.username || "N/A"}</strong>
         </p>
       </div>
 
@@ -184,12 +185,14 @@ const TutorRevenueStable = () => {
             <h3 className="trs-stats-label">Tổng doanh thu</h3>
             <div className="trs-stats-value">
               {totalRevenue.toLocaleString("vi-VN")} VNĐ
-              {isLoading && <i className="fas fa-spinner fa-spin trs-loading-inline"></i>}
+              {isLoading && (
+                <i className="fas fa-spinner fa-spin trs-loading-inline"></i>
+              )}
             </div>
             <p className="trs-stats-description">Tháng hiện tại</p>
           </div>
         </div>
-        
+
         <div className="trs-stats-card trs-stats-card-secondary">
           <div className="trs-stats-icon">
             <i className="fas fa-receipt"></i>
@@ -221,12 +224,16 @@ const TutorRevenueStable = () => {
             <i className="fas fa-list-alt"></i>
             Chi tiết Giao dịch
           </h2>
-          <button 
-            className="trs-refresh-btn" 
+          <button
+            className="trs-refresh-btn"
             onClick={fetchRevenueData}
             disabled={isLoading}
           >
-            <i className={`fas ${isLoading ? "fa-spinner fa-spin" : "fa-sync-alt"}`}></i>
+            <i
+              className={`fas ${
+                isLoading ? "fa-spinner fa-spin" : "fa-sync-alt"
+              }`}
+            ></i>
             {isLoading ? "Đang tải..." : "Làm mới"}
           </button>
         </div>
@@ -258,7 +265,9 @@ const TutorRevenueStable = () => {
                       {item.amount.toLocaleString("vi-VN")} VNĐ
                     </td>
                     <td className="trs-td-center">
-                      <span className={`trs-status-badge trs-status-${item.status.toLowerCase()}`}>
+                      <span
+                        className={`trs-status-badge trs-status-${item.status.toLowerCase()}`}
+                      >
                         {item.status}
                       </span>
                     </td>
@@ -290,13 +299,28 @@ const TutorRevenueStable = () => {
             Thông tin Debug
           </summary>
           <div className="trs-debug-content">
-            <p><strong>Authenticated:</strong> {isAuthenticated ? "Yes" : "No"}</p>
-            <p><strong>Is Tutor:</strong> {isTutor ? "Yes" : "No"}</p>
-            <p><strong>User ID:</strong> {userProfile?.id || userProfile?.userId || "N/A"}</p>
-            <p><strong>Role ID:</strong> {userProfile?.roleId || "N/A"}</p>
-            <p><strong>Loading:</strong> {isLoading ? "Yes" : "No"}</p>
-            <p><strong>Error:</strong> {error || "None"}</p>
-            <p><strong>Data Count:</strong> {revenueData.length}</p>
+            <p>
+              <strong>Authenticated:</strong> {isAuthenticated ? "Yes" : "No"}
+            </p>
+            <p>
+              <strong>Is Tutor:</strong> {isTutor ? "Yes" : "No"}
+            </p>
+            <p>
+              <strong>User ID:</strong>{" "}
+              {userProfile?.id || userProfile?.userId || "N/A"}
+            </p>
+            <p>
+              <strong>Role ID:</strong> {userProfile?.roleId || "N/A"}
+            </p>
+            <p>
+              <strong>Loading:</strong> {isLoading ? "Yes" : "No"}
+            </p>
+            <p>
+              <strong>Error:</strong> {error || "None"}
+            </p>
+            <p>
+              <strong>Data Count:</strong> {revenueData.length}
+            </p>
           </div>
         </details>
       </div>

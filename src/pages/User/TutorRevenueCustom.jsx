@@ -10,7 +10,7 @@ import "../../assets/css/TutorRevenueCustom.style.css";
 const TutorRevenueCustom = () => {
   const userProfile = useSelector((state) => state.user.userProfile);
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-  
+
   // State management
   const [revenueData, setRevenueData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +21,7 @@ const TutorRevenueCustom = () => {
   // Check if user is tutor
   const isTutor = useState(() => {
     if (!isAuthenticated || !userProfile) return false;
-    
+
     if (userProfile?.roles && Array.isArray(userProfile.roles)) {
       return userProfile.roles.some(
         (role) =>
@@ -38,13 +38,16 @@ const TutorRevenueCustom = () => {
   // Fetch revenue data
   const fetchRevenueData = useCallback(async () => {
     if (!isTutor || !userProfile) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      console.log("📊 Fetching revenue data for tutor:", userProfile.id || userProfile.userId);
-      
+      console.log(
+        "📊 Fetching revenue data for tutor:",
+        userProfile.id || userProfile.userId
+      );
+
       const response = await Api({
         endpoint: "tutor-revenue-statistics/get-statistics",
         method: METHOD_TYPE.POST,
@@ -53,10 +56,10 @@ const TutorRevenueCustom = () => {
           periodType: periodType,
           periodValue: 1,
           page: 1,
-          rpp: 10
-        }
+          rpp: 10,
+        },
       });
-      
+
       if (response?.success) {
         setRevenueData(response.data?.items || []);
         setTotalRevenue(response.data?.totalRevenue || 0);
@@ -67,25 +70,25 @@ const TutorRevenueCustom = () => {
     } catch (err) {
       console.error("❌ Error fetching revenue data:", err);
       setError(err.message);
-      
+
       // Set demo data for development
       setRevenueData([
-        { 
-          id: 1, 
-          studentName: "Nguyễn Văn A", 
-          amount: 500000, 
+        {
+          id: 1,
+          studentName: "Nguyễn Văn A",
+          amount: 500000,
           status: "COMPLETED",
           description: "Học phí tháng 12/2024",
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         },
-        { 
-          id: 2, 
-          studentName: "Trần Thị B", 
-          amount: 750000, 
+        {
+          id: 2,
+          studentName: "Trần Thị B",
+          amount: 750000,
           status: "COMPLETED",
           description: "Học phí tháng 12/2024",
-          createdAt: new Date().toISOString()
-        }
+          createdAt: new Date().toISOString(),
+        },
       ]);
       setTotalRevenue(1250000);
       toast.warning("Hiển thị dữ liệu demo do không thể kết nối API");
@@ -136,7 +139,7 @@ const TutorRevenueCustom = () => {
   return (
     <div className="tutor-revenue-container">
       <ToastContainer position="top-right" />
-      
+
       {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">
@@ -186,10 +189,12 @@ const TutorRevenueCustom = () => {
           <div className="card-content">
             <h3>Trung bình</h3>
             <p className="average-amount">
-              {revenueData.length > 0 
-                ? Math.round(totalRevenue / revenueData.length).toLocaleString("vi-VN")
-                : "0"
-              } Coin
+              {revenueData.length > 0
+                ? Math.round(totalRevenue / revenueData.length).toLocaleString(
+                    "vi-VN"
+                  )
+                : "0"}{" "}
+              Coin
             </p>
             <span className="period-label">Mỗi giao dịch</span>
           </div>
@@ -200,9 +205,9 @@ const TutorRevenueCustom = () => {
       <div className="filter-section">
         <div className="filter-group">
           <label htmlFor="period-select">Thời kỳ thống kê:</label>
-          <select 
+          <select
             id="period-select"
-            value={periodType} 
+            value={periodType}
             onChange={(e) => setPeriodType(e.target.value)}
             className="period-select"
           >
@@ -212,12 +217,16 @@ const TutorRevenueCustom = () => {
             <option value="YEAR">Năm</option>
           </select>
         </div>
-        <button 
+        <button
           onClick={fetchRevenueData}
           disabled={isLoading}
           className="refresh-btn"
         >
-          <i className={`fas ${isLoading ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
+          <i
+            className={`fas ${
+              isLoading ? "fa-spinner fa-spin" : "fa-sync-alt"
+            }`}
+          ></i>
           {isLoading ? "Đang tải..." : "Làm mới"}
         </button>
       </div>
@@ -238,7 +247,7 @@ const TutorRevenueCustom = () => {
             Chi tiết Giao dịch
           </h3>
         </div>
-        
+
         {isLoading ? (
           <div className="loading-state">
             <i className="fas fa-spinner fa-spin"></i>
@@ -271,13 +280,21 @@ const TutorRevenueCustom = () => {
                       </span>
                     </td>
                     <td className="status">
-                      <span className={`status-badge ${item.status?.toLowerCase() || 'unknown'}`}>
-                        {item.status === "COMPLETED" ? "Hoàn thành" : item.status || "N/A"}
+                      <span
+                        className={`status-badge ${
+                          item.status?.toLowerCase() || "unknown"
+                        }`}
+                      >
+                        {item.status === "COMPLETED"
+                          ? "Hoàn thành"
+                          : item.status || "N/A"}
                       </span>
                     </td>
                     <td className="description">{item.description || "N/A"}</td>
                     <td className="date">
-                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("vi-VN") : "N/A"}
+                      {item.createdAt
+                        ? new Date(item.createdAt).toLocaleDateString("vi-VN")
+                        : "N/A"}
                     </td>
                   </tr>
                 ))}
@@ -295,18 +312,24 @@ const TutorRevenueCustom = () => {
 
       {/* Additional Actions */}
       <div className="action-section">
-        <button className="action-btn export-btn" disabled={revenueData.length === 0}>
+        <button
+          className="action-btn export-btn"
+          disabled={revenueData.length === 0}
+        >
           <i className="fas fa-download"></i>
           Xuất Excel
         </button>
-        <button className="action-btn print-btn" disabled={revenueData.length === 0}>
+        <button
+          className="action-btn print-btn"
+          disabled={revenueData.length === 0}
+        >
           <i className="fas fa-print"></i>
           In báo cáo
         </button>
       </div>
 
       {/* Debug Info (only in development) */}
-      {process.env.NODE_ENV === 'development' && (
+      {process.env.NODE_ENV === "development" && (
         <div className="debug-section">
           <details>
             <summary>🔍 Thông tin Debug</summary>

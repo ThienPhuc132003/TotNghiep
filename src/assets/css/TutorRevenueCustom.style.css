@@ -1,4 +1,3 @@
-
 /* ============================================================
                  TUTOR REVENUE CUSTOM STYLES
 ============================================================ */
@@ -9,7 +8,8 @@
   padding: 20px;
   background-color: #f8f9fa;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
 }
 
 /* ==================== Page Header ==================== */
@@ -126,7 +126,9 @@
   letter-spacing: 0.5px;
 }
 
-.revenue-amount, .transaction-count, .average-amount {
+.revenue-amount,
+.transaction-count,
+.average-amount {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
@@ -465,7 +467,8 @@
 }
 
 /* ==================== Authentication States ==================== */
-.auth-warning, .access-denied {
+.auth-warning,
+.access-denied {
   text-align: center;
   padding: 60px 20px;
   background: white;
@@ -476,7 +479,8 @@
   margin-bottom: 20px;
 }
 
-.auth-warning h3, .access-denied h3 {
+.auth-warning h3,
+.access-denied h3 {
   color: #721c24;
   margin: 0 0 15px 0;
   font-size: 1.5rem;
@@ -486,7 +490,8 @@
   gap: 10px;
 }
 
-.auth-warning p, .access-denied p {
+.auth-warning p,
+.access-denied p {
   color: #721c24;
   margin: 0 0 20px 0;
   font-size: 1.1rem;
@@ -573,7 +578,9 @@
     padding: 20px;
   }
 
-  .revenue-amount, .transaction-count, .average-amount {
+  .revenue-amount,
+  .transaction-count,
+  .average-amount {
     font-size: 1.5rem;
   }
 
@@ -679,7 +686,9 @@
     border: 1px solid #ccc;
   }
 
-  .filter-section, .action-section, .debug-section {
+  .filter-section,
+  .action-section,
+  .debug-section {
     display: none;
   }
 
