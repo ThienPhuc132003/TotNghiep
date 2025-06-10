@@ -74,19 +74,35 @@ const TutorPersonalRevenueStatistics = () => {
     { value: "status", label: "Trạng thái" },
     { value: "description", label: "Mô tả" },
   ];
-
   // Check if user is a tutor
   const isTutor = useMemo(() => {
-    return (
-      isAuthenticated &&
-      userProfile?.roleId &&
-      String(userProfile.roleId).toUpperCase() === "TUTOR"
-    );
-  }, [isAuthenticated, userProfile]);
+    if (!isAuthenticated || !userProfile) return false;
 
+    // Check if user has roles array
+    if (userProfile.roles && Array.isArray(userProfile.roles)) {
+      return userProfile.roles.some(
+        (role) =>
+          role.name === "TUTOR" ||
+          role.name === "Tutor" ||
+          role.name?.toLowerCase() === "tutor"
+      );
+    }
+
+    // Fallback to roleId check
+    if (userProfile.roleId) {
+      return String(userProfile.roleId).toUpperCase() === "TUTOR";
+    }
+
+    return false;
+  }, [isAuthenticated, userProfile]);
   // Get tutor ID
   const tutorId = useMemo(() => {
-    return userProfile?.userProfile?.userId;
+    if (!userProfile) return null;
+
+    // Try different possible ID fields
+    return (
+      userProfile.id || userProfile.userId || userProfile.userProfile?.userId
+    );
   }, [userProfile]);
 
   // Reset state
@@ -358,6 +374,18 @@ const TutorPersonalRevenueStatistics = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Debug logging for troubleshooting
+  useEffect(() => {
+    console.log("🔍 TutorPersonalRevenueStatistics Debug:", {
+      isAuthenticated,
+      userProfile,
+      isTutor,
+      tutorId,
+      roles: userProfile?.roles,
+      roleId: userProfile?.roleId,
+    });
+  }, [isAuthenticated, userProfile, isTutor, tutorId]);
 
   // Render unauthorized access
   if (!isAuthenticated) {
