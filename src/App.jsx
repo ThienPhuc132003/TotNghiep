@@ -60,7 +60,7 @@ const StudentClassroomPage = lazy(() =>
   import("./pages/User/StudentClassroomPage")
 );
 const TutorPersonalRevenueStatistics = lazy(() =>
-  import("./pages/User/TutorPersonalRevenueStatisticsFixed")
+  import("./pages/User/TutorRevenueStable")
 );
 
 // Zoom related pages
@@ -201,14 +201,14 @@ function App() {
                       path="yeu-cau-day"
                       element={<TutorBookingRequestsPage />}
                     />
-                    <Route
-                      path="thong-ke-doanh-thu"
-                      element={<TutorPersonalRevenueStatistics />}
-                    />
                   </Route>{" "}
                   {/* SHARED routes for both USER and TUTOR */}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
                   <Route path="phong-hoc" element={<TutorMeetingRoomPage />} />
+                  <Route
+                    path="thong-ke-doanh-thu"
+                    element={<TutorPersonalRevenueStatistics />}
+                  />
                 </Route>
 
                 {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}

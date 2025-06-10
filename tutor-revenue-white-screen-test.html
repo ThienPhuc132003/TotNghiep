@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Revenue White Screen Debug Test</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .log {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 10px 0;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      .iframe-container {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Tutor Revenue White Screen Debug Test</h1>
+
+      <div class="test-section">
+        <h2>🎯 Test Controls</h2>
+        <button onclick="startTest()">🚀 Bắt đầu Test</button>
+        <button onclick="refreshPage()">🔄 Refresh Page</button>
+        <button onclick="clearLogs()">🧹 Xóa Logs</button>
+        <button onclick="openDevTools()">🛠️ Mở DevTools</button>
+      </div>
+
+      <div class="test-section">
+        <h2>📊 Test Status</h2>
+        <div id="status" class="status warning">Đang chờ test...</div>
+        <div id="progress"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>📝 Test Logs</h2>
+        <div id="logs" class="log">Logs sẽ hiện thị ở đây...\n</div>
+      </div>
+
+      <div class="test-section">
+        <h2>🌐 Page Preview</h2>
+        <div class="iframe-container">
+          <iframe id="testFrame" src="about:blank"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let testStartTime;
+      let logContainer = document.getElementById("logs");
+      let statusContainer = document.getElementById("status");
+      let progressContainer = document.getElementById("progress");
+      let testFrame = document.getElementById("testFrame");
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString("vi-VN");
+        const prefix =
+          type === "error"
+            ? "❌"
+            : type === "warning"
+            ? "⚠️"
+            : type === "success"
+            ? "✅"
+            : "ℹ️";
+        const logMessage = `[${timestamp}] ${prefix} ${message}\n`;
+        logContainer.textContent += logMessage;
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+      function updateStatus(message, type) {
+        statusContainer.textContent = message;
+        statusContainer.className = `status ${type}`;
+      }
+
+      function updateProgress(message) {
+        progressContainer.textContent = message;
+      }
+
+      function clearLogs() {
+        logContainer.textContent = "Logs đã được xóa...\n";
+      }
+
+      function openDevTools() {
+        log("Hướng dẫn: Nhấn F12 để mở DevTools và kiểm tra Console tab");
+      }
+
+      function refreshPage() {
+        log("Đang refresh iframe...");
+        testFrame.src = testFrame.src;
+      }
+
+      async function startTest() {
+        testStartTime = Date.now();
+        updateStatus("Đang chạy test...", "warning");
+        log("🚀 Bắt đầu test Tutor Revenue Page");
+
+        try {
+          // Step 1: Load the page
+          log("📄 Bước 1: Đang tải trang...");
+          testFrame.src =
+            "http://localhost:3000/tai-khoan/ho-so/thong-ke-doanh-thu";
+
+          // Wait for initial load
+          await new Promise((resolve) => {
+            testFrame.onload = () => {
+              log("✅ Trang đã tải xong");
+              resolve();
+            };
+
+            // Timeout after 10 seconds
+            setTimeout(() => {
+              log("⚠️ Timeout loading page", "warning");
+              resolve();
+            }, 10000);
+          });
+
+          // Step 2: Monitor for white screen
+          log("👀 Bước 2: Theo dõi white screen trong 10 giây...");
+          updateProgress("Đang theo dõi white screen...");
+
+          let whiteScreenDetected = false;
+          const monitorInterval = setInterval(() => {
+            try {
+              const frameDoc =
+                testFrame.contentDocument || testFrame.contentWindow.document;
+              const bodyText = frameDoc.body
+                ? frameDoc.body.textContent || ""
+                : "";
+              const bodyHeight = frameDoc.body ? frameDoc.body.scrollHeight : 0;
+
+              if (bodyText.trim().length < 50 && bodyHeight < 100) {
+                if (!whiteScreenDetected) {
+                  whiteScreenDetected = true;
+                  log("🚨 White screen detected!", "error");
+                }
+              } else if (
+                bodyText.includes("Thống kê Doanh thu") ||
+                bodyText.includes("Truy cập bị từ chối")
+              ) {
+                log(
+                  `✅ Content detected: ${bodyText.substring(0, 100)}...`,
+                  "success"
+                );
+                clearInterval(monitorInterval);
+                updateStatus("Test hoàn thành - Có nội dung", "success");
+                return;
+              }
+            } catch (e) {
+              log(`⚠️ Cannot access iframe content: ${e.message}`, "warning");
+            }
+          }, 1000);
+
+          // Stop monitoring after 10 seconds
+          setTimeout(() => {
+            clearInterval(monitorInterval);
+            if (whiteScreenDetected) {
+              updateStatus("Test hoàn thành - White screen detected", "error");
+              log("❌ Test kết thúc: White screen vẫn xảy ra", "error");
+            } else {
+              updateStatus(
+                "Test hoàn thành - Không phát hiện white screen",
+                "success"
+              );
+              log("✅ Test kết thúc: Không có white screen", "success");
+            }
+
+            const testDuration = Date.now() - testStartTime;
+            log(`⏱️ Thời gian test: ${testDuration}ms`);
+            updateProgress(`Test hoàn thành trong ${testDuration}ms`);
+          }, 10000);
+        } catch (error) {
+          log(`❌ Test lỗi: ${error.message}`, "error");
+          updateStatus("Test failed", "error");
+        }
+      }
+
+      // Instructions
+      log("📋 Hướng dẫn sử dụng:");
+      log("1. Đảm bảo dev server đang chạy (npm start)");
+      log("2. Đảm bảo bạn đã đăng nhập với tài khoản tutor");
+      log('3. Nhấn "Bắt đầu Test" để kiểm tra white screen');
+      log("4. Theo dõi logs và iframe để xem kết quả");
+      log("5. Mở F12 DevTools để xem chi tiết console logs");
+    </script>
+  </body>
+</html>
