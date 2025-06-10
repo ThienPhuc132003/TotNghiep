@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Excel Export - Van Lang University</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #007bff;
+      }
+      .header h1 {
+        color: #007bff;
+        margin-bottom: 10px;
+      }
+      .test-section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+      }
+      .test-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+      }
+      .checklist {
+        list-style-type: none;
+        padding: 0;
+      }
+      .checklist li {
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-left: 4px solid #28a745;
+        border-radius: 4px;
+      }
+      .checklist li::before {
+        content: "✅ ";
+        margin-right: 10px;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .code {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+      .url {
+        background-color: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        word-break: break-all;
+      }
+      .step {
+        counter-increment: step-counter;
+        margin: 20px 0;
+        padding: 15px;
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+      }
+      .step::before {
+        content: "Bước " counter(step-counter) ": ";
+        font-weight: bold;
+        color: #007bff;
+      }
+      .steps {
+        counter-reset: step-counter;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎓 Test Chức Năng Excel Export - Van Lang University</h1>
+        <p>
+          Hướng dẫn kiểm tra xuất Excel với logo trường và định dạng chuyên
+          nghiệp
+        </p>
+      </div>
+
+      <div class="test-section">
+        <h2>📋 Tổng Quan Cập Nhật</h2>
+        <ul class="checklist">
+          <li>
+            Đã thay thế CSV export bằng Excel export trên tất cả trang thống kê
+          </li>
+          <li>Tích hợp logo Van Lang University vào file Excel</li>
+          <li>
+            Định dạng chuyên nghiệp với header, footer và thống kê tóm tắt
+          </li>
+          <li>Hỗ trợ keyboard shortcut Ctrl+E để xuất nhanh</li>
+          <li>Loading state và toast notifications</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>🔗 Các Trang Thống Kê Đã Cập Nhật</h2>
+        <div class="steps">
+          <div class="step">
+            <strong>Thống kê đánh giá gia sư</strong>
+            <div class="url">
+              http://localhost:3000/admin/tutor-assessment-statistics
+            </div>
+          </div>
+          <div class="step">
+            <strong>Thống kê doanh thu</strong>
+            <div class="url">
+              http://localhost:3000/admin/revenue-statistics
+            </div>
+          </div>
+          <div class="step">
+            <strong>Thống kê lượt thuê gia sư</strong>
+            <div class="url">
+              http://localhost:3000/admin/tutor-hire-statistics
+            </div>
+          </div>
+          <div class="step">
+            <strong>Thống kê doanh thu gia sư</strong>
+            <div class="url">
+              http://localhost:3000/admin/tutor-revenue-statistics
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🧪 Hướng Dẫn Kiểm Tra</h2>
+        <div class="steps">
+          <div class="step">
+            <strong>Đăng nhập với quyền Admin</strong>
+            <p>
+              Truy cập trang đăng nhập và đăng nhập với tài khoản Admin để có
+              quyền truy cập các trang thống kê.
+            </p>
+          </div>
+          <div class="step">
+            <strong>Truy cập từng trang thống kê</strong>
+            <p>
+              Click vào từng link ở trên để kiểm tra giao diện và chức năng xuất
+              Excel.
+            </p>
+          </div>
+          <div class="step">
+            <strong>Kiểm tra nút Export</strong>
+            <p>
+              Tìm nút với icon Excel (màu xanh lá). Hover để xem tooltip "Xuất
+              Excel (Ctrl+E)".
+            </p>
+          </div>
+          <div class="step">
+            <strong>Test xuất Excel</strong>
+            <p>
+              Click nút xuất hoặc nhấn Ctrl+E để tải file Excel. Kiểm tra file
+              có chứa:
+            </p>
+            <ul>
+              <li>Logo Van Lang University ở góc trái trên</li>
+              <li>Header với tên trường và khoa</li>
+              <li>Tiêu đề báo cáo và thời gian</li>
+              <li>Bảng thống kê tóm tắt với màu nền</li>
+              <li>Dữ liệu được định dạng đẹp với viền</li>
+              <li>Footer với ngày xuất và địa điểm</li>
+            </ul>
+          </div>
+          <div class="step">
+            <strong>Test với dữ liệu khác nhau</strong>
+            <p>
+              Thử thay đổi bộ lọc thời gian và xuất lại để kiểm tra tính nhất
+              quán.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>📊 Chi Tiết File Excel Xuất Ra</h2>
+        <div class="code">
+          <strong>Cấu trúc file Excel:</strong>
+          - Logo Van Lang University (80x80px) tại A1 - Header: "TRƯỜNG ĐẠI HỌC
+          VAN LANG" + "KHOA CÔNG NGHỆ THÔNG TIN" - Tiêu đề báo cáo (VD: "THỐNG
+          KÊ ĐÁNH GIÁ GIA SƯ") - Thời gian thống kê - Bảng tóm tắt với
+          background màu - Dữ liệu chi tiết với viền và alternate row colors -
+          Footer: "Ngày xuất" + "Thành phố Hồ Chí Minh" - Auto-sizing columns
+        </div>
+      </div>
+
+      <div class="warning">
+        <strong>⚠️ Lưu ý:</strong> Nếu không thấy logo trong file Excel, kiểm
+        tra đường dẫn file logo_vanlang.png trong thư mục src/assets/images/
+      </div>
+
+      <div class="success">
+        <strong>✅ Hoàn thành:</strong> Tất cả 4 trang thống kê đã được cập nhật
+        thành công với chức năng Excel export chuyên nghiệp!
+      </div>
+
+      <div class="test-section">
+        <h2>🔧 Trouble Shooting</h2>
+        <div class="code">
+          <strong>Nếu gặp lỗi:</strong>
+          1. Kiểm tra console browser để xem lỗi chi tiết 2. Đảm bảo ExcelJS đã
+          được cài đặt: npm list exceljs 3. Kiểm tra file logo có tồn tại:
+          src/assets/images/logo_vanlang.png 4. Restart development server nếu
+          cần 5. Clear browser cache và thử lại
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Auto-open first statistics page for quick testing
+      setTimeout(() => {
+        if (
+          confirm(
+            "Bạn có muốn mở trang thống kê đánh giá gia sư để test ngay không?"
+          )
+        ) {
+          window.open(
+            "http://localhost:3000/admin/tutor-assessment-statistics",
+            "_blank"
+          );
+        }
+      }, 2000);
+    </script>
+  </body>
+</html>

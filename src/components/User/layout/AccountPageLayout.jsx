@@ -113,6 +113,12 @@ const AccountPageLayoutComponent = () => {
           pathBase: "quan-ly-lop-hoc",
           icon: "fas fa-chalkboard-teacher",
         },
+        {
+          id: "tutorRevenueStats",
+          label: "Thống kê doanh thu",
+          pathBase: "thong-ke-doanh-thu",
+          icon: "fas fa-chart-line",
+        },
       ];
     } else {
       return [

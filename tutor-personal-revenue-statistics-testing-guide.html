@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hướng Dẫn Kiểm Tra - Thống Kê Doanh Thu Cá Nhân Gia Sư</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+      .header {
+        background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      .section {
+        background: white;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .step {
+        background: #f8f9fa;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #d71921;
+        border-radius: 0 8px 8px 0;
+      }
+      .feature {
+        background: #e3f2fd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #2196f3;
+      }
+      .success {
+        background: #e8f5e8;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #4caf50;
+      }
+      .warning {
+        background: #fff3e0;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #ff9800;
+      }
+      code {
+        background: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+      .code-block {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #d71921;
+        color: white;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+      .api-endpoint {
+        background: #263238;
+        color: #4fc3f7;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        display: inline-block;
+        margin: 5px 0;
+      }
+      ul,
+      ol {
+        padding-left: 25px;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 10px 0;
+      }
+      .screenshot {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .screenshot-caption {
+        font-style: italic;
+        color: #666;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🏆 Thống Kê Doanh Thu Cá Nhân Gia Sư</h1>
+      <p>
+        Hướng dẫn kiểm tra tính năng mới cho gia sư xem thống kê doanh thu cá
+        nhân
+      </p>
+      <div class="badge">Tính năng mới ✨</div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Tổng Quan Tính Năng</h2>
+      <p>
+        Tính năng <strong>Thống kê doanh thu cá nhân</strong> cho phép gia sư
+        xem chi tiết về:
+      </p>
+
+      <div class="feature">
+        <strong>📊 Dashboard Analytics:</strong>
+        <ul>
+          <li>Tổng doanh thu từ việc dạy học</li>
+          <li>Tổng số buổi học đã thực hiện</li>
+          <li>Số lượng học viên đang học</li>
+          <li>Doanh thu trung bình mỗi buổi học</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <strong>📈 Biểu Đồ Trực Quan:</strong>
+        <ul>
+          <li>Biểu đồ đường: Xu hướng doanh thu theo thời gian</li>
+          <li>Biểu đồ cột: Số buổi học theo thời gian</li>
+          <li>Biểu đồ tròn: Phân bổ doanh thu theo học viên</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <strong>🔍 Bộ Lọc Thời Gian:</strong>
+        <ul>
+          <li>Theo ngày (chi tiết từng ngày)</li>
+          <li>Theo tuần (tổng hợp tuần)</li>
+          <li>Theo tháng (tổng hợp tháng)</li>
+          <li>Theo năm (tổng hợp năm)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎯 Hướng Dẫn Kiểm Tra Chi Tiết</h2>
+
+      <h3>Bước 1: Đăng Nhập Với Tài Khoản Gia Sư</h3>
+      <div class="step">
+        <strong>Yêu cầu:</strong> Tài khoản phải có
+        <code>roleId = "TUTOR"</code>
+        <ol>
+          <li>Truy cập: <code>http://localhost:5173/login</code></li>
+          <li>Đăng nhập với tài khoản gia sư</li>
+          <li>Xác nhận đã đăng nhập thành công</li>
+        </ol>
+      </div>
+
+      <h3>Bước 2: Truy Cập Trang Thống Kê</h3>
+      <div class="step">
+        <strong>Cách 1 - Qua Sidebar:</strong>
+        <ol>
+          <li>Nhấp vào ảnh đại diện (góc phải trên)</li>
+          <li>Chọn "Quản Lý Gia Sư"</li>
+          <li>Tìm mục <strong>"Thống kê doanh thu"</strong> trong sidebar</li>
+          <li>Nhấp vào để truy cập</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <strong>Cách 2 - Truy cập trực tiếp:</strong>
+        <ol>
+          <li>
+            Truy cập URL:
+            <code
+              >http://localhost:5173/tai-khoan/ho-so/thong-ke-doanh-thu</code
+            >
+          </li>
+          <li>Hệ thống sẽ kiểm tra quyền và chuyển hướng nếu cần</li>
+        </ol>
+      </div>
+
+      <h3>Bước 3: Kiểm Tra Giao Diện</h3>
+      <div class="step">
+        <strong>Header Section:</strong>
+        <ul>
+          <li>Tiêu đề: "Thống kê doanh thu cá nhân"</li>
+          <li>
+            Mô tả: "Xem thống kê chi tiết về doanh thu và hoạt động dạy học của
+            bạn"
+          </li>
+          <li>Màu nền gradient đỏ brand (#d71921)</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <strong>Bộ Lọc Thời Gian:</strong>
+        <ul>
+          <li>Dropdown với 4 tùy chọn: Theo ngày, tuần, tháng, năm</li>
+          <li>Mặc định chọn "Theo tháng"</li>
+          <li>Thay đổi bộ lọc sẽ tự động tải lại dữ liệu</li>
+        </ul>
+      </div>
+
+      <h3>Bước 4: Kiểm Tra Cards Thống Kê</h3>
+      <div class="step">
+        <strong>4 Cards chính:</strong>
+        <ol>
+          <li>
+            <strong>Tổng doanh thu:</strong> Icon coins, hiển thị số tiền VNĐ
+          </li>
+          <li>
+            <strong>Tổng buổi học:</strong> Icon chalkboard-teacher, hiển thị số
+          </li>
+          <li>
+            <strong>Học viên đang học:</strong> Icon users, hiển thị số người
+          </li>
+          <li>
+            <strong>TB doanh thu/buổi:</strong> Icon chart-line, hiển thị
+            VNĐ/buổi
+          </li>
+        </ol>
+      </div>
+
+      <h3>Bước 5: Kiểm Tra Biểu Đồ</h3>
+      <div class="step">
+        <strong>Biểu Đồ 1 - Doanh Thu (Line Chart):</strong>
+        <ul>
+          <li>Trục X: Thời gian (theo bộ lọc đã chọn)</li>
+          <li>Trục Y: Doanh thu (VNĐ)</li>
+          <li>Màu đỏ brand, có fill gradient</li>
+          <li>Tooltip hiển thị chi tiết khi hover</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <strong>Biểu Đồ 2 - Số Buổi Học (Bar Chart):</strong>
+        <ul>
+          <li>Trục X: Thời gian</li>
+          <li>Trục Y: Số buổi học</li>
+          <li>Cột màu đỏ brand</li>
+          <li>Bước tăng = 1 (số nguyên)</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <strong>Biểu Đồ 3 - Phân Bổ Học Viên (Doughnut Chart):</strong>
+        <ul>
+          <li>Hiển thị % doanh thu của từng học viên</li>
+          <li>Legend bên phải</li>
+          <li>Màu gradient theo brand</li>
+          <li>Chỉ hiển thị khi có dữ liệu học viên</li>
+        </ul>
+      </div>
+
+      <h3>Bước 6: Kiểm Tra Bảng Dữ Liệu</h3>
+      <div class="step">
+        <strong>Bảng "Giao dịch gần đây":</strong>
+        <ul>
+          <li>Hiển thị 10 giao dịch mới nhất</li>
+          <li>Cột: Học viên, Ngày tạo, Số buổi học, Doanh thu, Trạng thái</li>
+          <li>Avatar học viên với fallback</li>
+          <li>Format tiền tệ VNĐ</li>
+          <li>Badge trạng thái có màu sắc</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔗 API Endpoint</h2>
+      <div class="api-endpoint">
+        GET /api/manage-payment/search-with-time-by-tutor
+      </div>
+
+      <div class="step">
+        <strong>Query Parameters:</strong>
+        <ul>
+          <li>
+            <code>tutorId</code>: ID gia sư hiện tại (tự động lấy từ profile)
+          </li>
+          <li><code>timeType</code>: day/week/month/year</li>
+          <li><code>page</code>: 1</li>
+          <li><code>rpp</code>: 100 (records per page)</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <strong>Response Format:</strong>
+        <div class="code-block">
+          { "success": true, "data": { "items": [ { "bookingRequestId":
+          "string", "totalcoins": number, "totalLessons": number, "createdAt":
+          "ISO date", "status": "COMPLETED|IN_PROGRESS", "user": { "userId":
+          "string", "userProfile": { "fullname": "string", "avatar": "url" } } }
+          ], "total": number } }
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>⚡ Các Trường Hợp Kiểm Tra</h2>
+
+      <h3>1. Kiểm Tra Loading State</h3>
+      <div class="step">
+        <ul>
+          <li>Làm chậm mạng để thấy spinner loading</li>
+          <li>Spinner quay + text "Đang tải thống kê doanh thu..."</li>
+          <li>Nên hiển thị trong 1-2 giây</li>
+        </ul>
+      </div>
+
+      <h3>2. Kiểm Tra Error State</h3>
+      <div class="step">
+        <ul>
+          <li>Tắt internet hoặc server để test lỗi</li>
+          <li>Hiển thị message lỗi + nút "Thử lại"</li>
+          <li>Nhấp "Thử lại" sẽ gọi lại API</li>
+        </ul>
+      </div>
+
+      <h3>3. Kiểm Tra Empty State</h3>
+      <div class="step">
+        <ul>
+          <li>Với gia sư mới chưa có giao dịch</li>
+          <li>Hiển thị icon + "Chưa có dữ liệu thống kê"</li>
+          <li>Message hướng dẫn</li>
+        </ul>
+      </div>
+
+      <h3>4. Kiểm Tra Responsive Design</h3>
+      <div class="step">
+        <ul>
+          <li><strong>Desktop (>1200px):</strong> 2 cột biểu đồ</li>
+          <li><strong>Tablet (768-1200px):</strong> 1 cột biểu đồ</li>
+          <li><strong>Mobile (<768px):</strong> Stack layout, font nhỏ hơn</li>
+          <li>Bảng scroll ngang trên mobile</li>
+        </ul>
+      </div>
+
+      <h3>5. Kiểm Tra Bộ Lọc Thời Gian</h3>
+      <div class="step">
+        <ul>
+          <li><strong>Theo ngày:</strong> Biểu đồ theo từng ngày cụ thể</li>
+          <li>
+            <strong>Theo tuần:</strong> Nhóm theo tuần (Chủ nhật đầu tuần)
+          </li>
+          <li><strong>Theo tháng:</strong> Format MM/YYYY</li>
+          <li><strong>Theo năm:</strong> Chỉ hiển thị năm</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🛡️ Kiểm Tra Bảo Mật</h2>
+
+      <div class="warning">
+        <strong>⚠️ Quan trọng:</strong> Trang này chỉ dành cho gia sư!
+      </div>
+
+      <div class="step">
+        <strong>Kiểm tra quyền truy cập:</strong>
+        <ol>
+          <li><strong>Chưa đăng nhập:</strong> Redirect về /login</li>
+          <li>
+            <strong>Học viên thường:</strong> Không thấy menu "Thống kê doanh
+            thu"
+          </li>
+          <li>
+            <strong>Truy cập trực tiếp URL:</strong> Bị chặn bởi ProtectRoute
+            role="TUTOR"
+          </li>
+          <li>
+            <strong>Chỉ gia sư:</strong> Mới thấy được menu và truy cập được
+            trang
+          </li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <strong>Kiểm tra dữ liệu:</strong>
+        <ul>
+          <li>API chỉ trả về dữ liệu của gia sư hiện tại</li>
+          <li>tutorId được lấy từ userProfile.userId tự động</li>
+          <li>Không thể xem dữ liệu của gia sư khác</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎨 Kiểm Tra UI/UX</h2>
+
+      <div class="success">
+        <strong>✅ Checklist UI:</strong>
+        <ul>
+          <li>Màu sắc theo brand design (#d71921)</li>
+          <li>Typography nhất quán với hệ thống</li>
+          <li>Icons từ FontAwesome</li>
+          <li>Hover effects mượt mà</li>
+          <li>Box shadows tinh tế</li>
+          <li>Border radius 12px cho cards</li>
+        </ul>
+      </div>
+
+      <div class="success">
+        <strong>✅ Checklist UX:</strong>
+        <ul>
+          <li>Loading states rõ ràng</li>
+          <li>Error handling user-friendly</li>
+          <li>Empty states có hướng dẫn</li>
+          <li>Responsive trên mọi thiết bị</li>
+          <li>Accessibility (aria-labels, keyboard navigation)</li>
+          <li>Toast notifications cho feedback</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🚀 Các Tính Năng Nâng Cao</h2>
+
+      <div class="feature">
+        <strong>📊 Chart.js Integration:</strong>
+        <ul>
+          <li>Line chart với gradient fill</li>
+          <li>Bar chart responsive</li>
+          <li>Doughnut chart với custom colors</li>
+          <li>Tooltips tùy chỉnh</li>
+          <li>Legends positioning</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <strong>💰 Tính Toán Thống Kê:</strong>
+        <ul>
+          <li>Tổng doanh thu tự động</li>
+          <li>Đếm học viên unique</li>
+          <li>Trung bình doanh thu/buổi</li>
+          <li>Nhóm dữ liệu theo thời gian</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <strong>🌐 Internationalization:</strong>
+        <ul>
+          <li>Format tiền tệ VNĐ</li>
+          <li>Format ngày tháng vi-VN</li>
+          <li>Text tiếng Việt</li>
+          <li>Number formatting chuẩn</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📝 Kết Luận</h2>
+      <p>
+        Tính năng <strong>Thống kê doanh thu cá nhân</strong> đã được
+        implemented đầy đủ với:
+      </p>
+
+      <div class="success">
+        <ul>
+          <li>✅ UI/UX hiện đại, responsive</li>
+          <li>✅ Tích hợp Chart.js cho visualization</li>
+          <li>✅ API integration với error handling</li>
+          <li>✅ Role-based access control</li>
+          <li>✅ Real-time data filtering</li>
+          <li>✅ Performance optimization</li>
+        </ul>
+      </div>
+
+      <div class="warning">
+        <strong>🔧 Lưu ý cho Developer:</strong>
+        <ul>
+          <li>
+            Component đặt tại:
+            <code>src/pages/User/TutorPersonalRevenueStatistics.jsx</code>
+          </li>
+          <li>
+            CSS đặt tại:
+            <code
+              >src/assets/css/User/TutorPersonalRevenueStatistics.style.css</code
+            >
+          </li>
+          <li>Route: <code>/tai-khoan/ho-so/thong-ke-doanh-thu</code></li>
+          <li>Protected bởi: <code>ProtectRoute role="TUTOR"</code></li>
+        </ul>
+      </div>
+
+      <p style="text-align: center; margin-top: 30px">
+        <strong>🎉 Ready for Production! 🎉</strong>
+      </p>
+    </div>
+
+    <div
+      style="
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+      "
+    >
+      <p style="color: #666; font-style: italic">
+        Generated by GitHub Copilot - Tutor Personal Revenue Statistics Testing
+        Guide
+      </p>
+    </div>
+  </body>
+</html>
