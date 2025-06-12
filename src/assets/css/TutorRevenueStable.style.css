@@ -1,0 +1,1201 @@
+/* src/assets/css/TutorRevenueStable.style.css */
+
+/* ============================================================
+                 TUTOR REVENUE STABLE PAGE STYLES
+============================================================ */
+
+/* ==================== COMPLETE CSS RESET FOR COMPONENT ==================== */
+/* Reset all inherited styles to ensure clean display */
+
+.trs-container {
+  all: unset !important;
+  display: block !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 20px !important;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%) !important;
+  min-height: 100vh !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif !important;
+  color: #1a202c !important;
+  box-sizing: border-box !important;
+}
+
+/* Reset inheritance for all child elements */
+.trs-container *,
+.trs-container *::before,
+.trs-container *::after {
+  box-sizing: border-box !important;
+  color: inherit !important;
+}
+
+/* ==================== FONTAWESOME ICON FIX ==================== */
+/* Ensure FontAwesome icons display correctly */
+.trs-container .fas,
+.trs-container .far,
+.trs-container .fab,
+.trs-container .fal,
+.trs-container .fad,
+.trs-container [class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "FontAwesome" !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  display: inline-block !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Specific FontAwesome 6 Free icon weights */
+.trs-container .fas {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+}
+
+.trs-container .far {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 400 !important;
+}
+
+/* Ensure icons are visible and sized correctly */
+.trs-container i[class*="fa-"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: inherit !important;
+  line-height: 1 !important;
+  vertical-align: baseline !important;
+}
+
+/* ==================== ICON FALLBACKS ==================== */
+/* Show emoji fallback when FontAwesome doesn't load */
+.trs-container i[class*="fa-"] {
+  position: relative;
+}
+
+/* If FontAwesome is not loaded, show emoji backup */
+.trs-container i[class*="fa-"]:not(:empty) {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-size: inherit !important;
+}
+
+/* Hide FontAwesome content if font doesn't load and show emoji */
+@media screen {
+  .trs-container .fas:before,
+  .trs-container .far:before,
+  .trs-container .fab:before {
+    font-family: "Font Awesome 6 Free", "FontAwesome" !important;
+  }
+}
+
+/* Emoji fallback support */
+.trs-container .fa-chart-line:empty:after {
+  content: "📊";
+}
+.trs-container .fa-coins:empty:after {
+  content: "🪙";
+}
+.trs-container .fa-receipt:empty:after {
+  content: "🧾";
+}
+.trs-container .fa-users:empty:after {
+  content: "👥";
+}
+.trs-container .fa-list-alt:empty:after {
+  content: "📋";
+}
+.trs-container .fa-sync-alt:empty:after {
+  content: "🔄";
+}
+.trs-container .fa-file-csv:empty:after {
+  content: "📊";
+}
+.trs-container .fa-spinner:empty:after {
+  content: "⏳";
+}
+.trs-container .fa-exclamation-triangle:empty:after {
+  content: "⚠️";
+}
+.trs-container .fa-ban:empty:after {
+  content: "🚫";
+}
+.trs-container .fa-info-circle:empty:after {
+  content: "ℹ️";
+}
+
+/* Ensure proper sizing for both FontAwesome and emoji */
+.trs-container i[class*="fa-"]:after {
+  font-style: normal !important;
+  font-weight: normal !important;
+  line-height: 1 !important;
+}
+
+/* Force light theme for our component */
+.trs-container {
+  color-scheme: light only !important;
+  forced-color-adjust: none !important;
+}
+
+/* Prevent any dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .trs-container,
+  .trs-container * {
+    color-scheme: light !important;
+    background-color: initial !important;
+    color: #1a202c !important;
+  }
+
+  .trs-stats-card,
+  .trs-section,
+  .trs-table-container {
+    background: #ffffff !important;
+    color: #1a202c !important;
+  }
+}
+
+/* Override any CSS variables that might affect colors */
+.trs-container {
+  --bs-body-bg: #ffffff !important;
+  --bs-body-color: #1a202c !important;
+  --bs-secondary-bg: #f8f9fa !important;
+  --text-dark: #1a202c !important;
+  --text-medium: #4a5568 !important;
+  --text-light: #718096 !important;
+  --background-white: #ffffff !important;
+  --background-light: #f8f9fa !important;
+}
+
+.trs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%) !important;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+}
+
+/* ==================== Page Header ==================== */
+.trs-page-header {
+  background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(215, 25, 33, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.trs-page-header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+.trs-page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.trs-title-icon {
+  font-size: 2.2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.trs-page-subtitle {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* ==================== Statistics Cards ==================== */
+.trs-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.trs-stats-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
+  padding: 25px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e3f2fd;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.trs-stats-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #d71921 0%, #e6394a 100%);
+}
+
+.trs-stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.trs-stats-card-primary .trs-stats-icon {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.trs-stats-card-secondary .trs-stats-icon {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.trs-stats-card-success .trs-stats-icon {
+  background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+}
+
+.trs-stats-icon {
+  width: 65px;
+  height: 65px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure FontAwesome icons in stats cards display properly */
+.trs-stats-icon i,
+.trs-stats-icon .fas,
+.trs-stats-icon .far {
+  font-size: 1.6rem !important;
+  color: white !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Title icon */
+.trs-title-icon {
+  font-size: 2.2rem !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.trs-stats-content {
+  flex: 1;
+}
+
+.trs-stats-label {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: #4a5568 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.trs-stats-value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c !important;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trs-stats-description {
+  margin: 5px 0 0 0;
+  font-size: 0.85rem;
+  color: #4a5568 !important;
+  font-weight: 500;
+}
+
+.trs-loading-inline {
+  animation: spin 1s linear infinite;
+  color: #4a5568;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== Alert Messages ==================== */
+.trs-alert {
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.trs-alert-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+}
+
+.trs-alert-error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.trs-alert-demo {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+}
+
+.trs-alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* FontAwesome icons in alert */
+.trs-alert-icon i,
+.trs-alert-icon .fas,
+.trs-alert-icon .far {
+  font-size: 1.5rem !important;
+  color: inherit !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+.trs-alert-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.trs-alert-content p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==================== Section Styles ==================== */
+.trs-section {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e3f2fd;
+  margin-bottom: 30px;
+}
+
+.trs-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e3f2fd;
+  gap: 20px;
+}
+
+.trs-section-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1a202c !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* FontAwesome icons in section titles */
+.trs-section-title i,
+.trs-section-title .fas,
+.trs-section-title .far {
+  font-size: 1.4rem !important;
+  color: #4a5568 !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+.trs-controls-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+.trs-filter-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.trs-search-input {
+  padding: 10px 15px;
+  border: 2px solid #cbd5e0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  min-width: 200px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.trs-search-input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.trs-sort-select {
+  padding: 10px 15px;
+  border: 2px solid #cbd5e0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trs-sort-select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(215, 25, 33, 0.1);
+}
+
+.trs-action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.trs-export-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+}
+
+.trs-export-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.trs-export-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.trs-refresh-btn {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(49, 130, 206, 0.2);
+}
+
+/* FontAwesome icons in buttons */
+.trs-refresh-btn i,
+.trs-refresh-btn .fas,
+.trs-refresh-btn .far,
+.trs-export-btn i,
+.trs-export-btn .fas,
+.trs-export-btn .far {
+  font-size: 0.9rem !important;
+  color: inherit !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.trs-refresh-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(49, 130, 206, 0.3);
+}
+
+.trs-refresh-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ==================== Loading States ==================== */
+.trs-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.trs-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #3182ce;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.trs-loading p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* ==================== Table Styles ==================== */
+.trs-table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px #cbd5e0;
+  background: #ffffff !important;
+}
+
+.trs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  background: #ffffff !important;
+}
+
+.trs-table th,
+.trs-table td {
+  padding: 16px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.trs-table th {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
+  font-weight: 600;
+  color: #2d3748 !important;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.trs-table tbody tr {
+  transition: all 0.2s ease;
+  background: #ffffff !important;
+}
+
+.trs-table tbody tr:hover {
+  background-color: #f7fafc !important;
+  transform: scale(1.001);
+}
+
+.trs-td-center {
+  text-align: center;
+}
+
+.trs-td-name {
+  min-width: 180px;
+}
+
+.trs-td-amount {
+  min-width: 140px;
+}
+
+.trs-td-date {
+  min-width: 160px;
+  font-size: 0.9rem;
+  color: #4a5568 !important;
+}
+
+/* ==================== Student Info Styles ==================== */
+.trs-student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trs-student-name {
+  font-weight: 600;
+  color: #1a202c !important;
+  font-size: 1rem;
+}
+
+.trs-student-id {
+  font-size: 0.85rem;
+  color: #4a5568 !important;
+  font-weight: 500;
+}
+
+/* ==================== Coin Amount Styles ==================== */
+.trs-coin-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.trs-coin-amount:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.trs-coin-payment {
+  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+  color: #c53030;
+  border: 1px solid #fc8181;
+}
+
+.trs-coin-receive {
+  background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+  color: #2f855a;
+  border: 1px solid #68d391;
+}
+
+.trs-coin-web {
+  background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
+  color: #2b6cb0;
+  border: 1px solid #63b3ed;
+}
+
+/* ==================== Status Badge Styles ==================== */
+.trs-status-badge {
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.trs-status-completed {
+  background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+  color: #2f855a;
+  border: 1px solid #68d391;
+}
+
+/* FontAwesome icons in status badge */
+.trs-status-badge i,
+.trs-status-badge .fas,
+.trs-status-badge .far {
+  font-size: 0.8rem !important;
+  color: inherit !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+/* ==================== Detail Button Styles ==================== */
+.trs-detail-btn {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(66, 153, 225, 0.2);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trs-detail-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(66, 153, 225, 0.3);
+}
+
+/* FontAwesome icons in detail button */
+.trs-detail-btn i,
+.trs-detail-btn .fas,
+.trs-detail-btn .far {
+  font-size: 1rem !important;
+  color: white !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ==================== Empty State Styles ==================== */
+.trs-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #4a5568;
+}
+
+.trs-empty-icon {
+  font-size: 4rem;
+  color: #cbd5e0;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.trs-empty-icon i {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.trs-empty-state h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.trs-empty-state p {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #4a5568;
+}
+
+.trs-empty-help {
+  font-size: 0.9rem;
+  color: #718096;
+  font-style: italic;
+}
+
+/* ==================== Debug Section Styles ==================== */
+.trs-debug-section {
+  margin-top: 30px;
+}
+
+.trs-debug-details {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #cbd5e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.trs-debug-summary {
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  cursor: pointer;
+  font-weight: 600;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s ease;
+  border: none;
+  border-radius: 0;
+}
+
+.trs-debug-summary:hover {
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+}
+
+.trs-debug-content {
+  padding: 20px;
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-top: 1px solid #cbd5e0;
+}
+
+.trs-debug-content p {
+  margin: 8px 0;
+  color: #2d3748;
+}
+
+.trs-debug-content strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+/* ==================== FORCE OVERRIDE STYLES ==================== */
+/* Important overrides to ensure bright colors are applied */
+
+.trs-container * {
+  box-sizing: border-box;
+}
+
+/* Statistics Cards Force Override */
+.trs-stats-card,
+.trs-stats-card * {
+  background-color: #ffffff !important;
+  background-image: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f8fbff 100%
+  ) !important;
+}
+
+.trs-stats-label,
+.trs-stats-label * {
+  color: #4a5568 !important;
+}
+
+.trs-stats-value,
+.trs-stats-value * {
+  color: #1a202c !important;
+}
+
+.trs-stats-description,
+.trs-stats-description * {
+  color: #4a5568 !important;
+}
+
+/* Table Force Override */
+.trs-table,
+.trs-table * {
+  background-color: #ffffff !important;
+}
+
+.trs-table th,
+.trs-table th * {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
+  color: #2d3748 !important;
+}
+
+.trs-table td,
+.trs-table td * {
+  background-color: #ffffff !important;
+  color: #2d3748 !important;
+}
+
+.trs-table tbody tr:hover,
+.trs-table tbody tr:hover * {
+  background-color: #f7fafc !important;
+}
+
+/* Section Force Override */
+.trs-section,
+.trs-section * {
+  background-color: #ffffff !important;
+  background-image: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f8fbff 100%
+  ) !important;
+}
+
+.trs-section-title,
+.trs-section-title * {
+  color: #1a202c !important;
+}
+
+/* Student Info Force Override */
+.trs-student-name,
+.trs-student-name * {
+  color: #1a202c !important;
+}
+
+.trs-student-id,
+.trs-student-id * {
+  color: #4a5568 !important;
+}
+
+/* Date text Force Override */
+.trs-td-date,
+.trs-td-date * {
+  color: #4a5568 !important;
+}
+
+/* Debug Section Override */
+.trs-debug-content,
+.trs-debug-content * {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
+  color: #2d3748 !important;
+}
+
+.trs-debug-summary,
+.trs-debug-summary * {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%) !important;
+  color: #2d3748 !important;
+}
+
+/* ==================== NAMESPACE PROTECTION ==================== */
+/* Protect our component from global CSS interference */
+
+.trs-container,
+.trs-container * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif !important;
+}
+
+/* Override any potential dark theme or global styles */
+.trs-container {
+  color-scheme: light !important;
+}
+
+/* Remove any potential background colors from parent elements */
+.trs-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%) !important;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Ensure container is positioned to use the pseudo-element */
+.trs-container {
+  position: relative;
+}
+
+/* Force white backgrounds for all content areas */
+.trs-stats-card,
+.trs-section,
+.trs-table-container,
+.trs-table,
+.trs-debug-details {
+  background: #ffffff !important;
+  background-image: none !important;
+  background-color: #ffffff !important;
+}
+
+/* Ensure all text is dark and readable */
+.trs-container h1,
+.trs-container h2,
+.trs-container h3,
+.trs-container h4,
+.trs-container h5,
+.trs-container h6,
+.trs-container p,
+.trs-container span,
+.trs-container div,
+.trs-container td,
+.trs-container th,
+.trs-container label {
+  color: #1a202c !important;
+}
+
+/* Specific overrides for different text types */
+.trs-stats-label {
+  color: #4a5568 !important;
+}
+
+.trs-stats-description,
+.trs-student-id,
+.trs-td-date {
+  color: #718096 !important;
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 768px) {
+  .trs-container {
+    padding: 15px;
+  }
+
+  .trs-page-title {
+    font-size: 2rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .trs-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .trs-stats-card {
+    padding: 20px;
+  }
+
+  .trs-stats-value {
+    font-size: 1.6rem;
+  }
+
+  .trs-section {
+    padding: 20px;
+  }
+
+  .trs-section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .trs-controls-group {
+    align-self: stretch;
+  }
+
+  .trs-filter-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .trs-search-input {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .trs-action-buttons {
+    justify-content: stretch;
+  }
+
+  .trs-export-btn,
+  .trs-refresh-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .trs-table th,
+  .trs-table td {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+
+  .trs-coin-amount {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .trs-student-name {
+    font-size: 0.9rem;
+  }
+
+  .trs-student-id {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .trs-page-title {
+    font-size: 1.6rem;
+  }
+
+  .trs-stats-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .trs-table-container {
+    font-size: 0.8rem;
+  }
+
+  .trs-action-buttons {
+    flex-direction: column;
+  }
+}
+
+/* ==================== Print Styles ==================== */
+@media print {
+  .trs-debug-section,
+  .trs-refresh-btn {
+    display: none;
+  }
+
+  .trs-container {
+    background: white;
+    box-shadow: none;
+  }
+
+  .trs-stats-card,
+  .trs-section {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

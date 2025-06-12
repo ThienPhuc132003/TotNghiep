@@ -1,0 +1,800 @@
+/* CSS RIÊNG CHO TUTOR REGISTER - ULTRA HIGH SPECIFICITY ĐỂ OVERRIDE MỌI STYLE KHÁC */
+/* Sử dụng classNamePrefix="tutor-register-major-select" */
+
+/* === GLOBAL PROTECTION - OVERRIDE MỌI CSS KHÁC === */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper,
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  flex: 1 !important;
+  z-index: 1 !important;
+}
+
+/* === CONTAINER CHÍNH - ULTRA HIGH SPECIFICITY === */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control {
+  background-color: #fff !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 6px !important;
+  width: 100% !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 8px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  outline: none !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+  flex-shrink: 0 !important; /* Ngăn shrinking */
+  flex-grow: 1 !important;
+}
+
+/* === HOVER VÀ FOCUS STATES - ULTRA HIGH SPECIFICITY === */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control:hover,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control:hover,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control:hover {
+  border: 1px solid #adb5bd !important; /* Đầy đủ border definition */
+  border-color: #adb5bd !important;
+  background-color: #fff !important;
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  box-shadow: none !important;
+}
+
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--is-focused,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--is-focused,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--is-focused {
+  border: 1px solid #b41e2d !important; /* Đầy đủ border definition */
+  border-color: #b41e2d !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 0.25rem rgba(180, 30, 45, 0.2) !important;
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+}
+
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--is-disabled,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--is-disabled,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--is-disabled {
+  border-color: #e9ecef !important;
+  background-color: #e9ecef !important;
+  cursor: not-allowed !important;
+  opacity: 0.7 !important;
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+}
+
+/* === VALUE CONTAINER - ULTRA HIGH SPECIFICITY === */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__value-container,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__value-container,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__value-container {
+  padding: 0.9rem 1.2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  flex-shrink: 0 !important; /* Ngăn shrinking */
+  flex-wrap: nowrap !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+/* === PLACEHOLDER - TEXT GỢI Ý === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__placeholder {
+  color: #6c757d !important;
+  opacity: 1 !important;
+  font-style: normal !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1.5 !important;
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* === SINGLE VALUE - GIÁ TRỊ ĐÃ CHỌN === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__single-value {
+  color: #495057 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1.5 !important;
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* === INPUT CONTAINER === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__input-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__input {
+  color: #495057 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__input
+  input {
+  color: #495057 !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+}
+
+/* === INDICATORS CONTAINER (DROPDOWN ARROW VÀ CLEAR BUTTON) === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__indicators {
+  display: flex !important;
+  align-items: center !important;
+  padding-right: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__dropdown-indicator {
+  color: #6c757d !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__dropdown-indicator:hover {
+  color: #495057 !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__clear-indicator {
+  color: #6c757d !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin-right: 0.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__clear-indicator:hover {
+  color: #495057 !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__indicator-separator {
+  background-color: #dee2e6 !important;
+  margin: 0 0.25rem !important;
+  width: 1px !important;
+  height: 16px !important;
+}
+
+/* === DROPDOWN MENU - ULTRA HIGH SPECIFICITY === */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select__menu,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select__menu,
+.tutor-registration-form .form-group .tutor-register-major-select__menu {
+  background-color: #ffffff !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #ced4da !important;
+  margin-top: 2px !important;
+  z-index: 9999 !important;
+  position: absolute !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: 200px !important;
+  overflow: visible !important;
+}
+
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select__menu-list,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select__menu-list,
+.tutor-registration-form .form-group .tutor-register-major-select__menu-list {
+  padding: 0 !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+  min-height: auto !important;
+}
+
+/* --- Option --- */
+.tutor-register-major-select__option {
+  padding: 0.5rem 1.2rem !important;
+  cursor: pointer !important;
+  color: #495057 !important;
+  background-color: transparent !important;
+  border-bottom: 1px solid #f8f9fa !important;
+  transition: background-color 0.2s ease !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  line-height: 1.5 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tutor-register-major-select__option:last-child {
+  border-bottom: none !important;
+}
+
+.tutor-register-major-select__option--is-focused {
+  background-color: #f8f9fa !important;
+  color: #495057 !important;
+}
+
+.tutor-register-major-select__option--is-selected {
+  background-color: #b41e2d !important;
+  color: #ffffff !important;
+}
+
+.tutor-register-major-select__option--is-selected.tutor-register-major-select__option--is-focused {
+  background-color: #901724 !important;
+}
+
+/* --- Loading Message --- */
+.tutor-register-major-select__loading-message {
+  padding: 0.5rem 1.2rem !important;
+  color: #6c757d !important;
+  text-align: center !important;
+}
+
+/* --- No Options Message --- */
+.tutor-register-major-select__no-options-message {
+  padding: 0.5rem 1.2rem !important;
+  color: #6c757d !important;
+  text-align: center !important;
+}
+
+/* === OVERRIDE FALLBACK - ĐẢM BẢO KHÔNG BỊ STYLE KHÁC ẢNH HƯỞNG === */
+div.tutor-register-major-select__control {
+  width: 100% !important;
+  min-height: 48px !important;
+  box-sizing: border-box !important;
+}
+
+div.tutor-register-major-select__value-container {
+  align-items: center !important;
+  padding: 0.9rem 1.2rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: 28px !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+div.tutor-register-major-select__placeholder,
+div.tutor-register-major-select__single-value {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1rem !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* === ADDITIONAL WIDTH CONSTRAINTS TO MATCH OTHER INPUTS === */
+/* Đảm bảo form-group chứa major select có cùng flex behavior */
+.tutor-registration-form
+  .form-grid
+  .form-group:has(.tutor-register-major-select-wrapper) {
+  flex: 1 !important;
+}
+
+/* Đảm bảo wrapper và control có cùng width constraints như input khác */
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+  flex-grow: 1 !important;
+}
+
+/* Override bất kỳ style nào có thể làm cho select rộng hơn */
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper * {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+/* === ANTI-SHRINKING PROTECTION - NGĂN CHẶN MỌI HIỆN TƯỢNG THU NHỎ === */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  *,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  *,
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper * {
+  flex-shrink: 0 !important;
+  transition: none !important; /* Tắt tất cả transition */
+}
+
+/* Đặc biệt bảo vệ control khi clicked */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--menu-is-open,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--menu-is-open,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--menu-is-open {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* Bảo vệ khi menu đang mở */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper.tutor-register-major-select__control--menu-is-open,
+div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper.tutor-register-major-select__control--menu-is-open,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper.tutor-register-major-select__control--menu-is-open {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+}
+
+/* Override bất kỳ CSS nào khác có thể ảnh hưởng */
+body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div[class*="tutor-register-major-select"],
+div.tutor-registration_form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div[class*="tutor-register-major-select"],
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  div[class*="tutor-register-major-select"] {
+  animation: none !important;
+  transform: none !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+
+/* === AGGRESSIVE PROTECTION - NGĂN CHẶN BẤT KỲ CSS NÀO KHÁC === */
+/* Ngăn chặn bất kỳ CSS nào có thể làm shrink dropdown */
+div.tutor-register-major-select-wrapper *[class*="control"] {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+div.tutor-register-major-select-wrapper *[class*="value-container"] {
+  height: auto !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Ngăn chặn bất kỳ animation hoặc transition nào */
+div.tutor-register-major-select-wrapper
+  *[class*="tutor-register-major-select"] {
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Force override tất cả CSS có thể can thiệp */
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper,
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper *,
+body .tutor-registration-form .form-group .tutor-register-major-select-wrapper,
+body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  * {
+  box-sizing: border-box !important;
+}
+
+/* Sửa lỗi shrinking khi click */
+div[class*="tutor-register-major-select__control"]:active,
+div[class*="tutor-register-major-select__control"]:focus,
+div[class*="tutor-register-major-select__control--menu-is-open"] {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* === CUỐI CÙNG - FORCE ANTI-SHRINKING VỚI HIGHEST SPECIFICITY === */
+/* Ngăn chặn shrinking khi menu mở và đóng */
+html
+  body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control--menu-is-open,
+html
+  body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--menu-is-open,
+body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--menu-is-open {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+  animation: none !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+
+/* Bảo vệ khi menu đóng lại */
+html
+  body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__control:not(
+    .tutor-register-major-select__control--menu-is-open
+  ),
+html
+  body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control:not(
+    .tutor-register-major-select__control--menu-is-open
+  ),
+body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control:not(
+    .tutor-register-major-select__control--menu-is-open
+  ) {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+  animation: none !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+
+/* Override trực tiếp inline styles nếu có */
+.tutor-register-major-select-wrapper
+  [style*="height"]:not(.tutor-register-major-select__menu),
+.tutor-register-major-select-wrapper
+  [style*="min-height"]:not(.tutor-register-major-select__menu),
+.tutor-register-major-select-wrapper
+  [style*="max-height"]:not(.tutor-register-major-select__menu) {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+}
+
+/* Bảo vệ value container khi menu thay đổi state */
+html
+  body
+  div.tutor-registration-form
+  div.form-group
+  div.tutor-register-major-select-wrapper
+  div.tutor-register-major-select__value-container,
+html
+  body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__value-container,
+body
+  .tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__value-container {
+  height: auto !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Force protection cho tất cả trạng thái của react-select */
+div[class*="tutor-register-major-select__control"]:active,
+div[class*="tutor-register-major-select__control"]:focus,
+div[class*="tutor-register-major-select__control"]:focus-within,
+div[class*="tutor-register-major-select__control"]:hover,
+div[class*="tutor-register-major-select__control"]:focus-visible,
+div[class*="tutor-register-major-select__control"].tutor-register-major-select__control--menu-is-open,
+div[class*="tutor-register-major-select__control"].tutor-register-major-select__control--is-focused {
+  height: auto !important;
+  min-height: 48px !important;
+  max-height: none !important;
+  flex-shrink: 0 !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Đặc biệt bảo vệ menu portal */
+.tutor-register-major-select__menu-portal .tutor-register-major-select__menu {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* === ABSOLUTE FINAL PROTECTION - NGĂN CHẶN MỌI CSS KHÁC === */
+/* Override Bootstrap, Material-UI hoặc bất kỳ framework nào khác */
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper * {
+  box-sizing: border-box !important;
+  animation: none !important;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+
+/* Ngăn chặn Bootstrap hoặc CSS global ảnh hưởng */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .form-control,
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper input,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  select,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .form-select {
+  height: auto !important;
+  min-height: inherit !important;
+  padding: inherit !important;
+  border: inherit !important;
+  border-radius: inherit !important;
+  background: inherit !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+/* Đảm bảo không có CSS animation từ thư viện khác */
+@keyframes none {
+  from {
+    transform: none;
+  }
+  to {
+    transform: none;
+  }
+}
+
+.tutor-register-major-select-wrapper
+  *:not(.tutor-register-major-select__menu):not(
+    .tutor-register-major-select__option
+  ) {
+  animation: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  animation-fill-mode: none !important;
+  animation-play-state: paused !important;
+  transform: none !important;
+}
+
+/* CSS để ngăn chặn CLS (Cumulative Layout Shift) */
+.tutor-register-major-select-wrapper,
+.tutor-register-major-select-wrapper * {
+  will-change: auto !important;
+  contain: none !important;
+}
+
+/* Force stable dimensions */
+.tutor-register-major-select__control,
+.tutor-register-major-select__control * {
+  flex-shrink: 0 !important;
+  flex-grow: inherit !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: inherit !important;
+  max-height: none !important;
+}
+
+/* === DEBUG HELPER - XOÁ SAU KHI TESTING XONG === */
+/* Uncomment để debug visual boundaries */
+/*
+.tutor-register-major-select-wrapper {
+  border: 2px solid red !important;
+  background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.tutor-register-major-select__control {
+  border: 2px solid blue !important;
+  background-color: rgba(0, 0, 255, 0.1) !important;
+}
+
+.tutor-register-major-select__value-container {
+  border: 1px solid green !important;
+  background-color: rgba(0, 255, 0, 0.1) !important;
+}
+
+.tutor-register-major-select__menu {
+  border: 3px solid orange !important;
+  background-color: rgba(255, 165, 0, 0.2) !important;
+}
+*/

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Tutor Revenue New API</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+      }
+      .test-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px;
+      }
+      .test-button:hover {
+        background: #0056b3;
+      }
+      .result-box {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .success {
+        color: #28a745;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .info {
+        color: #17a2b8;
+      }
+      .warning {
+        color: #ffc107;
+      }
+      .data-preview {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .coin-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .coin-payment {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .coin-receive {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+      .coin-web {
+        background: #dbeafe;
+        color: #2563eb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🧪 Test Tutor Revenue New API Integration</h1>
+        <p>
+          Kiểm tra tích hợp endpoint:
+          <code>manage-payment/search-with-time-by-tutor</code>
+        </p>
+      </div>
+
+      <div class="test-section">
+        <h3>📊 Mock Data Structure Test</h3>
+        <p>Kiểm tra cấu trúc dữ liệu mới từ API</p>
+        <button class="test-button" onclick="testDataStructure()">
+          Test Data Structure
+        </button>
+        <div id="dataStructureResult" class="result-box"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔄 Data Transformation Test</h3>
+        <p>Kiểm tra việc chuyển đổi dữ liệu cho component</p>
+        <button class="test-button" onclick="testDataTransformation()">
+          Test Transformation
+        </button>
+        <div id="transformationResult" class="result-box"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>💰 Revenue Calculation Test</h3>
+        <p>Kiểm tra tính toán tổng doanh thu và thống kê</p>
+        <button class="test-button" onclick="testRevenueCalculation()">
+          Test Revenue Calculation
+        </button>
+        <div id="revenueResult" class="result-box"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>📋 Table Display Test</h3>
+        <p>Kiểm tra hiển thị dữ liệu trong bảng</p>
+        <button class="test-button" onclick="testTableDisplay()">
+          Test Table Display
+        </button>
+        <div id="tableResult" class="result-box"></div>
+      </div>
+    </div>
+
+    <script>
+      // Mock data from the API response
+      const mockApiResponse = {
+        total: 1,
+        items: [
+          {
+            createdAt: "2025-06-02T11:18:28.200Z",
+            updatedAt: "2025-06-02T11:18:28.200Z",
+            createdBy: null,
+            updatedBy: null,
+            deletedAt: null,
+            managePaymentId: "225bab1d-09dd-4a80-8884-fb141a66238d",
+            userId: "US00028",
+            tutorId: "US00011",
+            coinOfUserPayment: 2700,
+            coinOfTutorReceive: 2430,
+            coinOfWebReceive: 270,
+            user: {
+              createdAt: "2025-05-06T04:43:54.417Z",
+              updatedAt: "2025-06-04T11:18:40.063Z",
+              createdBy: null,
+              updatedBy: null,
+              deletedAt: null,
+              userId: "US00028",
+              userDisplayName: "Trần Thị Thanh",
+              fullname: "Trần Thị Thảo",
+              avatar:
+                "https://giasuvlu.click/api/media?mediaCategory=USER_AVATAR&fileName=732a68bc-c030-4c7f-b737-daee5827420b.jpeg",
+              personalEmail: "thanh.tran00@gmail.com",
+              workEmail: "doremokkkk@gmail.com",
+              phoneNumber: "0771234879",
+              homeAddress: "120 Hải Triều, P. Bến Nghé, Q.1, TP. Hồ Chí Minh",
+              birthday: "2000-07-04",
+              gender: "MALE",
+              majorId: "M0002",
+              major: {
+                createdAt: "2025-03-04T14:56:18.484Z",
+                updatedAt: "2025-03-18T07:43:08.379Z",
+                createdBy: null,
+                updatedBy: null,
+                deletedAt: null,
+                majorId: "M0002",
+                sumName: "CNTT",
+                majorName: "Công nghệ thông tin",
+              },
+            },
+            tutor: {
+              createdAt: "2025-05-08T23:09:13.766Z",
+              updatedAt: "2025-05-08T23:17:48.885Z",
+              createdBy: null,
+              updatedBy: null,
+              deletedAt: null,
+              userId: "US00011",
+              avatar:
+                "https://giasuvlu.click/api/media?mediaCategory=TUTOR_AVATAR&fileName=55de8b4f-fcaa-4b79-889b-c387f11354de.jpeg",
+              fullname: "Nguyễn Văn An",
+              birthday: "2003-03-08",
+              gender: "MALE",
+              univercity: "Đại học Văn Lang",
+              majorId: "M0015",
+              subjectId: "S0016",
+              tutorLevelId: "TL0002",
+              coinPerHours: 180,
+              rating: "0.0",
+              numberOfRating: 0,
+              major: {
+                createdAt: "2025-05-02T13:42:45.203Z",
+                updatedAt: "2025-05-02T13:42:45.203Z",
+                createdBy: null,
+                updatedBy: null,
+                deletedAt: null,
+                majorId: "M0015",
+                sumName: "NNA",
+                majorName: "Ngôn ngữ Anh",
+              },
+              subject: {
+                createdAt: "2025-05-02T13:47:46.662Z",
+                updatedAt: "2025-05-02T13:47:46.662Z",
+                createdBy: null,
+                updatedBy: null,
+                deletedAt: null,
+                subjectId: "S0016",
+                subjectName: "Kinh tế vi mô",
+                majorId: "M0013",
+              },
+              tutorLevel: {
+                createdAt: "2025-03-12T06:25:22.020Z",
+                updatedAt: "2025-04-03T13:13:30.659Z",
+                createdBy: null,
+                updatedBy: null,
+                deletedAt: null,
+                tutorLevelId: "TL0002",
+                levelName: "Bạch kim",
+                salary: 180000,
+                description: "Người dạy phải có bằng cấp tiến sĩ",
+              },
+            },
+          },
+        ],
+        totalRevenue: 2430,
+      };
+
+      function testDataStructure() {
+        const resultDiv = document.getElementById("dataStructureResult");
+        resultDiv.innerHTML = "";
+
+        try {
+          resultDiv.innerHTML +=
+            '<span class="info">📊 Testing API Response Structure...</span>\n\n';
+
+          // Check main structure
+          const hasTotal = mockApiResponse.hasOwnProperty("total");
+          const hasItems = mockApiResponse.hasOwnProperty("items");
+          const hasTotalRevenue =
+            mockApiResponse.hasOwnProperty("totalRevenue");
+
+          resultDiv.innerHTML += `<span class="${
+            hasTotal ? "success" : "error"
+          }">✓ total field: ${hasTotal}</span>\n`;
+          resultDiv.innerHTML += `<span class="${
+            hasItems ? "success" : "error"
+          }">✓ items field: ${hasItems}</span>\n`;
+          resultDiv.innerHTML += `<span class="${
+            hasTotalRevenue ? "success" : "error"
+          }">✓ totalRevenue field: ${hasTotalRevenue}</span>\n\n`;
+
+          if (hasItems && mockApiResponse.items.length > 0) {
+            const item = mockApiResponse.items[0];
+            resultDiv.innerHTML +=
+              '<span class="info">📋 Checking item structure...</span>\n';
+
+            const requiredFields = [
+              "managePaymentId",
+              "userId",
+              "tutorId",
+              "coinOfUserPayment",
+              "coinOfTutorReceive",
+              "coinOfWebReceive",
+              "user",
+              "tutor",
+            ];
+            requiredFields.forEach((field) => {
+              const hasField = item.hasOwnProperty(field);
+              resultDiv.innerHTML += `<span class="${
+                hasField ? "success" : "error"
+              }">  ✓ ${field}: ${hasField}</span>\n`;
+            });
+
+            resultDiv.innerHTML +=
+              '\n<span class="info">👤 User info:</span>\n';
+            resultDiv.innerHTML += `  - Display Name: ${
+              item.user?.userDisplayName || "N/A"
+            }\n`;
+            resultDiv.innerHTML += `  - Full Name: ${
+              item.user?.fullname || "N/A"
+            }\n`;
+            resultDiv.innerHTML += `  - Email: ${
+              item.user?.personalEmail || "N/A"
+            }\n`;
+
+            resultDiv.innerHTML +=
+              '\n<span class="info">👨‍🏫 Tutor info:</span>\n';
+            resultDiv.innerHTML += `  - Name: ${
+              item.tutor?.fullname || "N/A"
+            }\n`;
+            resultDiv.innerHTML += `  - University: ${
+              item.tutor?.univercity || "N/A"
+            }\n`;
+            resultDiv.innerHTML += `  - Level: ${
+              item.tutor?.tutorLevel?.levelName || "N/A"
+            }\n`;
+          }
+
+          resultDiv.innerHTML +=
+            '\n<span class="success">✅ Data structure test completed!</span>';
+        } catch (error) {
+          resultDiv.innerHTML += `<span class="error">❌ Error: ${error.message}</span>`;
+        }
+      }
+
+      function testDataTransformation() {
+        const resultDiv = document.getElementById("transformationResult");
+        resultDiv.innerHTML = "";
+
+        try {
+          resultDiv.innerHTML +=
+            '<span class="info">🔄 Testing data transformation...</span>\n\n';
+
+          // Simulate the transformation logic from the component
+          const data = mockApiResponse;
+          const items = data.items || [];
+          const totalRevenue = data.totalRevenue || 0;
+
+          const transformedData = items.map((item, index) => ({
+            id: item.managePaymentId || index,
+            managePaymentId: item.managePaymentId,
+            studentName:
+              item.user?.userDisplayName || item.user?.fullname || "N/A",
+            studentId: item.userId,
+            tutorReceive: item.coinOfTutorReceive,
+            userPayment: item.coinOfUserPayment,
+            webReceive: item.coinOfWebReceive,
+            status: "COMPLETED",
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            user: item.user,
+            tutor: item.tutor,
+          }));
+
+          resultDiv.innerHTML += `<span class="success">✓ Transformed ${transformedData.length} items</span>\n`;
+          resultDiv.innerHTML += `<span class="success">✓ Total revenue: ${totalRevenue} coins</span>\n\n`;
+
+          if (transformedData.length > 0) {
+            const item = transformedData[0];
+            resultDiv.innerHTML +=
+              '<span class="info">📋 Sample transformed item:</span>\n';
+            resultDiv.innerHTML += `  - ID: ${item.id}\n`;
+            resultDiv.innerHTML += `  - Student: ${item.studentName} (${item.studentId})\n`;
+            resultDiv.innerHTML += `  - User Payment: ${item.userPayment} coins\n`;
+            resultDiv.innerHTML += `  - Tutor Receive: ${item.tutorReceive} coins\n`;
+            resultDiv.innerHTML += `  - Web Receive: ${item.webReceive} coins\n`;
+            resultDiv.innerHTML += `  - Status: ${item.status}\n`;
+            resultDiv.innerHTML += `  - Date: ${new Date(
+              item.createdAt
+            ).toLocaleString("vi-VN")}\n`;
+          }
+
+          resultDiv.innerHTML +=
+            '\n<span class="success">✅ Data transformation test completed!</span>';
+        } catch (error) {
+          resultDiv.innerHTML += `<span class="error">❌ Error: ${error.message}</span>`;
+        }
+      }
+
+      function testRevenueCalculation() {
+        const resultDiv = document.getElementById("revenueResult");
+        resultDiv.innerHTML = "";
+
+        try {
+          resultDiv.innerHTML +=
+            '<span class="info">💰 Testing revenue calculations...</span>\n\n';
+
+          const data = mockApiResponse;
+          const items = data.items || [];
+          const totalRevenue = data.totalRevenue || 0;
+
+          // Calculate statistics
+          const totalTransactions = items.length;
+          const uniqueStudents = new Set(items.map((item) => item.userId)).size;
+
+          let totalUserPayments = 0;
+          let totalTutorReceives = 0;
+          let totalWebReceives = 0;
+
+          items.forEach((item) => {
+            totalUserPayments += item.coinOfUserPayment || 0;
+            totalTutorReceives += item.coinOfTutorReceive || 0;
+            totalWebReceives += item.coinOfWebReceive || 0;
+          });
+
+          resultDiv.innerHTML += `<span class="success">✓ Total transactions: ${totalTransactions}</span>\n`;
+          resultDiv.innerHTML += `<span class="success">✓ Unique students: ${uniqueStudents}</span>\n`;
+          resultDiv.innerHTML += `<span class="success">✓ Total revenue (API): ${totalRevenue} coins</span>\n`;
+          resultDiv.innerHTML += `<span class="success">✓ Total tutor receives (calculated): ${totalTutorReceives} coins</span>\n\n`;
+
+          resultDiv.innerHTML +=
+            '<span class="info">💸 Payment breakdown:</span>\n';
+          resultDiv.innerHTML += `  - Total user payments: ${totalUserPayments.toLocaleString(
+            "vi-VN"
+          )} coins\n`;
+          resultDiv.innerHTML += `  - Total tutor receives: ${totalTutorReceives.toLocaleString(
+            "vi-VN"
+          )} coins\n`;
+          resultDiv.innerHTML += `  - Total web receives: ${totalWebReceives.toLocaleString(
+            "vi-VN"
+          )} coins\n`;
+
+          // Verify calculation consistency
+          const calculatedRevenue = totalTutorReceives;
+          const isConsistent = calculatedRevenue === totalRevenue;
+
+          resultDiv.innerHTML += `\n<span class="${
+            isConsistent ? "success" : "warning"
+          }">`;
+          resultDiv.innerHTML += `${
+            isConsistent ? "✅" : "⚠️"
+          } Revenue calculation ${
+            isConsistent ? "matches" : "differs from"
+          } API total</span>\n`;
+
+          if (!isConsistent) {
+            resultDiv.innerHTML += `<span class="warning">  API: ${totalRevenue}, Calculated: ${calculatedRevenue}</span>\n`;
+          }
+
+          resultDiv.innerHTML +=
+            '\n<span class="success">✅ Revenue calculation test completed!</span>';
+        } catch (error) {
+          resultDiv.innerHTML += `<span class="error">❌ Error: ${error.message}</span>`;
+        }
+      }
+
+      function testTableDisplay() {
+        const resultDiv = document.getElementById("tableResult");
+        resultDiv.innerHTML = "";
+
+        try {
+          resultDiv.innerHTML +=
+            '<span class="info">📋 Testing table display data...</span>\n\n';
+
+          const items = mockApiResponse.items || [];
+
+          if (items.length === 0) {
+            resultDiv.innerHTML +=
+              '<span class="warning">⚠️ No items to display</span>\n';
+            return;
+          }
+
+          resultDiv.innerHTML += '<div class="data-preview">';
+          resultDiv.innerHTML += "<h4>📊 Table Preview</h4>";
+
+          items.forEach((item, index) => {
+            const studentName =
+              item.user?.userDisplayName || item.user?.fullname || "N/A";
+            const studentId = item.userId;
+            const userPayment = item.coinOfUserPayment;
+            const tutorReceive = item.coinOfTutorReceive;
+            const webReceive = item.coinOfWebReceive;
+            const createdAt = new Date(item.createdAt).toLocaleString("vi-VN");
+
+            resultDiv.innerHTML += `
+                        <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                            <strong>Giao dịch ${index + 1}</strong><br>
+                            <strong>Học sinh:</strong> ${studentName} (ID: ${studentId})<br>
+                            <strong>Thanh toán:</strong> 
+                            <span class="coin-display coin-payment">${userPayment?.toLocaleString(
+                              "vi-VN"
+                            )} 💰</span><br>
+                            <strong>Gia sư nhận:</strong> 
+                            <span class="coin-display coin-receive">${tutorReceive?.toLocaleString(
+                              "vi-VN"
+                            )} 💰</span><br>
+                            <strong>Website nhận:</strong> 
+                            <span class="coin-display coin-web">${webReceive?.toLocaleString(
+                              "vi-VN"
+                            )} 💰</span><br>
+                            <strong>Ngày:</strong> ${createdAt}<br>
+                            <strong>Trạng thái:</strong> <span style="color: green;">✅ Hoàn thành</span>
+                        </div>
+                    `;
+          });
+
+          resultDiv.innerHTML += "</div>";
+          resultDiv.innerHTML +=
+            '\n<span class="success">✅ Table display test completed!</span>';
+        } catch (error) {
+          resultDiv.innerHTML += `<span class="error">❌ Error: ${error.message}</span>`;
+        }
+      }
+
+      // Auto-run basic tests on page load
+      window.onload = function () {
+        console.log("🧪 Tutor Revenue New API Test Page Loaded");
+        console.log("📊 Mock API Response:", mockApiResponse);
+      };
+    </script>
+  </body>
+</html>

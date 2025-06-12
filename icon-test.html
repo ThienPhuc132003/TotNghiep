@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FontAwesome Icon Test</title>
+    <!-- FontAwesome CSS with fallback -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Fallback FontAwesome from alternative CDN -->
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v6.5.2/css/all.css"
+      crossorigin="anonymous"
+      onerror="this.onerror=null;this.href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .icon-test {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+      .icon-test i {
+        font-size: 1.5rem;
+        color: #007bff;
+      }
+      .status {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .status.pass {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status.fail {
+        background: #f8d7da;
+        color: #721c24;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 FontAwesome Icon Test for TutorRevenueStable</h1>
+
+    <div class="test-section">
+      <h2>📊 Page Title Icon</h2>
+      <div class="icon-test">
+        <i class="fas fa-chart-line"></i>
+        <span>Chart Line Icon (fa-chart-line)</span>
+        <span id="chart-line-status" class="status">Testing...</span>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>💰 Stats Card Icons</h2>
+
+      <div class="icon-test">
+        <i class="fas fa-coins"></i>
+        <span>Coins Icon (fa-coins)</span>
+        <span id="coins-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-receipt"></i>
+        <span>Receipt Icon (fa-receipt)</span>
+        <span id="receipt-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-users"></i>
+        <span>Users Icon (fa-users)</span>
+        <span id="users-status" class="status">Testing...</span>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎯 Action Icons</h2>
+
+      <div class="icon-test">
+        <i class="fas fa-list-alt"></i>
+        <span>List Alt Icon (fa-list-alt)</span>
+        <span id="list-alt-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-sync-alt"></i>
+        <span>Sync Alt Icon (fa-sync-alt)</span>
+        <span id="sync-alt-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-file-csv"></i>
+        <span>File CSV Icon (fa-file-csv)</span>
+        <span id="file-csv-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Spinner Icon (fa-spinner fa-spin)</span>
+        <span id="spinner-status" class="status">Testing...</span>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>⚠️ Alert Icons</h2>
+
+      <div class="icon-test">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Exclamation Triangle Icon (fa-exclamation-triangle)</span>
+        <span id="exclamation-triangle-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-ban"></i>
+        <span>Ban Icon (fa-ban)</span>
+        <span id="ban-status" class="status">Testing...</span>
+      </div>
+
+      <div class="icon-test">
+        <i class="fas fa-info-circle"></i>
+        <span>Info Circle Icon (fa-info-circle)</span>
+        <span id="info-circle-status" class="status">Testing...</span>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🔧 FontAwesome Status</h2>
+      <div id="font-status"></div>
+    </div>
+
+    <script>
+      function testIcon(iconClass, statusId) {
+        const icon = document.querySelector(
+          `.${iconClass.replace(/\s+/g, ".")}`
+        );
+        const status = document.getElementById(statusId);
+
+        if (!icon) {
+          status.textContent = "FAIL - Icon not found";
+          status.className = "status fail";
+          return false;
+        }
+
+        const computedStyle = window.getComputedStyle(icon, ":before");
+        const content = computedStyle.content;
+
+        // Check if FontAwesome is working
+        if (content && content !== "none" && content !== '""') {
+          status.textContent = "PASS - Icon loaded";
+          status.className = "status pass";
+          return true;
+        } else {
+          status.textContent = "FAIL - Icon not displayed";
+          status.className = "status fail";
+          return false;
+        }
+      }
+
+      function checkFontAwesome() {
+        const fontStatus = document.getElementById("font-status");
+
+        // Test if FontAwesome font is loaded
+        const testElement = document.createElement("div");
+        testElement.style.fontFamily = "Font Awesome 6 Free, FontAwesome";
+        testElement.style.position = "absolute";
+        testElement.style.left = "-9999px";
+        testElement.innerHTML = "&#xf007;"; // fa-user unicode
+        document.body.appendChild(testElement);
+
+        const computedFont = window.getComputedStyle(testElement).fontFamily;
+        document.body.removeChild(testElement);
+
+        if (
+          computedFont.includes("Font Awesome") ||
+          computedFont.includes("FontAwesome")
+        ) {
+          fontStatus.innerHTML = `
+                    <div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 4px;">
+                        ✅ <strong>FontAwesome is loaded!</strong><br>
+                        Font Family: ${computedFont}
+                    </div>
+                `;
+        } else {
+          fontStatus.innerHTML = `
+                    <div style="color: #721c24; background: #f8d7da; padding: 10px; border-radius: 4px;">
+                        ❌ <strong>FontAwesome is NOT loaded</strong><br>
+                        Font Family: ${computedFont}
+                    </div>
+                `;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a bit for fonts to load
+        setTimeout(function () {
+          checkFontAwesome();
+
+          // Test all icons
+          testIcon("fas fa-chart-line", "chart-line-status");
+          testIcon("fas fa-coins", "coins-status");
+          testIcon("fas fa-receipt", "receipt-status");
+          testIcon("fas fa-users", "users-status");
+          testIcon("fas fa-list-alt", "list-alt-status");
+          testIcon("fas fa-sync-alt", "sync-alt-status");
+          testIcon("fas fa-file-csv", "file-csv-status");
+          testIcon("fas fa-spinner", "spinner-status");
+          testIcon(
+            "fas fa-exclamation-triangle",
+            "exclamation-triangle-status"
+          );
+          testIcon("fas fa-ban", "ban-status");
+          testIcon("fas fa-info-circle", "info-circle-status");
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

@@ -19,6 +19,7 @@ const MajorList = ({
   placeholder = "Chọn ngành học của bạn",
   disabled = false, // Prop để vô hiệu hóa từ bên ngoài
   classNamePrefix = "select-majorId", // Cho phép tùy chỉnh classNamePrefix từ bên ngoài
+  menuPortalTarget = null, // New prop for portal rendering
 }) => {
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,6 +104,7 @@ const MajorList = ({
             : "Không tìm thấy ngành học"
         }
         loadingMessage={() => "Đang tải..."}
+        menuPortalTarget={menuPortalTarget} // Add support for portal rendering
         // 3. Xóa prop 'styles'
         // styles={customSelectStyles}
         // Bạn có thể thêm classNamePrefix nếu muốn có một tiền tố cố định cho các class thay vì dựa hoàn toàn vào instanceId.
@@ -122,6 +124,7 @@ MajorList.propTypes = {
   placeholder: PropTypes.string,
   disabled: PropTypes.bool,
   classNamePrefix: PropTypes.string,
+  menuPortalTarget: PropTypes.object,
 };
 
 export default MajorList;

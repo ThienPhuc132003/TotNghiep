@@ -1,0 +1,227 @@
+/* CSS CLEAN VÀ ĐẸP CHO MAJOR SELECT TRONG TUTOR REGISTER */
+/* Kích thước vừa phải, không quá to và đẹp mắt */
+
+/* === WRAPPER === */
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  z-index: 1 !important;
+}
+
+/* === CONTROL - ĐẸP VÀ VỪA PHẢI === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control {
+  background-color: #ffffff !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 6px !important;
+  width: 100% !important;
+  min-height: 40px !important; /* Kích thước vừa phải như input thông thường */
+  height: 40px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  font-family: inherit !important;
+  font-size: 0.95rem !important; /* Font size vừa phải */
+  transition: all 0.2s ease !important;
+}
+
+/* === HOVER & FOCUS STATES === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control:hover {
+  border-color: #adb5bd !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--is-focused {
+  border-color: #b41e2d !important;
+  box-shadow: 0 0 0 3px rgba(180, 30, 45, 0.15) !important;
+}
+
+/* === VALUE CONTAINER === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__value-container {
+  padding: 0.5rem 0.75rem !important; /* Padding vừa phải */
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  height: 100% !important;
+  font-size: 0.95rem !important;
+}
+
+/* === PLACEHOLDER & SINGLE VALUE === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__placeholder,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__single-value {
+  color: #495057 !important;
+  margin: 0 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__placeholder {
+  color: #6c757d !important;
+  opacity: 0.8 !important;
+}
+
+/* === INDICATORS === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__indicators {
+  padding-right: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__dropdown-indicator {
+  color: #6c757d !important;
+  padding: 4px !important;
+  cursor: pointer !important;
+  transition: color 0.2s ease !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__dropdown-indicator:hover {
+  color: #495057 !important;
+}
+
+/* === DROPDOWN MENU === */
+.tutor-register-major-select__menu {
+  background-color: #ffffff !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  margin-top: 2px !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+}
+
+.tutor-register-major-select__menu-list {
+  padding: 0 !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+/* === OPTIONS === */
+.tutor-register-major-select__option {
+  padding: 0.6rem 0.75rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  color: #495057 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-bottom: 1px solid #f8f9fa !important;
+}
+
+.tutor-register-major-select__option:last-child {
+  border-bottom: none !important;
+}
+
+.tutor-register-major-select__option--is-focused {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+}
+
+.tutor-register-major-select__option--is-selected {
+  background-color: #b41e2d !important;
+  color: #ffffff !important;
+}
+
+.tutor-register-major-select__option--is-selected.tutor-register-major-select__option--is-focused {
+  background-color: #901724 !important;
+}
+
+/* === MESSAGES === */
+.tutor-register-major-select__loading-message,
+.tutor-register-major-select__no-options-message {
+  padding: 0.75rem !important;
+  font-size: 0.9rem !important;
+  color: #6c757d !important;
+  text-align: center !important;
+  font-style: italic !important;
+}
+
+/* === DISABLED STATE === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--is-disabled {
+  background-color: #e9ecef !important;
+  border-color: #dee2e6 !important;
+  cursor: not-allowed !important;
+  opacity: 0.7 !important;
+}
+
+/* === CLEAR INDICATOR === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__clear-indicator {
+  color: #6c757d !important;
+  padding: 4px !important;
+  cursor: pointer !important;
+  margin-right: 4px !important;
+  transition: color 0.2s ease !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__clear-indicator:hover {
+  color: #dc3545 !important;
+}
+
+/* === SEPARATOR === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__indicator-separator {
+  background-color: #dee2e6 !important;
+  width: 1px !important;
+  height: 16px !important;
+  margin: 0 4px !important;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .tutor-registration-form
+    .form-group
+    .tutor-register-major-select-wrapper
+    .tutor-register-major-select__control {
+    min-height: 42px !important;
+    height: 42px !important;
+  }
+
+  .tutor-registration-form
+    .form-group
+    .tutor-register-major-select-wrapper
+    .tutor-register-major-select__value-container {
+    padding: 0.6rem 0.75rem !important;
+  }
+}
