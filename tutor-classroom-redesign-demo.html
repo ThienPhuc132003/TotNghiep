@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo - Trang Quản Lý Lớp Học Gia Sư Redesigned</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .demo-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .demo-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .demo-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .demo-content {
+        padding: 40px;
+      }
+
+      .feature-section {
+        margin-bottom: 50px;
+      }
+
+      .feature-title {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .feature-title i {
+        color: #28a745;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+
+      .feature-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #28a745, #20c997, #17a2b8);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(40, 167, 69, 0.15);
+      }
+
+      .avatar-demo {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 24px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        margin-bottom: 24px;
+        border: 2px solid rgba(40, 167, 69, 0.1);
+      }
+
+      .avatar-demo img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid #28a745;
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+      }
+
+      .avatar-info h4 {
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, #2c3e50 0%, #28a745 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .info-item {
+        padding: 16px;
+        background: rgba(248, 249, 250, 0.7);
+        border-radius: 10px;
+        border-left: 4px solid #28a745;
+        transition: all 0.3s ease;
+      }
+
+      .info-item:hover {
+        background: rgba(40, 167, 69, 0.05);
+        transform: translateX(4px);
+      }
+
+      .info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+      }
+
+      .info-label i {
+        color: #28a745;
+        width: 16px;
+      }
+
+      .info-value {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .info-value.highlight {
+        color: #28a745;
+        font-weight: 600;
+        background: linear-gradient(
+          135deg,
+          rgba(40, 167, 69, 0.1) 0%,
+          rgba(32, 201, 151, 0.1) 100%
+        );
+        padding: 4px 8px;
+        border-radius: 6px;
+        border-left: 3px solid #28a745;
+      }
+
+      .schedule-demo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .schedule-item {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .schedule-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+
+      .status-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .status-indicator:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .status-in-session {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .status-pending {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: white;
+      }
+
+      .status-completed {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 30px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-meetings {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+      }
+
+      .btn-meetings:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-create {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .btn-create:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .comparison-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 30px;
+        border-radius: 16px;
+        margin: 40px 0;
+      }
+
+      .comparison-title {
+        text-align: center;
+        font-size: 1.6rem;
+        color: #2c3e50;
+        margin-bottom: 30px;
+      }
+
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .comparison-item {
+        text-align: center;
+      }
+
+      .comparison-item h4 {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 8px;
+      }
+
+      .old-design {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+      }
+
+      .new-design {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .comparison-item ul {
+        text-align: left;
+        list-style: none;
+        padding: 0;
+      }
+
+      .comparison-item li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .comparison-item li i {
+        width: 16px;
+      }
+
+      .old-design-list i {
+        color: #dc3545;
+      }
+
+      .new-design-list i {
+        color: #28a745;
+      }
+
+      @media (max-width: 768px) {
+        .comparison-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .status-demo {
+          justify-content: center;
+        }
+
+        .avatar-demo {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .demo-header h1 {
+          font-size: 2rem;
+        }
+
+        .demo-content {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="demo-header">
+        <h1>
+          <i class="fas fa-chalkboard-teacher"></i> Redesigned Tutor Classroom
+          Management
+        </h1>
+        <p>
+          Giao diện quản lý lớp học mới dành cho gia sư - Tập trung vào thông
+          tin học viên
+        </p>
+      </div>
+
+      <div class="demo-content">
+        <!-- Feature 1: Removed Tutor Information -->
+        <div class="feature-section">
+          <h2 class="feature-title">
+            <i class="fas fa-user-minus"></i>
+            1. Bỏ Thông Tin Gia Sư
+          </h2>
+          <div class="feature-card">
+            <h3 style="color: #dc3545; margin-bottom: 15px">
+              <i class="fas fa-check-circle"></i> Đã thực hiện
+            </h3>
+            <p>
+              Loại bỏ hoàn toàn phần hiển thị thông tin gia sư trong trang chi
+              tiết lớp học vì gia sư đã biết thông tin của chính mình.
+            </p>
+            <ul style="margin-top: 15px; padding-left: 20px; color: #6c757d">
+              <li>Không hiển thị avatar gia sư</li>
+              <li>Không hiển thị thông tin cá nhân gia sư</li>
+              <li>Không hiển thị chuyên môn gia sư</li>
+              <li>Tiết kiệm không gian hiển thị</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Feature 2: Student Information Focus -->
+        <div class="feature-section">
+          <h2 class="feature-title">
+            <i class="fas fa-user-graduate"></i>
+            2. Tập Trung Vào Thông Tin Học Viên
+          </h2>
+
+          <div class="feature-card">
+            <h3 style="color: #28a745; margin-bottom: 20px">
+              Chi tiết thông tin học viên
+            </h3>
+
+            <!-- Demo Student Avatar Section -->
+            <div class="avatar-demo">
+              <img
+                src="https://via.placeholder.com/100x100/28a745/ffffff?text=HV"
+                alt="Học viên"
+              />
+              <div class="avatar-info">
+                <h4>Trần Thị Thảo</h4>
+                <p>thanh.tran00@gmail.com</p>
+              </div>
+            </div>
+
+            <!-- Demo Student Information Grid -->
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-phone"></i>
+                  Số điện thoại:
+                </div>
+                <div class="info-value">0771234879</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-map-marker-alt"></i>
+                  Địa chỉ:
+                </div>
+                <div class="info-value">123 Đường ABC, Quận 1, TP.HCM</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-calendar"></i>
+                  Ngày sinh:
+                </div>
+                <div class="info-value">15/03/2002</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-graduation-cap"></i>
+                  Chuyên ngành:
+                </div>
+                <div class="info-value highlight">Công nghệ thông tin</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-venus-mars"></i>
+                  Giới tính:
+                </div>
+                <div class="info-value">Nữ</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-coins"></i>
+                  Mức học phí:
+                </div>
+                <div class="info-value highlight">150,000 Xu/giờ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 3: Enhanced Class Information -->
+        <div class="feature-section">
+          <h2 class="feature-title">
+            <i class="fas fa-calendar-alt"></i>
+            3. Thông Tin Lớp Học Cải Tiến
+          </h2>
+
+          <div class="feature-card">
+            <h3 style="color: #007bff; margin-bottom: 20px">
+              Thông tin lớp học được tổ chức lại
+            </h3>
+
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-play-circle"></i>
+                  Ngày bắt đầu:
+                </div>
+                <div class="info-value">01/06/2025</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-stop-circle"></i>
+                  Ngày kết thúc:
+                </div>
+                <div class="info-value">03/08/2025</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-book"></i>
+                  Môn học:
+                </div>
+                <div class="info-value highlight">Toán học</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-medal"></i>
+                  Cấp độ gia sư:
+                </div>
+                <div class="info-value">Vàng</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-star"></i>
+                  Đánh giá lớp học:
+                </div>
+                <div class="info-value highlight">4.5/5.0 ⭐</div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-label">
+                  <i class="fas fa-info-circle"></i>
+                  Trạng thái:
+                </div>
+                <div class="info-value">
+                  <span class="status-indicator status-in-session">
+                    <i class="fas fa-play-circle"></i>
+                    Đang học
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Demo Schedule -->
+            <div style="margin-top: 25px">
+              <div class="info-label" style="margin-bottom: 15px">
+                <i class="fas fa-calendar-week"></i>
+                Lịch học trong tuần:
+              </div>
+              <div class="schedule-demo">
+                <div class="schedule-item">
+                  <i class="fas fa-clock"></i>
+                  Thứ 2: 05:00
+                </div>
+                <div class="schedule-item">
+                  <i class="fas fa-clock"></i>
+                  Thứ 3: 09:58
+                </div>
+              </div>
+            </div>
+
+            <!-- Demo Progress Bar -->
+            <div style="margin-top: 25px">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 8px;
+                "
+              >
+                <span
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-weight: 600;
+                    color: #495057;
+                  "
+                >
+                  <i class="fas fa-chart-line" style="color: #28a745"></i>
+                  Tiến độ lớp học
+                </span>
+                <span style="color: #28a745; font-weight: 600">18%</span>
+              </div>
+              <div
+                style="
+                  width: 100%;
+                  height: 12px;
+                  background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%);
+                  border-radius: 6px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  style="
+                    height: 100%;
+                    width: 18%;
+                    background: linear-gradient(
+                      90deg,
+                      #28a745 0%,
+                      #20c997 100%
+                    );
+                    border-radius: 6px;
+                    transition: width 0.6s ease;
+                  "
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 4: Status Indicators -->
+        <div class="feature-section">
+          <h2 class="feature-title">
+            <i class="fas fa-tags"></i>
+            4. Chỉ Báo Trạng Thái Cải Tiến
+          </h2>
+
+          <div class="feature-card">
+            <h3 style="color: #6f42c1; margin-bottom: 20px">
+              Các trạng thái lớp học
+            </h3>
+            <div class="status-demo">
+              <span class="status-indicator status-in-session">
+                <i class="fas fa-play-circle"></i>
+                Đang học
+              </span>
+              <span class="status-indicator status-pending">
+                <i class="fas fa-clock"></i>
+                Chờ bắt đầu
+              </span>
+              <span class="status-indicator status-completed">
+                <i class="fas fa-check-circle"></i>
+                Đã hoàn thành
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 5: Action Buttons -->
+        <div class="feature-section">
+          <h2 class="feature-title">
+            <i class="fas fa-mouse-pointer"></i>
+            5. Nút Hành Động Redesigned
+          </h2>
+
+          <div class="feature-card">
+            <h3 style="color: #17a2b8; margin-bottom: 20px">
+              Giao diện nút bấm mới
+            </h3>
+            <div class="action-buttons">
+              <a href="#" class="btn btn-meetings">
+                <i class="fas fa-video"></i>
+                Xem phòng học Zoom
+              </a>
+              <a href="#" class="btn btn-create">
+                <i class="fas fa-plus"></i>
+                Tạo phòng học mới
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+          <h2 class="comparison-title">So Sánh Trước & Sau</h2>
+          <div class="comparison-grid">
+            <div class="comparison-item">
+              <h4 class="old-design">🔴 Trước đây</h4>
+              <ul class="old-design-list">
+                <li>
+                  <i class="fas fa-times"></i> Hiển thị thông tin gia sư không
+                  cần thiết
+                </li>
+                <li>
+                  <i class="fas fa-times"></i> Layout 2 cột gây lãng phí không
+                  gian
+                </li>
+                <li>
+                  <i class="fas fa-times"></i> Thông tin học viên bị lấn át
+                </li>
+                <li>
+                  <i class="fas fa-times"></i> Giao diện đơn giản, thiếu tương
+                  tác
+                </li>
+                <li><i class="fas fa-times"></i> Không responsive tốt</li>
+              </ul>
+            </div>
+            <div class="comparison-item">
+              <h4 class="new-design">🟢 Bây giờ</h4>
+              <ul class="new-design-list">
+                <li>
+                  <i class="fas fa-check"></i> Tập trung 100% vào thông tin học
+                  viên
+                </li>
+                <li>
+                  <i class="fas fa-check"></i> Layout 1 cột tối ưu không gian
+                </li>
+                <li>
+                  <i class="fas fa-check"></i> Thông tin học viên được ưu tiên
+                  hiển thị
+                </li>
+                <li>
+                  <i class="fas fa-check"></i> Giao diện hiện đại với animation
+                </li>
+                <li>
+                  <i class="fas fa-check"></i> Responsive hoàn hảo mọi thiết bị
+                </li>
+                <li><i class="fas fa-check"></i> Icon và màu sắc trực quan</li>
+                <li>
+                  <i class="fas fa-check"></i> Hover effects và transitions mượt
+                  mà
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Implementation -->
+        <div class="feature-section">
+          <h2 class="feature-title">
+            <i class="fas fa-code"></i>
+            Triển Khai Kỹ Thuật
+          </h2>
+
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3 style="color: #e83e8c">React Component</h3>
+              <ul style="padding-left: 20px; color: #6c757d">
+                <li>Cập nhật ClassroomDetailView</li>
+                <li>Bỏ phần Tutor Information</li>
+                <li>Tối ưu Student Information</li>
+                <li>Thêm responsive design</li>
+              </ul>
+            </div>
+
+            <div class="feature-card">
+              <h3 style="color: #fd7e14">CSS Styling</h3>
+              <ul style="padding-left: 20px; color: #6c757d">
+                <li>Grid layout mới</li>
+                <li>Gradient backgrounds</li>
+                <li>Hover animations</li>
+                <li>Mobile-first responsive</li>
+              </ul>
+            </div>
+
+            <div class="feature-card">
+              <h3 style="color: #20c997">UX Improvements</h3>
+              <ul style="padding-left: 20px; color: #6c757d">
+                <li>Focus vào nội dung quan trọng</li>
+                <li>Loại bỏ thông tin dư thừa</li>
+                <li>Cải thiện khả năng đọc</li>
+                <li>Tăng tính tương tác</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactive effects
+      document.addEventListener("DOMContentLoaded", function () {
+        // Animate progress bar
+        const progressBar = document.querySelector('[style*="width: 18%"]');
+        if (progressBar) {
+          progressBar.style.width = "0%";
+          setTimeout(() => {
+            progressBar.style.width = "18%";
+          }, 500);
+        }
+
+        // Add click effects to buttons
+        document.querySelectorAll(".btn").forEach((btn) => {
+          btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            this.style.transform = "scale(0.95)";
+            setTimeout(() => {
+              this.style.transform = "";
+            }, 150);
+          });
+        });
+
+        // Add hover effect to feature cards
+        document.querySelectorAll(".feature-card").forEach((card) => {
+          card.addEventListener("mouseenter", function () {
+            this.style.transform = "translateY(-4px)";
+          });
+
+          card.addEventListener("mouseleave", function () {
+            this.style.transform = "translateY(0)";
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
