@@ -256,7 +256,7 @@ const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
                     title="Sao chép link"
                   >
                     <i className="fas fa-copy"></i>
-                  </button>
+                  </button>{" "}
                 </div>
               </div>
             ))
@@ -330,11 +330,23 @@ const TutorClassroomPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [meetingList, setMeetingList] = useState([]); // For storing meeting list
-  const [isMeetingListOpen, setIsMeetingListOpen] = useState(false);
+
+  // New state for showing meeting list directly on page instead of modal
+  const [showMeetingView, setShowMeetingView] = useState(false);
+  const [currentClassroomForMeetings, setCurrentClassroomForMeetings] =
+    useState(null);
+  const [activeMeetingTab, setActiveMeetingTab] = useState("IN_SESSION"); // New state for tab navigation
 
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Function to go back from meeting view to classroom list
+  const handleBackToClassrooms = () => {
+    setShowMeetingView(false);
+    setCurrentClassroomForMeetings(null);
+    setMeetingList([]);
+  };
   // Handle return from Zoom connection
   useEffect(() => {
     if (location.state?.fromClassroom && location.state?.zoomConnected) {
@@ -437,14 +449,14 @@ const TutorClassroomPage = () => {
         response.data.items &&
         response.data.items.length > 0
       ) {
-        // Set meeting list and show modal instead of auto-navigating
+        // Switch to meeting view instead of modal
         setMeetingList(response.data.items);
-        setSelectedClassroom({
+        setCurrentClassroomForMeetings({
           classroomId,
           classroomName,
           nameOfRoom: classroomName,
         });
-        setIsMeetingListOpen(true);
+        setShowMeetingView(true);
 
         toast.success("Đã tải danh sách phòng học!");
       } else {
@@ -571,217 +583,452 @@ const TutorClassroomPage = () => {
       </div>
     );
   }
+  // Function to handle joining meeting in inline view
+  const handleJoinMeetingInline = (meeting) => {
+    // Navigate to TutorMeetingRoomPage with meeting data for embedded Zoom
+    navigate("/tai-khoan/ho-so/phong-hoc", {
+      state: {
+        meetingData: meeting,
+        classroomName: currentClassroomForMeetings?.nameOfRoom,
+        classroomId: meeting.classroomId,
+        userRole: "host", // Tutor is always host
+        isNewMeeting: false,
+      },
+    });
+  };
+  // Inline Meeting List Component
+  const InlineMeetingListView = () => {
+    if (!showMeetingView || !currentClassroomForMeetings) return null;
+
+    // Filter meetings based on active tab
+    const filteredMeetings = meetingList.filter((meeting) => {
+      if (activeMeetingTab === "IN_SESSION") {
+        // Show meetings that are currently active or ongoing
+        return (
+          meeting.status === "IN_SESSION" ||
+          meeting.status === "STARTED" ||
+          !meeting.status
+        );
+      } else if (activeMeetingTab === "ENDED") {
+        // Show meetings that are completed or ended
+        return (
+          meeting.status === "COMPLETED" ||
+          meeting.status === "ENDED" ||
+          meeting.status === "FINISHED"
+        );
+      }
+      return true; // Default to show all if tab is unknown
+    });
+
+    // Count meetings for each tab
+    const inSessionCount = meetingList.filter(
+      (meeting) =>
+        meeting.status === "IN_SESSION" ||
+        meeting.status === "STARTED" ||
+        !meeting.status
+    ).length;
+
+    const endedCount = meetingList.filter(
+      (meeting) =>
+        meeting.status === "COMPLETED" ||
+        meeting.status === "ENDED" ||
+        meeting.status === "FINISHED"
+    ).length;
+    return (
+      <div className="tcp-inline-meeting-view">
+        {/* Back button section - separate row */}
+        <div className="tcp-back-section">
+          <button className="tcp-back-btn" onClick={handleBackToClassrooms}>
+            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
+            Quay lại danh sách lớp học
+          </button>
+        </div>
+
+        {/* Title and tabs section - same row */}
+        <div className="tcp-title-tabs-section">
+          <h3 className="tcp-meeting-title">
+            Danh sách phòng học - {currentClassroomForMeetings.nameOfRoom}
+          </h3>
+          <div className="tcp-meeting-tabs">
+            <button
+              className={`tcp-tab ${
+                activeMeetingTab === "IN_SESSION" ? "active" : ""
+              }`}
+              onClick={() => setActiveMeetingTab("IN_SESSION")}
+            >
+              <i className="fas fa-video"></i>
+              Đang diễn ra
+              <span className="tcp-tab-count">({inSessionCount})</span>
+            </button>
+            <button
+              className={`tcp-tab ${
+                activeMeetingTab === "ENDED" ? "active" : ""
+              }`}
+              onClick={() => setActiveMeetingTab("ENDED")}
+            >
+              <i className="fas fa-history"></i>
+              Lịch sử
+              <span className="tcp-tab-count">({endedCount})</span>{" "}
+            </button>
+          </div>
+        </div>
+
+        <div className="tcp-meeting-list-inline">
+          {filteredMeetings && filteredMeetings.length > 0 ? (
+            filteredMeetings.map((meeting, index) => {
+              // Check if meeting has ended
+              const isEnded =
+                meeting.status === "COMPLETED" ||
+                meeting.status === "ENDED" ||
+                meeting.status === "FINISHED" ||
+                (meeting.endTime && new Date(meeting.endTime) < new Date());
+
+              return (
+                <div
+                  key={meeting.id || index}
+                  className="tcp-meeting-item-inline"
+                >
+                  <div className="tcp-meeting-info">
+                    <h4 className="tcp-meeting-topic">{meeting.topic}</h4>
+                    <div className="tcp-meeting-details">
+                      <p>
+                        <strong>Meeting ID:</strong>{" "}
+                        {meeting.zoomMeetingId || meeting.id}
+                      </p>
+                      <p>
+                        <strong>Mật khẩu:</strong>{" "}
+                        {meeting.password || "Không có"}
+                      </p>
+                      <p>
+                        <strong>Thời gian bắt đầu:</strong>{" "}
+                        {meeting.startTime
+                          ? new Date(meeting.startTime).toLocaleString("vi-VN")
+                          : "Chưa xác định"}
+                      </p>
+                      <p>
+                        <strong>Thời gian kết thúc:</strong>{" "}
+                        {meeting.endTime
+                          ? new Date(meeting.endTime).toLocaleString("vi-VN")
+                          : "Chưa xác định"}
+                      </p>
+                      <p>
+                        <strong>Trạng thái:</strong>{" "}
+                        <span
+                          className={`tcp-status ${meeting.status?.toLowerCase()}`}
+                        >
+                          {meeting.status === "IN_SESSION"
+                            ? "Đang diễn ra"
+                            : isEnded
+                            ? "Đã kết thúc"
+                            : "Chờ bắt đầu"}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="tcp-meeting-actions">
+                    {!isEnded && (
+                      <>
+                        <a
+                          href={meeting.joinUrl || meeting.join_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="tcp-btn tcp-btn-join"
+                          title="Tham gia qua Zoom"
+                        >
+                          <i
+                            className="fas fa-video"
+                            style={{ marginRight: "8px" }}
+                          ></i>
+                          Tham gia Zoom
+                        </a>
+                        <button
+                          className="tcp-btn tcp-btn-copy"
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              meeting.joinUrl || meeting.join_url
+                            );
+                            toast.success("Đã sao chép link tham gia!");
+                          }}
+                          title="Sao chép link"
+                        >
+                          <i className="fas fa-copy"></i>
+                        </button>
+                      </>
+                    )}
+                    {isEnded && (
+                      <div className="tcp-meeting-ended">
+                        <span className="tcp-ended-label">
+                          <i className="fas fa-check-circle"></i>
+                          Phiên đã kết thúc
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="tcp-no-meetings-inline">
+              <i
+                className={`fas ${
+                  activeMeetingTab === "IN_SESSION"
+                    ? "fa-video-slash"
+                    : "fa-clock"
+                }`}
+              ></i>
+              <h4>
+                {activeMeetingTab === "IN_SESSION"
+                  ? "Không có phòng học đang diễn ra"
+                  : "Chưa có lịch sử phòng học"}
+              </h4>
+              <p>
+                {activeMeetingTab === "IN_SESSION"
+                  ? "Hiện tại chưa có phòng học nào đang hoạt động. Hãy tạo phòng học mới để bắt đầu."
+                  : "Chưa có phòng học nào đã kết thúc. Lịch sử các phòng học sẽ hiển thị ở đây."}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="tutor-classroom-page">
-      <h2 className="tcp-page-title">Quản lý lớp học ({totalClassrooms})</h2>
-      {isLoading && (
-        <div className="tcp-skeleton-container">
-          {[...Array(3)].map((_, index) => (
-            <div key={index} className="tcp-skeleton tcp-skeleton-card"></div>
-          ))}
-        </div>
-      )}
-      {error && <p className="tcp-error-message">{error}</p>}
-      {!isLoading && !error && classrooms.length === 0 && (
-        <div className="tcp-empty-state">
-          <p>Bạn hiện không có lớp học nào đang hoạt động.</p>
-          <button
-            className="tcp-find-student-btn"
-            onClick={() => navigate("/gia-su")}
-          >
-            Quay về trang gia sư
-          </button>
-        </div>
-      )}
-      {!isLoading && !error && classrooms.length > 0 && (
-        <div className="tcp-classroom-list">
-          {classrooms.map((classroom) => {
-            const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
-            const classroomName = classroom.nameOfRoom || "Lớp học không tên";
-            const statusLabel =
-              statusLabels[classroom.status] || classroom.status || "N/A";
-            const progress = calculateClassProgress(
-              classroom.startDay,
-              classroom.endDay
-            );
-            const { percentage: progressPercentage, status: progressStatus } =
-              calculateClassProgress(classroom.startDay, classroom.endDay);
+      {showMeetingView ? (
+        <InlineMeetingListView />
+      ) : (
+        <>
+          <h2 className="tcp-page-title">
+            Quản lý lớp học ({totalClassrooms})
+          </h2>
+          {isLoading && (
+            <div className="tcp-skeleton-container">
+              {[...Array(3)].map((_, index) => (
+                <div
+                  key={index}
+                  className="tcp-skeleton tcp-skeleton-card"
+                ></div>
+              ))}
+            </div>
+          )}
+          {error && <p className="tcp-error-message">{error}</p>}
+          {!isLoading && !error && classrooms.length === 0 && (
+            <div className="tcp-empty-state">
+              <p>Bạn hiện không có lớp học nào đang hoạt động.</p>
+              <button
+                className="tcp-find-student-btn"
+                onClick={() => navigate("/gia-su")}
+              >
+                Quay về trang gia sư
+              </button>
+            </div>
+          )}
+          {!isLoading && !error && classrooms.length > 0 && (
+            <div className="tcp-classroom-list">
+              {classrooms.map((classroom) => {
+                const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
+                const classroomName =
+                  classroom.nameOfRoom || "Lớp học không tên";
+                const statusLabel =
+                  statusLabels[classroom.status] || classroom.status || "N/A";
+                const progress = calculateClassProgress(
+                  classroom.startDay,
+                  classroom.endDay
+                );
+                const {
+                  percentage: progressPercentage,
+                  status: progressStatus,
+                } = calculateClassProgress(
+                  classroom.startDay,
+                  classroom.endDay
+                );
 
-            return (
-              <div key={classroom.classroomId} className="tcp-classroom-card">
-                <div className="tcp-card-header">
-                  <h3 className="tcp-classroom-name">{classroomName}</h3>
-                  <span
-                    className={`tcp-status-badge tcp-status-${classroom.status?.toLowerCase()}`}
+                return (
+                  <div
+                    key={classroom.classroomId}
+                    className="tcp-classroom-card"
                   >
-                    {statusLabel}
-                  </span>
-                </div>
-                <div className="tcp-card-body">
-                  <div className="tcp-student-info">
-                    <img
-                      src={classroom.user?.avatar || dfMale}
-                      alt={classroom.user?.fullname || "Học viên"}
-                      className="tcp-student-avatar"
-                    />
-                    <div>
-                      <p>
-                        <strong>Học viên:</strong>{" "}
-                        {classroom.user?.fullname || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Email:</strong>{" "}
-                        {classroom.user?.personalEmail || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Chuyên ngành:</strong>{" "}
-                        {classroom.user?.major?.majorName || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Số điện thoại:</strong>{" "}
-                        {classroom.user?.phoneNumber || "N/A"}
-                      </p>
+                    <div className="tcp-card-header">
+                      <h3 className="tcp-classroom-name">{classroomName}</h3>
+                      <span
+                        className={`tcp-status-badge tcp-status-${classroom.status?.toLowerCase()}`}
+                      >
+                        {statusLabel}
+                      </span>
                     </div>
-                  </div>
-                  <hr className="tcp-divider" />
-                  <div className="tcp-class-details">
-                    <p>
-                      <strong>Ngày bắt đầu:</strong>{" "}
-                      {formatDate(classroom.startDay)}
-                    </p>
-                    <p>
-                      <strong>Ngày kết thúc:</strong>{" "}
-                      {formatDate(classroom.endDay)}
-                    </p>
-
-                    {/* Progress Bar */}
-                    {classroom.status === "IN_SESSION" && (
-                      <div className="tcp-progress-section">
-                        <div className="tcp-progress-label">
-                          Tiến độ lớp học: {progress.percentage}%
-                        </div>
-                        <div className="tcp-progress-bar">
-                          <div
-                            className={`tcp-progress-fill ${progress.status}`}
-                            style={{ width: `${progress.percentage}%` }}
-                          ></div>
+                    <div className="tcp-card-body">
+                      <div className="tcp-student-info">
+                        <img
+                          src={classroom.user?.avatar || dfMale}
+                          alt={classroom.user?.fullname || "Học viên"}
+                          className="tcp-student-avatar"
+                        />
+                        <div>
+                          <p>
+                            <strong>Học viên:</strong>{" "}
+                            {classroom.user?.fullname || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Email:</strong>{" "}
+                            {classroom.user?.personalEmail || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Chuyên ngành:</strong>{" "}
+                            {classroom.user?.major?.majorName || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Số điện thoại:</strong>{" "}
+                            {classroom.user?.phoneNumber || "N/A"}
+                          </p>
                         </div>
                       </div>
-                    )}
+                      <hr className="tcp-divider" />
+                      <div className="tcp-class-details">
+                        <p>
+                          <strong>Ngày bắt đầu:</strong>{" "}
+                          {formatDate(classroom.startDay)}
+                        </p>
+                        <p>
+                          <strong>Ngày kết thúc:</strong>{" "}
+                          {formatDate(classroom.endDay)}
+                        </p>
 
-                    <p>
-                      <strong>Lịch học:</strong>
-                    </p>
-                    {schedule.length > 0 ? (
-                      <ul className="tcp-schedule-list">
-                        {schedule.map((s, index) => (
-                          <li key={index}>
-                            {s.day}: {s.times}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>Chưa có lịch học.</p>
-                    )}
-                    <div className="tcp-progress-container">
-                      <div
-                        className="tcp-progress-bar"
-                        style={{ width: `${progressPercentage}%` }}
-                      />
+                        {/* Progress Bar */}
+                        {classroom.status === "IN_SESSION" && (
+                          <div className="tcp-progress-section">
+                            <div className="tcp-progress-label">
+                              Tiến độ lớp học: {progress.percentage}%
+                            </div>
+                            <div className="tcp-progress-bar">
+                              <div
+                                className={`tcp-progress-fill ${progress.status}`}
+                                style={{ width: `${progress.percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+
+                        <p>
+                          <strong>Lịch học:</strong>
+                        </p>
+                        {schedule.length > 0 ? (
+                          <ul className="tcp-schedule-list">
+                            {schedule.map((s, index) => (
+                              <li key={index}>
+                                {s.day}: {s.times}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p>Chưa có lịch học.</p>
+                        )}
+                        <div className="tcp-progress-container">
+                          <div
+                            className="tcp-progress-bar"
+                            style={{ width: `${progressPercentage}%` }}
+                          />
+                        </div>
+                        <p className="tcp-progress-text">
+                          {progressStatus === "completed" &&
+                            "Lớp học đã hoàn thành."}
+                          {progressStatus === "in_progress" &&
+                            `Đang học: ${progressPercentage}%`}
+                          {progressStatus === "not_started" &&
+                            "Lớp học chưa bắt đầu."}
+                        </p>
+                      </div>
+                    </div>{" "}
+                    <div className="tcp-card-footer">
+                      <div className="tcp-action-buttons">
+                        {" "}
+                        {/* Tạo phòng học Zoom button - always visible */}
+                        <button
+                          className="tcp-action-btn tcp-create-meeting-btn"
+                          onClick={() =>
+                            handleOpenCreateMeetingModal(
+                              classroom.classroomId,
+                              classroom.nameOfRoom
+                            )
+                          }
+                          disabled={!classroom.classroomId}
+                          style={{
+                            backgroundColor: "#007bff",
+                            color: "white",
+                            marginRight: "10px",
+                          }}
+                        >
+                          <i
+                            className="fas fa-video"
+                            style={{ marginRight: "5px" }}
+                          ></i>
+                          Tạo phòng học
+                        </button>{" "}
+                        {classroom.status === "IN_SESSION" && (
+                          <button
+                            className="tcp-action-btn tcp-enter-btn"
+                            onClick={() =>
+                              handleEnterClassroom(
+                                classroom.classroomId,
+                                classroomName
+                              )
+                            }
+                            disabled={!classroom.classroomId}
+                          >
+                            Phòng học
+                          </button>
+                        )}
+                        {classroom.status === "PENDING" && (
+                          <button
+                            className="tcp-action-btn tcp-manage-btn"
+                            onClick={() =>
+                              handleEnterClassroom(
+                                classroom.classroomId,
+                                classroomName
+                              )
+                            }
+                            disabled={!classroom.classroomId}
+                          >
+                            Chuẩn bị lớp học
+                          </button>
+                        )}
+                        {classroom.status === "COMPLETED" && (
+                          <span className="tcp-completed-badge">
+                            Đã hoàn thành
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className="tcp-progress-text">
-                      {progressStatus === "completed" &&
-                        "Lớp học đã hoàn thành."}
-                      {progressStatus === "in_progress" &&
-                        `Đang học: ${progressPercentage}%`}
-                      {progressStatus === "not_started" &&
-                        "Lớp học chưa bắt đầu."}
-                    </p>
                   </div>
-                </div>{" "}
-                <div className="tcp-card-footer">
-                  <div className="tcp-action-buttons">
-                    {" "}
-                    {/* Tạo phòng học Zoom button - always visible */}
-                    <button
-                      className="tcp-action-btn tcp-create-meeting-btn"
-                      onClick={() =>
-                        handleOpenCreateMeetingModal(
-                          classroom.classroomId,
-                          classroom.nameOfRoom
-                        )
-                      }
-                      disabled={!classroom.classroomId}
-                      style={{
-                        backgroundColor: "#007bff",
-                        color: "white",
-                        marginRight: "10px",
-                      }}
-                    >
-                      <i
-                        className="fas fa-video"
-                        style={{ marginRight: "5px" }}
-                      ></i>
-                      Tạo phòng học
-                    </button>
-                    {classroom.status === "IN_SESSION" && (
-                      <button
-                        className="tcp-action-btn tcp-enter-btn"
-                        onClick={() =>
-                          handleEnterClassroom(
-                            classroom.classroomId,
-                            classroomName
-                          )
-                        }
-                        disabled={!classroom.classroomId}
-                      >
-                        Vào lớp học
-                      </button>
-                    )}
-                    {classroom.status === "PENDING" && (
-                      <button
-                        className="tcp-action-btn tcp-manage-btn"
-                        onClick={() =>
-                          handleEnterClassroom(
-                            classroom.classroomId,
-                            classroomName
-                          )
-                        }
-                        disabled={!classroom.classroomId}
-                      >
-                        Chuẩn bị lớp học
-                      </button>
-                    )}
-                    {classroom.status === "COMPLETED" && (
-                      <span className="tcp-completed-badge">Đã hoàn thành</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+          )}
+          {!isLoading && totalClassrooms > itemsPerPage && (
+            <div className="tcp-pagination">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Trước
+              </button>
+              <span>
+                Trang {currentPage} của{" "}
+                {Math.ceil(totalClassrooms / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === Math.ceil(totalClassrooms / itemsPerPage)
+                }
+              >
+                Sau{" "}
+              </button>
+            </div>
+          )}
+        </>
       )}
-      {!isLoading && totalClassrooms > itemsPerPage && (
-        <div className="tcp-pagination">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Trước
-          </button>
-          <span>
-            Trang {currentPage} của {Math.ceil(totalClassrooms / itemsPerPage)}
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === Math.ceil(totalClassrooms / itemsPerPage)}
-          >
-            Sau
-          </button>
-        </div>
-      )}{" "}
+
       {/* Create Meeting Modal */}
       {isModalOpen && selectedClassroom && (
         <CreateMeetingModal
@@ -790,15 +1037,6 @@ const TutorClassroomPage = () => {
           onSubmit={handleCreateMeetingSubmit}
           classroomName={selectedClassroom.nameOfRoom}
           defaultTopic={`Lớp học: ${selectedClassroom.nameOfRoom}`}
-        />
-      )}{" "}
-      {/* Meeting List Modal */}
-      {isMeetingListOpen && selectedClassroom && (
-        <MeetingListModal
-          isOpen={isMeetingListOpen}
-          onClose={() => setIsMeetingListOpen(false)}
-          meetings={meetingList}
-          classroomName={selectedClassroom.nameOfRoom}
         />
       )}
     </div>

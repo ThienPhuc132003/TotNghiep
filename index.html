@@ -5,15 +5,55 @@
     <link rel="icon" href="/logo.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GiaSuVLU</title>
+    <!-- FontAwesome CSS with fallback -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
+    <!-- Fallback FontAwesome from alternative CDN -->
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v6.5.2/css/all.css"
+      crossorigin="anonymous"
+      onerror="this.onerror=null;this.href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';"
+    />
+    <!-- FontAwesome test -->
+    <script>
+      // Test if FontAwesome is loaded
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+          const testIcon = document.createElement("i");
+          testIcon.className = "fas fa-check";
+          testIcon.style.position = "absolute";
+          testIcon.style.left = "-9999px";
+          document.body.appendChild(testIcon);
+
+          const computedStyle = window.getComputedStyle(testIcon);
+          if (
+            computedStyle.fontFamily.includes("Font Awesome") ||
+            computedStyle.fontFamily.includes("FontAwesome")
+          ) {
+            console.log("✅ FontAwesome loaded successfully");
+          } else {
+            console.warn("⚠️ FontAwesome may not be loaded properly");
+          }
+
+          document.body.removeChild(testIcon);
+        }, 100);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <!-- Console error handler for graceful error handling -->
     <script src="/console-handler.js"></script>
+    <!-- FontAwesome Debug Script -->
+    <script src="/fontawesome-debug.js"></script>
+    <!-- TutorRevenueStable Icon Verification -->
+    <script src="/tutor-revenue-icon-verification.js"></script>
     <script type="module" src="./src/main.jsx"></script>
     <!-- API Debug Script - Only in development -->
     <script>

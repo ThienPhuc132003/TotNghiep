@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dropdown Compact Design Demo</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .demo-container {
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+      }
+
+      .demo-title {
+        color: #b41e2d;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .demo-subtitle {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+      }
+
+      /* Dropdown Compact Styles */
+      .compact-select {
+        position: relative;
+        width: 100%;
+      }
+
+      .compact-select-control {
+        background-color: #ffffff;
+        border: 1.5px solid #e1e5e9;
+        border-radius: 8px;
+        width: 100%;
+        min-height: 36px;
+        height: 36px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        font-weight: 400;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0 0.75rem;
+        justify-content: space-between;
+      }
+
+      .compact-select-control:hover {
+        border-color: #b41e2d;
+        box-shadow: 0 2px 6px rgba(180, 30, 45, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .compact-select-control:focus {
+        border-color: #b41e2d;
+        box-shadow: 0 0 0 3px rgba(180, 30, 45, 0.12),
+          0 2px 8px rgba(180, 30, 45, 0.15);
+        transform: translateY(-1px);
+        outline: none;
+      }
+
+      .compact-select-value {
+        color: #374151;
+        font-size: 0.875rem;
+        flex-grow: 1;
+      }
+
+      .compact-select-placeholder {
+        color: #9ca3af;
+      }
+
+      .compact-select-indicator {
+        color: #6b7280;
+        transition: all 0.15s ease;
+        transform-origin: center;
+      }
+
+      .compact-select-control:hover .compact-select-indicator {
+        color: #b41e2d;
+        transform: scale(1.1);
+      }
+
+      /* Demo Input for comparison */
+      .demo-input {
+        width: 100%;
+        padding: 0 0.75rem;
+        height: 36px;
+        border: 1.5px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .demo-input:hover {
+        border-color: #b41e2d;
+        box-shadow: 0 2px 6px rgba(180, 30, 45, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .demo-input:focus {
+        border-color: #b41e2d;
+        box-shadow: 0 0 0 3px rgba(180, 30, 45, 0.12),
+          0 2px 8px rgba(180, 30, 45, 0.15);
+        transform: translateY(-1px);
+        outline: none;
+      }
+
+      .comparison-text {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 1.5rem;
+        text-align: center;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 6px;
+      }
+
+      .feature-list {
+        font-size: 0.85rem;
+        color: #4b5563;
+        margin-top: 1rem;
+      }
+
+      .feature-list li {
+        margin-bottom: 0.3rem;
+      }
+
+      .checkmark {
+        color: #10b981;
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <h1 class="demo-title">🚀 Dropdown Compact Design</h1>
+      <p class="demo-subtitle">
+        Thiết kế nhỏ gọn và hiện đại cho ô chọn ngành học
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">Họ và tên (Input thông thường)</label>
+        <input
+          type="text"
+          class="demo-input"
+          placeholder="Nhập họ và tên của bạn"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ngành học (Dropdown Compact)</label>
+        <div class="compact-select">
+          <div class="compact-select-control" tabindex="0">
+            <span class="compact-select-value compact-select-placeholder"
+              >Chọn ngành học của bạn</span
+            >
+            <span class="compact-select-indicator">▼</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comparison-text">
+        <strong>So sánh kích thước:</strong><br />
+        Dropdown có cùng height (36px) và design language với input thông
+        thường. Điều này tạo ra sự nhất quán trong form design.
+      </div>
+
+      <div class="feature-list">
+        <strong>✨ Tính năng mới:</strong>
+        <ul>
+          <li>
+            <span class="checkmark">✓</span>Kích thước compact: 36px (thay vì
+            40px)
+          </li>
+          <li><span class="checkmark">✓</span>Modern border radius: 8px</li>
+          <li>
+            <span class="checkmark">✓</span>Smooth hover effects với translateY
+          </li>
+          <li>
+            <span class="checkmark">✓</span>Enhanced focus states với multiple
+            shadows
+          </li>
+          <li>
+            <span class="checkmark">✓</span>System font stack cho performance
+          </li>
+          <li><span class="checkmark">✓</span>Cubic-bezier animations</li>
+          <li>
+            <span class="checkmark">✓</span>Consistent với design systems hiện
+            đại
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // Demo interaction
+      const selectControl = document.querySelector(".compact-select-control");
+      const indicator = document.querySelector(".compact-select-indicator");
+
+      selectControl.addEventListener("click", function () {
+        alert("Dropdown sẽ mở với animation slideDown và scale effect!");
+      });
+
+      selectControl.addEventListener("focus", function () {
+        indicator.style.transform = "rotate(180deg) scale(1.1)";
+        indicator.style.color = "#b41e2d";
+      });
+
+      selectControl.addEventListener("blur", function () {
+        indicator.style.transform = "rotate(0deg) scale(1)";
+        indicator.style.color = "#6b7280";
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,323 @@
+/* CSS COMPACT VÀ HIỆN ĐẠI CHO MAJOR SELECT TRONG TUTOR REGISTER */
+/* Thiết kế nhỏ gọn, tinh tế và đẹp mắt */
+
+/* === WRAPPER === */
+.tutor-registration-form .form-group .tutor-register-major-select-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  z-index: 1 !important;
+}
+
+/* === CONTROL - COMPACT VÀ HIỆN ĐẠI === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control {
+  background-color: #ffffff !important;
+  border: 1.5px solid #e1e5e9 !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  min-height: 36px !important; /* Nhỏ gọn hơn */
+  height: 36px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 0.875rem !important; /* Font nhỏ hơn */
+  font-weight: 400 !important;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* === HOVER & FOCUS STATES === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control:hover {
+  border-color: #b41e2d !important;
+  box-shadow: 0 2px 6px rgba(180, 30, 45, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--is-focused {
+  border-color: #b41e2d !important;
+  box-shadow: 0 0 0 3px rgba(180, 30, 45, 0.12),
+    0 2px 8px rgba(180, 30, 45, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* === VALUE CONTAINER === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__value-container {
+  padding: 0 0.75rem !important; /* Padding tối ưu */
+  display: flex !important;
+  align-items: center !important;
+  flex-grow: 1 !important;
+  height: 100% !important;
+  font-size: 0.875rem !important;
+}
+
+/* === PLACEHOLDER & SINGLE VALUE === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__placeholder,
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__single-value {
+  color: #374151 !important;
+  margin: 0 !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* === INDICATORS === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__indicators {
+  padding-right: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__dropdown-indicator {
+  color: #6b7280 !important;
+  padding: 2px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  transform-origin: center !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__dropdown-indicator:hover {
+  color: #b41e2d !important;
+  transform: scale(1.1) !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--menu-is-open
+  .tutor-register-major-select__dropdown-indicator {
+  transform: rotate(180deg) !important;
+  color: #b41e2d !important;
+}
+
+/* === DROPDOWN MENU === */
+.tutor-register-major-select__menu {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+  margin-top: 4px !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.tutor-register-major-select__menu-list {
+  padding: 4px !important;
+  max-height: 180px !important; /* Nhỏ gọn hơn */
+  overflow-y: auto !important;
+}
+
+/* === SCROLLBAR === */
+.tutor-register-major-select__menu-list::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.tutor-register-major-select__menu-list::-webkit-scrollbar-track {
+  background: #f3f4f6 !important;
+  border-radius: 3px !important;
+}
+
+.tutor-register-major-select__menu-list::-webkit-scrollbar-thumb {
+  background: #d1d5db !important;
+  border-radius: 3px !important;
+}
+
+.tutor-register-major-select__menu-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af !important;
+}
+
+/* === OPTIONS === */
+.tutor-register-major-select__option {
+  padding: 0.5rem 0.75rem !important; /* Padding nhỏ gọn */
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  color: #374151 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  border-radius: 6px !important;
+  margin: 1px 0 !important;
+}
+
+.tutor-register-major-select__option:hover {
+  background-color: #f9fafb !important;
+  color: #111827 !important;
+  transform: translateX(2px) !important;
+}
+
+.tutor-register-major-select__option--is-focused {
+  background-color: #fef2f2 !important;
+  color: #b41e2d !important;
+  transform: translateX(2px) !important;
+}
+
+.tutor-register-major-select__option--is-selected {
+  background-color: #b41e2d !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  position: relative !important;
+}
+
+.tutor-register-major-select__option--is-selected::after {
+  content: "✓" !important;
+  position: absolute !important;
+  right: 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: bold !important;
+}
+
+.tutor-register-major-select__option--is-selected.tutor-register-major-select__option--is-focused {
+  background-color: #991b1b !important;
+}
+
+/* === MESSAGES === */
+.tutor-register-major-select__loading-message,
+.tutor-register-major-select__no-options-message {
+  padding: 1rem 0.75rem !important;
+  font-size: 0.8rem !important;
+  color: #9ca3af !important;
+  text-align: center !important;
+  font-style: italic !important;
+}
+
+/* === DISABLED STATE === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control--is-disabled {
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  transform: none !important;
+}
+
+/* === CLEAR INDICATOR === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__clear-indicator {
+  color: #9ca3af !important;
+  padding: 2px !important;
+  cursor: pointer !important;
+  margin-right: 4px !important;
+  transition: all 0.15s ease !important;
+  border-radius: 50% !important;
+}
+
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__clear-indicator:hover {
+  color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+  transform: scale(1.1) !important;
+}
+
+/* === SEPARATOR === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__indicator-separator {
+  background-color: #e5e7eb !important;
+  width: 1px !important;
+  height: 14px !important;
+  margin: 0 3px !important;
+}
+
+/* === LOADING INDICATOR === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__loading-indicator {
+  color: #b41e2d !important;
+  padding: 2px !important;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .tutor-registration-form
+    .form-group
+    .tutor-register-major-select-wrapper
+    .tutor-register-major-select__control {
+    min-height: 38px !important;
+    height: 38px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .tutor-registration-form
+    .form-group
+    .tutor-register-major-select-wrapper
+    .tutor-register-major-select__value-container {
+    padding: 0 0.6rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .tutor-register-major-select__option {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* === ANIMATION WHEN OPENING/CLOSING === */
+.tutor-register-major-select__menu {
+  animation: slideDown 0.15s ease-out !important;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* === FOCUS VISIBLE === */
+.tutor-registration-form
+  .form-group
+  .tutor-register-major-select-wrapper
+  .tutor-register-major-select__control:focus-visible {
+  outline: 2px solid #b41e2d !important;
+  outline-offset: 2px !important;
+}

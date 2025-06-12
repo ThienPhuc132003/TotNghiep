@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Revenue Stable - Design Preview</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Import styles from TutorRevenueStable.style.css - Inline for preview */
+
+      /* ============================================================
+                         TUTOR REVENUE STABLE PAGE STYLES
+        ============================================================ */
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          sans-serif;
+        background-color: #f8f9fa;
+      }
+
+      .trs-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          sans-serif;
+      }
+
+      /* ==================== Page Header ==================== */
+      .trs-page-header {
+        background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(215, 25, 33, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .trs-page-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
+
+      .trs-page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .trs-title-icon {
+        font-size: 2.2rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .trs-page-subtitle {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.9;
+        font-weight: 400;
+      }
+
+      /* ==================== Statistics Cards ==================== */
+      .trs-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .trs-stats-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .trs-stats-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #d71921 0%, #e6394a 100%);
+      }
+
+      .trs-stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .trs-stats-card-primary .trs-stats-icon {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      }
+
+      .trs-stats-card-secondary .trs-stats-icon {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      }
+
+      .trs-stats-card-success .trs-stats-icon {
+        background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%);
+      }
+
+      .trs-stats-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: white;
+        flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .trs-stats-content {
+        flex: 1;
+      }
+
+      .trs-stats-label {
+        margin: 0 0 8px 0;
+        font-size: 1rem;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .trs-stats-value {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .trs-stats-description {
+        margin: 5px 0 0 0;
+        font-size: 0.85rem;
+        color: #868e96;
+        font-weight: 400;
+      }
+
+      /* ==================== Section Styles ==================== */
+      .trs-section {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+        margin-bottom: 30px;
+      }
+
+      .trs-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f8f9fa;
+        gap: 20px;
+      }
+
+      .trs-section-title {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .trs-controls-group {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        flex-shrink: 0;
+      }
+
+      .trs-filter-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .trs-search-input {
+        padding: 10px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        min-width: 200px;
+        transition: all 0.3s ease;
+      }
+
+      .trs-search-input:focus {
+        outline: none;
+        border-color: #d71921;
+        box-shadow: 0 0 0 3px rgba(215, 25, 33, 0.1);
+      }
+
+      .trs-sort-select {
+        padding: 10px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .trs-sort-select:focus {
+        outline: none;
+        border-color: #d71921;
+        box-shadow: 0 0 0 3px rgba(215, 25, 33, 0.1);
+      }
+
+      .trs-action-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .trs-export-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+      }
+
+      .trs-export-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+      }
+
+      .trs-refresh-btn {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+      }
+
+      .trs-refresh-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+      }
+
+      /* ==================== Table Styles ==================== */
+      .trs-table-container {
+        overflow-x: auto;
+        border-radius: 10px;
+        box-shadow: 0 0 0 1px #e9ecef;
+      }
+
+      .trs-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        background: white;
+      }
+
+      .trs-table th,
+      .trs-table td {
+        padding: 16px 12px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+      }
+
+      .trs-table th {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .trs-table tbody tr {
+        transition: all 0.2s ease;
+      }
+
+      .trs-table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.001);
+      }
+
+      .trs-td-center {
+        text-align: center;
+      }
+
+      .trs-student-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .trs-student-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+      }
+
+      .trs-student-id {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 400;
+      }
+
+      /* ==================== Coin Amount Styles ==================== */
+      .trs-coin-amount {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
+
+      .trs-coin-amount:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .trs-coin-payment {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #dc2626;
+        border: 1px solid #f87171;
+      }
+
+      .trs-coin-receive {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+        border: 1px solid #4ade80;
+      }
+
+      .trs-coin-web {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #2563eb;
+        border: 1px solid #60a5fa;
+      }
+
+      /* ==================== Status Badge Styles ==================== */
+      .trs-status-badge {
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .trs-status-completed {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+        border: 1px solid #4ade80;
+      }
+
+      /* ==================== Detail Button Styles ==================== */
+      .trs-detail-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .trs-detail-btn:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .trs-section-header {
+          flex-direction: column;
+          gap: 15px;
+          align-items: stretch;
+        }
+
+        .trs-filter-controls {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .trs-search-input {
+          min-width: auto;
+          width: 100%;
+        }
+
+        .trs-action-buttons {
+          justify-content: stretch;
+        }
+
+        .trs-export-btn,
+        .trs-refresh-btn {
+          flex: 1;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="trs-container">
+      <!-- Page Header -->
+      <div class="trs-page-header">
+        <h1 class="trs-page-title">
+          <i class="fas fa-chart-line trs-title-icon"></i>
+          Thống kê Doanh thu
+        </h1>
+        <p class="trs-page-subtitle">
+          Chào mừng gia sư: <strong>Nguyễn Văn An</strong>
+        </p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="trs-stats-grid">
+        <div class="trs-stats-card trs-stats-card-primary">
+          <div class="trs-stats-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="trs-stats-content">
+            <h3 class="trs-stats-label">Tổng doanh thu nhận</h3>
+            <div class="trs-stats-value">2,430 Coin</div>
+            <p class="trs-stats-description">Số coin gia sư nhận được</p>
+          </div>
+        </div>
+
+        <div class="trs-stats-card trs-stats-card-secondary">
+          <div class="trs-stats-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <div class="trs-stats-content">
+            <h3 class="trs-stats-label">Số giao dịch</h3>
+            <div class="trs-stats-value">3</div>
+            <p class="trs-stats-description">Giao dịch hoàn thành</p>
+          </div>
+        </div>
+
+        <div class="trs-stats-card trs-stats-card-success">
+          <div class="trs-stats-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="trs-stats-content">
+            <h3 class="trs-stats-label">Học sinh</h3>
+            <div class="trs-stats-value">2</div>
+            <p class="trs-stats-description">Học sinh đã thanh toán</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Data Table -->
+      <div class="trs-section">
+        <div class="trs-section-header">
+          <h2 class="trs-section-title">
+            <i class="fas fa-list-alt"></i>
+            Chi tiết Giao dịch
+          </h2>
+          <div class="trs-controls-group">
+            <div class="trs-filter-controls">
+              <input
+                type="text"
+                class="trs-search-input"
+                placeholder="Tìm học sinh theo tên hoặc ID"
+              />
+              <select class="trs-sort-select">
+                <option value="newest">Mới nhất</option>
+                <option value="oldest">Cũ nhất</option>
+                <option value="highest">Cao nhất</option>
+                <option value="lowest">Thấp nhất</option>
+              </select>
+            </div>
+            <div class="trs-action-buttons">
+              <button class="trs-export-btn">
+                <i class="fas fa-file-csv"></i>
+                Xuất CSV
+              </button>
+              <button class="trs-refresh-btn">
+                <i class="fas fa-sync-alt"></i>
+                Làm mới
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="trs-table-container">
+          <table class="trs-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Học sinh</th>
+                <th>Coin học sinh trả</th>
+                <th>Coin gia sư nhận</th>
+                <th>Coin website nhận</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="trs-td-center">1</td>
+                <td>
+                  <div class="trs-student-info">
+                    <div class="trs-student-name">Trần Thị Thanh</div>
+                    <div class="trs-student-id">ID: US00028</div>
+                  </div>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-payment">
+                    2,700 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-receive">
+                    2,430 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-web">
+                    270 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-status-badge trs-status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+                <td>12/6/2025, 18:18:28</td>
+                <td class="trs-td-center">
+                  <button class="trs-detail-btn">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="trs-td-center">2</td>
+                <td>
+                  <div class="trs-student-info">
+                    <div class="trs-student-name">Nguyễn Văn B</div>
+                    <div class="trs-student-id">ID: US00029</div>
+                  </div>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-payment">
+                    1,800 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-receive">
+                    1,620 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-web">
+                    180 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-status-badge trs-status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+                <td>11/6/2025, 14:30:15</td>
+                <td class="trs-td-center">
+                  <button class="trs-detail-btn">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="trs-td-center">3</td>
+                <td>
+                  <div class="trs-student-info">
+                    <div class="trs-student-name">Lê Thị C</div>
+                    <div class="trs-student-id">ID: US00030</div>
+                  </div>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-payment">
+                    3,600 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-receive">
+                    3,240 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-coin-amount trs-coin-web">
+                    360 <i class="fas fa-coins"></i>
+                  </span>
+                </td>
+                <td class="trs-td-center">
+                  <span class="trs-status-badge trs-status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+                <td>10/6/2025, 09:45:22</td>
+                <td class="trs-td-center">
+                  <button class="trs-detail-btn">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactivity for demo
+      document.querySelectorAll(".trs-detail-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          alert("Chi tiết giao dịch - Tính năng sẽ được triển khai!");
+        });
+      });
+
+      document
+        .querySelector(".trs-export-btn")
+        .addEventListener("click", function () {
+          alert("Xuất CSV - Tính năng sẽ được triển khai!");
+        });
+
+      document
+        .querySelector(".trs-refresh-btn")
+        .addEventListener("click", function () {
+          const icon = this.querySelector("i");
+          icon.className = "fas fa-spinner fa-spin";
+
+          setTimeout(() => {
+            icon.className = "fas fa-sync-alt";
+            alert("Dữ liệu đã được làm mới!");
+          }, 2000);
+        });
+
+      // Search functionality demo
+      document
+        .querySelector(".trs-search-input")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll(".trs-table tbody tr");
+
+          rows.forEach((row) => {
+            const studentName = row
+              .querySelector(".trs-student-name")
+              .textContent.toLowerCase();
+            const studentId = row
+              .querySelector(".trs-student-id")
+              .textContent.toLowerCase();
+
+            if (
+              studentName.includes(searchTerm) ||
+              studentId.includes(searchTerm)
+            ) {
+              row.style.display = "";
+            } else {
+              row.style.display = "none";
+            }
+          });
+        });
+
+      console.log(
+        "🎨 Tutor Revenue Stable - Design Preview loaded successfully!"
+      );
+    </script>
+  </body>
+</html>

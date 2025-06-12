@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Style Verification Test - Tutor Classroom</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Import styles from TutorClassroomPage.style.css */
+
+      /* Inline Meeting View Styles */
+      .tcp-inline-meeting-view {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        max-width: 1200px;
+        margin: 20px auto;
+      }
+
+      .tcp-inline-meeting-view::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #0056b3, #004085);
+      }
+
+      .tcp-meeting-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+      }
+
+      .tcp-meeting-header::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+      }
+
+      .tcp-back-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: fit-content;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+      }
+
+      .tcp-back-btn:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+      }
+
+      .tcp-meeting-header h3 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        flex: 1;
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Tab Navigation Styles */
+      .tcp-meeting-tabs {
+        display: flex;
+        gap: 4px;
+        margin-top: 20px;
+        background: #f8f9fa;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: fit-content;
+      }
+
+      .tcp-tab {
+        background: transparent;
+        color: #6c757d;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tcp-tab:hover {
+        color: #495057;
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateY(-1px);
+      }
+
+      .tcp-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .tcp-tab.active:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+      }
+
+      .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.9);
+        color: #007bff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-left: 4px;
+      }
+
+      .tcp-tab.active .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      /* Sample content */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .test-title {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2rem;
+      }
+
+      /* Demo meeting item */
+      .tcp-meeting-item-inline {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .tcp-meeting-item-inline:hover {
+        background: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
+        border-color: #007bff;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+      }
+
+      .meeting-info h4 {
+        margin: 0 0 8px 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+      }
+
+      .meeting-info p {
+        margin: 4px 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .tcp-btn-join {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .tcp-btn-join:hover {
+        background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .tcp-meeting-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+
+        .tcp-meeting-tabs {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .tcp-tab {
+          flex: 1;
+          text-align: center;
+          padding: 12px 15px;
+          font-size: 0.85rem;
+        }
+
+        .tcp-meeting-item-inline {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .tcp-tab {
+          padding: 10px 12px;
+          font-size: 0.8rem;
+        }
+
+        .tcp-meeting-header h3 {
+          font-size: 1.2rem;
+        }
+
+        .tcp-back-btn {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1 class="test-title">🎯 Style Verification Test - Tutor Classroom</h1>
+
+      <div class="tcp-inline-meeting-view">
+        <!-- Header with back button and title -->
+        <div class="tcp-meeting-header">
+          <button class="tcp-back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại
+          </button>
+          <h3>Phòng học: Toán học nâng cao</h3>
+        </div>
+
+        <!-- Tab navigation -->
+        <div class="tcp-meeting-tabs">
+          <button class="tcp-tab active">
+            <i class="fas fa-video"></i>
+            Đang diễn ra
+            <span class="tcp-tab-count">2</span>
+          </button>
+          <button class="tcp-tab">
+            <i class="fas fa-history"></i>
+            Lịch sử
+            <span class="tcp-tab-count">15</span>
+          </button>
+        </div>
+
+        <!-- Sample meeting items -->
+        <div class="tcp-meeting-item-inline">
+          <div class="meeting-info">
+            <h4>Buổi học Toán 12 - Hàm số</h4>
+            <p>
+              <i class="fas fa-clock"></i> Thời gian: 19:00 - 21:00, 12/06/2025
+            </p>
+            <p><i class="fas fa-users"></i> Học sinh: Nguyễn Văn A</p>
+            <p>
+              <i class="fas fa-circle text-success"></i> Trạng thái: Đang diễn
+              ra
+            </p>
+          </div>
+          <div class="meeting-actions">
+            <button class="tcp-btn-join">
+              <i class="fas fa-video"></i>
+              Tham gia
+            </button>
+          </div>
+        </div>
+
+        <div class="tcp-meeting-item-inline">
+          <div class="meeting-info">
+            <h4>Buổi học Toán 11 - Đạo hàm</h4>
+            <p>
+              <i class="fas fa-clock"></i> Thời gian: 20:30 - 22:30, 12/06/2025
+            </p>
+            <p><i class="fas fa-users"></i> Học sinh: Trần Thị B</p>
+            <p>
+              <i class="fas fa-circle text-warning"></i> Trạng thái: Sắp bắt đầu
+            </p>
+          </div>
+          <div class="meeting-actions">
+            <button class="tcp-btn-join">
+              <i class="fas fa-video"></i>
+              Tham gia
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          margin-top: 30px;
+          padding: 20px;
+          background: #e9ecef;
+          border-radius: 10px;
+        "
+      >
+        <h3>✅ Kiểm tra các element sau:</h3>
+        <ul style="text-align: left; max-width: 600px; margin: 0 auto">
+          <li>
+            <strong>Nút quay lại:</strong> Có gradient xám, hiệu ứng hover, icon
+            mũi tên
+          </li>
+          <li>
+            <strong>Tiêu đề:</strong> Gradient text xanh, font đậm, kích thước
+            phù hợp
+          </li>
+          <li>
+            <strong>Tab navigation:</strong> Background xám nhạt, tab active có
+            gradient xanh
+          </li>
+          <li>
+            <strong>Badge số lượng:</strong> Hiển thị trong tab với màu phù hợp
+          </li>
+          <li>
+            <strong>Meeting items:</strong> Hover effect, shadow, layout grid
+            responsive
+          </li>
+          <li>
+            <strong>Responsive:</strong> Thử resize browser để test mobile view
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // Test tab switching
+      document.querySelectorAll(".tcp-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tcp-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+
+      // Test back button
+      document
+        .querySelector(".tcp-back-btn")
+        .addEventListener("click", function () {
+          alert("Back button clicked! 🎉");
+        });
+
+      console.log("✅ Style verification test loaded successfully!");
+      console.log("🎯 All styles should be working correctly.");
+    </script>
+  </body>
+</html>

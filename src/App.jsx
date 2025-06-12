@@ -63,6 +63,9 @@ const TutorPersonalRevenueStatistics = lazy(() =>
   import("./pages/User/TutorRevenueStable")
 );
 
+// Test Components
+const IconTest = lazy(() => import("./components/IconTest"));
+
 // Zoom related pages
 const ZoomCallback = lazy(() => import("./pages/User/ZoomCallback"));
 const TutorMeetingRoomPage = lazy(() =>
@@ -235,6 +238,7 @@ function App() {
             <Route path="/zoom-debug" element={<ZoomDebugComponent />} />
             <Route path="/zoom-quick-test" element={<QuickZoomTest />} />
             <Route path="/zoom-simple-test" element={<SimpleZoomTest />} />
+            <Route path="/icon-test" element={<IconTest />} />
             <Route
               path="/zoom-production-test"
               element={

@@ -5,6 +5,7 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/TutorRegister.style.css";
 import "../../assets/css/Modal.style.css";
+import "../../assets/css/MajorList.tutorregister.compact.css"; // CSS đẹp cho MajorList trong TutorRegister
 import GenericFileUploader from "../../components/GenericFileUploader";
 import BankList from "../../components/Static_Data/BankList";
 import MajorList from "../../components/Static_Data/MajorList";
@@ -1371,21 +1372,25 @@ const TutorRegistrationForm = () => {
                     disabled={isLoading}
                   />{" "}
                   {renderFieldError("univercity")}{" "}
-                </div>
+                </div>{" "}
                 <div className="form-group">
                   {" "}
                   <label htmlFor="majorId">
                     {" "}
                     Ngành học <span className="required-asterisk">*</span>{" "}
                   </label>{" "}
-                  <MajorList
-                    name="majorId"
-                    value={formData.majorId}
-                    onChange={handleInputChange}
-                    required={true}
-                    disabled={isLoading}
-                    placeholder="Chọn ngành học của bạn"
-                  />{" "}
+                  <div className="tutor-register-major-select-wrapper">
+                    <MajorList
+                      name="majorId"
+                      value={formData.majorId}
+                      onChange={handleInputChange}
+                      required={true}
+                      disabled={isLoading}
+                      placeholder="Chọn ngành học của bạn"
+                      classNamePrefix="tutor-register-major-select" // CSS riêng cho TutorRegister
+                      menuPortalTarget={document.body} // Render dropdown outside form
+                    />
+                  </div>{" "}
                   {renderFieldError("majorId")}{" "}
                 </div>
                 <div className="form-group">

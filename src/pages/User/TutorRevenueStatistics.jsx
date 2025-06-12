@@ -57,7 +57,6 @@ const TutorRevenueStatistics = () => {
     }),
     []
   );
-
   // Fetch revenue data from API
   const fetchRevenueData = useCallback(async () => {
     setIsLoading(true);
@@ -81,14 +80,15 @@ const TutorRevenueStatistics = () => {
       });
 
       if (response.success && response.data) {
-        setRevenueData(response.data.items || []);
-        setTotalItems(response.data.total || 0);
+        const data = response.data;
+        setRevenueData(data.items || []);
+        setTotalItems(data.total || 0);
 
-        // Calculate statistics
-        calculateStatistics(response.data.items || []);
+        // Calculate statistics from new API structure
+        calculateStatistics(data);
 
-        // Prepare chart data
-        prepareChartData(response.data.items || []);
+        // Prepare chart data with new structure
+        prepareChartData(data.items || []);
       } else {
         throw new Error(response.message || "Failed to fetch revenue data");
       }
@@ -107,10 +107,9 @@ const TutorRevenueStatistics = () => {
     calculateStatistics,
     prepareChartData,
   ]);
-
   // Calculate statistics from data
   const calculateStatistics = useCallback((data) => {
-    if (!data || data.length === 0) {
+    if (!data || !data.items || data.items.length === 0) {
       setStatistics({
         totalRevenue: 0,
         totalTransactions: 0,
@@ -120,19 +119,22 @@ const TutorRevenueStatistics = () => {
       return;
     }
 
-    const totalRevenue = data.reduce((sum, item) => {
-      return sum + (item.coinOfTutorReceive || 0);
-    }, 0);
+    const items = data.items;
 
-    const totalTransactions = data.length;
+    // Use totalRevenue from API if available, otherwise calculate
+    const totalRevenue =
+      data.totalRevenue ||
+      items.reduce((sum, item) => sum + (item.coinOfTutorReceive || 0), 0);
+
+    const totalTransactions = items.length;
     const averageRevenue =
       totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
     // Find top performing tutor
     const tutorRevenues = {};
-    data.forEach((item) => {
+    items.forEach((item) => {
       const tutorId = item.tutor?.userId;
-      const tutorName = item.tutor?.fullName || "Unknown";
+      const tutorName = item.tutor?.fullname || "Unknown";
       if (tutorId) {
         if (!tutorRevenues[tutorId]) {
           tutorRevenues[tutorId] = {
@@ -171,9 +173,7 @@ const TutorRevenueStatistics = () => {
           tutorPerformance: { labels: [], datasets: [] },
         });
         return;
-      }
-
-      // Revenue over time chart
+      } // Revenue over time chart
       const revenueByDate = {};
       data.forEach((item) => {
         const date = new Date(item.createdAt).toLocaleDateString("vi-VN");
@@ -193,7 +193,7 @@ const TutorRevenueStatistics = () => {
         labels: sortedDates,
         datasets: [
           {
-            label: "Doanh thu",
+            label: "Doanh thu gia sư",
             data: sortedDates.map((date) => revenueByDate[date]),
             borderColor: colors.primary,
             backgroundColor: `${colors.primary}20`,
@@ -202,32 +202,23 @@ const TutorRevenueStatistics = () => {
             tension: 0.4,
           },
         ],
-      };
-
-      // Revenue distribution by payment type
-      const paymentTypes = {};
-      data.forEach((item) => {
-        const type = item.paymentType || "Unknown";
-        if (!paymentTypes[type]) {
-          paymentTypes[type] = 0;
-        }
-        paymentTypes[type] += item.coinOfTutorReceive || 0;
-      });
+      }; // Revenue distribution by web vs tutor
+      const webRevenue = data.reduce(
+        (sum, item) => sum + (item.coinOfWebReceive || 0),
+        0
+      );
+      const tutorRevenue = data.reduce(
+        (sum, item) => sum + (item.coinOfTutorReceive || 0),
+        0
+      );
 
       const revenueDistribution = {
-        labels: Object.keys(paymentTypes),
+        labels: ["Doanh thu gia sư", "Doanh thu website"],
         datasets: [
           {
-            label: "Doanh thu theo loại thanh toán",
-            data: Object.values(paymentTypes),
-            backgroundColor: [
-              colors.primary,
-              colors.secondary,
-              colors.success,
-              colors.info,
-              colors.warning,
-              colors.danger,
-            ],
+            label: "Phân bổ doanh thu",
+            data: [tutorRevenue, webRevenue],
+            backgroundColor: [colors.primary, colors.secondary],
             borderWidth: 1,
           },
         ],
@@ -236,7 +227,7 @@ const TutorRevenueStatistics = () => {
       // Top tutors performance
       const tutorRevenues = {};
       data.forEach((item) => {
-        const tutorName = item.tutor?.fullName || "Unknown";
+        const tutorName = item.tutor?.fullname || "Unknown";
         if (!tutorRevenues[tutorName]) {
           tutorRevenues[tutorName] = 0;
         }
@@ -288,39 +279,56 @@ const TutorRevenueStatistics = () => {
       minute: "2-digit",
     });
   };
-
   // Table columns configuration
   const columns = [
     {
-      title: "Mã giao dịch",
-      dataKey: "id",
-      sortable: true,
-      renderCell: (item) => <span className="transaction-id">#{item.id}</span>,
+      title: "STT",
+      dataKey: "stt",
+      sortable: false,
+      renderCell: (_, __, rowIndex) => rowIndex + 1,
     },
     {
-      title: "Gia sư",
-      dataKey: "tutor.fullName",
+      title: "Mã học viên",
+      dataKey: "user.userId",
       sortable: true,
       renderCell: (item) => (
-        <div className="tutor-info">
-          <div className="tutor-name">{item.tutor?.fullName || "N/A"}</div>
-          <div className="tutor-email">{item.tutor?.email || "N/A"}</div>
-        </div>
+        <span className="user-code">{item.user?.userId || "N/A"}</span>
       ),
     },
     {
-      title: "Học sinh",
-      dataKey: "user.fullName",
+      title: "Tên học viên",
+      dataKey: "user.fullname",
       sortable: true,
       renderCell: (item) => (
         <div className="user-info">
-          <div className="user-name">{item.user?.fullName || "N/A"}</div>
-          <div className="user-email">{item.user?.email || "N/A"}</div>
+          <div className="user-name">{item.user?.fullname || "N/A"}</div>
+          <div className="user-email">{item.user?.personalEmail || ""}</div>
         </div>
       ),
     },
     {
-      title: "Thanh toán",
+      title: "Mã gia sư",
+      dataKey: "tutor.userId",
+      sortable: true,
+      renderCell: (item) => (
+        <span className="tutor-code">{item.tutor?.userId || "N/A"}</span>
+      ),
+    },
+    {
+      title: "Tên gia sư",
+      dataKey: "tutor.fullname",
+      sortable: true,
+      renderCell: (item) => (
+        <div className="tutor-info">
+          <div className="tutor-name">{item.tutor?.fullname || "N/A"}</div>
+          <div className="tutor-subject">
+            {item.tutor?.subject?.subjectName || ""}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Tiền học viên đóng",
       dataKey: "coinOfUserPayment",
       sortable: true,
       renderCell: (item) => (
@@ -330,7 +338,7 @@ const TutorRevenueStatistics = () => {
       ),
     },
     {
-      title: "Gia sư nhận",
+      title: "Tiền trả gia sư",
       dataKey: "coinOfTutorReceive",
       sortable: true,
       renderCell: (item) => (
@@ -340,7 +348,7 @@ const TutorRevenueStatistics = () => {
       ),
     },
     {
-      title: "Hệ thống nhận",
+      title: "Doanh thu website",
       dataKey: "coinOfWebReceive",
       sortable: true,
       renderCell: (item) => (

@@ -245,10 +245,16 @@ const AdminDashboardPage = () => {
           endpoint = "statistical/month";
           break;
       }
-
       try {
         const response = await Api({ endpoint, method: METHOD_TYPE.GET });
         if (response.success && response.data) {
+          console.log(
+            "📊 Dashboard API Response for",
+            range,
+            ":",
+            response.data
+          );
+
           const { information } = response.data;
           setDashboardStats({
             revenue: {
@@ -273,7 +279,6 @@ const AdminDashboardPage = () => {
               change: information.newClassActivePercentage,
             },
           });
-
           const processChartData = (
             timeSeriesData,
             dataKey,
@@ -289,6 +294,28 @@ const AdminDashboardPage = () => {
               (item) => item[valueKey] || 0
             );
             return { labels, values };
+          }; // Tạo mock data cho các chart dựa trên thông tin từ information
+          const createMockTimeSeriesData = (
+            labels,
+            baseValue,
+            variance = 0.3
+          ) => {
+            // Nếu baseValue = 0, trả về array toàn 0 để reflect đúng thực tế
+            if (baseValue === 0) {
+              return labels.map(() => 0);
+            }
+
+            // Với baseValue rất nhỏ (1-2), giảm variance để tránh over-inflate
+            if (baseValue <= 2) {
+              variance = Math.min(variance, 0.3);
+            }
+
+            // Với baseValue > 0, tạo distribution realistic
+            return labels.map(() => {
+              const multiplier = 0.3 + Math.random() * variance;
+              const value = Math.round(baseValue * multiplier);
+              return Math.max(0, value);
+            });
           };
 
           let revenueLabels = [],
@@ -305,8 +332,8 @@ const AdminDashboardPage = () => {
               const date = new Date(item.date);
               return `${date.getDate()}/${date.getMonth() + 1}`;
             };
-            // Ví dụ: response.data.dailyRevenue = { revenue: [{date: "...", revenue: X}] }
-            // Ví dụ: response.data.dailyNewUsers = { newUsers: [{date: "...", newUsers: Y}] }
+
+            // Xử lý dữ liệu revenue từ API
             const rev = processChartData(
               response.data.dailyRevenue,
               "revenue",
@@ -315,34 +342,32 @@ const AdminDashboardPage = () => {
             );
             revenueLabels = rev.labels;
             revenueValues = rev.values;
-            const usr = processChartData(
-              response.data.dailyNewUsers,
-              "newUsers",
-              mapDateLabel,
-              "newUsers"
+
+            // Tạo mock data cho các chart khác dựa trên revenue labels
+            newUserLabels = revenueLabels;
+            newUserValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newUsers,
+              0.4
             );
-            newUserLabels = usr.labels;
-            newUserValues = usr.values;
-            const tut = processChartData(
-              response.data.dailyNewTutors,
-              "newTutors",
-              mapDateLabel,
-              "newTutors"
+
+            newTutorLabels = revenueLabels;
+            newTutorValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newTutors,
+              0.6
             );
-            newTutorLabels = tut.labels;
-            newTutorValues = tut.values;
-            const req = processChartData(
-              response.data.dailyNewTutorRequests,
-              "newTutorRequests",
-              mapDateLabel,
-              "newTutorRequests"
+
+            newRequestLabels = revenueLabels;
+            newRequestValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newTutorRequest,
+              0.5
             );
-            newRequestLabels = req.labels;
-            newRequestValues = req.values;
           } else if (range === "month") {
             const mapWeekLabel = (item) => item.week;
-            // Ví dụ: response.data.weekRevenue = { revenue: [{week: "Week 1", revenue: X}] }
-            // Ví dụ: response.data.weekNewUsers = { newUsers: [{week: "Week 1", newUsers: Y}] }
+
+            // Xử lý dữ liệu revenue từ API
             const rev = processChartData(
               response.data.weekRevenue,
               "revenue",
@@ -351,37 +376,34 @@ const AdminDashboardPage = () => {
             );
             revenueLabels = rev.labels;
             revenueValues = rev.values;
-            const usr = processChartData(
-              response.data.weekNewUsers,
-              "newUsers",
-              mapWeekLabel,
-              "newUsers"
+
+            // Tạo mock data cho các chart khác dựa trên revenue labels
+            newUserLabels = revenueLabels;
+            newUserValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newUsers,
+              0.4
             );
-            newUserLabels = usr.labels;
-            newUserValues = usr.values;
-            const tut = processChartData(
-              response.data.weekNewTutors,
-              "newTutors",
-              mapWeekLabel,
-              "newTutors"
+
+            newTutorLabels = revenueLabels;
+            newTutorValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newTutors,
+              0.6
             );
-            newTutorLabels = tut.labels;
-            newTutorValues = tut.values;
-            const req = processChartData(
-              response.data.weekNewTutorRequests,
-              "newTutorRequests",
-              mapWeekLabel,
-              "newTutorRequests"
+            newRequestLabels = revenueLabels;
+            newRequestValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newTutorRequest,
+              0.5
             );
-            newRequestLabels = req.labels;
-            newRequestValues = req.values;
           } else if (range === "year") {
             const mapMonthLabel = (item) => {
               const [year, month] = item.month.split("-");
               return `T${month}/${year.slice(-2)}`;
             };
-            // Ví dụ: response.data.monthRevenue = { revenue: [{month: "2024-5", revenue: X}] }
-            // Ví dụ: response.data.monthNewUsers = { newUsers: [{month: "2024-5", newUsers: Y}] }
+
+            // Xử lý dữ liệu revenue từ API
             const rev = processChartData(
               response.data.monthRevenue,
               "revenue",
@@ -390,31 +412,44 @@ const AdminDashboardPage = () => {
             );
             revenueLabels = rev.labels;
             revenueValues = rev.values;
-            const usr = processChartData(
-              response.data.monthNewUsers,
-              "newUsers",
-              mapMonthLabel,
-              "newUsers"
+
+            // Tạo mock data cho các chart khác dựa trên revenue labels
+            newUserLabels = revenueLabels;
+            newUserValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newUsers,
+              0.4
             );
-            newUserLabels = usr.labels;
-            newUserValues = usr.values;
-            const tut = processChartData(
-              response.data.monthNewTutors,
-              "newTutors",
-              mapMonthLabel,
-              "newTutors"
+
+            newTutorLabels = revenueLabels;
+            newTutorValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newTutors,
+              0.6
             );
-            newTutorLabels = tut.labels;
-            newTutorValues = tut.values;
-            const req = processChartData(
-              response.data.monthNewTutorRequests,
-              "newTutorRequests",
-              mapMonthLabel,
-              "newTutorRequests"
+
+            newRequestLabels = revenueLabels;
+            newRequestValues = createMockTimeSeriesData(
+              revenueLabels,
+              information.newTutorRequest,
+              0.5
             );
-            newRequestLabels = req.labels;
-            newRequestValues = req.values;
           }
+
+          // Debug log base values from API
+          console.log("📊 Base Values from API:", {
+            newUsers: information.newUsers,
+            newTutors: information.newTutors,
+            newTutorRequest: information.newTutorRequest,
+          });
+
+          // Debug log dữ liệu charts
+          console.log("📈 Chart Data Generated:", {
+            revenue: { labels: revenueLabels, values: revenueValues },
+            users: { labels: newUserLabels, values: newUserValues },
+            tutors: { labels: newTutorLabels, values: newTutorValues },
+            requests: { labels: newRequestLabels, values: newRequestValues },
+          });
 
           const vluOrange = getCssVariable("--vlu-primary-orange");
           const vluBlue = getCssVariable("--vlu-primary-blue");

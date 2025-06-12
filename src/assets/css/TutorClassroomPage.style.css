@@ -558,163 +558,488 @@
 
 .tcp-meeting-info {
   flex: 1;
-  margin-right: 20px;
+  min-width: 0; /* Allow text to truncate */
 }
 
 .tcp-meeting-topic {
   margin: 0 0 12px 0;
-  color: #333;
-  font-size: 1.1rem;
-  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.4;
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tcp-meeting-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
 }
 
 .tcp-meeting-details p {
-  margin: 6px 0;
-  color: #666;
-  font-size: 0.9rem;
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tcp-meeting-details strong {
+  color: #495057;
+  font-weight: 600;
+  min-width: 100px;
 }
 
 .tcp-meeting-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
+  align-items: center;
 }
 
+/* Enhanced Button Styles */
 .tcp-btn-join {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
   text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tcp-btn-join:hover {
-  background-color: #218838;
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
   color: white;
   text-decoration: none;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+.tcp-btn-external {
+  background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+  color: white;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tcp-btn-external:hover {
+  background: linear-gradient(135deg, #5a2d91 0%, #c52766 100%);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(111, 66, 193, 0.4);
 }
 
 .tcp-btn-copy {
-  background-color: #17a2b8;
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
   color: white;
   padding: 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tcp-btn-copy:hover {
-  background-color: #138496;
+  background: linear-gradient(135deg, #138496 0%, #1e7e34 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(23, 162, 184, 0.4);
+}
+
+/* =============================================================================
+   INLINE MEETING VIEW STYLES - RESTORED
+   ============================================================================= */
+
+.tcp-inline-meeting-view {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(0, 123, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tcp-inline-meeting-view::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #0056b3, #004085);
+}
+
+/* Back button section - separate row */
+.tcp-back-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.tcp-back-btn {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: fit-content;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.tcp-back-btn:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+}
+
+/* Title and tabs section - same row */
+.tcp-title-tabs-section {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  position: relative;
+  gap: 24px;
+}
+
+.tcp-title-tabs-section::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.tcp-meeting-title {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex: 1;
+}
+
+/* Legacy support for old header structure */
+.tcp-meeting-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  position: relative;
+}
+
+.tcp-meeting-header::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.tcp-meeting-header h3 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tab Navigation Styles - Updated for new layout */
+.tcp-meeting-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f8f9fa;
+  padding: 6px;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  align-self: flex-end; /* Align with bottom of title */
+}
+
+.tcp-tab {
+  background: transparent;
+  color: #6c757d;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tcp-tab:hover {
+  color: #495057;
+  background: rgba(255, 255, 255, 0.7);
   transform: translateY(-1px);
 }
 
-.tcp-no-meetings {
+.tcp-tab.active {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.tcp-tab.active:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+}
+
+.tcp-meeting-list-inline {
+  display: grid;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.tcp-meeting-item-inline {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.tcp-meeting-item-inline::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #28a745, #20c997, #17a2b8);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tcp-meeting-item-inline:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
+  border-color: #007bff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+}
+
+.tcp-meeting-item-inline:hover::before {
+  transform: scaleX(1);
+}
+
+.tcp-no-meetings-inline {
   text-align: center;
-  padding: 40px 20px;
-  color: #666;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  border: 2px dashed #dee2e6;
+  margin-top: 24px;
+  position: relative;
+  overflow: hidden;
 }
 
-.tcp-no-meetings i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  opacity: 0.5;
+.tcp-no-meetings-inline::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23dee2e6"><circle cx="20" cy="20" r="2"/><circle cx="80" cy="20" r="2"/><circle cx="20" cy="80" r="2"/><circle cx="80" cy="80" r="2"/><circle cx="50" cy="50" r="3"/></svg>')
+    repeat;
+  opacity: 0.3;
+  pointer-events: none;
 }
 
-.tcp-no-meetings p {
-  font-size: 1.1rem;
-  margin: 0;
+.tcp-no-meetings-inline i {
+  font-size: 4rem;
+  color: #6c757d;
+  margin-bottom: 20px;
+  display: block;
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
 }
 
-/* Responsive adjustments */
+/* Responsive design for new layout */
 @media (max-width: 768px) {
-  .tcp-classroom-list {
-    grid-template-columns: 1fr;
-  }
-
-  .tcp-student-info {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .tcp-student-avatar {
-    margin-bottom: 10px;
-    margin-right: 0;
-  }
-
-  .tcp-schedule-list {
-    margin-left: 0;
-  }
-
-  .tcp-class-details p strong {
-    min-width: auto;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .tcp-student-info p strong {
-    min-width: auto;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .tcp-action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .tcp-action-btn {
-    width: 100%;
-  }
-
-  .tcp-card-header {
+  .tcp-title-tabs-section {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 15px;
   }
 
-  .tcp-classroom-name {
-    max-width: 100%;
-  }
-
-  .tcp-modal-content {
-    margin: 10px;
-    max-width: none;
-    width: calc(100% - 20px);
-  }
-
-  .tcp-meeting-item {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .tcp-meeting-info {
-    margin-right: 0;
-  }
-
-  .tcp-meeting-actions {
+  .tcp-meeting-tabs {
+    width: 100%;
+    justify-content: center;
     align-self: stretch;
   }
 
-  .tcp-btn-join {
+  .tcp-tab {
     flex: 1;
+    text-align: center;
+    padding: 12px 15px;
+    font-size: 0.85rem;
   }
 
-  .tcp-form-actions {
-    flex-direction: column;
+  .tcp-meeting-item-inline {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
-  .tcp-btn {
+  .tcp-meeting-actions {
     width: 100%;
+    justify-content: space-between;
   }
 }
 
 @media (max-width: 480px) {
-  .tutor-classroom-page {
-    padding: 10px;
+  .tcp-tab {
+    padding: 10px 12px;
+    font-size: 0.8rem;
   }
 
-  .tcp-page-title {
-    font-size: 1.5rem;
+  .tcp-meeting-title {
+    font-size: 1.2rem;
   }
 
-  .tcp-classroom-card {
-    margin-bottom: 15px;
+  .tcp-back-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
+
+  .tcp-title-tabs-section {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+}
+
+/* Animation for content loading */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tcp-meeting-item-inline,
+.tcp-no-meetings-inline {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Stagger animation for multiple items */
+.tcp-meeting-item-inline:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.tcp-meeting-item-inline:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.tcp-meeting-item-inline:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.tcp-meeting-item-inline:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.tcp-meeting-item-inline:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Tab count badge styles */
+.tcp-tab-count {
+  background: rgba(255, 255, 255, 0.9);
+  color: #007bff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.tcp-tab.active .tcp-tab-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Enhanced empty state styling */
+.tcp-no-meetings-inline h4 {
+  font-size: 1.4rem;
+  color: #495057;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.tcp-no-meetings-inline p {
+  font-size: 1rem;
+  color: #6c757d;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+  max-width: 400px;
+  margin: 0 auto;
 }

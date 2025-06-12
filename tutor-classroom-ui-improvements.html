@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Classroom UI Improvements - Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .demo-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .demo-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .demo-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .demo-content {
+        padding: 40px;
+      }
+
+      .improvement-section {
+        margin-bottom: 50px;
+      }
+
+      .improvement-section h2 {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .improvement-section h2 i {
+        color: #3498db;
+      }
+
+      .improvement-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .improvement-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #3498db;
+        transition: all 0.3s ease;
+      }
+
+      .improvement-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+      }
+
+      .improvement-item h3 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+      }
+
+      .improvement-item p {
+        color: #6c757d;
+        line-height: 1.6;
+      }
+
+      /* Demo Tab Navigation */
+      .demo-tabs {
+        display: flex;
+        gap: 4px;
+        background: #f8f9fa;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: fit-content;
+        margin: 20px 0;
+      }
+
+      .demo-tab {
+        background: transparent;
+        color: #6c757d;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .demo-tab:hover {
+        color: #495057;
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateY(-1px);
+      }
+
+      .demo-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .demo-tab-count {
+        background: rgba(255, 255, 255, 0.9);
+        color: #007bff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-left: 4px;
+      }
+
+      .demo-tab.active .demo-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      /* Demo Meeting Item */
+      .demo-meeting-item {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin: 20px 0;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: center;
+      }
+
+      .demo-meeting-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #28a745, #20c997, #17a2b8);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .demo-meeting-item:hover {
+        background: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
+        border-color: #007bff;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+      }
+
+      .demo-meeting-item:hover::before {
+        transform: scaleX(1);
+      }
+
+      .demo-meeting-info h4 {
+        margin: 0 0 12px 0;
+        color: #2c3e50;
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .demo-meeting-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px;
+      }
+
+      .demo-meeting-details p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+
+      .demo-meeting-details strong {
+        color: #495057;
+        font-weight: 600;
+      }
+
+      .demo-meeting-actions {
+        display: flex;
+        gap: 12px;
+        flex-shrink: 0;
+        align-items: center;
+      }
+
+      .demo-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .demo-btn-join {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      .demo-btn-join:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+
+      .demo-btn-external {
+        background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+        color: white;
+        padding: 12px;
+        box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+      }
+
+      .demo-btn-copy {
+        background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+        color: white;
+        padding: 12px;
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+      }
+
+      /* Demo Back Button */
+      .demo-back-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        margin-bottom: 20px;
+      }
+
+      .demo-back-btn:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+      }
+
+      /* Demo Empty State */
+      .demo-empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        border: 2px dashed #dee2e6;
+        margin: 20px 0;
+      }
+
+      .demo-empty-state i {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 20px;
+        display: block;
+      }
+
+      .demo-empty-state h4 {
+        font-size: 1.4rem;
+        color: #495057;
+        margin: 0 0 12px 0;
+        font-weight: 600;
+      }
+
+      .demo-empty-state p {
+        font-size: 1rem;
+        color: #6c757d;
+        margin: 0;
+        line-height: 1.5;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animated {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .demo-meeting-item {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .demo-meeting-actions {
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .demo-meeting-details {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="demo-header">
+        <h1>
+          <i class="fas fa-palette"></i> Cải tiến giao diện Tutor Classroom
+        </h1>
+        <p>Trải nghiệm giao diện mới với thiết kế hiện đại và thân thiện</p>
+      </div>
+
+      <div class="demo-content">
+        <div class="improvement-section">
+          <h2><i class="fas fa-star"></i> Những cải tiến chính</h2>
+          <ul class="improvement-list">
+            <li class="improvement-item animated">
+              <h3>🎨 Thiết kế hiện đại với gradient và shadow</h3>
+              <p>
+                Thay thế giao diện phẳng bằng gradient background, box-shadow
+                tinh tế và border-radius mềm mại để tạo cảm giác 3D và chuyên
+                nghiệp hơn.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>📱 Tab navigation với icon và badge count</h3>
+              <p>
+                Thêm icon Font Awesome và số đếm meeting trong mỗi tab, với hiệu
+                ứng hover và active state đẹp mắt.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>🎭 Enhanced button styling với gradient</h3>
+              <p>
+                Buttons với gradient background, box-shadow, và animation khi
+                hover để tạo cảm giác interactive tốt hơn.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>🏗️ Improved layout với CSS Grid</h3>
+              <p>
+                Sử dụng CSS Grid để tạo layout responsive và flexible hơn cho
+                meeting items và details.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>✨ Animation và transitions mượt mà</h3>
+              <p>
+                Thêm fadeInUp animation cho content loading và stagger animation
+                cho multiple items.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>🎯 Enhanced empty state với context-aware messages</h3>
+              <p>
+                Empty state với icon phù hợp cho từng tab và message rõ ràng hơn
+                về trạng thái hiện tại.
+              </p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="improvement-section">
+          <h2><i class="fas fa-desktop"></i> Demo giao diện mới</h2>
+
+          <!-- Demo Back Button -->
+          <button class="demo-back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại danh sách lớp học
+          </button>
+
+          <!-- Demo Tab Navigation -->
+          <div class="demo-tabs">
+            <button class="demo-tab active">
+              <i class="fas fa-video"></i>
+              Đang diễn ra
+              <span class="demo-tab-count">(3)</span>
+            </button>
+            <button class="demo-tab">
+              <i class="fas fa-history"></i>
+              Lịch sử
+              <span class="demo-tab-count">(12)</span>
+            </button>
+          </div>
+
+          <!-- Demo Meeting Item -->
+          <div class="demo-meeting-item animated">
+            <div class="demo-meeting-info">
+              <h4>Lớp học Toán cao cấp - Buổi 5</h4>
+              <div class="demo-meeting-details">
+                <p><strong>Meeting ID:</strong> 123-456-789</p>
+                <p><strong>Mật khẩu:</strong> abc123</p>
+                <p><strong>Thời gian tạo:</strong> 15:30, 12/06/2025</p>
+              </div>
+            </div>
+            <div class="demo-meeting-actions">
+              <button class="demo-btn demo-btn-join">
+                <i class="fas fa-sign-in-alt"></i>
+                Tham gia
+              </button>
+              <button class="demo-btn demo-btn-external">
+                <i class="fas fa-external-link-alt"></i>
+              </button>
+              <button class="demo-btn demo-btn-copy">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Demo Empty State -->
+          <div class="demo-empty-state animated">
+            <i class="fas fa-clock"></i>
+            <h4>Chưa có lịch sử phòng học</h4>
+            <p>
+              Chưa có phòng học nào đã kết thúc. Lịch sử các phòng học sẽ hiển
+              thị ở đây.
+            </p>
+          </div>
+        </div>
+
+        <div class="improvement-section">
+          <h2><i class="fas fa-mobile-alt"></i> Responsive Design</h2>
+          <ul class="improvement-list">
+            <li class="improvement-item animated">
+              <h3>📱 Mobile-first approach</h3>
+              <p>
+                Layout tự động thích ứng với các kích thước màn hình khác nhau,
+                đặc biệt tối ưu cho mobile.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>🎮 Touch-friendly interactions</h3>
+              <p>
+                Button size và spacing được tối ưu cho touch interface trên
+                mobile devices.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>🔄 Flexible grid system</h3>
+              <p>
+                CSS Grid tự động adjust layout từ desktop xuống mobile một cách
+                mượt mà.
+              </p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="improvement-section">
+          <h2><i class="fas fa-check-circle"></i> Kết quả đạt được</h2>
+          <ul class="improvement-list">
+            <li class="improvement-item animated">
+              <h3>✅ Giao diện professional và hiện đại</h3>
+              <p>
+                Trang tutor classroom giờ đây có giao diện chuyên nghiệp, phù
+                hợp với tính chất giáo dục trực tuyến.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>✅ User experience được cải thiện đáng kể</h3>
+              <p>
+                Navigation rõ ràng hơn, visual feedback tốt hơn, và workflow
+                intuitive hơn.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>✅ Performance và accessibility tốt</h3>
+              <p>
+                Code CSS tối ưu, semantic markup, và hỗ trợ keyboard navigation.
+              </p>
+            </li>
+            <li class="improvement-item animated">
+              <h3>✅ Maintainable và scalable</h3>
+              <p>
+                CSS được tổ chức tốt với naming convention rõ ràng và structure
+                có thể mở rộng.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactive demo functionality
+      document.querySelectorAll(".demo-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".demo-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+
+      // Add hover effects
+      document.querySelectorAll(".improvement-item").forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.1}s`;
+      });
+    </script>
+  </body>
+</html>

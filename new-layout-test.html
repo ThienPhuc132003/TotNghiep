@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎯 New Layout Test - Tutor Classroom</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Import updated styles */
+
+      /* Back button section - separate row */
+      .tcp-back-section {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .tcp-back-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: fit-content;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+      }
+
+      .tcp-back-btn:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+      }
+
+      /* Title and tabs section - same row */
+      .tcp-title-tabs-section {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+        gap: 24px;
+      }
+
+      .tcp-title-tabs-section::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+      }
+
+      .tcp-meeting-title {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        flex: 1;
+      }
+
+      /* Tab Navigation Styles - Updated for new layout */
+      .tcp-meeting-tabs {
+        display: flex;
+        gap: 4px;
+        background: #f8f9fa;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: fit-content;
+        align-self: flex-end;
+      }
+
+      .tcp-tab {
+        background: transparent;
+        color: #6c757d;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tcp-tab:hover {
+        color: #495057;
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateY(-1px);
+      }
+
+      .tcp-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .tcp-tab.active:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+      }
+
+      .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.9);
+        color: #007bff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-left: 4px;
+      }
+
+      .tcp-tab.active .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      /* Container styling */
+      .tcp-inline-meeting-view {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+        margin: 20px auto;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        max-width: 1200px;
+      }
+
+      .tcp-inline-meeting-view::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #0056b3, #004085);
+      }
+
+      /* Demo content */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .demo-info {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-meeting-content {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-top: 20px;
+      }
+
+      /* Responsive design for new layout */
+      @media (max-width: 768px) {
+        .tcp-title-tabs-section {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+
+        .tcp-meeting-tabs {
+          width: 100%;
+          justify-content: center;
+          align-self: stretch;
+        }
+
+        .tcp-tab {
+          flex: 1;
+          text-align: center;
+          padding: 12px 15px;
+          font-size: 0.85rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .tcp-tab {
+          padding: 10px 12px;
+          font-size: 0.8rem;
+        }
+
+        .tcp-meeting-title {
+          font-size: 1.2rem;
+        }
+
+        .tcp-back-btn {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+        }
+
+        .tcp-title-tabs-section {
+          gap: 12px;
+          margin-bottom: 24px;
+        }
+      }
+
+      /* Layout comparison styling */
+      .layout-comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .layout-box {
+        padding: 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        background: white;
+      }
+
+      .layout-old {
+        border-color: #dc3545;
+      }
+
+      .layout-new {
+        border-color: #28a745;
+      }
+
+      .layout-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        color: white;
+        text-align: center;
+      }
+
+      .layout-old .layout-title {
+        background: #dc3545;
+      }
+
+      .layout-new .layout-title {
+        background: #28a745;
+      }
+
+      @media (max-width: 768px) {
+        .layout-comparison {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-info">
+      <h1>🎯 Layout Mới - Tutor Classroom Meeting View</h1>
+      <p>
+        <strong>Thay đổi:</strong> Nút "Quay lại" ở hàng riêng phía trên, tiêu
+        đề và tabs nằm cùng hàng bên dưới
+      </p>
+    </div>
+
+    <div class="layout-comparison">
+      <div class="layout-box layout-old">
+        <div class="layout-title">❌ Layout Cũ (Thẳng hàng)</div>
+        <p>📋 [Nút Quay lại] [Tiêu đề] [Tabs] - tất cả cùng hàng</p>
+        <p>❌ Không cân đối, khó responsive</p>
+        <p>❌ Thiếu khoảng cách hợp lý</p>
+      </div>
+
+      <div class="layout-box layout-new">
+        <div class="layout-title">✅ Layout Mới (Tách hàng)</div>
+        <p>🔙 [Nút Quay lại] - hàng riêng phía trên</p>
+        <p>📝 [Tiêu đề] ←→ [Tabs] - cùng hàng, căn hai bên</p>
+        <p>✅ Cân đối, dễ responsive</p>
+        <p>✅ Khoảng cách hợp lý</p>
+      </div>
+    </div>
+
+    <!-- Demo with new layout -->
+    <div class="tcp-inline-meeting-view">
+      <!-- Back button section - separate row -->
+      <div class="tcp-back-section">
+        <button class="tcp-back-btn">
+          <i class="fas fa-arrow-left"></i>
+          Quay lại danh sách lớp học
+        </button>
+      </div>
+
+      <!-- Title and tabs section - same row -->
+      <div class="tcp-title-tabs-section">
+        <h3 class="tcp-meeting-title">
+          Danh sách phòng học - Toán học nâng cao
+        </h3>
+        <div class="tcp-meeting-tabs">
+          <button class="tcp-tab active">
+            <i class="fas fa-video"></i>
+            Đang diễn ra
+            <span class="tcp-tab-count">2</span>
+          </button>
+          <button class="tcp-tab">
+            <i class="fas fa-history"></i>
+            Lịch sử
+            <span class="tcp-tab-count">15</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Demo content area -->
+      <div class="demo-meeting-content">
+        <i
+          class="fas fa-check-circle"
+          style="font-size: 3rem; color: #28a745; margin-bottom: 20px"
+        ></i>
+        <h3>🎉 Layout mới đã áp dụng thành công!</h3>
+        <p>
+          <strong>✅ Nút "Quay lại":</strong> Nằm riêng ở hàng trên, căn trái
+        </p>
+        <p><strong>✅ Tiêu đề:</strong> Nằm bên trái của hàng dưới</p>
+        <p><strong>✅ Tabs:</strong> Nằm bên phải cùng hàng với tiêu đề</p>
+        <p>
+          <strong>✅ Responsive:</strong> Tự động chuyển thành layout dọc trên
+          mobile
+        </p>
+      </div>
+    </div>
+
+    <div
+      style="
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        background: #e9ecef;
+        border-radius: 10px;
+      "
+    >
+      <h3>🔧 Kiểm tra responsive:</h3>
+      <p>Thử resize browser window để xem layout tự động adapt cho mobile!</p>
+      <p><strong>Desktop:</strong> Tiêu đề và tabs nằm cùng hàng</p>
+      <p><strong>Mobile:</strong> Tiêu đề và tabs chuyển thành layout dọc</p>
+    </div>
+
+    <script>
+      // Test tab switching
+      document.querySelectorAll(".tcp-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tcp-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+
+      // Test back button
+      document
+        .querySelector(".tcp-back-btn")
+        .addEventListener("click", function () {
+          alert("🎯 Layout mới hoạt động tốt! Nút quay lại đã được click.");
+        });
+
+      console.log("✅ New layout test loaded successfully!");
+      console.log("🎯 Layout structure:");
+      console.log("   1. Back button (separate row, top-left)");
+      console.log("   2. Title + Tabs (same row, space-between)");
+    </script>
+  </body>
+</html>
