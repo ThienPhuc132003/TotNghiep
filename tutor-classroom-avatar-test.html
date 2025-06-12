@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Avatar Test - TutorClassroomPage</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .test-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .test-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .test-content {
+        padding: 40px;
+      }
+
+      .test-section {
+        margin-bottom: 40px;
+        padding: 30px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        border: 1px solid #e0e6ed;
+      }
+
+      .test-section h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+      }
+
+      /* Avatar Styles - Matching TutorClassroomPage */
+      .tcp-student-avatar-container {
+        position: relative;
+        flex-shrink: 0;
+        min-width: 90px;
+        min-height: 90px;
+        display: inline-block;
+        margin: 10px;
+      }
+
+      .tcp-student-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e9ecef;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background-color: #f8f9fa;
+        display: block;
+      }
+
+      .tcp-detail-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #28a745;
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+        display: block;
+        margin: 10px;
+      }
+
+      .tcp-avatar-overlay {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-student-avatar:hover,
+      .tcp-detail-avatar:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+      }
+
+      .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .test-item {
+        text-align: center;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-item h3 {
+        margin: 10px 0;
+        color: #2c3e50;
+      }
+
+      .test-item p {
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .status-indicator {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 10px;
+        display: inline-block;
+      }
+
+      .status-success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-loading {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .test-info {
+        background: #e7f3ff;
+        border: 1px solid #b8daff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+
+      .test-info h3 {
+        color: #004085;
+        margin-bottom: 10px;
+      }
+
+      .test-info p {
+        color: #004085;
+        margin: 5px 0;
+      }
+
+      .test-button {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin: 5px;
+      }
+
+      .test-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="test-header">
+        <h1>
+          <i class="fas fa-user-circle"></i> Avatar Test - TutorClassroomPage
+        </h1>
+        <p>Kiểm tra hiển thị avatar trong trang Quản lý lớp học</p>
+      </div>
+
+      <div class="test-content">
+        <div class="test-info">
+          <h3><i class="fas fa-info-circle"></i> Thông tin Test</h3>
+          <p>
+            <strong>Mục đích:</strong> Kiểm tra avatar hiển thị đúng trong các
+            trường hợp khác nhau
+          </p>
+          <p>
+            <strong>Các test case:</strong> Avatar hợp lệ, avatar lỗi, avatar
+            rỗng, avatar mặc định
+          </p>
+          <p><strong>Thời gian:</strong> <span id="currentTime"></span></p>
+        </div>
+
+        <div class="test-section">
+          <h2><i class="fas fa-users"></i> Test Avatar Học Viên (Card View)</h2>
+          <div class="test-grid">
+            <div class="test-item">
+              <div class="tcp-student-avatar-container">
+                <img
+                  src="https://via.placeholder.com/90x90/28a745/ffffff?text=OK"
+                  alt="Avatar hợp lệ"
+                  class="tcp-student-avatar"
+                  onload="updateStatus('status1', 'success', 'Avatar tải thành công')"
+                  onerror="updateStatus('status1', 'error', 'Lỗi tải avatar')"
+                />
+                <div class="tcp-avatar-overlay">
+                  <i class="fas fa-user-graduate"></i>
+                </div>
+              </div>
+              <h3>Avatar Hợp Lệ</h3>
+              <p>URL hợp lệ từ placeholder</p>
+              <div id="status1" class="status-indicator status-loading">
+                Đang tải...
+              </div>
+            </div>
+
+            <div class="test-item">
+              <div class="tcp-student-avatar-container">
+                <img
+                  src="https://invalid-url-that-will-fail.com/avatar.jpg"
+                  alt="Avatar lỗi"
+                  class="tcp-student-avatar"
+                  onload="updateStatus('status2', 'success', 'Avatar tải thành công')"
+                  onerror="handleAvatarError(this); updateStatus('status2', 'error', 'Fallback to default')"
+                />
+                <div class="tcp-avatar-overlay">
+                  <i class="fas fa-user-graduate"></i>
+                </div>
+              </div>
+              <h3>Avatar Lỗi URL</h3>
+              <p>URL không hợp lệ - sẽ fallback</p>
+              <div id="status2" class="status-indicator status-loading">
+                Đang tải...
+              </div>
+            </div>
+
+            <div class="test-item">
+              <div class="tcp-student-avatar-container">
+                <img
+                  src=""
+                  alt="Avatar rỗng"
+                  class="tcp-student-avatar"
+                  onload="updateStatus('status3', 'success', 'Avatar tải thành công')"
+                  onerror="handleAvatarError(this); updateStatus('status3', 'error', 'Fallback to default')"
+                />
+                <div class="tcp-avatar-overlay">
+                  <i class="fas fa-user-graduate"></i>
+                </div>
+              </div>
+              <h3>Avatar Rỗng</h3>
+              <p>Src rỗng - sẽ fallback</p>
+              <div id="status3" class="status-indicator status-loading">
+                Đang tải...
+              </div>
+            </div>
+
+            <div class="test-item">
+              <div class="tcp-student-avatar-container">
+                <img
+                  src="./src/assets/images/df-male.png"
+                  alt="Avatar mặc định"
+                  class="tcp-student-avatar"
+                  onload="updateStatus('status4', 'success', 'Avatar mặc định OK')"
+                  onerror="updateStatus('status4', 'error', 'Lỗi avatar mặc định')"
+                />
+                <div class="tcp-avatar-overlay">
+                  <i class="fas fa-user-graduate"></i>
+                </div>
+              </div>
+              <h3>Avatar Mặc Định</h3>
+              <p>Đường dẫn tới df-male.png</p>
+              <div id="status4" class="status-indicator status-loading">
+                Đang tải...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <h2>
+            <i class="fas fa-user"></i> Test Avatar Chi Tiết (Detail View)
+          </h2>
+          <div class="test-grid">
+            <div class="test-item">
+              <img
+                src="https://via.placeholder.com/100x100/007bff/ffffff?text=USER"
+                alt="Avatar chi tiết"
+                class="tcp-detail-avatar"
+                onload="updateStatus('status5', 'success', 'Avatar chi tiết OK')"
+                onerror="handleAvatarError(this); updateStatus('status5', 'error', 'Fallback to default')"
+              />
+              <h3>Avatar Chi Tiết</h3>
+              <p>Kích thước 100x100px</p>
+              <div id="status5" class="status-indicator status-loading">
+                Đang tải...
+              </div>
+            </div>
+
+            <div class="test-item">
+              <img
+                src="invalid-url"
+                alt="Avatar chi tiết lỗi"
+                class="tcp-detail-avatar"
+                onload="updateStatus('status6', 'success', 'Avatar chi tiết OK')"
+                onerror="handleAvatarError(this); updateStatus('status6', 'error', 'Fallback to default')"
+              />
+              <h3>Avatar Chi Tiết Lỗi</h3>
+              <p>URL lỗi - test fallback</p>
+              <div id="status6" class="status-indicator status-loading">
+                Đang tải...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <h2><i class="fas fa-tools"></i> Test Controls</h2>
+          <button class="test-button" onclick="reloadAllAvatars()">
+            <i class="fas fa-redo"></i> Reload Tất Cả Avatar
+          </button>
+          <button class="test-button" onclick="testAvatarFallback()">
+            <i class="fas fa-exclamation-triangle"></i> Test Fallback
+          </button>
+          <button class="test-button" onclick="clearAllAvatars()">
+            <i class="fas fa-trash"></i> Clear Tất Cả
+          </button>
+          <button class="test-button" onclick="generateReport()">
+            <i class="fas fa-file-alt"></i> Tạo Báo Cáo
+          </button>
+        </div>
+
+        <div id="testReport" class="test-section" style="display: none">
+          <h2><i class="fas fa-chart-bar"></i> Báo Cáo Test</h2>
+          <div id="reportContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Default avatar fallback
+      const defaultAvatar =
+        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjZjhmOWZhIi8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjNmM3NTdkIi8+CjxwYXRoIGQ9Ik0yMCA4MEM0MCA3MCA2MCA3MCA4MCA4MEM4MCA3MCA4MCA2MCA4MCA1MEg4MEM3MCA1MCA2MCA1MCA1MCA1MEg1MEM0MCA1MCAzMCA1MCAyMCA1MEgyMEMyMCA2MCAyMCA3MCAyMCA4MFoiIGZpbGw9IiM2Yzc1N2QiLz4KPC9zdmc+";
+
+      // Update status indicator
+      function updateStatus(elementId, type, message) {
+        const element = document.getElementById(elementId);
+        element.className = `status-indicator status-${type}`;
+        element.textContent = message;
+      }
+
+      // Handle avatar error - fallback to default
+      function handleAvatarError(imgElement) {
+        if (imgElement.src !== defaultAvatar) {
+          imgElement.onerror = null; // Prevent infinite loop
+          imgElement.src = defaultAvatar;
+        }
+      }
+
+      // Reload all avatars
+      function reloadAllAvatars() {
+        const avatars = document.querySelectorAll(
+          ".tcp-student-avatar, .tcp-detail-avatar"
+        );
+        avatars.forEach((img, index) => {
+          const originalSrc = img.src;
+          img.src = "";
+          setTimeout(() => {
+            img.src = originalSrc;
+          }, 100 * index);
+        });
+
+        // Reset all status indicators
+        for (let i = 1; i <= 6; i++) {
+          updateStatus(`status${i}`, "loading", "Đang tải...");
+        }
+      }
+
+      // Test fallback functionality
+      function testAvatarFallback() {
+        const avatars = document.querySelectorAll(
+          ".tcp-student-avatar, .tcp-detail-avatar"
+        );
+        avatars.forEach((img) => {
+          img.src = "invalid-url-for-testing";
+        });
+      }
+
+      // Clear all avatars
+      function clearAllAvatars() {
+        const avatars = document.querySelectorAll(
+          ".tcp-student-avatar, .tcp-detail-avatar"
+        );
+        avatars.forEach((img) => {
+          img.src = "";
+        });
+      }
+
+      // Generate test report
+      function generateReport() {
+        const reportDiv = document.getElementById("testReport");
+        const reportContent = document.getElementById("reportContent");
+
+        let report = "<h3>📊 Kết Quả Test Avatar</h3>";
+        report += "<ul>";
+
+        for (let i = 1; i <= 6; i++) {
+          const status = document.getElementById(`status${i}`);
+          const statusClass = status.className.includes("success")
+            ? "✅"
+            : status.className.includes("error")
+            ? "❌"
+            : "⏳";
+          report += `<li>${statusClass} Test ${i}: ${status.textContent}</li>`;
+        }
+
+        report += "</ul>";
+        report += `<p><strong>Thời gian test:</strong> ${new Date().toLocaleString(
+          "vi-VN"
+        )}</p>`;
+
+        reportContent.innerHTML = report;
+        reportDiv.style.display = "block";
+      }
+
+      // Update current time
+      function updateCurrentTime() {
+        document.getElementById("currentTime").textContent =
+          new Date().toLocaleString("vi-VN");
+      }
+
+      // Initialize
+      updateCurrentTime();
+      setInterval(updateCurrentTime, 1000);
+
+      // Auto-handle empty src avatars
+      setTimeout(() => {
+        const emptyAvatars = document.querySelectorAll('img[src=""]');
+        emptyAvatars.forEach((img) => {
+          handleAvatarError(img);
+        });
+      }, 1000);
+
+      console.log("🎯 Avatar Test Page Loaded - TutorClassroomPage");
+    </script>
+  </body>
+</html>

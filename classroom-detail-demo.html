@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎓 Classroom Detail View Demo - Tutor Management</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Demo styles based on the real CSS */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .demo-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Classroom Detail View Styles */
+      .tcp-classroom-detail-view {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .tcp-classroom-detail-view::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #28a745, #20c997, #17a2b8);
+      }
+
+      .tcp-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+      }
+
+      .tcp-detail-header::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 80px;
+        height: 2px;
+        background: linear-gradient(90deg, #28a745, #20c997);
+      }
+
+      .tcp-back-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+      }
+
+      .tcp-back-btn:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+      }
+
+      .tcp-detail-title {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #2c3e50 0%, #28a745 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        flex: 1;
+      }
+
+      .tcp-detail-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-bottom: 32px;
+      }
+
+      .tcp-detail-section {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .tcp-detail-section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f8f9fa;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .tcp-detail-section-title i {
+        color: #28a745;
+        font-size: 1.1rem;
+      }
+
+      .tcp-avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        margin-bottom: 20px;
+      }
+
+      .tcp-detail-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #28a745;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-avatar-info h4 {
+        margin: 0 0 8px 0;
+        color: #2c3e50;
+        font-size: 1.3rem;
+        font-weight: 700;
+      }
+
+      .tcp-avatar-info p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .tcp-detail-info-group {
+        margin-bottom: 16px;
+      }
+
+      .tcp-detail-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+      }
+
+      .tcp-detail-value {
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .tcp-detail-value.highlight {
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .tcp-status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .tcp-status-indicator.in-session {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .tcp-schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .tcp-schedule-item {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-detail-progress {
+        margin-top: 16px;
+      }
+
+      .tcp-detail-progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+      }
+
+      .tcp-detail-progress-bar {
+        width: 100%;
+        height: 12px;
+        background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .tcp-detail-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        border-radius: 6px;
+        transition: width 0.6s ease;
+        position: relative;
+      }
+
+      .tcp-detail-progress-fill::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        animation: shimmer 2s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .tcp-detail-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        padding-top: 24px;
+        border-top: 2px solid #e9ecef;
+      }
+
+      .tcp-detail-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .tcp-detail-btn-meetings {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+      }
+
+      .tcp-detail-btn-meetings:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .tcp-detail-btn-create {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .tcp-detail-btn-create:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .tcp-detail-content {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .tcp-avatar-section {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .tcp-detail-actions {
+          flex-direction: column;
+        }
+
+        .tcp-schedule-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .comparison-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 30px 0;
+      }
+
+      .comparison-box {
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid;
+      }
+
+      .old-design {
+        border-color: #dc3545;
+        background: #f8d7da;
+      }
+
+      .new-design {
+        border-color: #28a745;
+        background: #d4edda;
+      }
+
+      .comparison-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .comparison-section {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="demo-header">
+        <h1>🎓 Classroom Detail View Demo</h1>
+        <p>
+          <strong>Tính năng mới:</strong> Hiển thị chi tiết đầy đủ thông tin lớp
+          học khi click "Phòng học"
+        </p>
+      </div>
+
+      <div class="comparison-section">
+        <div class="comparison-box old-design">
+          <div class="comparison-title">❌ Trước đây</div>
+          <p>📋 Click "Phòng học" → Chuyển thẳng đến danh sách meeting</p>
+          <p>❌ Không thấy thông tin chi tiết học viên</p>
+          <p>❌ Không thấy thông tin gia sư</p>
+          <p>❌ Không thấy tiến độ lớp học</p>
+          <p>❌ Thiếu overview tổng quan</p>
+        </div>
+
+        <div class="comparison-box new-design">
+          <div class="comparison-title">✅ Bây giờ</div>
+          <p>🎯 Click "Phòng học" → Hiển thị trang chi tiết</p>
+          <p>✅ Thông tin đầy đủ học viên + avatar</p>
+          <p>✅ Thông tin chi tiết gia sư + thành tích</p>
+          <p>✅ Tiến độ lớp học với progress bar</p>
+          <p>✅ Overview hoàn chỉnh + actions</p>
+        </div>
+      </div>
+
+      <!-- Demo Classroom Detail View -->
+      <div class="tcp-classroom-detail-view">
+        <!-- Header -->
+        <div class="tcp-detail-header">
+          <button class="tcp-back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại danh sách lớp học
+          </button>
+          <h3 class="tcp-detail-title">
+            Chi tiết lớp học - Lớp học với gia sư Nguyễn Văn An
+          </h3>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="tcp-detail-content">
+          <!-- Student Information -->
+          <div class="tcp-detail-section">
+            <h4 class="tcp-detail-section-title">
+              <i class="fas fa-user-graduate"></i>
+              Thông tin học viên
+            </h4>
+
+            <div class="tcp-avatar-section">
+              <img
+                src="https://giasuvlu.click/api/media?mediaCategory=USER_AVATAR&fileName=732a68bc-c030-4c7f-b737-daee5827420b.jpeg"
+                alt="Trần Thị Thảo"
+                class="tcp-detail-avatar"
+                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFOUVDRUYiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBzdHlsZT0ieCVdtYXJnaW46MjBweCIgPgo8cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOFMxNC4yMSA0IDEyIDRTOCA1Ljc5IDggOFMlOS43OSAxMiAxMiAxMlpNMTIgMTRDOS43OSAxNCA4IDEyLjIxIDggMTBTOS43OSA2IDEyIDZTMTYgNy43OSAxNiAxMFMxNC4yMSAxNCAxMiAxNFoiIGZpbGw9IiM2QzUxN0QiLz4KPC9zdmc+Cg=='"
+              />
+              <div class="tcp-avatar-info">
+                <h4>Trần Thị Thảo</h4>
+                <p>thanh.tran00@gmail.com</p>
+              </div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Số điện thoại:</div>
+              <div class="tcp-detail-value">0771234879</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Địa chỉ:</div>
+              <div class="tcp-detail-value">
+                120 Hải Triều, P. Bến Nghé, Q.1, TP. Hồ Chí Minh
+              </div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Ngày sinh:</div>
+              <div class="tcp-detail-value">04/07/2000</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Chuyên ngành:</div>
+              <div class="tcp-detail-value highlight">Công nghệ thông tin</div>
+            </div>
+          </div>
+
+          <!-- Tutor Information -->
+          <div class="tcp-detail-section">
+            <h4 class="tcp-detail-section-title">
+              <i class="fas fa-chalkboard-teacher"></i>
+              Thông tin gia sư
+            </h4>
+
+            <div class="tcp-avatar-section">
+              <img
+                src="https://giasuvlu.click/api/media?mediaCategory=TUTOR_AVATAR&fileName=55de8b4f-fcaa-4b79-889b-c387f11354de.jpeg"
+                alt="Nguyễn Văn An"
+                class="tcp-detail-avatar"
+                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFOUVDRUYiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBzdHlsZT0ieCVdtYXJnaW46MjBweCIgPgo8cGF0aCBkPSJNMTIgMTJDMTQuMjEgMTIgMTYgMTAuMjEgMTYgOFMxNC4yMSA0IDEyIDRTOCA1Ljc5IDggOFMlOS43OSAxMiAxMiAxMlpNMTIgMTRDOS43OSAxNCA4IDEyLjIxIDggMTBTOS43OSA2IDEyIDZTMTYgNy43OSAxNiAxMFMxNC4yMSAxNCAxMiAxNFoiIGZpbGw9IiM2QzUxN0QiLz4KPC9zdmc+Cg=='"
+              />
+              <div class="tcp-avatar-info">
+                <h4>Nguyễn Văn An</h4>
+                <p>Đại học Văn Lang</p>
+              </div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Chuyên ngành gia sư:</div>
+              <div class="tcp-detail-value">Ngôn ngữ Anh</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Môn dạy:</div>
+              <div class="tcp-detail-value highlight">Kinh tế vi mô</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Cấp độ:</div>
+              <div class="tcp-detail-value">Bạch kim</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">GPA:</div>
+              <div class="tcp-detail-value highlight">3.8</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Thời gian dạy:</div>
+              <div class="tcp-detail-value">2.00 năm</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Mức lương:</div>
+              <div class="tcp-detail-value highlight">180,000 VNĐ/giờ</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Class Information -->
+        <div class="tcp-detail-section" style="margin-bottom: 24px">
+          <h4 class="tcp-detail-section-title">
+            <i class="fas fa-calendar-alt"></i>
+            Thông tin lớp học
+          </h4>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+            "
+          >
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Ngày bắt đầu:</div>
+              <div class="tcp-detail-value">01/06/2025</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Ngày kết thúc:</div>
+              <div class="tcp-detail-value">03/08/2025</div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Trạng thái:</div>
+              <div class="tcp-detail-value">
+                <span class="tcp-status-indicator in-session">
+                  <i class="fas fa-play-circle"></i>
+                  Đang học
+                </span>
+              </div>
+            </div>
+
+            <div class="tcp-detail-info-group">
+              <div class="tcp-detail-label">Đánh giá lớp học:</div>
+              <div class="tcp-detail-value highlight">0.0/5.0 ⭐</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="tcp-detail-progress">
+            <div class="tcp-detail-progress-label">
+              <span>Tiến độ lớp học</span>
+              <span>18%</span>
+            </div>
+            <div class="tcp-detail-progress-bar">
+              <div class="tcp-detail-progress-fill" style="width: 18%"></div>
+            </div>
+          </div>
+
+          <!-- Schedule -->
+          <div class="tcp-detail-info-group">
+            <div class="tcp-detail-label">Lịch học trong tuần:</div>
+            <div class="tcp-schedule-grid">
+              <div class="tcp-schedule-item">Thứ 2: 05:00</div>
+              <div class="tcp-schedule-item">Thứ 3: 09:58</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="tcp-detail-actions">
+          <button class="tcp-detail-btn tcp-detail-btn-meetings">
+            <i class="fas fa-video"></i>
+            Xem phòng học Zoom
+          </button>
+
+          <button class="tcp-detail-btn tcp-detail-btn-create">
+            <i class="fas fa-plus"></i>
+            Tạo phòng học mới
+          </button>
+        </div>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          margin-top: 30px;
+          padding: 20px;
+          background: #e9ecef;
+          border-radius: 10px;
+        "
+      >
+        <h3>✅ Các tính năng mới đã implement:</h3>
+        <ul style="text-align: left; max-width: 800px; margin: 0 auto">
+          <li>
+            <strong>📋 Trang chi tiết đầy đủ:</strong> Hiển thị tất cả thông tin
+            học viên và gia sư
+          </li>
+          <li>
+            <strong>📊 Tiến độ học tập:</strong> Progress bar với animation
+            shimmer
+          </li>
+          <li>
+            <strong>📅 Lịch học chi tiết:</strong> Hiển thị từng ngày và giờ học
+          </li>
+          <li>
+            <strong>⭐ Thông tin thành tích:</strong> GPA, cấp độ, kinh nghiệm
+            gia sư
+          </li>
+          <li>
+            <strong>🎯 Actions thuận tiện:</strong> Nút truy cập meeting và tạo
+            phòng mới
+          </li>
+          <li>
+            <strong>📱 Responsive design:</strong> Tối ưu cho cả desktop và
+            mobile
+          </li>
+          <li>
+            <strong>🎨 Modern UI:</strong> Gradient, shadows, animations đẹp mắt
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // Demo interactions
+      document
+        .querySelector(".tcp-back-btn")
+        .addEventListener("click", function () {
+          alert(
+            "🔙 Quay lại danh sách lớp học! (Trong app thực sẽ navigate về trang chính)"
+          );
+        });
+
+      document
+        .querySelector(".tcp-detail-btn-meetings")
+        .addEventListener("click", function () {
+          alert("🎥 Chuyển đến trang danh sách phòng học Zoom! (Meeting view)");
+        });
+
+      document
+        .querySelector(".tcp-detail-btn-create")
+        .addEventListener("click", function () {
+          alert("➕ Mở modal tạo phòng học Zoom mới!");
+        });
+
+      console.log("✅ Classroom Detail View Demo loaded successfully!");
+      console.log("🎯 Features implemented:");
+      console.log("   - Comprehensive student & tutor information");
+      console.log("   - Progress tracking with animated progress bar");
+      console.log("   - Detailed schedule display");
+      console.log("   - Action buttons for meeting management");
+      console.log("   - Responsive design for all devices");
+    </script>
+  </body>
+</html>

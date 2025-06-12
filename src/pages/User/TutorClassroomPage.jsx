@@ -8,6 +8,22 @@ import { toast } from "react-toastify";
 import "../../assets/css/TutorClassroomPage.style.css";
 import dfMale from "../../assets/images/df-male.png";
 
+// Helper function to get safe avatar URL
+const getSafeAvatarUrl = (user) => {
+  if (user?.avatar && user.avatar.trim() !== "") {
+    return user.avatar;
+  }
+  return dfMale;
+};
+
+// Helper function for avatar error handling
+const handleAvatarError = (event) => {
+  if (event.target.src !== dfMale) {
+    event.target.onerror = null;
+    event.target.src = dfMale;
+  }
+};
+
 // Helper function to format date
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
@@ -330,22 +346,41 @@ const TutorClassroomPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [meetingList, setMeetingList] = useState([]); // For storing meeting list
-
   // New state for showing meeting list directly on page instead of modal
   const [showMeetingView, setShowMeetingView] = useState(false);
   const [currentClassroomForMeetings, setCurrentClassroomForMeetings] =
     useState(null);
   const [activeMeetingTab, setActiveMeetingTab] = useState("IN_SESSION"); // New state for tab navigation
 
+  // New state for classroom detail view
+  const [showClassroomDetail, setShowClassroomDetail] = useState(false);
+  const [currentClassroomDetail, setCurrentClassroomDetail] = useState(null);
+
+  // New state for main classroom tabs
+  const [activeClassroomTab, setActiveClassroomTab] = useState("IN_SESSION");
+
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
   const location = useLocation();
-
   // Function to go back from meeting view to classroom list
   const handleBackToClassrooms = () => {
     setShowMeetingView(false);
     setCurrentClassroomForMeetings(null);
     setMeetingList([]);
+    setShowClassroomDetail(false);
+    setCurrentClassroomDetail(null);
+  };
+
+  // Function to show classroom detail
+  const handleShowClassroomDetail = (classroom) => {
+    setCurrentClassroomDetail(classroom);
+    setShowClassroomDetail(true);
+  };
+
+  // Function to go to meeting view from detail view
+  const handleGoToMeetingView = async (classroomId, classroomName) => {
+    setShowClassroomDetail(false);
+    await handleEnterClassroom(classroomId, classroomName);
   };
   // Handle return from Zoom connection
   useEffect(() => {
@@ -583,20 +618,8 @@ const TutorClassroomPage = () => {
       </div>
     );
   }
-  // Function to handle joining meeting in inline view
-  const handleJoinMeetingInline = (meeting) => {
-    // Navigate to TutorMeetingRoomPage with meeting data for embedded Zoom
-    navigate("/tai-khoan/ho-so/phong-hoc", {
-      state: {
-        meetingData: meeting,
-        classroomName: currentClassroomForMeetings?.nameOfRoom,
-        classroomId: meeting.classroomId,
-        userRole: "host", // Tutor is always host
-        isNewMeeting: false,
-      },
-    });
-  };
-  // Inline Meeting List Component
+
+  // Classroom Detail View Component
   const InlineMeetingListView = () => {
     if (!showMeetingView || !currentClassroomForMeetings) return null;
 
@@ -793,15 +816,322 @@ const TutorClassroomPage = () => {
     );
   };
 
+  // Classroom Detail View Component
+  const ClassroomDetailView = () => {
+    if (!showClassroomDetail || !currentClassroomDetail) return null;
+
+    const classroom = currentClassroomDetail;
+    const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
+    const progress = calculateClassProgress(
+      classroom.startDay,
+      classroom.endDay
+    );
+
+    return (
+      <div className="tcp-classroom-detail-view">
+        {/* Header */}
+        <div className="tcp-detail-header">
+          <button className="tcp-back-btn" onClick={handleBackToClassrooms}>
+            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
+            Quay lại danh sách lớp học
+          </button>
+          <h3 className="tcp-detail-title">
+            Chi tiết lớp học - {classroom.nameOfRoom}
+          </h3>
+        </div>{" "}
+        {/* Student Information - Single Section */}
+        <div className="tcp-detail-content">
+          <div className="tcp-detail-section">
+            <h4 className="tcp-detail-section-title">
+              <i className="fas fa-user-graduate"></i>
+              Thông tin học viên
+            </h4>{" "}
+            <div className="tcp-avatar-section">
+              <img
+                src={getSafeAvatarUrl(classroom.user)}
+                alt={classroom.user?.fullname || "Học viên"}
+                className="tcp-detail-avatar"
+                onError={handleAvatarError}
+              />
+              <div className="tcp-avatar-info">
+                <h4>{classroom.user?.fullname || "N/A"}</h4>
+                <p>{classroom.user?.personalEmail || "N/A"}</p>
+              </div>
+            </div>
+            <div className="tcp-student-info-grid">
+              <div className="tcp-detail-info-group">
+                <div className="tcp-detail-label">
+                  <i className="fas fa-phone"></i>
+                  Số điện thoại:
+                </div>
+                <div className="tcp-detail-value">
+                  {classroom.user?.phoneNumber || "N/A"}
+                </div>
+              </div>
+
+              <div className="tcp-detail-info-group">
+                <div className="tcp-detail-label">
+                  <i className="fas fa-map-marker-alt"></i>
+                  Địa chỉ:
+                </div>
+                <div className="tcp-detail-value">
+                  {classroom.user?.homeAddress || "N/A"}
+                </div>
+              </div>
+
+              <div className="tcp-detail-info-group">
+                <div className="tcp-detail-label">
+                  <i className="fas fa-calendar"></i>
+                  Ngày sinh:
+                </div>
+                <div className="tcp-detail-value">
+                  {classroom.user?.birthday
+                    ? formatDate(classroom.user.birthday)
+                    : "N/A"}
+                </div>
+              </div>
+
+              <div className="tcp-detail-info-group">
+                <div className="tcp-detail-label">
+                  <i className="fas fa-graduation-cap"></i>
+                  Chuyên ngành:
+                </div>
+                <div className="tcp-detail-value highlight">
+                  {classroom.user?.major?.majorName || "N/A"}
+                </div>
+              </div>
+
+              <div className="tcp-detail-info-group">
+                <div className="tcp-detail-label">
+                  <i className="fas fa-venus-mars"></i>
+                  Giới tính:
+                </div>
+                <div className="tcp-detail-value">
+                  {classroom.user?.gender === "MALE"
+                    ? "Nam"
+                    : classroom.user?.gender === "FEMALE"
+                    ? "Nữ"
+                    : "N/A"}
+                </div>
+              </div>
+
+              <div className="tcp-detail-info-group">
+                <div className="tcp-detail-label">
+                  <i className="fas fa-coins"></i>
+                  Mức học phí:
+                </div>
+                <div className="tcp-detail-value highlight">
+                  {classroom.tutor?.coinPerHours
+                    ? `${classroom.tutor.coinPerHours.toLocaleString()} Xu/giờ`
+                    : "Thỏa thuận"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Class Information */}
+        <div className="tcp-detail-section" style={{ marginBottom: "24px" }}>
+          <h4 className="tcp-detail-section-title">
+            <i className="fas fa-calendar-alt"></i>
+            Thông tin lớp học
+          </h4>{" "}
+          <div className="tcp-student-info-grid">
+            <div className="tcp-detail-info-group">
+              <div className="tcp-detail-label">
+                <i className="fas fa-play-circle"></i>
+                Ngày bắt đầu:
+              </div>
+              <div className="tcp-detail-value">
+                {formatDate(classroom.startDay)}
+              </div>
+            </div>
+
+            <div className="tcp-detail-info-group">
+              <div className="tcp-detail-label">
+                <i className="fas fa-stop-circle"></i>
+                Ngày kết thúc:
+              </div>
+              <div className="tcp-detail-value">
+                {formatDate(classroom.endDay)}
+              </div>
+            </div>
+
+            <div className="tcp-detail-info-group">
+              <div className="tcp-detail-label">
+                <i className="fas fa-info-circle"></i>
+                Trạng thái:
+              </div>
+              <div className="tcp-detail-value">
+                <span
+                  className={`tcp-status-indicator ${classroom.status
+                    ?.toLowerCase()
+                    .replace("_", "-")}`}
+                >
+                  <i
+                    className={`fas ${
+                      classroom.status === "IN_SESSION"
+                        ? "fa-play-circle"
+                        : classroom.status === "PENDING"
+                        ? "fa-clock"
+                        : "fa-check-circle"
+                    }`}
+                  ></i>
+                  {statusLabels[classroom.status] || classroom.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="tcp-detail-info-group">
+              <div className="tcp-detail-label">
+                <i className="fas fa-star"></i>
+                Đánh giá lớp học:
+              </div>
+              <div className="tcp-detail-value highlight">
+                {classroom.classroomEvaluation
+                  ? `${classroom.classroomEvaluation}/5.0 ⭐`
+                  : "Chưa có đánh giá"}
+              </div>
+            </div>
+
+            <div className="tcp-detail-info-group">
+              <div className="tcp-detail-label">
+                <i className="fas fa-book"></i>
+                Môn học:
+              </div>
+              <div className="tcp-detail-value highlight">
+                {classroom.tutor?.subject?.subjectName || "N/A"}
+              </div>
+            </div>
+
+            <div className="tcp-detail-info-group">
+              <div className="tcp-detail-label">
+                <i className="fas fa-medal"></i>
+                Cấp độ gia sư:
+              </div>
+              <div className="tcp-detail-value">
+                {classroom.tutor?.tutorLevel?.levelName || "N/A"}
+              </div>
+            </div>
+          </div>{" "}
+          {/* Progress Bar */}
+          {classroom.status === "IN_SESSION" && (
+            <div className="tcp-detail-progress">
+              <div className="tcp-detail-progress-label">
+                <span>
+                  <i className="fas fa-chart-line"></i>
+                  Tiến độ lớp học
+                </span>
+                <span className="highlight">{progress.percentage}%</span>
+              </div>
+              <div className="tcp-detail-progress-bar">
+                <div
+                  className="tcp-detail-progress-fill"
+                  style={{ width: `${progress.percentage}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+          {/* Schedule */}
+          <div className="tcp-detail-info-group">
+            <div className="tcp-detail-label">
+              <i className="fas fa-calendar-week"></i>
+              Lịch học trong tuần:
+            </div>
+            {schedule.length > 0 ? (
+              <div className="tcp-schedule-grid">
+                {schedule.map((s, index) => (
+                  <div key={index} className="tcp-schedule-item">
+                    <i className="fas fa-clock"></i>
+                    {s.day}: {s.times}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="tcp-detail-value">Chưa có lịch học.</div>
+            )}
+          </div>
+        </div>
+        {/* Action Buttons */}
+        <div className="tcp-detail-actions">
+          <button
+            className="tcp-detail-btn tcp-detail-btn-meetings"
+            onClick={() =>
+              handleGoToMeetingView(classroom.classroomId, classroom.nameOfRoom)
+            }
+          >
+            <i className="fas fa-video"></i>
+            Xem phòng học Zoom
+          </button>
+
+          <button
+            className="tcp-detail-btn tcp-detail-btn-create"
+            onClick={() =>
+              handleOpenCreateMeetingModal(
+                classroom.classroomId,
+                classroom.nameOfRoom
+              )
+            }
+          >
+            <i className="fas fa-plus"></i>
+            Tạo phòng học mới
+          </button>
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="tutor-classroom-page">
-      {showMeetingView ? (
+      {showClassroomDetail ? (
+        <ClassroomDetailView />
+      ) : showMeetingView ? (
         <InlineMeetingListView />
       ) : (
         <>
           <h2 className="tcp-page-title">
             Quản lý lớp học ({totalClassrooms})
           </h2>
+          {/* Classroom Tabs */}
+          <div className="tcp-classroom-tabs-container">
+            <div className="tcp-classroom-tabs">
+              <button
+                className={`tcp-tab ${
+                  activeClassroomTab === "IN_SESSION" ? "active" : ""
+                }`}
+                onClick={() => setActiveClassroomTab("IN_SESSION")}
+              >
+                <i className="fas fa-play-circle"></i>
+                Lớp học đang hoạt động
+                <span className="tcp-tab-count">
+                  (
+                  {
+                    classrooms.filter(
+                      (c) => c.status === "IN_SESSION" || c.status === "PENDING"
+                    ).length
+                  }
+                  )
+                </span>
+              </button>
+              <button
+                className={`tcp-tab ${
+                  activeClassroomTab === "ENDED" ? "active" : ""
+                }`}
+                onClick={() => setActiveClassroomTab("ENDED")}
+              >
+                <i className="fas fa-check-circle"></i>
+                Lớp học đã kết thúc
+                <span className="tcp-tab-count">
+                  (
+                  {
+                    classrooms.filter(
+                      (c) =>
+                        c.status === "COMPLETED" || c.status === "CANCELLED"
+                    ).length
+                  }
+                  )
+                </span>
+              </button>
+            </div>
+          </div>
           {isLoading && (
             <div className="tcp-skeleton-container">
               {[...Array(3)].map((_, index) => (
@@ -812,10 +1142,10 @@ const TutorClassroomPage = () => {
               ))}
             </div>
           )}
-          {error && <p className="tcp-error-message">{error}</p>}
+          {error && <p className="tcp-error-message">{error}</p>}{" "}
           {!isLoading && !error && classrooms.length === 0 && (
             <div className="tcp-empty-state">
-              <p>Bạn hiện không có lớp học nào đang hoạt động.</p>
+              <p>Bạn hiện không có lớp học nào.</p>
               <button
                 className="tcp-find-student-btn"
                 onClick={() => navigate("/gia-su")}
@@ -824,186 +1154,318 @@ const TutorClassroomPage = () => {
               </button>
             </div>
           )}
-          {!isLoading && !error && classrooms.length > 0 && (
-            <div className="tcp-classroom-list">
-              {classrooms.map((classroom) => {
-                const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
-                const classroomName =
-                  classroom.nameOfRoom || "Lớp học không tên";
-                const statusLabel =
-                  statusLabels[classroom.status] || classroom.status || "N/A";
-                const progress = calculateClassProgress(
-                  classroom.startDay,
-                  classroom.endDay
-                );
-                const {
-                  percentage: progressPercentage,
-                  status: progressStatus,
-                } = calculateClassProgress(
-                  classroom.startDay,
-                  classroom.endDay
-                );
+          {!isLoading &&
+            !error &&
+            classrooms.length > 0 &&
+            (() => {
+              const filteredClassrooms = classrooms.filter((classroom) => {
+                if (activeClassroomTab === "IN_SESSION") {
+                  return (
+                    classroom.status === "IN_SESSION" ||
+                    classroom.status === "PENDING"
+                  );
+                } else if (activeClassroomTab === "ENDED") {
+                  return (
+                    classroom.status === "COMPLETED" ||
+                    classroom.status === "CANCELLED"
+                  );
+                }
+                return true;
+              });
 
+              if (filteredClassrooms.length === 0) {
                 return (
-                  <div
-                    key={classroom.classroomId}
-                    className="tcp-classroom-card"
-                  >
-                    <div className="tcp-card-header">
-                      <h3 className="tcp-classroom-name">{classroomName}</h3>
-                      <span
-                        className={`tcp-status-badge tcp-status-${classroom.status?.toLowerCase()}`}
+                  <div className="tcp-empty-state">
+                    <i
+                      className={`fas ${
+                        activeClassroomTab === "IN_SESSION"
+                          ? "fa-play-circle"
+                          : "fa-check-circle"
+                      }`}
+                    ></i>
+                    <p>
+                      {activeClassroomTab === "IN_SESSION"
+                        ? "Hiện tại không có lớp học nào đang hoạt động."
+                        : "Chưa có lớp học nào đã kết thúc."}
+                    </p>
+                    {activeClassroomTab === "IN_SESSION" && (
+                      <button
+                        className="tcp-find-student-btn"
+                        onClick={() => navigate("/gia-su")}
                       >
-                        {statusLabel}
-                      </span>
-                    </div>
-                    <div className="tcp-card-body">
-                      <div className="tcp-student-info">
-                        <img
-                          src={classroom.user?.avatar || dfMale}
-                          alt={classroom.user?.fullname || "Học viên"}
-                          className="tcp-student-avatar"
-                        />
-                        <div>
-                          <p>
-                            <strong>Học viên:</strong>{" "}
-                            {classroom.user?.fullname || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Email:</strong>{" "}
-                            {classroom.user?.personalEmail || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Chuyên ngành:</strong>{" "}
-                            {classroom.user?.major?.majorName || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Số điện thoại:</strong>{" "}
-                            {classroom.user?.phoneNumber || "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                      <hr className="tcp-divider" />
-                      <div className="tcp-class-details">
-                        <p>
-                          <strong>Ngày bắt đầu:</strong>{" "}
-                          {formatDate(classroom.startDay)}
-                        </p>
-                        <p>
-                          <strong>Ngày kết thúc:</strong>{" "}
-                          {formatDate(classroom.endDay)}
-                        </p>
-
-                        {/* Progress Bar */}
-                        {classroom.status === "IN_SESSION" && (
-                          <div className="tcp-progress-section">
-                            <div className="tcp-progress-label">
-                              Tiến độ lớp học: {progress.percentage}%
-                            </div>
-                            <div className="tcp-progress-bar">
-                              <div
-                                className={`tcp-progress-fill ${progress.status}`}
-                                style={{ width: `${progress.percentage}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        )}
-
-                        <p>
-                          <strong>Lịch học:</strong>
-                        </p>
-                        {schedule.length > 0 ? (
-                          <ul className="tcp-schedule-list">
-                            {schedule.map((s, index) => (
-                              <li key={index}>
-                                {s.day}: {s.times}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p>Chưa có lịch học.</p>
-                        )}
-                        <div className="tcp-progress-container">
-                          <div
-                            className="tcp-progress-bar"
-                            style={{ width: `${progressPercentage}%` }}
-                          />
-                        </div>
-                        <p className="tcp-progress-text">
-                          {progressStatus === "completed" &&
-                            "Lớp học đã hoàn thành."}
-                          {progressStatus === "in_progress" &&
-                            `Đang học: ${progressPercentage}%`}
-                          {progressStatus === "not_started" &&
-                            "Lớp học chưa bắt đầu."}
-                        </p>
-                      </div>
-                    </div>{" "}
-                    <div className="tcp-card-footer">
-                      <div className="tcp-action-buttons">
-                        {" "}
-                        {/* Tạo phòng học Zoom button - always visible */}
-                        <button
-                          className="tcp-action-btn tcp-create-meeting-btn"
-                          onClick={() =>
-                            handleOpenCreateMeetingModal(
-                              classroom.classroomId,
-                              classroom.nameOfRoom
-                            )
-                          }
-                          disabled={!classroom.classroomId}
-                          style={{
-                            backgroundColor: "#007bff",
-                            color: "white",
-                            marginRight: "10px",
-                          }}
-                        >
-                          <i
-                            className="fas fa-video"
-                            style={{ marginRight: "5px" }}
-                          ></i>
-                          Tạo phòng học
-                        </button>{" "}
-                        {classroom.status === "IN_SESSION" && (
-                          <button
-                            className="tcp-action-btn tcp-enter-btn"
-                            onClick={() =>
-                              handleEnterClassroom(
-                                classroom.classroomId,
-                                classroomName
-                              )
-                            }
-                            disabled={!classroom.classroomId}
-                          >
-                            Phòng học
-                          </button>
-                        )}
-                        {classroom.status === "PENDING" && (
-                          <button
-                            className="tcp-action-btn tcp-manage-btn"
-                            onClick={() =>
-                              handleEnterClassroom(
-                                classroom.classroomId,
-                                classroomName
-                              )
-                            }
-                            disabled={!classroom.classroomId}
-                          >
-                            Chuẩn bị lớp học
-                          </button>
-                        )}
-                        {classroom.status === "COMPLETED" && (
-                          <span className="tcp-completed-badge">
-                            Đã hoàn thành
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                        Quay về trang gia sư
+                      </button>
+                    )}
                   </div>
                 );
-              })}
-            </div>
-          )}
+              }
+
+              return (
+                <div className="tcp-classroom-list">
+                  {filteredClassrooms.map((classroom) => {
+                    const schedule = parseDateTimeLearn(
+                      classroom.dateTimeLearn
+                    );
+                    const classroomName =
+                      classroom.nameOfRoom || "Lớp học không tên";
+                    const statusLabel =
+                      statusLabels[classroom.status] ||
+                      classroom.status ||
+                      "N/A";
+                    const progress = calculateClassProgress(
+                      classroom.startDay,
+                      classroom.endDay
+                    );
+
+                    return (
+                      <div
+                        key={classroom.classroomId}
+                        className="tcp-classroom-card"
+                      >
+                        <div className="tcp-card-header">
+                          <div className="tcp-card-title-section">
+                            <i className="fas fa-chalkboard-teacher"></i>
+                            <h3 className="tcp-classroom-name">
+                              {classroomName}
+                            </h3>
+                          </div>
+                          <span
+                            className={`tcp-status-badge tcp-status-${classroom.status
+                              ?.toLowerCase()
+                              .replace("_", "-")}`}
+                          >
+                            <i
+                              className={`fas ${
+                                classroom.status === "IN_SESSION"
+                                  ? "fa-play-circle"
+                                  : classroom.status === "PENDING"
+                                  ? "fa-clock"
+                                  : "fa-check-circle"
+                              }`}
+                            ></i>
+                            {statusLabel}
+                          </span>
+                        </div>
+
+                        <div className="tcp-card-body">
+                          {/* Student Section */}
+                          <div className="tcp-student-section">
+                            {" "}
+                            <div className="tcp-student-avatar-container">
+                              <img
+                                src={getSafeAvatarUrl(classroom.user)}
+                                alt={classroom.user?.fullname || "Học viên"}
+                                className="tcp-student-avatar"
+                                onError={handleAvatarError}
+                              />
+                              <div className="tcp-avatar-overlay">
+                                <i className="fas fa-user-graduate"></i>
+                              </div>
+                            </div>
+                            <div className="tcp-student-details">
+                              <h4 className="tcp-student-name">
+                                <i className="fas fa-user"></i>
+                                {classroom.user?.fullname || "N/A"}
+                              </h4>
+                              <div className="tcp-student-info-grid">
+                                <div className="tcp-info-item">
+                                  <i className="fas fa-envelope"></i>
+                                  <span>
+                                    {classroom.user?.personalEmail || "N/A"}
+                                  </span>
+                                </div>
+                                <div className="tcp-info-item">
+                                  <i className="fas fa-phone"></i>
+                                  <span>
+                                    {classroom.user?.phoneNumber || "N/A"}
+                                  </span>
+                                </div>
+                                <div className="tcp-info-item">
+                                  <i className="fas fa-graduation-cap"></i>
+                                  <span className="highlight">
+                                    {classroom.user?.major?.majorName || "N/A"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <hr className="tcp-divider" />
+
+                          {/* Class Details Section */}
+                          <div className="tcp-class-details">
+                            <div className="tcp-class-info-grid">
+                              <div className="tcp-info-group">
+                                <div className="tcp-info-label">
+                                  <i className="fas fa-play-circle"></i>
+                                  Ngày bắt đầu:
+                                </div>
+                                <div className="tcp-info-value">
+                                  {formatDate(classroom.startDay)}
+                                </div>
+                              </div>
+
+                              <div className="tcp-info-group">
+                                <div className="tcp-info-label">
+                                  <i className="fas fa-stop-circle"></i>
+                                  Ngày kết thúc:
+                                </div>
+                                <div className="tcp-info-value">
+                                  {formatDate(classroom.endDay)}
+                                </div>
+                              </div>
+
+                              <div className="tcp-info-group">
+                                <div className="tcp-info-label">
+                                  <i className="fas fa-book"></i>
+                                  Môn học:
+                                </div>
+                                <div className="tcp-info-value highlight">
+                                  {classroom.tutor?.subject?.subjectName ||
+                                    "N/A"}
+                                </div>
+                              </div>
+
+                              <div className="tcp-info-group">
+                                <div className="tcp-info-label">
+                                  <i className="fas fa-coins"></i>
+                                  Học phí:
+                                </div>
+                                <div className="tcp-info-value highlight">
+                                  {classroom.tutor?.coinPerHours
+                                    ? `${classroom.tutor.coinPerHours.toLocaleString()} Xu/giờ`
+                                    : "Thỏa thuận"}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Progress Bar */}
+                            {classroom.status === "IN_SESSION" && (
+                              <div className="tcp-progress-section">
+                                <div className="tcp-progress-header">
+                                  <span className="tcp-progress-label">
+                                    <i className="fas fa-chart-line"></i>
+                                    Tiến độ lớp học
+                                  </span>
+                                  <span className="tcp-progress-percentage highlight">
+                                    {progress.percentage}%
+                                  </span>
+                                </div>
+                                <div className="tcp-progress-bar-container">
+                                  <div
+                                    className="tcp-progress-bar-fill"
+                                    style={{ width: `${progress.percentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Schedule */}
+                            <div className="tcp-schedule-section">
+                              <div className="tcp-schedule-label">
+                                <i className="fas fa-calendar-week"></i>
+                                Lịch học trong tuần:
+                              </div>
+                              {schedule.length > 0 ? (
+                                <div className="tcp-schedule-grid">
+                                  {schedule.map((s, index) => (
+                                    <div
+                                      key={index}
+                                      className="tcp-schedule-item"
+                                    >
+                                      <i className="fas fa-clock"></i>
+                                      <span>
+                                        {s.day}: {s.times}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="tcp-no-schedule">
+                                  <i className="fas fa-calendar-times"></i>
+                                  <span>Chưa có lịch học</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="tcp-card-footer">
+                          <div className="tcp-action-buttons">
+                            <button
+                              className="tcp-action-btn tcp-create-meeting-btn"
+                              onClick={() =>
+                                handleOpenCreateMeetingModal(
+                                  classroom.classroomId,
+                                  classroom.nameOfRoom
+                                )
+                              }
+                              disabled={!classroom.classroomId}
+                            >
+                              <i className="fas fa-video"></i>
+                              Tạo phòng học
+                            </button>
+                            {classroom.status === "IN_SESSION" && (
+                              <button
+                                className="tcp-action-btn tcp-enter-btn"
+                                onClick={() =>
+                                  handleShowClassroomDetail(classroom)
+                                }
+                                disabled={!classroom.classroomId}
+                              >
+                                <i className="fas fa-sign-in-alt"></i>
+                                Vào lớp học
+                              </button>
+                            )}
+                            {classroom.status === "PENDING" && (
+                              <button
+                                className="tcp-action-btn tcp-manage-btn"
+                                onClick={() =>
+                                  handleShowClassroomDetail(classroom)
+                                }
+                                disabled={!classroom.classroomId}
+                              >
+                                <i className="fas fa-cog"></i>
+                                Chuẩn bị lớp học
+                              </button>
+                            )}{" "}
+                            {(classroom.status === "COMPLETED" ||
+                              classroom.status === "CANCELLED") && (
+                              <button
+                                className="tcp-action-btn tcp-view-ended-btn"
+                                onClick={() =>
+                                  handleShowClassroomDetail(classroom)
+                                }
+                                disabled={!classroom.classroomId}
+                              >
+                                <i className="fas fa-eye"></i>
+                                Xem chi tiết
+                              </button>
+                            )}
+                            {(classroom.status === "COMPLETED" ||
+                              classroom.status === "CANCELLED") && (
+                              <button
+                                className="tcp-action-btn tcp-view-meetings-btn"
+                                onClick={() =>
+                                  handleEnterClassroom(
+                                    classroom.classroomId,
+                                    classroom.nameOfRoom
+                                  )
+                                }
+                                disabled={!classroom.classroomId}
+                              >
+                                <i className="fas fa-history"></i>
+                                Xem phòng học
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           {!isLoading && totalClassrooms > itemsPerPage && (
             <div className="tcp-pagination">
               <button
