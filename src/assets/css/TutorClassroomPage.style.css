@@ -9,7 +9,12 @@
   margin-bottom: 20px;
   font-size: 14px;
 }
-
+.tcp-card-title-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
 .tcp-breadcrumb-item {
   display: flex;
   align-items: center;
