@@ -6,7 +6,11 @@
   min-height: 100vh;
   color: #333;
 }
-
+.scp-card-title-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 .scp-page-title {
   font-size: 1.8rem;
   color: #2c3e50;
