@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudentClassroomPage Styling Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Copy essential CSS from StudentClassroomPage.style.css */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        line-height: 1.6;
+      }
+
+      .student-classroom-page {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        min-height: 100vh;
+      }
+
+      /* Classroom Detail View Styling */
+      .scp-detail-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 24px 32px;
+        border-radius: 12px 12px 0 0;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .scp-detail-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .scp-back-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .scp-back-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .scp-detail-content {
+        background: white;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 12px 12px;
+        overflow: hidden;
+      }
+
+      .scp-detail-section {
+        padding: 32px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .scp-detail-section:last-child {
+        border-bottom: none;
+      }
+
+      .scp-detail-section-title {
+        color: #333;
+        margin: 0 0 20px 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .scp-detail-section-title i {
+        color: #007bff;
+        font-size: 1.2rem;
+      }
+
+      .scp-tutor-detail-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .scp-detail-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e9ecef;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+      }
+
+      .scp-tutor-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        flex: 1;
+      }
+
+      .scp-info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+      }
+
+      .scp-info-item:hover {
+        background: #e9ecef;
+        transform: translateX(4px);
+      }
+
+      .scp-info-item i {
+        color: #007bff;
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .scp-info-item span {
+        color: #333;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .scp-info-item .highlight {
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .scp-divider {
+        border: 0;
+        border-top: 2px solid #e9ecef;
+        margin: 24px 0;
+      }
+
+      .scp-class-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .scp-info-group {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+      }
+
+      .scp-info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+      }
+
+      .scp-info-label i {
+        color: #007bff;
+        font-size: 1rem;
+      }
+
+      .scp-info-value {
+        color: #333;
+        font-size: 1.05rem;
+        font-weight: 500;
+      }
+
+      .scp-info-value.highlight {
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .scp-status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #fff;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .scp-status-badge.scp-status-in_session {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      }
+
+      .scp-progress-section {
+        margin-top: 24px;
+      }
+
+      .scp-progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .scp-progress-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.95rem;
+      }
+
+      .scp-progress-percentage {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #28a745;
+      }
+
+      .scp-progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .scp-progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        position: relative;
+      }
+
+      .scp-schedule-section {
+        margin-top: 24px;
+      }
+
+      .scp-schedule-section h5 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #333;
+        margin-bottom: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .scp-schedule-section h5 i {
+        color: #007bff;
+        font-size: 1rem;
+      }
+
+      .scp-schedule-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 12px;
+      }
+
+      .scp-schedule-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+      }
+
+      .scp-schedule-item:hover {
+        border-color: #0056b3;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .scp-schedule-item i {
+        color: #007bff;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+
+      .scp-schedule-item span {
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+
+      .scp-detail-actions {
+        margin-top: 32px;
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 24px;
+        background: #f8f9fa;
+        border-radius: 12px;
+      }
+
+      .scp-action-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+      }
+
+      .scp-action-btn:hover {
+        background: linear-gradient(135deg, #218838 0%, #1cc88a 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.35);
+      }
+
+      .scp-action-btn i {
+        font-size: 1.1rem;
+      }
+
+      .scp-view-meetings-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.25);
+      }
+
+      .scp-view-meetings-btn:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.35);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .scp-detail-header {
+          padding: 20px 24px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .scp-detail-title {
+          font-size: 1.4rem;
+        }
+
+        .scp-detail-section {
+          padding: 24px;
+        }
+
+        .scp-tutor-detail-info {
+          flex-direction: column;
+          text-align: center;
+          gap: 16px;
+        }
+
+        .scp-tutor-info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .scp-class-info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .scp-schedule-list {
+          grid-template-columns: 1fr;
+        }
+
+        .scp-detail-actions {
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .scp-action-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="student-classroom-page">
+      <!-- Classroom Detail View Demo -->
+      <div class="scp-detail-header">
+        <button class="scp-back-btn">
+          <i class="fas fa-arrow-left"></i>
+          Quay lại danh sách lớp học
+        </button>
+        <h3 class="scp-detail-title">
+          Chi tiết lớp học - Lớp học với gia sư Nguyễn Văn An
+        </h3>
+      </div>
+
+      <div class="scp-detail-content">
+        <div class="scp-detail-section">
+          <h4 class="scp-detail-section-title">
+            <i class="fas fa-chalkboard-teacher"></i>
+            Thông tin gia sư
+          </h4>
+
+          <div class="scp-tutor-detail-info">
+            <img
+              src="https://via.placeholder.com/100x100?text=Avatar"
+              alt="Nguyễn Văn An"
+              class="scp-detail-avatar"
+            />
+            <div class="scp-tutor-info-grid">
+              <div class="scp-info-item">
+                <i class="fas fa-user"></i>
+                <span><strong>Tên:</strong> Nguyễn Văn An</span>
+              </div>
+              <div class="scp-info-item">
+                <i class="fas fa-university"></i>
+                <span><strong>Trường:</strong> Đại học Văn Lang</span>
+              </div>
+              <div class="scp-info-item">
+                <i class="fas fa-graduation-cap"></i>
+                <span><strong>Chuyên ngành:</strong> Ngôn ngữ Anh</span>
+              </div>
+              <div class="scp-info-item">
+                <i class="fas fa-book"></i>
+                <span><strong>Môn dạy:</strong> Kinh tế vi mô</span>
+              </div>
+              <div class="scp-info-item">
+                <i class="fas fa-medal"></i>
+                <span><strong>Trình độ:</strong> Bạch kim</span>
+              </div>
+              <div class="scp-info-item">
+                <i class="fas fa-coins"></i>
+                <span class="highlight">
+                  <strong>Học phí:</strong> 180 Xu/giờ
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="scp-divider" />
+
+        <div class="scp-detail-section">
+          <div class="scp-class-info-grid">
+            <div class="scp-info-group">
+              <div class="scp-info-label">
+                <i class="fas fa-play-circle"></i>
+                Ngày bắt đầu:
+              </div>
+              <div class="scp-info-value">01/06/2025</div>
+            </div>
+
+            <div class="scp-info-group">
+              <div class="scp-info-label">
+                <i class="fas fa-stop-circle"></i>
+                Ngày kết thúc:
+              </div>
+              <div class="scp-info-value">03/08/2025</div>
+            </div>
+
+            <div class="scp-info-group">
+              <div class="scp-info-label">
+                <i class="fas fa-info-circle"></i>
+                Trạng thái:
+              </div>
+              <span class="scp-status-badge scp-status-in_session">
+                <i class="fas fa-play-circle"></i>
+                Đang học
+              </span>
+            </div>
+
+            <div class="scp-info-group">
+              <div class="scp-info-label">
+                <i class="fas fa-star"></i>
+                Đánh giá lớp học:
+              </div>
+              <div class="scp-info-value highlight">Chưa có đánh giá</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="scp-progress-section">
+            <div class="scp-progress-header">
+              <span class="scp-progress-label">
+                <i class="fas fa-chart-line"></i>
+                Tiến độ lớp học
+              </span>
+              <span class="scp-progress-percentage"> 18% </span>
+            </div>
+            <div class="scp-progress-bar-container">
+              <div class="scp-progress-bar-fill" style="width: 18%"></div>
+            </div>
+          </div>
+
+          <!-- Schedule -->
+          <div class="scp-schedule-section">
+            <h5>
+              <i class="fas fa-calendar-alt"></i>
+              Lịch học
+            </h5>
+            <ul class="scp-schedule-list">
+              <li class="scp-schedule-item">
+                <i class="fas fa-clock"></i>
+                <span><strong>Thứ 2:</strong> 05:00</span>
+              </li>
+              <li class="scp-schedule-item">
+                <i class="fas fa-clock"></i>
+                <span><strong>Thứ 3:</strong> 09:58</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="scp-detail-actions">
+          <button class="scp-action-btn scp-enter-btn">
+            <i class="fas fa-video"></i>
+            Vào phòng học
+          </button>
+
+          <button class="scp-action-btn scp-view-meetings-btn">
+            <i class="fas fa-history"></i>
+            Xem phòng học
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Demo interactions
+      document
+        .querySelector(".scp-back-btn")
+        .addEventListener("click", function () {
+          alert("🔙 Quay lại danh sách lớp học!");
+        });
+
+      document
+        .querySelector(".scp-enter-btn")
+        .addEventListener("click", function () {
+          alert("🎥 Vào phòng học Zoom!");
+        });
+
+      document
+        .querySelector(".scp-view-meetings-btn")
+        .addEventListener("click", function () {
+          alert("📜 Chuyển đến trang danh sách phòng học!");
+        });
+
+      console.log(
+        "✅ StudentClassroomPage Detail View Demo loaded successfully!"
+      );
+    </script>
+  </body>
+</html>

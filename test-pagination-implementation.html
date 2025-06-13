@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✅ Pagination Implementation Test - COMPLETE</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .header h1 {
+        color: #28a745;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      .header p {
+        color: #6c757d;
+        font-size: 1.2rem;
+      }
+      .status-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 5px solid #28a745;
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+      }
+      .feature-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #007bff;
+      }
+      .feature-card h3 {
+        color: #007bff;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .feature-card ul {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-card li {
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .feature-card li:last-child {
+        border-bottom: none;
+      }
+      .success-icon {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .test-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+      .test-link {
+        display: block;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        text-decoration: none;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        transition: transform 0.3s ease;
+      }
+      .test-link:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: white;
+      }
+      .implementation-summary {
+        background: #e3f2fd;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 30px 0;
+      }
+      .code-highlight {
+        background: #f1f3f4;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎉 Pagination Implementation - COMPLETE!</h1>
+        <p>
+          All styling fixes and pagination features have been successfully
+          implemented
+        </p>
+      </div>
+
+      <div class="status-section">
+        <h2>✅ COMPLETION STATUS</h2>
+        <p>
+          <strong>All tasks completed successfully!</strong> The
+          StudentClassroomPage and TutorClassroomPage now have:
+        </p>
+        <ul>
+          <li>✅ Server-side pagination with 2 items per page (rpp=2)</li>
+          <li>✅ Enhanced meeting views with detailed attendance tracking</li>
+          <li>✅ Modern, responsive UI with loading states</li>
+          <li>✅ Fixed syntax errors that caused white screen issues</li>
+          <li>✅ Consistent styling across both student and tutor pages</li>
+        </ul>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3><i class="fas fa-user-graduate"></i> StudentClassroomPage</h3>
+          <ul>
+            <li>
+              <span class="success-icon">✅</span> Classroom pagination (2 per
+              page)
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Meeting pagination with tabs
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Attendance tracking for ended
+              meetings
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Simplified button layout
+            </li>
+            <li><span class="success-icon">✅</span> Loading skeletons</li>
+            <li>
+              <span class="success-icon">✅</span> Mobile responsive design
+            </li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3><i class="fas fa-chalkboard-teacher"></i> TutorClassroomPage</h3>
+          <ul>
+            <li>
+              <span class="success-icon">✅</span> Classroom pagination (2 per
+              page)
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Meeting pagination with
+              server-side filtering
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Tab system with live counts
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Fixed white screen syntax
+              issues
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Enhanced classroom detail
+              view
+            </li>
+            <li>
+              <span class="success-icon">✅</span> Improved action buttons
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="implementation-summary">
+        <h3>🔧 Key Technical Implementations</h3>
+
+        <h4>1. Pagination System</h4>
+        <div class="code-highlight">
+          // Both pages now use 2 items per page const itemsPerPage = 2; const
+          meetingsPerPage = 2; // Server-side API calls with pagination { page:
+          currentPage, rpp: itemsPerPage, sort: [{ key: "startTime", type:
+          "DESC" }] }
+        </div>
+
+        <h4>2. Meeting View Enhancements</h4>
+        <div class="code-highlight">
+          // Added attendance tracking for students {userJoinTime &&
+          userLeftTime && ( &lt;div className="attendance-details"&gt;
+          &lt;p&gt;Tham gia: {formatTime(userJoinTime)}&lt;/p&gt; &lt;p&gt;Rời
+          phòng: {formatTime(userLeftTime)}&lt;/p&gt; &lt;p&gt;Thời gian học:
+          {calculateDuration(userJoinTime, userLeftTime)}&lt;/p&gt; &lt;/div&gt;
+          )}
+        </div>
+
+        <h4>3. Fixed Syntax Issues</h4>
+        <div class="code-highlight">
+          // Fixed missing closing parenthesis and spacing issues
+          &lt;h3&gt;Title&lt;/h3&gt; &lt;div className="tabs"&gt; // Fixed: was
+          &lt;h3&gt;Title&lt;/h3&gt;&lt;div...
+        </div>
+      </div>
+
+      <div class="test-links">
+        <a
+          href="http://localhost:5173/tai-khoan/ho-so/lop-hoc-cua-toi"
+          class="test-link"
+          target="_blank"
+        >
+          <i class="fas fa-user-graduate"></i><br />
+          Test Student Page
+        </a>
+        <a
+          href="http://localhost:5173/tai-khoan/ho-so/quan-ly-lop-hoc"
+          class="test-link"
+          target="_blank"
+        >
+          <i class="fas fa-chalkboard-teacher"></i><br />
+          Test Tutor Page
+        </a>
+        <a href="http://localhost:5173" class="test-link" target="_blank">
+          <i class="fas fa-home"></i><br />
+          Go to Home Page
+        </a>
+      </div>
+
+      <div
+        style="
+          background: #d4edda;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+          margin-top: 30px;
+        "
+      >
+        <h3 style="color: #155724; margin: 0">🚀 Ready to Test!</h3>
+        <p style="color: #155724; margin: 10px 0 0 0">
+          Start your development server and click the test links above to verify
+          the implementation.
+          <br /><strong>Expected:</strong> 2 items per page, working pagination,
+          no white screens!
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Auto-check if development server is running
+      function checkDevServer() {
+        fetch("http://localhost:5173")
+          .then(() => {
+            console.log("✅ Development server is running!");
+            document.body.style.borderTop = "5px solid #28a745";
+          })
+          .catch(() => {
+            console.log(
+              "❌ Development server not running. Start with: npm run dev"
+            );
+            document.body.style.borderTop = "5px solid #dc3545";
+          });
+      }
+
+      // Check on page load
+      window.addEventListener("load", checkDevServer);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔧 Debug TutorClassroomPage Tab Filtering</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .debug-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 5px solid #dc3545;
+      }
+      .step {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .step h3 {
+        color: #007bff;
+        margin-bottom: 15px;
+      }
+      .code-block {
+        background: #f1f3f4;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        margin: 10px 0;
+        border-left: 4px solid #007bff;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin: 10px 5px;
+        transition: background 0.3s ease;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .console-output {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        max-height: 400px;
+        overflow-y: auto;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔧 Debug TutorClassroomPage Tab Filtering Issue</h1>
+        <p>
+          Tool để kiểm tra và sửa lỗi filtering giữa các tab "Đang hoạt động" và
+          "Đã kết thúc"
+        </p>
+      </div>
+
+      <div class="debug-section">
+        <h2>🚨 Vấn đề được báo cáo</h2>
+        <p>
+          <strong>Hiện tượng:</strong> Những phòng học đã kết thúc
+          (COMPLETED/CANCELLED) vẫn xuất hiện ở tab "Đang hoạt động" thay vì tab
+          "Đã kết thúc".
+        </p>
+        <p><strong>Nguyên nhân có thể:</strong></p>
+        <ul>
+          <li>Logic filtering không đúng</li>
+          <li>API trả về status values không đúng format</li>
+          <li>State activeClassroomTab không được cập nhật đúng</li>
+          <li>Có whitespace hoặc formatting issues trong status values</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h3>Bước 1: Mở TutorClassroomPage</h3>
+        <p>Trước tiên, hãy mở trang gia sư để kiểm tra:</p>
+        <button
+          class="button"
+          onclick="window.open('http://localhost:5173/tai-khoan/ho-so/quan-ly-lop-hoc', '_blank')"
+        >
+          Mở TutorClassroomPage
+        </button>
+      </div>
+
+      <div class="step">
+        <h3>Bước 2: Mở Developer Tools và Chạy Debug Script</h3>
+        <p>
+          Sau khi vào trang, mở Developer Tools (F12) và chạy script sau trong
+          Console:
+        </p>
+        <div class="code-block">
+          // Copy và paste script này vào Console const script =
+          document.createElement('script'); script.src =
+          './debug-tutor-tab-filtering.js'; document.head.appendChild(script);
+        </div>
+        <button class="button" onclick="copyDebugScript()">
+          Copy Debug Script
+        </button>
+      </div>
+
+      <div class="step">
+        <h3>Bước 3: Kiểm tra Console Logs</h3>
+        <p>Khi trang tải, bạn sẽ thấy các logs trong Console:</p>
+        <div class="code-block">
+          All classrooms data: [...] // Tất cả dữ liệu classrooms Active tab:
+          "IN_SESSION" // Tab hiện tại đang active Filtering classroom: ... //
+          Chi tiết filtering cho từng classroom Active classrooms count: X // Số
+          lượng classrooms trong tab active Ended classrooms count: Y // Số
+          lượng classrooms trong tab ended
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Bước 4: Kiểm tra Status Values</h3>
+        <p>Chú ý kiểm tra các status values trong console logs:</p>
+        <div class="warning">
+          <strong>Cần kiểm tra:</strong>
+          <ul>
+            <li>
+              Status có đúng format: "IN_SESSION", "PENDING", "COMPLETED",
+              "CANCELLED"?
+            </li>
+            <li>
+              Có whitespace thừa không? (ví dụ: " COMPLETED " thay vì
+              "COMPLETED")
+            </li>
+            <li>Type có phải string không? (statusType trong logs)</li>
+            <li>rawStatus có khớp với expected values không?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Bước 5: Test Switching Tabs</h3>
+        <p>Thử chuyển đổi giữa các tabs và kiểm tra:</p>
+        <ol>
+          <li>Click vào tab "Đang hoạt động" - kiểm tra console logs</li>
+          <li>Click vào tab "Đã kết thúc" - kiểm tra console logs</li>
+          <li>So sánh kết quả filtering với dữ liệu hiển thị trên UI</li>
+        </ol>
+      </div>
+
+      <div class="success">
+        <h3>✅ Đã thêm các cải tiến để debug:</h3>
+        <ul>
+          <li>
+            Thêm <code>.toString().trim()</code> để handle whitespace và type
+            issues
+          </li>
+          <li>Thêm detailed console logging cho filtering process</li>
+          <li>Thêm statusType để kiểm tra data type</li>
+          <li>Enhanced debugging trong tab count calculations</li>
+        </ul>
+      </div>
+
+      <div class="console-output" id="consoleOutput">
+        Console output sẽ hiển thị ở đây khi bạn chạy debug...
+      </div>
+
+      <div style="text-align: center; margin-top: 30px">
+        <button class="button" onclick="location.reload()">Refresh Page</button>
+        <button
+          class="button"
+          onclick="window.open('http://localhost:5173', '_blank')"
+        >
+          Go to Home
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function copyDebugScript() {
+        const script = `
+// Debug TutorClassroomPage Tab Filtering
+console.clear();
+console.log("🔧 DEBUG: TutorClassroomPage Tab Filtering Started");
+
+// Monitor for classroom data changes
+let originalLog = console.log;
+console.log = function(...args) {
+    originalLog.apply(console, args);
+    
+    // Capture specific logs and display in our debug page
+    const message = args.join(' ');
+    if (message.includes('All classrooms data:') || 
+        message.includes('Filtering classroom') || 
+        message.includes('classrooms count:')) {
+        
+        // Try to send to parent window if opened from our debug page
+        try {
+            if (window.opener && window.opener.document) {
+                const output = window.opener.document.getElementById('consoleOutput');
+                if (output) {
+                    output.textContent += message + '\\n';
+                    output.scrollTop = output.scrollHeight;
+                }
+            }
+        } catch (e) {
+            // Ignore cross-origin errors
+        }
+    }
+};
+
+console.log("Debug logging enhanced. Switch between tabs to see filtering details.");
+            `;
+
+        navigator.clipboard
+          .writeText(script)
+          .then(() => {
+            alert(
+              "Debug script copied to clipboard! Paste it in the browser console."
+            );
+          })
+          .catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = script;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            alert(
+              "Debug script copied to clipboard! Paste it in the browser console."
+            );
+          });
+      }
+
+      // Add some sample console output for demonstration
+      setTimeout(() => {
+        const output = document.getElementById("consoleOutput");
+        output.textContent = `🔧 DEBUG: TutorClassroomPage Tab Filtering Started
+Debug logging enhanced. Switch between tabs to see filtering details.
+
+Expected output when you run the debug:
+All classrooms data: [{id: 123, name: "Lớp học test", status: "COMPLETED", rawStatus: "COMPLETED", statusType: "string"}]
+Active tab: IN_SESSION
+Filtering classroom Lớp học test: status = "COMPLETED", tab = "IN_SESSION"
+  -> Is active (IN_SESSION/PENDING): false
+Active classrooms count: 0
+Ended classrooms count: 1
+
+This output will help identify the issue with tab filtering.`;
+      }, 1000);
+    </script>
+  </body>
+</html>

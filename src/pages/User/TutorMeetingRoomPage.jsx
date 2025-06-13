@@ -188,10 +188,24 @@ const TutorMeetingRoomPage = () => {
       );
     }
   };
-
   const handleConnectZoom = async () => {
     setIsLoading(true);
     setError(null); // Xóa lỗi cũ trước khi thử kết nối mới
+
+    // Store return path and state before OAuth redirect
+    sessionStorage.setItem(
+      "zoomReturnPath",
+      "/tai-khoan/ho-so/quan-ly-lop-hoc"
+    );
+    if (classroomInfo?.needConnection) {
+      const returnState = {
+        fromZoomConnection: true,
+        classroomId: classroomInfo.id,
+        classroomName: classroomInfo.name,
+      };
+      sessionStorage.setItem("zoomReturnState", JSON.stringify(returnState));
+    }
+
     try {
       const backendResponse = await Api({
         // backendResponse là data từ axiosClient
@@ -472,15 +486,47 @@ const TutorMeetingRoomPage = () => {
       </div>
     );
   }
-
   // Fallback: If student has meeting data but something went wrong
   // This should rarely happen with the above logic fixes
+  console.log("🚨 TutorMeetingRoomPage FALLBACK RENDER:", {
+    isLoading,
+    isZoomConnected,
+    hasMeetingData: !!meetingData,
+    meetingData,
+    userRole,
+    classroomInfo,
+    error,
+    locationState: location.state,
+  });
+
   return (
     <div className="tutor-meeting-room-page">
-      <h2 className="page-title">Đang tải phòng học...</h2>
+      <h2 className="page-title">Debug: Đang phân tích vấn đề...</h2>
       {error && <p className="error-message">{error}</p>}
       <div className="loading-message">
-        <p>Đang chuẩn bị phòng học cho bạn...</p>
+        <p>🔍 Debug thông tin:</p>
+        <pre
+          style={{
+            fontSize: "12px",
+            textAlign: "left",
+            background: "#f5f5f5",
+            padding: "10px",
+            margin: "10px 0",
+          }}
+        >
+          {JSON.stringify(
+            {
+              isLoading,
+              isZoomConnected,
+              hasMeetingData: !!meetingData,
+              userRole,
+              hasClassroomInfo: !!classroomInfo,
+              locationState: location.state,
+            },
+            null,
+            2
+          )}
+        </pre>
         {meetingData && (
           <button
             onClick={() => {

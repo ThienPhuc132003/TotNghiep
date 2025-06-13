@@ -62,6 +62,55 @@ const parseDateTimeLearn = (dateTimeLearn) => {
   });
 };
 
+// Helper function to calculate classroom counts by status
+const calculateClassroomCounts = (classrooms) => {
+  const inSessionCount = classrooms.filter(
+    (classroom) =>
+      classroom.status === "IN_SESSION" ||
+      classroom.status === "ACTIVE" ||
+      classroom.status === "ONGOING" ||
+      !classroom.status
+  ).length;
+
+  const endedCount = classrooms.filter(
+    (classroom) =>
+      classroom.status === "ENDED" ||
+      classroom.status === "COMPLETED" ||
+      classroom.status === "FINISHED" ||
+      classroom.status === "CANCELLED"
+  ).length;
+
+  return {
+    IN_SESSION: inSessionCount,
+    ENDED: endedCount,
+    total: classrooms.length,
+  };
+};
+
+// Helper function to calculate meeting counts by status
+const calculateMeetingCounts = (meetings) => {
+  const inSessionCount = meetings.filter(
+    (meeting) =>
+      meeting.status === "IN_SESSION" ||
+      meeting.status === "STARTED" ||
+      meeting.status === "PENDING" ||
+      !meeting.status
+  ).length;
+
+  const endedCount = meetings.filter(
+    (meeting) =>
+      meeting.status === "COMPLETED" ||
+      meeting.status === "ENDED" ||
+      meeting.status === "FINISHED"
+  ).length;
+
+  return {
+    IN_SESSION: inSessionCount,
+    ENDED: endedCount,
+    total: meetings.length,
+  };
+};
+
 // Helper function to calculate classroom progress
 const calculateClassProgress = (startDay, endDay) => {
   if (!startDay || !endDay) return { percentage: 0, status: "unknown" };
@@ -94,8 +143,25 @@ const StudentClassroomPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2; // Changed to 2 as suggested
 
-  // Store all classrooms for accurate filtering and pagination
+  // Store all classrooms for client-side filtering
   const [allClassrooms, setAllClassrooms] = useState([]);
+
+  // Classroom count tracking by tab
+  const [classroomCounts, setClassroomCounts] = useState({
+    IN_SESSION: 0,
+    ENDED: 0,
+    total: 0,
+  });
+
+  // Store all meetings for client-side filtering
+  const [allMeetings, setAllMeetings] = useState([]);
+
+  // Meeting count tracking by tab
+  const [meetingCounts, setMeetingCounts] = useState({
+    IN_SESSION: 0,
+    ENDED: 0,
+    total: 0,
+  });
 
   // Evaluation modal state
   const [showEvaluationModal, setShowEvaluationModal] = useState(false);
@@ -131,9 +197,7 @@ const StudentClassroomPage = () => {
         return;
       }
       setIsLoading(true);
-      setError(null);
-
-      try {
+      setError(null);      try {
         // Build query parameters - fetch ALL classrooms for accurate filtering
         const queryParams = {
           page: 1, // Always fetch from page 1
@@ -160,34 +224,48 @@ const StudentClassroomPage = () => {
           console.log(
             `✅ Fetched ${allClassroomsData.length} total student classrooms from server`
           );
-
+          
           // Store all classrooms for filtering
           setAllClassrooms(allClassroomsData);
-
+          
+          // Calculate counts by status
+          const counts = calculateClassroomCounts(allClassroomsData);
+          setClassroomCounts(counts);
+          
           // Apply client-side filtering based on active tab
-          const result = getFilteredItems(
-            allClassroomsData,
-            activeClassroomTab,
-            page,
-            itemsPerPage
-          );
-
-          setClassrooms(result.items);
-          setTotalClassrooms(result.total); // Set total for current filter
+          const filteredClassrooms = allClassroomsData.filter((classroom) => {
+            if (activeClassroomTab === "IN_SESSION") {
+              return classroom.status === "IN_SESSION" ||
+                     classroom.status === "ACTIVE" ||
+                     classroom.status === "ONGOING" ||
+                     !classroom.status;
+            } else if (activeClassroomTab === "ENDED") {
+              return classroom.status === "ENDED" ||
+                     classroom.status === "COMPLETED" ||
+                     classroom.status === "FINISHED" ||
+                     classroom.status === "CANCELLED";
+            }
+            return true; // Show all if no specific filter
+          });
+          
+          console.log(`📊 Filtered classrooms for tab ${activeClassroomTab}:`, filteredClassrooms.length);
+          
+          // Apply pagination to filtered results
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const paginatedClassrooms = filteredClassrooms.slice(startIndex, endIndex);
+          
+          setClassrooms(paginatedClassrooms);
+          setTotalClassrooms(filteredClassrooms.length); // Set total for current filter
           setCurrentPage(page);
-
-          console.log(
-            `📊 Filtered classrooms for tab ${activeClassroomTab}:`,
-            result.total
-          );
-          console.log(
-            `📄 Page ${page}: Showing ${result.items.length} of ${result.total} filtered classrooms`
-          );
+          
+          console.log(`📄 Page ${page}: Showing ${paginatedClassrooms.length} of ${filteredClassrooms.length} filtered classrooms`);
         } else {
           console.log("❌ API response invalid or empty");
           setClassrooms([]);
           setAllClassrooms([]);
           setTotalClassrooms(0);
+          setClassroomCounts({ IN_SESSION: 0, ENDED: 0, total: 0 });
         }
       } catch (err) {
         console.error("Error fetching student classrooms:", err);
@@ -199,14 +277,11 @@ const StudentClassroomPage = () => {
           err.response?.data?.message ||
             "Đã xảy ra lỗi khi tải danh sách lớp học."
         );
-        setClassrooms([]);
-        setAllClassrooms([]);
-        setTotalClassrooms(0);
       } finally {
         setIsLoading(false);
       }
     },
-    [currentUser?.userId, itemsPerPage, activeClassroomTab]
+    [currentUser?.userId, activeClassroomTab, itemsPerPage]
     // eslint-disable-next-line react-hooks/exhaustive-deps
   );
   useEffect(() => {
@@ -215,27 +290,12 @@ const StudentClassroomPage = () => {
     fetchStudentClassrooms(1); // No filter on initial load to show all classrooms
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only trigger on component mount
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalClassrooms / itemsPerPage)) {
-      setCurrentPage(newPage);
-
-      // Apply client-side filtering and pagination using allClassrooms data
-      if (allClassrooms.length > 0) {
-        const result = getFilteredItems(
-          allClassrooms,
-          activeClassroomTab,
-          newPage,
-          itemsPerPage
-        );
-        setClassrooms(result.items);
-
-        console.log(
-          `📄 Page ${newPage}: Showing ${result.items.length} of ${result.total} filtered classrooms`
-        );
-      } else {
-        // Fallback to server fetch if no data
-        fetchStudentClassrooms(newPage);
-      }
+      setCurrentPage(newPage); // Maintain current tab filtering when changing pages (client-side only)
+      // No need to pass statusFilter since server-side filtering is disabled
+      fetchStudentClassrooms(newPage);
     }
   };
   const handleEvaluateClass = (classroomId, classroomName) => {
@@ -930,24 +990,40 @@ const StudentClassroomPage = () => {
           </div>
         </div>
       </div>
-    ); // Handler for classroom tab changes (client-side filtering only)
-  };
-  const handleClassroomTabChange = (newTab) => {
+    );
+  }; // Handler for classroom tab changes (client-side filtering only)  const handleClassroomTabChange = (newTab) => {
     console.log(`🔄 Student tab change: ${activeClassroomTab} -> ${newTab}`);
     setActiveClassroomTab(newTab);
     setCurrentPage(1); // Reset to first page when changing tabs
 
     // Apply client-side filtering using allClassrooms data
     if (allClassrooms.length > 0) {
-      const result = getFilteredItems(allClassrooms, newTab, 1, itemsPerPage);
-
-      setClassrooms(result.items);
-      setTotalClassrooms(result.total); // Set total for current filter
-
-      console.log(`📊 Filtered classrooms for tab ${newTab}:`, result.total);
-      console.log(
-        `� Page 1: Showing ${result.items.length} of ${result.total} filtered classrooms`
-      );
+      const filteredClassrooms = allClassrooms.filter((classroom) => {
+        if (newTab === "IN_SESSION") {
+          return classroom.status === "IN_SESSION" ||
+                 classroom.status === "ACTIVE" ||
+                 classroom.status === "ONGOING" ||
+                 !classroom.status;
+        } else if (newTab === "ENDED") {
+          return classroom.status === "ENDED" ||
+                 classroom.status === "COMPLETED" ||
+                 classroom.status === "FINISHED" ||
+                 classroom.status === "CANCELLED";
+        }
+        return true; // Show all if no specific filter
+      });
+      
+      console.log(`📊 Filtered classrooms for tab ${newTab}:`, filteredClassrooms.length);
+      
+      // Apply pagination to filtered results
+      const startIndex = 0; // Reset to first page
+      const endIndex = itemsPerPage;
+      const paginatedClassrooms = filteredClassrooms.slice(startIndex, endIndex);
+      
+      setClassrooms(paginatedClassrooms);
+      setTotalClassrooms(filteredClassrooms.length); // Set total for current filter
+      
+      console.log(`📄 Page 1: Showing ${paginatedClassrooms.length} of ${filteredClassrooms.length} filtered classrooms`);
     } else {
       // No data in allClassrooms, need to fetch
       console.log("📥 No classrooms in allClassrooms, fetching from server...");
@@ -980,7 +1056,13 @@ const StudentClassroomPage = () => {
             <i className="fas fa-play-circle"></i>
             Lớp học đang hoạt động{" "}
             <span className="scp-tab-count">
-              ({getCountByStatus(allClassrooms, "IN_SESSION")})
+              (
+              {
+                classrooms.filter(
+                  (c) => c.status === "IN_SESSION" || c.status === "PENDING"
+                ).length
+              }
+              )
             </span>
           </button>
           <button
@@ -992,7 +1074,13 @@ const StudentClassroomPage = () => {
             <i className="fas fa-check-circle"></i>
             Lớp học đã kết thúc{" "}
             <span className="scp-tab-count">
-              ({getCountByStatus(allClassrooms, "ENDED")})
+              (
+              {
+                classrooms.filter(
+                  (c) => c.status === "COMPLETED" || c.status === "CANCELLED"
+                ).length
+              }
+              )
             </span>
           </button>
         </div>
@@ -1314,52 +1402,3 @@ const StudentClassroomPage = () => {
 };
 
 export default memo(StudentClassroomPage);
-
-// Helper functions for accurate counting and pagination
-const getCountByStatus = (items, status) => {
-  if (status === "IN_SESSION") {
-    return items.filter(
-      (item) =>
-        item.status === "IN_SESSION" ||
-        item.status === "PENDING" ||
-        !item.status
-    ).length;
-  } else if (status === "ENDED") {
-    return items.filter(
-      (item) =>
-        item.status === "COMPLETED" ||
-        item.status === "CANCELLED" ||
-        item.status === "ENDED"
-    ).length;
-  }
-  return items.length;
-};
-
-const getFilteredItems = (items, status, page, itemsPerPage) => {
-  // Filter theo status
-  let filtered = items;
-  if (status === "IN_SESSION") {
-    filtered = items.filter(
-      (item) =>
-        item.status === "IN_SESSION" ||
-        item.status === "PENDING" ||
-        !item.status
-    );
-  } else if (status === "ENDED") {
-    filtered = items.filter(
-      (item) =>
-        item.status === "COMPLETED" ||
-        item.status === "CANCELLED" ||
-        item.status === "ENDED"
-    );
-  }
-
-  // Apply pagination
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-
-  return {
-    items: filtered.slice(startIndex, endIndex),
-    total: filtered.length,
-  };
-};
