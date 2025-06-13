@@ -329,6 +329,7 @@ const TutorClassroomPage = () => {
         const queryParams = {
           page: 1, // Always fetch from page 1
           rpp: 1000, // Large number to get all classrooms
+          // Remove include parameter as API doesn't support it properly
         };
 
         console.log(
@@ -351,6 +352,22 @@ const TutorClassroomPage = () => {
           console.log(
             `✅ Fetched ${allClassroomsData.length} total tutor classrooms from server`
           );
+
+          // Debug: Log first classroom to see structure
+          if (allClassroomsData.length > 0) {
+            console.log(
+              "🔍 DEBUG - First classroom structure:",
+              allClassroomsData[0]
+            );
+            console.log(
+              "🔍 DEBUG - First classroom user:",
+              allClassroomsData[0]?.user
+            );
+            console.log(
+              "🔍 DEBUG - First classroom tutor:",
+              allClassroomsData[0]?.tutor
+            );
+          }
 
           // Store all classrooms for filtering
           setAllClassrooms(allClassroomsData);
@@ -431,13 +448,27 @@ const TutorClassroomPage = () => {
     const view = searchParams.get("view");
     const classroomId = searchParams.get("id");
     const classroomName = searchParams.get("name");
-
     if (view === "detail" && classroomId && classroomName) {
       // Restore classroom detail view
-      setCurrentClassroomDetail({
-        classroomId: decodeURIComponent(classroomId),
-        nameOfRoom: decodeURIComponent(classroomName),
-      });
+      const decodedClassroomId = decodeURIComponent(classroomId);
+      const decodedClassroomName = decodeURIComponent(classroomName);
+
+      // Try to find the full classroom object from allClassrooms
+      const foundClassroom = allClassrooms.find(
+        (c) => c.classroomId === decodedClassroomId
+      );
+
+      if (foundClassroom) {
+        // Use the full classroom object with all data
+        setCurrentClassroomDetail(foundClassroom);
+      } else {
+        // Fallback to basic data from URL
+        setCurrentClassroomDetail({
+          classroomId: decodedClassroomId,
+          nameOfRoom: decodedClassroomName,
+        });
+      }
+
       setShowClassroomDetail(true);
       setShowMeetingView(false);
     } else if (view === "meetings" && classroomId && classroomName) {
@@ -497,7 +528,13 @@ const TutorClassroomPage = () => {
       setShowClassroomDetail(false);
       setShowMeetingView(false);
     }
-  }, [searchParams, activeMeetingTab, meetingsPerPage, setSearchParams]);
+  }, [
+    searchParams,
+    activeMeetingTab,
+    meetingsPerPage,
+    setSearchParams,
+    allClassrooms,
+  ]);
 
   useEffect(() => {
     console.log(`📱 Initial loading of tutor classrooms`);
@@ -637,10 +674,9 @@ const TutorClassroomPage = () => {
 
     // Clear URL params
     setSearchParams({});
-  };
-
-  // Function to show classroom detail from action button
+  }; // Function to show classroom detail from action button
   const handleShowClassroomDetail = (classroom) => {
+    // Use data from the list instead of calling separate API
     setCurrentClassroomDetail(classroom);
     setShowClassroomDetail(true);
 
@@ -792,38 +828,45 @@ const TutorClassroomPage = () => {
               Thông tin học viên
             </h4>
 
+            {/* Debug: Log classroom data */}
+            {console.log("🔍 DEBUG - Classroom data:", classroom)}
+            {console.log("🔍 DEBUG - User data:", classroom?.user)}
+
             <div className="tcp-student-detail-info">
               <img
-                src={classroom.student?.avatar || dfMale}
-                alt={classroom.student?.fullname || "Học viên"}
+                src={classroom.user?.avatar || dfMale}
+                alt={classroom.user?.fullname || "Học viên"}
                 className="tcp-detail-avatar"
               />
               <div className="tcp-student-info-grid">
                 <div className="tcp-info-item">
                   <i className="fas fa-user"></i>
                   <span>
-                    <strong>Tên:</strong> {classroom.student?.fullname || "N/A"}
+                    <strong>Tên:</strong> {classroom.user?.fullname || "N/A"}
                   </span>
                 </div>
                 <div className="tcp-info-item">
                   <i className="fas fa-envelope"></i>
                   <span>
-                    <strong>Email:</strong> {classroom.student?.email || "N/A"}
+                    <strong>Email:</strong>{" "}
+                    {classroom.user?.personalEmail ||
+                      classroom.user?.workEmail ||
+                      "N/A"}
                   </span>
                 </div>
                 <div className="tcp-info-item">
                   <i className="fas fa-phone"></i>
                   <span>
                     <strong>Số điện thoại:</strong>{" "}
-                    {classroom.student?.phoneNumber || "N/A"}
+                    {classroom.user?.phoneNumber || "N/A"}
                   </span>
                 </div>
                 <div className="tcp-info-item">
                   <i className="fas fa-birthday-cake"></i>
                   <span>
                     <strong>Ngày sinh:</strong>{" "}
-                    {classroom.student?.dateOfBirth
-                      ? formatDate(classroom.student.dateOfBirth)
+                    {classroom.user?.birthday
+                      ? formatDate(classroom.user.birthday)
                       : "N/A"}
                   </span>
                 </div>
@@ -831,15 +874,22 @@ const TutorClassroomPage = () => {
                   <i className="fas fa-map-marker-alt"></i>
                   <span>
                     <strong>Địa chỉ:</strong>{" "}
-                    {classroom.student?.address || "N/A"}
+                    {classroom.user?.homeAddress || "N/A"}
+                  </span>
+                </div>
+                <div className="tcp-info-item">
+                  <i className="fas fa-graduation-cap"></i>
+                  <span>
+                    <strong>Ngành học:</strong>{" "}
+                    {classroom.user?.major?.majorName || "N/A"}
                   </span>
                 </div>
                 <div className="tcp-info-item">
                   <i className="fas fa-coins"></i>
                   <span className="highlight">
                     <strong>Học phí:</strong>{" "}
-                    {classroom.coinPerHours
-                      ? `${classroom.coinPerHours.toLocaleString()} Xu/giờ`
+                    {classroom.tutor?.coinPerHours
+                      ? `${classroom.tutor.coinPerHours.toLocaleString()} Xu/giờ`
                       : "Thỏa thuận"}
                   </span>
                 </div>
