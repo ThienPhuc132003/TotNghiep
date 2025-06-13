@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -121,9 +121,9 @@ const StudentClassroomPage = () => {
   const [currentClassroomForMeetings, setCurrentClassroomForMeetings] =
     useState(null);
   const [activeMeetingTab, setActiveMeetingTab] = useState("IN_SESSION");
-
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const fetchStudentClassrooms = useCallback(
     async (page /* statusFilter = null */) => {
       if (!currentUser?.userId) {
@@ -215,6 +215,71 @@ const StudentClassroomPage = () => {
     fetchStudentClassrooms(1); // No filter on initial load to show all classrooms
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only trigger on component mount
+
+  // Handle URL parameters to restore view state on refresh
+  useEffect(() => {
+    const view = searchParams.get("view");
+    const classroomId = searchParams.get("id");
+    const classroomName = searchParams.get("name");
+
+    if (view === "detail" && classroomId && classroomName) {
+      // Restore classroom detail view
+      setCurrentClassroomDetail({
+        classroomId: decodeURIComponent(classroomId),
+        nameOfRoom: decodeURIComponent(classroomName),
+      });
+      setShowClassroomDetail(true);
+      setShowMeetingView(false);
+    } else if (view === "meetings" && classroomId && classroomName) {
+      // Restore meeting view - need to load meetings
+      const restoreMeetingView = async () => {
+        try {
+          setIsMeetingLoading(true);
+
+          const queryParams = {
+            classroomId: decodeURIComponent(classroomId),
+            page: 1,
+            rpp: 1000,
+            sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
+          };
+
+          const response = await Api({
+            endpoint: "meeting/search",
+            method: METHOD_TYPE.GET,
+            query: queryParams,
+            requireToken: false,
+          });
+
+          if (response.success && response.data) {
+            const allMeetingsData = response.data.items || [];
+            setMeetingList(allMeetingsData);
+            setTotalMeetings(allMeetingsData.length);
+            setCurrentMeetingPage(1);
+            setCurrentClassroomForMeetings({
+              classroomId: decodeURIComponent(classroomId),
+              classroomName: decodeURIComponent(classroomName),
+              nameOfRoom: decodeURIComponent(classroomName),
+            });
+            setShowMeetingView(true);
+            setShowClassroomDetail(false);
+          }
+        } catch (error) {
+          console.error("Error restoring meeting view:", error);
+          // If error, fallback to main view
+          setSearchParams({});
+        } finally {
+          setIsMeetingLoading(false);
+        }
+      };
+
+      restoreMeetingView();
+    } else {
+      // Default view - classroom list
+      setShowClassroomDetail(false);
+      setShowMeetingView(false);
+    }
+  }, [searchParams, setSearchParams]);
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalClassrooms / itemsPerPage)) {
       setCurrentPage(newPage);
@@ -1357,7 +1422,6 @@ const getFilteredItems = (items, status, page, itemsPerPage) => {
   // Apply pagination
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-
   return {
     items: filtered.slice(startIndex, endIndex),
     total: filtered.length,
