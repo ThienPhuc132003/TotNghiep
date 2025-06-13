@@ -1473,83 +1473,227 @@
   margin: 0 auto;
 }
 
-/* Mobile responsiveness for meeting view */
-@media (max-width: 768px) {
-  .tcp-meeting-view {
-    padding: 20px;
-  }
+/* Modal Styles */
+.tcp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
 
-  .tcp-meeting-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
+.tcp-modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+}
 
-  .tcp-meeting-title {
-    font-size: 1.5rem;
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
   }
-
-  .tcp-meeting-list {
-    grid-template-columns: 1fr;
-  }
-
-  .tcp-meeting-tabs-container {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .tcp-meeting-tabs {
-    width: 100%;
-    overflow-x: auto;
-    padding: 5px;
-  }
-
-  .tcp-meeting-tabs .tcp-tab {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-    min-width: 150px;
-  }
-
-  .tcp-meeting-actions {
-    flex-direction: column;
-  }
-
-  .tcp-join-meeting-btn,
-  .tcp-copy-link-btn {
-    min-width: 100%;
-  }
-
-  .tcp-meeting-pagination {
-    flex-direction: column;
-    gap: 12px;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-@media (max-width: 480px) {
-  .tcp-meeting-view {
-    padding: 16px;
+.tcp-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.tcp-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tcp-modal-header h3::before {
+  content: "🎥";
+  font-size: 1.2em;
+}
+
+.tcp-modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 16px;
+}
+
+.tcp-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.tcp-modal-body {
+  padding: 24px;
+}
+
+.tcp-form-group {
+  margin-bottom: 20px;
+}
+
+.tcp-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.tcp-form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.tcp-form-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.tcp-password-group {
+  position: relative;
+}
+
+.tcp-generate-password-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tcp-generate-password-btn:hover {
+  background: #218838;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.tcp-modal-footer {
+  padding: 20px 24px 24px 24px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  background: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+.tcp-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tcp-btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+}
+
+.tcp-btn-primary:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.tcp-btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.tcp-btn-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.tcp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.tcp-form-help-text {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+  .tcp-modal-overlay {
+    padding: 10px;
   }
 
-  .tcp-meeting-item {
-    padding: 16px;
+  .tcp-modal-content {
+    max-width: 100%;
+    margin: 0;
   }
 
-  .tcp-meeting-info p {
+  .tcp-modal-header {
+    padding: 20px 20px 12px 20px;
+  }
+
+  .tcp-modal-body {
+    padding: 20px;
+  }
+
+  .tcp-modal-footer {
+    padding: 16px 20px 20px 20px;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
   }
 
-  .tcp-meeting-info p strong {
-    min-width: auto;
-  }
-
-  .tcp-meeting-tabs-container {
-    padding: 16px;
-  }
-
-  .tcp-pagination-btn {
-    padding: 8px 12px;
-    font-size: 0.8rem;
+  .tcp-btn {
+    justify-content: center;
   }
 }
