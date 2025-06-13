@@ -167,11 +167,15 @@ function App() {
                 path="/trac-nghiem-gia-su"
                 element={<TutorQualificationTestPage />}
               />
-              <Route path="/change-password" element={<ChangePassword />} />
+
               <Route path="/login" element={<UserLogin />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-
+              <Route path="/otp-verify" element={<OtpVerify />} />
+              <Route element={<OtpProtectedRoute />}>
+                {" "}
+                <Route path="/change-password" element={<ChangePassword />} />
+              </Route>
               <Route element={<TutorRegistrationGuard />}>
                 <Route path="/dang-ky-gia-su" element={<TutorRegister />} />
               </Route>
@@ -205,7 +209,7 @@ function App() {
                       element={<TutorBookingRequestsPage />}
                     />
                   </Route>{" "}
-                  {/* SHARED routes for both USER and TUTOR */}
+                  {/* SHARED routes for both USER and TUTOR */}{" "}
                   <Route path="vi-ca-nhan" element={<Wallet />} />
                   <Route path="phong-hoc" element={<TutorMeetingRoomPage />} />
                   <Route
@@ -215,7 +219,6 @@ function App() {
                 </Route>
 
                 {/* Route Đổi Mật Khẩu - Cần đăng nhập và OTP */}
-                <Route element={<OtpProtectedRoute />}></Route>
 
                 {/* Payment Routes - Cần đăng nhập */}
                 <Route path="/payment/success" element={<PaymentSuccess />} />
@@ -223,7 +226,6 @@ function App() {
               </Route>
             </Route>{" "}
             {/* Các route không dùng HomePageLayout (standalone) */}
-            <Route path="/otp-verify" element={<OtpVerify />} />
             <Route
               path="/otp-verify-register"
               element={<OtpVerifyRegister />}

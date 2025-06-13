@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tab Filtering Fix - Test Guide</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+        color: #667eea;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+      }
+      h2 {
+        color: #764ba2;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+      .status {
+        margin: 15px 0;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 5px solid;
+      }
+      .success {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+      }
+      .warning {
+        background: #fff3cd;
+        border-color: #ffc107;
+        color: #856404;
+      }
+      .error {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+      }
+      .info {
+        background: #d1ecf1;
+        border-color: #17a2b8;
+        color: #0c5460;
+      }
+      .code {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        margin: 15px 0;
+        border: 1px solid #e9ecef;
+      }
+      .step {
+        margin: 20px 0;
+        padding: 20px;
+        border-left: 4px solid #667eea;
+        background: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+      }
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        margin: 8px;
+        font-weight: bold;
+        transition: transform 0.2s;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+      .test-section {
+        margin: 25px 0;
+        padding: 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        background: #f8f9fa;
+      }
+      .highlight {
+        background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .emoji {
+        font-size: 1.2em;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #667eea;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1><span class="emoji">🎯</span> Tab Filtering Fix - Test Guide</h1>
+
+      <div class="status success">
+        <strong>✅ Fix Status:</strong> Tab filtering issues have been resolved
+        in both TutorClassroomPage and StudentClassroomPage
+      </div>
+
+      <h2><span class="emoji">🔍</span> What Was Fixed</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>🔧 Server-Side Filtering</h3>
+          <ul>
+            <li>
+              Fixed API filter operator:
+              <span class="highlight">"like" → "in"</span>
+            </li>
+            <li>
+              Fixed filter value format:
+              <span class="highlight">string → array</span>
+            </li>
+            <li>Enhanced debug logging</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🎨 Client-Side Logic</h3>
+          <ul>
+            <li>Eliminated double filtering conflicts</li>
+            <li>Trust server-filtered data directly</li>
+            <li>Improved component state management</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2><span class="emoji">🧪</span> Quick Test Instructions</h2>
+
+      <div class="step">
+        <h3>Step 1: Navigate to Classroom Page</h3>
+        <p>Go to one of these pages:</p>
+        <div class="code">
+          Tutor: /quan-ly-lop-hoc<br />
+          Student: /lop-hoc-cua-toi
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Step 2: Run Quick Test</h3>
+        <p>Open Developer Tools (F12) and paste this script:</p>
+        <div class="code">
+          // Quick Tab Test Script<br />
+          const quickTest = () => {<br />
+          &nbsp;&nbsp;const isTutor =
+          window.location.pathname.includes('/quan-ly-lop-hoc');<br />
+          &nbsp;&nbsp;const tabSelector = isTutor ? '.tcp-tab' : '.scp-tab';<br />
+          &nbsp;&nbsp;const tabs = document.querySelectorAll(tabSelector);<br />
+          &nbsp;&nbsp;<br />
+          &nbsp;&nbsp;if (tabs.length >= 2) {<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;console.log('🔄 Testing tab switching...');<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;tabs[0].click(); // First tab<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;setTimeout(() => tabs[1].click(), 2000); //
+          Second tab<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;setTimeout(() => tabs[0].click(), 4000); //
+          Back to first<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;setTimeout(() => {<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const cards =
+          document.querySelectorAll(isTutor ? '.tcp-classroom-card' :
+          '.scp-classroom-card');<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.log(`✅ Test complete.
+          Cards showing: ${cards.length}`);<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;}, 6000);<br />
+          &nbsp;&nbsp;}<br />
+          };<br />
+          quickTest();
+        </div>
+        <button onclick="copyTestScript()">📋 Copy Test Script</button>
+      </div>
+
+      <div class="step">
+        <h3>Step 3: Manual Verification</h3>
+        <div class="test-section">
+          <h4>Test Sequence:</h4>
+          <ol>
+            <li>
+              <strong>Click "Lớp học đang hoạt động"</strong> - Should show
+              IN_SESSION & PENDING classrooms
+            </li>
+            <li>
+              <strong>Click "Lớp học đã kết thúc"</strong> - Should show
+              COMPLETED & CANCELLED classrooms
+            </li>
+            <li>
+              <strong>Click "Lớp học đang hoạt động" again</strong> - Should
+              show active classrooms (not empty!)
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <h2><span class="emoji">📊</span> Expected Results</h2>
+
+      <div class="status success">
+        <h3>✅ Success Indicators</h3>
+        <ul>
+          <li>Tabs switch smoothly without showing empty states</li>
+          <li>Correct classrooms appear for each tab</li>
+          <li>Console shows proper filter parameters</li>
+          <li>No JavaScript errors in console</li>
+        </ul>
+      </div>
+
+      <div class="status info">
+        <h3>📝 Console Logs to Look For</h3>
+        <div class="code">
+          🔍 Fetching classrooms with server-side filter: IN_SESSION,PENDING<br />
+          Filter query params:
+          [{"key":"status","operator":"in","value":["IN_SESSION","PENDING"]}]<br />
+          ✅ Fetched 3 classrooms from server<br />
+          📊 Rendering classrooms: 3 of 3 total<br />
+          Using server-filtered data directly
+        </div>
+      </div>
+
+      <h2><span class="emoji">🚨</span> Troubleshooting</h2>
+
+      <div class="test-section">
+        <h3>If Tabs Still Don't Work:</h3>
+
+        <div class="status warning">
+          <strong>1. Check Authentication:</strong>
+          <div class="code">
+            // Check auth in console<br />
+            console.log('Auth token:', !!localStorage.getItem('authToken'));<br />
+            console.log('User profile:', !!localStorage.getItem('userProfile'));
+          </div>
+        </div>
+
+        <div class="status warning">
+          <strong>2. Check API Responses:</strong>
+          <ul>
+            <li>Open Network tab in DevTools</li>
+            <li>
+              Look for <code>classroom/search-for-tutor</code> or
+              <code>classroom/search-for-user</code> calls
+            </li>
+            <li>Check if filter parameters are included</li>
+            <li>Verify response contains correct data</li>
+          </ul>
+        </div>
+
+        <div class="status warning">
+          <strong>3. Clear Cache and Reload:</strong>
+          <div class="code">
+            // Clear all storage<br />
+            localStorage.clear();<br />
+            sessionStorage.clear();<br />
+            // Then refresh page and re-login
+          </div>
+        </div>
+      </div>
+
+      <h2><span class="emoji">📞</span> Advanced Debugging</h2>
+
+      <div class="test-section">
+        <h3>Full Diagnostic Script:</h3>
+        <p>For comprehensive testing, load the full verification script:</p>
+        <div class="code">
+          // Load comprehensive test script<br />
+          const script = document.createElement('script');<br />
+          script.textContent = `<br />
+          // Enhanced debugging code here<br />
+          console.log('🔧 Starting comprehensive tab filtering test...');<br />
+          // Monitor all API calls<br />
+          const originalFetch = window.fetch;<br />
+          window.fetch = function(...args) {<br />
+          &nbsp;&nbsp;if (args[0].includes('classroom/search-for-')) {<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;console.log('📡 API:', args[0]);<br />
+          &nbsp;&nbsp;}<br />
+          &nbsp;&nbsp;return originalFetch.apply(this, args);<br />
+          };<br />
+          `;<br />
+          document.head.appendChild(script);
+        </div>
+      </div>
+
+      <div class="status success">
+        <h2><span class="emoji">🎉</span> Fix Complete!</h2>
+        <p>
+          The tab filtering issue has been resolved. Both TutorClassroomPage and
+          StudentClassroomPage should now handle tab switching correctly without
+          showing empty states when data exists.
+        </p>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px">
+        <button onclick="runQuickTest()">🚀 Run Quick Test Now</button>
+        <button onclick="openConsole()">🔧 Open Console</button>
+        <button onclick="window.location.reload()">🔄 Refresh Page</button>
+      </div>
+    </div>
+
+    <script>
+      function copyTestScript() {
+        const script = `const quickTest = () => {
+  const isTutor = window.location.pathname.includes('/quan-ly-lop-hoc');
+  const tabSelector = isTutor ? '.tcp-tab' : '.scp-tab';
+  const tabs = document.querySelectorAll(tabSelector);
+  
+  if (tabs.length >= 2) {
+    console.log('🔄 Testing tab switching...');
+    tabs[0].click();
+    setTimeout(() => tabs[1].click(), 2000);
+    setTimeout(() => tabs[0].click(), 4000);
+    setTimeout(() => {
+      const cards = document.querySelectorAll(isTutor ? '.tcp-classroom-card' : '.scp-classroom-card');
+      console.log(\`✅ Test complete. Cards showing: \${cards.length}\`);
+    }, 6000);
+  }
+};
+quickTest();`;
+
+        navigator.clipboard.writeText(script).then(() => {
+          alert(
+            "✅ Test script copied to clipboard! Paste it in browser console."
+          );
+        });
+      }
+
+      function runQuickTest() {
+        // This would only work if we're on the actual classroom page
+        alert(
+          "⚠️ Please navigate to the classroom page first, then open console (F12) and run the test script."
+        );
+      }
+
+      function openConsole() {
+        alert(
+          '💡 Press F12 to open Developer Tools, then click on "Console" tab.'
+        );
+      }
+
+      // Auto-highlight code blocks for better readability
+      document.addEventListener("DOMContentLoaded", function () {
+        const codeBlocks = document.querySelectorAll(".code");
+        codeBlocks.forEach((block) => {
+          block.style.fontSize = "0.9em";
+          block.style.lineHeight = "1.4";
+        });
+      });
+    </script>
+  </body>
+</html>

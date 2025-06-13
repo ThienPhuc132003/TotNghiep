@@ -23,12 +23,12 @@ const ZoomCallback = () => {
       setInternalError(`Lỗi từ Zoom: ${errorDescription}.`);
       setMessage("Kết nối Zoom không thành công.");
       // Chuyển hướng về trang phòng họp với thông báo lỗi        setTimeout(
-        () =>
-          navigate("/tai-khoan/ho-so/phong-hoc", {
-            replace: true,
-            state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
-          }),
-        3000
+      () =>
+        navigate("/tai-khoan/ho-so/phong-hoc", {
+          replace: true,
+          state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
+        }),
+        3000;
       return;
     }
 
@@ -57,22 +57,47 @@ const ZoomCallback = () => {
             // Check if user came from classroom page for Zoom connection
             const returnPath = sessionStorage.getItem("zoomReturnPath");
             const returnState = sessionStorage.getItem("zoomReturnState");
-
             setTimeout(() => {
               if (returnPath) {
                 // Clear stored return info
                 sessionStorage.removeItem("zoomReturnPath");
+
+                const returnStateData = returnState
+                  ? JSON.parse(returnState)
+                  : {};
                 sessionStorage.removeItem("zoomReturnState");
 
-                // Navigate back to the original page with state
-                navigate(returnPath, {
-                  replace: true,
-                  state: returnState ? JSON.parse(returnState) : {},
-                });              } else {
+                // If returning to classroom page with classroom info, add URL params
+                if (
+                  returnPath.includes("quan-ly-lop-hoc") &&
+                  returnStateData.classroomId
+                ) {
+                  const params = new URLSearchParams({
+                    fromZoomConnection: "true",
+                    classroomId: encodeURIComponent(
+                      returnStateData.classroomId
+                    ),
+                    classroomName: encodeURIComponent(
+                      returnStateData.classroomName || "Lớp học"
+                    ),
+                  });
+                  navigate(`${returnPath}?${params.toString()}`, {
+                    replace: true,
+                  });
+                } else {
+                  // Navigate back to the original page with state
+                  navigate(returnPath, {
+                    replace: true,
+                    state: returnStateData,
+                  });
+                }
+              } else {
                 // Default return to meeting room page
                 navigate("/tai-khoan/ho-so/phong-hoc", { replace: true });
               }
-            }, 2000);          } else {            const errMsg =
+            }, 2000);
+          } else {
+            const errMsg =
               backendResponse?.message ||
               "Phản hồi từ máy chủ không chứa token hợp lệ.";
             setInternalError(errMsg);
@@ -91,7 +116,8 @@ const ZoomCallback = () => {
           const errMsg =
             err.response?.data?.message ||
             err.message ||
-            "Lỗi kết nối đến máy chủ khi xử lý Zoom token.";          setInternalError(errMsg);
+            "Lỗi kết nối đến máy chủ khi xử lý Zoom token.";
+          setInternalError(errMsg);
           setMessage("Kết nối Zoom không thành công.");
           setTimeout(
             () =>
@@ -106,7 +132,8 @@ const ZoomCallback = () => {
       // Không có code và cũng không có zoomErrorFromUrl
       const errMsg =
         "Không tìm thấy mã xác thực (code) từ Zoom trên URL callback.";
-      setInternalError(errMsg);      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
+      setInternalError(errMsg);
+      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
       setTimeout(
         () =>
           navigate("/tai-khoan/ho-so/phong-hoc", {

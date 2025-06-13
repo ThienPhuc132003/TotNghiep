@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Classroom Page - Complete UI Test</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Import actual CSS styles */
+      @import url("./src/assets/css/StudentClassroomPage.style.css");
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+      }
+
+      .demo-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .demo-section {
+        background: white;
+        margin: 30px 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 20px;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .demo-content {
+        padding: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <h1 style="text-align: center; color: #333; margin-bottom: 40px">
+        🎓 Student Classroom Page - Complete UI Demo
+      </h1>
+
+      <!-- Demo 1: Classroom Detail View -->
+      <div class="demo-section">
+        <div class="demo-header">
+          📋 1. Classroom Detail View - Complete Layout
+        </div>
+        <div class="demo-content">
+          <div class="student-classroom-page">
+            <div class="scp-detail-header">
+              <button class="scp-back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại danh sách lớp học
+              </button>
+              <h3 class="scp-detail-title">
+                Chi tiết lớp học - Toán cao cấp A1
+              </h3>
+            </div>
+
+            <div class="scp-detail-content">
+              <div class="scp-detail-section">
+                <h4 class="scp-detail-section-title">
+                  <i class="fas fa-chalkboard-teacher"></i>
+                  Thông tin gia sư
+                </h4>
+
+                <div class="scp-tutor-detail-info">
+                  <img
+                    src="https://via.placeholder.com/100x100?text=Avatar"
+                    alt="Gia sư"
+                    class="scp-detail-avatar"
+                  />
+                  <div class="scp-tutor-info-grid">
+                    <div class="scp-info-item">
+                      <i class="fas fa-user"></i>
+                      <span><strong>Tên:</strong> Nguyễn Văn An</span>
+                    </div>
+                    <div class="scp-info-item">
+                      <i class="fas fa-university"></i>
+                      <span><strong>Trường:</strong> Đại học Văn Lang</span>
+                    </div>
+                    <div class="scp-info-item">
+                      <i class="fas fa-graduation-cap"></i>
+                      <span><strong>Chuyên ngành:</strong> Ngôn ngữ Anh</span>
+                    </div>
+                    <div class="scp-info-item">
+                      <i class="fas fa-book"></i>
+                      <span><strong>Môn dạy:</strong> Kinh tế vi mô</span>
+                    </div>
+                    <div class="scp-info-item">
+                      <i class="fas fa-medal"></i>
+                      <span><strong>Trình độ:</strong> Bạch kim</span>
+                    </div>
+                    <div class="scp-info-item">
+                      <i class="fas fa-coins"></i>
+                      <span class="highlight">
+                        <strong>Học phí:</strong> 180 Xu/giờ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="scp-divider" />
+
+              <div class="scp-class-details">
+                <div class="scp-class-info-grid">
+                  <div class="scp-info-group">
+                    <div class="scp-info-label">
+                      <i class="fas fa-play-circle"></i>
+                      Ngày bắt đầu:
+                    </div>
+                    <div class="scp-info-value">01/06/2025</div>
+                  </div>
+
+                  <div class="scp-info-group">
+                    <div class="scp-info-label">
+                      <i class="fas fa-stop-circle"></i>
+                      Ngày kết thúc:
+                    </div>
+                    <div class="scp-info-value">03/08/2025</div>
+                  </div>
+
+                  <div class="scp-info-group">
+                    <div class="scp-info-label">
+                      <i class="fas fa-info-circle"></i>
+                      Trạng thái:
+                    </div>
+                    <div class="scp-info-value">
+                      <span class="scp-status-badge scp-status-in_session">
+                        <i class="fas fa-play-circle"></i>
+                        ĐANG HỌC
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="scp-info-group">
+                    <div class="scp-info-label">
+                      <i class="fas fa-star"></i>
+                      Đánh giá lớp học:
+                    </div>
+                    <div class="scp-info-value highlight">0.0/5.0 ⭐</div>
+                  </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="scp-progress-section">
+                  <div class="scp-progress-header">
+                    <span class="scp-progress-label">
+                      <i class="fas fa-chart-line"></i>
+                      Tiến độ lớp học
+                    </span>
+                    <span class="scp-progress-percentage highlight">18%</span>
+                  </div>
+                  <div class="scp-progress-bar-container">
+                    <div class="scp-progress-bar-fill" style="width: 18%"></div>
+                  </div>
+                </div>
+
+                <!-- Schedule -->
+                <div class="scp-schedule-section">
+                  <h5>
+                    <i class="fas fa-calendar-alt"></i>
+                    Lịch học
+                  </h5>
+                  <ul class="scp-schedule-list">
+                    <li class="scp-schedule-item">
+                      <i class="fas fa-clock"></i>
+                      <span>Thứ 2: 05:00</span>
+                    </li>
+                    <li class="scp-schedule-item">
+                      <i class="fas fa-clock"></i>
+                      <span>Thứ 3: 09:58</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="scp-detail-actions">
+                <button class="scp-action-btn scp-enter-btn">
+                  <i class="fas fa-video"></i>
+                  Vào phòng học
+                </button>
+                <button class="scp-action-btn scp-view-meetings-btn">
+                  <i class="fas fa-history"></i>
+                  Xem phòng học
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 2: Meeting List View with Tabs -->
+      <div class="demo-section">
+        <div class="demo-header">
+          📺 2. Meeting List View - Tab System with Status Filter
+        </div>
+        <div class="demo-content">
+          <div class="student-classroom-page">
+            <div class="scp-meeting-view">
+              <div class="scp-detail-header">
+                <button class="scp-back-btn">
+                  <i class="fas fa-arrow-left"></i>
+                  Quay lại chi tiết lớp học
+                </button>
+                <h3 class="scp-detail-title">
+                  Phòng học - Lớp học với gia sư Nguyễn Văn An
+                </h3>
+              </div>
+
+              <!-- Meeting Tabs -->
+              <div class="scp-meeting-tabs-container">
+                <div class="scp-meeting-tabs">
+                  <button class="scp-tab active">
+                    <i class="fas fa-video"></i>
+                    Phòng học đang hoạt động
+                    <span class="scp-tab-count">(2)</span>
+                  </button>
+                  <button class="scp-tab">
+                    <i class="fas fa-video-slash"></i>
+                    Phòng học đã kết thúc
+                    <span class="scp-tab-count">(5)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="scp-meeting-content">
+                <div class="scp-meeting-list">
+                  <!-- Active Meeting Card -->
+                  <div class="scp-meeting-card">
+                    <div class="scp-meeting-header">
+                      <h4 class="scp-meeting-topic">
+                        Buổi học thứ 1 - Giới thiệu môn học
+                      </h4>
+                      <span class="scp-meeting-status active">
+                        <i class="fas fa-circle"></i>
+                        ĐANG HOẠT ĐỘNG
+                      </span>
+                    </div>
+
+                    <div class="scp-meeting-info">
+                      <div class="scp-meeting-details">
+                        <p><strong>Meeting ID:</strong> 123 456 789</p>
+                        <p><strong>Mật khẩu:</strong> abc123</p>
+                        <p>
+                          <strong>Thời gian tạo:</strong> 12/06/2025, 14:30:25
+                        </p>
+                        <p><strong>Trạng thái:</strong> Có thể tham gia</p>
+                      </div>
+
+                      <div class="scp-meeting-actions">
+                        <button class="scp-btn scp-btn-join">
+                          <i class="fas fa-external-link-alt"></i>
+                          Tham gia phòng học
+                        </button>
+                        <button class="scp-btn scp-btn-copy">
+                          <i class="fas fa-copy"></i>
+                          Sao chép link
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Another Active Meeting -->
+                  <div class="scp-meeting-card">
+                    <div class="scp-meeting-header">
+                      <h4 class="scp-meeting-topic">
+                        Buổi học thứ 2 - Lý thuyết cơ bản
+                      </h4>
+                      <span class="scp-meeting-status started">
+                        <i class="fas fa-play"></i>
+                        ĐANG DIỄN RA
+                      </span>
+                    </div>
+
+                    <div class="scp-meeting-info">
+                      <div class="scp-meeting-details">
+                        <p><strong>Meeting ID:</strong> 987 654 321</p>
+                        <p><strong>Mật khẩu:</strong> xyz789</p>
+                        <p>
+                          <strong>Thời gian tạo:</strong> 11/06/2025, 16:15:42
+                        </p>
+                        <p><strong>Trạng thái:</strong> Đang trong buổi học</p>
+                      </div>
+
+                      <div class="scp-meeting-actions">
+                        <button class="scp-btn scp-btn-join">
+                          <i class="fas fa-external-link-alt"></i>
+                          Tham gia ngay
+                        </button>
+                        <button class="scp-btn scp-btn-copy">
+                          <i class="fas fa-copy"></i>
+                          Sao chép link
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 3: Empty States -->
+      <div class="demo-section">
+        <div class="demo-header">
+          📭 3. Empty States - No Meetings Available
+        </div>
+        <div class="demo-content">
+          <div class="scp-meeting-content">
+            <div class="scp-empty-meetings">
+              <i class="fas fa-video-slash"></i>
+              <p>Chưa có phòng học nào đang hoạt động.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 4: Responsive Test -->
+      <div class="demo-section">
+        <div class="demo-header">📱 4. Mobile Responsive Layout Preview</div>
+        <div class="demo-content">
+          <div
+            style="
+              max-width: 380px;
+              margin: 0 auto;
+              border: 2px solid #ddd;
+              border-radius: 12px;
+              overflow: hidden;
+            "
+          >
+            <div class="scp-meeting-card">
+              <div class="scp-meeting-header">
+                <h4 class="scp-meeting-topic">Mobile Layout Test</h4>
+                <span class="scp-meeting-status active">ACTIVE</span>
+              </div>
+              <div class="scp-meeting-info">
+                <div class="scp-meeting-details">
+                  <p><strong>ID:</strong> 123456789</p>
+                  <p><strong>Password:</strong> test123</p>
+                </div>
+                <div class="scp-meeting-actions">
+                  <button class="scp-btn scp-btn-join">
+                    <i class="fas fa-video"></i>
+                    Tham gia
+                  </button>
+                  <button class="scp-btn scp-btn-copy">
+                    <i class="fas fa-copy"></i>
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Summary -->
+      <div
+        class="demo-section"
+        style="
+          background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+          color: white;
+        "
+      >
+        <div class="demo-header" style="background: transparent">
+          ✅ Implementation Status Summary
+        </div>
+        <div class="demo-content" style="color: white">
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 30px;
+            "
+          >
+            <div>
+              <h3 style="color: white; margin-bottom: 15px">
+                🎨 UI Components Complete:
+              </h3>
+              <ul style="list-style: none; padding: 0">
+                <li>✅ Detail view with tutor info</li>
+                <li>✅ Progress bar with animations</li>
+                <li>✅ Schedule visualization</li>
+                <li>✅ Meeting list with tabs</li>
+                <li>✅ Status-based filtering</li>
+                <li>✅ Action buttons</li>
+                <li>✅ Empty states</li>
+                <li>✅ Responsive design</li>
+              </ul>
+            </div>
+            <div>
+              <h3 style="color: white; margin-bottom: 15px">
+                🔧 Features Added:
+              </h3>
+              <ul style="list-style: none; padding: 0">
+                <li>✅ Tab system (Active/Ended)</li>
+                <li>✅ Meeting status filtering</li>
+                <li>✅ Enhanced CSS styling</li>
+                <li>✅ Mobile responsive layout</li>
+                <li>✅ Hover animations</li>
+                <li>✅ Icon integration</li>
+                <li>✅ Button improvements</li>
+                <li>✅ Consistent design</li>
+              </ul>
+            </div>
+          </div>
+          <div
+            style="
+              text-align: center;
+              margin-top: 30px;
+              padding: 20px;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 8px;
+            "
+          >
+            <h2 style="margin: 0; font-size: 1.8rem">
+              🎉 Student Classroom Page - COMPLETE
+            </h2>
+            <p style="margin: 10px 0 0 0; font-size: 1.1rem">
+              All styling and functionality implemented with tab system matching
+              TutorClassroomPage
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("🎓 Student Classroom Page Complete UI Demo Loaded");
+      console.log("✅ Features demonstrated:");
+      console.log("   📋 Complete detail view layout");
+      console.log("   📺 Meeting list with tab system");
+      console.log("   🎨 Enhanced CSS styling");
+      console.log("   📱 Mobile responsive design");
+      console.log("   🎯 Status-based filtering");
+      console.log("   ⚡ Interactive animations");
+
+      // Add interactive demo functionality
+      document.querySelectorAll(".scp-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          // Remove active class from siblings
+          this.parentElement
+            .querySelectorAll(".scp-tab")
+            .forEach((t) => t.classList.remove("active"));
+          // Add active class to clicked tab
+          this.classList.add("active");
+          console.log("Tab switched:", this.textContent.trim());
+        });
+      });
+
+      // Demo button interactions
+      document.querySelectorAll(".scp-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          console.log("Button clicked:", this.textContent.trim());
+
+          // Add click feedback
+          this.style.transform = "scale(0.95)";
+          setTimeout(() => {
+            this.style.transform = "";
+          }, 150);
+        });
+      });
+
+      // Progress bar animation
+      document.querySelectorAll(".scp-progress-bar-fill").forEach((bar) => {
+        const width = bar.style.width;
+        bar.style.width = "0%";
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

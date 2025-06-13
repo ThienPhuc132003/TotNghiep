@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Classroom Page - Enhanced UI Preview with Detail View</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Enhanced Tutor Classroom Page Styles */
+      .tutor-classroom-page {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        min-height: 100vh;
+      }
+
+      .tcp-page-title {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+      }
+
+      .tcp-classroom-list {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+      }
+
+      .tcp-classroom-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .tcp-classroom-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .tcp-card-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .tcp-card-title-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .tcp-card-title-section i {
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .tcp-classroom-name {
+        font-size: 1.3rem;
+        color: white;
+        margin: 0;
+        font-weight: 600;
+      }
+
+      .tcp-status-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .tcp-status-badge.tcp-status-in_session {
+        background: rgba(40, 167, 69, 0.9);
+        border-color: rgba(40, 167, 69, 0.5);
+      }
+
+      .tcp-student-section {
+        display: flex;
+        gap: 16px;
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .tcp-student-avatar-container {
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .tcp-student-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #28a745;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .tcp-avatar-overlay {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: #28a745;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        border: 2px solid white;
+      }
+
+      .tcp-student-details {
+        flex: 1;
+      }
+
+      .tcp-student-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tcp-student-name i {
+        color: #28a745;
+      }
+
+      .tcp-student-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .tcp-info-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .tcp-info-item i {
+        color: #28a745;
+        width: 14px;
+        text-align: center;
+      }
+
+      .tcp-info-item .highlight {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .tcp-class-details {
+        padding: 20px;
+      }
+
+      .tcp-class-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .tcp-info-group {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+      }
+
+      .tcp-info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+
+      .tcp-info-label i {
+        color: #28a745;
+      }
+
+      .tcp-info-value {
+        font-size: 0.95rem;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .tcp-progress-section {
+        margin: 16px 0;
+        padding: 16px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+      }
+
+      .tcp-progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .tcp-progress-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .tcp-progress-label i {
+        color: #28a745;
+      }
+
+      .tcp-progress-percentage {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #28a745;
+      }
+
+      .tcp-progress-bar-container {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .tcp-progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        transition: width 0.3s ease;
+        border-radius: 10px;
+      }
+
+      .tcp-schedule-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .tcp-schedule-list li {
+        background: #fff;
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tcp-schedule-list li:before {
+        content: "📅";
+        font-size: 0.8rem;
+      }
+
+      .tcp-schedule-list li strong {
+        color: #28a745;
+        min-width: 80px;
+      }
+
+      .tcp-card-footer {
+        background: #f8f9fa;
+        padding: 16px 20px;
+      }
+
+      .tcp-action-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      .tcp-action-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      .tcp-view-meetings-btn {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: 2px solid transparent;
+      }
+
+      .tcp-view-meetings-btn:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+
+      /* TCP View Detail Button */
+      .tcp-view-detail-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: 2px solid transparent;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+      }
+
+      .tcp-view-detail-btn:hover {
+        background: linear-gradient(135deg, #1e7e34 0%, #17a2b8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-classroom-tabs-container {
+        margin-bottom: 24px;
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .tcp-classroom-tabs {
+        display: flex;
+        gap: 12px;
+      }
+
+      .tcp-tab {
+        padding: 12px 24px;
+        border: 2px solid #e9ecef;
+        background: #fff;
+        color: #666;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .tcp-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border-color: #007bff;
+      }
+
+      .tcp-tab-count {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+      }
+
+      .tcp-tab.active .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tutor-classroom-page">
+      <h2 class="tcp-page-title">Quản lý lớp học (1)</h2>
+
+      <!-- Classroom Tabs -->
+      <div class="tcp-classroom-tabs-container">
+        <div class="tcp-classroom-tabs">
+          <button class="tcp-tab active">
+            <i class="fas fa-play-circle"></i>
+            Lớp học đang hoạt động
+            <span class="tcp-tab-count">(1)</span>
+          </button>
+          <button class="tcp-tab">
+            <i class="fas fa-check-circle"></i>
+            Lớp học đã kết thúc
+            <span class="tcp-tab-count">(0)</span>
+          </button>
+        </div>
+      </div>
+      <div class="tcp-classroom-list">
+        <!-- Sample Classroom Card with Real Data Structure -->
+        <div class="tcp-classroom-card">
+          <div class="tcp-card-header">
+            <div class="tcp-card-title-section">
+              <i class="fas fa-chalkboard-teacher"></i>
+              <h3 class="tcp-classroom-name">
+                Lớp học với gia sư Nguyễn Văn An
+              </h3>
+            </div>
+            <span class="tcp-status-badge tcp-status-in_session">
+              <i class="fas fa-circle"></i>
+              Đang học
+            </span>
+          </div>
+
+          <div class="tcp-student-section">
+            <div class="tcp-student-avatar-container">
+              <img
+                src="https://via.placeholder.com/90"
+                alt="Học viên"
+                class="tcp-student-avatar"
+              />
+              <div class="tcp-avatar-overlay">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+            </div>
+            <div class="tcp-student-details">
+              <div class="tcp-student-name">
+                <i class="fas fa-user"></i>
+                Trần Thị Thảo
+              </div>
+              <div class="tcp-student-info-grid">
+                <div class="tcp-info-item">
+                  <i class="fas fa-envelope"></i>
+                  <span>Email:</span>
+                  <span class="highlight">thanh.tran00@gmail.com</span>
+                </div>
+                <div class="tcp-info-item">
+                  <i class="fas fa-phone"></i>
+                  <span>Điện thoại:</span>
+                  <span class="highlight">0771234879</span>
+                </div>
+                <div class="tcp-info-item">
+                  <i class="fas fa-book"></i>
+                  <span>Chuyên ngành:</span>
+                  <span class="highlight">Công nghệ thông tin</span>
+                </div>
+                <div class="tcp-info-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>Địa chỉ:</span>
+                  <span class="highlight"
+                    >120 Hải Triều, P. Bến Nghé, Q.1, TP. Hồ Chí Minh</span
+                  >
+                </div>
+                <div class="tcp-info-item">
+                  <i class="fas fa-coins"></i>
+                  <span>Học phí:</span>
+                  <span class="highlight">180,000 Xu/giờ</span>
+                </div>
+                <div class="tcp-info-item">
+                  <i class="fas fa-star"></i>
+                  <span>Đánh giá:</span>
+                  <span class="highlight">Chưa có đánh giá</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tcp-class-details">
+            <div class="tcp-class-info-grid">
+              <div class="tcp-info-group">
+                <div class="tcp-info-label">
+                  <i class="fas fa-calendar-alt"></i>
+                  Ngày bắt đầu
+                </div>
+                <div class="tcp-info-value">01/06/2025</div>
+              </div>
+              <div class="tcp-info-group">
+                <div class="tcp-info-label">
+                  <i class="fas fa-calendar-check"></i>
+                  Ngày kết thúc
+                </div>
+                <div class="tcp-info-value">03/08/2025</div>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="tcp-progress-section">
+              <div class="tcp-progress-header">
+                <div class="tcp-progress-label">
+                  <i class="fas fa-chart-line"></i>
+                  Tiến độ lớp học
+                </div>
+                <div class="tcp-progress-percentage">65%</div>
+              </div>
+              <div class="tcp-progress-bar-container">
+                <div class="tcp-progress-bar-fill" style="width: 65%"></div>
+              </div>
+            </div>
+
+            <!-- Schedule -->
+            <div class="tcp-info-group">
+              <div class="tcp-info-label">
+                <i class="fas fa-clock"></i>
+                Lịch học
+              </div>
+              <ul class="tcp-schedule-list">
+                <li><strong>Thứ 2:</strong> 05:00</li>
+                <li><strong>Thứ 3:</strong> 09:58</li>
+              </ul>
+            </div>
+          </div>
+          <div class="tcp-card-footer">
+            <div class="tcp-action-buttons">
+              <button class="tcp-action-btn tcp-view-detail-btn">
+                <i class="fas fa-eye"></i>
+                Xem chi tiết
+              </button>
+
+              <button class="tcp-action-btn tcp-view-meetings-btn">
+                <i class="fas fa-video"></i>
+                Xem phòng học
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

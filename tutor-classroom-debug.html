@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TutorClassroomPage White Screen Debug</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f5f5f5;
+      }
+      .debug-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .status-ok {
+        color: #28a745;
+      }
+      .status-error {
+        color: #dc3545;
+      }
+      .status-warning {
+        color: #ffc107;
+      }
+      .code-block {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        border-left: 4px solid #007bff;
+        margin: 10px 0;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+      }
+      .step h3 {
+        margin-top: 0;
+        color: #495057;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      #console-output {
+        background: #000;
+        color: #0f0;
+        padding: 15px;
+        border-radius: 4px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="debug-container">
+      <h1>🔍 TutorClassroomPage White Screen Debug Guide</h1>
+      <p>
+        This tool will help you debug the white screen issue on the
+        TutorClassroomPage.
+      </p>
+    </div>
+
+    <div class="debug-container">
+      <h2>📋 Quick Diagnostic Steps</h2>
+
+      <div class="step">
+        <h3>Step 1: Check Browser Console</h3>
+        <p>
+          Open your browser's Developer Tools (F12) and check the Console tab
+          for any red error messages.
+        </p>
+        <div class="code-block">
+          <strong>Common errors to look for:</strong><br />
+          • Uncaught SyntaxError<br />
+          • Cannot read properties of undefined<br />
+          • Module not found<br />
+          • 404 errors for CSS/JS files
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Step 2: Check Network Tab</h3>
+        <p>
+          In Developer Tools, go to Network tab and refresh the page. Look for
+          failed requests (red status codes).
+        </p>
+        <div class="code-block">
+          <strong>Check for:</strong><br />
+          • Failed CSS file loads<br />
+          • Failed API calls<br />
+          • 404 or 500 errors
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Step 3: Verify User Authentication</h3>
+        <p>Check if you're logged in and have the correct role.</p>
+        <button onclick="checkAuth()">Check Authentication</button>
+        <div id="auth-result"></div>
+      </div>
+
+      <div class="step">
+        <h3>Step 4: Test API Connectivity</h3>
+        <p>Test if the classroom API is accessible.</p>
+        <button onclick="testAPI()">Test API</button>
+        <div id="api-result"></div>
+      </div>
+
+      <div class="step">
+        <h3>Step 5: Clear Cache & Storage</h3>
+        <p>Sometimes cached data can cause issues.</p>
+        <button onclick="clearStorage()">Clear Storage</button>
+        <div id="storage-result"></div>
+      </div>
+    </div>
+
+    <div class="debug-container">
+      <h2>🛠️ Manual Fix Steps</h2>
+
+      <div class="step">
+        <h3>Fix 1: Hard Refresh</h3>
+        <p>Try a hard refresh to clear cached resources:</p>
+        <div class="code-block">
+          <strong>Windows:</strong> Ctrl + F5<br />
+          <strong>Mac:</strong> Cmd + Shift + R
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Fix 2: Check Route Protection</h3>
+        <p>Make sure you're accessing the page with the correct role:</p>
+        <div class="code-block">
+          1. Log out completely<br />
+          2. Log back in as a TUTOR<br />
+          3. Navigate to /tai-khoan/ho-so/quan-ly-lop-hoc
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Fix 3: Restart Development Server</h3>
+        <p>If running in development mode:</p>
+        <div class="code-block">
+          1. Stop the server (Ctrl+C)<br />
+          2. Clear node_modules cache: npm ci<br />
+          3. Restart: npm start
+        </div>
+      </div>
+    </div>
+
+    <div class="debug-container">
+      <h2>💻 Console Output</h2>
+      <div id="console-output">Ready to run diagnostics...\n</div>
+      <button onclick="runFullDiagnostic()">Run Full Diagnostic</button>
+      <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const output = document.getElementById("console-output");
+        const timestamp = new Date().toLocaleTimeString();
+        const colors = {
+          info: "#0f0",
+          error: "#f00",
+          warning: "#ff0",
+          success: "#0f0",
+        };
+        output.innerHTML += `<span style="color: ${colors[type]}">[${timestamp}] ${message}</span>\n`;
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function clearConsole() {
+        document.getElementById("console-output").innerHTML =
+          "Console cleared...\n";
+      }
+
+      async function checkAuth() {
+        log("🔍 Checking authentication...", "info");
+        const resultDiv = document.getElementById("auth-result");
+
+        try {
+          // Check localStorage for tokens
+          const accessToken = localStorage.getItem("accessToken");
+          const userProfile = localStorage.getItem("persist:root");
+
+          if (!accessToken) {
+            log("❌ No access token found", "error");
+            resultDiv.innerHTML =
+              '<span class="status-error">❌ Not logged in - No access token</span>';
+            return false;
+          }
+
+          if (!userProfile) {
+            log("❌ No user profile found", "error");
+            resultDiv.innerHTML =
+              '<span class="status-error">❌ No user profile found</span>';
+            return false;
+          }
+
+          try {
+            const parsed = JSON.parse(userProfile);
+            const user = JSON.parse(parsed.user || "{}");
+            const userProfileData = user.userProfile;
+
+            if (userProfileData && userProfileData.role === "TUTOR") {
+              log("✅ User is authenticated as TUTOR", "success");
+              resultDiv.innerHTML =
+                '<span class="status-ok">✅ Authenticated as TUTOR</span>';
+              return true;
+            } else {
+              log(
+                `❌ User role is not TUTOR: ${userProfileData?.role}`,
+                "error"
+              );
+              resultDiv.innerHTML = `<span class="status-error">❌ Role: ${
+                userProfileData?.role || "UNKNOWN"
+              }</span>`;
+              return false;
+            }
+          } catch (parseError) {
+            log("❌ Error parsing user data: " + parseError.message, "error");
+            resultDiv.innerHTML =
+              '<span class="status-error">❌ Error parsing user data</span>';
+            return false;
+          }
+        } catch (error) {
+          log("❌ Authentication check failed: " + error.message, "error");
+          resultDiv.innerHTML =
+            '<span class="status-error">❌ Authentication check failed</span>';
+          return false;
+        }
+      }
+
+      async function testAPI() {
+        log("🌐 Testing API connectivity...", "info");
+        const resultDiv = document.getElementById("api-result");
+
+        try {
+          const accessToken = localStorage.getItem("accessToken");
+          if (!accessToken) {
+            log("❌ No access token for API test", "error");
+            resultDiv.innerHTML =
+              '<span class="status-error">❌ No access token</span>';
+            return false;
+          }
+
+          log("📡 Making API request...", "info");
+          const response = await fetch(
+            "/api/classroom/search-for-tutor?page=1&rpp=2",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          log(`📊 API Response status: ${response.status}`, "info");
+
+          if (response.ok) {
+            const data = await response.json();
+            log("✅ API call successful", "success");
+            log(
+              `📈 Data received: ${JSON.stringify(data).substring(0, 100)}...`,
+              "info"
+            );
+            resultDiv.innerHTML =
+              '<span class="status-ok">✅ API Working</span>';
+            return true;
+          } else {
+            log(
+              `❌ API error: ${response.status} ${response.statusText}`,
+              "error"
+            );
+            resultDiv.innerHTML = `<span class="status-error">❌ API Error: ${response.status}</span>`;
+            return false;
+          }
+        } catch (error) {
+          log("❌ API test failed: " + error.message, "error");
+          resultDiv.innerHTML =
+            '<span class="status-error">❌ API Connection Failed</span>';
+          return false;
+        }
+      }
+
+      function clearStorage() {
+        log("🧹 Clearing browser storage...", "info");
+        const resultDiv = document.getElementById("storage-result");
+
+        try {
+          // Clear specific items that might cause issues
+          const itemsToKeep = ["accessToken", "persist:root"]; // Keep auth data
+          const itemsToRemove = [];
+
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!itemsToKeep.includes(key)) {
+              itemsToRemove.push(key);
+            }
+          }
+
+          itemsToRemove.forEach((key) => {
+            localStorage.removeItem(key);
+            log(`🗑️ Removed: ${key}`, "info");
+          });
+
+          // Clear session storage
+          sessionStorage.clear();
+          log("🗑️ Session storage cleared", "info");
+
+          log("✅ Storage cleared (keeping auth data)", "success");
+          resultDiv.innerHTML =
+            '<span class="status-ok">✅ Storage Cleared</span>';
+
+          // Suggest page refresh
+          setTimeout(() => {
+            if (confirm("Storage cleared! Refresh the page now?")) {
+              window.location.reload();
+            }
+          }, 1000);
+        } catch (error) {
+          log("❌ Error clearing storage: " + error.message, "error");
+          resultDiv.innerHTML =
+            '<span class="status-error">❌ Clear Failed</span>';
+        }
+      }
+
+      async function runFullDiagnostic() {
+        log("🚀 Starting full diagnostic...", "info");
+        log("=" * 50, "info");
+
+        const results = {
+          auth: await checkAuth(),
+          api: await testAPI(),
+        };
+
+        log("=" * 50, "info");
+        log("📊 Diagnostic Summary:", "info");
+        log(
+          `Authentication: ${results.auth ? "✅ PASS" : "❌ FAIL"}`,
+          results.auth ? "success" : "error"
+        );
+        log(
+          `API Connectivity: ${results.api ? "✅ PASS" : "❌ FAIL"}`,
+          results.api ? "success" : "error"
+        );
+
+        if (results.auth && results.api) {
+          log(
+            "🎉 All checks passed! If white screen persists, check console for React errors.",
+            "success"
+          );
+        } else {
+          log("🔧 Fix the failed checks above and try again.", "warning");
+        }
+
+        log("💡 Next steps:", "info");
+        log("1. Open /tai-khoan/ho-so/quan-ly-lop-hoc in a new tab", "info");
+        log("2. Check browser console (F12) for errors", "info");
+        log("3. Check Network tab for failed requests", "info");
+      }
+
+      // Auto-run basic checks on page load
+      window.addEventListener("load", () => {
+        log("🔧 Debug tool loaded. Ready to help!", "success");
+        log('💡 Click "Run Full Diagnostic" to start checking.', "info");
+      });
+    </script>
+  </body>
+</html>
