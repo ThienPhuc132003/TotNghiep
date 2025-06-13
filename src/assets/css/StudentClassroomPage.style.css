@@ -1449,25 +1449,26 @@
 }
 
 .scp-meeting-status {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  padding: 5px 10px;
+  display: inline-block;
+  padding: 4px 8px;
   font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 20px;
+  border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-left: 8px;
 }
 
 .scp-meeting-status-active {
   background-color: rgba(25, 135, 84, 0.1);
   color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.2);
 }
 
 .scp-meeting-status-ended {
   background-color: rgba(108, 117, 125, 0.1);
   color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
 /* Mobile responsiveness improvements */

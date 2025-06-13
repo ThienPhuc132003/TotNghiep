@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
@@ -313,6 +313,7 @@ const TutorClassroomPage = () => {
   const [activeClassroomTab, setActiveClassroomTab] = useState("IN_SESSION");
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchTutorClassrooms = useCallback(
     async (page = 1) => {
@@ -425,6 +426,79 @@ const TutorClassroomPage = () => {
     }
   }, []);
 
+  // Handle URL parameters to restore view state on refresh
+  useEffect(() => {
+    const view = searchParams.get("view");
+    const classroomId = searchParams.get("id");
+    const classroomName = searchParams.get("name");
+
+    if (view === "detail" && classroomId && classroomName) {
+      // Restore classroom detail view
+      setCurrentClassroomDetail({
+        classroomId: decodeURIComponent(classroomId),
+        nameOfRoom: decodeURIComponent(classroomName),
+      });
+      setShowClassroomDetail(true);
+      setShowMeetingView(false);
+    } else if (view === "meetings" && classroomId && classroomName) {
+      // Restore meeting view - need to load meetings
+      const restoreMeetingView = async () => {
+        try {
+          setIsMeetingLoading(true);
+
+          const queryParams = {
+            classroomId: decodeURIComponent(classroomId),
+            page: 1,
+            rpp: 1000,
+            sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
+          };
+
+          const response = await Api({
+            endpoint: "meeting/search",
+            method: METHOD_TYPE.GET,
+            query: queryParams,
+            requireToken: false,
+          });
+
+          if (response.success && response.data) {
+            const allMeetingsData = response.data.items || [];
+            setAllMeetings(allMeetingsData);
+
+            const result = getFilteredItems(
+              allMeetingsData,
+              activeMeetingTab,
+              1,
+              meetingsPerPage
+            );
+
+            setMeetingList(result.items);
+            setTotalMeetings(result.total);
+            setCurrentMeetingPage(1);
+            setCurrentClassroomForMeetings({
+              classroomId: decodeURIComponent(classroomId),
+              classroomName: decodeURIComponent(classroomName),
+              nameOfRoom: decodeURIComponent(classroomName),
+            });
+            setShowMeetingView(true);
+            setShowClassroomDetail(false);
+          }
+        } catch (error) {
+          console.error("Error restoring meeting view:", error);
+          // If error, fallback to main view
+          setSearchParams({});
+        } finally {
+          setIsMeetingLoading(false);
+        }
+      };
+
+      restoreMeetingView();
+    } else {
+      // Default view - classroom list
+      setShowClassroomDetail(false);
+      setShowMeetingView(false);
+    }
+  }, [searchParams, activeMeetingTab, meetingsPerPage, setSearchParams]);
+
   useEffect(() => {
     console.log(`📱 Initial loading of tutor classrooms`);
     fetchTutorClassrooms(1);
@@ -520,6 +594,18 @@ const TutorClassroomPage = () => {
         });
         setShowMeetingView(true);
 
+        // Set URL params if not already set (avoid infinite loop during restore)
+        if (
+          !searchParams.get("view") ||
+          searchParams.get("view") !== "meetings"
+        ) {
+          setSearchParams({
+            view: "meetings",
+            id: encodeURIComponent(classroomId),
+            name: encodeURIComponent(classroomName),
+          });
+        }
+
         toast.success("Đã tải danh sách phòng học!");
       } else {
         toast.error(
@@ -548,18 +634,34 @@ const TutorClassroomPage = () => {
     setAllMeetings([]);
     setShowClassroomDetail(false);
     setCurrentClassroomDetail(null);
+
+    // Clear URL params
+    setSearchParams({});
   };
 
   // Function to show classroom detail from action button
   const handleShowClassroomDetail = (classroom) => {
     setCurrentClassroomDetail(classroom);
     setShowClassroomDetail(true);
-  };
-  // Function to go to meeting view from detail view
+
+    // Update URL params
+    setSearchParams({
+      view: "detail",
+      id: encodeURIComponent(classroom.classroomId),
+      name: encodeURIComponent(classroom.nameOfRoom),
+    });
+  }; // Function to go to meeting view from detail view
   const handleGoToMeetingView = async (classroomId, classroomName) => {
     // Exit classroom detail view first
     setShowClassroomDetail(false);
     setCurrentClassroomDetail(null);
+
+    // Update URL params for meeting view
+    setSearchParams({
+      view: "meetings",
+      id: encodeURIComponent(classroomId),
+      name: encodeURIComponent(classroomName),
+    });
 
     await handleEnterClassroom(classroomId, classroomName);
   };
