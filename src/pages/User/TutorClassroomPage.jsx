@@ -624,24 +624,21 @@ const TutorClassroomPage = () => {
       fetchTutorClassrooms(1);
     }
   };
-
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       setIsMeetingLoading(true);
       const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
-
-      const queryParams = {
+      console.log("🔍 DEBUG - Fetching meetings with new API:", {
+        endpoint: "meeting/get-meeting",
         classroomId: classroomId,
-        page: 1,
-        rpp: 1000, // Get all meetings
-        sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
-      };
-
+      });
       const response = await Api({
-        endpoint: "meeting/search",
+        endpoint: "meeting/get-meeting",
         method: METHOD_TYPE.GET,
-        query: queryParams,
-        requireToken: false,
+        data: {
+          classroomId: classroomId,
+        },
+        requireToken: true,
       });
 
       toast.dismiss(loadingToastId);
@@ -1196,7 +1193,8 @@ const TutorClassroomPage = () => {
                     meeting.status === "COMPLETED" ||
                     meeting.status === "ENDED" ||
                     meeting.status === "FINISHED" ||
-                    (meeting.endTime && new Date(meeting.endTime) < new Date());                  const handleJoinMeeting = (meeting) => {
+                    (meeting.endTime && new Date(meeting.endTime) < new Date());
+                  const handleJoinMeeting = (meeting) => {
                     const zoomUrl = meeting.joinUrl || meeting.join_url;
                     if (zoomUrl) {
                       window.open(zoomUrl, "_blank");
@@ -1257,7 +1255,8 @@ const TutorClassroomPage = () => {
                           </span>
                         </p>
                       </div>{" "}
-                      {!isEnded ? (                        <div className="tcp-meeting-actions">
+                      {!isEnded ? (
+                        <div className="tcp-meeting-actions">
                           <button
                             className="tcp-action-btn tcp-join-meeting-btn"
                             onClick={() => handleJoinMeeting(meeting)}

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Logger Console Test - Enhanced</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      h1,
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .command-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .command-item {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: transform 0.3s ease;
+      }
+
+      .command-item:hover {
+        transform: translateY(-2px);
+      }
+
+      .command-name {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #ffe066;
+      }
+
+      .command-desc {
+        margin-bottom: 15px;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .command-btn {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        width: 100%;
+        transition: all 0.3s ease;
+        font-size: 14px;
+      }
+
+      .command-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .instructions {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #ffe066;
+      }
+
+      .console-tip {
+        background: rgba(76, 175, 80, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border: 1px solid rgba(76, 175, 80, 0.5);
+      }
+
+      .warning {
+        background: rgba(255, 152, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border: 1px solid rgba(255, 152, 0, 0.5);
+      }
+
+      pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .api-demo {
+        margin: 20px 0;
+      }
+
+      .demo-btn {
+        background: linear-gradient(45deg, #9c27b0, #e91e63);
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .demo-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .result-display {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 14px;
+        min-height: 50px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔊 Enhanced API Logger Console Test</h1>
+
+    <div class="container">
+      <h2>🚀 Quick Command Test</h2>
+
+      <div class="instructions">
+        <strong>📋 Hướng dẫn sử dụng:</strong>
+        <ul>
+          <li>🎯 Click các nút bên dưới để test các lệnh API Logger</li>
+          <li>
+            📱 Mở <strong>Developer Console</strong> (F12) để xem kết quả đầy đủ
+          </li>
+          <li>✅ Mỗi lệnh sẽ trả về message xác nhận (không còn undefined)</li>
+          <li>🔄 Các lệnh cũng có thể gõ trực tiếp trên console</li>
+        </ul>
+      </div>
+
+      <div class="command-grid">
+        <div class="command-item">
+          <div class="command-name">🔊 Enable Logging</div>
+          <div class="command-desc">
+            Bật API logging và hiển thị tất cả requests/responses
+          </div>
+          <button class="command-btn" onclick="testEnableLogging()">
+            enableAPILogging()
+          </button>
+        </div>
+
+        <div class="command-item">
+          <div class="command-name">🔇 Disable Logging</div>
+          <div class="command-desc">
+            Tắt API logging để giảm noise trong console
+          </div>
+          <button class="command-btn" onclick="testDisableLogging()">
+            disableAPILogging()
+          </button>
+        </div>
+
+        <div class="command-item">
+          <div class="command-name">🔄 Toggle Logging</div>
+          <div class="command-desc">
+            Chuyển đổi trạng thái logging (bật/tắt)
+          </div>
+          <button class="command-btn" onclick="testToggleLogging()">
+            toggleAPILogging()
+          </button>
+        </div>
+
+        <div class="command-item">
+          <div class="command-name">📊 Check Status</div>
+          <div class="command-desc">
+            Kiểm tra trạng thái hiện tại của API logging
+          </div>
+          <button class="command-btn" onclick="testGetStatus()">
+            getAPILoggingStatus()
+          </button>
+        </div>
+      </div>
+
+      <div class="result-display" id="resultDisplay">
+        <em>Kết quả sẽ hiển thị ở đây và trong console...</em>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>🧪 API Call Demo</h2>
+
+      <div class="console-tip">
+        <strong>💡 Tip:</strong> Bật logging trước khi test API calls để xem log
+        chi tiết!
+      </div>
+
+      <div class="api-demo">
+        <button class="demo-btn" onclick="simulateAPICall()">
+          🚀 Simulate API Request
+        </button>
+        <button class="demo-btn" onclick="simulateAPIError()">
+          ❌ Simulate API Error
+        </button>
+        <button class="demo-btn" onclick="simulateComplexAPI()">
+          🔬 Simulate Complex API
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>📚 Console Commands Cheatsheet</h2>
+
+      <div class="warning">
+        <strong>⚠️ Lưu ý:</strong> Tất cả các lệnh này giờ đây trả về message
+        xác nhận thay vì undefined.
+      </div>
+
+      <pre>
+// === BASIC COMMANDS ===
+enableAPILogging()        // ✅ Returns: "✅ API Logging is now ENABLED"
+disableAPILogging()       // ❌ Returns: "❌ API Logging is now DISABLED"
+toggleAPILogging()        // 🔄 Returns: Current status after toggle
+getAPILoggingStatus()     // 📊 Returns: Current status with emoji
+
+// === ALTERNATIVE COMMANDS ===
+apiLogger.enable()        // Same as enableAPILogging()
+apiLogger.disable()       // Same as disableAPILogging()
+apiLogger.toggle()        // Same as toggleAPILogging()
+apiLogger.getStatus()     // Same as getAPILoggingStatus()
+
+// === ADVANCED ===
+apiLogger.isEnabled       // Boolean: true/false
+localStorage.getItem("API_LOGGING_ENABLED")  // "true"/"false"
+        </pre
+      >
+    </div>
+
+    <div class="container">
+      <h2>🔍 Log Features</h2>
+
+      <div class="command-grid">
+        <div class="command-item">
+          <div class="command-name">🎨 Color Coding</div>
+          <div class="command-desc">
+            Requests (blue), Success (green), Errors (red)
+          </div>
+        </div>
+
+        <div class="command-item">
+          <div class="command-name">📊 Table Format</div>
+          <div class="command-desc">
+            Query params và response data hiển thị dạng table
+          </div>
+        </div>
+
+        <div class="command-item">
+          <div class="command-name">⏱️ Duration Tracking</div>
+          <div class="command-desc">
+            Đo thời gian request và hiển thị performance
+          </div>
+        </div>
+
+        <div class="command-item">
+          <div class="command-name">🆔 Request ID</div>
+          <div class="command-desc">Mỗi request có ID unique để tracking</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock API Logger for demo
+      const mockAPILogger = {
+        isEnabled: localStorage.getItem("API_LOGGING_ENABLED") !== "false",
+
+        enable() {
+          this.isEnabled = true;
+          localStorage.setItem("API_LOGGING_ENABLED", "true");
+          console.log("🔊 API Logging ENABLED");
+          return "✅ API Logging is now ENABLED";
+        },
+
+        disable() {
+          this.isEnabled = false;
+          localStorage.setItem("API_LOGGING_ENABLED", "false");
+          console.log("🔇 API Logging DISABLED");
+          return "❌ API Logging is now DISABLED";
+        },
+
+        toggle() {
+          if (this.isEnabled) {
+            return this.disable();
+          } else {
+            return this.enable();
+          }
+        },
+
+        getStatus() {
+          const status = this.isEnabled ? "ENABLED" : "DISABLED";
+          const emoji = this.isEnabled ? "✅" : "❌";
+          console.log(`🔍 API Logging Status: ${emoji} ${status}`);
+          return `${emoji} API Logging is ${status}`;
+        },
+
+        logRequest(method, url, data = null) {
+          if (!this.isEnabled) return;
+
+          const requestId = `req_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`;
+          console.group(
+            `🚀 [${method}] API Request - ${new Date().toISOString()}`
+          );
+          console.log(`🔗 URL: %c${url}`, "color: #2196F3; font-weight: bold;");
+          console.log(
+            `🆔 Request ID: %c${requestId}`,
+            "color: #9C27B0; font-weight: bold;"
+          );
+          if (data) {
+            console.log("📤 Request Data:");
+            console.table(data);
+          }
+          console.groupEnd();
+          return requestId;
+        },
+
+        logResponse(requestId, response) {
+          if (!this.isEnabled) return;
+
+          console.group(`✅ API Response - Success (ID: ${requestId})`);
+          console.log(`📅 Timestamp: ${new Date().toISOString()}`);
+          console.log(
+            `📈 Status: %c${response.status || 200}`,
+            "color: #4CAF50; font-weight: bold;"
+          );
+          console.log("📥 Response Data:");
+          console.table(response.data || response);
+          console.groupEnd();
+        },
+
+        logError(requestId, error) {
+          if (!this.isEnabled) return;
+
+          console.group(`❌ API Error (ID: ${requestId})`);
+          console.log(`📅 Timestamp: ${new Date().toISOString()}`);
+          console.log(
+            `💬 Error: %c${error.message || error}`,
+            "color: #F44336; font-weight: bold;"
+          );
+          console.groupEnd();
+        },
+      };
+
+      // Expose to window like in real app
+      window.apiLogger = mockAPILogger;
+      window.enableAPILogging = () => {
+        const result = mockAPILogger.enable();
+        console.log("🎯 Use this function anytime: enableAPILogging()");
+        return result;
+      };
+      window.disableAPILogging = () => {
+        const result = mockAPILogger.disable();
+        console.log("🎯 Use this function anytime: disableAPILogging()");
+        return result;
+      };
+      window.toggleAPILogging = () => {
+        const result = mockAPILogger.toggle();
+        console.log("🎯 Use this function anytime: toggleAPILogging()");
+        return result;
+      };
+      window.getAPILoggingStatus = () => {
+        const result = mockAPILogger.getStatus();
+        console.log("🎯 Use this function anytime: getAPILoggingStatus()");
+        return result;
+      };
+
+      // Test functions
+      function testEnableLogging() {
+        const result = enableAPILogging();
+        displayResult(`enableAPILogging() returned: "${result}"`);
+      }
+
+      function testDisableLogging() {
+        const result = disableAPILogging();
+        displayResult(`disableAPILogging() returned: "${result}"`);
+      }
+
+      function testToggleLogging() {
+        const result = toggleAPILogging();
+        displayResult(`toggleAPILogging() returned: "${result}"`);
+      }
+
+      function testGetStatus() {
+        const result = getAPILoggingStatus();
+        displayResult(`getAPILoggingStatus() returned: "${result}"`);
+      }
+
+      function displayResult(message) {
+        const display = document.getElementById("resultDisplay");
+        display.innerHTML = `<strong>📤 Last Command Result:</strong><br/>${message}<br/><em>Check console for full details...</em>`;
+      }
+
+      function simulateAPICall() {
+        const requestId = mockAPILogger.logRequest(
+          "GET",
+          "/api/classroom/search-for-user",
+          {
+            page: 1,
+            limit: 10,
+            search: "test",
+          }
+        );
+
+        setTimeout(() => {
+          mockAPILogger.logResponse(requestId, {
+            status: 200,
+            data: {
+              items: [
+                { id: 1, name: "Classroom 1", students: 25 },
+                { id: 2, name: "Classroom 2", students: 30 },
+              ],
+              total: 2,
+              page: 1,
+            },
+          });
+        }, 500);
+
+        displayResult(
+          "Simulated successful API call - check console for logs!"
+        );
+      }
+
+      function simulateAPIError() {
+        const requestId = mockAPILogger.logRequest(
+          "POST",
+          "/api/meeting/create",
+          {
+            classroomId: 123,
+            topic: "Test Meeting",
+          }
+        );
+
+        setTimeout(() => {
+          mockAPILogger.logError(requestId, {
+            message: "Unauthorized: Invalid token",
+            status: 401,
+          });
+        }, 300);
+
+        displayResult("Simulated API error - check console for error logs!");
+      }
+
+      function simulateComplexAPI() {
+        const requestId = mockAPILogger.logRequest(
+          "GET",
+          "/api/tutor/revenue-statistics",
+          {
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            tutorId: 456,
+            groupBy: "month",
+          }
+        );
+
+        setTimeout(() => {
+          mockAPILogger.logResponse(requestId, {
+            status: 200,
+            data: {
+              totalRevenue: 150000000,
+              monthlyData: [
+                { month: "2024-01", revenue: 12500000, bookings: 25 },
+                { month: "2024-02", revenue: 13200000, bookings: 28 },
+                { month: "2024-03", revenue: 11800000, bookings: 22 },
+              ],
+              averagePerBooking: 520000,
+              topSubjects: [
+                { subject: "Mathematics", revenue: 45000000 },
+                { subject: "Physics", revenue: 38000000 },
+              ],
+            },
+          });
+        }, 800);
+
+        displayResult(
+          "Simulated complex API with rich data - check console for detailed logs!"
+        );
+      }
+
+      // Show initial help
+      console.log(`
+🔊 API Logger Test Page Loaded!
+
+🎯 Available Commands:
+  • enableAPILogging()     - Enable logging (returns message)
+  • disableAPILogging()    - Disable logging (returns message)  
+  • toggleAPILogging()     - Toggle logging (returns message)
+  • getAPILoggingStatus()  - Check status (returns message)
+
+Current status: ${mockAPILogger.isEnabled ? "✅ ENABLED" : "❌ DISABLED"}
+
+💡 Try running these commands and see the return values!
+        `);
+    </script>
+  </body>
+</html>

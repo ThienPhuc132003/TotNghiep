@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug GET Body Data Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+      .info {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+        border: 1px solid #e9ecef;
+      }
+      .method-test {
+        margin: 15px 0;
+        padding: 15px;
+        background: #e8f4f8;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Debug GET Body Data Test</h1>
+      <p>
+        Test để kiểm tra xem API Logger có log được data body cho GET request
+        hay không
+      </p>
+
+      <div class="warning">
+        <strong>⚠️ Lưu ý:</strong> Mở DevTools Console để xem kết quả logging!
+      </div>
+
+      <div class="info">
+        <strong>📋 Hướng dẫn:</strong>
+        <ol>
+          <li>Mở Console (F12)</li>
+          <li>Click các nút test bên dưới</li>
+          <li>
+            Quan sát xem API Logger có log data body cho GET request hay không
+          </li>
+          <li>Kiểm tra format log có đúng không</li>
+        </ol>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Test 1: Fake API Logger Test</h3>
+        <p>Test API Logger trực tiếp với data mock</p>
+
+        <div class="method-test">
+          <h4>GET Request with Body Data</h4>
+          <button onclick="testGetWithBodyData()">Test GET + Body Data</button>
+          <pre id="get-body-result">Chưa test...</pre>
+        </div>
+
+        <div class="method-test">
+          <h4>GET Request with Query Params</h4>
+          <button onclick="testGetWithQueryParams()">Test GET + Query</button>
+          <pre id="get-query-result">Chưa test...</pre>
+        </div>
+
+        <div class="method-test">
+          <h4>GET Request Empty</h4>
+          <button onclick="testGetEmpty()">Test GET Empty</button>
+          <pre id="get-empty-result">Chưa test...</pre>
+        </div>
+
+        <div class="method-test">
+          <h4>POST Request with Body</h4>
+          <button onclick="testPostWithBody()">Test POST + Body</button>
+          <pre id="post-body-result">Chưa test...</pre>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔧 Manual Logger Commands</h3>
+        <p>Test các lệnh manual trong console:</p>
+        <button onclick="enableLogging()">Enable Logging</button>
+        <button onclick="disableLogging()">Disable Logging</button>
+        <button onclick="toggleLogging()">Toggle Logging</button>
+        <button onclick="checkStatus()">Check Status</button>
+      </div>
+
+      <div class="test-section">
+        <h3>📊 Test Results Summary</h3>
+        <div id="test-summary">
+          <p>Chưa có kết quả test nào...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock API Logger for testing (simulate the actual apiLogger)
+      class MockAPILogger {
+        constructor() {
+          this.isEnabled = true;
+          this.requestStartTimes = new Map();
+        }
+
+        enable() {
+          this.isEnabled = true;
+          console.log("🔊 API Logging ENABLED");
+          return "✅ API Logging is now ENABLED";
+        }
+
+        disable() {
+          this.isEnabled = false;
+          console.log("🔇 API Logging DISABLED");
+          return "❌ API Logging is now DISABLED";
+        }
+
+        toggle() {
+          if (this.isEnabled) {
+            return this.disable();
+          } else {
+            return this.enable();
+          }
+        }
+
+        getStatus() {
+          return this.isEnabled ? "ENABLED" : "DISABLED";
+        }
+
+        generateRequestId() {
+          return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        logRequest(method, url, data = null, query = null) {
+          if (!this.isEnabled) return;
+
+          const requestId = this.generateRequestId();
+          const timestamp = new Date().toISOString();
+
+          console.group(`🚀 [${method}] API Request - ${timestamp}`);
+          console.log(`🔗 URL: %c${url}`, "color: #2196F3; font-weight: bold;");
+          console.log(
+            `🆔 Request ID: %c${requestId}`,
+            "color: #9C27B0; font-weight: bold;"
+          );
+
+          if (query && Object.keys(query).length > 0) {
+            console.log("📋 Query Parameters:");
+            console.table(query);
+          }
+
+          // Key test: This is where we check if body data is logged for GET
+          if (data && Object.keys(data).length > 0) {
+            console.log("📤 Request Body:");
+            console.log(
+              `%c${JSON.stringify(data, null, 2)}`,
+              "color: #4CAF50;"
+            );
+            console.log(
+              `🔍 Method: ${method}, Body Data Keys: ${Object.keys(data).join(
+                ", "
+              )}`
+            );
+          } else if (method !== "GET") {
+            console.log("📤 Request Body: %cEmpty", "color: #757575;");
+          } else if (
+            method === "GET" &&
+            (!data || Object.keys(data).length === 0)
+          ) {
+            console.log(
+              "📤 Request Body: %cNone (GET request)",
+              "color: #757575;"
+            );
+          }
+
+          console.groupEnd();
+          return requestId;
+        }
+      }
+
+      // Initialize mock logger
+      const mockAPILogger = new MockAPILogger();
+
+      // Test functions
+      function testGetWithBodyData() {
+        console.log("\n🧪 Testing GET with Body Data:");
+        const testData = {
+          classroomId: "12345",
+          userId: "user123",
+          filters: { status: "active" },
+        };
+        const testQuery = { page: 1, limit: 10 };
+
+        const requestId = mockAPILogger.logRequest(
+          "GET",
+          "https://api.example.com/classroom/search-for-user",
+          testData,
+          testQuery
+        );
+
+        document.getElementById(
+          "get-body-result"
+        ).textContent = `✅ Tested GET with body data. RequestId: ${requestId}\nData: ${JSON.stringify(
+          testData,
+          null,
+          2
+        )}`;
+      }
+
+      function testGetWithQueryParams() {
+        console.log("\n🧪 Testing GET with Query Only:");
+        const testQuery = { page: 1, limit: 10, search: "test" };
+
+        const requestId = mockAPILogger.logRequest(
+          "GET",
+          "https://api.example.com/classroom/search",
+          null,
+          testQuery
+        );
+
+        document.getElementById(
+          "get-query-result"
+        ).textContent = `✅ Tested GET with query only. RequestId: ${requestId}`;
+      }
+
+      function testGetEmpty() {
+        console.log("\n🧪 Testing GET Empty:");
+
+        const requestId = mockAPILogger.logRequest(
+          "GET",
+          "https://api.example.com/classroom/list",
+          null,
+          null
+        );
+
+        document.getElementById(
+          "get-empty-result"
+        ).textContent = `✅ Tested GET empty. RequestId: ${requestId}`;
+      }
+
+      function testPostWithBody() {
+        console.log("\n🧪 Testing POST with Body:");
+        const testData = {
+          name: "Test Classroom",
+          description: "Test Description",
+        };
+
+        const requestId = mockAPILogger.logRequest(
+          "POST",
+          "https://api.example.com/classroom/create",
+          testData,
+          null
+        );
+
+        document.getElementById(
+          "post-body-result"
+        ).textContent = `✅ Tested POST with body. RequestId: ${requestId}`;
+      }
+
+      // Manual commands
+      function enableLogging() {
+        const result = mockAPILogger.enable();
+        console.log("Manual Enable:", result);
+      }
+
+      function disableLogging() {
+        const result = mockAPILogger.disable();
+        console.log("Manual Disable:", result);
+      }
+
+      function toggleLogging() {
+        const result = mockAPILogger.toggle();
+        console.log("Manual Toggle:", result);
+      }
+
+      function checkStatus() {
+        const status = mockAPILogger.getStatus();
+        console.log("Current Status:", status);
+      }
+
+      // Auto-run initial test
+      window.addEventListener("load", function () {
+        console.log("🚀 Debug GET Body Data Test Page Loaded");
+        console.log(
+          "📋 Test này sẽ kiểm tra xem API Logger có log được data body cho GET request hay không"
+        );
+        console.log(
+          "💡 Hướng dẫn: Click các nút test và quan sát console output"
+        );
+
+        // Update summary
+        document.getElementById("test-summary").innerHTML = `
+                <p><strong>🎯 Mục đích test:</strong></p>
+                <ul>
+                    <li>Kiểm tra API Logger có log data body cho GET request</li>
+                    <li>Xác nhận format log có đúng không</li>
+                    <li>Test các lệnh enable/disable/toggle logging</li>
+                    <li>So sánh behavior giữa GET/POST với body data</li>
+                </ul>
+                <p><strong>⏰ Status:</strong> Ready to test - Click buttons above!</p>
+            `;
+      });
+    </script>
+  </body>
+</html>

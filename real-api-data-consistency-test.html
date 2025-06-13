@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real API Data Consistency Test</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        margin-bottom: 25px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+      }
+      .test-section h3 {
+        color: #495057;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      .button-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+      }
+      .test-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+      .test-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .btn-get {
+        background-color: #28a745;
+      }
+      .btn-post {
+        background-color: #007bff;
+      }
+      .btn-put {
+        background-color: #ffc107;
+      }
+      .btn-delete {
+        background-color: #dc3545;
+      }
+      .btn-patch {
+        background-color: #6f42c1;
+      }
+      .btn-logger {
+        background-color: #6c757d;
+      }
+      .status-box {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      .note {
+        background-color: #d1ecf1;
+        border-left: 4px solid #bee5eb;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffeaa7;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 0 4px 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔬 Real API Data Consistency Test</h1>
+
+      <div class="note">
+        <strong>📋 Hướng dẫn sử dụng:</strong>
+        <ol>
+          <li>Mở DevTools (F12) -> Console tab để xem API logs</li>
+          <li>Mở DevTools -> Network tab để xem network requests</li>
+          <li>Test các methods khác nhau với data body</li>
+          <li>So sánh console logs và network requests</li>
+        </ol>
+      </div>
+
+      <!-- API Logging Controls -->
+      <div class="test-section">
+        <h3>🔊 API Logging Controls</h3>
+        <div class="button-group">
+          <button class="test-btn btn-logger" onclick="testEnableLogging()">
+            Enable Logging
+          </button>
+          <button class="test-btn btn-logger" onclick="testDisableLogging()">
+            Disable Logging
+          </button>
+          <button class="test-btn btn-logger" onclick="testToggleLogging()">
+            Toggle Logging
+          </button>
+          <button class="test-btn btn-logger" onclick="testCheckStatus()">
+            Check Status
+          </button>
+        </div>
+        <div class="status-box" id="logging-status">
+          Click "Check Status" to see current logging state
+        </div>
+      </div>
+
+      <!-- Real API Tests -->
+      <div class="test-section">
+        <h3>🟢 GET Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-get" onclick="testMeetingGetWithBody()">
+            meeting/get-meeting (Body)
+          </button>
+          <button class="test-btn btn-get" onclick="testClassroomSearchUser()">
+            classroom/search-for-user
+          </button>
+          <button class="test-btn btn-get" onclick="testClassroomSearchTutor()">
+            classroom/search-for-tutor
+          </button>
+          <button class="test-btn btn-get" onclick="testStandardGet()">
+            Standard GET (Query only)
+          </button>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Lưu ý:</strong> Các API này sẽ gọi thực tế tới backend. Đảm
+          bảo bạn đã login và có token hợp lệ.
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔵 POST Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-post" onclick="testPostWithData()">
+            POST with Data
+          </button>
+          <button class="test-btn btn-post" onclick="testPostEmpty()">
+            POST Empty Data
+          </button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🟡 PUT Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-put" onclick="testPutWithData()">
+            PUT with Data
+          </button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🟣 PATCH Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-patch" onclick="testPatchWithData()">
+            PATCH with Data
+          </button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔴 DELETE Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-delete" onclick="testDeleteWithBody()">
+            DELETE with Body
+          </button>
+          <button class="test-btn btn-delete" onclick="testDeleteStandard()">
+            DELETE Standard
+          </button>
+        </div>
+      </div>
+
+      <!-- Network Debugging Info -->
+      <div class="test-section">
+        <h3>🔍 Network Debugging Tips</h3>
+        <div class="note">
+          <h4>Kiểm tra trong DevTools Network tab:</h4>
+          <ul>
+            <li>
+              <strong>Request Headers:</strong> Content-Type, Authorization,
+              X-Require-Token
+            </li>
+            <li>
+              <strong>Request Payload:</strong> Body data được gửi đi (đặc biệt
+              quan trọng cho GET)
+            </li>
+            <li><strong>Query String Parameters:</strong> URL parameters</li>
+            <li><strong>Response:</strong> Status code và response data</li>
+          </ul>
+
+          <h4>Chú ý đặc biệt cho GET requests:</h4>
+          <ul>
+            <li>
+              <strong>Standard GET:</strong> Chỉ có Query String Parameters
+            </li>
+            <li>
+              <strong>Custom GET:</strong> Có cả Query String Parameters VÀ
+              Request Payload
+            </li>
+            <li>
+              <strong>Backend compatibility:</strong> Server phải hỗ trợ GET với
+              body data
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Check if we're running in the actual app context
+      const isInAppContext =
+        window.location.href.includes("localhost:5175") ||
+        window.location.href.includes("localhost:3000");
+
+      if (!isInAppContext) {
+        console.warn(
+          "⚠️ This test should be opened from within the running app context for real API tests"
+        );
+        console.log(
+          "🔗 Open this file by navigating to it in the browser while the app is running"
+        );
+      }
+
+      // Global API function reference (will be available when running in app context)
+      let Api = null;
+
+      // Try to access the real Api function
+      try {
+        // This would be available in the actual app context
+        if (typeof window.Api !== "undefined") {
+          Api = window.Api;
+        } else {
+          console.log(
+            "ℹ️ Real Api function not available - using mock for demo"
+          );
+        }
+      } catch (error) {
+        console.log("ℹ️ Real Api function not available - using mock for demo");
+      }
+
+      // Mock Api function for demonstration
+      async function mockApi({
+        endpoint,
+        method = "GET",
+        data,
+        query,
+        requireToken = false,
+      }) {
+        console.log(`🧪 MOCK API Call: [${method}] ${endpoint}`);
+        console.log("📤 Data:", data);
+        console.log("🔍 Query:", query);
+        console.log("🔐 Require Token:", requireToken);
+
+        // Simulate real API call structure
+        const requestUrl = `https://api.example.com/${endpoint}`;
+
+        // Log like the real apiLogger would
+        console.group(`🚀 [${method}] API Request`);
+        console.log(`🔗 URL: ${requestUrl}`);
+
+        if (query && Object.keys(query).length > 0) {
+          console.log("📋 Query Parameters:", query);
+        }
+
+        if (data && Object.keys(data).length > 0) {
+          console.log("📤 Request Body:", data);
+
+          switch (method) {
+            case "GET":
+              console.log(
+                "🔥 Custom GET with Body Data:",
+                Object.keys(data).join(", ")
+              );
+              break;
+            case "POST":
+              console.log("📝 POST Data:", Object.keys(data).join(", "));
+              break;
+            case "PUT":
+              console.log("🔄 PUT Update:", Object.keys(data).join(", "));
+              break;
+            case "PATCH":
+              console.log("🔧 PATCH Fields:", Object.keys(data).join(", "));
+              break;
+            case "DELETE":
+              console.log("🗑️ DELETE with Body:", Object.keys(data).join(", "));
+              break;
+          }
+        } else {
+          console.log("📤 Request Body: None");
+        }
+
+        console.groupEnd();
+
+        // Simulate response
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            console.log("✅ Mock response received");
+            resolve({ success: true, data: "Mock response" });
+          }, 200);
+        });
+      }
+
+      // Use real Api if available, otherwise use mock
+      const apiCall = Api || mockApi;
+
+      // Test data
+      const testData = {
+        classroomId: "676b825d9b4b71df3fbe85dc",
+        userId: "test-user-123",
+        tutorId: "test-tutor-456",
+        meetingId: "test-meeting-789",
+        user: {
+          name: "Test User",
+          email: "test@example.com",
+          age: 25,
+        },
+      };
+
+      // Logging control functions
+      function testEnableLogging() {
+        if (typeof enableAPILogging === "function") {
+          const result = enableAPILogging();
+          updateStatus(result);
+        } else {
+          console.log("✅ Mock: API Logging ENABLED");
+          updateStatus("✅ API Logging is now ENABLED (Mock)");
+        }
+      }
+
+      function testDisableLogging() {
+        if (typeof disableAPILogging === "function") {
+          const result = disableAPILogging();
+          updateStatus(result);
+        } else {
+          console.log("❌ Mock: API Logging DISABLED");
+          updateStatus("❌ API Logging is now DISABLED (Mock)");
+        }
+      }
+
+      function testToggleLogging() {
+        if (typeof toggleAPILogging === "function") {
+          const result = toggleAPILogging();
+          updateStatus(result);
+        } else {
+          console.log("🔄 Mock: API Logging TOGGLED");
+          updateStatus("🔄 API Logging toggled (Mock)");
+        }
+      }
+
+      function testCheckStatus() {
+        if (typeof getAPILoggingStatus === "function") {
+          const status = getAPILoggingStatus();
+          updateStatus(`Current status: ${status}`);
+        } else {
+          updateStatus("Current status: UNKNOWN (Mock mode)");
+        }
+      }
+
+      function updateStatus(message) {
+        document.getElementById("logging-status").textContent = message;
+      }
+
+      // GET Method Tests
+      async function testMeetingGetWithBody() {
+        console.log("\n🧪 Testing meeting/get-meeting with body data...");
+        try {
+          await apiCall({
+            endpoint: "meeting/get-meeting",
+            method: "GET",
+            data: {
+              classroomId: testData.classroomId,
+              meetingId: testData.meetingId,
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testClassroomSearchUser() {
+        console.log("\n🧪 Testing classroom/search-for-user...");
+        try {
+          await apiCall({
+            endpoint: "classroom/search-for-user",
+            method: "GET",
+            data: {
+              userId: testData.userId,
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testClassroomSearchTutor() {
+        console.log("\n🧪 Testing classroom/search-for-tutor...");
+        try {
+          await apiCall({
+            endpoint: "classroom/search-for-tutor",
+            method: "GET",
+            data: {
+              tutorId: testData.tutorId,
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testStandardGet() {
+        console.log("\n🧪 Testing standard GET with query only...");
+        try {
+          await apiCall({
+            endpoint: "users/profile",
+            method: "GET",
+            query: {
+              userId: testData.userId,
+              include: "details",
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      // POST Method Tests
+      async function testPostWithData() {
+        console.log("\n🧪 Testing POST with data...");
+        try {
+          await apiCall({
+            endpoint: "users/create",
+            method: "POST",
+            data: testData.user,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testPostEmpty() {
+        console.log("\n🧪 Testing POST with empty data...");
+        try {
+          await apiCall({
+            endpoint: "users/ping",
+            method: "POST",
+            data: {},
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      // PUT Method Tests
+      async function testPutWithData() {
+        console.log("\n🧪 Testing PUT with data...");
+        try {
+          await apiCall({
+            endpoint: "users/123",
+            method: "PUT",
+            data: { ...testData.user, age: 26 },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      // PATCH Method Tests
+      async function testPatchWithData() {
+        console.log("\n🧪 Testing PATCH with data...");
+        try {
+          await apiCall({
+            endpoint: "users/123",
+            method: "PATCH",
+            data: { age: 27 },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      // DELETE Method Tests
+      async function testDeleteWithBody() {
+        console.log("\n🧪 Testing DELETE with body data...");
+        try {
+          await apiCall({
+            endpoint: "users/bulk-delete",
+            method: "DELETE",
+            data: {
+              userIds: ["123", "456"],
+              reason: "Test cleanup",
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testDeleteStandard() {
+        console.log("\n🧪 Testing standard DELETE...");
+        try {
+          await apiCall({
+            endpoint: "users/123",
+            method: "DELETE",
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      // Initialize
+      console.log("🎯 Real API Data Consistency Test loaded!");
+      console.log(
+        "📋 Open DevTools Console and Network tabs to monitor API calls"
+      );
+
+      if (isInAppContext) {
+        console.log("✅ Running in app context - real API tests available");
+      } else {
+        console.log(
+          "ℹ️ Running in standalone mode - using mock API for demonstration"
+        );
+      }
+
+      testCheckStatus();
+    </script>
+  </body>
+</html>

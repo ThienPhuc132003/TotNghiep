@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real API Logger Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+      }
+      button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #218838;
+      }
+      .danger {
+        background: #dc3545;
+      }
+      .danger:hover {
+        background: #c82333;
+      }
+      .warning {
+        background: #ffc107;
+        color: #212529;
+      }
+      .warning:hover {
+        background: #e0a800;
+      }
+      .info {
+        background: #17a2b8;
+      }
+      .info:hover {
+        background: #138496;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+      .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+      }
+      .alert-info {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+      }
+      .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+        border: 1px solid #e9ecef;
+        max-height: 200px;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 15px;
+        background: #e8f5e8;
+        border-radius: 6px;
+        border-left: 4px solid #28a745;
+      }
+      .code-block {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-family: "Courier New", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Real API Logger Test</h1>
+      <p>Test API Logger thực tế để debug vấn đề GET body data logging</p>
+
+      <div class="alert alert-warning">
+        <strong>⚠️ Quan trọng:</strong> Để test được, bạn cần:
+        <ol>
+          <li>Mở DevTools Console (F12)</li>
+          <li>Load trang web chính trước (để API logger được khởi tạo)</li>
+          <li>Sau đó quay lại test page này</li>
+        </ol>
+      </div>
+
+      <div class="alert alert-info">
+        <strong>📋 Hướng dẫn Test:</strong>
+        <ol>
+          <li>Bước 1: Check API Logger có sẵn không</li>
+          <li>Bước 2: Test manual commands</li>
+          <li>Bước 3: Test GET với body data</li>
+          <li>Bước 4: Kiểm tra console output</li>
+        </ol>
+      </div>
+
+      <div class="test-section">
+        <h3>🔧 Bước 1: Check API Logger</h3>
+        <button onclick="checkAPILogger()">Check API Logger Available</button>
+        <button onclick="checkWindowCommands()">Check Window Commands</button>
+        <pre id="logger-check">Chưa kiểm tra...</pre>
+      </div>
+
+      <div class="test-section">
+        <h3>🎛️ Bước 2: Manual Commands</h3>
+        <button onclick="testEnableLogging()">Enable Logging</button>
+        <button onclick="testDisableLogging()">Disable Logging</button>
+        <button onclick="testToggleLogging()">Toggle Logging</button>
+        <button onclick="testCheckStatus()" class="info">Check Status</button>
+        <pre id="manual-commands">Chưa test...</pre>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Bước 3: Test GET Body Data Logging</h3>
+        <p>
+          Test các loại API call khác nhau để xem logger có hoạt động đúng
+          không:
+        </p>
+
+        <div class="step">
+          <h4>🔥 Test GET with Body Data (Custom API)</h4>
+          <button onclick="testGetWithBodyData()">Test GET + Body</button>
+          <button onclick="testGetWithQueryAndBody()" class="warning">
+            Test GET + Query + Body
+          </button>
+          <pre id="get-body-test">Chưa test...</pre>
+        </div>
+
+        <div class="step">
+          <h4>📊 Test Standard GET with Query</h4>
+          <button onclick="testStandardGet()">Test Standard GET</button>
+          <button onclick="testGetEmpty()" class="info">Test GET Empty</button>
+          <pre id="standard-get-test">Chưa test...</pre>
+        </div>
+
+        <div class="step">
+          <h4>📤 Test POST for Comparison</h4>
+          <button onclick="testPostWithBody()">Test POST + Body</button>
+          <pre id="post-test">Chưa test...</pre>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>📊 Test Results</h3>
+        <div id="test-results">
+          <div class="alert alert-info">
+            <strong>💡 Kết quả sẽ hiển thị ở đây và trong Console</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🎯 Debug Commands</h3>
+        <p>Copy paste vào Console để debug:</p>
+        <div class="code-block">
+          // Check if apiLogger exists console.log('apiLogger:', typeof
+          window.apiLogger); // Test manual logging if (window.apiLogger) {
+          window.apiLogger.logRequest('GET', 'test-url', {classroomId: '123'},
+          {page: 1}); } // Check window functions
+          console.log('enableAPILogging:', typeof window.enableAPILogging);
+          console.log('disableAPILogging:', typeof window.disableAPILogging); //
+          Test window functions if (window.enableAPILogging) {
+          console.log(window.enableAPILogging()); }
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let testResults = [];
+
+      function addTestResult(test, status, message) {
+        testResults.push({
+          test,
+          status,
+          message,
+          time: new Date().toLocaleTimeString(),
+        });
+        updateResultsDisplay();
+      }
+
+      function updateResultsDisplay() {
+        const resultsDiv = document.getElementById("test-results");
+        const html = testResults
+          .map((result) => {
+            const statusClass =
+              result.status === "success"
+                ? "alert-success"
+                : result.status === "warning"
+                ? "alert-warning"
+                : "alert-danger";
+            return `
+                    <div class="alert ${statusClass}">
+                        <strong>[${result.time}] ${result.test}:</strong> ${result.message}
+                    </div>
+                `;
+          })
+          .join("");
+        resultsDiv.innerHTML =
+          html ||
+          '<div class="alert alert-info">Chưa có kết quả test nào...</div>';
+      }
+
+      function checkAPILogger() {
+        console.log("🔍 Checking API Logger availability...");
+
+        const checks = {
+          "window.apiLogger": typeof window.apiLogger,
+          "window.enableAPILogging": typeof window.enableAPILogging,
+          "window.disableAPILogging": typeof window.disableAPILogging,
+          "window.toggleAPILogging": typeof window.toggleAPILogging,
+          "window.getAPILoggingStatus": typeof window.getAPILoggingStatus,
+        };
+
+        console.table(checks);
+
+        let result = "API Logger Check:\n";
+        let hasAPILogger = false;
+
+        for (const [key, value] of Object.entries(checks)) {
+          result += `${key}: ${value}\n`;
+          if (key === "window.apiLogger" && value !== "undefined") {
+            hasAPILogger = true;
+          }
+        }
+
+        document.getElementById("logger-check").textContent = result;
+
+        if (hasAPILogger) {
+          addTestResult(
+            "API Logger Check",
+            "success",
+            "API Logger is available!"
+          );
+        } else {
+          addTestResult(
+            "API Logger Check",
+            "error",
+            "API Logger NOT found! Load main app first."
+          );
+        }
+      }
+
+      function checkWindowCommands() {
+        console.log("🔍 Testing window command functions...");
+
+        const tests = [
+          "enableAPILogging",
+          "disableAPILogging",
+          "toggleAPILogging",
+          "getAPILoggingStatus",
+        ];
+
+        tests.forEach((funcName) => {
+          if (typeof window[funcName] === "function") {
+            console.log(`✅ ${funcName}: Available`);
+          } else {
+            console.log(`❌ ${funcName}: Not available`);
+          }
+        });
+      }
+
+      function testEnableLogging() {
+        console.log("🧪 Testing enableAPILogging()...");
+
+        if (typeof window.enableAPILogging === "function") {
+          const result = window.enableAPILogging();
+          console.log("Result:", result);
+          document.getElementById(
+            "manual-commands"
+          ).textContent += `enableAPILogging(): ${result}\n`;
+          addTestResult("Enable Logging", "success", `Result: ${result}`);
+        } else {
+          console.log("❌ enableAPILogging not available");
+          addTestResult("Enable Logging", "error", "Function not available");
+        }
+      }
+
+      function testDisableLogging() {
+        console.log("🧪 Testing disableAPILogging()...");
+
+        if (typeof window.disableAPILogging === "function") {
+          const result = window.disableAPILogging();
+          console.log("Result:", result);
+          document.getElementById(
+            "manual-commands"
+          ).textContent += `disableAPILogging(): ${result}\n`;
+          addTestResult("Disable Logging", "success", `Result: ${result}`);
+        } else {
+          console.log("❌ disableAPILogging not available");
+          addTestResult("Disable Logging", "error", "Function not available");
+        }
+      }
+
+      function testToggleLogging() {
+        console.log("🧪 Testing toggleAPILogging()...");
+
+        if (typeof window.toggleAPILogging === "function") {
+          const result = window.toggleAPILogging();
+          console.log("Result:", result);
+          document.getElementById(
+            "manual-commands"
+          ).textContent += `toggleAPILogging(): ${result}\n`;
+          addTestResult("Toggle Logging", "success", `Result: ${result}`);
+        } else {
+          console.log("❌ toggleAPILogging not available");
+          addTestResult("Toggle Logging", "error", "Function not available");
+        }
+      }
+
+      function testCheckStatus() {
+        console.log("🧪 Testing getAPILoggingStatus()...");
+
+        if (typeof window.getAPILoggingStatus === "function") {
+          const result = window.getAPILoggingStatus();
+          console.log("Status:", result);
+          document.getElementById(
+            "manual-commands"
+          ).textContent += `getAPILoggingStatus(): ${result}\n`;
+          addTestResult("Check Status", "success", `Status: ${result}`);
+        } else {
+          console.log("❌ getAPILoggingStatus not available");
+          addTestResult("Check Status", "error", "Function not available");
+        }
+      }
+
+      function testGetWithBodyData() {
+        console.log("🔥 Testing GET with Body Data...");
+
+        if (
+          window.apiLogger &&
+          typeof window.apiLogger.logRequest === "function"
+        ) {
+          const testData = {
+            classroomId: "classroom_12345",
+            userId: "user_67890",
+            filters: {
+              status: "active",
+              type: "online",
+            },
+          };
+
+          const testQuery = {
+            page: 1,
+            limit: 10,
+          };
+
+          console.log("📤 Test Data:", testData);
+          console.log("📋 Test Query:", testQuery);
+
+          const requestId = window.apiLogger.logRequest(
+            "GET",
+            "https://api.example.com/classroom/search-for-user",
+            testData,
+            testQuery
+          );
+
+          document.getElementById("get-body-test").textContent =
+            `✅ GET + Body test completed. RequestId: ${requestId}\n` +
+            `Data keys: ${Object.keys(testData).join(", ")}\n` +
+            `Query keys: ${Object.keys(testQuery).join(", ")}`;
+
+          addTestResult(
+            "GET with Body",
+            "success",
+            `RequestId: ${requestId}, Keys: ${Object.keys(testData).join(", ")}`
+          );
+        } else {
+          console.log("❌ apiLogger.logRequest not available");
+          addTestResult(
+            "GET with Body",
+            "error",
+            "apiLogger.logRequest not available"
+          );
+        }
+      }
+
+      function testGetWithQueryAndBody() {
+        console.log("🔥 Testing GET with Query AND Body...");
+
+        if (
+          window.apiLogger &&
+          typeof window.apiLogger.logRequest === "function"
+        ) {
+          const testData = {
+            classroomId: "classroom_99999",
+            specialFilter: "advanced",
+          };
+
+          const testQuery = {
+            page: 2,
+            limit: 20,
+            sort: "name",
+            order: "asc",
+          };
+
+          const requestId = window.apiLogger.logRequest(
+            "GET",
+            "https://api.example.com/meeting/get-meeting",
+            testData,
+            testQuery
+          );
+
+          document.getElementById(
+            "get-body-test"
+          ).textContent += `\n\n✅ GET + Query + Body test. RequestId: ${requestId}`;
+          addTestResult(
+            "GET with Query+Body",
+            "success",
+            `RequestId: ${requestId}`
+          );
+        } else {
+          addTestResult(
+            "GET with Query+Body",
+            "error",
+            "apiLogger not available"
+          );
+        }
+      }
+
+      function testStandardGet() {
+        console.log("📊 Testing Standard GET...");
+
+        if (
+          window.apiLogger &&
+          typeof window.apiLogger.logRequest === "function"
+        ) {
+          const testQuery = {
+            search: "test classroom",
+            category: "math",
+            level: "beginner",
+          };
+
+          const requestId = window.apiLogger.logRequest(
+            "GET",
+            "https://api.example.com/classroom/list",
+            null,
+            testQuery
+          );
+
+          document.getElementById("standard-get-test").textContent =
+            `✅ Standard GET test. RequestId: ${requestId}\n` +
+            `Query keys: ${Object.keys(testQuery).join(", ")}`;
+
+          addTestResult("Standard GET", "success", `RequestId: ${requestId}`);
+        } else {
+          addTestResult("Standard GET", "error", "apiLogger not available");
+        }
+      }
+
+      function testGetEmpty() {
+        console.log("📊 Testing Empty GET...");
+
+        if (
+          window.apiLogger &&
+          typeof window.apiLogger.logRequest === "function"
+        ) {
+          const requestId = window.apiLogger.logRequest(
+            "GET",
+            "https://api.example.com/classroom/health",
+            null,
+            null
+          );
+
+          document.getElementById(
+            "standard-get-test"
+          ).textContent += `\n\n✅ Empty GET test. RequestId: ${requestId}`;
+          addTestResult("Empty GET", "success", `RequestId: ${requestId}`);
+        } else {
+          addTestResult("Empty GET", "error", "apiLogger not available");
+        }
+      }
+
+      function testPostWithBody() {
+        console.log("📤 Testing POST with Body...");
+
+        if (
+          window.apiLogger &&
+          typeof window.apiLogger.logRequest === "function"
+        ) {
+          const testData = {
+            name: "New Test Classroom",
+            description: "Test classroom description",
+            subject: "Mathematics",
+            settings: {
+              public: true,
+              maxStudents: 30,
+            },
+          };
+
+          const requestId = window.apiLogger.logRequest(
+            "POST",
+            "https://api.example.com/classroom/create",
+            testData,
+            null
+          );
+
+          document.getElementById("post-test").textContent =
+            `✅ POST test completed. RequestId: ${requestId}\n` +
+            `Data keys: ${Object.keys(testData).join(", ")}`;
+
+          addTestResult("POST with Body", "success", `RequestId: ${requestId}`);
+        } else {
+          addTestResult("POST with Body", "error", "apiLogger not available");
+        }
+      }
+
+      // Auto-run when page loads
+      window.addEventListener("load", function () {
+        console.log("🚀 Real API Logger Test Page Loaded");
+        console.log(
+          "💡 This page will test the actual API Logger from your main app"
+        );
+        console.log(
+          "📋 Make sure to load your main app first so apiLogger is available"
+        );
+
+        // Auto-check API Logger
+        setTimeout(checkAPILogger, 500);
+      });
+    </script>
+  </body>
+</html>

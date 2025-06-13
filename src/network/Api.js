@@ -5,11 +5,14 @@ import qs from "qs";
 import apiLogger from "../utils/apiLogger";
 
 /**
- * Hàm gọi API chung.
+ * Hàm gọi API chung - Hỗ trợ đầy đủ tất cả HTTP methods với data body.
  * @param {object} params - Tham số cho request.
  * @param {string} params.endpoint - Endpoint của API (ví dụ: 'users/search', 'auth/login').
  * @param {string} [params.method=METHOD_TYPE.GET] - Phương thức HTTP (GET, POST, PUT, DELETE, PATCH).
- * @param {object} [params.data] - Body data cho các request POST, PUT, PATCH.
+ * @param {object} [params.data] - Body data cho request (hỗ trợ cho TẤT CẢ methods, kể cả GET cho custom APIs).
+ *                                 - POST/PUT/PATCH: Dữ liệu form hoặc JSON
+ *                                 - GET: Dữ liệu gửi qua body (cho custom APIs như meeting/get-meeting)
+ *                                 - DELETE: Dữ liệu xóa nếu backend yêu cầu
  * @param {object} [params.query] - Query parameters. Sẽ được nối vào URL.
  *                                  Đối với GET, axios tự xử lý params.
  *                                  Đối với các method khác, qs.stringify sẽ được dùng.
@@ -22,7 +25,7 @@ import apiLogger from "../utils/apiLogger";
 const Api = async ({
   endpoint,
   method = METHOD_TYPE.GET,
-  data, // Body data cho POST, PUT, PATCH
+  data, // Body data cho TẤT CẢ methods (POST, PUT, PATCH, DELETE, và cả GET cho custom APIs)
   query, // Query params cho GET hoặc các method khác nếu backend hỗ trợ
   sendCredentials = false,
   requireToken = false, // Thêm tham số requireToken
@@ -42,9 +45,7 @@ const Api = async ({
     config.headers["X-Require-Token"] = "true";
   }
 
-  const upperCaseMethod = method.toUpperCase();
-
-  // Xử lý query parameters
+  const upperCaseMethod = method.toUpperCase(); // Xử lý query parameters
   if (Object.keys(processedQuery).length > 0) {
     if (upperCaseMethod === METHOD_TYPE.GET) {
       // Đối với GET, axios sẽ tự động xử lý params và encoding
@@ -99,8 +100,31 @@ const Api = async ({
         break;
       case METHOD_TYPE.GET:
       default:
-        // config đã chứa params cho GET nếu có
-        result = await axiosClient.get(requestUrl, config);
+        // Enhanced GET handling - Supports both standard GET and custom GET with body data
+        if (data && Object.keys(data).length > 0) {
+          console.log("🔍 DEBUG - GET with body data:", {
+            endpoint: requestUrl,
+            data: data,
+            dataKeys: Object.keys(data),
+            dataType: typeof data,
+            dataAsJSON: JSON.stringify(data),
+          });
+
+          // Use axios.request() for GET with body data (explicit and consistent)
+          // This matches Postman behavior for custom APIs that accept GET with body
+          result = await axiosClient.request({
+            method: "GET",
+            url: requestUrl,
+            data: data, // Body data for custom APIs (like meeting/get-meeting)
+            ...config,
+          });
+
+          console.log("✅ DEBUG - GET with body request sent successfully");
+        } else {
+          console.log("🔍 DEBUG - Standard GET without body data");
+          // Standard GET request without body
+          result = await axiosClient.get(requestUrl, config);
+        }
         break;
     } // === SUCCESS RESPONSE ===
     apiLogger.logResponse(result, requestId);
@@ -108,11 +132,8 @@ const Api = async ({
     return result;
   } catch (error) {
     // === ERROR RESPONSE ===
-    apiLogger.logError(
-      error.response?.data || error.message,
-      requestUrl,
-      requestId
-    );
+    // Pass the full error object to get complete error details
+    apiLogger.logError(error, requestUrl, requestId);
 
     throw error;
   }

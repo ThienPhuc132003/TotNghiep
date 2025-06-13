@@ -11,20 +11,28 @@ class APILogger {
     this.isEnabled = true;
     localStorage.setItem("API_LOGGING_ENABLED", "true");
     console.log("🔊 API Logging ENABLED");
+    return "✅ API Logging is now ENABLED";
   }
 
   disable() {
     this.isEnabled = false;
     localStorage.setItem("API_LOGGING_ENABLED", "false");
     console.log("🔇 API Logging DISABLED");
+    return "❌ API Logging is now DISABLED";
   }
 
   toggle() {
     if (this.isEnabled) {
       this.disable();
+      return "❌ API Logging is now DISABLED";
     } else {
       this.enable();
+      return "✅ API Logging is now ENABLED";
     }
+  }
+
+  getStatus() {
+    return this.isEnabled ? "ENABLED" : "DISABLED";
   }
 
   // Generate unique request ID for timing
@@ -43,20 +51,97 @@ class APILogger {
     this.requestStartTimes.set(requestId, performance.now());
 
     console.group(`🚀 [${method}] API Request - ${timestamp}`);
-    console.log("🔗 Full URL:", url);
+    console.log(`🔗 URL: %c${url}`, "color: #2196F3; font-weight: bold;");
+    console.log(
+      `🆔 Request ID: %c${requestId}`,
+      "color: #9C27B0; font-weight: bold;"
+    );
 
     if (query && Object.keys(query).length > 0) {
       console.log("📋 Query Parameters:");
       console.table(query);
-      console.log("🔍 Query String:", new URLSearchParams(query).toString());
-    }
-
+      console.log(
+        `🔍 Query String: %c${new URLSearchParams(query).toString()}`,
+        "color: #FF9800;"
+      );
+    } // Enhanced body data logging - Consistent for ALL methods
     if (data && Object.keys(data).length > 0) {
       console.log("📤 Request Body:");
-      console.log(JSON.stringify(data, null, 2));
+      console.log(`%c${JSON.stringify(data, null, 2)}`, "color: #4CAF50;");
+
+      // Method-specific highlights and notes
+      switch (method) {
+        case "GET":
+          console.log(
+            `🔥 Custom GET with Body Data: %c${Object.keys(data).join(", ")}`,
+            "color: #FF6B35; font-weight: bold; background: rgba(255, 107, 53, 0.1); padding: 2px 6px; border-radius: 4px;"
+          );
+          console.log(
+            `ℹ️ Note: %cBackend supports GET with body data (custom API)`,
+            "color: #2196F3; font-style: italic;"
+          );
+          break;
+
+        case "POST":
+          console.log(
+            `📝 POST Data: %c${Object.keys(data).join(", ")}`,
+            "color: #2196F3; font-weight: bold; background: rgba(33, 150, 243, 0.1); padding: 2px 6px; border-radius: 4px;"
+          );
+          break;
+
+        case "PUT":
+          console.log(
+            `� PUT Update: %c${Object.keys(data).join(", ")}`,
+            "color: #FF9800; font-weight: bold; background: rgba(255, 152, 0, 0.1); padding: 2px 6px; border-radius: 4px;"
+          );
+          break;
+
+        case "PATCH":
+          console.log(
+            `🔧 PATCH Fields: %c${Object.keys(data).join(", ")}`,
+            "color: #9C27B0; font-weight: bold; background: rgba(156, 39, 176, 0.1); padding: 2px 6px; border-radius: 4px;"
+          );
+          break;
+
+        case "DELETE":
+          console.log(
+            `�️ DELETE with Body: %c${Object.keys(data).join(", ")}`,
+            "color: #F44336; font-weight: bold; background: rgba(244, 67, 54, 0.1); padding: 2px 6px; border-radius: 4px;"
+          );
+          break;
+      }
+
+      // DEBUG: Log exact data being sent (for all methods)
+      console.log(
+        `🔍 DEBUG - Exact body data: %c${JSON.stringify(data)}`,
+        "color: #607D8B; font-weight: bold; background: rgba(96, 125, 139, 0.1); padding: 2px 6px; border-radius: 4px;"
+      );
+      console.log(
+        `🔍 DEBUG - Data type: %c${typeof data} | Keys: [${Object.keys(
+          data
+        ).join(", ")}]`,
+        "color: #607D8B; font-style: italic;"
+      );
+    } else {
+      // Different messages for different methods when no data
+      switch (method) {
+        case "GET":
+          console.log(
+            "📤 Request Body: %cNone (Standard GET request)",
+            "color: #757575;"
+          );
+          break;
+        case "DELETE":
+          console.log(
+            "📤 Request Body: %cNone (Standard DELETE request)",
+            "color: #757575;"
+          );
+          break;
+        default:
+          console.log("📤 Request Body: %cEmpty", "color: #757575;");
+      }
     }
 
-    console.log("🆔 Request ID:", requestId);
     console.groupEnd();
 
     return requestId;
@@ -95,7 +180,10 @@ class APILogger {
       }
     } else if (data && typeof data === "object") {
       // Check if it's paginated response
-      if (data.hasOwnProperty("data") && data.hasOwnProperty("pagination")) {
+      if (
+        Object.prototype.hasOwnProperty.call(data, "data") &&
+        Object.prototype.hasOwnProperty.call(data, "pagination")
+      ) {
         console.log("📄 Paginated Response:");
         console.log("📊 Pagination Info:", data.pagination);
         console.log(`📋 Data (${data.data.length} items):`);
@@ -103,9 +191,24 @@ class APILogger {
         if (data.data.length > 5) {
           console.log(`... and ${data.data.length - 5} more items`);
         }
+      } else if (
+        Object.prototype.hasOwnProperty.call(data, "result") &&
+        Object.prototype.hasOwnProperty.call(data.result, "items")
+      ) {
+        // Handle result.items structure (like meeting API)
+        console.log("📄 Result Response:");
+        console.log(
+          `📊 Total: %c${data.result.total || data.result.items.length}`,
+          "color: #2196F3; font-weight: bold;"
+        );
+        console.log(`📋 Items (${data.result.items.length} items):`);
+        console.table(data.result.items.slice(0, 5));
+        if (data.result.items.length > 5) {
+          console.log(`... and ${data.result.items.length - 5} more items`);
+        }
       } else {
         console.log("📦 Object Response:");
-        console.log(JSON.stringify(data, null, 2));
+        console.log(`%c${JSON.stringify(data, null, 2)}`, "color: #4CAF50;");
       }
     } else {
       console.log("📄 Raw Response:", data);
@@ -129,84 +232,142 @@ class APILogger {
     console.group(`❌ API Error - ${timestamp}`);
 
     if (url) {
-      console.log("🔗 Failed URL:", url);
+      console.log(
+        `🔗 Failed URL: %c${url}`,
+        "color: #F44336; font-weight: bold;"
+      );
     }
 
     if (duration !== null) {
-      console.log(`⏱️ Duration: ${duration.toFixed(2)}ms`);
+      console.log(
+        `⏱️ Duration: %c${duration.toFixed(2)}ms`,
+        "color: #FF5722; font-weight: bold;"
+      );
     }
 
     if (requestId) {
-      console.log("🆔 Request ID:", requestId);
+      console.log(
+        `🆔 Request ID: %c${requestId}`,
+        "color: #9C27B0; font-weight: bold;"
+      );
     }
 
     // Enhanced error details
     if (error && typeof error === "object") {
       if (error.response) {
         console.log("📛 HTTP Error Response:");
-        console.log("🔢 Status:", error.response.status);
-        console.log("📄 Status Text:", error.response.statusText);
-        console.log("📋 Headers:", error.response.headers);
-        console.log("💬 Error Data:", error.response.data);
+        console.log(
+          `🔢 Status: %c${error.response.status} ${error.response.statusText}`,
+          "color: #F44336; font-weight: bold; font-size: 14px; background: rgba(244, 67, 54, 0.1); padding: 2px 6px; border-radius: 4px;"
+        );
+
+        // Show response data prominently
+        if (error.response.data) {
+          console.log("💬 Server Error Details:");
+
+          // Try to format error data nicely
+          if (typeof error.response.data === "object") {
+            console.log(
+              `%c${JSON.stringify(error.response.data, null, 2)}`,
+              "color: #F44336; background: rgba(244, 67, 54, 0.05); padding: 8px; border-left: 3px solid #F44336; font-family: monospace;"
+            );
+
+            // Also show as table if it's an object
+            if (!Array.isArray(error.response.data)) {
+              console.table(error.response.data);
+            }
+          } else {
+            console.log(
+              `%c${error.response.data}`,
+              "color: #F44336; font-weight: bold; font-size: 13px;"
+            );
+          }
+        }
+
+        // Headers for debugging
+        console.log("📋 Response Headers:");
+        console.table(error.response.headers);
       } else if (error.request) {
         console.log("📡 Network Error - No Response Received:");
+        console.log(
+          "%cThis could be CORS, network timeout, or server down",
+          "color: #FF5722; font-weight: bold;"
+        );
         console.log("🌐 Request Details:", error.request);
       } else {
         console.log("⚙️ Request Setup Error:");
-        console.log("💬 Error Message:", error.message);
+        console.log(
+          `💬 Error Message: %c${error.message}`,
+          "color: #F44336; font-weight: bold;"
+        );
       }
 
+      // Request config for debugging
       if (error.config) {
-        console.log("🔧 Request Config:", error.config);
+        console.log("🔧 Request Configuration:");
+        const configTable = {
+          Method: error.config.method?.toUpperCase(),
+          URL: error.config.url,
+          BaseURL: error.config.baseURL,
+          Timeout: error.config.timeout + "ms",
+          Headers: JSON.stringify(error.config.headers, null, 2),
+        };
+        console.table(configTable);
+
+        if (error.config.data) {
+          console.log("📤 Request Data that caused error:");
+          console.log(
+            `%c${JSON.stringify(error.config.data, null, 2)}`,
+            "color: #FF9800; background: rgba(255, 152, 0, 0.05); padding: 8px; border-left: 3px solid #FF9800; font-family: monospace;"
+          );
+        }
       }
     } else {
-      console.log("💬 Error:", error);
+      console.log(`💬 Error: %c${error}`, "color: #F44336; font-weight: bold;");
     }
 
     console.groupEnd();
   }
-
-  // Special method for tutor revenue debugging
-  logTutorRevenueRequest(query, searchParams, sortParams) {
-    if (!this.isEnabled) return;
-
-    console.group("🎓 TUTOR REVENUE STATISTICS - REQUEST DEBUG");
-    console.log("📅 Timestamp:", new Date().toISOString());
-
-    console.log("🔍 Search Parameters:");
-    console.table(searchParams);
-
-    console.log("📊 Sort Parameters:");
-    console.table(sortParams);
-
-    console.log("📋 Full Query Object:");
-    console.table(query);
-
-    console.log(
-      "🔗 Query String Preview:",
-      new URLSearchParams(query).toString()
-    );
-    console.groupEnd();
-  }
-
-  // Method to clear all stored request times (cleanup)
-  clearRequestTimes() {
-    this.requestStartTimes.clear();
-    console.log("🧹 Cleared all request timing data");
-  }
 }
 
-// Create singleton instance
+// Create the global instance
 const apiLogger = new APILogger();
 
-// Export both the instance and the class
-export default apiLogger;
-export { APILogger };
+// Expose global functions with return values
+window.enableAPILogging = function () {
+  return apiLogger.enable();
+};
 
-// Expose to window for easy console access
-if (typeof window !== "undefined") {
-  window.apiLogger = apiLogger;
-  window.enableAPILogging = () => apiLogger.enable();
-  window.disableAPILogging = () => apiLogger.disable();
-  window.toggleAPILogging = () => apiLogger.toggle();
-}
+window.disableAPILogging = function () {
+  return apiLogger.disable();
+};
+
+window.toggleAPILogging = function () {
+  return apiLogger.toggle();
+};
+
+window.getAPILoggingStatus = function () {
+  const status = apiLogger.getStatus();
+  console.log(`📊 API Logging Status: ${status}`);
+  return `API Logging is ${status}`;
+};
+
+// Also expose the apiLogger instance
+window.apiLogger = apiLogger;
+
+// Auto-show usage guide on console
+console.log(
+  "%c🚀 API Logger Loaded!",
+  "color: #4CAF50; font-size: 16px; font-weight: bold;"
+);
+console.log(
+  "%c📋 Available Commands:",
+  "color: #2196F3; font-size: 14px; font-weight: bold;"
+);
+console.log("%c- enableAPILogging()", "color: #4CAF50;");
+console.log("%c- disableAPILogging()", "color: #F44336;");
+console.log("%c- toggleAPILogging()", "color: #FF9800;");
+console.log("%c- getAPILoggingStatus()", "color: #9C27B0;");
+console.log("%c- apiLogger.getStatus()", "color: #607D8B;");
+
+export default apiLogger;
