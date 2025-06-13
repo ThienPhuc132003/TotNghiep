@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Data Consistency - All HTTP Methods</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: #fafafa;
+      }
+      .test-section h3 {
+        color: #34495e;
+        margin-top: 0;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .button-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+      }
+      .test-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+      .test-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .btn-get {
+        background-color: #27ae60;
+      }
+      .btn-post {
+        background-color: #3498db;
+      }
+      .btn-put {
+        background-color: #f39c12;
+      }
+      .btn-delete {
+        background-color: #e74c3c;
+      }
+      .btn-patch {
+        background-color: #9b59b6;
+      }
+      .btn-logger {
+        background-color: #2c3e50;
+      }
+      .code-block {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      .highlight {
+        background-color: #f1c40f;
+        color: #2c3e50;
+        padding: 2px 4px;
+        border-radius: 2px;
+        font-weight: bold;
+      }
+      .note {
+        background-color: #e8f6ff;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Test Data Consistency - All HTTP Methods</h1>
+
+      <div class="note">
+        <h4>📋 Mục đích kiểm tra:</h4>
+        <ul>
+          <li>
+            <strong>Tính nhất quán:</strong> Tất cả methods đều có thể truyền
+            data body
+          </li>
+          <li>
+            <strong>GET with body:</strong> Kiểm tra custom APIs như
+            meeting/get-meeting
+          </li>
+          <li>
+            <strong>Logging consistency:</strong> API logging hiển thị data đầy
+            đủ cho tất cả methods
+          </li>
+          <li>
+            <strong>Backend compatibility:</strong> Đảm bảo data đến backend
+            đúng định dạng
+          </li>
+        </ul>
+      </div>
+
+      <!-- API Logging Controls -->
+      <div class="test-section">
+        <h3>🔊 API Logging Controls</h3>
+        <div class="button-group">
+          <button class="test-btn btn-logger" onclick="enableLogging()">
+            Enable Logging
+          </button>
+          <button class="test-btn btn-logger" onclick="disableLogging()">
+            Disable Logging
+          </button>
+          <button class="test-btn btn-logger" onclick="toggleLogging()">
+            Toggle Logging
+          </button>
+          <button class="test-btn btn-logger" onclick="checkStatus()">
+            Check Status
+          </button>
+        </div>
+        <div class="code-block" id="logging-status">
+          Status:
+          <span class="highlight"
+            >Click "Check Status" to see current logging state</span
+          >
+        </div>
+      </div>
+
+      <!-- Test Data Samples -->
+      <div class="test-section">
+        <h3>📤 Test Data Samples</h3>
+        <div class="code-block">
+          // Sample data for testing const testData = { // User data user: {
+          name: "Nguyễn Văn A", email: "test@example.com", age: 25 }, //
+          Classroom data (for meeting/get-meeting API) classroom: { classroomId:
+          "676b825d9b4b71df3fbe85dc", userId: "user123", tutorId: "tutor456" },
+          // Meeting data meeting: { meetingId: "meeting789", classroomId:
+          "676b825d9b4b71df3fbe85dc", startTime: "2024-01-15T10:00:00Z" }, //
+          Search criteria search: { keyword: "javascript", category:
+          "programming", level: "intermediate" } };
+        </div>
+      </div>
+
+      <!-- GET Method Tests -->
+      <div class="test-section">
+        <h3>🟢 GET Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-get" onclick="testGetStandard()">
+            Standard GET (no body)
+          </button>
+          <button class="test-btn btn-get" onclick="testGetWithBody()">
+            GET with Body Data
+          </button>
+          <button class="test-btn btn-get" onclick="testGetMeetingAPI()">
+            GET meeting/get-meeting
+          </button>
+          <button class="test-btn btn-get" onclick="testGetClassroomAPI()">
+            GET classroom/search
+          </button>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Lưu ý:</strong> GET with body data chỉ hoạt động với custom
+          APIs hỗ trợ (như meeting/get-meeting). Standard REST APIs thường không
+          support GET với body.
+        </div>
+      </div>
+
+      <!-- POST Method Tests -->
+      <div class="test-section">
+        <h3>🔵 POST Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-post" onclick="testPostUser()">
+            POST User Data
+          </button>
+          <button class="test-btn btn-post" onclick="testPostLogin()">
+            POST Login
+          </button>
+          <button class="test-btn btn-post" onclick="testPostEmpty()">
+            POST Empty Data
+          </button>
+        </div>
+      </div>
+
+      <!-- PUT Method Tests -->
+      <div class="test-section">
+        <h3>🟡 PUT Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-put" onclick="testPutUser()">
+            PUT Update User
+          </button>
+          <button class="test-btn btn-put" onclick="testPutProfile()">
+            PUT Update Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- DELETE Method Tests -->
+      <div class="test-section">
+        <h3>🔴 DELETE Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-delete" onclick="testDeleteStandard()">
+            DELETE (no body)
+          </button>
+          <button class="test-btn btn-delete" onclick="testDeleteWithBody()">
+            DELETE with Body
+          </button>
+        </div>
+      </div>
+
+      <!-- PATCH Method Tests -->
+      <div class="test-section">
+        <h3>🟣 PATCH Method Tests</h3>
+        <div class="button-group">
+          <button class="test-btn btn-patch" onclick="testPatchUser()">
+            PATCH Update User
+          </button>
+          <button class="test-btn btn-patch" onclick="testPatchSettings()">
+            PATCH Update Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Network Debugging -->
+      <div class="test-section">
+        <h3>🔍 Network Debugging Tips</h3>
+        <div class="success">
+          <h4>🛠️ Cách kiểm tra trong DevTools:</h4>
+          <ol>
+            <li>Mở <strong>DevTools</strong> (F12)</li>
+            <li>Chuyển tab <strong>Network</strong></li>
+            <li>Chạy test các API calls</li>
+            <li>
+              Click vào request để xem:
+              <ul>
+                <li>
+                  <strong>Request Headers:</strong> Content-Type, Authorization
+                </li>
+                <li>
+                  <strong>Request Payload:</strong> Body data thực tế gửi đi
+                </li>
+                <li><strong>Response:</strong> Dữ liệu trả về</li>
+              </ul>
+            </li>
+            <li>So sánh với <strong>Console logs</strong> từ API Logger</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock axiosClient for testing
+      const mockAxiosClient = {
+        defaults: { baseURL: "https://demo-api.example.com/api/" },
+
+        async request(config) {
+          console.log("📡 Mock axios.request() called:", config);
+          return this.simulateResponse(config);
+        },
+
+        async get(url, config) {
+          console.log("📡 Mock axios.get() called:", { url, config });
+          return this.simulateResponse({ method: "GET", url, ...config });
+        },
+
+        async post(url, data, config) {
+          console.log("📡 Mock axios.post() called:", { url, data, config });
+          return this.simulateResponse({
+            method: "POST",
+            url,
+            data,
+            ...config,
+          });
+        },
+
+        async put(url, data, config) {
+          console.log("📡 Mock axios.put() called:", { url, data, config });
+          return this.simulateResponse({ method: "PUT", url, data, ...config });
+        },
+
+        async delete(url, config) {
+          console.log("📡 Mock axios.delete() called:", { url, config });
+          return this.simulateResponse({ method: "DELETE", url, ...config });
+        },
+
+        async patch(url, data, config) {
+          console.log("📡 Mock axios.patch() called:", { url, data, config });
+          return this.simulateResponse({
+            method: "PATCH",
+            url,
+            data,
+            ...config,
+          });
+        },
+
+        simulateResponse(config) {
+          // Simulate network delay
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve({
+                data: {
+                  success: true,
+                  message: "Mock response",
+                  receivedData: config.data || null,
+                  method: config.method,
+                  url: config.url,
+                },
+                status: 200,
+                statusText: "OK",
+              });
+            }, 100 + Math.random() * 200); // 100-300ms delay
+          });
+        },
+      };
+
+      // Mock API Logger
+      const mockApiLogger = {
+        isEnabled: true,
+        requestId: 1,
+
+        enable() {
+          this.isEnabled = true;
+          console.log("🔊 Mock API Logging ENABLED");
+          return "✅ API Logging is now ENABLED";
+        },
+
+        disable() {
+          this.isEnabled = false;
+          console.log("🔇 Mock API Logging DISABLED");
+          return "❌ API Logging is now DISABLED";
+        },
+
+        toggle() {
+          return this.isEnabled ? this.disable() : this.enable();
+        },
+
+        getStatus() {
+          return this.isEnabled ? "ENABLED" : "DISABLED";
+        },
+
+        logRequest(method, url, data, query) {
+          if (!this.isEnabled) return;
+
+          const requestId = `mock_${this.requestId++}`;
+          console.group(`🚀 [${method}] API Request`);
+          console.log(`🔗 URL: ${url}`);
+          console.log(`🆔 Request ID: ${requestId}`);
+
+          if (query && Object.keys(query).length > 0) {
+            console.log("📋 Query Parameters:", query);
+          }
+
+          if (data && Object.keys(data).length > 0) {
+            console.log("📤 Request Body:", data);
+            if (method === "GET") {
+              console.log("🔥 Custom GET with Body Data!");
+            }
+          } else {
+            console.log("📤 Request Body: None");
+          }
+
+          console.groupEnd();
+          return requestId;
+        },
+
+        logResponse(response, requestId) {
+          if (!this.isEnabled) return;
+
+          console.group("✅ API Response");
+          if (requestId) console.log("🆔 Request ID:", requestId);
+          console.log("📥 Response Data:", response);
+          console.groupEnd();
+        },
+
+        logError(error, url, requestId) {
+          if (!this.isEnabled) return;
+
+          console.group("❌ API Error");
+          if (requestId) console.log("🆔 Request ID:", requestId);
+          console.log("🔗 URL:", url);
+          console.log("💥 Error:", error);
+          console.groupEnd();
+        },
+      };
+
+      // Mock Api function
+      async function mockApi({
+        endpoint,
+        method = "GET",
+        data,
+        query,
+        sendCredentials = false,
+        requireToken = false,
+      }) {
+        console.log("🔧 Mock Api() called with:", {
+          endpoint,
+          method,
+          data,
+          query,
+          sendCredentials,
+          requireToken,
+        });
+
+        // Simulate the Api.js logic
+        let requestUrl = endpoint;
+        const config = { headers: {} };
+
+        if (requireToken) {
+          config.headers["X-Require-Token"] = "true";
+        }
+
+        // Log request
+        const requestId = mockApiLogger.logRequest(
+          method,
+          `${mockAxiosClient.defaults.baseURL}${requestUrl}`,
+          data,
+          query
+        );
+
+        try {
+          let result;
+
+          switch (method.toUpperCase()) {
+            case "POST":
+              result = await mockAxiosClient.post(requestUrl, data, config);
+              break;
+            case "PUT":
+              result = await mockAxiosClient.put(requestUrl, data, config);
+              break;
+            case "DELETE":
+              result = await mockAxiosClient.delete(requestUrl, {
+                ...config,
+                data,
+              });
+              break;
+            case "PATCH":
+              result = await mockAxiosClient.patch(requestUrl, data, config);
+              break;
+            case "GET":
+            default:
+              if (data && Object.keys(data).length > 0) {
+                console.log("🔍 DEBUG - GET with body data:", data);
+                result = await mockAxiosClient.request({
+                  method: "GET",
+                  url: requestUrl,
+                  data: data,
+                  ...config,
+                });
+              } else {
+                result = await mockAxiosClient.get(requestUrl, config);
+              }
+              break;
+          }
+
+          // Log response
+          mockApiLogger.logResponse(result.data, requestId);
+          return result.data;
+        } catch (error) {
+          mockApiLogger.logError(error, requestUrl, requestId);
+          throw error;
+        }
+      }
+
+      // Test data
+      const testData = {
+        user: {
+          name: "Nguyễn Văn A",
+          email: "test@example.com",
+          age: 25,
+        },
+        classroom: {
+          classroomId: "676b825d9b4b71df3fbe85dc",
+          userId: "user123",
+          tutorId: "tutor456",
+        },
+        meeting: {
+          meetingId: "meeting789",
+          classroomId: "676b825d9b4b71df3fbe85dc",
+          startTime: "2024-01-15T10:00:00Z",
+        },
+        search: {
+          keyword: "javascript",
+          category: "programming",
+          level: "intermediate",
+        },
+      };
+
+      // Logging controls
+      function enableLogging() {
+        const result = mockApiLogger.enable();
+        updateStatus(result);
+      }
+
+      function disableLogging() {
+        const result = mockApiLogger.disable();
+        updateStatus(result);
+      }
+
+      function toggleLogging() {
+        const result = mockApiLogger.toggle();
+        updateStatus(result);
+      }
+
+      function checkStatus() {
+        const status = mockApiLogger.getStatus();
+        updateStatus(`Current status: ${status}`);
+      }
+
+      function updateStatus(message) {
+        document.getElementById(
+          "logging-status"
+        ).innerHTML = `Status: <span class="highlight">${message}</span>`;
+      }
+
+      // GET Method Tests
+      async function testGetStandard() {
+        console.log("\n🧪 Testing Standard GET (no body)...");
+        try {
+          await mockApi({
+            endpoint: "users/profile",
+            method: "GET",
+            query: { userId: "123" },
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testGetWithBody() {
+        console.log("\n🧪 Testing GET with Body Data...");
+        try {
+          await mockApi({
+            endpoint: "search/advanced",
+            method: "GET",
+            data: testData.search,
+            query: { page: 1, limit: 10 },
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testGetMeetingAPI() {
+        console.log("\n🧪 Testing GET meeting/get-meeting...");
+        try {
+          await mockApi({
+            endpoint: "meeting/get-meeting",
+            method: "GET",
+            data: testData.classroom,
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testGetClassroomAPI() {
+        console.log("\n🧪 Testing GET classroom/search...");
+        try {
+          await mockApi({
+            endpoint: "classroom/search-for-user",
+            method: "GET",
+            data: { userId: testData.classroom.userId },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      // POST Method Tests
+      async function testPostUser() {
+        console.log("\n🧪 Testing POST User Data...");
+        try {
+          await mockApi({
+            endpoint: "users/create",
+            method: "POST",
+            data: testData.user,
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testPostLogin() {
+        console.log("\n🧪 Testing POST Login...");
+        try {
+          await mockApi({
+            endpoint: "auth/login",
+            method: "POST",
+            data: {
+              email: testData.user.email,
+              password: "test123",
+            },
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testPostEmpty() {
+        console.log("\n🧪 Testing POST Empty Data...");
+        try {
+          await mockApi({
+            endpoint: "users/ping",
+            method: "POST",
+            data: {},
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      // PUT Method Tests
+      async function testPutUser() {
+        console.log("\n🧪 Testing PUT Update User...");
+        try {
+          await mockApi({
+            endpoint: "users/123",
+            method: "PUT",
+            data: { ...testData.user, age: 26 },
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testPutProfile() {
+        console.log("\n🧪 Testing PUT Update Profile...");
+        try {
+          await mockApi({
+            endpoint: "users/profile",
+            method: "PUT",
+            data: {
+              bio: "Updated bio",
+              skills: ["JavaScript", "React", "Node.js"],
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      // DELETE Method Tests
+      async function testDeleteStandard() {
+        console.log("\n🧪 Testing DELETE (no body)...");
+        try {
+          await mockApi({
+            endpoint: "users/123",
+            method: "DELETE",
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testDeleteWithBody() {
+        console.log("\n🧪 Testing DELETE with Body...");
+        try {
+          await mockApi({
+            endpoint: "users/bulk-delete",
+            method: "DELETE",
+            data: {
+              userIds: ["123", "456", "789"],
+              reason: "Cleanup test accounts",
+            },
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      // PATCH Method Tests
+      async function testPatchUser() {
+        console.log("\n🧪 Testing PATCH Update User...");
+        try {
+          await mockApi({
+            endpoint: "users/123",
+            method: "PATCH",
+            data: { age: 27 },
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      async function testPatchSettings() {
+        console.log("\n🧪 Testing PATCH Update Settings...");
+        try {
+          await mockApi({
+            endpoint: "users/settings",
+            method: "PATCH",
+            data: {
+              notifications: true,
+              theme: "dark",
+            },
+            requireToken: true,
+          });
+        } catch (error) {
+          console.error("Test failed:", error);
+        }
+      }
+
+      // Initialize
+      checkStatus();
+      console.log(
+        "🎯 Test page loaded! Open DevTools Console and Network tab to see API calls."
+      );
+      console.log(
+        "📋 Available methods: enableAPILogging(), disableAPILogging(), toggleAPILogging(), getAPILoggingStatus()"
+      );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced API Error Logging Demo</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      h1,
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .demo-btn {
+        background: linear-gradient(45deg, #f44336, #e91e63);
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .demo-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .success-btn {
+        background: linear-gradient(45deg, #4caf50, #8bc34a);
+      }
+
+      .info-box {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #ffe066;
+      }
+
+      .error-demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .error-demo-item {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        text-align: center;
+      }
+
+      .error-type {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #ffe066;
+      }
+
+      .error-desc {
+        margin-bottom: 15px;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚨 Enhanced API Error Logging Demo</h1>
+
+    <div class="container">
+      <h2>🔍 Error Logging Improvements</h2>
+
+      <div class="info-box">
+        <strong>📋 Những cải thiện mới trong Error Logging:</strong>
+        <ul>
+          <li>
+            🎨 <strong>Enhanced Color Coding</strong>: Status codes, error
+            messages với background highlight
+          </li>
+          <li>
+            📊 <strong>Table Format</strong>: Response headers và request config
+            hiển thị dạng table
+          </li>
+          <li>
+            📋 <strong>Detailed Server Errors</strong>: JSON error data với
+            formatting và background
+          </li>
+          <li>
+            🔧 <strong>Request Configuration</strong>: Method, URL, baseURL,
+            timeout, headers đầy đủ
+          </li>
+          <li>
+            📤 <strong>Request Data</strong>: Data gửi lên server được highlight
+            khi có lỗi
+          </li>
+          <li>
+            ⚡ <strong>Network Error Detection</strong>: Phân biệt rõ CORS,
+            timeout, server down
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>🧪 Error Scenarios Demo</h2>
+
+      <div class="info-box">
+        <strong>⚠️ Hướng dẫn:</strong> Mở Developer Console (F12) trước khi
+        click các nút để xem error logging chi tiết!
+      </div>
+
+      <div class="error-demo-grid">
+        <div class="error-demo-item">
+          <div class="error-type">400 Bad Request</div>
+          <div class="error-desc">
+            Server trả về lỗi validation với thông tin chi tiết
+          </div>
+          <button class="demo-btn" onclick="simulate400Error()">
+            Test 400 Error
+          </button>
+        </div>
+
+        <div class="error-demo-item">
+          <div class="error-type">401 Unauthorized</div>
+          <div class="error-desc">Token không hợp lệ hoặc hết hạn</div>
+          <button class="demo-btn" onclick="simulate401Error()">
+            Test 401 Error
+          </button>
+        </div>
+
+        <div class="error-demo-item">
+          <div class="error-type">404 Not Found</div>
+          <div class="error-desc">API endpoint không tồn tại</div>
+          <button class="demo-btn" onclick="simulate404Error()">
+            Test 404 Error
+          </button>
+        </div>
+
+        <div class="error-demo-item">
+          <div class="error-type">500 Server Error</div>
+          <div class="error-desc">Lỗi internal server với stack trace</div>
+          <button class="demo-btn" onclick="simulate500Error()">
+            Test 500 Error
+          </button>
+        </div>
+
+        <div class="error-demo-item">
+          <div class="error-type">Network Error</div>
+          <div class="error-desc">CORS, timeout, hoặc server down</div>
+          <button class="demo-btn" onclick="simulateNetworkError()">
+            Test Network Error
+          </button>
+        </div>
+
+        <div class="error-demo-item">
+          <div class="error-type">Success Response</div>
+          <div class="error-desc">Để so sánh với error logs</div>
+          <button class="demo-btn success-btn" onclick="simulateSuccess()">
+            Test Success
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>📊 Error Log Features</h2>
+
+      <pre>
+🚨 Error Log Output bao gồm:
+
+📅 Timestamp: 2025-06-13T09:45:12.345Z
+🔗 Failed URL: /api/meeting/get-meeting
+⏱️ Duration: 1234.56ms
+🆔 Request ID: req_1686648312345_abc123xyz
+
+📛 HTTP Error Response:
+🔢 Status: 400 Bad Request    [với background highlight đỏ]
+💬 Server Error Details:      [JSON formatted với border]
+{
+  "error": "Validation failed",
+  "details": {
+    "classroomId": "Required field missing",
+    "token": "Invalid or expired"
+  },
+  "timestamp": "2025-06-13T09:45:12.345Z"
+}
+
+📋 Response Headers:          [Table format]
+│ content-type     │ application/json              │
+│ content-length   │ 156                          │
+│ access-control-* │ CORS headers                 │
+
+🔧 Request Configuration:     [Table format]
+│ Method    │ GET                              │
+│ URL       │ /api/meeting/get-meeting         │
+│ BaseURL   │ https://api.yourapp.com          │
+│ Timeout   │ 10000ms                          │
+
+📤 Request Data that caused error: [với background highlight cam]
+{
+  "page": 1,
+  "limit": 10,
+  "invalidParam": "test"
+}
+        </pre
+      >
+    </div>
+
+    <script>
+      // Enhanced API Logger Mock with improved error logging
+      const enhancedAPILogger = {
+        isEnabled: true,
+        requestStartTimes: new Map(),
+
+        logError(error, url = "", requestId = null) {
+          if (!this.isEnabled) return;
+
+          const timestamp = new Date().toISOString();
+          let duration = null;
+
+          if (requestId && this.requestStartTimes.has(requestId)) {
+            duration =
+              performance.now() - this.requestStartTimes.get(requestId);
+            this.requestStartTimes.delete(requestId);
+          }
+
+          console.group(`❌ API Error - ${timestamp}`);
+
+          if (url) {
+            console.log(
+              `🔗 Failed URL: %c${url}`,
+              "color: #F44336; font-weight: bold;"
+            );
+          }
+
+          if (duration !== null) {
+            console.log(
+              `⏱️ Duration: %c${duration.toFixed(2)}ms`,
+              "color: #FF5722; font-weight: bold;"
+            );
+          }
+
+          if (requestId) {
+            console.log(
+              `🆔 Request ID: %c${requestId}`,
+              "color: #9C27B0; font-weight: bold;"
+            );
+          }
+
+          // Enhanced error details
+          if (error && typeof error === "object") {
+            if (error.response) {
+              console.log("📛 HTTP Error Response:");
+              console.log(
+                `🔢 Status: %c${error.response.status} ${error.response.statusText}`,
+                "color: #F44336; font-weight: bold; font-size: 14px; background: rgba(244, 67, 54, 0.1); padding: 2px 6px; border-radius: 4px;"
+              );
+
+              // Show response data prominently
+              if (error.response.data) {
+                console.log("💬 Server Error Details:");
+
+                // Try to format error data nicely
+                if (typeof error.response.data === "object") {
+                  console.log(
+                    `%c${JSON.stringify(error.response.data, null, 2)}`,
+                    "color: #F44336; background: rgba(244, 67, 54, 0.05); padding: 8px; border-left: 3px solid #F44336; font-family: monospace;"
+                  );
+
+                  // Also show as table if it's an object
+                  if (!Array.isArray(error.response.data)) {
+                    console.table(error.response.data);
+                  }
+                } else {
+                  console.log(
+                    `%c${error.response.data}`,
+                    "color: #F44336; font-weight: bold; font-size: 13px;"
+                  );
+                }
+              }
+
+              // Headers for debugging
+              console.log("📋 Response Headers:");
+              console.table(error.response.headers);
+            } else if (error.request) {
+              console.log("📡 Network Error - No Response Received:");
+              console.log(
+                "%cThis could be CORS, network timeout, or server down",
+                "color: #FF5722; font-weight: bold;"
+              );
+              console.log("🌐 Request Details:", error.request);
+            } else {
+              console.log("⚙️ Request Setup Error:");
+              console.log(
+                `💬 Error Message: %c${error.message}`,
+                "color: #F44336; font-weight: bold;"
+              );
+            }
+
+            // Request config for debugging
+            if (error.config) {
+              console.log("🔧 Request Configuration:");
+              const configTable = {
+                Method: error.config.method?.toUpperCase(),
+                URL: error.config.url,
+                BaseURL: error.config.baseURL,
+                Timeout: error.config.timeout + "ms",
+                Headers: JSON.stringify(error.config.headers, null, 2),
+              };
+              console.table(configTable);
+
+              if (error.config.data) {
+                console.log("📤 Request Data that caused error:");
+                console.log(
+                  `%c${JSON.stringify(error.config.data, null, 2)}`,
+                  "color: #FF9800; background: rgba(255, 152, 0, 0.05); padding: 8px; border-left: 3px solid #FF9800; font-family: monospace;"
+                );
+              }
+            }
+          } else {
+            console.log(
+              `💬 Error: %c${error}`,
+              "color: #F44336; font-weight: bold;"
+            );
+          }
+
+          console.groupEnd();
+        },
+
+        logRequest(method, url, data = null) {
+          const requestId = `req_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`;
+          this.requestStartTimes.set(requestId, performance.now());
+
+          console.group(`🚀 [${method}] API Request`);
+          console.log(`🔗 URL: %c${url}`, "color: #2196F3; font-weight: bold;");
+          console.log(
+            `🆔 Request ID: %c${requestId}`,
+            "color: #9C27B0; font-weight: bold;"
+          );
+          if (data) {
+            console.log("📤 Request Data:");
+            console.table(data);
+          }
+          console.groupEnd();
+
+          return requestId;
+        },
+      };
+
+      // Demo error scenarios
+      function simulate400Error() {
+        const requestId = enhancedAPILogger.logRequest(
+          "GET",
+          "/api/meeting/get-meeting",
+          {
+            page: 1,
+            limit: 10,
+            invalidParam: "test",
+          }
+        );
+
+        setTimeout(() => {
+          const error = {
+            response: {
+              status: 400,
+              statusText: "Bad Request",
+              data: {
+                error: "Validation failed",
+                details: {
+                  classroomId: "Required field missing",
+                  token: "Invalid or expired",
+                },
+                timestamp: new Date().toISOString(),
+                requestId: requestId,
+              },
+              headers: {
+                "content-type": "application/json",
+                "content-length": "156",
+                "access-control-allow-origin": "*",
+                "x-request-id": requestId,
+              },
+            },
+            config: {
+              method: "get",
+              url: "/api/meeting/get-meeting",
+              baseURL: "https://api.yourapp.com",
+              timeout: 10000,
+              headers: {
+                Authorization: "Bearer invalid_token_here",
+                "Content-Type": "application/json",
+                "X-Require-Token": "true",
+              },
+              data: {
+                page: 1,
+                limit: 10,
+                invalidParam: "test",
+              },
+            },
+          };
+
+          enhancedAPILogger.logError(
+            error,
+            "/api/meeting/get-meeting",
+            requestId
+          );
+        }, 500);
+      }
+
+      function simulate401Error() {
+        const requestId = enhancedAPILogger.logRequest(
+          "POST",
+          "/api/classroom/search-for-user",
+          {
+            search: "test classroom",
+            filters: { level: "advanced" },
+          }
+        );
+
+        setTimeout(() => {
+          const error = {
+            response: {
+              status: 401,
+              statusText: "Unauthorized",
+              data: {
+                error: "Authentication failed",
+                message: "Token has expired",
+                code: "TOKEN_EXPIRED",
+                expiredAt: "2025-06-13T08:00:00.000Z",
+              },
+              headers: {
+                "content-type": "application/json",
+                "www-authenticate": 'Bearer realm="api"',
+              },
+            },
+            config: {
+              method: "post",
+              url: "/api/classroom/search-for-user",
+              baseURL: "https://api.yourapp.com",
+              timeout: 10000,
+              headers: {
+                Authorization: "Bearer expired_token_12345",
+                "Content-Type": "application/json",
+              },
+              data: {
+                search: "test classroom",
+                filters: { level: "advanced" },
+              },
+            },
+          };
+
+          enhancedAPILogger.logError(
+            error,
+            "/api/classroom/search-for-user",
+            requestId
+          );
+        }, 300);
+      }
+
+      function simulate404Error() {
+        const requestId = enhancedAPILogger.logRequest(
+          "GET",
+          "/api/nonexistent/endpoint"
+        );
+
+        setTimeout(() => {
+          const error = {
+            response: {
+              status: 404,
+              statusText: "Not Found",
+              data: {
+                error: "Endpoint not found",
+                path: "/api/nonexistent/endpoint",
+                method: "GET",
+                timestamp: new Date().toISOString(),
+                suggestion: "Check API documentation for correct endpoints",
+              },
+              headers: {
+                "content-type": "application/json",
+              },
+            },
+            config: {
+              method: "get",
+              url: "/api/nonexistent/endpoint",
+              baseURL: "https://api.yourapp.com",
+            },
+          };
+
+          enhancedAPILogger.logError(
+            error,
+            "/api/nonexistent/endpoint",
+            requestId
+          );
+        }, 200);
+      }
+
+      function simulate500Error() {
+        const requestId = enhancedAPILogger.logRequest(
+          "POST",
+          "/api/tutor/revenue-statistics",
+          {
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+          }
+        );
+
+        setTimeout(() => {
+          const error = {
+            response: {
+              status: 500,
+              statusText: "Internal Server Error",
+              data: {
+                error: "Database connection failed",
+                message: "Unable to connect to database server",
+                code: "DB_CONNECTION_ERROR",
+                stack:
+                  "Error: connect ECONNREFUSED 127.0.0.1:5432\\n    at TCPConnectWrap.afterConnect\\n    at Database.connect",
+                timestamp: new Date().toISOString(),
+                requestId: requestId,
+              },
+              headers: {
+                "content-type": "application/json",
+                "x-error-id": "ERR_" + Date.now(),
+              },
+            },
+            config: {
+              method: "post",
+              url: "/api/tutor/revenue-statistics",
+              baseURL: "https://api.yourapp.com",
+              timeout: 30000,
+              data: {
+                startDate: "2024-01-01",
+                endDate: "2024-12-31",
+                tutorId: 123,
+                groupBy: "month",
+              },
+            },
+          };
+
+          enhancedAPILogger.logError(
+            error,
+            "/api/tutor/revenue-statistics",
+            requestId
+          );
+        }, 800);
+      }
+
+      function simulateNetworkError() {
+        const requestId = enhancedAPILogger.logRequest(
+          "GET",
+          "/api/classroom/search-for-tutor"
+        );
+
+        setTimeout(() => {
+          const error = {
+            request: {
+              readyState: 4,
+              responseText: "",
+              status: 0,
+              statusText: "",
+            },
+            message: "Network Error",
+            config: {
+              method: "get",
+              url: "/api/classroom/search-for-tutor",
+              baseURL: "https://unreachable-server.com",
+              timeout: 5000,
+            },
+          };
+
+          enhancedAPILogger.logError(
+            error,
+            "/api/classroom/search-for-tutor",
+            requestId
+          );
+        }, 400);
+      }
+
+      function simulateSuccess() {
+        const requestId = enhancedAPILogger.logRequest(
+          "GET",
+          "/api/classroom/search-for-user",
+          {
+            page: 1,
+            limit: 10,
+          }
+        );
+
+        setTimeout(() => {
+          console.group(`✅ API Response - Success (ID: ${requestId})`);
+          console.log(`📅 Timestamp: ${new Date().toISOString()}`);
+          console.log(
+            `📈 Status: %c200 OK`,
+            "color: #4CAF50; font-weight: bold;"
+          );
+          console.log("📥 Response Data:");
+          console.table([
+            { id: 1, name: "Classroom 1", students: 25, subject: "Math" },
+            { id: 2, name: "Classroom 2", students: 30, subject: "Physics" },
+          ]);
+          console.groupEnd();
+        }, 300);
+      }
+
+      // Show initial help
+      console.log(`
+🚨 Enhanced API Error Logging Demo Ready!
+
+🎯 Features Demonstrated:
+  • Enhanced status code display with background
+  • Detailed server error data with formatting
+  • Request configuration in table format
+  • Response headers debugging
+  • Network error detection
+  • Request data highlighting
+
+💡 Click the buttons above to see different error scenarios!
+        `);
+    </script>
+  </body>
+</html>

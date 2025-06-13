@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Logger Test</title>
+  </head>
+  <body>
+    <h1>API Logger Test Page</h1>
+    <p>Open Developer Tools (F12) and try these commands in Console:</p>
+
+    <pre>
+// Test commands (should now return values, not undefined):
+enableAPILogging()     // Returns: "✅ API Logging is now ENABLED"  
+disableAPILogging()    // Returns: "❌ API Logging is now DISABLED"
+toggleAPILogging()     // Returns: status message
+getAPILoggingStatus()  // Returns: current status
+
+// Alternative ways:
+apiLogger.enable()     // Returns: "✅ API Logging is now ENABLED"
+apiLogger.disable()    // Returns: "❌ API Logging is now DISABLED"  
+apiLogger.toggle()     // Returns: status message
+apiLogger.getStatus()  // Returns: current status
+    </pre>
+
+    <script>
+      // Simple API Logger implementation for testing
+      class APILogger {
+        constructor() {
+          this.isEnabled =
+            localStorage.getItem("API_LOGGING_ENABLED") !== "false";
+        }
+
+        enable() {
+          this.isEnabled = true;
+          localStorage.setItem("API_LOGGING_ENABLED", "true");
+          console.log("🔊 API Logging ENABLED");
+          return "✅ API Logging is now ENABLED";
+        }
+
+        disable() {
+          this.isEnabled = false;
+          localStorage.setItem("API_LOGGING_ENABLED", "false");
+          console.log("🔇 API Logging DISABLED");
+          return "❌ API Logging is now DISABLED";
+        }
+
+        toggle() {
+          if (this.isEnabled) {
+            return this.disable();
+          } else {
+            return this.enable();
+          }
+        }
+
+        getStatus() {
+          const status = this.isEnabled ? "ENABLED" : "DISABLED";
+          const emoji = this.isEnabled ? "✅" : "❌";
+          console.log(`🔍 API Logging Status: ${emoji} ${status}`);
+          return `${emoji} API Logging is ${status}`;
+        }
+      }
+
+      // Create instance
+      const apiLogger = new APILogger();
+
+      // Expose to window
+      window.apiLogger = apiLogger;
+      window.enableAPILogging = () => {
+        const result = apiLogger.enable();
+        console.log("🎯 Use this function anytime: enableAPILogging()");
+        return result;
+      };
+      window.disableAPILogging = () => {
+        const result = apiLogger.disable();
+        console.log("🎯 Use this function anytime: disableAPILogging()");
+        return result;
+      };
+      window.toggleAPILogging = () => {
+        const result = apiLogger.toggle();
+        console.log("🎯 Use this function anytime: toggleAPILogging()");
+        return result;
+      };
+      window.getAPILoggingStatus = () => {
+        const result = apiLogger.getStatus();
+        console.log("🎯 Use this function anytime: getAPILoggingStatus()");
+        return result;
+      };
+
+      // Show available commands
+      console.log(`
+🔊 API Logger Commands:
+  • enableAPILogging()  - Enable API logging
+  • disableAPILogging() - Disable API logging  
+  • toggleAPILogging()  - Toggle API logging
+  • getAPILoggingStatus()  - Check API logging status
+  • apiLogger.enable()  - Same as enableAPILogging()
+  • apiLogger.disable() - Same as disableAPILogging()
+  • apiLogger.toggle()  - Same as toggleAPILogging()
+  • apiLogger.getStatus()  - Same as getAPILoggingStatus()
+  
+Current status: ${apiLogger.isEnabled ? "✅ ENABLED" : "❌ DISABLED"}
+        `);
+
+      console.log(
+        "🎯 TRY NOW: enableAPILogging() - should return a message, not undefined!"
+      );
+    </script>
+  </body>
+</html>

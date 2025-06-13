@@ -235,19 +235,14 @@ const StudentClassroomPage = () => {
       const restoreMeetingView = async () => {
         try {
           setIsMeetingLoading(true);
-
-          const queryParams = {
+          const requestData = {
             classroomId: decodeURIComponent(classroomId),
-            page: 1,
-            rpp: 1000,
-            sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
           };
-
           const response = await Api({
-            endpoint: "meeting/search",
+            endpoint: "meeting/get-meeting",
             method: METHOD_TYPE.GET,
-            query: queryParams,
-            requireToken: false,
+            data: requestData,
+            requireToken: true,
           });
 
           if (response.success && response.data) {
@@ -342,28 +337,27 @@ const StudentClassroomPage = () => {
   const handleCloseEvaluationModal = () => {
     setShowEvaluationModal(false);
     setSelectedClassroomForEvaluation(null);
-  }; // Handler for viewing meetings with external Zoom links
+  };
+
+  // Handler for viewing meetings with external Zoom links
   const handleViewMeetings = async (classroomId, classroomName, page = 1) => {
     try {
-      setIsMeetingLoading(true); // Build query parameters
-      const queryParams = {
+      setIsMeetingLoading(true);
+
+      // Build request data
+      const requestData = {
         classroomId: classroomId,
-        page: page,
-        rpp: meetingsPerPage,
-        sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
       };
 
-      // TEMPORARY: Disable server-side filtering for meetings too due to API compatibility
-      // Use client-side filtering instead to be consistent with classroom filtering
+      // Updated to use new endpoint meeting/get-meeting
       console.log(
-        `🔍 Fetching all meetings for classroom ${classroomId} (client-side filtering will be applied)`
+        `🔍 Fetching all meetings for classroom ${classroomId} using new endpoint`
       );
       console.log(`📊 Active meeting tab: ${activeMeetingTab}`);
-
       const response = await Api({
-        endpoint: `meeting/search`,
+        endpoint: `meeting/get-meeting`,
         method: METHOD_TYPE.GET,
-        query: queryParams,
+        data: requestData,
         requireToken: true,
       });
 
@@ -1369,7 +1363,7 @@ const StudentClassroomPage = () => {
           onSubmit={handleEvaluationSubmit}
           onClose={handleCloseEvaluationModal}
         />
-      )}{" "}
+      )}
       {/* Debug Components - only for development */}
       {/* <QuickDebug /> */}
       {/* <ClassroomAPITest /> */}
@@ -1377,8 +1371,6 @@ const StudentClassroomPage = () => {
     </div>
   );
 };
-
-export default memo(StudentClassroomPage);
 
 // Helper functions for accurate counting and pagination
 const getCountByStatus = (items, status) => {
@@ -1427,3 +1419,5 @@ const getFilteredItems = (items, status, page, itemsPerPage) => {
     total: filtered.length,
   };
 };
+
+export default memo(StudentClassroomPage);

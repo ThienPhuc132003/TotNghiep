@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick GET Body Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .success {
+        background: #28a745;
+      }
+      .success:hover {
+        background: #218838;
+      }
+      .danger {
+        background: #dc3545;
+      }
+      .danger:hover {
+        background: #c82333;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+        border: 1px solid #e9ecef;
+        max-height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 Quick GET Body Test</h1>
+      <p>Test nhanh để xem axios có gửi body data cho GET request hay không</p>
+
+      <div class="alert">
+        <strong>📋 Test này sẽ:</strong><br />
+        1. Test axios.request() với GET method và body data<br />
+        2. Test với httpbin.org (echo service)<br />
+        3. So sánh với POST request<br />
+        4. Test với API thật của bạn
+      </div>
+
+      <h3>🧪 Test 1: Echo Service (httpbin.org)</h3>
+      <button onclick="testGetWithBody()" class="success">
+        Test GET + Body
+      </button>
+      <button onclick="testPostWithBody()">Test POST + Body (so sánh)</button>
+      <pre id="echo-result">Chưa test...</pre>
+
+      <h3>🧪 Test 2: Real API</h3>
+      <button onclick="testRealAPI()" class="danger">
+        Test Real meeting/get-meeting
+      </button>
+      <pre id="real-result">Chưa test...</pre>
+
+      <h3>🔍 Console Debug</h3>
+      <p>Mở Console (F12) để xem chi tiết request/response</p>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      async function testGetWithBody() {
+        console.log("🧪 Testing GET with body via axios.request()...");
+
+        const testData = { classroomId: "test-123", action: "get-meeting" };
+
+        try {
+          console.log("📤 Sending GET request with body:", testData);
+
+          const response = await axios.request({
+            method: "GET",
+            url: "https://httpbin.org/anything",
+            data: testData,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          console.log("✅ GET Response:", response.data);
+
+          const result = `✅ GET with Body Success!
+Status: ${response.status}
+Method Received: ${response.data.method}
+Body Data Received: ${JSON.stringify(response.data.data, null, 2)}
+Headers: ${JSON.stringify(response.data.headers, null, 2)}`;
+
+          document.getElementById("echo-result").textContent = result;
+
+          // Check if body data was received
+          if (response.data.data && response.data.data.classroomId) {
+            console.log("✅ SUCCESS: Body data was sent and received!");
+          } else {
+            console.log("❌ FAILED: Body data was NOT received");
+          }
+        } catch (error) {
+          console.error("❌ GET test failed:", error);
+          document.getElementById(
+            "echo-result"
+          ).textContent = `❌ Error: ${error.message}`;
+        }
+      }
+
+      async function testPostWithBody() {
+        console.log("🧪 Testing POST with body for comparison...");
+
+        const testData = { classroomId: "test-123", action: "get-meeting" };
+
+        try {
+          const response = await axios.post(
+            "https://httpbin.org/anything",
+            testData,
+            {
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+          console.log("✅ POST Response:", response.data);
+
+          const result = `✅ POST with Body Success!
+Status: ${response.status}
+Method Received: ${response.data.method}
+Body Data Received: ${JSON.stringify(response.data.json, null, 2)}`;
+
+          document.getElementById("echo-result").textContent += "\n\n" + result;
+        } catch (error) {
+          console.error("❌ POST test failed:", error);
+        }
+      }
+
+      async function testRealAPI() {
+        console.log("🧪 Testing real meeting/get-meeting API...");
+
+        // Check if Api function exists
+        if (typeof Api === "undefined") {
+          const error = "Api function not found. Please load main app first.";
+          console.log("❌", error);
+          document.getElementById("real-result").textContent = `❌ ${error}`;
+          return;
+        }
+
+        // Check if enableAPILogging exists and enable it
+        if (typeof enableAPILogging === "function") {
+          enableAPILogging();
+          console.log("🔊 API Logging enabled");
+        }
+
+        const testData = { classroomId: "test-classroom-id-123" };
+
+        try {
+          console.log("📤 Testing real API with data:", testData);
+          console.log("🔍 Watch console for API Logger output...");
+
+          const response = await Api({
+            endpoint: "meeting/get-meeting",
+            method: "GET",
+            data: testData,
+            requireToken: true,
+          });
+
+          console.log("✅ Real API Success:", response);
+
+          document.getElementById(
+            "real-result"
+          ).textContent = `✅ Real API Success!
+Response: ${JSON.stringify(response, null, 2)}`;
+        } catch (error) {
+          console.error("❌ Real API failed:", error);
+
+          const errorMsg = error.response?.data?.message || error.message;
+          const errorDetails = error.response?.data || error.message;
+
+          document.getElementById(
+            "real-result"
+          ).textContent = `❌ Real API Failed!
+Error: ${errorMsg}
+Status: ${error.response?.status || "Unknown"}
+Details: ${JSON.stringify(errorDetails, null, 2)}`;
+
+          // Check if it's still "Missing meetingId" error
+          if (errorMsg.includes("Missing") || errorMsg.includes("meetingId")) {
+            console.log("🚨 Still getting Missing meetingId error!");
+            console.log(
+              "💡 This means backend is not receiving the classroomId from body"
+            );
+          } else {
+            console.log("🎯 Different error, might be progress!");
+          }
+        }
+      }
+
+      // Auto-run basic check on load
+      window.addEventListener("load", function () {
+        console.log("🚀 Quick GET Body Test loaded");
+        console.log(
+          "📋 This will test if axios.request() with GET method sends body data"
+        );
+
+        // Check available functions
+        const checks = {
+          axios: typeof axios !== "undefined",
+          Api: typeof Api !== "undefined",
+          enableAPILogging: typeof enableAPILogging !== "undefined",
+        };
+
+        console.log("🔍 Available functions:", checks);
+
+        if (!checks.axios) {
+          document.getElementById("echo-result").textContent =
+            "❌ Axios not loaded";
+        }
+      });
+    </script>
+  </body>
+</html>

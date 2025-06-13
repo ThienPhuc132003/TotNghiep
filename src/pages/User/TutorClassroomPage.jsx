@@ -624,24 +624,21 @@ const TutorClassroomPage = () => {
       fetchTutorClassrooms(1);
     }
   };
-
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       setIsMeetingLoading(true);
       const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
-
-      const queryParams = {
+      console.log("🔍 DEBUG - Fetching meetings with new API:", {
+        endpoint: "meeting/get-meeting",
         classroomId: classroomId,
-        page: 1,
-        rpp: 1000, // Get all meetings
-        sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
-      };
-
+      });
       const response = await Api({
-        endpoint: "meeting/search",
+        endpoint: "meeting/get-meeting",
         method: METHOD_TYPE.GET,
-        query: queryParams,
-        requireToken: false,
+        data: {
+          classroomId: classroomId,
+        },
+        requireToken: true,
       });
 
       toast.dismiss(loadingToastId);
@@ -1207,21 +1204,6 @@ const TutorClassroomPage = () => {
                     }
                   };
 
-                  const handleJoinMeetingEmbedded = (meeting) => {
-                    // Navigate to meeting room with meeting data
-                    navigate("/tai-khoan/ho-so/phong-hoc", {
-                      state: {
-                        meetingData: meeting,
-                        classroomName: currentClassroomForMeetings.nameOfRoom,
-                        classroomId:
-                          meeting.classroomId ||
-                          currentClassroomForMeetings.classroomId,
-                        userRole: "host",
-                        isNewMeeting: false,
-                      },
-                    });
-                  };
-
                   return (
                     <li
                       key={meeting.meetingId || index}
@@ -1281,13 +1263,6 @@ const TutorClassroomPage = () => {
                           >
                             <i className="fas fa-external-link-alt"></i>
                             Tham gia
-                          </button>
-                          <button
-                            className="tcp-action-btn tcp-join-embedded-btn"
-                            onClick={() => handleJoinMeetingEmbedded(meeting)}
-                          >
-                            <i className="fas fa-sign-in-alt"></i>
-                            Tham gia (Embedded)
                           </button>
                           <button
                             className="tcp-action-btn tcp-copy-link-btn"
