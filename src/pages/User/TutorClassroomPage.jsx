@@ -1196,8 +1196,7 @@ const TutorClassroomPage = () => {
                     meeting.status === "COMPLETED" ||
                     meeting.status === "ENDED" ||
                     meeting.status === "FINISHED" ||
-                    (meeting.endTime && new Date(meeting.endTime) < new Date());
-                  const handleJoinMeeting = (meeting) => {
+                    (meeting.endTime && new Date(meeting.endTime) < new Date());                  const handleJoinMeeting = (meeting) => {
                     const zoomUrl = meeting.joinUrl || meeting.join_url;
                     if (zoomUrl) {
                       window.open(zoomUrl, "_blank");
@@ -1205,21 +1204,6 @@ const TutorClassroomPage = () => {
                     } else {
                       toast.error("Không tìm thấy link tham gia phòng học.");
                     }
-                  };
-
-                  const handleJoinMeetingEmbedded = (meeting) => {
-                    // Navigate to meeting room with meeting data
-                    navigate("/tai-khoan/ho-so/phong-hoc", {
-                      state: {
-                        meetingData: meeting,
-                        classroomName: currentClassroomForMeetings.nameOfRoom,
-                        classroomId:
-                          meeting.classroomId ||
-                          currentClassroomForMeetings.classroomId,
-                        userRole: "host",
-                        isNewMeeting: false,
-                      },
-                    });
                   };
 
                   return (
@@ -1273,21 +1257,13 @@ const TutorClassroomPage = () => {
                           </span>
                         </p>
                       </div>{" "}
-                      {!isEnded ? (
-                        <div className="tcp-meeting-actions">
+                      {!isEnded ? (                        <div className="tcp-meeting-actions">
                           <button
                             className="tcp-action-btn tcp-join-meeting-btn"
                             onClick={() => handleJoinMeeting(meeting)}
                           >
                             <i className="fas fa-external-link-alt"></i>
                             Tham gia
-                          </button>
-                          <button
-                            className="tcp-action-btn tcp-join-embedded-btn"
-                            onClick={() => handleJoinMeetingEmbedded(meeting)}
-                          >
-                            <i className="fas fa-sign-in-alt"></i>
-                            Tham gia (Embedded)
                           </button>
                           <button
                             className="tcp-action-btn tcp-copy-link-btn"
