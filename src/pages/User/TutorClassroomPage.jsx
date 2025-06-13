@@ -157,6 +157,12 @@ const CreateMeetingModal = ({
   classroomName,
   defaultTopic,
 }) => {
+  console.log("🔍 DEBUG - CreateMeetingModal props:", {
+    isOpen,
+    classroomName,
+    defaultTopic,
+  });
+
   const [formData, setFormData] = useState({
     topic: defaultTopic || `Lớp học: ${classroomName}`,
     password: Math.random().toString(36).substring(2, 8),
@@ -164,6 +170,7 @@ const CreateMeetingModal = ({
 
   useEffect(() => {
     if (isOpen) {
+      console.log("🔍 DEBUG - Modal opened, setting form data");
       setFormData({
         topic: defaultTopic || `Lớp học: ${classroomName}`,
         password: Math.random().toString(36).substring(2, 8),
@@ -199,9 +206,12 @@ const CreateMeetingModal = ({
       password: newPassword,
     }));
   };
+  if (!isOpen) {
+    console.log("🔍 DEBUG - Modal not open, returning null");
+    return null;
+  }
 
-  if (!isOpen) return null;
-
+  console.log("🔍 DEBUG - Rendering modal UI with form data:", formData);
   return (
     <div className="tcp-modal-overlay" onClick={onClose}>
       <div className="tcp-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -211,60 +221,72 @@ const CreateMeetingModal = ({
             <i className="fas fa-times"></i>
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="tcp-meeting-form">
-          <div className="tcp-form-group">
-            <label htmlFor="topic">Chủ đề phòng học:</label>
-            <input
-              type="text"
-              id="topic"
-              name="topic"
-              value={formData.topic}
-              onChange={handleInputChange}
-              placeholder="Nhập chủ đề phòng học..."
-              maxLength={200}
-              required
-            />
-          </div>
-          <div className="tcp-form-group">
-            <label htmlFor="password">Mật khẩu phòng học:</label>
-            <div className="tcp-password-input-group">
+        <div className="tcp-modal-body">
+          <form onSubmit={handleSubmit}>
+            <div className="tcp-form-group">
+              <label htmlFor="topic" className="tcp-form-label">
+                Chủ đề phòng học:
+              </label>
               <input
                 type="text"
-                id="password"
-                name="password"
-                value={formData.password}
+                id="topic"
+                name="topic"
+                value={formData.topic}
                 onChange={handleInputChange}
-                placeholder="Nhập mật khẩu..."
-                maxLength={10}
+                placeholder="Nhập chủ đề phòng học..."
+                maxLength={200}
+                className="tcp-form-input"
                 required
               />
-              <button
-                type="button"
-                className="tcp-generate-password-btn"
-                onClick={generateRandomPassword}
-                title="Tạo mật khẩu ngẫu nhiên"
-              >
-                <i className="fas fa-random"></i>
-              </button>
             </div>
-            <small className="tcp-form-note">
-              Mật khẩu từ 1-10 ký tự, có thể bao gồm chữ cái và số
-            </small>
-          </div>
-          <div className="tcp-form-actions">
-            <button
-              type="button"
-              className="tcp-btn tcp-btn-cancel"
-              onClick={onClose}
-            >
-              Hủy
-            </button>
-            <button type="submit" className="tcp-btn tcp-btn-primary">
-              <i className="fas fa-video" style={{ marginRight: "8px" }}></i>
-              Tạo phòng học
-            </button>
-          </div>
-        </form>
+            <div className="tcp-form-group">
+              <label htmlFor="password" className="tcp-form-label">
+                Mật khẩu phòng học:
+              </label>
+              <div className="tcp-password-group">
+                <input
+                  type="text"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Nhập mật khẩu..."
+                  maxLength={10}
+                  className="tcp-form-input"
+                  required
+                />
+                <button
+                  type="button"
+                  className="tcp-generate-password-btn"
+                  onClick={generateRandomPassword}
+                  title="Tạo mật khẩu ngẫu nhiên"
+                >
+                  <i className="fas fa-random"></i>
+                </button>
+              </div>
+              <small className="tcp-form-help-text">
+                Mật khẩu từ 1-10 ký tự, có thể bao gồm chữ cái và số
+              </small>
+            </div>
+          </form>
+        </div>
+        <div className="tcp-modal-footer">
+          <button
+            type="button"
+            className="tcp-btn tcp-btn-secondary"
+            onClick={onClose}
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            className="tcp-btn tcp-btn-primary"
+            onClick={handleSubmit}
+          >
+            <i className="fas fa-video"></i>
+            Tạo phòng học
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -412,7 +434,6 @@ const TutorClassroomPage = () => {
     },
     [currentUser?.userId, activeClassroomTab, itemsPerPage]
   );
-
   // Auto-open modal after returning from Zoom OAuth
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -420,10 +441,23 @@ const TutorClassroomPage = () => {
     const classroomId = urlParams.get("classroomId");
     const classroomName = urlParams.get("classroomName");
 
+    console.log("🔍 DEBUG - OAuth callback check:", {
+      fromZoomConnection,
+      classroomId,
+      classroomName,
+      hasZoomToken: !!localStorage.getItem("zoomAccessToken"),
+    });
+
     if (fromZoomConnection === "true" && classroomId && classroomName) {
       // Wait for classrooms to load, then auto-open modal
       const timer = setTimeout(() => {
         const zoomToken = localStorage.getItem("zoomAccessToken");
+        console.log("🔍 DEBUG - Setting up auto-open modal:", {
+          hasZoomToken: !!zoomToken,
+          classroomId: decodeURIComponent(classroomId),
+          classroomName: decodeURIComponent(classroomName),
+        });
+
         if (zoomToken) {
           toast.success(
             "Kết nối Zoom thành công! Bây giờ bạn có thể tạo phòng học."
@@ -433,6 +467,9 @@ const TutorClassroomPage = () => {
             classroomName: decodeURIComponent(classroomName),
           });
           setIsModalOpen(true);
+          console.log("✅ Modal should be opened now");
+        } else {
+          console.log("❌ No Zoom token found");
         }
       }, 1000);
 
@@ -702,8 +739,27 @@ const TutorClassroomPage = () => {
     await handleEnterClassroom(classroomId, classroomName);
   };
   const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
+    console.log("🔍 DEBUG - Opening create meeting modal:", {
+      classroomId,
+      classroomName,
+      hasZoomToken: !!localStorage.getItem("zoomAccessToken"),
+    });
+
     const zoomToken = localStorage.getItem("zoomAccessToken");
     if (!zoomToken) {
+      console.log("❌ No Zoom token, redirecting to profile");
+
+      // Save return path and state for OAuth callback
+      sessionStorage.setItem("zoomReturnPath", "/quan-ly-lop-hoc");
+      sessionStorage.setItem(
+        "zoomReturnState",
+        JSON.stringify({
+          classroomId,
+          classroomName,
+          fromClassroom: true,
+        })
+      );
+
       toast.error("Vui lòng kết nối với Zoom trước khi tạo phòng học!");
       navigate("/tai-khoan/ho-so/phong-hoc", {
         state: {
@@ -716,6 +772,7 @@ const TutorClassroomPage = () => {
       return;
     }
 
+    console.log("✅ Setting selected classroom and opening modal");
     setSelectedClassroom({ classroomId, classroomName });
     setIsModalOpen(true);
   };
@@ -1645,12 +1702,20 @@ const TutorClassroomPage = () => {
             <i className="fas fa-chevron-right"></i>
           </button>
         </div>
-      )}
+      )}{" "}
       {/* Create Meeting Modal */}
+      {console.log("🔍 DEBUG - Modal render check:", {
+        isModalOpen,
+        selectedClassroom,
+        shouldRender: isModalOpen && selectedClassroom,
+      })}
       {isModalOpen && selectedClassroom && (
         <CreateMeetingModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            console.log("🔍 DEBUG - Closing modal");
+            setIsModalOpen(false);
+          }}
           onSubmit={handleCreateMeetingSubmit}
           classroomName={selectedClassroom.classroomName}
           defaultTopic={`Lớp học: ${selectedClassroom.classroomName}`}
