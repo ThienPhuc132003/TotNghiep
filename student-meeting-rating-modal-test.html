@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Meeting Rating Modal - Student Classroom</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="src/assets/css/StudentClassroomPage.style.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .demo-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .demo-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      /* Override star rating CSS to fix multiple stars issue */
+      .scp-star-rating {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        margin-bottom: 12px !important;
+      }
+
+      .scp-star-container {
+        position: relative !important;
+        display: inline-block !important;
+        cursor: pointer !important;
+        width: 30px !important;
+        height: 30px !important;
+        margin: 0 2px !important;
+      }
+
+      .scp-star-half {
+        position: absolute !important;
+        top: 0 !important;
+        width: 50% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        color: #dee2e6 !important;
+        font-size: 1.5rem !important;
+        transition: color 0.2s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .scp-star-half.active {
+        color: #ffc107 !important;
+      }
+
+      .scp-star-left {
+        left: 0 !important;
+        clip-path: inset(0 50% 0 0) !important;
+      }
+
+      .scp-star-right {
+        right: 0 !important;
+        clip-path: inset(0 0 0 50%) !important;
+      }
+
+      .scp-star-half:hover {
+        color: #ffc107 !important;
+      }
+
+      .demo-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .demo-btn.primary {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .demo-btn.warning {
+        background: linear-gradient(135deg, #fd7e14 0%, #ff8500 100%);
+        color: white;
+      }
+
+      .demo-btn.success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+      }
+
+      .demo-btn.disabled {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.2);
+        cursor: not-allowed;
+      }
+
+      /* Sample meeting card */
+      .sample-meeting-card {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        background: white;
+        margin-bottom: 15px;
+      }
+
+      .sample-meeting-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .sample-meeting-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        margin: 0;
+      }
+
+      .sample-meeting-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+      }
+
+      .sample-meeting-details p {
+        margin: 5px 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .sample-meeting-actions {
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="demo-header">
+        <h1>🎯 Test Meeting Rating Modal - Student Classroom</h1>
+        <p>
+          Test giao diện đánh giá meeting cho học sinh (với số sao nửa + nội
+          dung)
+        </p>
+      </div>
+
+      <!-- Demo meeting cards with different rating states -->
+      <div class="demo-section">
+        <h3>
+          <i class="fas fa-calendar-alt"></i> Sample Meeting Cards với Nút Đánh
+          Giá
+        </h3>
+
+        <!-- Meeting 1: Can rate (isRating = false) -->
+        <div class="sample-meeting-card">
+          <div class="sample-meeting-header">
+            <h4 class="sample-meeting-title">
+              Lớp học với gia sư Nguyễn Văn An
+            </h4>
+            <span class="sample-meeting-status">Đã kết thúc</span>
+          </div>
+          <div class="sample-meeting-details">
+            <p><strong>Thời gian:</strong> 07/06/2025</p>
+            <p>
+              <strong>Mã phòng:</strong> 52a4f229-fb9e-45b7-ab98-546fc5e2f14f
+            </p>
+            <p><strong>Thời lượng:</strong> 1 phút</p>
+          </div>
+          <div class="sample-meeting-actions">
+            <button class="demo-btn warning" onclick="openRatingModal()">
+              <i class="fas fa-star"></i>
+              Đánh giá
+            </button>
+          </div>
+        </div>
+
+        <!-- Meeting 2: Already rated (isRating = true) -->
+        <div class="sample-meeting-card">
+          <div class="sample-meeting-header">
+            <h4 class="sample-meeting-title">Buổi học Toán nâng cao</h4>
+            <span class="sample-meeting-status">Đã kết thúc</span>
+          </div>
+          <div class="sample-meeting-details">
+            <p><strong>Thời gian:</strong> 08/06/2025</p>
+            <p>
+              <strong>Mã phòng:</strong> 41b44620-c68a-42f2-88c3-d2b56e499fbe
+            </p>
+            <p><strong>Thời lượng:</strong> 9 phút</p>
+          </div>
+          <div class="sample-meeting-actions">
+            <button class="demo-btn success" disabled>
+              <i class="fas fa-check-circle"></i>
+              Đã đánh giá
+            </button>
+          </div>
+        </div>
+
+        <!-- Meeting 3: In session -->
+        <div class="sample-meeting-card">
+          <div class="sample-meeting-header">
+            <h4 class="sample-meeting-title">Buổi học đang diễn ra</h4>
+            <span
+              class="sample-meeting-status"
+              style="background: rgba(40, 167, 69, 0.1); color: #28a745"
+              >Đang học</span
+            >
+          </div>
+          <div class="sample-meeting-details">
+            <p><strong>Thời gian:</strong> 14/06/2025</p>
+            <p><strong>Mã phòng:</strong> 77343969147</p>
+            <p><strong>Thời lượng:</strong> 60 phút</p>
+          </div>
+          <div class="sample-meeting-actions">
+            <button class="demo-btn primary">
+              <i class="fas fa-video"></i>
+              Tham gia
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo buttons -->
+      <div class="demo-section">
+        <h3><i class="fas fa-star"></i> Test Rating Modal</h3>
+        <div class="demo-buttons">
+          <button class="demo-btn primary" onclick="openRatingModal()">
+            <i class="fas fa-star"></i>
+            Mở Modal Đánh Giá
+          </button>
+          <button class="demo-btn warning" onclick="testStarRating()">
+            <i class="fas fa-star-half-alt"></i>
+            Test Star Rating (Nửa Sao)
+          </button>
+          <button class="demo-btn success" onclick="testValidation()">
+            <i class="fas fa-check"></i>
+            Test Validation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div class="scp-modal-overlay" id="ratingModal" style="display: none">
+      <div class="scp-modal-content" onclick="event.stopPropagation()">
+        <div class="scp-modal-header">
+          <h3 class="scp-modal-title">
+            <i class="fas fa-star"></i>
+            Đánh giá buổi học
+          </h3>
+          <button class="scp-modal-close" onclick="closeRatingModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="scp-modal-body">
+          <div class="scp-meeting-info-summary">
+            <h4>Thông tin buổi học</h4>
+            <p><strong>Chủ đề:</strong> Lớp học với gia sư Nguyễn Văn An</p>
+            <p><strong>Meeting ID:</strong> 79516124830</p>
+            <p><strong>Thời gian:</strong> 07/06/2025, 08:32:37</p>
+          </div>
+
+          <form class="scp-rating-form" onsubmit="submitRating(event)">
+            <div class="scp-rating-section">
+              <label class="scp-rating-label">
+                <i class="fas fa-star"></i>
+                Đánh giá chất lượng buổi học
+              </label>
+              <div class="scp-star-rating" id="starRating">
+                <!-- Stars will be generated by JavaScript -->
+              </div>
+              <div class="scp-rating-text">
+                <span
+                  class="scp-rating-value"
+                  id="ratingText"
+                  style="display: none"
+                ></span>
+              </div>
+            </div>
+
+            <div class="scp-comment-section">
+              <label class="scp-comment-label">
+                <i class="fas fa-comment"></i>
+                Nội dung đánh giá
+              </label>
+              <textarea
+                class="scp-comment-textarea"
+                id="commentTextarea"
+                placeholder="Chia sẻ trải nghiệm của bạn về buổi học này..."
+                rows="4"
+                maxlength="500"
+                oninput="updateCounter()"
+              ></textarea>
+              <div class="scp-comment-counter" id="commentCounter">
+                0/500 ký tự
+              </div>
+            </div>
+
+            <div class="scp-modal-actions">
+              <button
+                type="button"
+                class="scp-cancel-btn"
+                onclick="closeRatingModal()"
+              >
+                <i class="fas fa-times"></i>
+                Hủy
+              </button>
+              <button
+                type="submit"
+                class="scp-submit-btn"
+                id="submitBtn"
+                disabled
+              >
+                <i class="fas fa-paper-plane"></i>
+                Gửi đánh giá
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentRating = 0;
+      let hoverRating = 0;
+
+      // Initialize star rating
+      function initStarRating() {
+        const starContainer = document.getElementById("starRating");
+        starContainer.innerHTML = "";
+
+        for (let i = 1; i <= 5; i++) {
+          const starContainer_i = document.createElement("div");
+          starContainer_i.className = "scp-star-container";
+
+          // Half star (left side)
+          const leftHalf = document.createElement("div");
+          leftHalf.className = "scp-star-half scp-star-left";
+          leftHalf.innerHTML = '<i class="fas fa-star"></i>';
+          leftHalf.addEventListener("mouseenter", () =>
+            setHoverRating(i - 0.5)
+          );
+          leftHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          leftHalf.addEventListener("click", () => setRating(i - 0.5));
+
+          // Full star (right side)
+          const rightHalf = document.createElement("div");
+          rightHalf.className = "scp-star-half scp-star-right";
+          rightHalf.innerHTML = '<i class="fas fa-star"></i>';
+          rightHalf.addEventListener("mouseenter", () => setHoverRating(i));
+          rightHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          rightHalf.addEventListener("click", () => setRating(i));
+
+          starContainer_i.appendChild(leftHalf);
+          starContainer_i.appendChild(rightHalf);
+          starContainer.appendChild(starContainer_i);
+        }
+        updateStarDisplay();
+      }
+
+      function setHoverRating(rating) {
+        hoverRating = rating;
+        updateStarDisplay();
+      }
+
+      function setRating(rating) {
+        currentRating = rating;
+        updateStarDisplay();
+        updateRatingText();
+        updateSubmitButton();
+      }
+
+      function updateStarDisplay() {
+        const activeRating = hoverRating || currentRating;
+        const stars = document.querySelectorAll(".scp-star-half");
+
+        stars.forEach((star, index) => {
+          const starValue = Math.floor(index / 2) + 1;
+          const isLeftHalf = index % 2 === 0;
+          const starThreshold = isLeftHalf ? starValue - 0.5 : starValue;
+
+          if (activeRating >= starThreshold) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      function updateRatingText() {
+        const ratingText = document.getElementById("ratingText");
+        if (currentRating > 0) {
+          let description = "";
+          if (currentRating < 2) description = "(Tệ)";
+          else if (currentRating < 3) description = "(Bình thường)";
+          else if (currentRating < 4) description = "(Tốt)";
+          else if (currentRating < 5) description = "(Rất tốt)";
+          else description = "(Xuất sắc)";
+
+          ratingText.textContent = `${currentRating} sao ${description}`;
+          ratingText.style.display = "inline";
+        } else {
+          ratingText.style.display = "none";
+        }
+      }
+
+      function updateCounter() {
+        const textarea = document.getElementById("commentTextarea");
+        const counter = document.getElementById("commentCounter");
+        counter.textContent = `${textarea.value.length}/500 ký tự`;
+        updateSubmitButton();
+      }
+
+      function updateSubmitButton() {
+        const submitBtn = document.getElementById("submitBtn");
+        const comment = document.getElementById("commentTextarea").value.trim();
+        submitBtn.disabled = currentRating === 0 || comment === "";
+      }
+
+      function openRatingModal() {
+        document.getElementById("ratingModal").style.display = "flex";
+        initStarRating();
+        // Reset form
+        currentRating = 0;
+        hoverRating = 0;
+        document.getElementById("commentTextarea").value = "";
+        updateCounter();
+        updateRatingText();
+        updateSubmitButton();
+      }
+
+      function closeRatingModal() {
+        document.getElementById("ratingModal").style.display = "none";
+      }
+
+      function submitRating(event) {
+        event.preventDefault();
+        const comment = document.getElementById("commentTextarea").value.trim();
+
+        if (currentRating === 0) {
+          alert("Vui lòng chọn số sao đánh giá!");
+          return;
+        }
+
+        if (!comment) {
+          alert("Vui lòng nhập nội dung đánh giá!");
+          return;
+        }
+
+        // Simulate submission
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+        submitBtn.disabled = true;
+
+        setTimeout(() => {
+          alert(
+            `Đánh giá đã được gửi thành công!\nSao: ${currentRating}\nNội dung: ${comment}`
+          );
+          closeRatingModal();
+          submitBtn.innerHTML =
+            '<i class="fas fa-paper-plane"></i> Gửi đánh giá';
+          submitBtn.disabled = false;
+        }, 1500);
+      }
+
+      function testStarRating() {
+        openRatingModal();
+        setTimeout(() => setRating(3.5), 500);
+      }
+
+      function testValidation() {
+        openRatingModal();
+        // Test validation by trying to submit without rating
+        setTimeout(() => {
+          document.getElementById("commentTextarea").value = "Test comment";
+          updateCounter();
+        }, 300);
+      }
+
+      // Close modal when clicking overlay
+      document
+        .getElementById("ratingModal")
+        .addEventListener("click", closeRatingModal);
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", initStarRating);
+    </script>
+  </body>
+</html>

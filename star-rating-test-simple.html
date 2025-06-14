@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test 5-Star Rating System</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 40px;
+      }
+
+      .test-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+      }
+
+      .rating-section {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .rating-label {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #495057;
+      }
+
+      /* Fixed Star Rating CSS - Chỉ 5 sao */
+      .star-rating {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+
+      .star-container {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        margin: 0 2px;
+      }
+
+      .star-half {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+        color: #dee2e6;
+        font-size: 1.5rem;
+        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .star-half.active {
+        color: #ffc107;
+      }
+
+      .star-left {
+        left: 0;
+        clip-path: inset(0 50% 0 0);
+      }
+
+      .star-right {
+        right: 0;
+        clip-path: inset(0 0 0 50%);
+      }
+
+      .star-half:hover {
+        color: #ffc107;
+      }
+
+      .rating-display {
+        margin-top: 15px;
+        font-size: 1.1rem;
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .test-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .test-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .test-btn:hover {
+        background: #0056b3;
+      }
+
+      .star-count {
+        margin-top: 20px;
+        padding: 15px;
+        background: #e3f2fd;
+        border-radius: 8px;
+        color: #1976d2;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="test-header">
+        <h1>🌟 Test 5-Star Rating System</h1>
+        <p>Kiểm tra hệ thống đánh giá 5 sao (hỗ trợ nửa sao)</p>
+      </div>
+
+      <div class="rating-section">
+        <div class="rating-label">Đánh giá chất lượng:</div>
+        <div class="star-rating" id="starRating">
+          <!-- Stars sẽ được tạo bằng JavaScript -->
+        </div>
+        <div class="rating-display" id="ratingDisplay">Chưa đánh giá</div>
+      </div>
+
+      <div class="test-buttons">
+        <button class="test-btn" onclick="setTestRating(0.5)">0.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(1)">1 sao</button>
+        <button class="test-btn" onclick="setTestRating(1.5)">1.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(2.5)">2.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(3.5)">3.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(4.5)">4.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(5)">5 sao</button>
+        <button class="test-btn" onclick="setTestRating(0)">Reset</button>
+      </div>
+
+      <div class="star-count" id="starCount">
+        Tổng số sao hiển thị: <span id="countDisplay">0</span>
+      </div>
+    </div>
+
+    <script>
+      let currentRating = 0;
+      let hoverRating = 0;
+
+      function initStarRating() {
+        const starContainer = document.getElementById("starRating");
+        starContainer.innerHTML = "";
+
+        // Tạo chính xác 5 sao
+        for (let i = 1; i <= 5; i++) {
+          const starDiv = document.createElement("div");
+          starDiv.className = "star-container";
+
+          // Half star (left side)
+          const leftHalf = document.createElement("div");
+          leftHalf.className = "star-half star-left";
+          leftHalf.innerHTML = '<i class="fas fa-star"></i>';
+          leftHalf.addEventListener("mouseenter", () =>
+            setHoverRating(i - 0.5)
+          );
+          leftHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          leftHalf.addEventListener("click", () => setRating(i - 0.5));
+
+          // Full star (right side)
+          const rightHalf = document.createElement("div");
+          rightHalf.className = "star-half star-right";
+          rightHalf.innerHTML = '<i class="fas fa-star"></i>';
+          rightHalf.addEventListener("mouseenter", () => setHoverRating(i));
+          rightHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          rightHalf.addEventListener("click", () => setRating(i));
+
+          starDiv.appendChild(leftHalf);
+          starDiv.appendChild(rightHalf);
+          starContainer.appendChild(starDiv);
+        }
+
+        updateStarDisplay();
+        updateStarCount();
+      }
+
+      function setHoverRating(rating) {
+        hoverRating = rating;
+        updateStarDisplay();
+      }
+
+      function setRating(rating) {
+        currentRating = rating;
+        updateStarDisplay();
+        updateRatingText();
+      }
+
+      function setTestRating(rating) {
+        setRating(rating);
+      }
+
+      function updateStarDisplay() {
+        const activeRating = hoverRating || currentRating;
+        const stars = document.querySelectorAll(".star-half");
+
+        stars.forEach((star, index) => {
+          const starValue = Math.floor(index / 2) + 1;
+          const isLeftHalf = index % 2 === 0;
+          const starThreshold = isLeftHalf ? starValue - 0.5 : starValue;
+
+          if (activeRating >= starThreshold) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      function updateRatingText() {
+        const display = document.getElementById("ratingDisplay");
+        if (currentRating > 0) {
+          let description = "";
+          if (currentRating < 2) description = " (Tệ)";
+          else if (currentRating < 3) description = " (Bình thường)";
+          else if (currentRating < 4) description = " (Tốt)";
+          else if (currentRating < 5) description = " (Rất tốt)";
+          else description = " (Xuất sắc)";
+
+          display.textContent = `${currentRating} sao${description}`;
+        } else {
+          display.textContent = "Chưa đánh giá";
+        }
+      }
+
+      function updateStarCount() {
+        const starContainers = document.querySelectorAll(".star-container");
+        const starElements = document.querySelectorAll(".star-half");
+        document.getElementById(
+          "countDisplay"
+        ).textContent = `${starContainers.length} sao containers, ${starElements.length} star elements`;
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        initStarRating();
+        console.log("✅ Star rating initialized");
+        console.log(
+          "📊 Expected: 5 star containers, 10 star elements (5 left + 5 right halves)"
+        );
+      });
+    </script>
+  </body>
+</html>

@@ -4,7 +4,6 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import StarRatings from "react-star-ratings";
 import "../../assets/css/StudentClassroomPage.style.css";
 import dfMale from "../../assets/images/df-male.png";
 import ClassroomEvaluationModal from "../../components/User/ClassroomEvaluationModal";
@@ -40,7 +39,6 @@ const statusLabels = {
   PENDING: "Chờ bắt đầu",
   COMPLETED: "Đã hoàn thành",
   CANCELLED: "Đã hủy",
-  ENDED: "Đã kết thúc",
 };
 
 const parseDateTimeLearn = (dateTimeLearn) => {
@@ -83,69 +81,10 @@ const calculateClassProgress = (startDay, endDay) => {
   }
 };
 
-// Helper functions for accurate counting and pagination
-const getCountByStatus = (items, status) => {
-  if (status === "IN_SESSION") {
-    return items.filter(
-      (item) =>
-        item.status === "IN_SESSION" ||
-        item.status === "PENDING" ||
-        item.status === "STARTED" ||
-        !item.status
-    ).length;
-  } else if (status === "ENDED") {
-    return items.filter(
-      (item) =>
-        item.status === "COMPLETED" ||
-        item.status === "CANCELLED" ||
-        item.status === "ENDED"
-    ).length;
-  }
-  return items.length;
-};
-
-const getFilteredItems = (allItems, statusFilter, page, itemsPerPage) => {
-  let filteredItems;
-
-  if (statusFilter === "IN_SESSION") {
-    filteredItems = allItems.filter(
-      (item) =>
-        item.status === "IN_SESSION" ||
-        item.status === "PENDING" ||
-        item.status === "STARTED" ||
-        !item.status
-    );
-  } else if (statusFilter === "ENDED") {
-    filteredItems = allItems.filter(
-      (item) =>
-        item.status === "COMPLETED" ||
-        item.status === "CANCELLED" ||
-        item.status === "ENDED"
-    );
-  } else {
-    filteredItems = allItems;
-  }
-
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedItems = filteredItems.slice(startIndex, endIndex);
-
-  return {
-    items: paginatedItems,
-    total: filteredItems.length,
-  };
-};
-
-// Handle image loading errors
-const handleImageError = (event) => {
-  if (event?.target) {
-    event.target.src = dfMale;
-  }
-};
-
-// MeetingRatingModal Component
+// MeetingRatingModal Component - extracted outside main component
 const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
   const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -153,6 +92,7 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
   useEffect(() => {
     if (isOpen) {
       setRating(0);
+      setHoverRating(0);
       setComment("");
       setIsSubmitting(false);
     }
@@ -176,8 +116,8 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
         rating,
         comment: comment.trim(),
       });
-      toast.success("Đánh giá đã được gửi thành công!");
       onClose();
+      toast.success("Đánh giá buổi học thành công!");
     } catch (error) {
       console.error("Error submitting rating:", error);
       toast.error("Có lỗi xảy ra khi đánh giá. Vui lòng thử lại!");
@@ -186,13 +126,40 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
     }
   };
 
-  const getRatingDescription = (rating) => {
-    if (rating === 0) return "";
-    if (rating <= 1) return "(Rất tệ)";
-    if (rating <= 2) return "(Tệ)";
-    if (rating <= 3) return "(Bình thường)";
-    if (rating <= 4) return "(Tốt)";
-    return "(Xuất sắc)";
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const isHalf = (hoverRating || rating) === i - 0.5;
+      const isFull = (hoverRating || rating) >= i;
+
+      stars.push(
+        <div key={i} className="scp-star-container">
+          {/* Half star (left side) */}
+          <div
+            className={`scp-star-half scp-star-left ${
+              isHalf || isFull ? "active" : ""
+            }`}
+            onMouseEnter={() => setHoverRating(i - 0.5)}
+            onMouseLeave={() => setHoverRating(0)}
+            onClick={() => setRating(i - 0.5)}
+          >
+            <i className="fas fa-star"></i>
+          </div>
+          {/* Full star (right side) */}
+          <div
+            className={`scp-star-half scp-star-right ${
+              isFull ? "active" : ""
+            }`}
+            onMouseEnter={() => setHoverRating(i)}
+            onMouseLeave={() => setHoverRating(0)}
+            onClick={() => setRating(i)}
+          >
+            <i className="fas fa-star"></i>
+          </div>
+        </div>
+      );
+    }
+    return stars;
   };
 
   if (!isOpen) return null;
@@ -233,44 +200,22 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
                 <i className="fas fa-star"></i>
                 Đánh giá chất lượng buổi học
               </label>
-
-              {/* Using react-star-ratings library */}
-              <div className="scp-star-rating-container">
-                <StarRatings
-                  rating={rating}
-                  starRatedColor="#ffc107"
-                  starEmptyColor="#e4e5e9"
-                  starHoverColor="#ffc107"
-                  changeRating={setRating}
-                  numberOfStars={5}
-                  name="meeting-rating"
-                  starDimension="40px"
-                  starSpacing="8px"
-                  svgIconPath="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  svgIconViewBox="0 0 24 24"
-                />
-
-                {/* Quick rating buttons */}
-                <div className="scp-half-star-controls">
-                  {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={`scp-rating-btn ${
-                        rating === value ? "active" : ""
-                      }`}
-                      onClick={() => setRating(value)}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+              <div className="scp-star-rating">{renderStars()}</div>
               <div className="scp-rating-text">
                 {rating > 0 && (
                   <span className="scp-rating-value">
-                    {rating} sao {getRatingDescription(rating)}
+                    {rating} sao{" "}
+                    {rating === 1
+                      ? ""
+                      : rating < 2
+                      ? "(Tệ)"
+                      : rating < 3
+                      ? "(Bình thường)"
+                      : rating < 4
+                      ? "(Tốt)"
+                      : rating < 5
+                      ? "(Rất tốt)"
+                      : "(Xuất sắc)"}
                   </span>
                 )}
               </div>
@@ -330,6 +275,72 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
 };
 
 // Main Student Classroom Page Component
+const getCountByStatus = (items, status) => {
+  if (status === "IN_SESSION") {
+    return items.filter(
+      (item) =>
+        item.status === "IN_SESSION" ||
+        item.status === "PENDING" ||
+        !item.status
+    ).length;
+  } else if (status === "ENDED") {
+    return items.filter(
+      (item) =>
+        item.status === "COMPLETED" ||
+        item.status === "CANCELLED" ||
+        item.status === "ENDED"
+    ).length;
+  }
+  return items.length;
+};
+
+// Client-side filtering và pagination cho classrooms/meetings
+// Lý do dùng client-side: API không hỗ trợ filter theo status
+const getFilteredItems = (items, status, page, itemsPerPage) => {
+  // Step 1: Filter theo status
+  let filtered = items;
+  if (status === "IN_SESSION") {
+    filtered = items.filter(
+      (item) =>
+        item.status === "IN_SESSION" ||
+        item.status === "PENDING" ||
+        !item.status
+    );
+  } else if (status === "ENDED") {
+    filtered = items.filter(
+      (item) =>
+        item.status === "COMPLETED" ||
+        item.status === "CANCELLED" ||
+        item.status === "ENDED"
+    );
+  }
+
+  // Step 2: Apply client-side pagination trên filtered data
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  return {
+    items: filtered.slice(startIndex, endIndex), // Paginated items
+    total: filtered.length, // Total items AFTER filtering
+  };
+};
+
+// Helper function to get safe avatar URL
+const getSafeAvatarUrl = (user) => {
+  if (user?.avatar && user.avatar.trim() !== "") {
+    return user.avatar;
+  }
+  return dfMale;
+};
+
+// Helper function for avatar error handling
+const handleAvatarError = (event) => {
+  if (event.target.src !== dfMale) {
+    event.target.onerror = null;
+    event.target.src = dfMale;
+  }
+};
+
 const StudentClassroomPage = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -338,8 +349,8 @@ const StudentClassroomPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
 
+  // Store all classrooms for accurate filtering and pagination
   const [allClassrooms, setAllClassrooms] = useState([]);
-
   // Evaluation modal state
   const [showEvaluationModal, setShowEvaluationModal] = useState(false);
   const [selectedClassroomForEvaluation, setSelectedClassroomForEvaluation] =
@@ -347,8 +358,7 @@ const StudentClassroomPage = () => {
 
   // Meeting rating modal state
   const [showMeetingRatingModal, setShowMeetingRatingModal] = useState(false);
-  const [selectedMeetingForRating, setSelectedMeetingForRating] =
-    useState(null);
+  const [selectedMeetingForRating, setSelectedMeetingForRating] = useState(null);
 
   // Meeting list state
   const [meetingList, setMeetingList] = useState([]);
@@ -369,21 +379,20 @@ const StudentClassroomPage = () => {
 
   const currentUser = useSelector((state) => state.user.userProfile);
   const [searchParams, setSearchParams] = useSearchParams();
-
   const fetchStudentClassrooms = useCallback(
     async (page, forceRefresh = false) => {
       if (!currentUser?.userId) {
         setError("Không tìm thấy thông tin người dùng.");
         return;
       }
-
-      if (isLoading && !forceRefresh) return;
-
       setIsLoading(true);
       setError(null);
 
       try {
-        const queryParams = { userId: currentUser.userId };
+        const queryParams = {
+          page: 1,
+          rpp: 1000,
+        };
 
         console.log(
           `🔍 Fetching all student classrooms for client-side filtering${
@@ -485,47 +494,77 @@ const StudentClassroomPage = () => {
         if (meetings.length > 0) {
           setAllMeetings(meetings);
 
-          // Filter meetings based on active tab
+          // Use getFilteredItems function like tutor (filter + paginate in one step)
           const result = getFilteredItems(
             meetings,
-            activeMeetingTab,
+            activeMeetingTab, // Default to "ENDED" as set in state
             page,
             meetingsPerPage
           );
+
+          console.log(
+            `📊 Student filtered meetings (${activeMeetingTab}): ${result.total} total, ${result.items.length} on page ${page}`
+          );
+
           setMeetingList(result.items);
           setTotalMeetings(result.total);
           setCurrentMeetingPage(page);
 
-          console.log(
-            `📊 Student filtered meetings (${activeMeetingTab}): ${result.total}, showing page ${page}`
-          );
+          // Set meeting view state
+          setShowMeetingView(true);
+          setCurrentClassroomForMeetings({
+            classroomId: classroomId,
+            nameOfRoom: classroomName,
+          });
+
+          // Update URL params to maintain state
+          setSearchParams({
+            view: "meetings",
+            classroomId: encodeURIComponent(classroomId),
+            classroomName: encodeURIComponent(classroomName),
+            page: page,
+            tab: activeMeetingTab, // Default to "ENDED"
+          });
+
+          console.log("✅ Student meeting view setup completed");
         } else {
-          console.log("❌ No meetings data in response");
-          setMeetingList([]);
+          console.log("📭 Student no meetings found");
           setAllMeetings([]);
+          setMeetingList([]);
           setTotalMeetings(0);
+          setCurrentMeetingPage(1);
+
+          // Still show meeting view with empty state, don't fallback to main view
+          setShowMeetingView(true);
+          setCurrentClassroomForMeetings({
+            classroomId: classroomId,
+            nameOfRoom: classroomName,
+          });
+
+          // Still set URL params to maintain state
+          setSearchParams({
+            view: "meetings",
+            classroomId: encodeURIComponent(classroomId),
+            classroomName: encodeURIComponent(classroomName),
+            page: 1,
+            tab: activeMeetingTab,
+          });
+
+          console.log("📭 Student empty meeting view setup completed");
         }
-
-        // Set meeting view state
-        setCurrentClassroomForMeetings({
-          classroomId,
-          nameOfRoom: classroomName,
-        });
-        setShowMeetingView(true);
-
-        // Update URL params
-        setSearchParams({
-          classroomId,
-          classroomName,
-          tab: activeMeetingTab,
-          page: page.toString(),
-        });
       } catch (error) {
         console.error("❌ Student error fetching meetings:", error);
         setError("Lỗi khi tải danh sách buổi học.");
-        setMeetingList([]);
         setAllMeetings([]);
+        setMeetingList([]);
         setTotalMeetings(0);
+
+        // Don't fallback to main view on error, just show empty meeting view
+        setShowMeetingView(true);
+        setCurrentClassroomForMeetings({
+          classroomId: classroomId,
+          nameOfRoom: classroomName,
+        });
       } finally {
         setIsMeetingLoading(false);
       }
@@ -533,73 +572,127 @@ const StudentClassroomPage = () => {
     [activeMeetingTab, meetingsPerPage, setSearchParams]
   );
 
-  // Handle tab changes for classrooms
-  const handleClassroomTabChange = (newTab) => {
-    if (newTab === activeClassroomTab) return;
+  // URL param handling for deep linking
+  useEffect(() => {
+    const view = searchParams.get("view");
+    const classroomId = searchParams.get("classroomId");
+    const classroomName = searchParams.get("classroomName");
+    const page = parseInt(searchParams.get("page")) || 1;
+    const tab = searchParams.get("tab") || "ENDED"; // Default to ENDED for meetings
+
+    if (view === "meetings" && classroomId && classroomName) {
+      console.log("🔗 Student restoring meeting view from URL params");
+
+      // Set the tab first
+      setActiveMeetingTab(tab);
+
+      // Then restore the meeting view
+      handleViewMeetings(
+        decodeURIComponent(classroomId),
+        decodeURIComponent(classroomName),
+        page
+      );
+    }
+  }, [searchParams, handleViewMeetings]);
+  // Initial data fetch
+  useEffect(() => {
+    fetchStudentClassrooms(1);
+  }, [fetchStudentClassrooms]);
+
+  // Handle meeting page change - use getFilteredItems like tutor
+  const handleMeetingPageChange = (newPage) => {
+    if (
+      newPage >= 1 &&
+      newPage <= Math.ceil(totalMeetings / meetingsPerPage) &&
+      allMeetings.length > 0
+    ) {
+      console.log(
+        `📄 Student meeting page change: ${currentMeetingPage} -> ${newPage} (using getFilteredItems like tutor)`
+      );
+
+      // Use getFilteredItems function like tutor (filter + paginate in one step)
+      const result = getFilteredItems(
+        allMeetings,
+        activeMeetingTab,
+        newPage,
+        meetingsPerPage
+      );
+
+      // Update meetingList with filtered and paginated results
+      setMeetingList(result.items);
+      setCurrentMeetingPage(newPage);
+
+      console.log(
+        `📄 Student page ${newPage}: ${result.total} total filtered meetings, showing ${result.items.length} items`
+      );
+
+      // Update URL params to maintain state
+      if (currentClassroomForMeetings) {
+        setSearchParams({
+          view: "meetings",
+          classroomId: encodeURIComponent(
+            currentClassroomForMeetings.classroomId
+          ),
+          classroomName: encodeURIComponent(
+            currentClassroomForMeetings.nameOfRoom
+          ),
+          page: newPage,
+          tab: activeMeetingTab,
+        });
+      }
+    }
+  };
+
+  // Handle meeting tab change
+  const handleMeetingTabChange = (newTab) => {
+    setActiveMeetingTab(newTab);
+    setCurrentMeetingPage(1);
 
     console.log(
-      `🔄 Student classroom tab change: ${activeClassroomTab} -> ${newTab}`
+      `🎯 Student meeting tab switch: ${activeMeetingTab} -> ${newTab} (client-side filtering only)`
     );
+
+    // Use getFilteredItems to get new filtered data
+    const result = getFilteredItems(allMeetings, newTab, 1, meetingsPerPage);
+    setMeetingList(result.items);
+    setTotalMeetings(result.total);
+
+    // Update URL to reflect tab change
+    if (currentClassroomForMeetings) {
+      setSearchParams({
+        view: "meetings",
+        classroomId: encodeURIComponent(
+          currentClassroomForMeetings.classroomId
+        ),
+        classroomName: encodeURIComponent(
+          currentClassroomForMeetings.nameOfRoom
+        ),
+        page: 1,
+        tab: newTab,
+      });
+    }
+  };
+
+  // Handle classroom tab change
+  const handleClassroomTabChange = (newTab) => {
     setActiveClassroomTab(newTab);
+    setCurrentPage(1);
+
+    console.log(
+      `🎯 Student classroom tab switch: ${activeClassroomTab} -> ${newTab} (client-side filtering only)`
+    );
 
     if (allClassrooms.length > 0) {
       const result = getFilteredItems(allClassrooms, newTab, 1, itemsPerPage);
       setClassrooms(result.items);
       setTotalClassrooms(result.total);
       setCurrentPage(1);
+
       console.log(
-        `📊 Student filtered after tab change: ${result.total} items`
+        `📊 Student filtered classrooms (${newTab}): ${result.total} total`
       );
     } else {
-      fetchStudentClassrooms(1);
-    }
-  };
-
-  // Handle tab changes for meetings
-  const handleMeetingTabChange = (newTab) => {
-    if (newTab === activeMeetingTab) return;
-
-    console.log(
-      `🔄 Student meeting tab change: ${activeMeetingTab} -> ${newTab}`
-    );
-    setActiveMeetingTab(newTab);
-
-    if (allMeetings.length > 0) {
-      const result = getFilteredItems(allMeetings, newTab, 1, meetingsPerPage);
-      setMeetingList(result.items);
-      setTotalMeetings(result.total);
-      setCurrentMeetingPage(1);
-      console.log(
-        `📊 Student filtered meetings after tab change: ${result.total} items`
-      );
-    }
-  };
-
-  // Initial load and URL parameter restoration
-  useEffect(() => {
-    const classroomId = searchParams.get("classroomId");
-    const classroomName = searchParams.get("classroomName");
-    const tab = searchParams.get("tab");
-    const page = parseInt(searchParams.get("page")) || 1;
-
-    if (classroomId && classroomName) {
-      console.log("🔄 Student restoring meeting view from URL params");
-      if (tab) setActiveMeetingTab(tab);
-      handleViewMeetings(classroomId, classroomName, page);
-    } else {
-      fetchStudentClassrooms(1);
-    }
-  }, [currentUser?.userId]);
-
-  // Handle refresh
-  const handleRefresh = () => {
-    if (showMeetingView && currentClassroomForMeetings) {
-      handleViewMeetings(
-        currentClassroomForMeetings.classroomId,
-        currentClassroomForMeetings.nameOfRoom,
-        currentMeetingPage
-      );
-    } else {
+      console.log("📥 No classrooms in allClassrooms, fetching from server...");
       fetchStudentClassrooms(1);
     }
   };
@@ -653,7 +746,6 @@ const StudentClassroomPage = () => {
     setShowEvaluationModal(false);
     setSelectedClassroomForEvaluation(null);
   };
-
   // Meeting rating handlers
   const handleMeetingRating = (meeting) => {
     setSelectedMeetingForRating(meeting);
@@ -683,18 +775,19 @@ const StudentClassroomPage = () => {
     );
   }
 
-  const handleJoinMeeting = (meeting) => {
-    const zoomUrl = meeting.joinUrl || meeting.join_url;
-    if (zoomUrl) {
-      window.open(zoomUrl, "_blank");
-      toast.success("Đang mở Zoom meeting...");
-    } else {
-      toast.error("Không tìm thấy link tham gia buổi học.");
-    }
-  };
+  // Meeting View Component
+  const MeetingView = () => {
+    if (!showMeetingView || !currentClassroomForMeetings) return null;
 
-  // If showing meeting view
-  if (showMeetingView) {
+    const handleJoinMeeting = (meeting) => {
+      const zoomUrl = meeting.joinUrl || meeting.join_url;
+      if (zoomUrl) {
+        window.open(zoomUrl, "_blank");
+        toast.success("Đang mở Zoom meeting...");
+      } else {
+        toast.error("Không tìm thấy link tham gia buổi học.");
+      }
+    };
     return (
       <div className="student-classroom-page">
         {/* Breadcrumb Navigation */}
@@ -794,9 +887,7 @@ const StudentClassroomPage = () => {
                           <strong>Thời lượng:</strong> {meeting.duration} phút
                         </p>
                       )}
-                    </div>
-
-                    <div className="scp-meeting-actions">
+                    </div>                    <div className="scp-meeting-actions">
                       {meeting.status === "IN_SESSION" ||
                       meeting.status === "STARTED" ? (
                         <button
@@ -847,126 +938,161 @@ const StudentClassroomPage = () => {
               </div>
             )}
           </div>
+
+          {/* Meeting Pagination */}
+          {meetingList.length > 0 &&
+            Math.ceil(totalMeetings / meetingsPerPage) > 1 && (
+              <div className="scp-pagination">
+                <button
+                  className="scp-pagination-btn"
+                  onClick={() => handleMeetingPageChange(currentMeetingPage - 1)}
+                  disabled={currentMeetingPage === 1}
+                >
+                  <i className="fas fa-chevron-left"></i>
+                  Trước
+                </button>
+
+                <span className="scp-pagination-info">
+                  Trang {currentMeetingPage} /{" "}
+                  {Math.ceil(totalMeetings / meetingsPerPage)}
+                </span>
+
+                <button
+                  className="scp-pagination-btn"
+                  onClick={() => handleMeetingPageChange(currentMeetingPage + 1)}
+                  disabled={
+                    currentMeetingPage ===
+                    Math.ceil(totalMeetings / meetingsPerPage)
+                  }
+                >
+                  Sau
+                  <i className="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            )}
+        </div>
+      );
+    };
+
+    // If showing meeting view
+    if (showMeetingView) {
+      return <MeetingView />;
+    }
+    // Main Classroom List View
+    return (
+      <div className="student-classroom-page">
+        <div className="scp-header-section">
+          <h2 className="scp-page-title">Lớp học của tôi ({totalClassrooms})</h2>
+          <button
+            className="scp-refresh-btn"
+            onClick={() => {
+              console.log("🔄 Manual refresh triggered");
+              fetchStudentClassrooms(1, true); // Force refresh
+            }}
+            disabled={isLoading}
+            title="Làm mới dữ liệu"
+          >
+            <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+            {isLoading ? "Đang tải..." : "Làm mới"}
+          </button>
         </div>
 
-        {/* Meeting Rating Modal */}
-        {showMeetingRatingModal && selectedMeetingForRating && (
-          <MeetingRatingModal
-            meeting={selectedMeetingForRating}
-            isOpen={showMeetingRatingModal}
-            onClose={handleCloseMeetingRatingModal}
-            onSubmit={handleMeetingRatingSubmit}
-          />
+        {/* Classroom Tabs */}
+        <div className="scp-classroom-tabs-container">
+          <div className="scp-classroom-tabs">
+            <button
+              className={`scp-classroom-tab ${
+                activeClassroomTab === "IN_SESSION" ? "active" : ""
+              }`}
+              onClick={() => handleClassroomTabChange("IN_SESSION")}
+            >
+              Đang học ({getCountByStatus(allClassrooms, "IN_SESSION")})
+            </button>
+            <button
+              className={`scp-classroom-tab ${
+                activeClassroomTab === "ENDED" ? "active" : ""
+              }`}
+              onClick={() => handleClassroomTabChange("ENDED")}
+            >
+              Đã hoàn thành ({getCountByStatus(allClassrooms, "ENDED")})
+            </button>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="scp-loading">
+            <div className="scp-spinner"></div>
+            <p>Đang tải danh sách lớp học...</p>
+          </div>
         )}
-      </div>
-    );
-  }
 
-  // Main Classroom List View
-  return (
-    <div className="student-classroom-page">
-      <div className="scp-header-section">
-        <h2 className="scp-page-title">Lớp học của tôi ({totalClassrooms})</h2>
-        <button
-          className="scp-refresh-btn"
-          onClick={() => {
-            console.log("🔄 Manual refresh triggered");
-            fetchStudentClassrooms(1, true); // Force refresh
-          }}
-          disabled={isLoading}
-        >
-          <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
-          {isLoading ? "Đang tải..." : "Làm mới"}
-        </button>
-      </div>
+        {/* Error State */}
+        {error && (
+          <div className="scp-error">
+            <i className="fas fa-exclamation-triangle"></i>
+            <p>{error}</p>
+            <button
+              onClick={() => fetchStudentClassrooms(1)}
+              className="scp-retry-btn"
+            >
+              Thử lại
+            </button>
+          </div>
+        )}
 
-      {/* Classroom Tabs */}
-      <div className="scp-tabs-container">
-        <div className="scp-tabs">
-          <button
-            className={`scp-tab ${
-              activeClassroomTab === "IN_SESSION" ? "active" : ""
-            }`}
-            onClick={() => handleClassroomTabChange("IN_SESSION")}
-          >
-            <i className="fas fa-play-circle"></i>
-            Lớp học đang diễn ra
-            <span className="scp-tab-count">
-              ({getCountByStatus(allClassrooms, "IN_SESSION")})
-            </span>
-          </button>
-          <button
-            className={`scp-tab ${
-              activeClassroomTab === "ENDED" ? "active" : ""
-            }`}
-            onClick={() => handleClassroomTabChange("ENDED")}
-          >
-            <i className="fas fa-check-circle"></i>
-            Lớp học đã hoàn thành
-            <span className="scp-tab-count">
-              ({getCountByStatus(allClassrooms, "ENDED")})
-            </span>
-          </button>
-        </div>
-      </div>
+        {/* Classroom List */}
+        {!isLoading && !error && classrooms.length > 0 && (
+          <div className="scp-classroom-grid">
+            {classrooms.map((classroom) => {
+              const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
+              const progress = calculateClassProgress(
+                classroom.startDay,
+                classroom.endDay
+              );
 
-      {/* Error Message */}
-      {error && (
-        <div className="scp-error">
-          <i className="fas fa-exclamation-triangle"></i>
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="scp-error-close">
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
-      )}
+              return (
+                <div key={classroom.classroomId} className="scp-classroom-card">
+                  <div className="scp-classroom-header">
+                    <h3 className="scp-classroom-title">
+                      {classroom.nameOfRoom}
+                    </h3>
+                    <span
+                      className={`scp-classroom-status ${classroom.status?.toLowerCase()}`}
+                    >
+                      {statusLabels[classroom.status] ||
+                        classroom.status ||
+                        "Chưa xác định"}
+                    </span>
+                  </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="scp-loading">
-          <div className="scp-spinner"></div>
-          <p>Đang tải danh sách lớp học...</p>
-        </div>
-      )}
-
-      {/* Classroom List */}
-      {!isLoading && !error && classrooms.length > 0 && (
-        <div className="scp-classroom-list">
-          {classrooms.map((classroom, index) => {
-            const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
-            const progress = calculateClassProgress(
-              classroom.startDay,
-              classroom.endDay
-            );
-
-            return (
-              <div
-                key={classroom.classroomId || index}
-                className="scp-classroom-card"
-              >
-                <div className="scp-classroom-header">
-                  <h3 className="scp-classroom-title">
-                    {classroom.nameOfRoom || `Lớp học ${index + 1}`}
-                  </h3>
-                  <span
-                    className={`scp-classroom-status ${classroom.status?.toLowerCase()}`}
-                  >
-                    {statusLabels[classroom.status] ||
-                      classroom.status ||
-                      "Chưa xác định"}
-                  </span>
-                </div>
-
-                <div className="scp-classroom-content">
-                  <div className="scp-classroom-info">
-                    <div className="scp-info-section">
-                      <h4>
-                        <i className="fas fa-info-circle"></i>
-                        Thông tin cơ bản
-                      </h4>
+                  <div className="scp-classroom-content">
+                    <div className="scp-tutor-info">
+                      <img
+                        src={getSafeAvatarUrl(classroom.tutor)}
+                        alt="Avatar"
+                        className="scp-tutor-avatar"
+                        onError={handleAvatarError}
+                      />{" "}
+                      <div className="scp-tutor-details">
+                        <p className="scp-tutor-name">
+                          {classroom.tutor?.fullname ||
+                            `${classroom.tutor?.firstName || ""} ${
+                              classroom.tutor?.lastName || ""
+                            }`.trim() ||
+                            "Chưa xác định"}
+                        </p>
+                        <p className="scp-tutor-phone">
+                          {classroom.tutor?.phoneNumber}
+                        </p>
+                      </div>
+                    </div>{" "}
+                    <div className="scp-classroom-info">
                       <p>
                         <strong>Môn học:</strong>{" "}
-                        {classroom.subjectName || "Chưa cập nhật"}
+                        {classroom.tutor?.subject?.subjectName ||
+                          classroom.subject ||
+                          "Chưa xác định"}
                       </p>
                       <p>
                         <strong>Thời gian:</strong>{" "}
@@ -974,46 +1100,38 @@ const StudentClassroomPage = () => {
                         {formatDate(classroom.endDay)}
                       </p>
                       <p>
-                        <strong>Học phí:</strong>{" "}
-                        {classroom.price
-                          ? `${parseInt(classroom.price).toLocaleString()} VNĐ`
-                          : "Chưa cập nhật"}
+                        <strong>Giá:</strong>{" "}
+                        {(
+                          classroom.tutor?.coinPerHours ||
+                          classroom.price ||
+                          0
+                        ).toLocaleString()}{" "}
+                        VND/giờ
                       </p>
-                    </div>
 
-                    {schedule.length > 0 && (
-                      <div className="scp-info-section">
-                        <h4>
-                          <i className="fas fa-calendar-alt"></i>
-                          Lịch học
-                        </h4>
-                        {schedule.map((item, idx) => (
-                          <p key={idx}>
-                            <strong>{item.day}:</strong> {item.times}
-                          </p>
-                        ))}
-                      </div>
-                    )}
+                      {schedule.length > 0 && (
+                        <div className="scp-schedule">
+                          <strong>Lịch học:</strong>
+                          {schedule.map((item, index) => (
+                            <span key={index} className="scp-schedule-item">
+                              {item.day}: {item.times}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
-                    {classroom.tutorName && (
-                      <div className="scp-info-section">
-                        <h4>
-                          <i className="fas fa-user-graduate"></i>
-                          Gia sư
-                        </h4>
-                        <div className="scp-tutor-info">
-                          <img
-                            src={classroom.tutorAvatar || dfMale}
-                            alt={classroom.tutorName}
-                            className="scp-tutor-avatar"
-                            onError={handleImageError}
-                          />
-                          <span className="scp-tutor-name">
-                            {classroom.tutorName}
-                          </span>
+                      <div className="scp-progress">
+                        <div className="scp-progress-label">
+                          <strong>Tiến độ:</strong> {progress.percentage}%
+                        </div>
+                        <div className="scp-progress-bar">
+                          <div
+                            className={`scp-progress-fill ${progress.status}`}
+                            style={{ width: `${progress.percentage}%` }}
+                          ></div>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   <div className="scp-classroom-actions">
@@ -1041,70 +1159,77 @@ const StudentClassroomPage = () => {
                     )}
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!isLoading && !error && classrooms.length === 0 && (
-        <div className="scp-empty-state">
-          <div className="scp-empty-icon">
-            <i className="fas fa-chalkboard-teacher"></i>
-          </div>
-          <h3>Không có lớp học nào</h3>
-          <p>
-            {activeClassroomTab === "IN_SESSION"
-              ? "Bạn chưa tham gia lớp học nào đang diễn ra."
-              : "Bạn chưa hoàn thành lớp học nào."}
-          </p>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {!isLoading &&
-        !error &&
-        classrooms.length > 0 &&
-        Math.ceil(totalClassrooms / itemsPerPage) > 1 && (
-          <div className="scp-pagination">
-            <button
-              className="scp-pagination-btn"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <i className="fas fa-chevron-left"></i>
-              Trước
-            </button>
-
-            <span className="scp-pagination-info">
-              Trang {currentPage} / {Math.ceil(totalClassrooms / itemsPerPage)}
-            </span>
-
-            <button
-              className="scp-pagination-btn"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={
-                currentPage === Math.ceil(totalClassrooms / itemsPerPage)
-              }
-            >
-              Sau
-              <i className="fas fa-chevron-right"></i>
-            </button>
+              );
+            })}
           </div>
         )}
 
-      {/* Evaluation Modal */}
-      {showEvaluationModal && selectedClassroomForEvaluation && (
-        <ClassroomEvaluationModal
-          isOpen={showEvaluationModal}
-          classroomName={selectedClassroomForEvaluation.nameOfRoom}
-          onSubmit={handleEvaluationSubmit}
-          onClose={handleCloseEvaluationModal}
-        />
-      )}
-    </div>
-  );
+        {/* Empty State */}
+        {!isLoading && !error && classrooms.length === 0 && (
+          <div className="scp-empty-state">
+            <div className="scp-empty-icon">
+              <i className="fas fa-chalkboard-teacher"></i>
+            </div>
+            <h3>Không có lớp học nào</h3>
+            <p>
+              {activeClassroomTab === "IN_SESSION"
+                ? "Bạn chưa tham gia lớp học nào đang diễn ra."
+                : "Bạn chưa hoàn thành lớp học nào."}
+            </p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading &&
+          !error &&
+          classrooms.length > 0 &&
+          Math.ceil(totalClassrooms / itemsPerPage) > 1 && (
+            <div className="scp-pagination">
+              <button
+                className="scp-pagination-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <i className="fas fa-chevron-left"></i>
+                Trước
+              </button>
+
+              <span className="scp-pagination-info">
+                Trang {currentPage} / {Math.ceil(totalClassrooms / itemsPerPage)}
+              </span>
+
+              <button
+                className="scp-pagination-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === Math.ceil(totalClassrooms / itemsPerPage)
+                }
+              >
+                Sau
+                <i className="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          )}
+
+        {/* Evaluation Modal */}
+        {showEvaluationModal && selectedClassroomForEvaluation && (
+          <ClassroomEvaluationModal
+            isOpen={showEvaluationModal}
+            classroomName={selectedClassroomForEvaluation.nameOfRoom}
+            onSubmit={handleEvaluationSubmit}
+            onClose={handleCloseEvaluationModal}
+          />
+        )}        {/* Meeting Rating Modal - for đánh giá meeting */}
+        {showMeetingRatingModal && selectedMeetingForRating && (
+          <MeetingRatingModal
+            meeting={selectedMeetingForRating}
+            isOpen={showMeetingRatingModal}
+            onClose={handleCloseMeetingRatingModal}
+            onSubmit={handleMeetingRatingSubmit}
+          />
+        )}
+      </div>
+    );
 };
 
 export default memo(StudentClassroomPage);

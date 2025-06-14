@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test StudentClassroom CSS Styles</title>
+    <style>
+      /* Copy CSS styles from StudentClassroomPage.style.css to test */
+
+      /* Breadcrumb Navigation */
+      .scp-breadcrumb {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .scp-breadcrumb-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .scp-breadcrumb-link {
+        background: none;
+        border: none;
+        color: #28a745;
+        cursor: pointer;
+        text-decoration: none;
+        padding: 0;
+        font-size: inherit;
+        font-family: inherit;
+      }
+
+      .scp-breadcrumb-link:hover {
+        color: #218838;
+        text-decoration: underline;
+      }
+
+      .scp-breadcrumb-current {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .scp-breadcrumb-separator {
+        margin: 0 8px;
+        color: #dee2e6;
+        font-size: 12px;
+      }
+
+      .student-classroom-page {
+        padding: 20px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f9f9f9;
+        min-height: 100vh;
+        color: #333;
+      }
+
+      /* Header Section with Title and Refresh Button */
+      .scp-header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .scp-page-title {
+        color: #333;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+        flex: 1;
+      }
+
+      .scp-refresh-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        min-width: 120px;
+      }
+
+      .scp-refresh-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #218838, #1ea080);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+      }
+
+      /* Classroom Card Styling */
+      .scp-classroom-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 24px;
+        margin-top: 20px;
+      }
+
+      .scp-classroom-card {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border: 1px solid #e0e6ed;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .scp-classroom-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .scp-classroom-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 35px rgba(40, 167, 69, 0.15);
+      }
+
+      .scp-classroom-card:hover::before {
+        opacity: 1;
+      }
+
+      .scp-classroom-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        padding: 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 16px 16px 0 0;
+      }
+
+      .scp-classroom-title {
+        font-size: 1.3rem;
+        margin: 0;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        color: white;
+        max-width: 70%;
+      }
+
+      .scp-classroom-status {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .scp-classroom-content {
+        padding: 20px;
+      }
+
+      .scp-tutor-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e6ed;
+      }
+
+      .scp-tutor-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #28a745;
+      }
+
+      .scp-tutor-details {
+        flex: 1;
+      }
+
+      .scp-tutor-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 4px 0;
+      }
+
+      .scp-tutor-phone {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+      }
+
+      .scp-classroom-info p {
+        margin: 8px 0;
+        line-height: 1.5;
+        color: #555;
+      }
+
+      .scp-classroom-info strong {
+        color: #333;
+        font-weight: 600;
+      }
+
+      /* Tabs */
+      .scp-classroom-tabs {
+        display: flex;
+        background: white;
+        border-radius: 12px;
+        padding: 6px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        overflow-x: auto;
+      }
+
+      .scp-classroom-tab {
+        flex: 1;
+        min-width: 120px;
+        padding: 12px 20px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #6c757d;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        white-space: nowrap;
+      }
+
+      .scp-classroom-tab:hover {
+        background: rgba(40, 167, 69, 0.08);
+        color: #28a745;
+      }
+
+      .scp-classroom-tab.active {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        transform: translateY(-1px);
+      }
+
+      .scp-tab-count {
+        background: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .scp-classroom-tab.active .scp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="student-classroom-page">
+      <!-- Breadcrumb -->
+      <div class="scp-breadcrumb">
+        <div class="scp-breadcrumb-item">
+          <a href="#" class="scp-breadcrumb-link">Trang chủ</a>
+        </div>
+        <span class="scp-breadcrumb-separator">›</span>
+        <div class="scp-breadcrumb-item">
+          <span class="scp-breadcrumb-current">Lớp học của tôi</span>
+        </div>
+      </div>
+
+      <!-- Header Section -->
+      <div class="scp-header-section">
+        <h1 class="scp-page-title">Lớp học của tôi</h1>
+        <button class="scp-refresh-btn">
+          <i class="fas fa-sync-alt"></i>
+          Làm mới
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="scp-classroom-tabs">
+        <button class="scp-classroom-tab active">
+          <i class="fas fa-chalkboard-teacher"></i>
+          Đang học
+          <span class="scp-tab-count">2</span>
+        </button>
+        <button class="scp-classroom-tab">
+          <i class="fas fa-check-circle"></i>
+          Đã hoàn thành
+          <span class="scp-tab-count">1</span>
+        </button>
+      </div>
+
+      <!-- Classroom Grid -->
+      <div class="scp-classroom-grid">
+        <!-- Sample Card 1 -->
+        <div class="scp-classroom-card">
+          <div class="scp-classroom-header">
+            <h3 class="scp-classroom-title">
+              Lớp học với gia sư Nguyễn Văn An
+            </h3>
+            <span class="scp-classroom-status">Đang học</span>
+          </div>
+          <div class="scp-classroom-content">
+            <div class="scp-tutor-info">
+              <img
+                src="https://via.placeholder.com/50"
+                alt="Avatar"
+                class="scp-tutor-avatar"
+              />
+              <div class="scp-tutor-details">
+                <p class="scp-tutor-name">Nguyễn Văn An</p>
+                <p class="scp-tutor-phone">0123456789</p>
+              </div>
+            </div>
+            <div class="scp-classroom-info">
+              <p><strong>Môn học:</strong> Kinh tế vi mô</p>
+              <p><strong>Thời gian:</strong> 01/06/2025 - 03/08/2025</p>
+              <p><strong>Giá:</strong> 180 VND/giờ</p>
+              <p><strong>Lịch học:</strong></p>
+              <p>• Thứ 2: 05:00</p>
+              <p>• Thứ 3: 09:58</p>
+              <p><strong>Tiến độ:</strong> 21%</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sample Card 2 -->
+        <div class="scp-classroom-card">
+          <div class="scp-classroom-header">
+            <h3 class="scp-classroom-title">
+              Lớp học với gia sư Lê Hoàng Dương
+            </h3>
+            <span class="scp-classroom-status">Đang học</span>
+          </div>
+          <div class="scp-classroom-content">
+            <div class="scp-tutor-info">
+              <img
+                src="https://via.placeholder.com/50"
+                alt="Avatar"
+                class="scp-tutor-avatar"
+              />
+              <div class="scp-tutor-details">
+                <p class="scp-tutor-name">Lê Hoàng Dương</p>
+                <p class="scp-tutor-phone">0987654321</p>
+              </div>
+            </div>
+            <div class="scp-classroom-info">
+              <p><strong>Môn học:</strong> Kinh tế vi mô</p>
+              <p><strong>Thời gian:</strong> 02/06/2025 - 10/08/2025</p>
+              <p><strong>Giá:</strong> 160 VND/giờ</p>
+              <p><strong>Lịch học:</strong></p>
+              <p>• Thứ 3: 18:24</p>
+              <p>• Thứ 5: 18:24</p>
+              <p><strong>Tiến độ:</strong> 15%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactivity to test hover effects
+      document.querySelectorAll(".scp-classroom-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".scp-classroom-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+    </script>
+  </body>
+</html>

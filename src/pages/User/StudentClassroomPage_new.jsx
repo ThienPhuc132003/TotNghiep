@@ -4,7 +4,6 @@ import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import StarRatings from "react-star-ratings";
 import "../../assets/css/StudentClassroomPage.style.css";
 import dfMale from "../../assets/images/df-male.png";
 import ClassroomEvaluationModal from "../../components/User/ClassroomEvaluationModal";
@@ -146,6 +145,7 @@ const handleImageError = (event) => {
 // MeetingRatingModal Component
 const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
   const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -153,6 +153,7 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
   useEffect(() => {
     if (isOpen) {
       setRating(0);
+      setHoverRating(0);
       setComment("");
       setIsSubmitting(false);
     }
@@ -176,8 +177,6 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
         rating,
         comment: comment.trim(),
       });
-      toast.success("Đánh giá đã được gửi thành công!");
-      onClose();
     } catch (error) {
       console.error("Error submitting rating:", error);
       toast.error("Có lỗi xảy ra khi đánh giá. Vui lòng thử lại!");
@@ -186,13 +185,38 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
     }
   };
 
-  const getRatingDescription = (rating) => {
-    if (rating === 0) return "";
-    if (rating <= 1) return "(Rất tệ)";
-    if (rating <= 2) return "(Tệ)";
-    if (rating <= 3) return "(Bình thường)";
-    if (rating <= 4) return "(Tốt)";
-    return "(Xuất sắc)";
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const isHalf = (hoverRating || rating) === i - 0.5;
+      const isFull = (hoverRating || rating) >= i;
+
+      stars.push(
+        <div key={i} className="scp-star-container">
+          {/* Half star (left side) */}
+          <div
+            className={`scp-star-half scp-star-left ${
+              isHalf || isFull ? "active" : ""
+            }`}
+            onMouseEnter={() => setHoverRating(i - 0.5)}
+            onMouseLeave={() => setHoverRating(0)}
+            onClick={() => setRating(i - 0.5)}
+          >
+            <i className="fas fa-star"></i>
+          </div>
+          {/* Full star (right side) */}
+          <div
+            className={`scp-star-half scp-star-right ${isFull ? "active" : ""}`}
+            onMouseEnter={() => setHoverRating(i)}
+            onMouseLeave={() => setHoverRating(0)}
+            onClick={() => setRating(i)}
+          >
+            <i className="fas fa-star"></i>
+          </div>
+        </div>
+      );
+    }
+    return stars;
   };
 
   if (!isOpen) return null;
@@ -233,44 +257,22 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
                 <i className="fas fa-star"></i>
                 Đánh giá chất lượng buổi học
               </label>
-
-              {/* Using react-star-ratings library */}
-              <div className="scp-star-rating-container">
-                <StarRatings
-                  rating={rating}
-                  starRatedColor="#ffc107"
-                  starEmptyColor="#e4e5e9"
-                  starHoverColor="#ffc107"
-                  changeRating={setRating}
-                  numberOfStars={5}
-                  name="meeting-rating"
-                  starDimension="40px"
-                  starSpacing="8px"
-                  svgIconPath="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  svgIconViewBox="0 0 24 24"
-                />
-
-                {/* Quick rating buttons */}
-                <div className="scp-half-star-controls">
-                  {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={`scp-rating-btn ${
-                        rating === value ? "active" : ""
-                      }`}
-                      onClick={() => setRating(value)}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+              <div className="scp-star-rating">{renderStars()}</div>
               <div className="scp-rating-text">
                 {rating > 0 && (
                   <span className="scp-rating-value">
-                    {rating} sao {getRatingDescription(rating)}
+                    {rating} sao{" "}
+                    {rating === 1
+                      ? ""
+                      : rating < 2
+                      ? "(Tệ)"
+                      : rating < 3
+                      ? "(Bình thường)"
+                      : rating < 4
+                      ? "(Tốt)"
+                      : rating < 5
+                      ? "(Rất tốt)"
+                      : "(Xuất sắc)"}
                   </span>
                 )}
               </div>

@@ -1657,7 +1657,7 @@ const TutorClassroomPage = () => {
         </div>
 
         {/* Caching status indicator */}
-        <div className="tcp-cache-status">
+        {/* <div className="tcp-cache-status">
           {allClassrooms.length > 0 ? (
             <span className="tcp-cache-active">
               <i className="fas fa-database"></i>
@@ -1669,7 +1669,7 @@ const TutorClassroomPage = () => {
               Chưa có dữ liệu cache
             </span>
           )}
-        </div>
+        </div> */}
       </div>
       {isLoading && (
         <div className="tcp-skeleton-container">
