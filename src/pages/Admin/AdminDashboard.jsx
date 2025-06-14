@@ -56,7 +56,7 @@ const AdminDashboardPage = () => {
   );
   const oauthProcessingRef = useRef(false);
 
-  const [timeRange, setTimeRange] = useState("month");
+  const [timeRange, setTimeRange] = useState("year");
 
   const [dashboardStats, setDashboardStats] = useState({
     revenue: { value: 0, currency: "VNĐ", change: null },
@@ -173,10 +173,10 @@ const AdminDashboardPage = () => {
   const revenueChartOptions = createChartOptions(true); // true for revenue chart
   const commonChartOptions = createChartOptions(false); // false for other charts
 
-  const formatCurrency = (value, currency = "VNĐ") => {
+  const formatCurrency = (value) => {
     if (value === null || value === undefined || isNaN(Number(value)))
       return "N/A";
-    return `${Number(value).toLocaleString("vi-VN")} ${currency}`;
+    return `${Number(value).toLocaleString("vi-VN")}`;
   };
 
   const renderChange = (change, isPercent = false) => {
@@ -864,14 +864,9 @@ const AdminDashboardPage = () => {
               </div>
               <div className="admin-card__content">
                 <div className="admin-card__header">
-                  <h3 className="admin-card__title">
-                    Doanh thu ({getTimeRangeText(timeRange)})
-                  </h3>
+                  <h3 className="admin-card__title">Doanh thu từ xu (VNĐ)</h3>
                   <span className="admin-card__data">
-                    {formatCurrency(
-                      dashboardStats.revenue.value,
-                      dashboardStats.revenue.currency
-                    )}
+                    {formatCurrency(dashboardStats.revenue.value)}
                   </span>
                 </div>
                 <div className="admin-card__change">

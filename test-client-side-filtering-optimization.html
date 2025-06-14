@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Client-side Filtering & Pagination Optimization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+      }
+      .tab {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .tab.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
+      .pagination {
+        display: flex;
+        gap: 5px;
+        margin: 15px 0;
+        align-items: center;
+      }
+      .page-btn {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+        border-radius: 3px;
+      }
+      .page-btn.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
+      .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .stats {
+        background: #e9ecef;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-family: monospace;
+      }
+      .result-item {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 4px;
+        background: #f8f9fa;
+      }
+      .log {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 15px 0;
+      }
+      .performance {
+        background: #fffbf0;
+        border: 1px solid #f59e0b;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      .optimization-tip {
+        background: #f0fff4;
+        border: 1px solid #10b981;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #1a202c;
+      }
+      .error {
+        color: #e53e3e;
+      }
+      .success {
+        color: #38a169;
+      }
+      .info {
+        color: #3182ce;
+      }
+      .warning {
+        color: #d69e2e;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Test Client-side Filtering & Pagination Optimization</h1>
+
+    <div class="test-section">
+      <h2>📊 Demo Data Generator</h2>
+      <div>
+        <label>Number of classrooms: </label>
+        <input type="number" id="dataSize" value="150" min="10" max="1000" />
+        <button onclick="generateTestData()">Generate Test Data</button>
+      </div>
+      <div class="stats" id="dataStats">No data generated yet</div>
+    </div>
+
+    <div class="test-section">
+      <h2>🔍 Filtering & Pagination Test</h2>
+
+      <div class="tabs">
+        <div class="tab active" onclick="changeFilter('ALL')" id="tab-ALL">
+          All Classrooms
+        </div>
+        <div
+          class="tab"
+          onclick="changeFilter('IN_SESSION')"
+          id="tab-IN_SESSION"
+        >
+          In Session
+        </div>
+        <div class="tab" onclick="changeFilter('ENDED')" id="tab-ENDED">
+          Ended
+        </div>
+      </div>
+
+      <div class="stats">
+        <strong>Filter Statistics:</strong>
+        <div id="filterStats">No data to filter</div>
+      </div>
+
+      <div>
+        <label>Items per page: </label>
+        <select id="itemsPerPage" onchange="updatePagination()">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+
+      <div class="pagination" id="pagination">
+        <!-- Pagination will be generated here -->
+      </div>
+
+      <div id="results">
+        <!-- Filtered results will show here -->
+      </div>
+
+      <div class="performance" id="performanceMetrics">
+        Performance metrics will appear here after filtering
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📈 Performance Analysis</h2>
+      <div id="performanceAnalysis">
+        <p>Run some filtering operations to see performance analysis...</p>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>💡 Optimization Tips</h2>
+      <div class="optimization-tip">
+        <h3>Current Implementation Analysis:</h3>
+        <ul id="optimizationTips">
+          <li>
+            ✅ <strong>Client-side filtering</strong> - Good for small to medium
+            datasets (&lt;1000 items)
+          </li>
+          <li>
+            ⚠️ <strong>Fetch all data once</strong> - May be slow for large
+            datasets (&gt;1000 items)
+          </li>
+          <li>
+            ✅ <strong>Memory-efficient pagination</strong> - Only shows current
+            page items
+          </li>
+          <li>
+            ⚠️ <strong>No caching strategy</strong> - Fetches all data on every
+            tab change
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🚀 Recommendations</h2>
+      <div id="recommendations">
+        <!-- Recommendations will be generated based on performance -->
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📋 Debug Log</h2>
+      <button onclick="clearLog()">Clear Log</button>
+      <div class="log" id="debugLog">Debug log will appear here...</div>
+    </div>
+
+    <script>
+      // Test data
+      let allClassrooms = [];
+      let filteredClassrooms = [];
+      let currentFilter = "ALL";
+      let currentPage = 1;
+      let itemsPerPage = 10;
+      let performanceHistory = [];
+
+      // Classroom statuses for realistic test data
+      const statusOptions = [
+        "IN_SESSION",
+        "PENDING",
+        "COMPLETED",
+        "CANCELLED",
+        "ENDED",
+      ];
+
+      const statusMapping = {
+        IN_SESSION: ["IN_SESSION", "PENDING"],
+        ENDED: ["COMPLETED", "CANCELLED", "ENDED"],
+        ALL: statusOptions,
+      };
+
+      function log(message, type = "info") {
+        const logElement = document.getElementById("debugLog");
+        const timestamp = new Date().toLocaleTimeString();
+        const colorClass =
+          type === "error"
+            ? "error"
+            : type === "success"
+            ? "success"
+            : type === "warning"
+            ? "warning"
+            : "info";
+
+        logElement.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      function clearLog() {
+        document.getElementById("debugLog").innerHTML = "";
+      }
+
+      function generateTestData() {
+        const dataSize = parseInt(document.getElementById("dataSize").value);
+        const startTime = performance.now();
+
+        allClassrooms = [];
+        for (let i = 1; i <= dataSize; i++) {
+          allClassrooms.push({
+            classroomId: `classroom_${i}`,
+            nameOfRoom: `Lớp học ${i}`,
+            status:
+              statusOptions[Math.floor(Math.random() * statusOptions.length)],
+            startDay: new Date(
+              2024,
+              0,
+              Math.floor(Math.random() * 365)
+            ).toISOString(),
+            endDay: new Date(
+              2024,
+              11,
+              Math.floor(Math.random() * 365)
+            ).toISOString(),
+            user: {
+              fullName: `Student ${i}`,
+              avatar: `https://via.placeholder.com/40x40?text=S${i}`,
+            },
+          });
+        }
+
+        const endTime = performance.now();
+        const generationTime = endTime - startTime;
+
+        log(
+          `Generated ${dataSize} test classrooms in ${generationTime.toFixed(
+            2
+          )}ms`,
+          "success"
+        );
+
+        // Update stats
+        const statusCounts = {};
+        statusOptions.forEach((status) => {
+          statusCounts[status] = allClassrooms.filter(
+            (c) => c.status === status
+          ).length;
+        });
+
+        document.getElementById("dataStats").innerHTML = `
+                <strong>Generated ${dataSize} classrooms:</strong><br>
+                ${Object.entries(statusCounts)
+                  .map(
+                    ([status, count]) =>
+                      `${status}: ${count} (${(
+                        (count / dataSize) *
+                        100
+                      ).toFixed(1)}%)`
+                  )
+                  .join("<br>")}
+                <br><strong>Generation time:</strong> ${generationTime.toFixed(
+                  2
+                )}ms
+            `;
+
+        // Auto-apply current filter
+        applyFilter();
+      }
+
+      // Exactly replicate the filtering logic from TutorClassroomPage.jsx
+      function getFilteredItems(items, status, page, itemsPerPage) {
+        const startTime = performance.now();
+
+        // Step 1: Filter theo status
+        let filtered = items;
+        if (status === "IN_SESSION") {
+          filtered = items.filter(
+            (item) =>
+              item.status === "IN_SESSION" ||
+              item.status === "PENDING" ||
+              !item.status
+          );
+        } else if (status === "ENDED") {
+          filtered = items.filter(
+            (item) =>
+              item.status === "COMPLETED" ||
+              item.status === "CANCELLED" ||
+              item.status === "ENDED"
+          );
+        }
+        // "ALL" case: không filter, trả về tất cả
+
+        // Step 2: Apply client-side pagination trên filtered data
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        const result = {
+          items: filtered.slice(startIndex, endIndex), // Paginated items
+          total: filtered.length, // Total items AFTER filtering
+        };
+
+        const endTime = performance.now();
+        const filterTime = endTime - startTime;
+
+        // Track performance
+        performanceHistory.push({
+          timestamp: new Date(),
+          operation: `Filter ${status}, Page ${page}`,
+          totalItems: items.length,
+          filteredItems: result.total,
+          paginatedItems: result.items.length,
+          executionTime: filterTime,
+        });
+
+        log(
+          `Filtered ${items.length} → ${result.total} items, page ${page} (${
+            result.items.length
+          } items) in ${filterTime.toFixed(2)}ms`
+        );
+
+        return result;
+      }
+
+      function changeFilter(newFilter) {
+        // Update active tab
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        document.getElementById(`tab-${newFilter}`).classList.add("active");
+
+        currentFilter = newFilter;
+        currentPage = 1; // Reset to first page
+
+        log(`Filter changed to: ${newFilter}`, "info");
+        applyFilter();
+      }
+
+      function applyFilter() {
+        if (allClassrooms.length === 0) {
+          log("No test data available. Generate data first.", "warning");
+          return;
+        }
+
+        const startTime = performance.now();
+
+        // Use the exact same filtering logic as TutorClassroomPage.jsx
+        const result = getFilteredItems(
+          allClassrooms,
+          currentFilter,
+          currentPage,
+          itemsPerPage
+        );
+        filteredClassrooms = result.items;
+
+        const endTime = performance.now();
+        const totalTime = endTime - startTime;
+
+        // Update filter stats
+        document.getElementById("filterStats").innerHTML = `
+                Total classrooms: ${allClassrooms.length}<br>
+                Filter: ${currentFilter}<br>
+                Filtered total: ${result.total}<br>
+                Current page: ${currentPage}<br>
+                Items per page: ${itemsPerPage}<br>
+                Showing: ${result.items.length} items<br>
+                <strong>Filter time: ${totalTime.toFixed(2)}ms</strong>
+            `;
+
+        // Update performance metrics
+        updatePerformanceMetrics(totalTime, result);
+
+        // Update pagination
+        updatePaginationControls(result.total);
+
+        // Show results
+        showResults(result.items);
+
+        // Update performance analysis
+        updatePerformanceAnalysis();
+      }
+
+      function updatePaginationControls(totalFiltered) {
+        const totalPages = Math.ceil(totalFiltered / itemsPerPage);
+        const paginationElement = document.getElementById("pagination");
+
+        let paginationHTML = "";
+
+        // Previous button
+        paginationHTML += `<button class="page-btn" ${
+          currentPage <= 1 ? "disabled" : ""
+        } onclick="changePage(${currentPage - 1})">‹ Prev</button>`;
+
+        // Page numbers (show max 5 pages around current)
+        const maxVisiblePages = 5;
+        let startPage = Math.max(
+          1,
+          currentPage - Math.floor(maxVisiblePages / 2)
+        );
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+          paginationHTML += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+          if (startPage > 2) {
+            paginationHTML += `<span>...</span>`;
+          }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+          paginationHTML += `<button class="page-btn ${
+            i === currentPage ? "active" : ""
+          }" onclick="changePage(${i})">${i}</button>`;
+        }
+
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) {
+            paginationHTML += `<span>...</span>`;
+          }
+          paginationHTML += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+        }
+
+        // Next button
+        paginationHTML += `<button class="page-btn" ${
+          currentPage >= totalPages ? "disabled" : ""
+        } onclick="changePage(${currentPage + 1})">Next ›</button>`;
+
+        paginationElement.innerHTML = paginationHTML;
+      }
+
+      function changePage(newPage) {
+        if (newPage === currentPage) return;
+
+        currentPage = newPage;
+        log(`Page changed to: ${newPage}`, "info");
+        applyFilter();
+      }
+
+      function updatePagination() {
+        itemsPerPage = parseInt(document.getElementById("itemsPerPage").value);
+        currentPage = 1; // Reset to first page
+        log(`Items per page changed to: ${itemsPerPage}`, "info");
+        applyFilter();
+      }
+
+      function showResults(items) {
+        const resultsElement = document.getElementById("results");
+
+        if (items.length === 0) {
+          resultsElement.innerHTML =
+            '<div class="result-item">No classrooms match the current filter.</div>';
+          return;
+        }
+
+        resultsElement.innerHTML = items
+          .map(
+            (classroom) => `
+                <div class="result-item">
+                    <strong>${classroom.nameOfRoom}</strong> (ID: ${
+              classroom.classroomId
+            })
+                    <br>Status: <span class="status-${classroom.status}">${
+              classroom.status
+            }</span>
+                    <br>Student: ${classroom.user.fullName}
+                    <br>Period: ${new Date(
+                      classroom.startDay
+                    ).toLocaleDateString()} - ${new Date(
+              classroom.endDay
+            ).toLocaleDateString()}
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function updatePerformanceMetrics(lastExecutionTime, result) {
+        const metricsElement = document.getElementById("performanceMetrics");
+
+        // Calculate average execution time
+        const recentExecutions = performanceHistory.slice(-10);
+        const avgTime =
+          recentExecutions.reduce((sum, exec) => sum + exec.executionTime, 0) /
+          recentExecutions.length;
+
+        // Performance rating
+        let performanceRating = "Excellent";
+        let ratingColor = "#10b981";
+
+        if (avgTime > 50) {
+          performanceRating = "Poor";
+          ratingColor = "#e53e3e";
+        } else if (avgTime > 20) {
+          performanceRating = "Fair";
+          ratingColor = "#d69e2e";
+        } else if (avgTime > 10) {
+          performanceRating = "Good";
+          ratingColor = "#3182ce";
+        }
+
+        metricsElement.innerHTML = `
+                <strong>Performance Metrics:</strong><br>
+                Last execution time: ${lastExecutionTime.toFixed(2)}ms<br>
+                Average time (last 10): ${avgTime.toFixed(2)}ms<br>
+                Performance rating: <span style="color: ${ratingColor}; font-weight: bold;">${performanceRating}</span><br>
+                Total operations: ${performanceHistory.length}
+            `;
+      }
+
+      function updatePerformanceAnalysis() {
+        const analysisElement = document.getElementById("performanceAnalysis");
+
+        if (performanceHistory.length === 0) return;
+
+        const totalOperations = performanceHistory.length;
+        const avgTime =
+          performanceHistory.reduce((sum, op) => sum + op.executionTime, 0) /
+          totalOperations;
+        const maxTime = Math.max(
+          ...performanceHistory.map((op) => op.executionTime)
+        );
+        const minTime = Math.min(
+          ...performanceHistory.map((op) => op.executionTime)
+        );
+
+        // Memory usage estimation
+        const estimatedMemoryPerItem = 200; // bytes per classroom object
+        const totalMemoryUsage = allClassrooms.length * estimatedMemoryPerItem;
+
+        analysisElement.innerHTML = `
+                <div class="stats">
+                    <strong>Performance Summary:</strong><br>
+                    Total operations: ${totalOperations}<br>
+                    Average execution time: ${avgTime.toFixed(2)}ms<br>
+                    Min execution time: ${minTime.toFixed(2)}ms<br>
+                    Max execution time: ${maxTime.toFixed(2)}ms<br>
+                    Estimated memory usage: ${(totalMemoryUsage / 1024).toFixed(
+                      2
+                    )} KB<br>
+                </div>
+                
+                <div class="optimization-tip">
+                    <strong>Performance Recommendations:</strong><br>
+                    ${getPerformanceRecommendations(
+                      avgTime,
+                      allClassrooms.length
+                    )}
+                </div>
+            `;
+
+        // Update recommendations
+        updateRecommendations(avgTime, allClassrooms.length);
+      }
+
+      function getPerformanceRecommendations(avgTime, dataSize) {
+        const recommendations = [];
+
+        if (dataSize > 1000) {
+          recommendations.push(
+            "⚠️ Large dataset detected. Consider server-side filtering and pagination."
+          );
+        }
+
+        if (avgTime > 50) {
+          recommendations.push(
+            "🐌 Slow filtering detected. Consider optimizing filter logic or reducing data size."
+          );
+        }
+
+        if (avgTime < 5 && dataSize < 500) {
+          recommendations.push(
+            "✅ Excellent performance! Current client-side approach is optimal."
+          );
+        }
+
+        if (dataSize > 500 && dataSize <= 1000) {
+          recommendations.push(
+            "💡 Consider implementing data virtualization for better UX."
+          );
+        }
+
+        if (recommendations.length === 0) {
+          recommendations.push("✅ Performance is good for current data size.");
+        }
+
+        return recommendations.join("<br>");
+      }
+
+      function updateRecommendations(avgTime, dataSize) {
+        const recommendationsElement =
+          document.getElementById("recommendations");
+
+        let recommendations = `
+                <h3>📋 Optimization Strategy:</h3>
+                <div class="optimization-tip">
+            `;
+
+        if (dataSize <= 500) {
+          recommendations += `
+                    <h4>✅ Current Approach (Client-side) - OPTIMAL</h4>
+                    <ul>
+                        <li>Keep current client-side filtering and pagination</li>
+                        <li>Fetch all data once, filter in memory</li>
+                        <li>Performance is excellent for ${dataSize} items</li>
+                        <li>Simple implementation, good user experience</li>
+                    </ul>
+                `;
+        } else if (dataSize <= 1000) {
+          recommendations += `
+                    <h4>⚠️ Current Approach (Client-side) - ACCEPTABLE</h4>
+                    <ul>
+                        <li>Current approach still works for ${dataSize} items</li>
+                        <li>Consider implementing loading states and skeleton UI</li>
+                        <li>Monitor performance as data grows</li>
+                        <li>Consider data virtualization for table display</li>
+                    </ul>
+                    
+                    <h4>💡 Future Optimization Options:</h4>
+                    <ul>
+                        <li>Implement server-side filtering when data > 1000 items</li>
+                        <li>Add caching layer for filtered results</li>
+                        <li>Consider hybrid approach: cache + server filtering</li>
+                    </ul>
+                `;
+        } else {
+          recommendations += `
+                    <h4>🚨 Large Dataset (${dataSize} items) - NEEDS OPTIMIZATION</h4>
+                    <ul>
+                        <li><strong>Immediate:</strong> Implement server-side filtering and pagination</li>
+                        <li><strong>UX:</strong> Add loading states, skeleton UI, and error boundaries</li>
+                        <li><strong>Performance:</strong> Implement data virtualization for large lists</li>
+                        <li><strong>Caching:</strong> Cache filtered results on server and client</li>
+                    </ul>
+                    
+                    <h4>🛠️ Implementation Plan:</h4>
+                    <ol>
+                        <li>Update backend API to support status filtering</li>
+                        <li>Modify frontend to use server-side pagination</li>
+                        <li>Keep client-side pagination for small filtered results</li>
+                        <li>Implement hybrid approach for best UX</li>
+                    </ol>
+                `;
+        }
+
+        recommendations += `
+                </div>
+                
+                <div class="performance">
+                    <h4>🔍 Current Performance Analysis:</h4>
+                    <ul>
+                        <li><strong>Dataset size:</strong> ${dataSize} items</li>
+                        <li><strong>Average filter time:</strong> ${avgTime.toFixed(
+                          2
+                        )}ms</li>
+                        <li><strong>Memory usage:</strong> ~${(
+                          (dataSize * 200) /
+                          1024
+                        ).toFixed(2)} KB</li>
+                        <li><strong>Recommendation:</strong> ${getOptimizationLevel(
+                          dataSize,
+                          avgTime
+                        )}</li>
+                    </ul>
+                </div>
+            `;
+
+        recommendationsElement.innerHTML = recommendations;
+      }
+
+      function getOptimizationLevel(dataSize, avgTime) {
+        if (dataSize > 1000 || avgTime > 50) {
+          return "Server-side optimization required";
+        } else if (dataSize > 500 || avgTime > 20) {
+          return "Consider optimization for future growth";
+        } else {
+          return "Current client-side approach is optimal";
+        }
+      }
+
+      // Initialize with some test data
+      document.addEventListener("DOMContentLoaded", () => {
+        log("Client-side filtering test initialized", "success");
+        generateTestData();
+      });
+    </script>
+  </body>
+</html>

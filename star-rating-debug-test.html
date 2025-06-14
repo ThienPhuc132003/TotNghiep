@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Rating Debug Test</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 40px;
+      }
+
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2c3e50;
+      }
+
+      .debug-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        background: #f8f9fa;
+      }
+
+      .debug-title {
+        font-weight: 600;
+        color: #007bff;
+        margin-bottom: 15px;
+      }
+
+      /* CSS như trong StudentClassroomPage.style.css */
+      .scp-star-rating {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        margin-bottom: 12px !important;
+        width: 100% !important;
+        max-width: 200px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
+      .scp-star-container {
+        position: relative !important;
+        display: inline-block !important;
+        cursor: pointer !important;
+        width: 30px !important;
+        height: 30px !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        border: 1px dashed #ccc; /* Debug border */
+      }
+
+      .scp-star-half {
+        position: absolute !important;
+        top: 0 !important;
+        width: 50% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        color: #dee2e6 !important;
+        font-size: 1.5rem !important;
+        transition: color 0.2s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 1 !important;
+      }
+
+      .scp-star-half.active {
+        color: #ffc107 !important;
+      }
+
+      .scp-star-left {
+        left: 0 !important;
+        clip-path: inset(0 50% 0 0) !important;
+        background: rgba(255, 0, 0, 0.1); /* Debug background */
+      }
+
+      .scp-star-right {
+        right: 0 !important;
+        clip-path: inset(0 0 0 50%) !important;
+        background: rgba(0, 255, 0, 0.1); /* Debug background */
+      }
+
+      .scp-star-half:hover {
+        color: #ffc107 !important;
+        transform: scale(1.1) !important;
+      }
+
+      .rating-display {
+        margin-top: 15px;
+        font-size: 1.1rem;
+        color: #28a745;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .test-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .test-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .test-btn:hover {
+        background: #0056b3;
+      }
+
+      .debug-info {
+        margin-top: 20px;
+        padding: 15px;
+        background: #e3f2fd;
+        border-radius: 8px;
+        color: #1976d2;
+        font-family: monospace;
+        font-size: 0.9rem;
+      }
+
+      .debug-error {
+        background: #ffebee;
+        color: #c62828;
+      }
+
+      .debug-success {
+        background: #e8f5e8;
+        color: #2e7d32;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="test-header">
+        <h1>🔍 Star Rating Debug Test</h1>
+        <p>Kiểm tra chi tiết hệ thống 5 sao - Debug mode</p>
+      </div>
+
+      <div class="debug-section">
+        <div class="debug-title">📊 Test 1: Kiểm tra số lượng sao</div>
+        <div class="scp-star-rating" id="starRating1">
+          <!-- Stars sẽ được tạo bằng JavaScript -->
+        </div>
+        <div class="rating-display" id="ratingDisplay1">Chưa đánh giá</div>
+        <div class="debug-info" id="debugInfo1"></div>
+      </div>
+
+      <div class="debug-section">
+        <div class="debug-title">🎯 Test 2: React-like renderStars</div>
+        <div class="scp-star-rating" id="starRating2">
+          <!-- Stars giống như trong React component -->
+        </div>
+        <div class="rating-display" id="ratingDisplay2">Chưa đánh giá</div>
+        <div class="debug-info" id="debugInfo2"></div>
+      </div>
+
+      <div class="test-buttons">
+        <button class="test-btn" onclick="setTestRating(0.5)">0.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(1)">1 sao</button>
+        <button class="test-btn" onclick="setTestRating(1.5)">1.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(2.5)">2.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(3.5)">3.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(4.5)">4.5 sao</button>
+        <button class="test-btn" onclick="setTestRating(5)">5 sao</button>
+        <button class="test-btn" onclick="setTestRating(0)">Reset</button>
+        <button class="test-btn" onclick="debugCount()">Debug Count</button>
+      </div>
+
+      <div class="debug-section">
+        <div class="debug-title">📋 Debug Results</div>
+        <div class="debug-info" id="debugResults"></div>
+      </div>
+    </div>
+
+    <script>
+      let currentRating = 0;
+      let hoverRating = 0;
+
+      // Test 1: Basic implementation
+      function initStarRating1() {
+        const starContainer = document.getElementById("starRating1");
+        starContainer.innerHTML = "";
+
+        console.log("🔧 Initializing Test 1...");
+
+        // Tạo chính xác 5 sao
+        for (let i = 1; i <= 5; i++) {
+          const starDiv = document.createElement("div");
+          starDiv.className = "scp-star-container";
+          starDiv.setAttribute("data-star", i);
+
+          // Half star (left side)
+          const leftHalf = document.createElement("div");
+          leftHalf.className = "scp-star-half scp-star-left";
+          leftHalf.innerHTML = '<i class="fas fa-star"></i>';
+          leftHalf.addEventListener("mouseenter", () =>
+            setHoverRating(i - 0.5)
+          );
+          leftHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          leftHalf.addEventListener("click", () => setRating(i - 0.5));
+
+          // Full star (right side)
+          const rightHalf = document.createElement("div");
+          rightHalf.className = "scp-star-half scp-star-right";
+          rightHalf.innerHTML = '<i class="fas fa-star"></i>';
+          rightHalf.addEventListener("mouseenter", () => setHoverRating(i));
+          rightHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          rightHalf.addEventListener("click", () => setRating(i));
+
+          starDiv.appendChild(leftHalf);
+          starDiv.appendChild(rightHalf);
+          starContainer.appendChild(starDiv);
+        }
+
+        updateStarDisplay();
+        updateDebugInfo1();
+      }
+
+      // Test 2: React-like implementation
+      function initStarRating2() {
+        const starContainer = document.getElementById("starRating2");
+        starContainer.innerHTML = "";
+
+        console.log("🔧 Initializing Test 2 (React-like)...");
+
+        // Giống như logic trong React component
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+          const isHalf = (hoverRating || currentRating) === i - 0.5;
+          const isFull = (hoverRating || currentRating) >= i;
+
+          const starDiv = document.createElement("div");
+          starDiv.className = "scp-star-container";
+          starDiv.setAttribute("data-star", i);
+
+          // Half star (left side)
+          const leftHalf = document.createElement("div");
+          leftHalf.className = `scp-star-half scp-star-left ${
+            isHalf || isFull ? "active" : ""
+          }`;
+          leftHalf.innerHTML = '<i class="fas fa-star"></i>';
+          leftHalf.addEventListener("mouseenter", () =>
+            setHoverRating(i - 0.5)
+          );
+          leftHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          leftHalf.addEventListener("click", () => setRating(i - 0.5));
+
+          // Full star (right side)
+          const rightHalf = document.createElement("div");
+          rightHalf.className = `scp-star-half scp-star-right ${
+            isFull ? "active" : ""
+          }`;
+          rightHalf.innerHTML = '<i class="fas fa-star"></i>';
+          rightHalf.addEventListener("mouseenter", () => setHoverRating(i));
+          rightHalf.addEventListener("mouseleave", () => setHoverRating(0));
+          rightHalf.addEventListener("click", () => setRating(i));
+
+          starDiv.appendChild(leftHalf);
+          starDiv.appendChild(rightHalf);
+          starContainer.appendChild(starDiv);
+        }
+
+        updateDebugInfo2();
+      }
+
+      function setHoverRating(rating) {
+        hoverRating = rating;
+        updateStarDisplay();
+        initStarRating2(); // Refresh React-like stars
+      }
+
+      function setRating(rating) {
+        currentRating = rating;
+        hoverRating = 0;
+        updateStarDisplay();
+        updateRatingText();
+        initStarRating2(); // Refresh React-like stars
+      }
+
+      function setTestRating(rating) {
+        setRating(rating);
+      }
+
+      function updateStarDisplay() {
+        const activeRating = hoverRating || currentRating;
+        const stars = document.querySelectorAll("#starRating1 .scp-star-half");
+
+        stars.forEach((star, index) => {
+          const starValue = Math.floor(index / 2) + 1;
+          const isLeftHalf = index % 2 === 0;
+          const starThreshold = isLeftHalf ? starValue - 0.5 : starValue;
+
+          if (activeRating >= starThreshold) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      function updateRatingText() {
+        const display1 = document.getElementById("ratingDisplay1");
+        const display2 = document.getElementById("ratingDisplay2");
+
+        let text = "";
+        if (currentRating > 0) {
+          let description = "";
+          if (currentRating < 2) description = " (Tệ)";
+          else if (currentRating < 3) description = " (Bình thường)";
+          else if (currentRating < 4) description = " (Tốt)";
+          else if (currentRating < 5) description = " (Rất tốt)";
+          else description = " (Xuất sắc)";
+
+          text = `${currentRating} sao${description}`;
+        } else {
+          text = "Chưa đánh giá";
+        }
+
+        display1.textContent = text;
+        display2.textContent = text;
+      }
+
+      function updateDebugInfo1() {
+        const starContainers = document.querySelectorAll(
+          "#starRating1 .scp-star-container"
+        );
+        const starElements = document.querySelectorAll(
+          "#starRating1 .scp-star-half"
+        );
+        const leftStars = document.querySelectorAll(
+          "#starRating1 .scp-star-left"
+        );
+        const rightStars = document.querySelectorAll(
+          "#starRating1 .scp-star-right"
+        );
+
+        const debugInfo1 = document.getElementById("debugInfo1");
+        const isCorrect =
+          starContainers.length === 5 && starElements.length === 10;
+
+        debugInfo1.className = `debug-info ${
+          isCorrect ? "debug-success" : "debug-error"
+        }`;
+        debugInfo1.innerHTML = `
+                ✨ Test 1 Results:<br>
+                📦 Star containers: ${starContainers.length} (expected: 5)<br>
+                ⭐ Star elements: ${starElements.length} (expected: 10)<br>
+                ◀️ Left halves: ${leftStars.length} (expected: 5)<br>
+                ▶️ Right halves: ${rightStars.length} (expected: 5)<br>
+                🎯 Status: ${isCorrect ? "✅ PASS" : "❌ FAIL"}
+            `;
+      }
+
+      function updateDebugInfo2() {
+        const starContainers = document.querySelectorAll(
+          "#starRating2 .scp-star-container"
+        );
+        const starElements = document.querySelectorAll(
+          "#starRating2 .scp-star-half"
+        );
+        const leftStars = document.querySelectorAll(
+          "#starRating2 .scp-star-left"
+        );
+        const rightStars = document.querySelectorAll(
+          "#starRating2 .scp-star-right"
+        );
+
+        const debugInfo2 = document.getElementById("debugInfo2");
+        const isCorrect =
+          starContainers.length === 5 && starElements.length === 10;
+
+        debugInfo2.className = `debug-info ${
+          isCorrect ? "debug-success" : "debug-error"
+        }`;
+        debugInfo2.innerHTML = `
+                ✨ Test 2 Results (React-like):<br>
+                📦 Star containers: ${starContainers.length} (expected: 5)<br>
+                ⭐ Star elements: ${starElements.length} (expected: 10)<br>
+                ◀️ Left halves: ${leftStars.length} (expected: 5)<br>
+                ▶️ Right halves: ${rightStars.length} (expected: 5)<br>
+                🎯 Status: ${isCorrect ? "✅ PASS" : "❌ FAIL"}
+            `;
+      }
+
+      function debugCount() {
+        const allStarContainers = document.querySelectorAll(
+          ".scp-star-container"
+        );
+        const allStarElements = document.querySelectorAll(".scp-star-half");
+        const allLeftStars = document.querySelectorAll(".scp-star-left");
+        const allRightStars = document.querySelectorAll(".scp-star-right");
+
+        const debugResults = document.getElementById("debugResults");
+        debugResults.innerHTML = `
+                🔍 Overall Debug Count:<br>
+                📦 Total star containers: ${allStarContainers.length}<br>
+                ⭐ Total star elements: ${allStarElements.length}<br>
+                ◀️ Total left halves: ${allLeftStars.length}<br>
+                ▶️ Total right halves: ${allRightStars.length}<br>
+                💾 Current rating: ${currentRating}<br>
+                🖱️ Hover rating: ${hoverRating}<br><br>
+                
+                Expected for 2 tests: 10 containers, 20 elements, 10 left, 10 right
+            `;
+
+        console.log("Debug count completed", {
+          containers: allStarContainers.length,
+          elements: allStarElements.length,
+          left: allLeftStars.length,
+          right: allRightStars.length,
+        });
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 Initializing Star Rating Debug Test...");
+        initStarRating1();
+        initStarRating2();
+        updateRatingText();
+        debugCount();
+        console.log("✅ Debug test initialized");
+      });
+    </script>
+  </body>
+</html>

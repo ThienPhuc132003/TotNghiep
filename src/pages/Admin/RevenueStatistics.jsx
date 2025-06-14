@@ -426,7 +426,7 @@ const RevenueStatisticsPage = () => {
           }}
         >
           <h2 className="admin-list-title" style={{ margin: 0 }}>
-            Doanh thu của GiaSuVLU
+            Doanh thu GiaSuVLU
           </h2>
           <div
             title="Keyboard Shortcuts:&#10;Ctrl + R: Refresh&#10;Ctrl + E: Export&#10;Ctrl + F: Focus Search"

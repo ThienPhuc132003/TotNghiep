@@ -9,7 +9,7 @@ import "slick-carousel/slick/slick-theme.css"; // Vẫn cần CSS theme nếu b�
 import Select from "react-select";
 
 // --- Assets ---
-import welcomeTheme from "../../assets/images/vanlang_background3.webp";
+import welcomeTheme from "../../assets/images/anhdeptrai.jpg";
 import vlubackground4 from "../../assets/images/vanlang_background4.webp";
 import tutorLevelData from "../../assets/data/tutorLevel.json";
 import PropTypes from "prop-types";
@@ -259,7 +259,7 @@ const HeroSection = ({ onSearch }) => {
         loading="lazy"
       />
       <div className="hero-content">
-        <h1>Tìm kiếm gia sư theo yêu cầu của bạn</h1>
+        <h1>Tìm kiếm gia sư với GiaSuVLU</h1>
         <p>Nhanh chóng và dễ dàng tìm kiếm gia sư theo nhu cầu của bạn</p>
         <form className="search-form" onSubmit={handleSubmit}>
           <div className="search-inputs">

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🐛 Debug Tutor Meeting View Issue</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .debug-section {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .code-block {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 15px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+      .highlight {
+        background-color: #fff3cd;
+        padding: 10px;
+        border-left: 4px solid #ffc107;
+        margin: 10px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+      }
+      h2 {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+      .checklist {
+        list-style-type: none;
+        padding: 0;
+      }
+      .checklist li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .checklist li:before {
+        content: "☐ ";
+        margin-right: 10px;
+      }
+      .checklist li.done:before {
+        content: "✅ ";
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🐛 Debug Guide: Tutor Meeting View Issue</h1>
+
+    <div class="debug-section">
+      <h2>🎯 Problem Description</h2>
+      <p>
+        <strong>Issue:</strong> Khi Tutor nhấn "Xem phòng học" trong quản lý lớp
+        học, không hiển thị danh sách meetings mặc dù API trả về data đúng.
+      </p>
+      <p>
+        <strong>Expected:</strong> Hiển thị danh sách meetings giống như
+        Student.
+      </p>
+      <p>
+        <strong>Current:</strong> View chuyển nhưng không có meetings hiển thị.
+      </p>
+    </div>
+
+    <div class="debug-section">
+      <h2>🔍 Debug Checklist</h2>
+      <p>Thực hiện các bước sau để debug:</p>
+
+      <ul class="checklist">
+        <li>1. Mở Developer Tools (F12) → Console tab</li>
+        <li>2. Login as Tutor</li>
+        <li>3. Navigate to classroom management</li>
+        <li>4. Click "Xem phòng học" for any classroom</li>
+        <li>5. Check console for debug logs</li>
+      </ul>
+    </div>
+
+    <div class="debug-section">
+      <h2>📋 Expected Console Logs</h2>
+      <p>You should see these logs in sequence:</p>
+
+      <div class="code-block">
+        🔍 TUTOR DEBUG - Fetching meetings for classroom: {classroomId,
+        classroomName, endpoint, timestamp} 🔍 TUTOR DEBUG - Token status:
+        {hasToken: true, tokenLength: XXX, tokenPreview: "..."} 🔍 TUTOR DEBUG -
+        meeting/get-meeting response: {success: true, result: {...}} 🔍 TUTOR
+        DEBUG - Full response structure: {...} ✅ TUTOR DEBUG - Found meetings
+        in response.result.items: 5 🔍 TUTOR DEBUG - Meeting data structure:
+        {meetingId: "...", topic: "...", ...} 🔍 TUTOR DEBUG - Setting meetings
+        to state: 5 🔍 TUTOR DEBUG - Filtered result: {totalItems: 5,
+        filteredItems: X, activeMeetingTab: "...", resultTotal: X} 🔍 TUTOR
+        DEBUG - About to show meeting view 🔍 TUTOR DEBUG - Meeting view should
+        now be visible
+      </div>
+    </div>
+
+    <div class="debug-section">
+      <h2>⚠️ Possible Issues & Solutions</h2>
+
+      <div class="highlight error">
+        <strong>Issue 1: No Token</strong><br />
+        If log shows "hasToken: false" → Login issue
+        <div class="code-block">Solution: Re-login as Tutor</div>
+      </div>
+
+      <div class="highlight error">
+        <strong>Issue 2: API Fails</strong><br />
+        If response shows success: false → API issue
+        <div class="code-block">
+          Solution: Check network tab for HTTP errors
+        </div>
+      </div>
+
+      <div class="highlight error">
+        <strong>Issue 3: No Data in Response</strong><br />
+        If response.result.items is empty → Backend filtering issue
+        <div class="code-block">
+          Solution: Check if classroomId belongs to this tutor
+        </div>
+      </div>
+
+      <div class="highlight error">
+        <strong>Issue 4: Client-side Filtering Issue</strong><br />
+        If data exists but filteredItems is 0 → Tab filtering issue
+        <div class="code-block">
+          Solution: Check activeMeetingTab value and getFilteredItems function
+        </div>
+      </div>
+
+      <div class="highlight error">
+        <strong>Issue 5: State Not Updating</strong><br />
+        If logs show data but UI doesn't update → React state issue
+        <div class="code-block">
+          Solution: Check if setShowMeetingView(true) is called
+        </div>
+      </div>
+
+      <div class="highlight error">
+        <strong>Issue 6: Component Not Re-rendering</strong><br />
+        If state updates but UI doesn't change → Component rendering issue
+        <div class="code-block">
+          Solution: Check meetingList state and conditional rendering
+        </div>
+      </div>
+    </div>
+
+    <div class="debug-section">
+      <h2>🔧 Quick Fixes to Try</h2>
+
+      <div class="highlight">
+        <strong>Fix 1: Force Re-render</strong><br />
+        Add key prop to meeting view component to force re-mount
+      </div>
+
+      <div class="highlight">
+        <strong>Fix 2: Check activeMeetingTab</strong><br />
+        Ensure activeMeetingTab is set to show all meetings (e.g., "ALL" or
+        "IN_SESSION")
+      </div>
+
+      <div class="highlight">
+        <strong>Fix 3: Bypass Filtering</strong><br />
+        Temporarily set meetingList directly without filtering to test
+      </div>
+
+      <div class="highlight">
+        <strong>Fix 4: Check Conditional Rendering</strong><br />
+        Ensure meeting list component renders when showMeetingView is true
+      </div>
+    </div>
+
+    <div class="debug-section">
+      <h2>🧪 Testing Commands</h2>
+      <p>Run these in browser console during debug:</p>
+
+      <div class="code-block">
+        // Check current state console.log("showMeetingView:", /* current state
+        value */); console.log("meetingList:", /* current state value */);
+        console.log("allMeetings:", /* current state value */);
+        console.log("activeMeetingTab:", /* current state value */); // Check
+        DOM elements console.log("Meeting view container:",
+        document.querySelector('[class*="meeting"]')); console.log("Meeting
+        items:", document.querySelectorAll('[class*="meeting-item"]'));
+      </div>
+    </div>
+
+    <div class="debug-section">
+      <h2>📊 Comparison: Student vs Tutor</h2>
+      <p>Compare behaviors between Student and Tutor:</p>
+
+      <table style="width: 100%; border-collapse: collapse">
+        <tr style="background-color: #f8f9fa">
+          <th style="border: 1px solid #dee2e6; padding: 8px">Aspect</th>
+          <th style="border: 1px solid #dee2e6; padding: 8px">Student</th>
+          <th style="border: 1px solid #dee2e6; padding: 8px">Tutor</th>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #dee2e6; padding: 8px">API Call</td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            meeting/get-meeting (POST)
+          </td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            meeting/get-meeting (POST)
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #dee2e6; padding: 8px">ClassroomId</td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">Same ID</td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">Same ID</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            Token Required
+          </td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">Yes</td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">Yes</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            Response Structure
+          </td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            response.result.items
+          </td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            response.result.items
+          </td>
+        </tr>
+        <tr style="background-color: #fff3cd">
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            <strong>UI Result</strong>
+          </td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            <strong>✅ Shows meetings</strong>
+          </td>
+          <td style="border: 1px solid #dee2e6; padding: 8px">
+            <strong>❌ No meetings</strong>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="debug-section">
+      <h2>📱 Next Steps</h2>
+      <div class="highlight success">
+        <strong>After running debug:</strong><br />
+        1. Copy all console logs and share<br />
+        2. Note which step fails<br />
+        3. Check network tab for API response<br />
+        4. Compare with Student behavior<br />
+        5. Try suggested fixes based on findings
+      </div>
+    </div>
+
+    <script>
+      // Auto-update checklist when clicked
+      document.querySelectorAll(".checklist li").forEach((item) => {
+        item.addEventListener("click", function () {
+          this.classList.toggle("done");
+        });
+      });
+    </script>
+  </body>
+</html>

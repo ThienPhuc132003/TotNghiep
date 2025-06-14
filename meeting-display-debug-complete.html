@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Display Debug - Complete Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .debug-section {
+        border: 1px solid #ddd;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .critical {
+        border-left: 4px solid #dc3545;
+        background-color: #f8d7da;
+      }
+      .success {
+        border-left: 4px solid #28a745;
+        background-color: #d4edda;
+      }
+      .warning {
+        border-left: 4px solid #ffc107;
+        background-color: #fff3cd;
+      }
+      .debug-result {
+        background-color: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+      button {
+        background-color: #0984e3;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0770c4;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+      }
+      .btn-danger:hover {
+        background-color: #c82333;
+      }
+      .test-steps {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .step {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: white;
+        border-left: 3px solid #007bff;
+      }
+      .step.completed {
+        border-left-color: #28a745;
+        background-color: #f1f8f4;
+      }
+      .step.failed {
+        border-left-color: #dc3545;
+        background-color: #f8d7da;
+      }
+      .issue-list {
+        background-color: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #ffc107;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Meeting Display Debug - Luồng Hoàn Chỉnh</h1>
+      <p>
+        <strong>Mục tiêu:</strong> Debug từng bước để tìm nguyên nhân meetings
+        không hiển thị
+      </p>
+
+      <div class="debug-section critical">
+        <h2>🚨 CRITICAL DEBUG PLAN</h2>
+        <div class="test-steps">
+          <div class="step" id="step1">
+            <strong>Step 1:</strong> Test API Response Structure
+            <button onclick="testStep1()">Test API Structure</button>
+          </div>
+          <div class="step" id="step2">
+            <strong>Step 2:</strong> Test Tutor Filter Logic (getFilteredItems)
+            <button onclick="testStep2()">Test Tutor Filter</button>
+          </div>
+          <div class="step" id="step3">
+            <strong>Step 3:</strong> Test Student Filter Logic (render filter)
+            <button onclick="testStep3()">Test Student Filter</button>
+          </div>
+          <div class="step" id="step4">
+            <strong>Step 4:</strong> Test State Management Flow
+            <button onclick="testStep4()">Test State Flow</button>
+          </div>
+          <div class="step" id="step5">
+            <strong>Step 5:</strong> Test Component Render Logic
+            <button onclick="testStep5()">Test Render Logic</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h2>📊 Test Results</h2>
+        <div id="test-results"></div>
+      </div>
+
+      <div class="debug-section warning">
+        <h2>⚠️ Potential Issues Identified</h2>
+        <div class="issue-list">
+          <h3>Issue 1: Timing Problems</h3>
+          <ul>
+            <li>activeMeetingTab state có thể chưa được set khi filter chạy</li>
+            <li>React state updates are async</li>
+            <li>Filter có thể chạy với stale state</li>
+          </ul>
+
+          <h3>Issue 2: State Dependencies</h3>
+          <ul>
+            <li>Tutor: meetingList depends on filtered result</li>
+            <li>Student: meetingList contains raw data, filter in render</li>
+            <li>Different timing for when filter happens</li>
+          </ul>
+
+          <h3>Issue 3: Component Lifecycle</h3>
+          <ul>
+            <li>showMeetingView state change timing</li>
+            <li>URL params vs state sync</li>
+            <li>Component re-render triggers</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="debug-section success">
+        <h2>✅ Recommended Browser Test Steps</h2>
+        <ol>
+          <li><strong>Open DevTools Console</strong> - Để xem debug logs</li>
+          <li><strong>Login as Tutor/Student</strong> - Test cả hai flow</li>
+          <li><strong>Click "Xem phòng học"</strong> - Trigger API call</li>
+          <li>
+            <strong>Check Console Logs:</strong>
+            <ul>
+              <li>🔍 TUTOR/STUDENT DEBUG - BEFORE FILTER OPERATION</li>
+              <li>🔍 TUTOR/STUDENT DEBUG - AFTER FILTER OPERATION</li>
+              <li>🔍 TUTOR/STUDENT DEBUG - RENDER FILTER RESULT</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Verify UI Display</strong> - Meetings should show in ENDED
+            tab
+          </li>
+        </ol>
+      </div>
+
+      <div class="debug-section">
+        <h2>🔧 Quick Fix Actions</h2>
+        <button onclick="generateQuickFix()">Generate Quick Fix Code</button>
+        <button onclick="showConsoleCommands()">
+          Show Console Test Commands
+        </button>
+        <button class="btn-danger" onclick="clearAllResults()">
+          Clear All Results
+        </button>
+      </div>
+
+      <div id="fix-suggestions"></div>
+    </div>
+
+    <script>
+      // Mock data giống API thực tế
+      const mockApiResponse = {
+        success: true,
+        result: {
+          items: [
+            {
+              meetingId: "1",
+              topic: "Meeting 1",
+              status: "ENDED",
+              startTime: "2024-01-15T10:00:00Z",
+            },
+            {
+              meetingId: "2",
+              topic: "Meeting 2",
+              status: "ENDED",
+              startTime: "2024-01-16T14:00:00Z",
+            },
+            {
+              meetingId: "3",
+              topic: "Meeting 3",
+              status: "ENDED",
+              startTime: "2024-01-17T09:00:00Z",
+            },
+            {
+              meetingId: "4",
+              topic: "Meeting 4",
+              status: "ENDED",
+              startTime: "2024-01-18T16:00:00Z",
+            },
+            {
+              meetingId: "5",
+              topic: "Meeting 5",
+              status: "ENDED",
+              startTime: "2024-01-19T11:00:00Z",
+            },
+          ],
+        },
+      };
+
+      let testResults = [];
+
+      function testStep1() {
+        const step = document.getElementById("step1");
+        const result = {
+          step: "API Response Structure Test",
+          passed: true,
+          details: `
+API Response Check:
+✅ response.success: ${mockApiResponse.success}
+✅ response.result.items: ${mockApiResponse.result.items ? "EXISTS" : "MISSING"}
+✅ Items count: ${mockApiResponse.result.items.length}
+✅ All items have status "ENDED": ${mockApiResponse.result.items.every(
+            (m) => m.status === "ENDED"
+          )}
+
+Data Structure:
+${JSON.stringify(mockApiResponse.result.items, null, 2)}
+                `,
+        };
+
+        testResults.push(result);
+        step.classList.add("completed");
+        updateResults();
+      }
+
+      function testStep2() {
+        const step = document.getElementById("step2");
+
+        // Simulate Tutor getFilteredItems function
+        function getFilteredItems(items, status, page, itemsPerPage) {
+          let filtered = items;
+          if (status === "IN_SESSION") {
+            filtered = items.filter(
+              (item) =>
+                item.status === "IN_SESSION" ||
+                item.status === "PENDING" ||
+                !item.status
+            );
+          } else if (status === "ENDED") {
+            filtered = items.filter(
+              (item) =>
+                item.status === "COMPLETED" ||
+                item.status === "CANCELLED" ||
+                item.status === "ENDED"
+            );
+          }
+
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+
+          return {
+            items: filtered.slice(startIndex, endIndex),
+            total: filtered.length,
+          };
+        }
+
+        const activeMeetingTab = "ENDED";
+        const result = getFilteredItems(
+          mockApiResponse.result.items,
+          activeMeetingTab,
+          1,
+          10
+        );
+
+        const testResult = {
+          step: "Tutor Filter Logic Test",
+          passed: result.items.length > 0,
+          details: `
+Tutor getFilteredItems() Test:
+Input: ${mockApiResponse.result.items.length} meetings, all status "ENDED"
+Tab: "${activeMeetingTab}"
+Filter criteria: status === "COMPLETED" || status === "CANCELLED" || status === "ENDED"
+
+Result:
+✅ Filtered items: ${result.items.length}
+✅ Total after filter: ${result.total}
+${
+  result.items.length > 0
+    ? "✅ SUCCESS: Should display meetings"
+    : "❌ FAILED: No meetings to display"
+}
+
+Filtered meetings:
+${result.items
+  .map((m) => `- ${m.meetingId}: ${m.status} (${m.topic})`)
+  .join("\n")}
+                `,
+        };
+
+        testResults.push(testResult);
+        step.classList.add(testResult.passed ? "completed" : "failed");
+        updateResults();
+      }
+
+      function testStep3() {
+        const step = document.getElementById("step3");
+
+        // Simulate Student filter logic
+        function studentFilter(meetingList, activeMeetingTab) {
+          return meetingList.filter((meeting) => {
+            if (!meeting || !meeting.status) {
+              return false;
+            }
+
+            if (activeMeetingTab === "IN_SESSION") {
+              return (
+                meeting.status === "IN_SESSION" ||
+                meeting.status === "STARTED" ||
+                meeting.status === "PENDING" ||
+                !meeting.status
+              );
+            } else if (activeMeetingTab === "ENDED") {
+              return (
+                meeting.status === "COMPLETED" ||
+                meeting.status === "ENDED" ||
+                meeting.status === "FINISHED"
+              );
+            }
+            return true;
+          });
+        }
+
+        const activeMeetingTab = "ENDED";
+        const filteredMeetings = studentFilter(
+          mockApiResponse.result.items,
+          activeMeetingTab
+        );
+
+        const testResult = {
+          step: "Student Filter Logic Test",
+          passed: filteredMeetings.length > 0,
+          details: `
+Student meetingList.filter() Test:
+Input: ${mockApiResponse.result.items.length} meetings, all status "ENDED"
+Tab: "${activeMeetingTab}"
+Filter criteria: status === "COMPLETED" || status === "ENDED" || status === "FINISHED"
+
+Result:
+✅ Filtered items: ${filteredMeetings.length}
+${
+  filteredMeetings.length > 0
+    ? "✅ SUCCESS: Should display meetings"
+    : "❌ FAILED: No meetings to display"
+}
+
+Filtered meetings:
+${filteredMeetings
+  .map((m) => `- ${m.meetingId}: ${m.status} (${m.topic})`)
+  .join("\n")}
+
+Status Match Check:
+- API status: "ENDED"
+- Filter checks: COMPLETED || ENDED || FINISHED
+- Match: ${"ENDED" === "ENDED" ? "✅ YES" : "❌ NO"}
+                `,
+        };
+
+        testResults.push(testResult);
+        step.classList.add(testResult.passed ? "completed" : "failed");
+        updateResults();
+      }
+
+      function testStep4() {
+        const step = document.getElementById("step4");
+
+        const testResult = {
+          step: "State Management Flow Test",
+          passed: true,
+          details: `
+State Flow Analysis:
+
+TUTOR FLOW:
+1. API returns data → allMeetingsData = response.result.items
+2. setAllMeetings(allMeetingsData) → Store raw data
+3. getFilteredItems(allMeetingsData, activeMeetingTab, 1, meetingsPerPage)
+4. setMeetingList(result.items) → Store filtered data
+5. setShowMeetingView(true) → Trigger render
+6. Render uses meetingList directly (already filtered)
+
+STUDENT FLOW:
+1. API returns data → allMeetingsData = response.result.items
+2. setMeetingList(allMeetingsData) → Store raw data
+3. setShowMeetingView(true) → Trigger render
+4. In render: meetingList.filter((meeting) => ...) → Filter in render
+5. Render uses filteredMeetings
+
+CRITICAL DIFFERENCES:
+⚠️ Tutor filters BEFORE setting state
+⚠️ Student filters DURING render
+⚠️ Different timing for when filter happens
+
+POTENTIAL ISSUES:
+- activeMeetingTab state timing
+- React state update batching
+- Component re-render triggers
+                `,
+        };
+
+        testResults.push(testResult);
+        step.classList.add("completed");
+        updateResults();
+      }
+
+      function testStep5() {
+        const step = document.getElementById("step5");
+
+        const testResult = {
+          step: "Component Render Logic Test",
+          passed: true,
+          details: `
+Render Logic Analysis:
+
+TUTOR RENDER:
+- Check: showMeetingView && currentClassroomForMeetings
+- Data source: meetingList (pre-filtered)
+- Loop: meetingList.map((meeting, index) => ...)
+- Display: Direct render of meetingList
+
+STUDENT RENDER:
+- Check: showMeetingView && currentClassroomForMeetings  
+- Data source: meetingList (raw data)
+- Filter: const filteredMeetings = meetingList.filter(...)
+- Loop: filteredMeetings.map((meeting, index) => ...)
+- Display: Render of filteredMeetings
+
+RENDER CONDITIONS:
+1. ✅ showMeetingView must be true
+2. ✅ currentClassroomForMeetings must exist
+3. ✅ meetingList must have data
+4. ✅ For Student: filteredMeetings must have data after filter
+
+DEBUG POINTS TO CHECK:
+- Console: "🔍 BEFORE FILTER OPERATION"
+- Console: "🔍 AFTER FILTER OPERATION"  
+- Console: "🔍 RENDER FILTER RESULT"
+- UI: Meeting items should appear in DOM
+                `,
+        };
+
+        testResults.push(testResult);
+        step.classList.add("completed");
+        updateResults();
+      }
+
+      function updateResults() {
+        const resultsDiv = document.getElementById("test-results");
+        resultsDiv.innerHTML = testResults
+          .map(
+            (result) => `
+                <div class="debug-result">
+<strong>${result.step}</strong>
+Status: ${result.passed ? "✅ PASSED" : "❌ FAILED"}
+
+${result.details}
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function generateQuickFix() {
+        const fixDiv = document.getElementById("fix-suggestions");
+        fixDiv.innerHTML = `
+                <div class="debug-section critical">
+                    <h2>🔧 Quick Fix Suggestions</h2>
+                    <div class="debug-result">
+IMMEDIATE FIXES TO TRY:
+
+1. ADD CONSOLE.LOG IN BROWSER:
+// In Chrome DevTools Console, run này để check state:
+console.log("Active tab:", document.querySelector('.scp-tab.active')?.textContent);
+console.log("Meeting list length:", window.meetingListDebug?.length || 'Not available');
+
+2. CHECK COMPONENT STATE:
+// Look for these debug logs in console:
+- "🔍 TUTOR/STUDENT DEBUG - BEFORE FILTER OPERATION"
+- "🔍 TUTOR/STUDENT DEBUG - AFTER FILTER OPERATION"
+
+3. VERIFY RENDER CONDITIONS:
+- showMeetingView = true?
+- currentClassroomForMeetings exists?
+- meetingList has data?
+- Filter result has data?
+
+4. QUICK STATE DEBUG:
+// Add this to component temporarily:
+useEffect(() => {
+  console.log("DEBUG STATE:", {
+    showMeetingView,
+    meetingListLength: meetingList.length,
+    activeMeetingTab,
+    currentClassroom: currentClassroomForMeetings
+  });
+}, [showMeetingView, meetingList, activeMeetingTab, currentClassroomForMeetings]);
+
+5. QUICK FILTER TEST:
+// Test filter directly in console:
+const testFilter = meetingList.filter(m => m.status === "ENDED");
+console.log("Manual filter test:", testFilter.length);
+                    </div>
+                </div>
+            `;
+      }
+
+      function showConsoleCommands() {
+        const fixDiv = document.getElementById("fix-suggestions");
+        fixDiv.innerHTML = `
+                <div class="debug-section warning">
+                    <h2>🖥️ Browser Console Test Commands</h2>
+                    <div class="debug-result">
+// Paste these commands in browser console when on meeting page:
+
+// 1. Check current tab state
+console.log("Current active tab:", document.querySelector('.scp-tab.active, .tcp-tab.active')?.textContent);
+
+// 2. Check meeting list in DOM
+console.log("Meeting items in DOM:", document.querySelectorAll('.scp-meeting-item, .tcp-meeting-item').length);
+
+// 3. Check if meeting view is shown
+console.log("Meeting view shown:", !!document.querySelector('.scp-meeting-view, .tcp-meeting-view'));
+
+// 4. Check for loading state
+console.log("Is loading:", !!document.querySelector('.scp-loading, .tcp-loading'));
+
+// 5. Force filter test (Student page)
+if (window.React) {
+  // This won't work directly, but shows the concept
+  console.log("Would test filter with 'ENDED' tab");
+}
+
+// 6. Check network requests
+console.log("Check Network tab for meeting/get-meeting API call");
+
+// 7. Look for error messages
+console.log("Check for toast errors or console errors");
+                    </div>
+                </div>
+            `;
+      }
+
+      function clearAllResults() {
+        testResults = [];
+        document.getElementById("test-results").innerHTML = "";
+        document.getElementById("fix-suggestions").innerHTML = "";
+
+        // Reset step states
+        ["step1", "step2", "step3", "step4", "step5"].forEach((id) => {
+          const step = document.getElementById(id);
+          step.classList.remove("completed", "failed");
+        });
+      }
+
+      // Auto-run first test
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(testStep1, 500);
+      });
+    </script>
+  </body>
+</html>

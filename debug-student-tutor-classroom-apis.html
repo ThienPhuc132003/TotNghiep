@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Student vs Tutor Classroom APIs</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        margin-bottom: 25px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+      }
+      .test-section h3 {
+        color: #495057;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      .test-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 5px;
+        transition: all 0.3s ease;
+      }
+      .test-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .btn-student {
+        background-color: #007bff;
+      }
+      .btn-tutor {
+        background-color: #28a745;
+      }
+      .btn-compare {
+        background-color: #ffc107;
+        color: #000;
+      }
+      .btn-logger {
+        background-color: #6c757d;
+      }
+      .status-box {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 14px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .note {
+        background-color: #d1ecf1;
+        border-left: 4px solid #bee5eb;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-left: 4px solid #dc3545;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Debug Student vs Tutor Classroom APIs</h1>
+
+      <div class="note">
+        <h4>🎯 Mục đích:</h4>
+        <ul>
+          <li>
+            <strong>Student không có classroom:</strong> API
+            <code>classroom/search-for-user</code> trả về empty
+          </li>
+          <li>
+            <strong>Tutor có classroom:</strong> API
+            <code>classroom/search-for-tutor</code> trả về data
+          </li>
+          <li>
+            <strong>Debugging:</strong> So sánh response structure và xác định
+            root cause
+          </li>
+        </ul>
+      </div>
+
+      <!-- API Logging Controls -->
+      <div class="test-section">
+        <h3>🔊 API Logging</h3>
+        <button class="test-btn btn-logger" onclick="enableLogging()">
+          Enable Logging
+        </button>
+        <button class="test-btn btn-logger" onclick="checkStatus()">
+          Check Status
+        </button>
+        <div class="status-box" id="logging-status">
+          Click "Check Status" để xem trạng thái logging
+        </div>
+      </div>
+
+      <!-- Test APIs -->
+      <div class="test-section">
+        <h3>🧪 Test Individual APIs</h3>
+        <button class="test-btn btn-student" onclick="testStudentAPI()">
+          Test Student API (search-for-user)
+        </button>
+        <button class="test-btn btn-tutor" onclick="testTutorAPI()">
+          Test Tutor API (search-for-tutor)
+        </button>
+        <button class="test-btn btn-compare" onclick="compareAPIs()">
+          Compare Both APIs
+        </button>
+      </div>
+
+      <!-- Results Display -->
+      <div class="test-section">
+        <h3>📊 API Responses</h3>
+        <div id="student-results" class="status-box" style="display: none">
+          <h4>Student API Response:</h4>
+          <pre id="student-response"></pre>
+        </div>
+        <div id="tutor-results" class="status-box" style="display: none">
+          <h4>Tutor API Response:</h4>
+          <pre id="tutor-response"></pre>
+        </div>
+        <div id="comparison-results" class="status-box" style="display: none">
+          <h4>Comparison Results:</h4>
+          <pre id="comparison-response"></pre>
+        </div>
+      </div>
+
+      <!-- Expected vs Actual -->
+      <div class="test-section">
+        <h3>🎯 Expected vs Actual</h3>
+
+        <div class="success">
+          <h4>✅ Expected Behavior (based on Postman):</h4>
+          <pre>
+GET /api/classroom/search-for-user
+Headers: Authorization: Bearer &lt;token&gt;
+Body: None
+
+Response:
+{
+  "status": "OK",
+  "code": 200,
+  "success": true,
+  "message": "Classroom fetched successfully",
+  "data": {
+    "total": 5,
+    "items": [...]
+  }
+}
+                </pre
+          >
+        </div>
+
+        <div class="warning">
+          <h4>⚠️ Possible Issues:</h4>
+          <ul>
+            <li>
+              <strong>Authentication:</strong> Student token có thể không hợp lệ
+            </li>
+            <li>
+              <strong>Database:</strong> Student account chưa có classroom nào
+            </li>
+            <li>
+              <strong>API Logic:</strong> search-for-user có thể cần parameters
+              khác
+            </li>
+            <li>
+              <strong>Role Permission:</strong> Student role có thể không được
+              phép access
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Debug Checklist -->
+      <div class="test-section">
+        <h3>✅ Debug Checklist</h3>
+        <div class="note">
+          <h4>Cần kiểm tra:</h4>
+          <ol>
+            <li>
+              <strong>Token Validity:</strong> Student có đang login không?
+            </li>
+            <li>
+              <strong>Network Tab:</strong> Request có gửi đúng headers không?
+            </li>
+            <li>
+              <strong>Response Status:</strong> API trả về status code gì?
+            </li>
+            <li><strong>Console Logs:</strong> Có error messages nào không?</li>
+            <li>
+              <strong>Database Check:</strong> Student account có classroom
+              trong DB không?
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock API Logger
+      const mockApiLogger = {
+        isEnabled: true,
+
+        enable() {
+          this.isEnabled = true;
+          console.log("🔊 API Logging ENABLED");
+          return "✅ API Logging is now ENABLED";
+        },
+
+        getStatus() {
+          return this.isEnabled ? "ENABLED" : "DISABLED";
+        },
+
+        logRequest(method, url, data, query) {
+          if (!this.isEnabled) return;
+
+          console.group(`🚀 [${method}] API Request`);
+          console.log(`🔗 URL: ${url}`);
+          console.log(`🔐 Token Required: true`);
+
+          if (query && Object.keys(query).length > 0) {
+            console.log("📋 Query Parameters:", query);
+          } else {
+            console.log("📋 Query Parameters: None");
+          }
+
+          if (data && Object.keys(data).length > 0) {
+            console.log("📤 Request Body:", data);
+          } else {
+            console.log("📤 Request Body: None (token authentication only)");
+          }
+
+          console.groupEnd();
+          return "mock-request-id";
+        },
+
+        logResponse(response, requestId) {
+          if (!this.isEnabled) return;
+
+          console.group("✅ API Response");
+          if (requestId) console.log("🆔 Request ID:", requestId);
+          console.log("📥 Response Data:", response);
+          console.groupEnd();
+        },
+
+        logError(error, url, requestId) {
+          if (!this.isEnabled) return;
+
+          console.group("❌ API Error");
+          if (requestId) console.log("🆔 Request ID:", requestId);
+          console.log("🔗 URL:", url);
+          console.log("💥 Error:", error);
+          console.groupEnd();
+        },
+      };
+
+      // Mock API function
+      async function mockApi({
+        endpoint,
+        method = "GET",
+        data,
+        query,
+        requireToken = false,
+      }) {
+        const url = `https://giasuvu.click/api/${endpoint}`;
+
+        // Log request
+        const requestId = mockApiLogger.logRequest(method, url, data, query);
+
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // Mock different responses based on endpoint
+        let response;
+
+        if (endpoint === "classroom/search-for-user") {
+          // Simulate student with no classrooms
+          response = {
+            status: "OK",
+            code: 200,
+            success: true,
+            message: "Classroom fetched successfully",
+            data: {
+              total: 0,
+              items: [],
+            },
+          };
+        } else if (endpoint === "classroom/search-for-tutor") {
+          // Simulate tutor with classrooms
+          response = {
+            status: "OK",
+            code: 200,
+            success: true,
+            message: "Classroom fetched successfully",
+            data: {
+              total: 2,
+              items: [
+                {
+                  classroomId: "room1",
+                  nameOfRoom: "Lớp học Toán 12",
+                  userId: "student1",
+                  tutorId: "tutor1",
+                  startDay: "2025-01-01",
+                },
+                {
+                  classroomId: "room2",
+                  nameOfRoom: "Lớp học Lý 11",
+                  userId: "student2",
+                  tutorId: "tutor1",
+                  startDay: "2025-01-15",
+                },
+              ],
+            },
+          };
+        }
+
+        // Log response
+        mockApiLogger.logResponse(response, requestId);
+
+        return response;
+      }
+
+      // Test functions
+      function enableLogging() {
+        const result = mockApiLogger.enable();
+        updateStatus(result);
+      }
+
+      function checkStatus() {
+        const status = mockApiLogger.getStatus();
+        updateStatus(`Current status: ${status}`);
+      }
+
+      function updateStatus(message) {
+        document.getElementById("logging-status").textContent = message;
+      }
+
+      async function testStudentAPI() {
+        console.log("\n🧪 Testing Student API (classroom/search-for-user)...");
+
+        try {
+          const response = await mockApi({
+            endpoint: "classroom/search-for-user",
+            method: "GET",
+            requireToken: true,
+          });
+
+          document.getElementById("student-results").style.display = "block";
+          document.getElementById("student-response").textContent =
+            JSON.stringify(response, null, 2);
+
+          console.log("✅ Student API test completed");
+
+          // Analysis
+          if (response.data.items.length === 0) {
+            console.log("📊 ANALYSIS: Student has no classrooms");
+            console.log("💡 POSSIBLE CAUSES:");
+            console.log(
+              "   - Student account chưa được assign vào classroom nào"
+            );
+            console.log("   - Database chưa có data cho student này");
+            console.log("   - Student role permission issues");
+          }
+        } catch (error) {
+          console.error("❌ Student API test failed:", error);
+          document.getElementById("student-results").style.display = "block";
+          document.getElementById(
+            "student-response"
+          ).textContent = `ERROR: ${error.message}`;
+        }
+      }
+
+      async function testTutorAPI() {
+        console.log("\n🧪 Testing Tutor API (classroom/search-for-tutor)...");
+
+        try {
+          const response = await mockApi({
+            endpoint: "classroom/search-for-tutor",
+            method: "GET",
+            requireToken: true,
+          });
+
+          document.getElementById("tutor-results").style.display = "block";
+          document.getElementById("tutor-response").textContent =
+            JSON.stringify(response, null, 2);
+
+          console.log("✅ Tutor API test completed");
+
+          // Analysis
+          if (response.data.items.length > 0) {
+            console.log("📊 ANALYSIS: Tutor has classrooms");
+            console.log(`📋 Found ${response.data.items.length} classrooms`);
+            console.log("✅ This confirms API structure is correct");
+          }
+        } catch (error) {
+          console.error("❌ Tutor API test failed:", error);
+          document.getElementById("tutor-results").style.display = "block";
+          document.getElementById(
+            "tutor-response"
+          ).textContent = `ERROR: ${error.message}`;
+        }
+      }
+
+      async function compareAPIs() {
+        console.log("\n🔄 Comparing Student vs Tutor APIs...");
+
+        try {
+          const [studentResponse, tutorResponse] = await Promise.all([
+            mockApi({
+              endpoint: "classroom/search-for-user",
+              method: "GET",
+              requireToken: true,
+            }),
+            mockApi({
+              endpoint: "classroom/search-for-tutor",
+              method: "GET",
+              requireToken: true,
+            }),
+          ]);
+
+          const comparison = {
+            student: {
+              endpoint: "classroom/search-for-user",
+              total: studentResponse.data.total,
+              itemsCount: studentResponse.data.items.length,
+              hasData: studentResponse.data.items.length > 0,
+              structure: "OK",
+            },
+            tutor: {
+              endpoint: "classroom/search-for-tutor",
+              total: tutorResponse.data.total,
+              itemsCount: tutorResponse.data.items.length,
+              hasData: tutorResponse.data.items.length > 0,
+              structure: "OK",
+            },
+            analysis: {
+              bothHaveSameStructure: true,
+              issueType:
+                studentResponse.data.items.length === 0
+                  ? "NO_DATA"
+                  : "API_DIFFERENCE",
+              recommendation:
+                studentResponse.data.items.length === 0
+                  ? "Check if student account has classrooms in database"
+                  : "Check API logic differences",
+            },
+          };
+
+          document.getElementById("comparison-results").style.display = "block";
+          document.getElementById("comparison-response").textContent =
+            JSON.stringify(comparison, null, 2);
+
+          console.log("🔍 COMPARISON COMPLETE:");
+          console.log("📊 Student API:", comparison.student);
+          console.log("📊 Tutor API:", comparison.tutor);
+          console.log("💡 Analysis:", comparison.analysis);
+        } catch (error) {
+          console.error("❌ Comparison failed:", error);
+          document.getElementById("comparison-results").style.display = "block";
+          document.getElementById(
+            "comparison-response"
+          ).textContent = `ERROR: ${error.message}`;
+        }
+      }
+
+      // Initialize
+      console.log("🎯 Student vs Tutor Classroom APIs Debug Tool loaded!");
+      console.log("📋 Open DevTools Console to see detailed analysis");
+      console.log(
+        "🔍 This tool helps diagnose why student sees no classrooms while tutor does"
+      );
+
+      checkStatus();
+    </script>
+  </body>
+</html>

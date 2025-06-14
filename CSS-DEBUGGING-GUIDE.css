@@ -1,0 +1,79 @@
+/* CSS Debugging Guide for StudentClassroomPage
+   Nếu style không hiển thị, hãy kiểm tra các điều kiện sau:
+*/
+
+/* 1. KIỂM TRA BROWSER CACHE */
+/*
+   - Mở Developer Tools (F12)
+   - Vào tab Network -> Disable cache
+   - Hard refresh (Ctrl+Shift+R)
+   - Hoặc mở Incognito mode để test
+*/
+
+/* 2. KIỂM TRA CSS FILE ĐƯỢC LOAD */
+/*
+   - Mở Developer Tools -> Sources tab
+   - Kiểm tra file StudentClassroomPage.style.css có được load không
+   - Nếu không thấy file, có thể do import path sai
+*/
+
+/* 3. KIỂM TRA SELECTOR CONFLICTS */
+/*
+   - Mở Developer Tools -> Elements tab
+   - Click chọn element lớp học
+   - Kiểm tra tab Styles xem CSS nào được apply
+   - Tìm các style bị override bởi !important hoặc specificity cao hơn
+*/
+
+/* 4. KIỂM TRA CONSOLE ERRORS */
+/*
+   - Mở Developer Tools -> Console tab
+   - Tìm các lỗi CSS hoặc 404 file not found
+*/
+
+/* 5. TEST CSS TRỰC TIẾP */
+/*
+   - Mở file StudentClassroom-CSS-Test.html trong browser
+   - Nếu test file hoạt động OK thì vấn đề là ở React app
+*/
+
+/* 6. THÊM CSS INLINE ĐỂ TEST */
+/*
+   Thêm style inline vào component để test:
+   <div className="scp-classroom-grid" style={{
+     display: 'grid',
+     gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))',
+     gap: '24px',
+     marginTop: '20px'
+   }}>
+*/
+
+/* 7. KIỂM TRA BUILD OUTPUT */
+/*
+   - Chạy npm run build
+   - Kiểm tra folder build/static/css có chứa CSS không
+*/
+
+/* 8. KIỂM TRA IMPORT ORDER */
+/*
+   - Đảm bảo CSS import đúng thứ tự
+   - CSS của component nên import sau CSS của thư viện
+*/
+
+/* 9. DEBUGGING STEPS */
+/*
+   Step 1: Mở F12 -> Console, kiểm tra lỗi
+   Step 2: Mở F12 -> Network, kiểm tra CSS file load
+   Step 3: Mở F12 -> Elements, kiểm tra className có đúng không
+   Step 4: Click element -> Styles tab, xem CSS có được apply không
+   Step 5: Thử hard refresh (Ctrl+Shift+R)
+*/
+
+/* 10. COMMON ISSUES */
+/*
+   - CSS file import path sai
+   - Browser cache chưa clear
+   - CSS bị override bởi style khác có specificity cao hơn
+   - Syntax error trong CSS file
+   - Dev server chưa restart sau khi thay đổi CSS
+*/

@@ -1,6 +1,6 @@
 // src/utils/excelExport.js
 import ExcelJS from "exceljs";
-import logo_vanlang from "../assets/images/logo_vanlang.png";
+import logo_vanlang from "../assets/images/logo.webp";
 
 /**
  * Export data to Excel with Van Lang University logo and formatting

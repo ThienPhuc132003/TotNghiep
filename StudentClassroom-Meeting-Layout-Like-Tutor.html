@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Meeting View - Layout giống Tutor</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+
+      .student-classroom-page {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Breadcrumb */
+      .scp-breadcrumb {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .scp-breadcrumb-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .scp-breadcrumb-link {
+        background: none;
+        border: none;
+        color: #28a745;
+        cursor: pointer;
+        text-decoration: none;
+        padding: 0;
+        font-size: inherit;
+        font-family: inherit;
+      }
+
+      .scp-breadcrumb-link:hover {
+        color: #218838;
+        text-decoration: underline;
+      }
+
+      .scp-breadcrumb-current {
+        color: #6c757d;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .scp-breadcrumb-separator {
+        margin: 0 8px;
+        color: #dee2e6;
+        font-size: 12px;
+      }
+
+      /* Meeting View Container */
+      .scp-meeting-view {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+        overflow: hidden;
+      }
+
+      /* Meeting Header with Back Button */
+      .scp-meeting-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .scp-meeting-header::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 80px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .scp-meeting-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .scp-meeting-title i {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .scp-back-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .scp-back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+      }
+
+      .scp-back-btn i {
+        font-size: 0.9rem;
+      }
+
+      /* Meeting Tabs */
+      .scp-meeting-tabs-container {
+        padding: 0 24px;
+        background: #fff;
+      }
+
+      .scp-meeting-tabs {
+        display: flex;
+        gap: 4px;
+        background: #f8f9fa;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+      }
+
+      .scp-tab {
+        background: transparent;
+        color: #6c757d;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .scp-tab:hover {
+        color: #495057;
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateY(-1px);
+      }
+
+      .scp-tab.active {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .scp-tab-count {
+        background: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .scp-tab.active .scp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      /* Meeting Content Container */
+      .scp-meeting-content {
+        padding: 24px;
+      }
+
+      /* Meeting List as Grid */
+      .scp-meeting-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 24px;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .scp-meeting-item {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+      }
+
+      .scp-meeting-item:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 35px rgba(40, 167, 69, 0.15);
+        border-color: #28a745;
+      }
+
+      .scp-meeting-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .scp-meeting-item:hover::before {
+        opacity: 1;
+      }
+
+      /* Meeting Info Section */
+      .scp-meeting-info {
+        flex: 1;
+      }
+
+      .scp-meeting-info p {
+        margin: 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+        color: #495057;
+        line-height: 1.5;
+      }
+
+      .scp-meeting-info p strong {
+        color: #343a40;
+        min-width: 140px;
+        display: inline-block;
+        font-weight: 600;
+      }
+
+      .scp-meeting-info p i {
+        color: #28a745;
+        width: 18px;
+        text-align: center;
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      /* Meeting Status Badges */
+      .scp-meeting-status-active {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+      }
+
+      .scp-meeting-status-ended {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+      }
+
+      /* Meeting Actions */
+      .scp-meeting-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+      }
+
+      .scp-join-meeting-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+        flex: 1;
+        min-width: 160px;
+      }
+
+      .scp-join-meeting-btn:hover {
+        background: linear-gradient(135deg, #218838 0%, #1ea080 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(40, 167, 69, 0.35);
+      }
+
+      .scp-meeting-ended-btn {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.2);
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: not-allowed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 160px;
+      }
+
+      /* Empty State */
+      .scp-empty-meetings {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .scp-empty-meetings .scp-empty-icon i {
+        font-size: 3rem;
+        color: #6c757d;
+        display: block;
+        margin-bottom: 16px;
+      }
+
+      .scp-empty-meetings h3 {
+        color: #333;
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .scp-empty-meetings p {
+        color: #6c757d;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .scp-meeting-list {
+          grid-template-columns: 1fr;
+        }
+
+        .scp-meeting-header {
+          flex-direction: column;
+          gap: 12px;
+          text-align: center;
+          padding: 16px 20px;
+        }
+
+        .scp-meeting-title {
+          font-size: 1.2rem;
+        }
+
+        .scp-meeting-actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="student-classroom-page">
+      <!-- Breadcrumb -->
+      <div class="scp-breadcrumb">
+        <div class="scp-breadcrumb-item">
+          <i class="fas fa-home"></i>
+          <button class="scp-breadcrumb-link">Lớp học của tôi</button>
+        </div>
+        <span class="scp-breadcrumb-separator">
+          <i class="fas fa-chevron-right"></i>
+        </span>
+        <span class="scp-breadcrumb-current">
+          <i class="fas fa-video"></i>
+          Phòng học - Lớp học với gia sư Nguyễn Văn An
+        </span>
+      </div>
+
+      <!-- Meeting View -->
+      <div class="scp-meeting-view">
+        <!-- Meeting Header -->
+        <div class="scp-meeting-header">
+          <div class="scp-meeting-title">
+            <i class="fas fa-video"></i>
+            Phòng học - Lớp học với gia sư Nguyễn Văn An
+          </div>
+          <button class="scp-back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại danh sách lớp học
+          </button>
+        </div>
+
+        <!-- Meeting Tabs -->
+        <div class="scp-meeting-tabs-container">
+          <div class="scp-meeting-tabs">
+            <button class="scp-tab active">
+              <i class="fas fa-video"></i>
+              Phòng học đang hoạt động
+              <span class="scp-tab-count">(2)</span>
+            </button>
+            <button class="scp-tab">
+              <i class="fas fa-video-slash"></i>
+              Phòng học đã kết thúc
+              <span class="scp-tab-count">(3)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Meeting Content -->
+        <div class="scp-meeting-content">
+          <ul class="scp-meeting-list">
+            <!-- Active Meeting Item -->
+            <li class="scp-meeting-item">
+              <div class="scp-meeting-info">
+                <p>
+                  <i class="fas fa-bookmark"></i>
+                  <strong>Chủ đề:</strong>
+                  Lớp học: Lớp học với gia sư Nguyễn Văn An
+                </p>
+                <p>
+                  <i class="fas fa-id-card"></i>
+                  <strong>Meeting ID:</strong>
+                  7599214620S
+                </p>
+                <p>
+                  <i class="fas fa-key"></i>
+                  <strong>Mật khẩu:</strong>
+                  123
+                </p>
+                <p>
+                  <i class="fas fa-clock"></i>
+                  <strong>Thời gian bắt đầu:</strong>
+                  14:03:04 8/6/2025
+                </p>
+                <p>
+                  <i class="fas fa-history"></i>
+                  <strong>Thời gian kết thúc:</strong>
+                  14:12:26 8/6/2025
+                </p>
+                <p>
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Trạng thái:</strong>
+                  <span class="scp-meeting-status-active">ĐANG HOẠT ĐỘNG</span>
+                </p>
+              </div>
+              <div class="scp-meeting-actions">
+                <button class="scp-join-meeting-btn">
+                  <i class="fas fa-video"></i>
+                  Tham gia phòng học
+                </button>
+              </div>
+            </li>
+
+            <!-- Another Active Meeting -->
+            <li class="scp-meeting-item">
+              <div class="scp-meeting-info">
+                <p>
+                  <i class="fas fa-bookmark"></i>
+                  <strong>Chủ đề:</strong>
+                  undefined
+                </p>
+                <p>
+                  <i class="fas fa-id-card"></i>
+                  <strong>Meeting ID:</strong>
+                  7599214620S
+                </p>
+                <p>
+                  <i class="fas fa-key"></i>
+                  <strong>Mật khẩu:</strong>
+                  123
+                </p>
+                <p>
+                  <i class="fas fa-clock"></i>
+                  <strong>Thời gian bắt đầu:</strong>
+                  14:03:04 8/6/2025
+                </p>
+                <p>
+                  <i class="fas fa-history"></i>
+                  <strong>Thời gian kết thúc:</strong>
+                  14:12:26 8/6/2025
+                </p>
+                <p>
+                  <i class="fas fa-info-circle"></i>
+                  <strong>Trạng thái:</strong>
+                  <span class="scp-meeting-status-active">ĐANG HOẠT ĐỘNG</span>
+                </p>
+              </div>
+              <div class="scp-meeting-actions">
+                <button class="scp-join-meeting-btn">
+                  <i class="fas fa-video"></i>
+                  Tham gia phòng học
+                </button>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Pagination (if needed) -->
+          <div
+            class="scp-pagination"
+            style="
+              margin-top: 32px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 16px;
+            "
+          >
+            <button
+              style="
+                padding: 8px 12px;
+                border: 1px solid #dee2e6;
+                background: #fff;
+                border-radius: 6px;
+                color: #6c757d;
+                cursor: pointer;
+              "
+            >
+              <i class="fas fa-chevron-left"></i> Trước
+            </button>
+            <span style="color: #495057; font-weight: 500">Trang 1 / 3</span>
+            <button
+              style="
+                padding: 8px 12px;
+                border: 1px solid #dee2e6;
+                background: #fff;
+                border-radius: 6px;
+                color: #495057;
+                cursor: pointer;
+              "
+            >
+              Sau <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Tab switching
+      document.querySelectorAll(".scp-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".scp-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+    </script>
+  </body>
+</html>

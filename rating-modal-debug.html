@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rating Modal Debug Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .debug-button {
+        background: #2196f3;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 10px 5px;
+        font-size: 14px;
+      }
+      .debug-button:hover {
+        background: #1976d2;
+      }
+      .debug-output {
+        background: #263238;
+        color: #eeffff;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+        margin: 10px 0;
+      }
+      .step {
+        background: #e3f2fd;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        border-left: 4px solid #2196f3;
+      }
+      .issue-item {
+        background: #ffebee;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 8px 0;
+        border-left: 4px solid #f44336;
+      }
+      .success-item {
+        background: #e8f5e8;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 8px 0;
+        border-left: 4px solid #4caf50;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🐛 Rating Modal Debug - Why No Popup?</h1>
+      <p>
+        Công cụ debug để tìm hiểu tại sao rating modal không hiển thị khi click
+        nút "Đánh giá"
+      </p>
+    </div>
+
+    <div class="test-container">
+      <h2>🎯 Quick Navigation</h2>
+      <a href="http://localhost:5175" target="_blank" class="debug-button">
+        🏠 Open App (Port 5175)
+      </a>
+      <a
+        href="http://localhost:5175/student-classroom"
+        target="_blank"
+        class="debug-button"
+      >
+        🎓 Student Classroom Page
+      </a>
+      <button class="debug-button" onclick="runDebugScript()">
+        🔍 Run Debug Script
+      </button>
+    </div>
+
+    <div class="test-container">
+      <h2>🕵️ Common Issues & Solutions</h2>
+
+      <div class="issue-item">
+        <strong>❌ Issue 1:</strong> Rating button không xuất hiện
+        <ul>
+          <li>
+            Kiểm tra xem bạn có ở trong Meeting View không (URL có
+            ?view=meetings)
+          </li>
+          <li>
+            Kiểm tra classroom.isRating - nếu = true thì sẽ hiển thị sao thay vì
+            nút
+          </li>
+          <li>
+            Kiểm tra meeting status - có thể logic chỉ hiển thị cho meetings
+            ended
+          </li>
+        </ul>
+      </div>
+
+      <div class="issue-item">
+        <strong>❌ Issue 2:</strong> Rating button xuất hiện nhưng click không
+        có popup
+        <ul>
+          <li>
+            Console log sẽ hiển thị "🔍 RATING BUTTON CLICKED" nếu function được
+            gọi
+          </li>
+          <li>Kiểm tra handleOpenRatingModal có được define không</li>
+          <li>Kiểm tra showRatingModal state có update không</li>
+        </ul>
+      </div>
+
+      <div class="issue-item">
+        <strong>❌ Issue 3:</strong> Modal state = true nhưng không hiển thị
+        <ul>
+          <li>Kiểm tra RatingModal component có return null không</li>
+          <li>Kiểm tra CSS z-index và display properties</li>
+          <li>
+            Kiểm tra selectedMeetingForRating và currentClassroomForRating có
+            data không
+          </li>
+        </ul>
+      </div>
+
+      <div class="success-item">
+        <strong>✅ Expected Debug Logs:</strong>
+        <ul>
+          <li>"🔍 RATING BUTTON CLICKED" - When button clicked</li>
+          <li>"🔍 RATING DEBUG - Opening rating modal" - Function called</li>
+          <li>"🔍 RATING MODAL DEBUG - Render check" - Modal render attempt</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2>📋 Step-by-Step Debug Process</h2>
+
+      <div class="step">
+        <strong>Step 1:</strong> Login & Navigate
+        <ol>
+          <li>Go to http://localhost:5175</li>
+          <li>Login with student account</li>
+          <li>Navigate to Student Classroom page</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <strong>Step 2:</strong> Enter Meeting View
+        <ol>
+          <li>Click "Xem danh sách phòng học" on any classroom</li>
+          <li>Verify URL contains ?view=meetings&id=...</li>
+          <li>Check console for meeting loading logs</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <strong>Step 3:</strong> Check Rating Button
+        <ol>
+          <li>Look for meetings in the list</li>
+          <li>Check if rating button appears (⭐ Đánh giá)</li>
+          <li>If no button, check isRating flag in console</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <strong>Step 4:</strong> Test Button Click
+        <ol>
+          <li>Open browser console (F12)</li>
+          <li>Click rating button</li>
+          <li>Check for debug logs</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <strong>Step 5:</strong> Debug Modal State
+        <ol>
+          <li>Use React DevTools to check component state</li>
+          <li>Look for showRatingModal, selectedMeetingForRating states</li>
+          <li>Check if RatingModal component renders</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2>🔧 Debug Console Commands</h2>
+      <p>Copy and paste these commands in browser console:</p>
+
+      <div class="debug-output" id="debugOutput">
+        // 1. Check if rating button exists const ratingBtn =
+        document.querySelector('.scp-rating-btn'); console.log('Rating button:',
+        ratingBtn); console.log('Rating button text:', ratingBtn?.textContent);
+        // 2. Check modal in DOM const modal =
+        document.querySelector('.scp-modal-overlay'); console.log('Modal in
+        DOM:', modal); console.log('Modal display:', modal ?
+        getComputedStyle(modal).display : 'not found'); // 3. Check URL state
+        const urlParams = new URLSearchParams(window.location.search);
+        console.log('URL view:', urlParams.get('view')); console.log('URL
+        classroom ID:', urlParams.get('id')); // 4. Force click rating button
+        const btn = document.querySelector('.scp-rating-btn'); if (btn) {
+        console.log('Forcing click...'); btn.click(); } else { console.log('No
+        rating button found'); } // 5. Check for React DevTools if
+        (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) { console.log('React DevTools
+        available - check component state'); } else { console.log('Install React
+        DevTools extension for better debugging'); }
+      </div>
+
+      <button class="debug-button" onclick="copyToClipboard()">
+        📋 Copy Debug Commands
+      </button>
+    </div>
+
+    <div class="test-container">
+      <h2>🎪 Manual Test Result</h2>
+      <div id="testResult" class="debug-output">
+        Click "Run Debug Script" button để bắt đầu test...
+      </div>
+    </div>
+
+    <script>
+      function runDebugScript() {
+        const output = document.getElementById("testResult");
+        output.textContent = "Running debug script...\n\n";
+
+        // Simulate different test scenarios
+        const tests = [
+          {
+            name: "URL Check",
+            test: () => window.location.href.includes("student-classroom"),
+            expected: "Should be on student classroom page",
+          },
+          {
+            name: "Console Logs",
+            test: () => window.console && window.console.log,
+            expected: "Console should be available for debugging",
+          },
+          {
+            name: "Local Storage",
+            test: () => localStorage.getItem("token"),
+            expected: "Auth token should exist",
+          },
+        ];
+
+        tests.forEach((test) => {
+          const result = test.test();
+          output.textContent += `${test.name}: ${
+            result ? "✅ PASS" : "❌ FAIL"
+          }\n`;
+          output.textContent += `  Expected: ${test.expected}\n`;
+          output.textContent += `  Result: ${result}\n\n`;
+        });
+
+        output.textContent +=
+          "Debug script complete. Check browser console for detailed logs.";
+      }
+
+      function copyToClipboard() {
+        const commands = document.getElementById("debugOutput").textContent;
+        navigator.clipboard.writeText(commands).then(() => {
+          alert("Debug commands copied to clipboard!");
+        });
+      }
+
+      // Auto-run basic checks
+      console.log("🐛 Rating Debug Tool Loaded");
+      console.log("App URLs:");
+      console.log("  Main: http://localhost:5175");
+      console.log("  Student: http://localhost:5175/student-classroom");
+      console.log("");
+      console.log("Next: Login as student and navigate to classroom page");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Client-side Filtering Logic</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        margin-bottom: 25px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+      }
+      .test-section h3 {
+        color: #495057;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      .test-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 5px;
+        transition: all 0.3s ease;
+      }
+      .test-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .btn-all {
+        background-color: #6c757d;
+      }
+      .btn-active {
+        background-color: #28a745;
+      }
+      .btn-ended {
+        background-color: #dc3545;
+      }
+      .btn-test {
+        background-color: #007bff;
+      }
+      .results-box {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 14px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .note {
+        background-color: #d1ecf1;
+        border-left: 4px solid #bee5eb;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Test Client-side Filtering Logic</h1>
+
+      <div class="note">
+        <h4>🎯 Test Mục đích:</h4>
+        <ul>
+          <li>
+            <strong>Verify filtering logic:</strong> Kiểm tra getFilteredItems
+            function
+          </li>
+          <li>
+            <strong>Test pagination:</strong> Đảm bảo pagination works sau khi
+            filter
+          </li>
+          <li>
+            <strong>Validate data flow:</strong> Simulate real classroom data
+            processing
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mock Data -->
+      <div class="test-section">
+        <h3>📊 Mock Classroom Data</h3>
+        <button class="test-btn btn-test" onclick="showMockData()">
+          Show Sample Data
+        </button>
+        <div id="mock-data" class="results-box" style="display: none"></div>
+      </div>
+
+      <!-- Filtering Tests -->
+      <div class="test-section">
+        <h3>🔍 Test Status Filtering</h3>
+        <button class="test-btn btn-all" onclick="testFilterStatus('ALL')">
+          All Classrooms
+        </button>
+        <button
+          class="test-btn btn-active"
+          onclick="testFilterStatus('IN_SESSION')"
+        >
+          In Session
+        </button>
+        <button class="test-btn btn-ended" onclick="testFilterStatus('ENDED')">
+          Ended
+        </button>
+        <div
+          id="filter-results"
+          class="results-box"
+          style="display: none"
+        ></div>
+      </div>
+
+      <!-- Pagination Tests -->
+      <div class="test-section">
+        <h3>📄 Test Pagination</h3>
+        <label
+          >Items per page:
+          <select id="itemsPerPage">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+        <br /><br />
+        <button class="test-btn btn-test" onclick="testPagination('ALL', 1)">
+          Page 1 (All)
+        </button>
+        <button class="test-btn btn-test" onclick="testPagination('ALL', 2)">
+          Page 2 (All)
+        </button>
+        <button
+          class="test-btn btn-test"
+          onclick="testPagination('IN_SESSION', 1)"
+        >
+          Page 1 (Active)
+        </button>
+        <button
+          class="test-btn btn-test"
+          onclick="testPagination('IN_SESSION', 2)"
+        >
+          Page 2 (Active)
+        </button>
+        <div
+          id="pagination-results"
+          class="results-box"
+          style="display: none"
+        ></div>
+      </div>
+
+      <!-- API Simulation -->
+      <div class="test-section">
+        <h3>🌐 Simulate API Data Flow</h3>
+        <button class="test-btn btn-test" onclick="simulateAPIDataFlow()">
+          Simulate Complete Data Flow
+        </button>
+        <div
+          id="simulation-results"
+          class="results-box"
+          style="display: none"
+        ></div>
+      </div>
+
+      <!-- Explanation -->
+      <div class="test-section">
+        <h3>📋 Logic Explanation</h3>
+        <div class="success">
+          <h4>Client-side Filtering Process:</h4>
+          <ol>
+            <li>
+              <strong>API Call:</strong> Fetch ALL classrooms (page=1, rpp=1000)
+            </li>
+            <li>
+              <strong>Store:</strong> Cache all data in allClassrooms state
+            </li>
+            <li>
+              <strong>Filter:</strong> Apply status filter (IN_SESSION, ENDED,
+              ALL)
+            </li>
+            <li>
+              <strong>Paginate:</strong> Apply pagination on filtered results
+            </li>
+            <li><strong>Display:</strong> Show paginated filtered items</li>
+          </ol>
+          <p>
+            <strong>Why:</strong> Backend API không support status filtering
+            parameters.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock classroom data mirroring real structure
+      const mockClassrooms = [
+        {
+          id: 1,
+          nameOfRoom: "Lớp Toán 12A",
+          status: "IN_SESSION",
+          userId: "student1",
+          tutorId: "tutor1",
+        },
+        {
+          id: 2,
+          nameOfRoom: "Lớp Lý 11B",
+          status: "PENDING",
+          userId: "student2",
+          tutorId: "tutor1",
+        },
+        {
+          id: 3,
+          nameOfRoom: "Lớp Hóa 10C",
+          status: "COMPLETED",
+          userId: "student3",
+          tutorId: "tutor1",
+        },
+        {
+          id: 4,
+          nameOfRoom: "Lớp Anh 12D",
+          status: "ENDED",
+          userId: "student4",
+          tutorId: "tutor1",
+        },
+        {
+          id: 5,
+          nameOfRoom: "Lớp Văn 11E",
+          status: "CANCELLED",
+          userId: "student5",
+          tutorId: "tutor1",
+        },
+        {
+          id: 6,
+          nameOfRoom: "Lớp Sinh 10F",
+          status: "IN_SESSION",
+          userId: "student6",
+          tutorId: "tutor1",
+        },
+        {
+          id: 7,
+          nameOfRoom: "Lớp Sử 12G",
+          status: null,
+          userId: "student7",
+          tutorId: "tutor1",
+        }, // No status
+        {
+          id: 8,
+          nameOfRoom: "Lớp Địa 11H",
+          status: "COMPLETED",
+          userId: "student8",
+          tutorId: "tutor1",
+        },
+      ];
+
+      // Replicate the getFilteredItems function from the actual code
+      const getFilteredItems = (items, status, page, itemsPerPage) => {
+        console.log(`🔍 Filtering ${items.length} items by status: ${status}`);
+
+        // Step 1: Filter theo status
+        let filtered = items;
+        if (status === "IN_SESSION") {
+          filtered = items.filter(
+            (item) =>
+              item.status === "IN_SESSION" ||
+              item.status === "PENDING" ||
+              !item.status
+          );
+        } else if (status === "ENDED") {
+          filtered = items.filter(
+            (item) =>
+              item.status === "COMPLETED" ||
+              item.status === "CANCELLED" ||
+              item.status === "ENDED"
+          );
+        }
+        // "ALL" case: không filter, trả về tất cả
+
+        console.log(`📊 After filtering: ${filtered.length} items`);
+
+        // Step 2: Apply client-side pagination trên filtered data
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = filtered.slice(startIndex, endIndex);
+
+        console.log(
+          `📄 Page ${page}: Items ${startIndex + 1}-${Math.min(
+            endIndex,
+            filtered.length
+          )} of ${filtered.length}`
+        );
+
+        return {
+          items: paginatedItems, // Paginated items
+          total: filtered.length, // Total items AFTER filtering
+          originalTotal: items.length, // Total items BEFORE filtering
+        };
+      };
+
+      function showMockData() {
+        const element = document.getElementById("mock-data");
+        element.style.display = "block";
+        element.innerHTML =
+          "<h4>Sample Classroom Data:</h4><pre>" +
+          JSON.stringify(mockClassrooms, null, 2) +
+          "</pre>";
+
+        console.log("📊 Mock classroom data:", mockClassrooms);
+      }
+
+      function testFilterStatus(status) {
+        console.log(`\n🧪 Testing filter for status: ${status}`);
+
+        const result = getFilteredItems(mockClassrooms, status, 1, 10); // Show all on page 1
+
+        const element = document.getElementById("filter-results");
+        element.style.display = "block";
+
+        const output = {
+          status: status,
+          originalCount: result.originalTotal,
+          filteredCount: result.total,
+          items: result.items.map((item) => ({
+            id: item.id,
+            name: item.nameOfRoom,
+            status: item.status || "null",
+          })),
+        };
+
+        element.innerHTML =
+          `<h4>Filter Results for "${status}":</h4><pre>` +
+          JSON.stringify(output, null, 2) +
+          "</pre>";
+      }
+
+      function testPagination(status, page) {
+        const itemsPerPage = parseInt(
+          document.getElementById("itemsPerPage").value
+        );
+
+        console.log(
+          `\n🧪 Testing pagination: Status=${status}, Page=${page}, ItemsPerPage=${itemsPerPage}`
+        );
+
+        const result = getFilteredItems(
+          mockClassrooms,
+          status,
+          page,
+          itemsPerPage
+        );
+
+        const element = document.getElementById("pagination-results");
+        element.style.display = "block";
+
+        const totalPages = Math.ceil(result.total / itemsPerPage);
+
+        const output = {
+          filter: status,
+          pagination: {
+            currentPage: page,
+            itemsPerPage: itemsPerPage,
+            totalPages: totalPages,
+            totalItems: result.total,
+            showing: `${(page - 1) * itemsPerPage + 1}-${Math.min(
+              page * itemsPerPage,
+              result.total
+            )} of ${result.total}`,
+          },
+          items: result.items.map((item) => ({
+            id: item.id,
+            name: item.nameOfRoom,
+            status: item.status || "null",
+          })),
+        };
+
+        element.innerHTML =
+          `<h4>Pagination Test Results:</h4><pre>` +
+          JSON.stringify(output, null, 2) +
+          "</pre>";
+      }
+
+      function simulateAPIDataFlow() {
+        console.log("\n🌐 Simulating complete API data flow...");
+
+        const element = document.getElementById("simulation-results");
+        element.style.display = "block";
+
+        // Simulate the complete flow
+        const steps = [];
+
+        // Step 1: API call simulation
+        steps.push({
+          step: 1,
+          action: "API Call",
+          description: "GET /classroom/search-for-tutor?page=1&rpp=1000",
+          result: `Fetched ${mockClassrooms.length} total classrooms`,
+        });
+
+        // Step 2: Store all data
+        steps.push({
+          step: 2,
+          action: "Store Data",
+          description: "setAllClassrooms(allClassroomsData)",
+          result: `Stored ${mockClassrooms.length} classrooms in state`,
+        });
+
+        // Step 3: Filter by status
+        const inSessionResult = getFilteredItems(
+          mockClassrooms,
+          "IN_SESSION",
+          1,
+          3
+        );
+        steps.push({
+          step: 3,
+          action: "Filter by Status",
+          description: "getFilteredItems(data, 'IN_SESSION', 1, 3)",
+          result: `Filtered to ${inSessionResult.total} IN_SESSION classrooms, showing ${inSessionResult.items.length} on page 1`,
+        });
+
+        // Step 4: Tab switch simulation
+        const endedResult = getFilteredItems(mockClassrooms, "ENDED", 1, 3);
+        steps.push({
+          step: 4,
+          action: "Tab Switch",
+          description: "User clicks ENDED tab - re-filter cached data",
+          result: `No new API call! Re-filtered to ${endedResult.total} ENDED classrooms, showing ${endedResult.items.length} on page 1`,
+        });
+
+        // Step 5: Pagination
+        const page2Result = getFilteredItems(mockClassrooms, "ENDED", 2, 3);
+        steps.push({
+          step: 5,
+          action: "Pagination",
+          description: "User clicks page 2 - paginate filtered data",
+          result: `Page 2 of ENDED: showing ${page2Result.items.length} items`,
+        });
+
+        element.innerHTML =
+          "<h4>Complete Data Flow Simulation:</h4><pre>" +
+          JSON.stringify(steps, null, 2) +
+          "</pre>";
+
+        console.log("✅ API data flow simulation complete");
+        steps.forEach((step) => {
+          console.log(`Step ${step.step}: ${step.action} - ${step.result}`);
+        });
+      }
+
+      // Initialize
+      console.log("🎯 Client-side Filtering Logic Test loaded!");
+      console.log("📊 Mock data contains classrooms with various statuses");
+      console.log("🧪 Test different filtering and pagination scenarios");
+    </script>
+  </body>
+</html>

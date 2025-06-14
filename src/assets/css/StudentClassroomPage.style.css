@@ -1,4 +1,50 @@
 /* Styles for StudentClassroomPage - Enhanced to match TutorClassroomPage */
+
+/* Breadcrumb Navigation */
+.scp-breadcrumb {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.scp-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scp-breadcrumb-link {
+  background: none;
+  border: none;
+  color: #28a745;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.scp-breadcrumb-link:hover {
+  color: #218838;
+  text-decoration: underline;
+}
+
+.scp-breadcrumb-current {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.scp-breadcrumb-separator {
+  margin: 0 8px;
+  color: #dee2e6;
+  font-size: 12px;
+}
+
 .student-classroom-page {
   padding: 20px;
   font-family: "Segoe UI", Arial, sans-serif;
@@ -6,23 +52,62 @@
   min-height: 100vh;
   color: #333;
 }
+
+/* Header Section with Title and Refresh Button */
+.scp-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
 .scp-card-title-section {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 5px;
 }
+
 .scp-page-title {
-  font-size: 1.8rem;
-  color: #2c3e50;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 15px;
-  position: relative;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.scp-refresh-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 600;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.scp-refresh-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #218838, #1ea080);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.scp-refresh-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.scp-refresh-btn i {
+  font-size: 14px;
 }
 
 .scp-error-message {
@@ -101,7 +186,8 @@
   z-index: 1;
 }
 
-.scp-classroom-tabs .scp-tab {
+.scp-classroom-tabs .scp-tab,
+.scp-classroom-tabs .scp-classroom-tab {
   background: transparent;
   color: #495057;
   border: none;
@@ -119,16 +205,18 @@
   letter-spacing: 0.5px;
 }
 
-.scp-classroom-tabs .scp-tab:hover {
+.scp-classroom-tabs .scp-tab:hover,
+.scp-classroom-tabs .scp-classroom-tab:hover {
   color: #343a40;
   background: rgba(255, 255, 255, 0.8);
   transform: translateY(-1px);
 }
 
-.scp-classroom-tabs .scp-tab.active {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+.scp-classroom-tabs .scp-tab.active,
+.scp-classroom-tabs .scp-classroom-tab.active {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
-  box-shadow: 0 8px 15px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3);
   transform: translateY(-2px);
 }
 
@@ -145,55 +233,57 @@
 }
 
 /* Classroom Card Styling - Enhanced */
-.scp-classroom-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: 24px;
-  margin-top: 20px;
+.student-classroom-page .scp-classroom-list,
+.student-classroom-page .scp-classroom-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)) !important;
+  gap: 24px !important;
+  margin-top: 20px !important;
 }
 
-.scp-classroom-card {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  border: 1px solid #e0e6ed;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  margin-bottom: 16px;
+.student-classroom-page .scp-classroom-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%) !important;
+  border: 1px solid #e0e6ed !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  margin-bottom: 16px !important;
 }
 
-.scp-classroom-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #28a745, #20c997);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.student-classroom-page .scp-classroom-card::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #28a745, #20c997) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
 }
 
-.scp-classroom-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 35px rgba(40, 167, 69, 0.15);
+.student-classroom-page .scp-classroom-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 35px rgba(40, 167, 69, 0.15) !important;
 }
 
-.scp-classroom-card:hover::before {
-  opacity: 1;
+.student-classroom-page .scp-classroom-card:hover::before {
+  opacity: 1 !important;
 }
 
-.scp-card-header {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  padding: 20px;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 16px 16px 0 0;
+.scp-card-header,
+.student-classroom-page .scp-classroom-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  padding: 20px !important;
+  color: white !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  border-radius: 16px 16px 0 0 !important;
 }
 
 .scp-card-header::before {
@@ -219,13 +309,13 @@
   right: 150%;
 }
 
-.scp-classroom-name {
-  font-size: 1.3rem;
-  margin: 0;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  color: white;
-  max-width: 70%;
+.student-classroom-page .scp-classroom-title {
+  font-size: 1.3rem !important;
+  margin: 0 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+  max-width: 70% !important;
 }
 
 .scp-status-badge {
@@ -622,6 +712,49 @@
   font-size: 0.9rem;
 }
 
+/* Meeting rating action buttons */
+.student-classroom-page .scp-rate-meeting-btn {
+  background: linear-gradient(135deg, #fd7e14 0%, #ff8500 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 10px rgba(253, 126, 20, 0.2) !important;
+  flex: 1 !important;
+  min-width: 140px !important;
+}
+
+.student-classroom-page .scp-rate-meeting-btn:hover {
+  background: linear-gradient(135deg, #e8680b 0%, #e67300 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(253, 126, 20, 0.3) !important;
+}
+
+.student-classroom-page .scp-meeting-rated-btn {
+  background: rgba(40, 167, 69, 0.1) !important;
+  color: #28a745 !important;
+  border: 1px solid rgba(40, 167, 69, 0.2) !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: not-allowed !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  flex: 1 !important;
+  min-width: 140px !important;
+}
+
 /* Main classroom pagination styles */
 .scp-pagination {
   display: flex;
@@ -902,708 +1035,758 @@
 }
 
 .scp-tab.active {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
   transform: translateY(-2px);
 }
 
 .scp-tab-count {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-  padding: 2px 8px;
-  font-size: 0.8rem;
-  margin-left: 4px;
+  background: rgba(108, 117, 125, 0.15) !important;
+  color: #6c757d !important;
+  padding: 2px 8px !important;
+  border-radius: 12px !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  min-width: 20px !important;
+  text-align: center !important;
 }
 
 .scp-tab.active .scp-tab-count {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
 }
 
-.scp-meeting-item-inline {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 1px solid #e9ecef;
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 24px;
-  align-items: center;
+/* MEETING LIST STYLING (đồng bộ với tutor) */
+/* Meeting Grid Layout */
+.student-classroom-page .scp-meeting-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)) !important;
+  gap: 20px !important;
+  margin-top: 20px !important;
+  padding: 0 !important;
 }
 
-.scp-meeting-item-inline:hover {
-  background: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
-  border-color: #007bff;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+/* Meeting Card Styling */
+.student-classroom-page .scp-meeting-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  padding: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 15px !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid #e9ecef !important;
 }
 
-.scp-meeting-actions {
-  display: flex;
-  gap: 12px;
-  flex-shrink: 0;
-  align-items: center;
+.student-classroom-page .scp-meeting-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+  border-color: #28a745 !important;
 }
 
-.scp-btn-join {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-  text-decoration: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+.student-classroom-page .scp-meeting-card::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #28a745, #20c997) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
 }
 
-.scp-btn-join:hover {
-  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+.student-classroom-page .scp-meeting-card:hover::before {
+  opacity: 1 !important;
 }
 
-/* Meeting layout sections - matching TutorClassroomPage */
-.scp-meeting-title-section {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #e9ecef;
-  position: relative;
+/* Meeting Header in Card */
+.student-classroom-page .scp-meeting-card .scp-meeting-header {
+  background: transparent !important;
+  padding: 0 !important;
+  color: inherit !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 10px !important;
 }
 
-.scp-meeting-title-section::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 80px;
-  height: 2px;
-  background: linear-gradient(90deg, #007bff, #0056b3);
+.student-classroom-page .scp-meeting-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+  max-width: 70% !important;
 }
 
-.scp-meeting-tabs-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 32px;
+.student-classroom-page .scp-meeting-status {
+  background: rgba(40, 167, 69, 0.1) !important;
+  color: #28a745 !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  border: 1px solid rgba(40, 167, 69, 0.2) !important;
 }
 
-.scp-meeting-tabs-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  justify-content: center;
+.student-classroom-page .scp-meeting-status.completed,
+.student-classroom-page .scp-meeting-status.ended {
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border-color: rgba(108, 117, 125, 0.2) !important;
 }
 
-.scp-meeting-tabs-container .scp-meeting-tabs {
-  margin: 0;
+.student-classroom-page .scp-meeting-status.in_session,
+.student-classroom-page .scp-meeting-status.started {
+  background: rgba(40, 167, 69, 0.1) !important;
+  color: #28a745 !important;
+  border-color: rgba(40, 167, 69, 0.2) !important;
 }
 
-/* Animations and advanced effects */
-@keyframes fadeIn {
+/* Meeting Details */
+.student-classroom-page .scp-meeting-details {
+  flex: 1 !important;
+}
+
+.student-classroom-page .scp-meeting-details p {
+  margin: 10px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 0.95rem !important;
+  color: #495057 !important;
+  line-height: 1.4 !important;
+}
+
+.student-classroom-page .scp-meeting-details p strong {
+  color: #343a40 !important;
+  min-width: 130px !important;
+  display: inline-block !important;
+  font-weight: 600 !important;
+}
+
+/* Meeting Actions */
+.student-classroom-page .scp-meeting-actions {
+  display: flex !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  margin-top: auto !important;
+}
+
+.student-classroom-page .scp-join-meeting-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2) !important;
+  flex: 1 !important;
+  min-width: 140px !important;
+}
+
+.student-classroom-page .scp-join-meeting-btn:hover {
+  background: linear-gradient(135deg, #218838 0%, #1ea080 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+.student-classroom-page .scp-meeting-ended-btn {
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border: 1px solid rgba(108, 117, 125, 0.2) !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: not-allowed !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  flex: 1 !important;
+  min-width: 140px !important;
+}
+
+/* Meeting View Layout (giống tutor) */
+.student-classroom-page .scp-meeting-view {
+  background: #fff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  margin-bottom: 24px !important;
+  overflow: hidden !important;
+}
+
+/* Meeting Header with Back Button */
+.student-classroom-page .scp-meeting-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  padding: 20px 24px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.student-classroom-page .scp-meeting-header::after {
+  content: "" !important;
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 0 !important;
+  width: 80px !important;
+  height: 2px !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.student-classroom-page .scp-meeting-title {
+  font-size: 1.4rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.student-classroom-page .scp-meeting-title i {
+  font-size: 1.2rem !important;
+  opacity: 0.9 !important;
+}
+
+.student-classroom-page .scp-back-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.student-classroom-page .scp-back-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+.student-classroom-page .scp-back-btn i {
+  font-size: 0.9rem !important;
+}
+
+/* Meeting Content Container */
+.student-classroom-page .scp-meeting-content {
+  padding: 24px !important;
+}
+
+/* Meeting List as UL (giống tutor) */
+.student-classroom-page .scp-meeting-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)) !important;
+  gap: 24px !important;
+  list-style-type: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.student-classroom-page .scp-meeting-item {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  padding: 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid #e9ecef !important;
+}
+
+.student-classroom-page .scp-meeting-item:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 12px 35px rgba(40, 167, 69, 0.15) !important;
+  border-color: #28a745 !important;
+}
+
+.student-classroom-page .scp-meeting-item::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #28a745, #20c997) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.student-classroom-page .scp-meeting-item:hover::before {
+  opacity: 1 !important;
+}
+
+/* Meeting Info Section */
+.student-classroom-page .scp-meeting-info {
+  flex: 1 !important;
+}
+
+.student-classroom-page .scp-meeting-info p {
+  margin: 12px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 0.95rem !important;
+  color: #495057 !important;
+  line-height: 1.5 !important;
+}
+
+.student-classroom-page .scp-meeting-info p strong {
+  color: #343a40 !important;
+  min-width: 140px !important;
+  display: inline-block !important;
+  font-weight: 600 !important;
+}
+
+/* Meeting Status Badges */
+.student-classroom-page .scp-meeting-status-active {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  display: inline-block !important;
+  box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3) !important;
+}
+
+.student-classroom-page .scp-meeting-status-ended {
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border: 1px solid rgba(108, 117, 125, 0.2) !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  display: inline-block !important;
+}
+
+/* Meeting Actions */
+.student-classroom-page .scp-meeting-actions {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: auto !important;
+}
+
+.student-classroom-page .scp-join-meeting-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  border-radius: 10px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25) !important;
+  flex: 1 !important;
+  min-width: 160px !important;
+}
+
+.student-classroom-page .scp-join-meeting-btn:hover {
+  background: linear-gradient(135deg, #218838 0%, #1ea080 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(40, 167, 69, 0.35) !important;
+}
+
+.student-classroom-page .scp-meeting-ended-btn {
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border: 1px solid rgba(108, 117, 125, 0.2) !important;
+  padding: 12px 20px !important;
+  border-radius: 10px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  cursor: not-allowed !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  flex: 1 !important;
+  min-width: 160px !important;
+}
+
+/* Loading States */
+.student-classroom-page .scp-loading-spinner {
+  width: 40px !important;
+  height: 40px !important;
+  border: 3px solid #f3f3f3 !important;
+  border-top: 3px solid #28a745 !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin: 0 auto 16px !important;
+}
+
+.student-classroom-page .scp-loading-text {
+  color: #6c757d !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* Meeting Rating Modal Styles */
+.scp-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1000 !important;
+  padding: 20px !important;
+}
+
+.scp-modal-content {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  max-width: 500px !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  animation: modalSlideIn 0.3s ease-out !important;
+}
+
+@keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-.scp-classroom-list {
-  animation: fadeIn 0.5s ease-out;
+.scp-modal-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid #e9ecef !important;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  border-radius: 12px 12px 0 0 !important;
 }
 
-.scp-classroom-card {
-  animation: fadeIn 0.5s ease-out;
-  animation-fill-mode: both;
+.scp-modal-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
 }
 
-/* Stagger animation for cards */
-.scp-classroom-card:nth-child(2) {
-  animation-delay: 0.1s;
+.scp-modal-close {
+  background: none !important;
+  border: none !important;
+  color: white !important;
+  font-size: 1.5rem !important;
+  cursor: pointer !important;
+  padding: 5px !important;
+  border-radius: 50% !important;
+  width: 35px !important;
+  height: 35px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.3s ease !important;
 }
 
-.scp-classroom-card:nth-child(3) {
-  animation-delay: 0.2s;
+.scp-modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-.scp-classroom-card:nth-child(4) {
-  animation-delay: 0.3s;
+.scp-modal-body {
+  padding: 24px !important;
 }
 
-/* Progress section styling */
-.scp-progress-section {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  margin: 20px 0;
-  position: relative;
-  overflow: hidden;
+.scp-meeting-info-summary {
+  background: #f8f9fa !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin-bottom: 20px !important;
+  border-left: 4px solid #28a745 !important;
 }
 
-.scp-progress-section::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 5px;
-  background: linear-gradient(180deg, #20c997, #0d6efd);
+.scp-meeting-info-summary h4 {
+  margin: 0 0 12px 0 !important;
+  color: #28a745 !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
 }
 
-.scp-progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+.scp-meeting-info-summary p {
+  margin: 8px 0 !important;
+  font-size: 0.9rem !important;
+  color: #495057 !important;
 }
 
-.scp-progress-label {
-  font-weight: 600;
-  color: #343a40;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.scp-rating-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
 }
 
-.scp-progress-label i {
-  color: #20c997;
+.scp-rating-section {
+  text-align: center !important;
 }
 
-.scp-progress-percentage {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #20c997;
-  background: rgba(32, 201, 151, 0.1);
-  padding: 5px 12px;
-  border-radius: 20px;
+.scp-rating-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+  margin-bottom: 16px !important;
+  font-size: 1rem !important;
 }
 
-.scp-progress-bar-container {
-  height: 12px;
-  background-color: #e9ecef;
-  border-radius: 30px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+/* Star Rating using react-star-ratings library */
+.scp-star-rating-container {
+  text-align: center !important;
+  margin: 20px 0 !important;
 }
 
-.scp-progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #20c997, #0d6efd);
-  border-radius: 30px;
-  transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
-  position: relative;
-  overflow: hidden;
+/* Style for react-star-ratings component */
+.scp-star-rating-container > div {
+  display: flex !important;
+  justify-content: center !important;
+  margin-bottom: 15px !important;
 }
 
-.scp-progress-bar-fill::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  animation: shimmer 2s infinite;
+/* Quick rating selection buttons */
+.scp-half-star-controls {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin-bottom: 15px !important;
+  flex-wrap: wrap !important;
 }
 
-@keyframes shimmer {
+.scp-rating-btn {
+  background: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 20px !important;
+  padding: 6px 14px !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  color: #6c757d !important;
+  font-weight: 500 !important;
+  min-width: 35px !important;
+}
+
+.scp-rating-btn:hover {
+  background: #e9ecef !important;
+  border-color: #28a745 !important;
+  color: #28a745 !important;
+  transform: translateY(-1px) !important;
+}
+
+.scp-rating-btn.active {
+  background: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+}
+
+.scp-rating-text {
+  font-size: 0.9rem !important;
+  color: #6c757d !important;
+  margin-top: 10px !important;
+}
+
+.scp-rating-value {
+  color: #28a745 !important;
+  font-weight: 600 !important;
+}
+
+.scp-comment-section {
+  text-align: left !important;
+}
+
+.scp-comment-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+  margin-bottom: 12px !important;
+  font-size: 1rem !important;
+}
+
+.scp-comment-textarea {
+  width: 100% !important;
+  padding: 12px !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+  min-height: 100px !important;
+  transition: border-color 0.3s ease !important;
+}
+
+.scp-comment-textarea:focus {
+  outline: none !important;
+  border-color: #28a745 !important;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+}
+
+.scp-comment-counter {
+  text-align: right !important;
+  font-size: 0.8rem !important;
+  color: #6c757d !important;
+  margin-top: 4px !important;
+}
+
+.scp-modal-actions {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+  margin-top: 24px !important;
+}
+
+.scp-cancel-btn {
+  background: #6c757d !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.scp-cancel-btn:hover:not(:disabled) {
+  background: #5a6268 !important;
+  transform: translateY(-1px) !important;
+}
+
+.scp-submit-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2) !important;
+}
+
+.scp-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #218838 0%, #1ea080 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+.scp-submit-btn:disabled {
+  background: #e9ecef !important;
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+  .scp-modal-overlay {
+    padding: 10px !important;
+  }
+
+  .scp-modal-content {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .scp-modal-header {
+    padding: 16px 20px !important;
+  }
+
+  .scp-modal-body {
+    padding: 20px !important;
+  }
+
+  .scp-modal-actions {
+    flex-direction: column !important;
+  }
+
+  /* Mobile responsive for star rating */
+  .scp-star-rating-container > div {
+    transform: scale(0.8) !important;
+  }
+
+  .scp-half-star-controls {
+    gap: 4px !important;
+  }
+
+  .scp-rating-btn {
+    padding: 4px 10px !important;
+    font-size: 0.8rem !important;
+    min-width: 30px !important;
+  }
+}
+
+/* Spin animation for loading */
+@keyframes spin {
   0% {
-    transform: translateX(-100%);
+    transform: rotate(0deg);
   }
   100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Glass-morphism effect for detail page */
-.scp-detail-content {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.scp-detail-section {
-  margin-bottom: 24px;
-  padding: 20px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  position: relative;
-  overflow: hidden;
-}
-
-.scp-detail-section-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #2c3e50;
-  font-size: 1.2rem;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 2px dashed rgba(0, 0, 0, 0.05);
-}
-
-.scp-detail-section-title i {
-  color: #0d6efd;
-}
-
-/* Additional styles for classroom details */
-.scp-detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  background: #fff;
-  padding: 16px 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  border-left: 5px solid #0d6efd;
-}
-
-.scp-back-btn {
-  background: rgba(13, 110, 253, 0.1);
-  color: #0d6efd;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.scp-back-btn:hover {
-  background: rgba(13, 110, 253, 0.2);
-  transform: translateX(-3px);
-}
-
-.scp-detail-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0;
-}
-
-.scp-detail-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #e9ecef;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin-right: 20px;
-}
-
-.scp-tutor-detail-info {
-  display: flex;
-  margin-bottom: 20px;
-}
-
-.scp-tutor-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
-  align-content: center;
-}
-
-/* Date indicator */
-.scp-date-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.95rem;
-  color: #495057;
-  margin-right: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.scp-date-indicator i {
-  color: #0d6efd;
-}
-
-/* Loading and skeleton effects */
-.scp-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 40px;
-  gap: 20px;
-}
-
-.scp-loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(0, 123, 255, 0.3);
-  border-top-color: #0d6efd;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
     transform: rotate(360deg);
   }
-}
-
-.scp-loading-text {
-  color: #6c757d;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* Detail page action buttons */
-.scp-detail-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 30px;
-  justify-content: center;
-}
-
-.scp-detail-btn {
-  padding: 12px 24px;
-  border-radius: 10px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.scp-detail-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-
-.scp-detail-btn:active {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-
-.scp-detail-btn i {
-  font-size: 1.1rem;
-}
-
-.scp-detail-btn-meetings {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
-}
-
-.scp-detail-btn-meetings:hover {
-  background: linear-gradient(135deg, #0b5ed7 0%, #084298 100%);
-  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
-}
-
-.scp-detail-btn-evaluate {
-  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-  color: white;
-}
-
-.scp-detail-btn-evaluate:hover {
-  background: linear-gradient(135deg, #ffca2c 0%, #ff9a18 100%);
-}
-
-/* Meeting list styling */
-.scp-meeting-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.scp-meeting-item {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #e9ecef;
-}
-
-.scp-meeting-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  border-color: #0d6efd;
-}
-
-.scp-meeting-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.scp-meeting-item:hover::before {
-  opacity: 1;
-}
-
-.scp-meeting-info {
-  flex: 1;
-}
-
-.scp-meeting-info p {
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.95rem;
-  color: #495057;
-}
-
-.scp-meeting-info p strong {
-  color: #343a40;
-  min-width: 130px;
-  display: inline-block;
-}
-
-.scp-meeting-info p i {
-  color: #0d6efd;
-  width: 16px;
-  text-align: center;
-  font-size: 1rem;
-}
-
-/* Meeting action buttons */
-.scp-join-meeting-btn {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-  width: 100%;
-}
-
-.scp-join-meeting-btn:hover {
-  background: linear-gradient(135deg, #0b5ed7 0%, #084298 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3);
-}
-
-.scp-view-meeting-info-btn {
-  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
-  width: 100%;
-}
-
-.scp-view-meeting-info-btn:hover {
-  background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3);
-}
-
-.scp-meeting-status {
-  display: inline-block;
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-left: 8px;
-}
-
-.scp-meeting-status-active {
-  background-color: rgba(25, 135, 84, 0.1);
-  color: #198754;
-  border: 1px solid rgba(25, 135, 84, 0.2);
-}
-
-.scp-meeting-status-ended {
-  background-color: rgba(108, 117, 125, 0.1);
-  color: #6c757d;
-  border: 1px solid rgba(108, 117, 125, 0.2);
-}
-
-/* Mobile responsiveness improvements */
-@media (max-width: 768px) {
-  .scp-classroom-list {
-    grid-template-columns: 1fr;
-  }
-
-  .scp-classroom-tabs {
-    width: 100%;
-    overflow-x: auto;
-    padding: 5px;
-  }
-
-  .scp-classroom-tabs .scp-tab {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-
-  .scp-tutor-section {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .scp-tutor-details {
-    width: 100%;
-  }
-
-  .scp-tutor-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .scp-action-buttons {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .scp-action-btn {
-    width: 100%;
-  }
-
-  .scp-meeting-list {
-    grid-template-columns: 1fr;
-  }
-
-  .scp-meeting-view {
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  .scp-meeting-title-section {
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-  }
-
-  .scp-meeting-title {
-    font-size: 1.4rem;
-  }
-
-  .scp-meeting-tabs-section {
-    margin-bottom: 24px;
-  }
-
-  .scp-meeting-tabs-container {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .scp-meeting-tabs {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .scp-tab {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .scp-back-btn-meeting {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-.scp-meeting-ended {
-  padding: 12px;
-  border-radius: 8px;
-  background-color: rgba(108, 117, 125, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.scp-ended-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #6c757d;
-  font-weight: 500;
-  font-size: 0.95rem;
-}
-
-.scp-ended-label i {
-  color: #6c757d;
-}
-
-/* Update meeting header back button position */
-.scp-meeting-header .scp-back-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.scp-meeting-header .scp-back-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateX(-3px);
 }

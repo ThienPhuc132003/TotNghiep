@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudentClassroomPage Meeting API Fix - Test Guide</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+      .test-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+      }
+      .test-header h1 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 2rem;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #f8f9fa;
+      }
+      .test-section h3 {
+        color: #495057;
+        margin-top: 0;
+      }
+      .code-block {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        margin: 12px 0;
+      }
+      .status-list {
+        list-style: none;
+        padding: 0;
+      }
+      .status-list li {
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .status-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status-warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .status-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      .icon {
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+      .api-flow {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .api-flow h3 {
+        margin-top: 0;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="test-header">
+        <h1>StudentClassroomPage Meeting API - Đã Sửa Xong ✅</h1>
+        <p>
+          Cập nhật nút "Danh sách phòng học" sử dụng API meeting/get-meeting
+          đúng cách
+        </p>
+      </div>
+
+      <div class="test-section">
+        <h3>🔧 Những gì đã sửa</h3>
+        <ul class="status-list">
+          <li class="status-success">
+            <span class="icon">✅</span>
+            Cập nhật function <code>handleViewMeetings</code> sử dụng
+            <code>Api.callApi()</code> thay vì <code>Api()</code>
+          </li>
+          <li class="status-success">
+            <span class="icon">✅</span>
+            Sửa cách gọi API meeting/get-meeting với pagination đúng format
+          </li>
+          <li class="status-success">
+            <span class="icon">✅</span>
+            Thêm proper error handling và logging chi tiết
+          </li>
+          <li class="status-success">
+            <span class="icon">✅</span>
+            Cập nhật restore meeting view từ URL params
+          </li>
+          <li class="status-success">
+            <span class="icon">✅</span>
+            Thêm URL state management để maintain deep linking
+          </li>
+        </ul>
+      </div>
+
+      <div class="api-flow">
+        <h3>📊 API Call Flow - meeting/get-meeting</h3>
+        <div class="code-block">
+          // Cách gọi API đã được sửa: const response = await Api.callApi(
+          "/meeting/get-meeting", METHOD_TYPE.GET, { classroomId: classroomId,
+          // ID của lớp học page: page - 1, // 0-based pagination size:
+          meetingsPerPage, // Số meeting per page (default: 2) } ); // Response
+          structure expected: { success: true, data: { content: [...meetings],
+          // Hoặc items: [...meetings] totalElements: number, // Hoặc total:
+          number totalPages: number, number: number, size: number } }
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔍 Testing Guide</h3>
+        <ul class="status-list">
+          <li class="status-info">
+            <span class="icon">1️⃣</span>
+            <strong>Vào trang lớp học của học sinh</strong>
+          </li>
+          <li class="status-info">
+            <span class="icon">2️⃣</span>
+            <strong>Click vào một lớp học để xem chi tiết</strong>
+          </li>
+          <li class="status-info">
+            <span class="icon">3️⃣</span>
+            <strong>Click nút "Xem danh sách phòng học"</strong>
+          </li>
+          <li class="status-info">
+            <span class="icon">4️⃣</span>
+            <strong>Kiểm tra Console logs để xem API calls</strong>
+          </li>
+          <li class="status-info">
+            <span class="icon">5️⃣</span>
+            <strong>Verify danh sách meetings hiển thị đúng</strong>
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h3>🐛 Debug Information</h3>
+        <p>Nếu có lỗi, hãy kiểm tra Console logs để xem:</p>
+        <div class="code-block">
+          // Logs để debug: 🔍 Fetching meetings for classroom {classroomId}
+          using meeting/get-meeting endpoint 📊 Active meeting tab:
+          {activeMeetingTab} 📥 Meeting API response: {response} 📋 Found
+          {count} meetings (total: {total}) ✅ Restored meeting view with
+          {count} meetings
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>⚡ Key Improvements</h3>
+        <ul class="status-list">
+          <li class="status-success">
+            <span class="icon">📦</span>
+            <strong>Consistent API calling:</strong> Sử dụng Api.callApi() thống
+            nhất với rest của app
+          </li>
+          <li class="status-success">
+            <span class="icon">🔄</span>
+            <strong>Proper pagination:</strong> Support 0-based pagination và
+            page size
+          </li>
+          <li class="status-success">
+            <span class="icon">🛡️</span>
+            <strong>Better error handling:</strong> Phân biệt 404 vs other
+            errors
+          </li>
+          <li class="status-success">
+            <span class="icon">🔗</span>
+            <strong>URL state:</strong> Maintain meeting view state trong URL
+          </li>
+          <li class="status-success">
+            <span class="icon">📊</span>
+            <strong>Flexible response:</strong> Support cả content/items và
+            totalElements/total
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h3>🎯 Expected Behavior</h3>
+        <div class="code-block">
+          1. Click "Xem danh sách phòng học" → API call to /meeting/get-meeting
+          với classroomId → Hiển thị danh sách meetings/phòng học → URL update:
+          ?view=meetings&classroomId=...&classroomName=... 2. Refresh page →
+          Automatically restore meeting view từ URL → Re-fetch meeting data 3.
+          Pagination → Load meetings theo page với proper API calls → Maintain
+          state và URL 4. Error handling → 404: "Chưa có phòng học nào được tạo"
+          → Other errors: "Không thể tải danh sách phòng học"
+        </div>
+      </div>
+
+      <div class="api-flow">
+        <h3>✅ Completion Summary</h3>
+        <p>
+          <strong>✅ API integration fixed</strong> - meeting/get-meeting được
+          gọi đúng format
+        </p>
+        <p>
+          <strong>✅ Error handling improved</strong> - Better UX với meaningful
+          error messages
+        </p>
+        <p>
+          <strong>✅ State management</strong> - URL deep linking và restore
+          functionality
+        </p>
+        <p>
+          <strong>✅ Logging added</strong> - Debug information để troubleshoot
+        </p>
+        <p>
+          <strong>✅ No compile errors</strong> - Code clean và ready for
+          testing
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
