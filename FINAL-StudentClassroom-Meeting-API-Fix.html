@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      FINAL Test: StudentClassroomPage Meeting API - Giống Hệt Gia Sư
+    </title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+      h2 {
+        color: #34495e;
+        border-left: 4px solid #3498db;
+        padding-left: 15px;
+        margin-top: 30px;
+      }
+      h3 {
+        color: #2980b9;
+        margin-top: 25px;
+      }
+      .api-comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .tutor-side,
+      .student-side {
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid;
+      }
+      .tutor-side {
+        background: #e8f5e8;
+        border-color: #28a745;
+      }
+      .student-side {
+        background: #e3f2fd;
+        border-color: #2196f3;
+      }
+      .success {
+        background: #d4edda;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #28a745;
+      }
+      .warning {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #ffc107;
+      }
+      .error {
+        background: #f8d7da;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #dc3545;
+      }
+      .code-block {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 15px;
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .step-number {
+        background: #007bff;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .feature-list li:before {
+        content: "✓";
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 15px;
+        font-size: 1.2em;
+      }
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      .comparison-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+      .highlight {
+        background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        🎯 FINAL TEST: StudentClassroomPage Meeting API - Giống Hệt Gia Sư
+      </h1>
+
+      <div class="success">
+        <h3>✅ CÁC THAY ĐỔI CHỦ CHỐT ĐÃ HOÀN THÀNH</h3>
+        <ul class="feature-list">
+          <li>Sử dụng <strong>Api()</strong> function thay vì Api.callApi()</li>
+          <li>Method: <strong>POST</strong> thay vì GET (giống gia sư)</li>
+          <li>
+            Data structure: <strong>response.data.result.items</strong> với
+            fallback paths
+          </li>
+          <li>Authentication: <strong>requireToken: true</strong></li>
+          <li>Debugging logs: <strong>STUDENT DEBUG</strong> prefix</li>
+        </ul>
+      </div>
+
+      <div class="api-comparison">
+        <div class="tutor-side">
+          <h3>🎓 Gia Sư (TutorClassroomPage)</h3>
+          <div class="code-block">
+            const response = await Api({ endpoint: "meeting/get-meeting",
+            method: METHOD_TYPE.POST, data: { classroomId: classroomId, },
+            requireToken: true, }); // Data extraction with fallbacks if
+            (response.data?.result?.items) { allMeetingsData =
+            response.data.result.items; } else if (response.result?.items) {
+            allMeetingsData = response.result.items; } else if
+            (response.data?.items) { allMeetingsData = response.data.items; }
+          </div>
+        </div>
+
+        <div class="student-side">
+          <h3>🎒 Học Sinh (StudentClassroomPage) - ĐÃ CẬP NHẬT</h3>
+          <div class="code-block">
+            const response = await Api({ endpoint: "meeting/get-meeting",
+            method: METHOD_TYPE.POST, data: { classroomId: classroomId, },
+            requireToken: true, }); // Data extraction with fallbacks (GIỐNG
+            HỆT) if (response.data?.result?.items) { allMeetingsData =
+            response.data.result.items; } else if (response.result?.items) {
+            allMeetingsData = response.result.items; } else if
+            (response.data?.items) { allMeetingsData = response.data.items; }
+          </div>
+        </div>
+      </div>
+
+      <div class="success">
+        <h2>📊 So Sánh API Call - Trước vs Sau</h2>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Thuộc tính</th>
+              <th>Trước (Sai)</th>
+              <th>Sau (Đúng - Giống Gia Sư)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Function</strong></td>
+              <td><span style="color: red">Api.callApi()</span></td>
+              <td><span style="color: green">Api({})</span></td>
+            </tr>
+            <tr>
+              <td><strong>Method</strong></td>
+              <td><span style="color: red">METHOD_TYPE.GET</span></td>
+              <td><span style="color: green">METHOD_TYPE.POST</span></td>
+            </tr>
+            <tr>
+              <td><strong>Data Passing</strong></td>
+              <td><span style="color: red">Param thứ 3</span></td>
+              <td><span style="color: green">data: {classroomId}</span></td>
+            </tr>
+            <tr>
+              <td><strong>Authentication</strong></td>
+              <td><span style="color: red">Không có</span></td>
+              <td><span style="color: green">requireToken: true</span></td>
+            </tr>
+            <tr>
+              <td><strong>Data Extraction</strong></td>
+              <td>
+                <span style="color: red">Chỉ response.data.result.items</span>
+              </td>
+              <td>
+                <span style="color: green">Fallback paths như gia sư</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="step">
+        <h2>🧪 Các Test Cases Quan Trọng</h2>
+
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Test API Call với Network Tab:</strong>
+          <ul>
+            <li>Mở Dev Tools → Network tab</li>
+            <li>Click "Xem danh sách phòng học"</li>
+            <li>
+              Kiểm tra request:
+              <span class="highlight">POST /meeting/get-meeting</span>
+            </li>
+            <li>Request Body phải có: <code>{"classroomId": "..."}</code></li>
+            <li>Headers phải có: <code>Authorization: Bearer ...</code></li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Test Console Logs:</strong>
+          <div class="code-block">
+            Logs cần thấy: 🔍 Fetching meetings for classroom {id} using
+            meeting/get-meeting endpoint 📥 Meeting API response: {response
+            object} 📥 Full response structure: {JSON stringified} ✅ STUDENT
+            DEBUG - Found meetings in response.data.result.items: {count} 🔍
+            STUDENT DEBUG - Meeting data structure: {first meeting object} 🔍
+            STUDENT DEBUG - Setting meetings to state: {count}
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-number">3</span>
+          <strong>Test Response Data Structure:</strong>
+          <ul>
+            <li>
+              Console logs phải hiển thị response.data.result.items có data
+            </li>
+            <li>Fallback paths được test nếu primary path không có data</li>
+            <li>
+              Meeting objects phải có đầy đủ fields: meetingId, joinUrl, status,
+              etc.
+            </li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <span class="step-number">4</span>
+          <strong>Test Client-Side Operations:</strong>
+          <ul>
+            <li>Pagination không gọi lại API (kiểm tra Network tab)</li>
+            <li>Tab filtering không gọi lại API</li>
+            <li>URL state restore hoạt động với POST API</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="warning">
+        <h2>⚠️ Potential Issues & Solutions</h2>
+
+        <h3>1. Nếu API trả về 401/403:</h3>
+        <ul>
+          <li>Kiểm tra token trong localStorage/sessionStorage</li>
+          <li>Đảm bảo requireToken: true được set</li>
+          <li>Kiểm tra header Authorization trong Network tab</li>
+        </ul>
+
+        <h3>2. Nếu không có data trong response.data.result.items:</h3>
+        <ul>
+          <li>Kiểm tra console logs cho fallback paths</li>
+          <li>So sánh response structure với gia sư</li>
+          <li>Verify classroomId được truyền đúng</li>
+        </ul>
+
+        <h3>3. Nếu Api() function không tồn tại:</h3>
+        <ul>
+          <li>
+            Kiểm tra import: <code>import Api from "../../network/Api";</code>
+          </li>
+          <li>Đảm bảo Api.js export default Api function</li>
+        </ul>
+      </div>
+
+      <div class="success">
+        <h2>🎯 Expected Results - Success Criteria</h2>
+
+        <div class="step">
+          <h3>Network Request:</h3>
+          <ul>
+            <li>✅ Method: POST</li>
+            <li>✅ URL: /meeting/get-meeting</li>
+            <li>✅ Request Body: {"classroomId": "actual-id"}</li>
+            <li>✅ Headers: Authorization Bearer token</li>
+            <li>✅ Status: 200 OK</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <h3>Response Handling:</h3>
+          <ul>
+            <li>✅ Data extracted from response.data.result.items</li>
+            <li>✅ Fallback paths working if needed</li>
+            <li>✅ allMeetings state populated correctly</li>
+            <li>✅ Client-side pagination working</li>
+            <li>✅ No additional API calls for pagination/filtering</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <h3>UI/UX:</h3>
+          <ul>
+            <li>✅ Meetings display correctly with all info</li>
+            <li>✅ Pagination buttons work smoothly</li>
+            <li>✅ Tab filtering works instantly</li>
+            <li>✅ URL state management works</li>
+            <li>✅ No console errors</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="error">
+        <h2>🚨 Debug Checklist nếu vẫn không hoạt động</h2>
+        <ol>
+          <li>
+            <strong>Kiểm tra import Api:</strong> Đảm bảo import đúng từ
+            network/Api
+          </li>
+          <li>
+            <strong>Kiểm tra METHOD_TYPE:</strong> Phải là POST, không phải GET
+          </li>
+          <li>
+            <strong>Kiểm tra requireToken:</strong> Phải có requireToken: true
+          </li>
+          <li>
+            <strong>Kiểm tra data structure:</strong> data: {classroomId: id}
+          </li>
+          <li>
+            <strong>So sánh với TutorClassroomPage:</strong> Copy exact same API
+            call format
+          </li>
+          <li>
+            <strong>Test với Postman:</strong> Verify API endpoint hoạt động với
+            POST method
+          </li>
+          <li>
+            <strong>Kiểm tra token:</strong> Đăng nhập lại nếu token expired
+          </li>
+          <li>
+            <strong>Check console:</strong> Có error nào về CORS, authentication
+            không
+          </li>
+        </ol>
+      </div>
+
+      <div
+        class="highlight"
+        style="
+          text-align: center;
+          padding: 20px;
+          margin: 30px 0;
+          font-size: 1.3em;
+        "
+      >
+        🎉 BÂY GIỜ HỌC SINH VÀ GIA SƯ SỬ DỤNG CHÍNH XÁC CÙNG MỘT API CALL! 🎉
+      </div>
+    </div>
+  </body>
+</html>

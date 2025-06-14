@@ -1476,134 +1476,411 @@
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-/* Mobile responsiveness improvements */
-@media (max-width: 768px) {
-  .scp-classroom-list {
-    grid-template-columns: 1fr;
-  }
-
-  .scp-classroom-tabs {
-    width: 100%;
-    overflow-x: auto;
-    padding: 5px;
-  }
-
-  .scp-classroom-tabs .scp-tab {
-    padding: 8px 16px;
-    font-size: 0.85rem;
-  }
-
-  .scp-tutor-section {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .scp-tutor-details {
-    width: 100%;
-  }
-
-  .scp-tutor-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .scp-action-buttons {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .scp-action-btn {
-    width: 100%;
-  }
-
-  .scp-meeting-list {
-    grid-template-columns: 1fr;
-  }
-
-  .scp-meeting-view {
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  .scp-meeting-title-section {
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-  }
-
-  .scp-meeting-title {
-    font-size: 1.4rem;
-  }
-
-  .scp-meeting-tabs-section {
-    margin-bottom: 24px;
-  }
-
-  .scp-meeting-tabs-container {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .scp-meeting-tabs {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .scp-tab {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .scp-back-btn-meeting {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    width: 100%;
-    justify-content: center;
-  }
+/* Button styles for new classroom actions */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px;
 }
 
-.scp-meeting-ended {
-  padding: 12px;
-  border-radius: 8px;
-  background-color: rgba(108, 117, 125, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+.btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
 }
 
-.scp-ended-label {
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e0a800 0%, #c69500 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+.btn-info:hover {
+  background: linear-gradient(135deg, #138496 0%, #0f6674 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
+.btn-refresh {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+
+.btn-refresh:hover {
+  background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* Classroom card actions */
+.classroom-actions {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Page header styles */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/* Tab navigation styles */
+.tab-navigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
   color: #6c757d;
-  font-weight: 500;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
   font-size: 0.95rem;
 }
 
-.scp-ended-label i {
-  color: #6c757d;
+.tab-btn.active {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-/* Update meeting header back button position */
-.scp-meeting-header .scp-back-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.tab-btn:hover:not(.active) {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* Content area styles */
+.content-area {
+  min-height: 400px;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.scp-meeting-header .scp-back-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateX(-3px);
+.error-state {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.empty-state {
+  color: #6c757d;
+}
+
+/* Classroom grid styles */
+.classrooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Classroom card styles */
+.classroom-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.classroom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.classroom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.classroom-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.3;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-in_session {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-completed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.classroom-info {
+  margin-bottom: 16px;
+}
+
+.tutor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.tutor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #dee2e6;
+}
+
+.tutor-details {
+  flex: 1;
+}
+
+.tutor-name {
+  margin: 0;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.tutor-email {
+  margin: 4px 0 0 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.schedule-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.schedule-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.schedule-info strong {
+  color: #2c3e50;
+}
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  background: white;
+  color: #6c757d;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  min-width: 40px;
+}
+
+.pagination-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.pagination-btn.active {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-color: #007bff;
+}
+
+/* Classroom modal styles */
+.classroom-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.classroom-details {
+  padding: 4px 0;
+}
+
+.classroom-details h4 {
+  margin: 0 0 16px 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.classroom-details p {
+  margin: 8px 0;
+  color: #495057;
+  line-height: 1.5;
+}
+
+.meetings-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.meeting-item {
+  padding: 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #f8f9fa;
+}
+
+.meeting-item h5 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+}
+
+.meeting-item p {
+  margin: 4px 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.meeting-item a {
+  margin-top: 8px;
+  display: inline-block;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .student-classroom-page {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .tab-navigation {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .classrooms-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .classroom-actions {
+    flex-direction: column;
+  }
+
+  .schedule-info {
+    grid-template-columns: 1fr;
+  }
 }

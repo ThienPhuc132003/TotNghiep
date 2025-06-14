@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Test Guide: StudentClassroomPage Meeting với Client-Side Pagination
+    </title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+      h2 {
+        color: #34495e;
+        border-left: 4px solid #3498db;
+        padding-left: 15px;
+        margin-top: 30px;
+      }
+      h3 {
+        color: #2980b9;
+        margin-top: 25px;
+      }
+      .test-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #28a745;
+      }
+      .api-info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+      .expected-result {
+        background: #f1f8e9;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+      .warning {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #ffc107;
+      }
+      .code-block {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 10px;
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+      }
+      .step-number {
+        background: #007bff;
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-weight: bold;
+      }
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .feature-list li:before {
+        content: "✓";
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+      .url-example {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        border: 1px solid #dee2e6;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        🧪 Test Guide: StudentClassroomPage Meeting với Client-Side Pagination
+      </h1>
+
+      <div class="api-info">
+        <h3>📡 API Response Structure (Đã Verified)</h3>
+        <div class="code-block">
+          GET /meeting/get-meeting?classroomId={id} Response: { "status": "OK",
+          "code": 200, "success": true, "message": "Get meeting successfully",
+          "data": { "result": { "total": 5, "items": [ { "meetingId":
+          "52a4f229-fb9e-45b7-ab98-546fc5e2f14f", "zoomMeetingId":
+          "79516124830", "topic": "Lớp học: Lớp học với gia sư Nguyễn Văn An",
+          "startTime": "2025-06-07T01:32:37.000Z", "duration": 1, "endTime":
+          "2025-06-07T01:33:45.000Z", "joinUrl":
+          "https://us04web.zoom.us/j/79516124830?pwd=...", "password": "123",
+          "classroomId": "0d27f835-83e7-408f-b2ab-d932450afc95", "status":
+          "ENDED", "isRating": false } // ... more meetings ] } } }
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🎯 Features Implemented</h2>
+        <ul class="feature-list">
+          <li>
+            API gọi meeting/get-meeting chỉ truyền classroomId (không pagination
+            server-side)
+          </li>
+          <li>Lấy data từ response.data.result.items (giống luồng gia sư)</li>
+          <li>Client-side pagination với meetingsPerPage = 2</li>
+          <li>Client-side filtering theo tab (IN_SESSION/ENDED)</li>
+          <li>Lưu trữ allMeetings để pagination không cần gọi lại API</li>
+          <li>URL state management với classroomId, page, tab</li>
+          <li>Restore view từ URL hoạt động đúng</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>🔬 Test Cases</h2>
+
+        <h3>1. Test Lấy Danh Sách Meeting</h3>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Vào trang lớp học (Student):</strong> Truy cập danh sách lớp
+          học của học sinh
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Chọn "Xem danh sách phòng học":</strong> Click button trên bất
+          kỳ classroom nào
+        </div>
+        <div class="expected-result">
+          <strong>Expected Result:</strong>
+          <ul>
+            <li>Gọi API: GET /meeting/get-meeting?classroomId={id}</li>
+            <li>Hiển thị 2 meetings đầu tiên (meetingsPerPage = 2)</li>
+            <li>
+              URL:
+              /student/classrooms?view=meetings&classroomId=...&page=1&tab=IN_SESSION
+            </li>
+            <li>Log console hiển thị structure đúng</li>
+          </ul>
+        </div>
+
+        <h3>2. Test Client-Side Pagination</h3>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Với classroom có >2 meetings:</strong> Click "Sau" để chuyển
+          trang
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Kiểm tra không gọi lại API:</strong> Xem network tab, không có
+          request mới
+        </div>
+        <div class="expected-result">
+          <strong>Expected Result:</strong>
+          <ul>
+            <li>Hiển thị meetings trang 2 (từ allMeetings đã lưu)</li>
+            <li>URL: ...&page=2</li>
+            <li>Không có API call mới</li>
+            <li>Pagination info cập nhật đúng</li>
+          </ul>
+        </div>
+
+        <h3>3. Test Tab Filtering</h3>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Switch tab:</strong> Click tab "Đã kết thúc" (ENDED)
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Filter by status:</strong> Chỉ hiển thị meetings có status:
+          COMPLETED, ENDED, FINISHED
+        </div>
+        <div class="expected-result">
+          <strong>Expected Result:</strong>
+          <ul>
+            <li>Filter từ allMeetings theo status</li>
+            <li>Pagination reset về trang 1</li>
+            <li>URL: ...&page=1&tab=ENDED</li>
+            <li>Không gọi lại API</li>
+          </ul>
+        </div>
+
+        <h3>4. Test URL State Restore</h3>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Copy URL:</strong> Ví dụ:
+          ?view=meetings&classroomId=...&page=2&tab=ENDED
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Refresh page:</strong> F5 hoặc mở tab mới với URL
+        </div>
+        <div class="expected-result">
+          <strong>Expected Result:</strong>
+          <ul>
+            <li>Gọi API để lấy lại allMeetings</li>
+            <li>Restore đúng tab (ENDED)</li>
+            <li>Restore đúng page (2)</li>
+            <li>Hiển thị đúng meetings đã filter và phân trang</li>
+          </ul>
+        </div>
+
+        <h3>5. Test Edge Cases</h3>
+        <div class="step">
+          <span class="step-number">1</span>
+          <strong>Classroom không có meeting:</strong> Test với classroom trống
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <strong>Filter không có kết quả:</strong> Tab có 0 meetings
+        </div>
+        <div class="expected-result">
+          <strong>Expected Result:</strong>
+          <ul>
+            <li>
+              Hiển thị message "Không có phòng học nào trong trạng thái này"
+            </li>
+            <li>Không có pagination buttons</li>
+            <li>URL vẫn maintain state</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🔍 Debug Information</h2>
+
+        <h3>Console Logs để Kiểm Tra:</h3>
+        <div class="code-block">
+          🔍 Fetching meetings for classroom {id} using meeting/get-meeting
+          endpoint 📥 Meeting API response: {full response object} 📋 Found X
+          meetings 📊 Meeting data structure: [array of meetings] 📄 Page Y:
+          showing Z meetings (start-end of total) 📊 Student meeting filtering:
+          X total → Y filtered → Z paginated (tab: TAB, page: PAGE) 🎯 Student
+          meeting tab switch: OLD -> NEW (client-side filtering only) 📄 Meeting
+          page change: OLD -> NEW (client-side only) ✅ Restored meeting view
+          with X total meetings (page Y, tab Z)
+        </div>
+
+        <h3>Quan Trọng - Kiểm Tra:</h3>
+        <div class="warning">
+          <ul>
+            <li>
+              <strong>API chỉ gọi 1 lần:</strong> Khi vào meeting view hoặc
+              refresh
+            </li>
+            <li>
+              <strong>Pagination không gọi API:</strong> Chỉ slice array
+              allMeetings
+            </li>
+            <li>
+              <strong>Tab filtering không gọi API:</strong> Filter allMeetings
+              theo status
+            </li>
+            <li>
+              <strong>Data từ response.data.result.items:</strong> Giống luồng
+              gia sư
+            </li>
+            <li>
+              <strong>URL state đầy đủ:</strong> view, classroomId, page, tab
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🛠️ URL Examples</h2>
+
+        <div class="url-example">
+          <strong>Meeting view page 1, tab IN_SESSION:</strong><br />
+          /student/classrooms?view=meetings&classroomId=0d27f835-83e7-408f-b2ab-d932450afc95&classroomName=L%E1%BB%9Bp%20h%E1%BB%8Dc%20v%E1%BB%9Bi%20gia%20s%C6%B0%20Nguy%E1%BB%85n%20V%C4%83n%20An&page=1&tab=IN_SESSION
+        </div>
+
+        <div class="url-example">
+          <strong>Meeting view page 2, tab ENDED:</strong><br />
+          /student/classrooms?view=meetings&classroomId=0d27f835-83e7-408f-b2ab-d932450afc95&classroomName=L%E1%BB%9Bp%20h%E1%BB%8Dc%20v%E1%BB%9Bi%20gia%20s%C6%B0%20Nguy%E1%BB%85n%20V%C4%83n%20An&page=2&tab=ENDED
+        </div>
+      </div>
+
+      <div class="expected-result">
+        <h2>✅ Success Criteria</h2>
+        <ul>
+          <li>API meeting/get-meeting hoạt động đúng với classroomId</li>
+          <li>Client-side pagination hoạt động smooth, không lag</li>
+          <li>Tab filtering nhanh, không gọi API thêm</li>
+          <li>URL restore hoạt động đúng khi refresh</li>
+          <li>Không có console errors</li>
+          <li>UI responsive và smooth</li>
+          <li>Giống hệt luồng bên gia sư về mặt API và data flow</li>
+        </ul>
+      </div>
+
+      <div class="api-info">
+        <h3>🔄 Data Flow Summary</h3>
+        <div class="code-block">
+          1. handleViewMeetings() → API: GET
+          /meeting/get-meeting?classroomId={id} → Store:
+          setAllMeetings(response.data.result.items) → Paginate: slice
+          allMeetings for current page → Display:
+          setMeetingList(paginatedMeetings) 2. handleMeetingPageChange() →
+          Filter: allMeetings by current tab → Paginate: slice filtered results
+          for new page → Update: URL params and currentMeetingPage → NO API CALL
+          3. handleMeetingTabChange() → Update: activeMeetingTab → Reset:
+          currentMeetingPage = 1 → Update: URL params with new tab → NO API CALL
+          (filtering in render) 4. Restore from URL → API: GET
+          /meeting/get-meeting?classroomId={id} → Parse: page and tab from URL →
+          Set: activeMeetingTab, currentMeetingPage → Store: allMeetings for
+          client-side operations
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting API Response Structure - Updated</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+      }
+      .header h1 {
+        color: #2c3e50;
+        margin: 0;
+        font-size: 2rem;
+      }
+      .section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: #f8f9fa;
+      }
+      .section h3 {
+        color: #495057;
+        margin-top: 0;
+      }
+      .code-block {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        margin: 12px 0;
+      }
+      .highlight {
+        background: #fff3cd;
+        color: #856404;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #ffeaa7;
+        margin: 12px 0;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #c3e6cb;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .comparison-item {
+        padding: 16px;
+        border-radius: 8px;
+      }
+      .before {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+      }
+      .after {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Meeting API Response Structure - ĐÃ CẬP NHẬT ✅</h1>
+        <p>
+          Cập nhật để lấy data từ <code>response.data.result.items</code> giống
+          bên gia sư
+        </p>
+      </div>
+
+      <div class="highlight">
+        <strong>🎯 Key Change:</strong> Đã cập nhật để lấy meeting data từ
+        <code>response.data.result.items</code> thay vì
+        <code>response.data.content</code> hoặc <code>response.data.items</code>
+      </div>
+
+      <div class="comparison">
+        <div class="comparison-item before">
+          <h4>❌ Trước (Sai)</h4>
+          <div class="code-block">
+            // Lấy data từ nhiều nguồn khác nhau const meetingsData =
+            response.data.content || response.data.items || [];
+          </div>
+        </div>
+        <div class="comparison-item after">
+          <h4>✅ Sau (Đúng)</h4>
+          <div class="code-block">
+            // Lấy data từ response.data.result.items // giống như bên gia sư
+            const meetingsData = response.data.result.items || [];
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 Expected API Response Structure</h3>
+        <div class="code-block">
+          { "success": true, "data": { "result": { "items": [ { "meetingId":
+          "string", "classroomId": "string", "meetingUrl": "string", "status":
+          "PENDING|IN_SESSION|COMPLETED|CANCELLED", "startTime":
+          "2024-01-01T10:00:00", "endTime": "2024-01-01T11:00:00",
+          "meetingName": "string", "description": "string" } ], "total": 10,
+          "page": 0, "size": 2 } }, "message": "Success" }
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🔧 Code Changes Made</h3>
+        <p><strong>1. Function handleViewMeetings:</strong></p>
+        <div class="code-block">
+          // Thay đổi cách lấy data if (response && response.success &&
+          response.data && response.data.result) { const meetingsData =
+          response.data.result.items || []; const totalCount =
+          response.data.result.total || meetingsData.length; // ... rest of
+          logic }
+        </div>
+
+        <p><strong>2. Function restoreMeetingView (URL params):</strong></p>
+        <div class="code-block">
+          // Cũng được cập nhật để sử dụng cùng structure if (response &&
+          response.success && response.data && response.data.result) { const
+          meetingsData = response.data.result.items || []; const totalCount =
+          response.data.result.total || meetingsData.length; // ... rest of
+          logic }
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🧪 Testing Checklist</h3>
+        <ol>
+          <li><strong>Vào StudentClassroomPage</strong></li>
+          <li><strong>Click vào một lớp học</strong> để xem chi tiết</li>
+          <li><strong>Click "Xem danh sách phòng học"</strong></li>
+          <li>
+            <strong>Kiểm tra Console logs:</strong>
+            <div class="code-block">
+              📥 Meeting API response: {response object} 📋 Found {count}
+              meetings (total: {total}) 📊 Meeting data structure: {meetings
+              array}
+            </div>
+          </li>
+          <li>
+            <strong>Verify response structure</strong> có đúng là
+            <code>response.data.result.items</code>
+          </li>
+          <li><strong>Test pagination</strong> nếu có nhiều meetings</li>
+          <li>
+            <strong>Test URL refresh</strong> để kiểm tra restore function
+          </li>
+        </ol>
+      </div>
+
+      <div class="section">
+        <h3>🐛 Debugging Tips</h3>
+        <div class="code-block">
+          // Nếu không hiển thị meetings, kiểm tra: 1. Console log: "📥 Meeting
+          API response:" - Xem structure của response có đúng không - Check
+          response.data.result.items có tồn tại không 2. Network tab trong
+          DevTools: - Verify API call đến /meeting/get-meeting - Check request
+          parameters: classroomId, page, size - Verify response status và data
+          3. Console log: "📋 Found X meetings" - Nếu = 0 meetings thì có thể
+          API trả empty array - Nếu error thì check error logs
+        </div>
+      </div>
+
+      <div class="success">
+        <h3>✅ Summary</h3>
+        <ul>
+          <li>
+            <strong>✅ API call structure:</strong> Đã cập nhật để lấy từ
+            <code>response.data.result.items</code>
+          </li>
+          <li>
+            <strong>✅ Consistent với gia sư:</strong> Sử dụng cùng response
+            structure
+          </li>
+          <li>
+            <strong>✅ Both functions updated:</strong> handleViewMeetings và
+            restoreMeetingView
+          </li>
+          <li>
+            <strong>✅ Added logging:</strong> Debug logs để verify data
+            structure
+          </li>
+          <li>
+            <strong>✅ No compile errors:</strong> Code clean và ready to test
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
