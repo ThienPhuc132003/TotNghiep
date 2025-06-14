@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Rating Function - Testing Guide</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c5282;
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #4299e1;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #2d3748;
+        border-left: 4px solid #4299e1;
+        padding-left: 15px;
+        margin-top: 25px;
+      }
+      h3 {
+        color: #4a5568;
+        margin-top: 20px;
+      }
+      .step {
+        background: #e6fffa;
+        border: 1px solid #81e6d9;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+      .warning {
+        background: #fef5e7;
+        border: 1px solid #f6ad55;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+      .success {
+        background: #f0fff4;
+        border: 1px solid #68d391;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+      .code {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      .icon {
+        color: #4299e1;
+        margin-right: 8px;
+      }
+      ul,
+      ol {
+        margin-left: 20px;
+      }
+      li {
+        margin: 8px 0;
+      }
+      .checklist {
+        background: #f7fafc;
+        border: 1px solid #cbd5e0;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+      .btn {
+        background: #4299e1;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+      }
+      .btn:hover {
+        background: #3182ce;
+      }
+      .test-section {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        position: relative;
+      }
+      .test-section::before {
+        content: "TEST CASE";
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        background: white;
+        padding: 0 10px;
+        font-weight: bold;
+        color: #4299e1;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🌟 Student Rating Function - Complete Testing Guide</h1>
+
+      <div class="success">
+        <h3>
+          <i class="fas fa-check-circle icon"></i>Implementation Status: ✅
+          COMPLETED
+        </h3>
+        <p>
+          Chức năng đánh giá phòng học cho người học đã được implement hoàn
+          chỉnh và sẵn sàng để test!
+        </p>
+      </div>
+
+      <h2><i class="fas fa-info-circle icon"></i>Tổng Quan Chức Năng</h2>
+      <div class="step">
+        <strong>Mục tiêu:</strong> Cho phép người học đánh giá phòng học với số
+        sao và mô tả sau khi meeting kết thúc. <br /><strong>API:</strong>
+        <code>POST classroom-assessment/create/:classroomId</code> <br /><strong
+          >Điều kiện:</strong
+        >
+        Chỉ cho phép đánh giá nếu <code>classroom.isRating = false</code>
+      </div>
+
+      <h2><i class="fas fa-cog icon"></i>Chuẩn Bị Test</h2>
+
+      <div class="test-section">
+        <h3>1. Khởi Động Ứng Dụng</h3>
+        <div class="code">
+          cd c:\Users\PHUC\Documents\GitHub\TotNghiep npm start
+        </div>
+        <div class="warning">
+          <strong>Lưu ý:</strong> Đảm bảo backend server đang chạy và có data
+          test sẵn
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>2. Đăng Nhập Student Account</h3>
+        <div class="step">
+          <strong>Yêu cầu:</strong> Đăng nhập với tài khoản student có ít nhất 1
+          classroom với meetings <br /><strong>URL:</strong>
+          <code>http://localhost:3000/login</code>
+        </div>
+      </div>
+
+      <h2><i class="fas fa-play-circle icon"></i>Test Cases</h2>
+
+      <div class="test-section">
+        <h3>Test Case 1: Navigation to Meeting View</h3>
+        <ol>
+          <li>
+            <strong>Vào trang Student Classroom:</strong>
+            <code>/student/classrooms</code>
+          </li>
+          <li>
+            <strong>Click nút "Xem phòng học"</strong> cho một classroom bất kỳ
+          </li>
+          <li>
+            <strong>Kiểm tra:</strong> Có hiển thị danh sách meetings không?
+          </li>
+          <li>
+            <strong>Expected:</strong> Danh sách meetings hiển thị với các tabs
+            "Đang hoạt động" và "Đã kết thúc"
+          </li>
+        </ol>
+        <div class="checklist">
+          <strong>Checklist:</strong>
+          <ul>
+            <li>☐ Meeting list load thành công</li>
+            <li>☐ Tabs hiển thị đúng số lượng</li>
+            <li>☐ Meeting info hiển thị đầy đủ (thời gian, trạng thái)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Case 2: Rating Button Display Logic</h3>
+        <div class="step">
+          <strong>Mục tiêu:</strong> Kiểm tra logic hiển thị nút "Đánh giá" vs
+          "Đã đánh giá"
+        </div>
+        <ol>
+          <li>
+            <strong>Tìm meeting chưa được đánh giá</strong> (isRating = false)
+          </li>
+          <li><strong>Kiểm tra:</strong> Có hiển thị nút "Đánh giá" không?</li>
+          <li>
+            <strong>Tìm meeting đã được đánh giá</strong> (isRating = true)
+          </li>
+          <li>
+            <strong>Kiểm tra:</strong> Có hiển thị số sao đã đánh giá không?
+          </li>
+        </ol>
+        <div class="checklist">
+          <strong>Checklist:</strong>
+          <ul>
+            <li>☐ Nút "Đánh giá" hiển thị cho meeting chưa đánh giá</li>
+            <li>☐ Star rating hiển thị cho meeting đã đánh giá</li>
+            <li>☐ Logic conditional rendering đúng</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Case 3: Rating Modal Functionality</h3>
+        <ol>
+          <li><strong>Click nút "Đánh giá"</strong> cho một meeting</li>
+          <li><strong>Kiểm tra modal hiển thị:</strong></li>
+          <ul>
+            <li>Tiêu đề "Đánh giá phòng học"</li>
+            <li>Thông tin meeting (topic, tutor, meetingId)</li>
+            <li>Star rating selector (5 sao)</li>
+            <li>Textarea mô tả</li>
+            <li>Nút "Hủy" và "Gửi đánh giá"</li>
+          </ul>
+          <li><strong>Test star selection:</strong> Click các sao khác nhau</li>
+          <li>
+            <strong>Test half-star:</strong> Click giữa 2 sao để chọn nửa sao
+          </li>
+          <li><strong>Nhập mô tả</strong> trong textarea</li>
+        </ol>
+        <div class="checklist">
+          <strong>Checklist:</strong>
+          <ul>
+            <li>☐ Modal mở đúng khi click "Đánh giá"</li>
+            <li>☐ Thông tin meeting hiển thị chính xác</li>
+            <li>☐ Star rating hoạt động (cả nguyên sao và nửa sao)</li>
+            <li>☐ Textarea nhập mô tả hoạt động</li>
+            <li>☐ Character counter hiển thị (0/500)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Case 4: Form Validation</h3>
+        <ol>
+          <li><strong>Test validation khi chưa chọn sao:</strong></li>
+          <ul>
+            <li>Bỏ trống star rating</li>
+            <li>Nhập mô tả</li>
+            <li>Click "Gửi đánh giá"</li>
+            <li>
+              <strong>Expected:</strong> Hiển thị error "Vui lòng chọn số sao
+              đánh giá!"
+            </li>
+          </ul>
+          <li><strong>Test validation khi chưa nhập mô tả:</strong></li>
+          <ul>
+            <li>Chọn số sao</li>
+            <li>Bỏ trống mô tả</li>
+            <li>Click "Gửi đánh giá"</li>
+            <li>
+              <strong>Expected:</strong> Hiển thị error "Vui lòng nhập mô tả
+              đánh giá!"
+            </li>
+          </ul>
+          <li><strong>Test button disabled state:</strong></li>
+          <ul>
+            <li>Button "Gửi đánh giá" phải disable khi validation fails</li>
+          </ul>
+        </ol>
+        <div class="checklist">
+          <strong>Checklist:</strong>
+          <ul>
+            <li>☐ Validation star rating hoạt động</li>
+            <li>☐ Validation mô tả hoạt động</li>
+            <li>☐ Button disabled state đúng</li>
+            <li>☐ Toast error messages hiển thị</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Case 5: API Integration</h3>
+        <div class="warning">
+          <strong>Quan trọng:</strong> Mở Developer Tools > Network tab trước
+          khi test
+        </div>
+        <ol>
+          <li><strong>Điền form hợp lệ:</strong></li>
+          <ul>
+            <li>Chọn số sao (ví dụ: 4.5 sao)</li>
+            <li>Nhập mô tả (ví dụ: "Gia sư dạy rất tốt, nhiệt tình")</li>
+          </ul>
+          <li><strong>Click "Gửi đánh giá"</strong></li>
+          <li><strong>Kiểm tra Network tab:</strong></li>
+          <ul>
+            <li>
+              Request URL:
+              <code>POST /classroom-assessment/create/:classroomId</code>
+            </li>
+            <li>Headers: Authorization với Bearer token</li>
+            <li>
+              Payload:
+              <code
+                >{ tutorId, classroomEvaluation: 4.5, description: "...",
+                meetingId }</code
+              >
+            </li>
+          </ul>
+          <li><strong>Kiểm tra response và UI:</strong></li>
+          <ul>
+            <li>
+              Success: Modal đóng + Toast success + Classroom list refresh
+            </li>
+            <li>Error: Toast error message + Modal vẫn mở</li>
+          </ul>
+        </ol>
+        <div class="checklist">
+          <strong>Checklist:</strong>
+          <ul>
+            <li>☐ API call với đúng endpoint</li>
+            <li>☐ Payload structure chính xác</li>
+            <li>☐ Authorization header đúng</li>
+            <li>☐ Success case: Modal đóng + Toast + Refresh</li>
+            <li>☐ Error case: Toast error + Modal mở</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Case 6: Post-Rating State</h3>
+        <ol>
+          <li>
+            <strong>Sau khi rating thành công</strong>, quay lại meeting view
+          </li>
+          <li><strong>Kiểm tra meeting vừa đánh giá:</strong></li>
+          <ul>
+            <li>Nút "Đánh giá" đã biến mất</li>
+            <li>Hiển thị star rating với số sao đã chọn</li>
+            <li>Text "Đã đánh giá: X.X sao"</li>
+          </ul>
+          <li><strong>Test refresh page:</strong> F5 để reload</li>
+          <li>
+            <strong>Kiểm tra:</strong> Trạng thái đã đánh giá vẫn được giữ
+          </li>
+        </ol>
+        <div class="checklist">
+          <strong>Checklist:</strong>
+          <ul>
+            <li>☐ Nút "Đánh giá" biến mất sau rating</li>
+            <li>☐ Star display hiển thị đúng số sao</li>
+            <li>☐ State persist sau refresh</li>
+            <li>☐ isRating flag được update</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2><i class="fas fa-bug icon"></i>Debug và Troubleshooting</h2>
+
+      <div class="test-section">
+        <h3>Console Debug Messages</h3>
+        <div class="code">
+          // Mở Console để xem debug logs: 🔍 RATING BUTTON CLICKED: { meeting,
+          classroom, isRating } 🔍 RATING DEBUG - Opening rating modal: {
+          meetingId, classroomId, tutorId } 🔍 RATING DEBUG - Submitting rating:
+          { tutorId, classroomEvaluation, description, meetingId } 🔍 RATING
+          DEBUG - Rating response: { success, data }
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>Common Issues và Fixes</h3>
+        <div class="warning">
+          <strong>Issue 1:</strong> Nút "Đánh giá" không hiển thị <br /><strong
+            >Fix:</strong
+          >
+          Kiểm tra <code>currentClassroomForMeetings.isRating</code> phải là
+          <code>false</code>
+        </div>
+        <div class="warning">
+          <strong>Issue 2:</strong> Modal không mở <br /><strong>Fix:</strong>
+          Kiểm tra <code>handleOpenRatingModal</code> được gọi với đúng
+          parameters
+        </div>
+        <div class="warning">
+          <strong>Issue 3:</strong> API call failed <br /><strong>Fix:</strong>
+          Kiểm tra token authorization và backend server status
+        </div>
+      </div>
+
+      <h2><i class="fas fa-check-circle icon"></i>Final Verification</h2>
+
+      <div class="success">
+        <h3>Complete Test Checklist</h3>
+        <div class="checklist">
+          <ul>
+            <li>☐ Rating button hiển thị đúng conditional</li>
+            <li>☐ Rating modal functionality hoàn chỉnh</li>
+            <li>☐ Star rating với nửa sao hoạt động</li>
+            <li>☐ Form validation đầy đủ</li>
+            <li>☐ API integration thành công</li>
+            <li>☐ Post-rating state update chính xác</li>
+            <li>☐ UI/UX responsive và smooth</li>
+            <li>☐ Error handling robust</li>
+            <li>☐ Debug logging comprehensive</li>
+            <li>☐ Data persistence sau refresh</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3><i class="fas fa-rocket icon"></i>Ready for Production!</h3>
+        <p>
+          Nếu tất cả test cases đều pass, chức năng rating đã sẵn sàng cho
+          production environment.
+        </p>
+      </div>
+
+      <div class="code">
+        // Test script để run automated tests: const testRatingFunction = () =>
+        { console.log("🚀 Starting Student Rating Function Tests..."); // Add
+        your automated test scripts here // Can integrate with Jest, Cypress, or
+        other testing frameworks console.log("✅ All rating tests completed!");
+        };
+      </div>
+    </div>
+
+    <script>
+      // Add interactive functionality for testing
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🌟 Student Rating Test Guide Loaded!");
+        console.log("📋 Ready to test rating functionality...");
+
+        // Mock rating test function
+        window.testRatingModal = function () {
+          alert("This would open a test rating modal in the actual app!");
+        };
+
+        // Add click handlers for any interactive elements
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            if (this.checked) {
+              console.log(`✅ Test case completed: ${this.id}`);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

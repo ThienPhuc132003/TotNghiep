@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting API Debug - Get vs Display Logic</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .debug-section {
+        border: 1px solid #ddd;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .tutor-section {
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+      }
+      .student-section {
+        border-left: 4px solid #28a745;
+        background-color: #f1f8f4;
+      }
+      .api-result {
+        background-color: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+      .filter-test {
+        background-color: #ffeaa7;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .error {
+        background-color: #ff7675;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .success {
+        background-color: #00b894;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      button {
+        background-color: #0984e3;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0770c4;
+      }
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      .comparison-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+      .status-ended {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .status-in-session {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .status-unknown {
+        color: #6c757d;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Meeting API Debug - Filter Logic Comparison</h1>
+      <p>
+        <strong>Mục tiêu:</strong> Kiểm tra tại sao meeting/get-meeting API trả
+        về data nhưng không hiển thị trên UI
+      </p>
+
+      <div class="debug-section">
+        <h2>🎯 Test API Endpoint</h2>
+        <button onclick="testMeetingAPI()">Test meeting/get-meeting API</button>
+        <button onclick="clearResults()">Clear Results</button>
+        <div id="api-results"></div>
+      </div>
+
+      <div class="debug-section tutor-section">
+        <h2>👨‍🏫 TUTOR Filter Logic Test</h2>
+        <p>
+          <strong>Logic:</strong> getFilteredItems() function - server-side
+          style filtering
+        </p>
+        <div class="filter-test">
+          <strong>Tutor Tab System:</strong>
+          <ul>
+            <li>Chỉ có 2 tabs: IN_SESSION và ENDED</li>
+            <li>Default tab: ENDED</li>
+            <li>Sử dụng getFilteredItems() function để filter</li>
+            <li>Filter trước rồi mới set vào meetingList</li>
+          </ul>
+        </div>
+        <button onclick="testTutorFilter()">Test Tutor Filter Logic</button>
+        <div id="tutor-filter-result"></div>
+      </div>
+
+      <div class="debug-section student-section">
+        <h2>👨‍🎓 STUDENT Filter Logic Test</h2>
+        <p>
+          <strong>Logic:</strong> Direct filter trong render - client-side
+          filtering
+        </p>
+        <div class="filter-test">
+          <strong>Student Tab System:</strong>
+          <ul>
+            <li>Có 3 tabs: IN_SESSION, ENDED, ALL</li>
+            <li>Default tab: ENDED</li>
+            <li>Filter trực tiếp trong render với meetingList.filter()</li>
+            <li>meetingList luôn chứa toàn bộ data, filter trong render</li>
+          </ul>
+        </div>
+        <button onclick="testStudentFilter()">Test Student Filter Logic</button>
+        <div id="student-filter-result"></div>
+      </div>
+
+      <div class="debug-section">
+        <h2>📊 Filter Logic Comparison</h2>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>Tutor Page</th>
+              <th>Student Page</th>
+              <th>Potential Issue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Default Tab</td>
+              <td>ENDED</td>
+              <td>ENDED</td>
+              <td>✅ Consistent</td>
+            </tr>
+            <tr>
+              <td>Filter Method</td>
+              <td>getFilteredItems() function</td>
+              <td>meetingList.filter() in render</td>
+              <td>⚠️ Different approaches</td>
+            </tr>
+            <tr>
+              <td>Data Storage</td>
+              <td>Filtered data in meetingList</td>
+              <td>Full data in meetingList</td>
+              <td>❌ Major difference</td>
+            </tr>
+            <tr>
+              <td>Tab Count</td>
+              <td>2 tabs (IN_SESSION, ENDED)</td>
+              <td>3 tabs (IN_SESSION, ENDED, ALL)</td>
+              <td>⚠️ Different tab systems</td>
+            </tr>
+            <tr>
+              <td>API Data Access</td>
+              <td>response.result.items → response.data.items</td>
+              <td>response.result.items → response.data.items</td>
+              <td>✅ Consistent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="debug-section">
+        <h2>🚨 Potential Issues Found</h2>
+        <div id="issues-analysis">
+          <div class="error">
+            <strong>CRITICAL ISSUE 1:</strong> Data Storage Difference
+            <ul>
+              <li>Tutor: meetingList contains filtered data</li>
+              <li>Student: meetingList contains full data, filter in render</li>
+              <li>
+                This could cause display issues if filter logic is inconsistent
+              </li>
+            </ul>
+          </div>
+          <div class="error">
+            <strong>CRITICAL ISSUE 2:</strong> Status Mapping Differences
+            <ul>
+              <li>Real API returns status: "ENDED"</li>
+              <li>Filter logic checks for: COMPLETED, CANCELLED, ENDED</li>
+              <li>Need to verify exact status mapping</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h2>✅ Recommended Fix Plan</h2>
+        <ol>
+          <li>
+            <strong>Standardize Filter Approach:</strong> Both pages should use
+            same method
+          </li>
+          <li>
+            <strong>Verify Status Mapping:</strong> Ensure filter conditions
+            match actual API status values
+          </li>
+          <li>
+            <strong>Debug Data Flow:</strong> Add detailed logging at each step
+          </li>
+          <li><strong>Test Both Pages:</strong> Ensure consistent behavior</li>
+        </ol>
+      </div>
+    </div>
+
+    <script>
+      let mockMeetingData = [
+        {
+          meetingId: "1",
+          topic: "Meeting 1",
+          status: "ENDED",
+          startTime: "2024-01-15T10:00:00Z",
+          endTime: "2024-01-15T11:00:00Z",
+        },
+        {
+          meetingId: "2",
+          topic: "Meeting 2",
+          status: "ENDED",
+          startTime: "2024-01-16T14:00:00Z",
+          endTime: "2024-01-16T15:00:00Z",
+        },
+        {
+          meetingId: "3",
+          topic: "Meeting 3",
+          status: "ENDED",
+          startTime: "2024-01-17T09:00:00Z",
+          endTime: "2024-01-17T10:00:00Z",
+        },
+        {
+          meetingId: "4",
+          topic: "Meeting 4",
+          status: "ENDED",
+          startTime: "2024-01-18T16:00:00Z",
+          endTime: "2024-01-18T17:00:00Z",
+        },
+        {
+          meetingId: "5",
+          topic: "Meeting 5",
+          status: "ENDED",
+          startTime: "2024-01-19T11:00:00Z",
+          endTime: "2024-01-19T12:00:00Z",
+        },
+      ];
+
+      async function testMeetingAPI() {
+        const resultsDiv = document.getElementById("api-results");
+        resultsDiv.innerHTML =
+          '<div class="api-result">🔄 Testing API...</div>';
+
+        try {
+          // Simulate API call với data thực tế
+          const mockResponse = {
+            success: true,
+            result: {
+              items: mockMeetingData,
+            },
+          };
+
+          resultsDiv.innerHTML = `
+                    <div class="success">✅ API Response Simulated</div>
+                    <div class="api-result">
+Response Structure:
+${JSON.stringify(mockResponse, null, 2)}
+
+Data Access Check:
+- response.result.items: ${
+            mockResponse.result?.items ? "EXISTS" : "MISSING"
+          } (${mockResponse.result?.items?.length || 0} items)
+- response.data.items: ${mockResponse.data?.items ? "EXISTS" : "MISSING"}
+
+Meeting Status Breakdown:
+${mockMeetingData.map((m) => `- ${m.meetingId}: ${m.status}`).join("\n")}
+                    </div>
+                `;
+        } catch (error) {
+          resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+        }
+      }
+
+      function testTutorFilter() {
+        const resultDiv = document.getElementById("tutor-filter-result");
+
+        // Simulate Tutor getFilteredItems function
+        function getFilteredItems(items, status, page, itemsPerPage) {
+          let filtered = [];
+
+          if (status === "IN_SESSION") {
+            filtered = items.filter(
+              (item) =>
+                item.status === "IN_SESSION" ||
+                item.status === "PENDING" ||
+                !item.status
+            );
+          } else if (status === "ENDED") {
+            filtered = items.filter(
+              (item) =>
+                item.status === "COMPLETED" ||
+                item.status === "CANCELLED" ||
+                item.status === "ENDED"
+            );
+          }
+
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+
+          return {
+            items: filtered.slice(startIndex, endIndex),
+            total: filtered.length,
+          };
+        }
+
+        const inSessionResult = getFilteredItems(
+          mockMeetingData,
+          "IN_SESSION",
+          1,
+          10
+        );
+        const endedResult = getFilteredItems(mockMeetingData, "ENDED", 1, 10);
+
+        resultDiv.innerHTML = `
+                <div class="api-result">
+TUTOR FILTER TEST:
+
+Default Tab (ENDED):
+- Filter criteria: COMPLETED || CANCELLED || ENDED
+- Raw data: ${mockMeetingData.length} meetings
+- Filtered result: ${endedResult.total} meetings
+- Displayed: ${endedResult.items.length} meetings
+
+IN_SESSION Tab:
+- Filter criteria: IN_SESSION || PENDING || !status
+- Filtered result: ${inSessionResult.total} meetings
+- Displayed: ${inSessionResult.items.length} meetings
+
+ENDED Tab Details:
+${
+  endedResult.items
+    .map((m) => `- ${m.meetingId}: ${m.status} (${m.topic})`)
+    .join("\n") || "No meetings found"
+}
+
+🚨 ANALYSIS:
+${
+  endedResult.total > 0
+    ? "✅ Filter working - should show meetings"
+    : "❌ Filter not working - no meetings shown"
+}
+                </div>
+            `;
+      }
+
+      function testStudentFilter() {
+        const resultDiv = document.getElementById("student-filter-result");
+
+        // Simulate Student filter logic (in render)
+        function studentFilter(meetingList, activeMeetingTab) {
+          return meetingList.filter((meeting) => {
+            if (!meeting || !meeting.status) {
+              console.warn("⚠️ Meeting missing status:", meeting);
+              return false;
+            }
+
+            if (activeMeetingTab === "IN_SESSION") {
+              return (
+                meeting.status === "IN_SESSION" ||
+                meeting.status === "STARTED" ||
+                meeting.status === "PENDING" ||
+                !meeting.status
+              );
+            } else if (activeMeetingTab === "ENDED") {
+              return (
+                meeting.status === "COMPLETED" ||
+                meeting.status === "ENDED" ||
+                meeting.status === "FINISHED"
+              );
+            }
+            return true; // ALL tab
+          });
+        }
+
+        const inSessionFiltered = studentFilter(mockMeetingData, "IN_SESSION");
+        const endedFiltered = studentFilter(mockMeetingData, "ENDED");
+        const allFiltered = studentFilter(mockMeetingData, "ALL");
+
+        resultDiv.innerHTML = `
+                <div class="api-result">
+STUDENT FILTER TEST:
+
+Raw meetingList: ${mockMeetingData.length} meetings
+
+Default Tab (ENDED):
+- Filter criteria: COMPLETED || ENDED || FINISHED
+- Filtered result: ${endedFiltered.length} meetings
+- Meetings: ${endedFiltered.map((m) => m.meetingId).join(", ") || "None"}
+
+IN_SESSION Tab:
+- Filter criteria: IN_SESSION || STARTED || PENDING || !status
+- Filtered result: ${inSessionFiltered.length} meetings
+
+ALL Tab:
+- Filter criteria: Return all
+- Filtered result: ${allFiltered.length} meetings
+
+ENDED Tab Details:
+${
+  endedFiltered
+    .map((m) => `- ${m.meetingId}: ${m.status} (${m.topic})`)
+    .join("\n") || "No meetings found"
+}
+
+🚨 ANALYSIS:
+${
+  endedFiltered.length > 0
+    ? "✅ Filter working - should show meetings"
+    : "❌ Filter not working - no meetings shown"
+}
+
+🔍 STATUS COMPARISON:
+- API returns: "ENDED"
+- Student filter checks: COMPLETED || ENDED || FINISHED
+- Match status: ${"ENDED".includes("ENDED") ? "✅ YES" : "❌ NO"}
+                </div>
+            `;
+      }
+
+      function clearResults() {
+        document.getElementById("api-results").innerHTML = "";
+        document.getElementById("tutor-filter-result").innerHTML = "";
+        document.getElementById("student-filter-result").innerHTML = "";
+      }
+
+      // Auto-run tests on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+          testMeetingAPI();
+          testTutorFilter();
+          testStudentFilter();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

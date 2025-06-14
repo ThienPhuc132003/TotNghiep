@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Meeting View Debug Test</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-case {
+        margin: 20px 0;
+        padding: 15px;
+        border-left: 4px solid #007bff;
+        background: #f8f9fa;
+      }
+      .expected {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .issue {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .code {
+        background: #2d3748;
+        color: #68d391;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 STUDENT MEETING VIEW DEBUG TEST</h1>
+
+      <div class="test-case">
+        <h2>🎯 Test Scenario</h2>
+        <p><strong>Action:</strong> Student click "Xem danh sách phòng học"</p>
+        <p><strong>API:</strong> POST meeting/get-meeting { classroomId }</p>
+        <p><strong>Expected Data:</strong> 5 meetings, all status "ENDED"</p>
+        <p>
+          <strong>Expected UI:</strong> Tab "Phòng học đã kết thúc" active với 5
+          meetings
+        </p>
+      </div>
+
+      <div class="test-case">
+        <h2>📊 API Response Structure</h2>
+        <div class="code">
+          { "result": { "total": 5, "items": [ { "status": "ENDED", "meetingId":
+          "52a4f229-...", "topic": "Lớp học: ..." }, { "status": "ENDED",
+          "meetingId": "41b44620-...", "topic": "Lớp học: undefined" }, {
+          "status": "ENDED", "meetingId": "97262857-...", "topic": "Lớp học:
+          ..." }, { "status": "ENDED", "meetingId": "22523e7e-...", "topic":
+          "test" }, { "status": "ENDED", "meetingId": "d17c10f3-...", "topic":
+          "Lớp học: ..." } ] } }
+        </div>
+      </div>
+
+      <div class="test-case">
+        <h2>🔧 StudentClassroomPage Flow Debug</h2>
+
+        <h3>Step 1: API Call</h3>
+        <div class="expected">✅ EXPECTED:</div>
+        <div class="code">
+          🔍 STUDENT DEBUG - Fetching meetings using meeting/get-meeting API
+          (primary) 🔍 STUDENT DEBUG - meeting/get-meeting response: {success:
+          true, result: {...}} ✅ STUDENT DEBUG - Found meetings in
+          response.result.items: 5
+        </div>
+
+        <h3>Step 2: Data Processing</h3>
+        <div class="expected">✅ EXPECTED:</div>
+        <div class="code">
+          🔍 STUDENT DEBUG - Meetings status breakdown: { allStatuses: ["ENDED",
+          "ENDED", "ENDED", "ENDED", "ENDED"], inSessionCount: 0, endedCount: 5
+          } 🔍 STUDENT DEBUG - Setting meetings to state: 5
+        </div>
+
+        <h3>Step 3: State Updates</h3>
+        <div class="expected">✅ EXPECTED:</div>
+        <div class="code">
+          setMeetingList(allMeetingsData) // 5 meetings setTotalMeetings(5)
+          setShowMeetingView(true) activeMeetingTab = "ENDED" // default tab
+        </div>
+
+        <h3>Step 4: Rendering & Filtering</h3>
+        <div class="expected">✅ EXPECTED:</div>
+        <div class="code">
+          📊 Student meeting filtering: 5 total → 5 filtered (tab: ENDED) // All
+          5 meetings pass ENDED filter filteredMeetings = [5 meetings with
+          status "ENDED"]
+        </div>
+      </div>
+
+      <div class="test-case">
+        <h2>🐛 Troubleshooting Checklist</h2>
+
+        <h3>Issue: "Không hiển thị gì cả"</h3>
+
+        <p><strong>Check 1: API Response</strong></p>
+        <ul>
+          <li>Console log: "Found meetings in response.result.items: 5" ✅</li>
+          <li>Console log: "Setting meetings to state: 5" ✅</li>
+          <li>
+            <span class="issue">If not found</span> → API không trả về data đúng
+            structure
+          </li>
+        </ul>
+
+        <p><strong>Check 2: State Updates</strong></p>
+        <ul>
+          <li>meetingList.length === 5 ✅</li>
+          <li>showMeetingView === true ✅</li>
+          <li>activeMeetingTab === "ENDED" ✅</li>
+          <li><span class="issue">If not</span> → State update bị lỗi</li>
+        </ul>
+
+        <p><strong>Check 3: Filtering Logic</strong></p>
+        <ul>
+          <li>Console log: "5 total → 5 filtered (tab: ENDED)" ✅</li>
+          <li>filteredMeetings.length === 5 ✅</li>
+          <li><span class="issue">If 0 filtered</span> → Filter logic sai</li>
+        </ul>
+
+        <p><strong>Check 4: UI Rendering</strong></p>
+        <ul>
+          <li>Tab "Phòng học đã kết thúc" có class "active" ✅</li>
+          <li>Tab count hiển thị "(5)" ✅</li>
+          <li>Meeting list hiển thị 5 items ✅</li>
+          <li>
+            <span class="issue">If not</span> → Conditional rendering bị lỗi
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-case">
+        <h2>🔍 Debug Commands</h2>
+        <p>Mở Console Developer Tools và check:</p>
+
+        <div class="code">
+          // 1. Check API response console.log("API Response Success:",
+          response.success) console.log("Data location:",
+          response.result?.items?.length || response.data?.items?.length) // 2.
+          Check state console.log("Meeting List:", meetingList.length)
+          console.log("Show Meeting View:", showMeetingView) console.log("Active
+          Tab:", activeMeetingTab) // 3. Check filtering console.log("Filtered
+          Meetings:", filteredMeetings.length) console.log("All meetings
+          status:", meetingList.map(m => m.status)) // 4. Manual filtering test
+          const testFilter = meetingList.filter(m => m.status === "ENDED")
+          console.log("Manual ENDED filter:", testFilter.length)
+        </div>
+      </div>
+
+      <div class="test-case">
+        <h2>⚡ Quick Fix Actions</h2>
+
+        <p><strong>Action 1:</strong> Clear cache và reload page</p>
+        <p>
+          <strong>Action 2:</strong> Check Network tab để verify API được gọi
+        </p>
+        <p><strong>Action 3:</strong> Verify token authentication</p>
+        <p>
+          <strong>Action 4:</strong> Compare với TutorClassroomPage behavior
+        </p>
+        <p><strong>Action 5:</strong> Test với different classroomId</p>
+      </div>
+
+      <div class="test-case">
+        <h2>🎯 Expected Final Result</h2>
+        <div class="expected">UI should show:</div>
+        <div class="code">
+          📋 Danh sách phòng học - [Classroom Name] ├── 🔵 Phòng học đang hoạt
+          động (0) ├── 🔴 Phòng học đã kết thúc (5) ← ACTIVE TAB └── [5 meeting
+          items displayed] ├── Meeting 1: "Lớp học: Lớp học với gia sư Nguyễn
+          Văn An" ├── Meeting 2: "Lớp học: undefined" ├── Meeting 3: "Lớp học:
+          Lớp học với gia sư Nguyễn Văn An" ├── Meeting 4: "test" └── Meeting 5:
+          "Lớp học: Lớp học với gia sư Nguyễn Văn An"
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("🔧 Student Meeting Debug Test Page Loaded");
+      console.log("📝 Follow the debug steps above to identify the issue");
+      console.log("🎯 Expected: 5 meetings in ENDED tab should be visible");
+    </script>
+  </body>
+</html>

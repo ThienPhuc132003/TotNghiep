@@ -130,11 +130,10 @@ const StudentClassroomPage = () => {
     useState(null);
   const [ratingValue, setRatingValue] = useState(0);
   const [ratingDescription, setRatingDescription] = useState("");
-  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
-
-  const currentUser = useSelector((state) => state.user.userProfile);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);  const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();// Early return if user not logged in
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Early return if user not logged in
   if (!currentUser?.userId) {
     return (
       <div className="student-classroom-page">
@@ -142,6 +141,16 @@ const StudentClassroomPage = () => {
         <p>Vui lòng đăng nhập để xem thông tin lớp học.</p>
       </div>
     );
+  }
+
+  // If showing classroom detail view
+  if (showClassroomDetail) {
+    return <ClassroomDetailView />;
+  }
+
+  // If showing meeting view
+  if (showMeetingView) {
+    return <MeetingView />;
   }
 
   const fetchStudentClassrooms = useCallback(
@@ -789,6 +798,7 @@ const StudentClassroomPage = () => {
       setIsSubmittingRating(false);
     }
   };
+
   // Star Rating Component
   const StarRating = ({
     rating,
@@ -862,8 +872,9 @@ const StudentClassroomPage = () => {
     onStarClick: PropTypes.func,
     readonly: PropTypes.bool,
     size: PropTypes.string,
-  };  // Rating Modal Component
-  const renderRatingModal = () => {
+  };
+  // Rating Modal Component
+  const RatingModal = () => {
     console.log("🔍 RATING MODAL DEBUG - Render check:", {
       showRatingModal,
       selectedMeetingForRating: selectedMeetingForRating?.meetingId,
@@ -1027,8 +1038,9 @@ const StudentClassroomPage = () => {
       );
     }
   };
-  // Modal component for displaying meeting list (unused - commented out for structure fix)
-  /* const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
+
+  // Modal component for displaying meeting list
+  const MeetingListModal = ({ isOpen, onClose, meetings, classroomName }) => {
     if (!isOpen) return null;
 
     const handleJoinMeeting = (meeting) => {
@@ -1111,19 +1123,19 @@ const StudentClassroomPage = () => {
               </div>
             )}
           </div>
-        </div>      </div>
-    );
-  }; */
-
-  // PropTypes for MeetingListModal (commented out)
-  /* MeetingListModal.propTypes = {
+        </div>
+      </div>
+    );  };
+  // PropTypes for MeetingListModal
+  MeetingListModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     meetings: PropTypes.array,
     classroomName: PropTypes.string.isRequired,
-  }; */
+  };
+
   // Classroom Detail View Component
-  const renderClassroomDetailView = () => {
+  const ClassroomDetailView = () => {
     if (!showClassroomDetail || !currentClassroomDetail) return null;
 
     const classroom = currentClassroomDetail;
@@ -1341,8 +1353,9 @@ const StudentClassroomPage = () => {
       </div>
     );
   };
+
   // Meeting View Component (similar to TutorClassroomPage)
-  const renderMeetingView = () => {
+  const MeetingView = () => {
     if (!showMeetingView || !currentClassroomForMeetings) return null;
 
     // CRITICAL DEBUG: Check render-time filter
@@ -1658,30 +1671,18 @@ const StudentClassroomPage = () => {
 
       console.log(`📊 Filtered classrooms for tab ${newTab}:`, result.total);
       console.log(
-        `📄 Page 1: Showing ${result.items.length} of ${result.total} filtered classrooms`
-      );
-    } else {      // No data in allClassrooms, need to fetch
-      console.log("📥 No classrooms in allClassrooms, fetching from server...");      fetchStudentClassrooms(1);
+        `� Page 1: Showing ${result.items.length} of ${result.total} filtered classrooms`      );    } else {
+      // No data in allClassrooms, need to fetch
+      console.log("📥 No classrooms in allClassrooms, fetching from server...");
+      fetchStudentClassrooms(1);
     }
   };
 
-  // TEMPORARY FIX: Close component here and return simple JSX
-  return <div>Temporary fix applied. Page needs restructuring.</div>;
-};
-
-  /* TEMPORARILY COMMENTED TO DEBUG
   return (
-    <>
-      {/* Conditional rendering based on current view */}
-      {showClassroomDetail ? (
-        renderClassroomDetailView()
-      ) : showMeetingView ? (
-        renderMeetingView()
-      ) : (
-        <div className="student-classroom-page">
-          <h2 className="scp-page-title">Lớp học của tôi ({totalClassrooms})</h2>
-          {/* Classroom Tabs */}
-          <div className="scp-classroom-tabs-container">
+    <div className="student-classroom-page">
+      <h2 className="scp-page-title">Lớp học của tôi ({totalClassrooms})</h2>
+      {/* Classroom Tabs */}
+      <div className="scp-classroom-tabs-container">
         <div className="scp-classroom-tabs">
           <button
             className={`scp-tab ${
@@ -1706,7 +1707,32 @@ const StudentClassroomPage = () => {
             Lớp học đã kết thúc{" "}
             <span className="scp-tab-count">
               ({getCountByStatus(allClassrooms, "ENDED")})
-            </span>          </button>
+            </span>
+          </button>
+        </div>
+      </div>
+            }`}
+            onClick={() => handleClassroomTabChange("IN_SESSION")}
+          >
+            {" "}
+            <i className="fas fa-play-circle"></i>
+            Lớp học đang hoạt động{" "}
+            <span className="scp-tab-count">
+              ({getCountByStatus(allClassrooms, "IN_SESSION")})
+            </span>
+          </button>
+          <button
+            className={`scp-tab ${
+              activeClassroomTab === "ENDED" ? "active" : ""
+            }`}
+            onClick={() => handleClassroomTabChange("ENDED")}
+          >
+            <i className="fas fa-check-circle"></i>
+            Lớp học đã kết thúc{" "}
+            <span className="scp-tab-count">
+              ({getCountByStatus(allClassrooms, "ENDED")})
+            </span>
+          </button>
         </div>
       </div>
       {isLoading && (
@@ -2016,16 +2042,15 @@ const StudentClassroomPage = () => {
           onSubmit={handleEvaluationSubmit}
           onClose={handleCloseEvaluationModal}
         />
-      )}      {/* Rating Modal */}
-      {renderRatingModal()}
+      )}
+      {/* Rating Modal */}
+      <RatingModal />
       {/* Debug Components - only for development */}
       {/* <QuickDebug /> */}
-      {/* <ClassroomAPITest /> */}      {/* <CreateMeetingTest /> */}
-        </div>
-      )}
-    </>
+      {/* <ClassroomAPITest /> */}
+      {/* <CreateMeetingTest /> */}
+    </div>
   );
-  // END OF TEMPORARILY COMMENTED RETURN */
 };
 
 // Helper functions for accurate counting and pagination

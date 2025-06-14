@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test meeting/get-meeting POST Update</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        margin-bottom: 25px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+      }
+      .test-section h3 {
+        color: #495057;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      .test-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 5px;
+        transition: all 0.3s ease;
+      }
+      .test-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .btn-post {
+        background-color: #007bff;
+      }
+      .btn-old {
+        background-color: #6c757d;
+      }
+      .btn-logger {
+        background-color: #28a745;
+      }
+      .status-box {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      .note {
+        background-color: #d1ecf1;
+        border-left: 4px solid #bee5eb;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔄 Test meeting/get-meeting POST Update</h1>
+
+      <div class="note">
+        <h4>📋 Thay đổi API Method:</h4>
+        <ul>
+          <li>
+            <strong>Before:</strong> GET /api/meeting/get-meeting (with body
+            data)
+          </li>
+          <li>
+            <strong>After:</strong> POST /api/meeting/get-meeting (with body
+            data)
+          </li>
+          <li>
+            <strong>Impact:</strong> Chỉ thay method, data structure giữ nguyên
+          </li>
+        </ul>
+      </div>
+
+      <!-- API Logging Controls -->
+      <div class="test-section">
+        <h3>🔊 API Logging</h3>
+        <button class="test-btn btn-logger" onclick="enableLogging()">
+          Enable Logging
+        </button>
+        <button class="test-btn btn-logger" onclick="checkStatus()">
+          Check Status
+        </button>
+        <div class="status-box" id="logging-status">
+          Click "Check Status" để xem trạng thái logging
+        </div>
+      </div>
+
+      <!-- Test Current Implementation -->
+      <div class="test-section">
+        <h3>✅ Test New Implementation (POST)</h3>
+        <button class="test-btn btn-post" onclick="testNewMeetingAPI()">
+          Test meeting/get-meeting (POST)
+        </button>
+        <button class="test-btn btn-post" onclick="testWithSampleData()">
+          Test with Sample Data
+        </button>
+        <div class="success">
+          <strong>✅ Expected Behavior:</strong>
+          <ul>
+            <li>Method: POST</li>
+            <li>Body: { "classroomId": "sample-id" }</li>
+            <li>Headers: Authorization: Bearer &lt;token&gt;</li>
+            <li>Console log: 📝 POST Data: classroomId</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Test Old Implementation (for comparison) -->
+      <div class="test-section">
+        <h3>📊 Comparison: Old vs New</h3>
+        <button class="test-btn btn-old" onclick="testOldMethod()">
+          Test Old Method (GET - for comparison)
+        </button>
+        <button class="test-btn btn-post" onclick="testNewMethod()">
+          Test New Method (POST)
+        </button>
+        <div class="warning">
+          <strong>⚠️ Note:</strong> Old method test chỉ để so sánh logging
+          output. Backend hiện tại chỉ accept POST method.
+        </div>
+      </div>
+
+      <!-- DevTools Instructions -->
+      <div class="test-section">
+        <h3>🔍 DevTools Verification</h3>
+        <div class="note">
+          <h4>Cách kiểm tra trong DevTools:</h4>
+          <ol>
+            <li><strong>Open DevTools</strong> (F12)</li>
+            <li>
+              <strong>Network Tab:</strong> Xem HTTP method (POST thay vì GET)
+            </li>
+            <li>
+              <strong>Console Tab:</strong> Xem API logging với "📝 POST Data"
+            </li>
+            <li>
+              <strong>Request Details:</strong>
+              <ul>
+                <li>Method: POST</li>
+                <li>URL: /api/meeting/get-meeting</li>
+                <li>Request Payload: {"classroomId": "..."}</li>
+                <li>Headers: Content-Type: application/json</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Sample Data Display -->
+      <div class="test-section">
+        <h3>📤 Sample Test Data</h3>
+        <div class="status-box">
+          { "classroomId": "676b825d9b4b71df3fbe85dc", "testMode": true,
+          "timestamp": "2025-06-13T00:00:00Z" }
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock API Logger
+      const mockApiLogger = {
+        isEnabled: true,
+        requestId: 1,
+
+        enable() {
+          this.isEnabled = true;
+          console.log("🔊 Mock API Logging ENABLED");
+          return "✅ API Logging is now ENABLED";
+        },
+
+        getStatus() {
+          return this.isEnabled ? "ENABLED" : "DISABLED";
+        },
+
+        logRequest(method, url, data, query) {
+          if (!this.isEnabled) return;
+
+          const requestId = `mock_${this.requestId++}`;
+          console.group(`🚀 [${method}] API Request`);
+          console.log(`🔗 URL: ${url}`);
+          console.log(`🆔 Request ID: ${requestId}`);
+
+          if (query && Object.keys(query).length > 0) {
+            console.log("📋 Query Parameters:", query);
+          }
+
+          if (data && Object.keys(data).length > 0) {
+            console.log("📤 Request Body:", data);
+
+            switch (method) {
+              case "GET":
+                console.log(
+                  "🔥 Custom GET with Body Data:",
+                  Object.keys(data).join(", ")
+                );
+                console.log(
+                  "ℹ️ Note: Backend supports GET with body data (custom API)"
+                );
+                break;
+              case "POST":
+                console.log("📝 POST Data:", Object.keys(data).join(", "));
+                console.log("✅ Standard POST request with body data");
+                break;
+            }
+
+            console.log(`🔍 DEBUG - Exact body data: ${JSON.stringify(data)}`);
+          } else {
+            console.log("📤 Request Body: None");
+          }
+
+          console.groupEnd();
+          return requestId;
+        },
+
+        logResponse(response, requestId) {
+          if (!this.isEnabled) return;
+
+          console.group("✅ API Response");
+          if (requestId) console.log("🆔 Request ID:", requestId);
+          console.log("📥 Response Data:", response);
+          console.groupEnd();
+        },
+      };
+
+      // Mock API function
+      async function mockApi({
+        endpoint,
+        method = "GET",
+        data,
+        query,
+        requireToken = false,
+      }) {
+        console.log(`\n🧪 MOCK API Call: [${method}] ${endpoint}`);
+
+        // Log request
+        const requestId = mockApiLogger.logRequest(
+          method,
+          `https://api.example.com/${endpoint}`,
+          data,
+          query
+        );
+
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // Simulate response
+        const response = {
+          success: true,
+          data: {
+            items: [
+              { id: 1, title: "Sample Meeting 1", date: "2025-06-13" },
+              { id: 2, title: "Sample Meeting 2", date: "2025-06-14" },
+            ],
+            total: 2,
+          },
+          method: method,
+          endpoint: endpoint,
+        };
+
+        // Log response
+        mockApiLogger.logResponse(response, requestId);
+
+        return response;
+      }
+
+      // Sample test data
+      const sampleData = {
+        classroomId: "676b825d9b4b71df3fbe85dc",
+        testMode: true,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Test functions
+      function enableLogging() {
+        const result = mockApiLogger.enable();
+        updateStatus(result);
+      }
+
+      function checkStatus() {
+        const status = mockApiLogger.getStatus();
+        updateStatus(`Current status: ${status}`);
+      }
+
+      function updateStatus(message) {
+        document.getElementById("logging-status").textContent = message;
+      }
+
+      async function testNewMeetingAPI() {
+        console.log(
+          "\n🧪 Testing NEW meeting/get-meeting API (POST method)..."
+        );
+        try {
+          await mockApi({
+            endpoint: "meeting/get-meeting",
+            method: "POST", // ✅ New method
+            data: sampleData,
+            requireToken: true,
+          });
+          console.log("✅ New API test completed successfully");
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testWithSampleData() {
+        console.log("\n🧪 Testing with specific sample data...");
+        const testData = {
+          classroomId: "676b825d9b4b71df3fbe85dc",
+        };
+
+        try {
+          await mockApi({
+            endpoint: "meeting/get-meeting",
+            method: "POST",
+            data: testData,
+            requireToken: true,
+          });
+          console.log("✅ Sample data test completed");
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testOldMethod() {
+        console.log("\n📊 Testing OLD method (GET) for comparison...");
+        try {
+          await mockApi({
+            endpoint: "meeting/get-meeting",
+            method: "GET", // ❌ Old method
+            data: sampleData,
+            requireToken: true,
+          });
+          console.log("ℹ️ Old method test completed (for comparison only)");
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      async function testNewMethod() {
+        console.log("\n🆕 Testing NEW method (POST)...");
+        try {
+          await mockApi({
+            endpoint: "meeting/get-meeting",
+            method: "POST", // ✅ New method
+            data: sampleData,
+            requireToken: true,
+          });
+          console.log("✅ New method test completed");
+        } catch (error) {
+          console.error("❌ Test failed:", error);
+        }
+      }
+
+      // Initialize
+      console.log("🎯 meeting/get-meeting POST Update Test loaded!");
+      console.log(
+        "📋 Open DevTools Console and Network tabs to monitor changes"
+      );
+      console.log("🔄 Backend changed meeting/get-meeting from GET to POST");
+
+      checkStatus();
+    </script>
+  </body>
+</html>

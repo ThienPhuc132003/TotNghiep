@@ -97,8 +97,10 @@ const getCountByStatus = (items, status) => {
   return items.length;
 };
 
+// Client-side filtering và pagination cho classrooms/meetings
+// Lý do dùng client-side: API không hỗ trợ filter theo status
 const getFilteredItems = (items, status, page, itemsPerPage) => {
-  // Filter theo status
+  // Step 1: Filter theo status
   let filtered = items;
   if (status === "IN_SESSION") {
     filtered = items.filter(
@@ -116,13 +118,13 @@ const getFilteredItems = (items, status, page, itemsPerPage) => {
     );
   }
 
-  // Apply pagination
+  // Step 2: Apply client-side pagination trên filtered data
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
   return {
-    items: filtered.slice(startIndex, endIndex),
-    total: filtered.length,
+    items: filtered.slice(startIndex, endIndex), // Paginated items
+    total: filtered.length, // Total items AFTER filtering
   };
 };
 
@@ -331,31 +333,61 @@ const TutorClassroomPage = () => {
   const [showMeetingView, setShowMeetingView] = useState(false);
   const [currentClassroomForMeetings, setCurrentClassroomForMeetings] =
     useState(null);
-  const [activeMeetingTab, setActiveMeetingTab] = useState("IN_SESSION");
+  const [activeMeetingTab, setActiveMeetingTab] = useState("ENDED"); // Default to ENDED since all current meetings are ENDED
   const [activeClassroomTab, setActiveClassroomTab] = useState("IN_SESSION");
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-
   const fetchTutorClassrooms = useCallback(
-    async (page = 1) => {
+    async (page = 1, forceRefresh = false) => {
       if (!currentUser?.userId) {
         setError("Không tìm thấy thông tin người dùng.");
         return;
       }
+
+      // OPTIMIZATION: Skip API call if we already have cached data (unless forced refresh)
+      if (!forceRefresh && allClassrooms.length > 0) {
+        console.log("📋 Using cached classroom data for client-side filtering");
+
+        const result = getFilteredItems(
+          allClassrooms,
+          activeClassroomTab,
+          page,
+          itemsPerPage
+        );
+
+        setClassrooms(result.items);
+        setTotalClassrooms(result.total);
+        setCurrentPage(page);
+
+        console.log(
+          `📊 Client-side filtering from cache for status '${activeClassroomTab}':`,
+          `${result.items.length} of ${result.total} items on page ${page}`
+        );
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 
       try {
-        // Build query parameters - fetch ALL classrooms for accurate filtering
+        // OPTIMIZATION STRATEGY:
+        // Khi filter theo status (IN_SESSION/ENDED), server-side pagination không hữu ích
+        // vì backend không hỗ trợ filter status. Thay vào đó:
+        // 1. Fetch ALL classrooms trong 1 request (rpp=1000)
+        // 2. Cache data để tránh fetch lại khi đổi tab/page
+        // 3. Client-side filter + pagination từ cached data
         const queryParams = {
-          page: 1, // Always fetch from page 1
-          rpp: 1000, // Large number to get all classrooms
-          // Remove include parameter as API doesn't support it properly
+          page: 1, // Always fetch from page 1 to get all data
+          rpp: 1000, // Large number to ensure we get ALL classrooms
+          // NOTE: Backend API doesn't support status filtering
         };
 
         console.log(
-          "🔍 Fetching all tutor classrooms for client-side filtering and accurate pagination"
+          "🔍 Fetching ALL tutor classrooms (one-time fetch for caching)"
+        );
+        console.log(
+          "📊 Strategy: Fetch once → Cache → Client-side filter/paginate"
         );
 
         const response = await Api({
@@ -364,7 +396,6 @@ const TutorClassroomPage = () => {
           query: queryParams,
           requireToken: true,
         });
-
         if (
           response.success &&
           response.data &&
@@ -372,29 +403,13 @@ const TutorClassroomPage = () => {
         ) {
           const allClassroomsData = response.data.items;
           console.log(
-            `✅ Fetched ${allClassroomsData.length} total tutor classrooms from server`
+            `✅ Fetched and cached ${allClassroomsData.length} total tutor classrooms`
           );
 
-          // Debug: Log first classroom to see structure
-          if (allClassroomsData.length > 0) {
-            console.log(
-              "🔍 DEBUG - First classroom structure:",
-              allClassroomsData[0]
-            );
-            console.log(
-              "🔍 DEBUG - First classroom user:",
-              allClassroomsData[0]?.user
-            );
-            console.log(
-              "🔍 DEBUG - First classroom tutor:",
-              allClassroomsData[0]?.tutor
-            );
-          }
-
-          // Store all classrooms for filtering
+          // Cache all classrooms for subsequent filtering operations
           setAllClassrooms(allClassroomsData);
 
-          // Apply client-side filtering based on active tab
+          // Apply client-side filtering for current tab
           const result = getFilteredItems(
             allClassroomsData,
             activeClassroomTab,
@@ -403,15 +418,18 @@ const TutorClassroomPage = () => {
           );
 
           setClassrooms(result.items);
-          setTotalClassrooms(result.total); // Set total for current filter
+          setTotalClassrooms(result.total); // Total AFTER filtering by status
           setCurrentPage(page);
 
           console.log(
-            `📊 Filtered classrooms for tab ${activeClassroomTab}:`,
-            result.total
+            `📊 Initial client-side filtering results for status '${activeClassroomTab}':`
           );
           console.log(
-            `📄 Page ${page}: Showing ${result.items.length} of ${result.total} filtered classrooms`
+            `   📈 Total classrooms cached: ${allClassroomsData.length}`
+          );
+          console.log(`   🔍 Filtered by status: ${result.total}`);
+          console.log(
+            `   📄 Page ${page}: Showing ${result.items.length} of ${result.total} filtered items`
           );
         } else {
           console.log("❌ API response invalid or empty");
@@ -432,7 +450,7 @@ const TutorClassroomPage = () => {
         setIsLoading(false);
       }
     },
-    [currentUser?.userId, activeClassroomTab, itemsPerPage]
+    [currentUser?.userId, allClassrooms, activeClassroomTab, itemsPerPage]
   );
   // Auto-open modal after returning from Zoom OAuth
   useEffect(() => {
@@ -514,34 +532,107 @@ const TutorClassroomPage = () => {
         try {
           setIsMeetingLoading(true);
 
-          const queryParams = {
+          console.log(
+            "🔍 TUTOR DEBUG - Restoring meeting view using meeting/get-meeting API"
+          );
+
+          // Use meeting/get-meeting API for consistency with main handleEnterClassroom function
+          const requestData = {
             classroomId: decodeURIComponent(classroomId),
-            page: 1,
-            rpp: 1000,
-            sort: JSON.stringify([{ key: "startTime", type: "DESC" }]),
           };
 
           const response = await Api({
-            endpoint: "meeting/search",
-            method: METHOD_TYPE.GET,
-            query: queryParams,
-            requireToken: false,
+            endpoint: "meeting/get-meeting",
+            method: METHOD_TYPE.POST,
+            data: requestData,
+            requireToken: true,
           });
+          console.log(
+            "🔍 TUTOR DEBUG - meeting/get-meeting restore response:",
+            response
+          );
+          console.log(
+            "🔍 TUTOR DEBUG - Full restore response structure:",
+            JSON.stringify(response, null, 2)
+          ); // Check for data in the correct path: response.data.result.items
+          let allMeetingsData = [];
+          if (response.success) {
+            if (
+              response.data &&
+              response.data.result &&
+              response.data.result.items
+            ) {
+              allMeetingsData = response.data.result.items;
+              console.log(
+                "✅ TUTOR DEBUG - Restored meetings from response.data.result.items:",
+                allMeetingsData.length
+              );
+            } else if (response.result && response.result.items) {
+              allMeetingsData = response.result.items;
+              console.log(
+                "✅ TUTOR DEBUG - Restored meetings from response.result.items (fallback):",
+                allMeetingsData.length
+              );
+            } else if (response.data && response.data.items) {
+              allMeetingsData = response.data.items;
+              console.log(
+                "✅ TUTOR DEBUG - Restored meetings from response.data.items (fallback 2):",
+                allMeetingsData.length
+              );
+            } else {
+              console.log(
+                "⚠️ TUTOR DEBUG - No items found in response.data.result.items, response.result.items, or response.data.items during restore"
+              );
+              console.log(
+                "🔍 TUTOR DEBUG - Available restore response keys:",
+                Object.keys(response)
+              );
+            }
 
-          if (response.success && response.data) {
-            const allMeetingsData = response.data.items || [];
-            setAllMeetings(allMeetingsData);
+            if (allMeetingsData.length > 0) {
+              setAllMeetings(allMeetingsData);
 
-            const result = getFilteredItems(
-              allMeetingsData,
-              activeMeetingTab,
-              1,
-              meetingsPerPage
+              const result = getFilteredItems(
+                allMeetingsData,
+                activeMeetingTab,
+                1,
+                meetingsPerPage
+              );
+
+              setMeetingList(result.items);
+              setTotalMeetings(result.total);
+              setCurrentMeetingPage(1);
+              setCurrentClassroomForMeetings({
+                classroomId: decodeURIComponent(classroomId),
+                classroomName: decodeURIComponent(classroomName),
+                nameOfRoom: decodeURIComponent(classroomName),
+              });
+              setShowMeetingView(true);
+              setShowClassroomDetail(false);
+            } else {
+              console.log(
+                "⚠️ TUTOR DEBUG - No meetings found during restore, showing empty view"
+              );
+              // If no data, still show the meeting view but empty
+              setMeetingList([]);
+              setAllMeetings([]);
+              setTotalMeetings(0);
+              setCurrentClassroomForMeetings({
+                classroomId: decodeURIComponent(classroomId),
+                classroomName: decodeURIComponent(classroomName),
+                nameOfRoom: decodeURIComponent(classroomName),
+              });
+              setShowMeetingView(true);
+              setShowClassroomDetail(false);
+            }
+          } else {
+            console.log(
+              "❌ TUTOR DEBUG - meeting/get-meeting restore failed, API call unsuccessful"
             );
-
-            setMeetingList(result.items);
-            setTotalMeetings(result.total);
-            setCurrentMeetingPage(1);
+            // If API call failed, still show the meeting view but empty
+            setMeetingList([]);
+            setAllMeetings([]);
+            setTotalMeetings(0);
             setCurrentClassroomForMeetings({
               classroomId: decodeURIComponent(classroomId),
               classroomName: decodeURIComponent(classroomName),
@@ -551,7 +642,10 @@ const TutorClassroomPage = () => {
             setShowClassroomDetail(false);
           }
         } catch (error) {
-          console.error("Error restoring meeting view:", error);
+          console.error(
+            "❌ TUTOR DEBUG - Error restoring meeting view:",
+            error
+          );
           // If error, fallback to main view
           setSearchParams({});
         } finally {
@@ -577,12 +671,16 @@ const TutorClassroomPage = () => {
     console.log(`📱 Initial loading of tutor classrooms`);
     fetchTutorClassrooms(1);
   }, [fetchTutorClassrooms]);
-
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= Math.ceil(totalClassrooms / itemsPerPage)) {
+    if (
+      newPage >= 1 &&
+      newPage <= Math.ceil(totalClassrooms / itemsPerPage) &&
+      newPage !== currentPage
+    ) {
+      console.log(`📄 Page change: ${currentPage} -> ${newPage}`);
       setCurrentPage(newPage);
 
-      // Apply client-side filtering and pagination using allClassrooms data
+      // OPTIMIZATION: Use cached data for client-side pagination
       if (allClassrooms.length > 0) {
         const result = getFilteredItems(
           allClassrooms,
@@ -593,95 +691,247 @@ const TutorClassroomPage = () => {
         setClassrooms(result.items);
 
         console.log(
-          `📄 Page ${newPage}: Showing ${result.items.length} of ${result.total} filtered classrooms`
+          `📄 Client-side pagination: Page ${newPage}, showing ${result.items.length} of ${result.total} filtered classrooms`
         );
       } else {
-        // Fallback to server fetch if no data
-        fetchTutorClassrooms(newPage);
+        // Fallback: fetch from server if no cached data
+        console.log("📥 No cached data available, fetching from server...");
+        fetchTutorClassrooms(newPage, true); // Force refresh
       }
     }
   };
-
   const handleClassroomTabChange = (newTab) => {
     console.log(`🔄 Tutor tab change: ${activeClassroomTab} -> ${newTab}`);
     setActiveClassroomTab(newTab);
     setCurrentPage(1); // Reset to first page when changing tabs
 
-    // Apply client-side filtering using allClassrooms data
+    // OPTIMIZATION: Use cached data for filtering instead of API call
     if (allClassrooms.length > 0) {
       const result = getFilteredItems(allClassrooms, newTab, 1, itemsPerPage);
 
       setClassrooms(result.items);
       setTotalClassrooms(result.total); // Set total for current filter
 
-      console.log(`📊 Filtered classrooms for tab ${newTab}:`, result.total);
       console.log(
-        `📄 Page 1: Showing ${result.items.length} of ${result.total} filtered classrooms`
+        `📊 Client-side tab filtering for '${newTab}': ${result.total} total, showing ${result.items.length} on page 1`
       );
     } else {
-      // No data in allClassrooms, need to fetch
-      console.log("📥 No classrooms in allClassrooms, fetching from server...");
-      fetchTutorClassrooms(1);
+      // No cached data, need to fetch from server
+      console.log("📥 No cached classrooms, fetching from server...");
+      fetchTutorClassrooms(1, true); // Force refresh
     }
   };
   const handleEnterClassroom = async (classroomId, classroomName) => {
     try {
       setIsMeetingLoading(true);
       const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
-      console.log("🔍 DEBUG - Fetching meetings with new API:", {
+      console.log("🔍 TUTOR DEBUG - Fetching meetings for classroom:", {
+        classroomId,
+        classroomName,
         endpoint: "meeting/get-meeting",
-        classroomId: classroomId,
+        timestamp: new Date().toISOString(),
       });
+
+      // Debug token
+      const token =
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken");
+      console.log("🔍 TUTOR DEBUG - Token status:", {
+        hasToken: !!token,
+        tokenLength: token ? token.length : 0,
+        tokenPreview: token ? token.substring(0, 20) + "..." : "No token",
+      });
+
       const response = await Api({
         endpoint: "meeting/get-meeting",
-        method: METHOD_TYPE.GET,
+        method: METHOD_TYPE.POST,
         data: {
           classroomId: classroomId,
         },
         requireToken: true,
       });
 
-      toast.dismiss(loadingToastId);
-
-      if (response.success && response.data) {
-        const allMeetingsData = response.data.items || [];
-        setAllMeetings(allMeetingsData);
-
-        // Apply client-side filtering based on active tab
-        const result = getFilteredItems(
-          allMeetingsData,
-          activeMeetingTab,
-          1,
-          meetingsPerPage
-        );
-
-        setMeetingList(result.items);
-        setTotalMeetings(result.total);
-        setCurrentMeetingPage(1);
-        setCurrentClassroomForMeetings({
-          classroomId,
-          classroomName,
-          nameOfRoom: classroomName,
-        });
-        setShowMeetingView(true);
-
-        // Set URL params if not already set (avoid infinite loop during restore)
+      console.log("🔍 TUTOR DEBUG - meeting/get-meeting response:", response);
+      console.log(
+        "🔍 TUTOR DEBUG - Full response structure:",
+        JSON.stringify(response, null, 2)
+      );
+      toast.dismiss(loadingToastId); // Check for data in the correct path based on API structure: response.data.result.items
+      let allMeetingsData = [];
+      if (response.success) {
         if (
-          !searchParams.get("view") ||
-          searchParams.get("view") !== "meetings"
+          response.data &&
+          response.data.result &&
+          response.data.result.items
         ) {
-          setSearchParams({
-            view: "meetings",
-            id: encodeURIComponent(classroomId),
-            name: encodeURIComponent(classroomName),
-          });
+          allMeetingsData = response.data.result.items;
+          console.log(
+            "✅ TUTOR DEBUG - Found meetings in response.data.result.items:",
+            allMeetingsData.length
+          );
+        } else if (response.result && response.result.items) {
+          allMeetingsData = response.result.items;
+          console.log(
+            "✅ TUTOR DEBUG - Found meetings in response.result.items (fallback):",
+            allMeetingsData.length
+          );
+        } else if (response.data && response.data.items) {
+          allMeetingsData = response.data.items;
+          console.log(
+            "✅ TUTOR DEBUG - Found meetings in response.data.items (fallback 2):",
+            allMeetingsData.length
+          );
+        } else {
+          console.log(
+            "⚠️ TUTOR DEBUG - No items found in response.data.result.items, response.result.items, or response.data.items"
+          );
+          console.log(
+            "🔍 TUTOR DEBUG - Available response keys:",
+            Object.keys(response)
+          );
         }
 
-        toast.success("Đã tải danh sách phòng học!");
-      } else {
-        toast.error(
-          "Không tìm thấy phòng học nào. Vui lòng tạo phòng học trước."
+        console.log(
+          "🔍 TUTOR DEBUG - Meeting data structure:",
+          allMeetingsData.length > 0 ? allMeetingsData[0] : "No meetings"
         );
+        if (allMeetingsData.length > 0) {
+          console.log(
+            "🔍 TUTOR DEBUG - Setting meetings to state:",
+            allMeetingsData.length
+          );
+          console.log(
+            "🔍 TUTOR DEBUG - Meeting statuses:",
+            allMeetingsData.map((m) => ({
+              meetingId: m.meetingId,
+              status: m.status,
+              topic: m.topic,
+            }))
+          );
+          setAllMeetings(allMeetingsData);
+
+          // CRITICAL DEBUG: Check filter operation step by step
+          console.log("🔍 TUTOR DEBUG - BEFORE FILTER OPERATION:", {
+            rawDataCount: allMeetingsData.length,
+            activeMeetingTab: activeMeetingTab,
+            activeMeetingTabType: typeof activeMeetingTab,
+            rawMeetings: allMeetingsData.map((m) => ({
+              id: m.meetingId,
+              status: m.status,
+              topic: m.topic,
+            })),
+          });
+
+          console.log("🔍 TUTOR DEBUG - FILTER CRITERIA CHECK:", {
+            tabIsENDED: activeMeetingTab === "ENDED",
+            tabIsIN_SESSION: activeMeetingTab === "IN_SESSION",
+            willFilterFor:
+              activeMeetingTab === "ENDED"
+                ? "COMPLETED || CANCELLED || ENDED"
+                : activeMeetingTab === "IN_SESSION"
+                ? "IN_SESSION || PENDING || !status"
+                : "unknown",
+            manualEndedCount: allMeetingsData.filter(
+              (m) =>
+                m.status === "COMPLETED" ||
+                m.status === "CANCELLED" ||
+                m.status === "ENDED"
+            ).length,
+            manualInSessionCount: allMeetingsData.filter(
+              (m) =>
+                m.status === "IN_SESSION" || m.status === "PENDING" || !m.status
+            ).length,
+          });
+
+          const result = getFilteredItems(
+            allMeetingsData,
+            activeMeetingTab,
+            1,
+            meetingsPerPage
+          );
+
+          console.log("🔍 TUTOR DEBUG - AFTER FILTER OPERATION:", {
+            originalCount: allMeetingsData.length,
+            filteredCount: result.items.length,
+            totalAfterFilter: result.total,
+            activeTab: activeMeetingTab,
+            resultItems: result.items.map((m) => ({
+              id: m.meetingId,
+              status: m.status,
+            })),
+            success: result.items.length > 0,
+          });
+
+          console.log("🔍 TUTOR DEBUG - Filtered result:", {
+            totalItems: allMeetingsData.length,
+            filteredItems: result.items.length,
+            activeTab: activeMeetingTab,
+            resultTotal: result.total,
+            filteringCriteria:
+              activeMeetingTab === "IN_SESSION"
+                ? "Looking for IN_SESSION, PENDING, or null status"
+                : activeMeetingTab === "ENDED"
+                ? "Looking for COMPLETED, CANCELLED, or ENDED status"
+                : "Showing all",
+            actualStatuses: allMeetingsData.map((m) => m.status),
+          });
+
+          setMeetingList(result.items);
+          setTotalMeetings(result.total);
+          setCurrentMeetingPage(1);
+          setCurrentClassroomForMeetings({
+            classroomId,
+            classroomName,
+            nameOfRoom: classroomName,
+          });
+
+          console.log("🔍 TUTOR DEBUG - About to show meeting view");
+          setShowMeetingView(true);
+
+          // Set URL params if not already set (avoid infinite loop during restore)
+          if (
+            !searchParams.get("view") ||
+            searchParams.get("view") !== "meetings"
+          ) {
+            setSearchParams({
+              view: "meetings",
+              id: encodeURIComponent(classroomId),
+              name: encodeURIComponent(classroomName),
+            });
+          }
+
+          toast.success(`Đã tải ${allMeetingsData.length} phòng học!`);
+          console.log("🔍 TUTOR DEBUG - Meeting view should now be visible");
+        } else {
+          console.log("⚠️ TUTOR DEBUG - No meetings found for this classroom");
+          setAllMeetings([]);
+          setMeetingList([]);
+          setTotalMeetings(0);
+          setCurrentMeetingPage(1);
+          setCurrentClassroomForMeetings({
+            classroomId,
+            classroomName,
+            nameOfRoom: classroomName,
+          });
+          setShowMeetingView(true);
+
+          // Set URL params even when no meetings
+          if (
+            !searchParams.get("view") ||
+            searchParams.get("view") !== "meetings"
+          ) {
+            setSearchParams({
+              view: "meetings",
+              id: encodeURIComponent(classroomId),
+              name: encodeURIComponent(classroomName),
+            });
+          }
+
+          toast.info("Chưa có phòng học nào được tạo cho lớp này.");
+        }
+      } else {
+        console.log("❌ TUTOR DEBUG - API call failed:", response);
+        toast.error("Không thể tải danh sách phòng học. Vui lòng thử lại!");
         setMeetingList([]);
         setAllMeetings([]);
         setTotalMeetings(0);
@@ -1134,8 +1384,7 @@ const TutorClassroomPage = () => {
               <i className="fas fa-arrow-left"></i>
               Quay lại danh sách lớp học
             </button>
-          </div>
-
+          </div>{" "}
           {/* Meeting Tabs */}
           <div className="tcp-meeting-tabs-container">
             <div className="tcp-meeting-tabs">
@@ -1177,7 +1426,6 @@ const TutorClassroomPage = () => {
               Tạo phòng học
             </button>{" "}
           </div>
-
           <div className="tcp-meeting-content">
             {isMeetingLoading ? (
               <div className="tcp-loading">
@@ -1188,6 +1436,7 @@ const TutorClassroomPage = () => {
               </div>
             ) : meetingList && meetingList.length > 0 ? (
               <ul className="tcp-meeting-list">
+                {" "}
                 {meetingList.map((meeting, index) => {
                   const isEnded =
                     meeting.status === "COMPLETED" ||
@@ -1312,7 +1561,6 @@ const TutorClassroomPage = () => {
               </div>
             )}
           </div>
-
           {/* Meeting Pagination */}
           {totalMeetings > meetingsPerPage && (
             <div className="tcp-meeting-pagination">
@@ -1345,11 +1593,40 @@ const TutorClassroomPage = () => {
       </div>
     );
   }
-
   // Main Classroom List View
   return (
     <div className="tutor-classroom-page">
-      <h2 className="tcp-page-title">Quản lý lớp học ({totalClassrooms})</h2>
+      <div className="tcp-header-section">
+        <h2 className="tcp-page-title">Quản lý lớp học ({totalClassrooms})</h2>
+        <button
+          className="tcp-refresh-btn"
+          onClick={() => {
+            console.log("🔄 Manual refresh triggered");
+            fetchTutorClassrooms(1, true); // Force refresh
+          }}
+          disabled={isLoading}
+          title="Làm mới dữ liệu"
+        >
+          <i className={`fas fa-sync-alt ${isLoading ? "fa-spin" : ""}`}></i>
+          {isLoading ? "Đang tải..." : "Làm mới"}
+        </button>
+      </div>
+      {/* Performance indicator for large datasets */}
+      {allClassrooms.length > 500 && (
+        <div className="tcp-performance-notice">
+          <i className="fas fa-info-circle"></i>
+          <span>
+            Đang hiển thị {allClassrooms.length} lớp học. Dữ liệu được lọc và
+            phân trang tại client để tối ưu trải nghiệm.
+            {allClassrooms.length > 1000 && (
+              <strong>
+                {" "}
+                Khuyến nghị: Liên hệ admin để tối ưu server-side filtering.
+              </strong>
+            )}
+          </span>
+        </div>
+      )}
       {/* Classroom Tabs */}
       <div className="tcp-classroom-tabs-container">
         <div className="tcp-classroom-tabs">
@@ -1377,6 +1654,21 @@ const TutorClassroomPage = () => {
               ({getCountByStatus(allClassrooms, "ENDED")})
             </span>
           </button>
+        </div>
+
+        {/* Caching status indicator */}
+        <div className="tcp-cache-status">
+          {allClassrooms.length > 0 ? (
+            <span className="tcp-cache-active">
+              <i className="fas fa-database"></i>
+              Đã cache {allClassrooms.length} lớp học
+            </span>
+          ) : (
+            <span className="tcp-cache-empty">
+              <i className="fas fa-exclamation-circle"></i>
+              Chưa có dữ liệu cache
+            </span>
+          )}
         </div>
       </div>
       {isLoading && (

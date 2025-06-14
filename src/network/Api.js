@@ -8,11 +8,11 @@ import apiLogger from "../utils/apiLogger";
  * Hàm gọi API chung - Hỗ trợ đầy đủ tất cả HTTP methods với data body.
  * @param {object} params - Tham số cho request.
  * @param {string} params.endpoint - Endpoint của API (ví dụ: 'users/search', 'auth/login').
- * @param {string} [params.method=METHOD_TYPE.GET] - Phương thức HTTP (GET, POST, PUT, DELETE, PATCH).
- * @param {object} [params.data] - Body data cho request (hỗ trợ cho TẤT CẢ methods, kể cả GET cho custom APIs).
+ * @param {string} [params.method=METHOD_TYPE.GET] - Phương thức HTTP (GET, POST, PUT, DELETE, PATCH). * @param {object} [params.data] - Body data cho request (hỗ trợ cho TẤT CẢ methods, kể cả GET cho custom APIs).
  *                                 - POST/PUT/PATCH: Dữ liệu form hoặc JSON
- *                                 - GET: Dữ liệu gửi qua body (cho custom APIs như meeting/get-meeting)
+ *                                 - GET: Dữ liệu gửi qua body (cho custom APIs còn lại)
  *                                 - DELETE: Dữ liệu xóa nếu backend yêu cầu
+ *                                 - NOTE: meeting/get-meeting đã chuyển thành POST
  * @param {object} [params.query] - Query parameters. Sẽ được nối vào URL.
  *                                  Đối với GET, axios tự xử lý params.
  *                                  Đối với các method khác, qs.stringify sẽ được dùng.
@@ -115,7 +115,7 @@ const Api = async ({
           result = await axiosClient.request({
             method: "GET",
             url: requestUrl,
-            data: data, // Body data for custom APIs (like meeting/get-meeting)
+            data: data, // Body data for custom APIs (remaining GET with body APIs)
             ...config,
           });
 

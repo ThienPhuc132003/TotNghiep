@@ -1,0 +1,303 @@
+/* Rating Modal Styles */
+.scp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.scp-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.scp-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.scp-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.scp-modal-header h3 i {
+  color: #ffc107;
+  margin-right: 8px;
+}
+
+.scp-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.scp-modal-close:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.scp-modal-body {
+  padding: 20px;
+}
+
+.scp-rating-info {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.scp-rating-info p {
+  margin: 5px 0;
+  color: #495057;
+}
+
+.scp-rating-section {
+  margin-bottom: 20px;
+}
+
+.scp-rating-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.scp-star-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.scp-rating-value {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.scp-description-section {
+  margin-bottom: 20px;
+}
+
+.scp-description-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.scp-description-section textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s ease;
+}
+
+.scp-description-section textarea:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.scp-description-section small {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.scp-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.scp-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.scp-btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.scp-btn-secondary:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.scp-btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.scp-btn-primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* Meeting Rating Styles */
+.scp-meeting-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.scp-meeting-rating {
+  width: 100%;
+}
+
+.scp-rating-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.scp-rating-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.scp-rating-text {
+  font-size: 0.85rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.scp-rating-btn {
+  background: linear-gradient(135deg, #ffc107, #ff8f00);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+}
+
+.scp-rating-btn:hover {
+  background: linear-gradient(135deg, #e0a800, #e68900);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.scp-rating-btn i {
+  font-size: 0.9rem;
+}
+
+/* Star Rating Component Styles */
+.star {
+  display: inline-block;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.star.clickable:hover {
+  color: #ffb300 !important;
+  transform: scale(1.1);
+}
+
+.star.filled {
+  color: #ffc107 !important;
+}
+
+.star.half-filled {
+  background: linear-gradient(90deg, #ffc107 50%, #e4e5e9 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.star.readonly {
+  cursor: default;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scp-modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+
+  .scp-modal-header,
+  .scp-modal-body,
+  .scp-modal-footer {
+    padding: 15px;
+  }
+
+  .scp-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .scp-star-rating {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Animation */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scp-modal-content {
+  animation: modalFadeIn 0.2s ease-out;
+}

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Rating Functionality - Student Classroom</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-steps {
+        background-color: #e3f2fd;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+      .test-steps h3 {
+        color: #1976d2;
+        margin-top: 0;
+      }
+      .step {
+        margin: 10px 0;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 4px;
+        border-left: 4px solid #2196f3;
+      }
+      .checklist {
+        background-color: #f3e5f5;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+      .checklist h3 {
+        color: #7b1fa2;
+        margin-top: 0;
+      }
+      .check-item {
+        margin: 8px 0;
+        padding: 6px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 4px;
+      }
+      .check-item input[type="checkbox"] {
+        margin-right: 10px;
+        transform: scale(1.2);
+      }
+      .api-info {
+        background-color: #e8f5e8;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+      .api-info h3 {
+        color: #388e3c;
+        margin-top: 0;
+      }
+      .code-block {
+        background: #263238;
+        color: #eeffff;
+        padding: 12px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+      .warning {
+        background-color: #fff3e0;
+        border: 1px solid #ffb74d;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      .success {
+        background-color: #e8f5e8;
+        border: 1px solid #81c784;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 15px 0;
+      }
+      .feature-summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .url-link {
+        display: inline-block;
+        background: #2196f3;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        margin: 10px 5px;
+      }
+      .url-link:hover {
+        background: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="feature-summary">
+      <h1>🌟 Test Chức Năng Rating Phòng Học - Student</h1>
+      <p>
+        Kiểm tra toàn bộ luồng đánh giá phòng học cho học viên sau khi hoàn
+        thành meeting
+      </p>
+      <p>
+        <strong>✅ Hoàn thành:</strong> State management, UI components, API
+        integration, validation
+      </p>
+      <p>
+        <strong>🔄 Cần test:</strong> End-to-end rating flow, UI/UX, data
+        persistence
+      </p>
+    </div>
+
+    <div class="test-container">
+      <h2>🚀 Quick Access Links</h2>
+      <a href="http://localhost:5174" class="url-link" target="_blank">
+        🏠 Application Home
+      </a>
+      <a href="http://localhost:5174/login" class="url-link" target="_blank">
+        🔐 Login Page
+      </a>
+      <a
+        href="http://localhost:5174/student-classroom"
+        class="url-link"
+        target="_blank"
+      >
+        🎓 Student Classroom
+      </a>
+    </div>
+
+    <div class="test-container">
+      <div class="test-steps">
+        <h3>📋 Test Steps - Luồng Rating Phòng Học</h3>
+
+        <div class="step">
+          <strong>Step 1:</strong> Đăng nhập với tài khoản học viên
+          <div class="code-block">
+            Truy cập: http://localhost:5174/login Đăng nhập với role: student
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Step 2:</strong> Truy cập trang lớp học của học viên
+          <div class="code-block">
+            URL: http://localhost:5174/student-classroom Kiểm tra: Hiển thị danh
+            sách lớp học (tabs: Đang hoạt động / Đã kết thúc)
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Step 3:</strong> Xem meetings của một lớp học
+          <div class="code-block">
+            Click: "Xem danh sách phòng học" trên bất kỳ classroom nào Verify:
+            Meetings hiển thị từ API meeting/get-meeting Path:
+            response.data.result.items (đã fix)
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Step 4:</strong> Kiểm tra nút đánh giá
+          <div class="code-block">
+            Nếu classroom.isRating = false: Hiển thị nút "Đánh giá" Nếu
+            classroom.isRating = true: Hiển thị số sao đã đánh giá
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Step 5:</strong> Test Rating Modal
+          <div class="code-block">
+            Click nút "Đánh giá" → Rating Modal xuất hiện Verify: Meeting info,
+            tutor info, star rating (hỗ trợ nửa sao) Verify: Description
+            textarea với validation
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Step 6:</strong> Submit Rating
+          <div class="code-block">
+            Chọn số sao (1-5, hỗ trợ nửa sao) Nhập mô tả đánh giá Click "Gửi
+            đánh giá" Verify: API call to
+            classroom-assessment/create/:classroomId
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Step 7:</strong> Verify Results
+          <div class="code-block">
+            Verify: Toast success message Verify: Modal closes Verify: Classroom
+            list refreshes Verify: isRating flag updates to true Verify: Star
+            rating hiển thị thay vì nút rating
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <div class="checklist">
+        <h3>✅ Feature Checklist</h3>
+
+        <div class="check-item">
+          <input type="checkbox" id="check1" checked />
+          <label for="check1"
+            >State management cho rating modal (showRatingModal,
+            selectedMeetingForRating, etc.)</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check2" checked />
+          <label for="check2"
+            >StarRating component với hỗ trợ nửa sao và readonly mode</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check3" checked />
+          <label for="check3"
+            >RatingModal component với validation và loading states</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check4" checked />
+          <label for="check4"
+            >CSS styling cho modal và star rating (RatingModal.style.css)</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check5" checked />
+          <label for="check5"
+            >Meeting display fix (response.data.result.items path)</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check6" checked />
+          <label for="check6"
+            >Rating functions: handleOpenRatingModal, handleSubmitRating,
+            etc.</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check7" />
+          <label for="check7"
+            >⏳ End-to-end testing: từ click rating button đến API
+            success</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check8" />
+          <label for="check8"
+            >⏳ UI/UX testing: modal responsive, star animation, validation
+            feedback</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check9" />
+          <label for="check9"
+            >⏳ Data persistence: classroom list refresh sau khi rating</label
+          >
+        </div>
+
+        <div class="check-item">
+          <input type="checkbox" id="check10" />
+          <label for="check10"
+            >⏳ Edge case testing: validation errors, API errors, network
+            issues</label
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <div class="api-info">
+        <h3>🔌 API Information</h3>
+
+        <h4>Rating Submission API:</h4>
+        <div class="code-block">
+          POST /classroom-assessment/create/:classroomId Headers: Authorization:
+          Bearer {token} Body: { "tutorId": "string", "classroomEvaluation":
+          number, // 1-5, hỗ trợ 0.5 "description": "string", "meetingId":
+          "string" }
+        </div>
+
+        <h4>Expected Response:</h4>
+        <div class="code-block">
+          { "success": true, "message": "Rating submitted successfully", "data":
+          { ... } }
+        </div>
+
+        <h4>Meeting Data Source:</h4>
+        <div class="code-block">
+          GET /meeting/get-meeting?classroomId={id} Response Path:
+          response.data.result.items
+        </div>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <div class="warning">
+        <h3>⚠️ Known Issues & Notes</h3>
+        <ul>
+          <li>
+            Build script có vấn đề với rm command trên Windows (not critical for
+            dev)
+          </li>
+          <li>Props validation warning cho StarRating đã được fix</li>
+          <li>
+            Parameter 'classroom' trong handleViewMeetings được sử dụng nhưng
+            lint báo warning
+          </li>
+          <li>Dev server chạy trên port 5174 (5173 đã bị sử dụng)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <div class="success">
+        <h3>🎯 Test Objectives</h3>
+        <ol>
+          <li>
+            <strong>Functional Testing:</strong> Rating workflow hoạt động từ
+            đầu đến cuối
+          </li>
+          <li>
+            <strong>UI Testing:</strong> Modal, star rating, form validation
+            hiển thị đúng
+          </li>
+          <li>
+            <strong>API Testing:</strong> POST request gửi đúng data, handle
+            response
+          </li>
+          <li>
+            <strong>State Management:</strong> Component state update đúng sau
+            rating
+          </li>
+          <li>
+            <strong>Data Persistence:</strong> Classroom list refresh và hiển
+            thị isRating = true
+          </li>
+          <li>
+            <strong>UX Testing:</strong> Loading states, success feedback, error
+            handling
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h3>🐛 Debug Console Commands</h3>
+      <p>Mở browser console và sử dụng các commands sau để debug:</p>
+
+      <div class="code-block">
+        // Kiểm tra state của rating modal console.log("Rating Modal State:", {
+        showRatingModal: window.ratingState?.showRatingModal, selectedMeeting:
+        window.ratingState?.selectedMeetingForRating, classroom:
+        window.ratingState?.currentClassroomForRating }); // Mock rating
+        submission để test UI const mockRating = { tutorId: "test-tutor-id",
+        classroomEvaluation: 4.5, description: "Test rating description",
+        meetingId: "test-meeting-id" }; console.log("Mock Rating Data:",
+        mockRating); // Check local storage for authentication console.log("Auth
+        Token:", localStorage.getItem('token')); console.log("User Profile:",
+        JSON.parse(localStorage.getItem('userProfile') || '{}'));
+      </div>
+    </div>
+
+    <script>
+      // Add some interactive functionality
+      document
+        .querySelectorAll('.check-item input[type="checkbox"]')
+        .forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            const label = this.nextElementSibling;
+            if (this.checked) {
+              label.style.textDecoration = "line-through";
+              label.style.opacity = "0.7";
+            } else {
+              label.style.textDecoration = "none";
+              label.style.opacity = "1";
+            }
+          });
+        });
+
+      // Initialize already checked items
+      document
+        .querySelectorAll('.check-item input[type="checkbox"]:checked')
+        .forEach((checkbox) => {
+          const label = checkbox.nextElementSibling;
+          label.style.textDecoration = "line-through";
+          label.style.opacity = "0.7";
+        });
+
+      // Add click to copy functionality for code blocks
+      document.querySelectorAll(".code-block").forEach((block) => {
+        block.style.cursor = "pointer";
+        block.title = "Click to copy";
+        block.addEventListener("click", function () {
+          navigator.clipboard.writeText(this.textContent).then(() => {
+            const originalBg = this.style.backgroundColor;
+            this.style.backgroundColor = "#4caf50";
+            setTimeout(() => {
+              this.style.backgroundColor = originalBg;
+            }, 500);
+          });
+        });
+      });
+
+      console.log("🌟 Rating Test Guide Loaded");
+      console.log("📝 Click any code block to copy to clipboard");
+      console.log("✅ Check off completed test items");
+    </script>
+  </body>
+</html>
