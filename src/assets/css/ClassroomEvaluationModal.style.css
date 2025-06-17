@@ -94,8 +94,19 @@
 
 .rating-stars {
   display: flex;
-  gap: 5px;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 8px;
+}
+
+.rating-stars > div {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.rating-stars svg {
+  display: inline-block !important;
+  margin-right: 2px !important;
 }
 
 .star {
@@ -116,6 +127,14 @@
 .star:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.rating-value {
+  font-size: 1.1rem;
+  color: #333;
+  margin-left: 8px;
+  font-weight: 500;
+  min-width: 60px;
 }
 
 .rating-text {
@@ -206,6 +225,290 @@
   opacity: 0.6;
 }
 
+/* Custom Star Rating Styles - Override all possible conflicts */
+.custom-star-rating {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+
+.custom-star-rating * {
+  box-sizing: border-box !important;
+}
+
+.custom-star-rating .star-icon {
+  font-size: 32px !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  user-select: none !important;
+  transition: transform 0.1s ease !important;
+  font-family: inherit !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  vertical-align: baseline !important;
+  text-align: left !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  white-space: normal !important;
+  direction: ltr !important;
+  -webkit-font-smoothing: auto !important;
+  -moz-osx-font-smoothing: auto !important;
+  text-rendering: auto !important;
+  -webkit-text-stroke: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  transform-origin: center !important;
+  overflow: visible !important;
+  clip: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: auto !important;
+  position: static !important;
+  float: none !important;
+  clear: none !important;
+}
+
+.custom-star-rating .star-icon.interactive:hover {
+  transform: scale(1.1) !important;
+}
+
+.custom-star-rating .star-icon.readonly {
+  cursor: default !important;
+}
+
+/* Force reset any global star/icon styles */
+.evaluation-modal-content .custom-star-rating .star-icon,
+.evaluation-modal-content .custom-star-rating .star-icon:before,
+.evaluation-modal-content .custom-star-rating .star-icon:after {
+  content: none !important;
+  display: inline-block !important;
+  font-family: inherit !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  line-height: 1 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Star Rating Container - Completely isolated from other CSS */
+.star-rating-container {
+  all: initial !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-family: Arial, sans-serif !important;
+  isolation: isolate !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.star-rating-container * {
+  all: unset !important;
+  box-sizing: border-box !important;
+}
+
+.star-rating-container > div {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+  width: 32px !important;
+  height: 32px !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transition: transform 0.1s ease !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* React Rating Stars Component Styles */
+.rating-stars-component {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.rating-stars-component > span {
+  display: inline-block !important;
+  cursor: pointer !important;
+  transition: transform 0.1s ease !important;
+  line-height: 1 !important;
+  font-size: 32px !important;
+  position: relative !important;
+  overflow: visible !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.rating-stars-component > span:hover {
+  transform: scale(1.1) !important;
+}
+
+/* Fix for half star rendering */
+.rating-stars-component > span::before,
+.rating-stars-component > span::after {
+  content: none !important;
+}
+
+.rating-stars-component > span {
+  color: inherit !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: none !important;
+}
+
+/* Ensure clean star rendering */
+.rating-stars .rating-stars-component * {
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+}
+
+.rating-stars {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+.rating-value {
+  font-size: 1.1rem !important;
+  color: #333 !important;
+  margin-left: 8px !important;
+  font-weight: 500 !important;
+  min-width: 60px !important;
+}
+
+/* Critical Override: Disable all clip-path CSS that causes star splitting */
+.evaluation-modal-content *,
+.evaluation-modal-content *::before,
+.evaluation-modal-content *::after {
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+}
+
+/* Specific override for problematic SCP star classes */
+.evaluation-modal-content .scp-star-half,
+.evaluation-modal-content .scp-star-left,
+.evaluation-modal-content .scp-star-right,
+.evaluation-modal-content .scp-star-wrapper {
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  display: none !important; /* Completely hide these problematic classes */
+}
+
+/* Ensure star rating libraries are completely isolated */
+.evaluation-modal-content .rating-stars-component,
+.evaluation-modal-content .rating-stars-component *,
+.evaluation-modal-content .custom-react-stars,
+.evaluation-modal-content .custom-react-stars *,
+.evaluation-modal-content .star-rating-container,
+.evaluation-modal-content .star-rating-container * {
+  all: revert !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  position: static !important;
+  overflow: visible !important;
+  display: inline-block !important;
+  width: auto !important;
+  height: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  mask: none !important;
+  -webkit-mask: none !important;
+}
+
+/* Force clean star rendering for react-rating-stars-component */
+.evaluation-modal-content .rating-stars-component > span {
+  display: inline-block !important;
+  position: relative !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  color: inherit !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: none !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  overflow: visible !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 2px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  cursor: pointer !important;
+  transition: transform 0.1s ease !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+.evaluation-modal-content .rating-stars-component > span:hover {
+  transform: scale(1.1) !important;
+}
+
+/* Ensure no pseudo-elements interfere */
+.evaluation-modal-content .rating-stars-component > span::before,
+.evaluation-modal-content .rating-stars-component > span::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Additional safety: override any global icon fonts */
+.evaluation-modal-content .rating-stars-component [class*="fa-"],
+.evaluation-modal-content .rating-stars-component [class*="icon-"],
+.evaluation-modal-content .rating-stars-component [class*="star"] {
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  font-family: inherit !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .evaluation-modal-content {
@@ -229,5 +532,10 @@
 
   .rating-stars {
     justify-content: center;
+  }
+
+  /* Mobile star size adjustment */
+  .evaluation-modal-content .rating-stars-component > span {
+    font-size: 28px !important;
   }
 }

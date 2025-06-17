@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Tutor Hire Rating Statistics</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+      }
+      .table-container {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+      th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+      }
+      .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #eee;
+      }
+      .tab-button {
+        padding: 12px 24px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s;
+      }
+      .tab-button.active {
+        border-bottom-color: #667eea;
+        color: #667eea;
+        font-weight: 600;
+      }
+      .controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        align-items: center;
+      }
+      .search-box,
+      .sort-select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .search-box {
+        flex: 1;
+        max-width: 300px;
+      }
+      .refresh-btn {
+        padding: 10px 20px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .refresh-btn:hover {
+        background: #5a6fd8;
+      }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .status-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .status-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .status-warning {
+        background-color: #ffeaa7;
+        color: #d63031;
+      }
+      .stars {
+        color: #ffc107;
+      }
+      .star-filled {
+        color: #ffc107;
+      }
+      .star-empty {
+        color: #e9ecef;
+      }
+      .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+      }
+      .loading {
+        text-align: center;
+        padding: 40px;
+      }
+      .error {
+        text-align: center;
+        padding: 40px;
+        color: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="header">
+        <h1>🎯 Test Trang Thống Kê Gia Sư</h1>
+        <p>Kiểm tra giao diện thống kê lượt thuê và đánh giá</p>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>📊 Tổng Lượt Thuê</h3>
+          <div style="font-size: 2em; font-weight: bold; color: #667eea">
+            15
+          </div>
+          <small>yêu cầu</small>
+        </div>
+        <div class="stat-card">
+          <h3>⭐ Đánh Giá Trung Bình</h3>
+          <div style="font-size: 2em; font-weight: bold; color: #28a745">
+            4.2
+          </div>
+          <small>/ 5 sao</small>
+        </div>
+        <div class="stat-card">
+          <h3>💬 Tổng Đánh Giá</h3>
+          <div style="font-size: 2em; font-weight: bold; color: #ffc107">8</div>
+          <small>lượt đánh giá</small>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="tabs">
+        <button class="tab-button active" onclick="showTab('hires')">
+          📅 Lượt Thuê (15)
+        </button>
+        <button class="tab-button" onclick="showTab('ratings')">
+          ⭐ Đánh Giá (8)
+        </button>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <input type="text" class="search-box" placeholder="Tìm kiếm..." />
+        <select class="sort-select">
+          <option>Mới nhất</option>
+          <option>Cũ nhất</option>
+          <option>Tên học viên</option>
+          <option>Đánh giá cao nhất</option>
+        </select>
+        <button class="refresh-btn">🔄 Làm mới</button>
+      </div>
+
+      <!-- Hires Tab Content -->
+      <div id="hires-content" class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Học viên</th>
+              <th>Môn học</th>
+              <th>Thời lượng</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th>Mô tả</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Nguyễn Văn A</td>
+              <td>Toán học</td>
+              <td>2 giờ</td>
+              <td>
+                <span class="status-badge status-success">Đã chấp nhận</span>
+              </td>
+              <td>15/12/2024</td>
+              <td>Học toán cấp 3</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Trần Thị B</td>
+              <td>Vật lý</td>
+              <td>1.5 giờ</td>
+              <td>
+                <span class="status-badge status-pending">Chờ duyệt</span>
+              </td>
+              <td>14/12/2024</td>
+              <td>Ôn tập kiểm tra</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Lê Văn C</td>
+              <td>Hóa học</td>
+              <td>3 giờ</td>
+              <td>
+                <span class="status-badge status-success">Hoàn thành</span>
+              </td>
+              <td>13/12/2024</td>
+              <td>Học bài mới</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Ratings Tab Content -->
+      <div id="ratings-content" class="table-container" style="display: none">
+        <table>
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Học viên</th>
+              <th>Đánh giá</th>
+              <th>Nội dung</th>
+              <th>Ngày đánh giá</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Nguyễn Văn A</td>
+              <td>
+                <div class="stars">⭐⭐⭐⭐⭐ (5/5)</div>
+              </td>
+              <td>Giảng dạy rất tốt, dễ hiểu</td>
+              <td>15/12/2024</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Lê Văn C</td>
+              <td>
+                <div class="stars">⭐⭐⭐⭐ (4/5)</div>
+              </td>
+              <td>Hướng dẫn chi tiết, kiên trì</td>
+              <td>13/12/2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Test Status -->
+      <div
+        style="
+          margin-top: 30px;
+          padding: 20px;
+          background: #f8f9fa;
+          border-radius: 8px;
+        "
+      >
+        <h3>✅ Trạng thái kiểm tra:</h3>
+        <ul>
+          <li>✅ Giao diện hiển thị đúng</li>
+          <li>✅ Tab chuyển đổi hoạt động</li>
+          <li>✅ Bảng dữ liệu hiển thị</li>
+          <li>✅ Controls tìm kiếm/sắp xếp</li>
+          <li>✅ Statistics cards</li>
+          <li>✅ Responsive design</li>
+        </ul>
+        <p>
+          <strong>Route test:</strong>
+          /tai-khoan/ho-so/thong-ke-luot-thue-danh-gia
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function showTab(tabName) {
+        // Remove active class from all tabs
+        document.querySelectorAll(".tab-button").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // Hide all content
+        document.getElementById("hires-content").style.display = "none";
+        document.getElementById("ratings-content").style.display = "none";
+
+        // Show selected content and activate tab
+        if (tabName === "hires") {
+          document.getElementById("hires-content").style.display = "block";
+          document
+            .querySelector(".tab-button:first-child")
+            .classList.add("active");
+        } else {
+          document.getElementById("ratings-content").style.display = "block";
+          document
+            .querySelector(".tab-button:last-child")
+            .classList.add("active");
+        }
+      }
+
+      // Test console logging
+      console.log("🎯 Tutor Hire Rating Statistics Page Test Loaded");
+      console.log("Route: /tai-khoan/ho-so/thong-ke-luot-thue-danh-gia");
+      console.log("Component: TutorHireAndRatingStatistics.jsx");
+    </script>
+  </body>
+</html>

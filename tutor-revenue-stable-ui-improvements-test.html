@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Cải thiện UI TutorRevenueStable</title>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f8fafc;
+      }
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 8px;
+      }
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+      .checklist li {
+        margin: 12px 0;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+      .checklist li::before {
+        content: "✓";
+        color: #10b981;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+      .highlight {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px 0;
+      }
+      .stats-demo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin: 16px 0;
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+        padding: 12px;
+        border-radius: 12px;
+        border-left: 4px solid #48bb78;
+        text-align: center;
+      }
+      .stat-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #1e293b;
+      }
+      .table-demo {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 0.9rem;
+      }
+      .table-demo th,
+      .table-demo td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .table-demo th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+      .student-info-demo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 4px;
+      }
+      .avatar-demo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+      .student-details-demo {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        overflow: hidden;
+        flex: 1;
+      }
+      .student-name-demo {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+      }
+      .student-id-demo {
+        font-size: 0.75rem;
+        color: #718096;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .count-badge-demo {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        display: inline-block;
+        margin: 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="highlight">
+        <h1>🎯 Test Cải thiện UI TutorRevenueStable</h1>
+        <p>
+          Kiểm tra các cải tiến về giao diện và trải nghiệm người dùng cho trang
+          thống kê doanh thu gia sư
+        </p>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">📊 1. Kiểm tra Statistics Cards (Đã thu nhỏ)</h2>
+        <p>
+          <strong>Yêu cầu:</strong> Cards nhỏ lại, bỏ dòng mô tả phụ, font size
+          nhỏ hơn
+        </p>
+
+        <div class="stats-demo">
+          <div class="stat-card">
+            <div class="stat-label">Nhận Xu</div>
+            <div class="stat-value">2,430 Xu</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Số giao dịch</div>
+            <div class="stat-value">1</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Học sinh</div>
+            <div class="stat-value">1</div>
+          </div>
+        </div>
+
+        <ul class="checklist">
+          <li>
+            <strong>Đổi "Tổng doanh thu nhận" thành "Nhận Xu"</strong> - Ngắn
+            gọn hơn
+          </li>
+          <li>
+            <strong>Bỏ dòng mô tả phụ</strong> ("Số xu gia sư nhận được", "Giao
+            dịch hoàn thành", "Học sinh đã thanh toán")
+          </li>
+          <li>
+            <strong>Thu nhỏ kích thước cards</strong> - padding nhỏ hơn,
+            min-height thấp hơn
+          </li>
+          <li>
+            <strong>Font size nhỏ hơn</strong> - label 0.8rem, value 1.8rem thay
+            vì 2.5rem
+          </li>
+          <li><strong>Icon nhỏ hơn</strong> - 45px thay vì 60px</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">
+          🏷️ 2. Kiểm tra Count Badge (Số giao dịch nổi bật)
+        </h2>
+        <p>
+          <strong>Yêu cầu:</strong> Số giao dịch hiển thị rõ ràng bên cạnh "Chi
+          tiết giao dịch"
+        </p>
+
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 16px 0;
+          "
+        >
+          <span style="font-size: 1.4rem; font-weight: 700">
+            📋 Chi tiết Giao dịch
+          </span>
+          <span class="count-badge-demo">1 giao dịch</span>
+        </div>
+
+        <ul class="checklist">
+          <li>
+            <strong>Thay đổi từ (1 giao dịch) thành badge nổi bật</strong>
+          </li>
+          <li>
+            <strong>Background gradient xanh lam</strong> - tương tự theme chính
+          </li>
+          <li><strong>Border trắng</strong> - tạo contrast đẹp</li>
+          <li><strong>Box shadow</strong> - hiệu ứng 3D nhẹ</li>
+          <li><strong>Hover effect</strong> - translateY khi hover</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">👥 3. Kiểm tra Student Info (Sửa bị cắt)</h2>
+        <p>
+          <strong>Yêu cầu:</strong> Sửa ô học sinh bị mất một khúc, đảm bảo hiển
+          thị đầy đủ
+        </p>
+
+        <table class="table-demo">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th style="width: 250px">Học sinh</th>
+              <th>Xu gia sư nhận</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>
+                <div class="student-info-demo">
+                  <div class="avatar-demo">A</div>
+                  <div class="student-details-demo">
+                    <div class="student-name-demo">
+                      Nguyễn Văn An (Tên dài để test)
+                    </div>
+                    <div class="student-id-demo">ID: 12345</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-weight: 600; color: #22543d">2,430 Xu</td>
+              <td>✅ Hoàn thành</td>
+              <td>17/06/2025</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ul class="checklist">
+          <li>
+            <strong>Width cố định cho cột học sinh</strong> - 250px min-width
+          </li>
+          <li>
+            <strong>overflow: hidden cho student-details</strong> - tránh tràn
+          </li>
+          <li>
+            <strong>text-overflow: ellipsis</strong> - hiện "..." khi text dài
+          </li>
+          <li>
+            <strong>max-width tăng lên 200px</strong> - cho phép text dài hơn
+          </li>
+          <li>
+            <strong>padding: 4px cho student-info</strong> - tạo khoảng trống
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">📱 4. Kiểm tra Responsive Design</h2>
+        <p>
+          <strong>Yêu cầu:</strong> Đảm bảo layout đẹp trên mobile và tablet
+        </p>
+
+        <ul class="checklist">
+          <li>
+            <strong
+              >Mobile (≤768px): grid-template-columns minmax(160px, 1fr)</strong
+            >
+          </li>
+          <li><strong>Gaps nhỏ hơn: 8px thay vì 12px</strong></li>
+          <li>
+            <strong>Cards nhỏ hơn: min-height 60px, max-height 80px</strong>
+          </li>
+          <li><strong>Icons nhỏ hơn: 35px thay vì 45px</strong></li>
+          <li>
+            <strong>Font sizes nhỏ hơn: label 0.7rem, value 1.4rem</strong>
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">✅ 5. Checklist Tổng hợp</h2>
+        <ul class="checklist">
+          <li><strong>Đổi "Coin" thành "Xu"</strong> - Hoàn thành ✓</li>
+          <li>
+            <strong>Số giao dịch hiển thị rõ ràng</strong> - Count badge nổi bật
+            ✓
+          </li>
+          <li><strong>Cards nhỏ lại, font nhỏ hơn</strong> - Đã thu nhỏ ✓</li>
+          <li><strong>Bỏ dòng mô tả phụ</strong> - Đã loại bỏ ✓</li>
+          <li>
+            <strong>Sửa ô học sinh bị cắt</strong> - Tăng width, overflow
+            handling ✓
+          </li>
+          <li><strong>Avatar cho học sinh</strong> - Đã có từ trước ✓</li>
+          <li><strong>Layout responsive</strong> - Media queries đã thêm ✓</li>
+          <li>
+            <strong>Không ảnh hưởng TutorPersonalRevenueStatistics</strong> -
+            CSS riêng biệt ✓
+          </li>
+        </ul>
+      </div>
+
+      <div class="highlight">
+        <h3>🎯 Hướng dẫn test trên UI thực tế:</h3>
+        <ol>
+          <li>
+            <strong>Kiểm tra statistics cards:</strong> Xem có nhỏ gọn hơn
+            không, font có nhỏ hơn không
+          </li>
+          <li>
+            <strong>Kiểm tra count badge:</strong> Số giao dịch có nổi bật bên
+            cạnh title không
+          </li>
+          <li>
+            <strong>Kiểm tra student column:</strong> Tên học sinh có bị cắt
+            không, có hiển thị đầy đủ không
+          </li>
+          <li>
+            <strong>Kiểm tra responsive:</strong> Thu nhỏ màn hình xem cards có
+            adapt không
+          </li>
+          <li>
+            <strong>Kiểm tra TutorPersonalRevenueStatistics:</strong> Đảm bảo
+            vẫn hiển thị "Coin" như cũ
+          </li>
+        </ol>
+      </div>
+    </div>
+  </body>
+</html>

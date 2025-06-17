@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Gia Sư - Cập Nhật Hoàn Thành</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f8f9fa;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .section {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .section h2 {
+        color: #d71921;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .menu-preview {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .menu-header {
+        background: #f8f9fa;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        font-weight: 600;
+        color: #495057;
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+      }
+
+      .menu-item:hover {
+        background: #f8f9fa;
+      }
+
+      .menu-item.new {
+        background: #e7f5e7;
+        border-left: 4px solid #28a745;
+      }
+
+      .menu-item.updated {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+      }
+
+      .menu-item i {
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+        color: #6c757d;
+      }
+
+      .menu-item.new i {
+        color: #28a745;
+      }
+
+      .menu-item.updated i {
+        color: #ffc107;
+      }
+
+      .menu-item span {
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+
+      .badge {
+        background: #28a745;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: auto;
+      }
+
+      .badge.updated {
+        background: #ffc107;
+        color: #212529;
+      }
+
+      .changes-list {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .changes-list h3 {
+        color: #d71921;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+
+      .changes-list ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .changes-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .changes-list li:last-child {
+        border-bottom: none;
+      }
+
+      .changes-list i {
+        color: #28a745;
+        font-size: 1rem;
+      }
+
+      .route-info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      .route-info h4 {
+        color: #1976d2;
+        margin-bottom: 10px;
+      }
+
+      .route-info code {
+        background: #263238;
+        color: #81c784;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+
+      .status {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        color: #155724;
+      }
+
+      .status h3 {
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>
+        <i class="fas fa-check-circle"></i>
+        Menu Gia Sư - Cập Nhật Hoàn Thành
+      </h1>
+      <p>
+        Đã thêm mục "Thống kê gia sư" và đổi tên "Thống kê doanh thu" thành
+        "Quản lý doanh thu"
+      </p>
+    </div>
+
+    <div class="container">
+      <!-- Before vs After -->
+      <div class="section">
+        <h2>
+          <i class="fas fa-history"></i>
+          Menu Trước Đây
+        </h2>
+        <div class="menu-preview">
+          <div class="menu-header">Sidebar Menu - Gia Sư</div>
+          <div class="menu-item">
+            <i class="fas fa-id-badge"></i>
+            <span>Hồ Sơ Gia Sư</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>Yêu Cầu Thuê</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-wallet"></i>
+            <span>Ví Cá Nhân</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-book-open"></i>
+            <span>Giáo Trình Cá Nhân</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Quản lý lớp học</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Thống kê doanh thu</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>
+          <i class="fas fa-sparkles"></i>
+          Menu Mới
+        </h2>
+        <div class="menu-preview">
+          <div class="menu-header">Sidebar Menu - Gia Sư (Cập nhật)</div>
+          <div class="menu-item">
+            <i class="fas fa-id-badge"></i>
+            <span>Hồ Sơ Gia Sư</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>Yêu Cầu Thuê</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-wallet"></i>
+            <span>Ví Cá Nhân</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-book-open"></i>
+            <span>Giáo Trình Cá Nhân</span>
+          </div>
+          <div class="menu-item">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Quản lý lớp học</span>
+          </div>
+          <div class="menu-item updated">
+            <i class="fas fa-coins"></i>
+            <span>Quản lý doanh thu</span>
+            <span class="badge updated">Đổi tên + Icon</span>
+          </div>
+          <div class="menu-item new">
+            <i class="fas fa-chart-bar"></i>
+            <span>Thống kê gia sư</span>
+            <span class="badge">Mới</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Changes Summary -->
+    <div class="section" style="margin: 30px auto; max-width: 1200px">
+      <h2>
+        <i class="fas fa-list-check"></i>
+        Tóm Tắt Thay Đổi
+      </h2>
+
+      <div class="changes-list">
+        <h3>✅ Đã Hoàn Thành</h3>
+        <ul>
+          <li>
+            <i class="fas fa-edit"></i>
+            <span>
+              Đổi tên "Thống kê doanh thu" thành
+              <strong>"Quản lý doanh thu"</strong>
+            </span>
+          </li>
+          <li>
+            <i class="fas fa-icons"></i>
+            <span>
+              Đổi icon từ <code>fa-chart-line</code> thành
+              <code>fa-coins</code>
+            </span>
+          </li>
+          <li>
+            <i class="fas fa-plus"></i>
+            <span>
+              Thêm mục mới <strong>"Thống kê gia sư"</strong> với icon
+              <code>fa-chart-bar</code>
+            </span>
+          </li>
+          <li>
+            <i class="fas fa-sort"></i>
+            <span>
+              Sắp xếp thứ tự: "Quản lý doanh thu" trước, "Thống kê gia sư" sau
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="route-info">
+        <h4>🔗 Thông Tin Routes</h4>
+        <p>
+          <strong>Quản lý doanh thu:</strong>
+          <code>/tai-khoan/ho-so/thong-ke-doanh-thu</code>
+        </p>
+        <p>
+          <strong>Thống kê gia sư:</strong>
+          <code>/tai-khoan/ho-so/thong-ke-luot-thue-danh-gia</code>
+        </p>
+      </div>
+
+      <div class="route-info" style="background: #f3e5f5; margin-top: 15px">
+        <h4>🎯 Component Mapping</h4>
+        <p>
+          <strong>Quản lý doanh thu:</strong>
+          <code>TutorRevenueStable.jsx</code> (đã nâng cấp UI)
+        </p>
+        <p>
+          <strong>Thống kê gia sư:</strong>
+          <code>TutorHireAndRatingStatistics.jsx</code> (mới tạo)
+        </p>
+      </div>
+    </div>
+
+    <div class="status">
+      <h3>
+        <i class="fas fa-trophy"></i>
+        Hoàn Thành 100%
+      </h3>
+      <p>
+        Menu sidebar của gia sư đã được cập nhật thành công với tên mới, icon
+        mới và thêm mục thống kê gia sư. Tất cả routes và components đều đã sẵn
+        sàng.
+      </p>
+    </div>
+
+    <script>
+      // Add some interactive effects
+      document.querySelectorAll(".menu-item").forEach((item) => {
+        item.addEventListener("mouseenter", function () {
+          this.style.transform = "translateX(5px)";
+        });
+
+        item.addEventListener("mouseleave", function () {
+          this.style.transform = "translateX(0)";
+        });
+      });
+    </script>
+  </body>
+</html>

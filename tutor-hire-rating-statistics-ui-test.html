@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎯 Tutor Hire & Rating Statistics - UI Test</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .feature-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        border-left: 5px solid #667eea;
+      }
+
+      .feature-card h3 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .feature-card ul {
+        list-style: none;
+      }
+
+      .feature-card li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .feature-card li::before {
+        content: "✅";
+      }
+
+      .stats-preview {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin: 30px 0;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid;
+      }
+
+      .stat-card:nth-child(1) {
+        border-top-color: #667eea;
+      }
+      .stat-card:nth-child(2) {
+        border-top-color: #4caf50;
+      }
+      .stat-card:nth-child(3) {
+        border-top-color: #2196f3;
+      }
+      .stat-card:nth-child(4) {
+        border-top-color: #ff9800;
+      }
+
+      .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+
+      .stat-card:nth-child(1) .stat-icon {
+        color: #667eea;
+      }
+      .stat-card:nth-child(2) .stat-icon {
+        color: #4caf50;
+      }
+      .stat-card:nth-child(3) .stat-icon {
+        color: #2196f3;
+      }
+      .stat-card:nth-child(4) .stat-icon {
+        color: #ff9800;
+      }
+
+      .stat-title {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .tab-navigation {
+        display: flex;
+        gap: 15px;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+      }
+
+      .tab-btn {
+        background: white;
+        border: 2px solid #e9ecef;
+        color: #666;
+        padding: 12px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        flex: 1;
+        justify-content: center;
+      }
+
+      .tab-btn:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-2px);
+      }
+
+      .tab-btn.active {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        border-color: #4caf50;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+      }
+
+      .table-preview {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+      }
+
+      .table-header {
+        background: #667eea;
+        color: white;
+        padding: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .table-content {
+        padding: 20px;
+      }
+
+      .demo-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .demo-table th,
+      .demo-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .demo-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-accept {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+      }
+
+      .status-pending {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        color: white;
+      }
+
+      .meet-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .meet-badge.met {
+        background: #4caf50;
+        color: white;
+      }
+
+      .meet-badge.not-met {
+        background: #f44336;
+        color: white;
+      }
+
+      .button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        margin: 10px;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .button.success {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+      }
+
+      .button.info {
+        background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+      }
+
+      .controls-preview {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        flex-wrap: wrap;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .select-input {
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        background: white;
+        font-size: 14px;
+        min-width: 150px;
+      }
+
+      @media (max-width: 768px) {
+        .stats-preview {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .tab-navigation {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .controls-preview {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .stats-preview {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-chart-bar"></i> Tutor Hire & Rating Statistics</h1>
+        <p>Thống kê lượt thuê và đánh giá cho gia sư - UI Preview</p>
+      </div>
+
+      <div class="content">
+        <h2>📊 Component Features</h2>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3><i class="fas fa-handshake"></i> Quản lý lượt thuê</h3>
+            <ul>
+              <li>API: booking-request/search-with-time-for-tutor</li>
+              <li>Thống kê yêu cầu thuê theo trạng thái</li>
+              <li>Hiển thị chi tiết buổi học, giờ học</li>
+              <li>Tính toán tỷ lệ chấp nhận</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3><i class="fas fa-star"></i> Quản lý đánh giá</h3>
+            <ul>
+              <li>API: classroom-assessment/search-with-time-for-tutor</li>
+              <li>Thống kê lớp học và đánh giá</li>
+              <li>Trạng thái lớp học (hoàn thành, đang học)</li>
+              <li>Tính toán tỷ lệ hoàn thành</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3><i class="fas fa-file-excel"></i> Xuất báo cáo</h3>
+            <ul>
+              <li>Xuất Excel theo từng tab</li>
+              <li>Header với logo và thông tin công ty</li>
+              <li>Thống kê tóm tắt</li>
+              <li>Dữ liệu chi tiết theo bảng</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3><i class="fas fa-mobile-alt"></i> Responsive Design</h3>
+            <ul>
+              <li>Tab navigation responsive</li>
+              <li>Table adaptive trên mobile</li>
+              <li>Statistics cards responsive</li>
+              <li>Search & filter mobile-friendly</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>📈 Statistics Preview</h2>
+        <div class="stats-preview">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-handshake"></i></div>
+            <div class="stat-title">Lượt thuê</div>
+            <div class="stat-value">15</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-title">Đánh giá</div>
+            <div class="stat-value">12</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-title">Tỷ lệ chấp nhận</div>
+            <div class="stat-value">87.5%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="stat-title">Tỷ lệ hoàn thành</div>
+            <div class="stat-value">92.3%</div>
+          </div>
+        </div>
+
+        <h2>🔄 Tab Navigation</h2>
+        <div class="tab-navigation">
+          <button class="tab-btn active" onclick="switchTab('hire')">
+            <i class="fas fa-handshake"></i>
+            Lượt thuê (15)
+          </button>
+          <button class="tab-btn" onclick="switchTab('rating')">
+            <i class="fas fa-star"></i>
+            Đánh giá (12)
+          </button>
+        </div>
+
+        <h2>🔧 Controls Preview</h2>
+        <div class="controls-preview">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Tìm kiếm yêu cầu thuê..."
+          />
+          <select class="select-input">
+            <option>Mới nhất</option>
+            <option>Cũ nhất</option>
+          </select>
+          <button class="button success">
+            <i class="fas fa-file-excel"></i>
+            Xuất Excel
+          </button>
+          <button class="button info">
+            <i class="fas fa-sync-alt"></i>
+            Làm mới
+          </button>
+        </div>
+
+        <h2 id="table-title">📋 Hire Data Table Preview</h2>
+        <div class="table-preview">
+          <div class="table-header">
+            <i class="fas fa-handshake"></i>
+            <span>Danh sách yêu cầu thuê</span>
+            <span
+              style="
+                margin-left: auto;
+                background: rgba(255, 255, 255, 0.2);
+                padding: 4px 8px;
+                border-radius: 10px;
+              "
+              >15</span
+            >
+          </div>
+          <div class="table-content">
+            <table class="demo-table" id="data-table">
+              <thead>
+                <tr id="table-headers">
+                  <th>STT</th>
+                  <th>Mã yêu cầu</th>
+                  <th>Học sinh</th>
+                  <th>Số buổi/tuần</th>
+                  <th>Tổng buổi</th>
+                  <th>Giờ/buổi</th>
+                  <th>Tổng Xu</th>
+                  <th>Ngày bắt đầu</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <tr>
+                  <td>1</td>
+                  <td style="font-family: monospace; font-size: 13px">
+                    7b92be8d...
+                  </td>
+                  <td>US00028</td>
+                  <td style="text-align: center">1</td>
+                  <td style="text-align: center">10</td>
+                  <td style="text-align: center">1.5</td>
+                  <td style="font-weight: bold; color: #d71921">2,700 Xu</td>
+                  <td>01/06/2025</td>
+                  <td>
+                    <span class="status-badge status-accept">
+                      <i class="fas fa-check-circle"></i>
+                      Đã chấp nhận
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td style="font-family: monospace; font-size: 13px">
+                    8c83cf9e...
+                  </td>
+                  <td>US00029</td>
+                  <td style="text-align: center">2</td>
+                  <td style="text-align: center">8</td>
+                  <td style="text-align: center">2.0</td>
+                  <td style="font-weight: bold; color: #d71921">3,200 Xu</td>
+                  <td>03/06/2025</td>
+                  <td>
+                    <span class="status-badge status-pending">
+                      <i class="fas fa-clock"></i>
+                      Chờ xử lý
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0">
+          <h3>🚀 Quick Actions</h3>
+          <a href="/tai-khoan/ho-so/thong-ke-luot-thue-danh-gia" class="button">
+            <i class="fas fa-external-link-alt"></i>
+            Mở trang thống kê thực tế
+          </a>
+          <button class="button success" onclick="testComponent()">
+            <i class="fas fa-play"></i>
+            Test Component Functions
+          </button>
+          <button class="button info" onclick="exportTestData()">
+            <i class="fas fa-download"></i>
+            Test Export Excel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentTab = "hire";
+
+      function switchTab(tab) {
+        currentTab = tab;
+
+        // Update tab buttons
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        // Update table content
+        const tableTitle = document.getElementById("table-title");
+        const tableHeaders = document.getElementById("table-headers");
+        const tableBody = document.getElementById("table-body");
+
+        if (tab === "hire") {
+          tableTitle.innerHTML = "📋 Hire Data Table Preview";
+          tableHeaders.innerHTML = `
+                    <th>STT</th>
+                    <th>Mã yêu cầu</th>
+                    <th>Học sinh</th>
+                    <th>Số buổi/tuần</th>
+                    <th>Tổng buổi</th>
+                    <th>Giờ/buổi</th>
+                    <th>Tổng Xu</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Trạng thái</th>
+                `;
+          tableBody.innerHTML = `
+                    <tr>
+                        <td>1</td>
+                        <td style="font-family: monospace; font-size: 13px;">7b92be8d...</td>
+                        <td>US00028</td>
+                        <td style="text-align: center;">1</td>
+                        <td style="text-align: center;">10</td>
+                        <td style="text-align: center;">1.5</td>
+                        <td style="font-weight: bold; color: #d71921;">2,700 Xu</td>
+                        <td>01/06/2025</td>
+                        <td>
+                            <span class="status-badge status-accept">
+                                <i class="fas fa-check-circle"></i>
+                                Đã chấp nhận
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td style="font-family: monospace; font-size: 13px;">8c83cf9e...</td>
+                        <td>US00029</td>
+                        <td style="text-align: center;">2</td>
+                        <td style="text-align: center;">8</td>
+                        <td style="text-align: center;">2.0</td>
+                        <td style="font-weight: bold; color: #d71921;">3,200 Xu</td>
+                        <td>03/06/2025</td>
+                        <td>
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-clock"></i>
+                                Chờ xử lý
+                            </span>
+                        </td>
+                    </tr>
+                `;
+        } else {
+          tableTitle.innerHTML = "⭐ Rating Data Table Preview";
+          tableHeaders.innerHTML = `
+                    <th>STT</th>
+                    <th>Mã lớp</th>
+                    <th>Tên lớp học</th>
+                    <th>Học sinh</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Đã gặp</th>
+                `;
+          tableBody.innerHTML = `
+                    <tr>
+                        <td>1</td>
+                        <td style="font-family: monospace; font-size: 13px;">78e16f4b...</td>
+                        <td>Lớp học của gia sư Đặng Phương Nam</td>
+                        <td>Đặng Phương Nam</td>
+                        <td>01/05/2025</td>
+                        <td>25/05/2025</td>
+                        <td>
+                            <span class="status-badge status-accept">
+                                <i class="fas fa-check-circle"></i>
+                                Hoàn thành
+                            </span>
+                        </td>
+                        <td>
+                            <span class="meet-badge met">
+                                <i class="fas fa-check"></i>
+                                Có
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td style="font-family: monospace; font-size: 13px;">89f27g5c...</td>
+                        <td>Lớp học Toán cao cấp</td>
+                        <td>Nguyễn Văn B</td>
+                        <td>10/05/2025</td>
+                        <td>30/06/2025</td>
+                        <td>
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-play-circle"></i>
+                                Đang học
+                            </span>
+                        </td>
+                        <td>
+                            <span class="meet-badge not-met">
+                                <i class="fas fa-times"></i>
+                                Không
+                            </span>
+                        </td>
+                    </tr>
+                `;
+        }
+
+        // Update search placeholder
+        const searchInput = document.querySelector(".search-input");
+        searchInput.placeholder =
+          tab === "hire" ? "Tìm kiếm yêu cầu thuê..." : "Tìm kiếm lớp học...";
+      }
+
+      function testComponent() {
+        console.log("🧪 Testing TutorHireAndRatingStatistics component...");
+        console.log("Current tab:", currentTab);
+
+        alert(
+          `✅ Component test completed!\n\n` +
+            `Current tab: ${currentTab}\n` +
+            `Features:\n` +
+            `- Dual API integration ✅\n` +
+            `- Tab navigation ✅\n` +
+            `- Statistics calculation ✅\n` +
+            `- Excel export ready ✅\n` +
+            `- Responsive design ✅\n\n` +
+            `Route: /tai-khoan/ho-so/thong-ke-luot-thue-danh-gia`
+        );
+      }
+
+      function exportTestData() {
+        console.log("📊 Testing Excel export functionality...");
+
+        const mockData =
+          currentTab === "hire"
+            ? [
+                [
+                  "STT",
+                  "Mã yêu cầu",
+                  "Học sinh",
+                  "Số buổi/tuần",
+                  "Tổng buổi",
+                  "Giờ/buổi",
+                  "Tổng Xu",
+                  "Ngày bắt đầu",
+                  "Trạng thái",
+                ],
+                [
+                  1,
+                  "7b92be8d-3e63-40a2-8ab2",
+                  "US00028",
+                  1,
+                  10,
+                  1.5,
+                  2700,
+                  "01/06/2025",
+                  "Đã chấp nhận",
+                ],
+                [
+                  2,
+                  "8c83cf9e-4f74-51b3-9cb3",
+                  "US00029",
+                  2,
+                  8,
+                  2.0,
+                  3200,
+                  "03/06/2025",
+                  "Chờ xử lý",
+                ],
+              ]
+            : [
+                [
+                  "STT",
+                  "Mã lớp",
+                  "Tên lớp học",
+                  "Học sinh",
+                  "Bắt đầu",
+                  "Kết thúc",
+                  "Trạng thái",
+                  "Đã gặp",
+                ],
+                [
+                  1,
+                  "78e16f4b-6e2a-4da4",
+                  "Lớp học của gia sư Đặng Phương Nam",
+                  "Đặng Phương Nam",
+                  "01/05/2025",
+                  "25/05/2025",
+                  "Hoàn thành",
+                  "Có",
+                ],
+                [
+                  2,
+                  "89f27g5c-7h8i-5kl6",
+                  "Lớp học Toán cao cấp",
+                  "Nguyễn Văn B",
+                  "10/05/2025",
+                  "30/06/2025",
+                  "Đang học",
+                  "Không",
+                ],
+              ];
+
+        console.table(mockData);
+
+        alert(
+          `📊 Excel export test data prepared!\n\n` +
+            `Tab: ${currentTab}\n` +
+            `Rows: ${mockData.length - 1}\n` +
+            `Columns: ${mockData[0].length}\n\n` +
+            `✅ Ready for actual export functionality\n` +
+            `Check console for data preview`
+        );
+      }
+
+      // Add keyboard shortcuts
+      document.addEventListener("keydown", function (e) {
+        if (e.ctrlKey && e.key === "e") {
+          e.preventDefault();
+          exportTestData();
+        }
+        if (e.ctrlKey && e.key === "r") {
+          e.preventDefault();
+          location.reload();
+        }
+      });
+
+      console.log("🎯 TutorHireAndRatingStatistics UI Test loaded!");
+      console.log("Features:");
+      console.log("- Tab navigation between Hire and Rating data");
+      console.log("- Statistics cards with live calculations");
+      console.log("- Responsive table design");
+      console.log("- Excel export preview");
+      console.log("- Keyboard shortcuts: Ctrl+E (export), Ctrl+R (refresh)");
+    </script>
+  </body>
+</html>

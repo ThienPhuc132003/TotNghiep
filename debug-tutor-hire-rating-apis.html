@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Tutor Hire & Rating Statistics APIs</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+      }
+
+      h1 {
+        color: #667eea;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .test-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e0e6ed;
+        border-radius: 8px;
+        background: #f8f9fa;
+      }
+
+      .test-section h2 {
+        color: #495057;
+        margin-bottom: 15px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #495057;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      button:hover {
+        background: #5a6fd8;
+      }
+
+      .result-box {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 15px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .success {
+        color: #28a745;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .info {
+        color: #17a2b8;
+      }
+      .warning {
+        color: #ffc107;
+      }
+
+      .api-info {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 15px;
+        margin: 15px 0;
+      }
+
+      .endpoint {
+        font-weight: bold;
+        color: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Debug Tutor Hire & Rating Statistics APIs</h1>
+
+      <div class="api-info">
+        <h3>📋 API Testing Configuration</h3>
+        <p>
+          <strong>Purpose:</strong> Test the correct API endpoints for tutor
+          hire and rating statistics
+        </p>
+        <p><strong>Expected Endpoints:</strong></p>
+        <ul>
+          <li>
+            <span class="endpoint">booking-request/search-with-time</span> (for
+            hire statistics)
+          </li>
+          <li>
+            <span class="endpoint">classroom-assessment/search-with-time</span>
+            (for rating statistics)
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>🔧 Configuration</h2>
+        <div class="form-group">
+          <label for="tutorId">Tutor ID:</label>
+          <input
+            type="text"
+            id="tutorId"
+            placeholder="Enter tutor ID"
+            value="sample_tutor_id"
+          />
+        </div>
+        <div class="form-group">
+          <label for="periodType">Period Type:</label>
+          <select id="periodType">
+            <option value="DAY">DAY</option>
+            <option value="WEEK">WEEK</option>
+            <option value="MONTH" selected>MONTH</option>
+            <option value="YEAR">YEAR</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="periodValue">Period Value:</label>
+          <input type="number" id="periodValue" value="6" min="1" />
+        </div>
+        <div class="form-group">
+          <label for="token">Auth Token (optional):</label>
+          <input type="text" id="token" placeholder="Bearer token" />
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🧪 API Tests</h2>
+        <button onclick="testHireAPI()">Test Hire Statistics API</button>
+        <button onclick="testRatingAPI()">Test Rating Statistics API</button>
+        <button onclick="testBothAPIs()">Test Both APIs</button>
+        <button onclick="clearResults()">Clear Results</button>
+
+        <div id="results" class="result-box">
+          <p class="info">
+            Ready to test APIs. Click buttons above to start testing.
+          </p>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>📊 API Response Analysis</h2>
+        <div id="analysis" class="result-box">
+          <p class="info">API analysis will appear here after testing.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const resultsDiv = document.getElementById("results");
+        const className = type;
+        resultsDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+
+      function logAnalysis(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const analysisDiv = document.getElementById("analysis");
+        const className = type;
+        analysisDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        analysisDiv.scrollTop = analysisDiv.scrollHeight;
+      }
+
+      function clearResults() {
+        document.getElementById("results").innerHTML =
+          '<p class="info">Results cleared. Ready for new tests.</p>';
+        document.getElementById("analysis").innerHTML =
+          '<p class="info">Analysis cleared. Ready for new tests.</p>';
+      }
+
+      function getTestConfig() {
+        return {
+          tutorId:
+            document.getElementById("tutorId").value || "sample_tutor_id",
+          periodType: document.getElementById("periodType").value,
+          periodValue:
+            parseInt(document.getElementById("periodValue").value) || 6,
+          token: document.getElementById("token").value,
+        };
+      }
+
+      async function testHireAPI() {
+        const config = getTestConfig();
+        log("🎯 Testing Hire Statistics API...", "info");
+
+        try {
+          const queryParams = new URLSearchParams({
+            periodType: config.periodType,
+            periodValue: config.periodValue,
+            page: 1,
+            rpp: 10,
+            filter: JSON.stringify([
+              {
+                key: "tutor.userId",
+                operator: "equal",
+                value: config.tutorId,
+              },
+            ]),
+            sort: JSON.stringify([{ key: "createdAt", type: "DESC" }]),
+          });
+
+          const url = `/api/booking-request/search-with-time?${queryParams}`;
+          log(`📤 Request URL: ${url}`, "info");
+
+          const headers = { "Content-Type": "application/json" };
+          if (config.token) {
+            headers["Authorization"] = `Bearer ${config.token}`;
+          }
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            log(`✅ Hire API Success: ${response.status}`, "success");
+            log(`📊 Response: ${JSON.stringify(data, null, 2)}`, "success");
+
+            logAnalysis("✅ HIRE API ANALYSIS:", "success");
+            logAnalysis(
+              `Status: ${response.status} ${response.statusText}`,
+              "info"
+            );
+            logAnalysis(`Success: ${data.success}`, "info");
+            logAnalysis(
+              `Items found: ${data.data?.items?.length || 0}`,
+              "info"
+            );
+            logAnalysis(`Total: ${data.data?.total || 0}`, "info");
+          } else {
+            log(
+              `❌ Hire API Failed: ${response.status} ${response.statusText}`,
+              "error"
+            );
+            log(`📊 Error Response: ${JSON.stringify(data, null, 2)}`, "error");
+
+            logAnalysis("❌ HIRE API FAILED:", "error");
+            logAnalysis(
+              `Status: ${response.status} ${response.statusText}`,
+              "error"
+            );
+            logAnalysis(`Error: ${data.message || "Unknown error"}`, "error");
+          }
+        } catch (error) {
+          log(`❌ Hire API Network Error: ${error.message}`, "error");
+          logAnalysis(`❌ HIRE API NETWORK ERROR: ${error.message}`, "error");
+        }
+      }
+
+      async function testRatingAPI() {
+        const config = getTestConfig();
+        log("⭐ Testing Rating Statistics API...", "info");
+
+        try {
+          const queryParams = new URLSearchParams({
+            periodType: config.periodType,
+            periodValue: config.periodValue,
+            page: 1,
+            rpp: 10,
+            filter: JSON.stringify([
+              {
+                key: "tutorId",
+                operator: "equal",
+                value: config.tutorId,
+              },
+            ]),
+            sort: JSON.stringify([{ key: "createdAt", type: "DESC" }]),
+          });
+
+          const url = `/api/classroom-assessment/search-with-time?${queryParams}`;
+          log(`📤 Request URL: ${url}`, "info");
+
+          const headers = { "Content-Type": "application/json" };
+          if (config.token) {
+            headers["Authorization"] = `Bearer ${config.token}`;
+          }
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            log(`✅ Rating API Success: ${response.status}`, "success");
+            log(`📊 Response: ${JSON.stringify(data, null, 2)}`, "success");
+
+            logAnalysis("⭐ RATING API ANALYSIS:", "success");
+            logAnalysis(
+              `Status: ${response.status} ${response.statusText}`,
+              "info"
+            );
+            logAnalysis(`Success: ${data.success}`, "info");
+            logAnalysis(
+              `Items found: ${data.data?.items?.length || 0}`,
+              "info"
+            );
+            logAnalysis(`Total: ${data.data?.total || 0}`, "info");
+          } else {
+            log(
+              `❌ Rating API Failed: ${response.status} ${response.statusText}`,
+              "error"
+            );
+            log(`📊 Error Response: ${JSON.stringify(data, null, 2)}`, "error");
+
+            logAnalysis("❌ RATING API FAILED:", "error");
+            logAnalysis(
+              `Status: ${response.status} ${response.statusText}`,
+              "error"
+            );
+            logAnalysis(`Error: ${data.message || "Unknown error"}`, "error");
+          }
+        } catch (error) {
+          log(`❌ Rating API Network Error: ${error.message}`, "error");
+          logAnalysis(`❌ RATING API NETWORK ERROR: ${error.message}`, "error");
+        }
+      }
+
+      async function testBothAPIs() {
+        log("🚀 Testing Both APIs sequentially...", "info");
+        await testHireAPI();
+        log("---", "info");
+        await testRatingAPI();
+        log("🎯 Both API tests completed!", "info");
+      }
+
+      // Initialize
+      log("🎯 Tutor Hire & Rating Statistics API Debug Tool Ready!", "info");
+      log("📋 Configure settings above and click test buttons", "info");
+      log("🔍 Open DevTools Console for detailed debugging", "info");
+    </script>
+  </body>
+</html>

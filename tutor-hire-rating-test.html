@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Tutor Hire and Rating Statistics</title>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f8fafc;
+      }
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 8px;
+      }
+      .highlight {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px 0;
+      }
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+      .checklist li {
+        margin: 12px 0;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+      .checklist li::before {
+        content: "✓";
+        color: #10b981;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+      .api-demo {
+        background: #f8fafc;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 12px 0;
+        border: 1px solid #e2e8f0;
+      }
+      .code-block {
+        background: #1e293b;
+        color: #f8fafc;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        margin: 12px 0;
+      }
+      .tabs-demo {
+        display: flex;
+        gap: 4px;
+        margin: 16px 0;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 12px;
+        padding: 4px;
+      }
+      .tab-demo {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        color: #667eea;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .tab-demo.active {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+      .stats-demo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 16px 0;
+      }
+      .stat-card-demo {
+        background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+        padding: 16px;
+        border-radius: 12px;
+        border-left: 4px solid #48bb78;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-card-demo::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+      }
+      .stat-icon-demo {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin: 0 auto 12px auto;
+      }
+      .stat-label-demo {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .stat-value-demo {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #1e293b;
+      }
+      .table-demo {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .table-demo th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+      }
+      .table-demo td {
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .table-demo tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+      }
+      .status-badge-demo {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .status-accept {
+        background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+        color: #22543d;
+        border: 1px solid #48bb78;
+      }
+      .status-pending {
+        background: linear-gradient(135deg, #fffbf0, #fed7aa);
+        color: #c05621;
+        border: 1px solid #f59e0b;
+      }
+      .meeting-badge-demo {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .met {
+        background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+        color: #22543d;
+        border: 1px solid #48bb78;
+      }
+      .not-met {
+        background: linear-gradient(135deg, #fef2f2, #fecaca);
+        color: #991b1b;
+        border: 1px solid #ef4444;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="highlight">
+        <h1>📊 Test Tutor Hire and Rating Statistics</h1>
+        <p>Kiểm tra trang thống kê lượt thuê và đánh giá cho gia sư</p>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🔌 API Integration</h2>
+
+        <div class="api-demo">
+          <h3>📋 API Lượt thuê: booking-request/search-with-time-for-tutor</h3>
+          <p>
+            <strong>Endpoint:</strong>
+            <code>booking-request/search-with-time-for-tutor</code>
+          </p>
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Params:</strong> tutorId</p>
+
+          <div class="code-block">
+            { "status": "OK", "code": 200, "success": true, "message": "Booking
+            Request with time fetch successfully", "data": { "total": 1,
+            "items": [ { "bookingRequestId":
+            "7b92be8d-3e63-40a2-8ab2-8a77e3865ce3", "userId": "US00028",
+            "tutorId": "US00011", "dateTimeLearn": [...], "lessonsPerWeek": 1,
+            "totalLessons": 10, "hoursPerLesson": "1.50", "totalcoins": 2700,
+            "status": "ACCEPT", "isHire": true } ] } }
+          </div>
+        </div>
+
+        <div class="api-demo">
+          <h3>
+            ⭐ API Đánh giá: classroom-assessment/search-with-time-for-tutor
+          </h3>
+          <p>
+            <strong>Endpoint:</strong>
+            <code>classroom-assessment/search-with-time-for-tutor</code>
+          </p>
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Params:</strong> tutorId</p>
+
+          <div class="code-block">
+            { "status": "OK", "code": 200, "success": true, "message":
+            "Classroom fetched successfully", "data": { "total": 2, "items": [ {
+            "classroomId": "78e16f4b-6e2a-4da4-b4ba-54859afca520", "nameOfRoom":
+            "Lớp học của gia sư Đặng Phương Nam", "userId": "US00008",
+            "tutorId": "US00001", "status": "IN_SESSION", "isMeeted": true,
+            "user": {...}, "tutor": {...} } ] } }
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">📊 Statistics Cards Demo</h2>
+
+        <div class="stats-demo">
+          <div class="stat-card-demo">
+            <div class="stat-icon-demo">
+              <i>🤝</i>
+            </div>
+            <div class="stat-label-demo">Lượt thuê</div>
+            <div class="stat-value-demo">5</div>
+          </div>
+
+          <div class="stat-card-demo">
+            <div class="stat-icon-demo">
+              <i>⭐</i>
+            </div>
+            <div class="stat-label-demo">Lớp học</div>
+            <div class="stat-value-demo">3</div>
+          </div>
+
+          <div class="stat-card-demo">
+            <div class="stat-icon-demo">
+              <i>✅</i>
+            </div>
+            <div class="stat-label-demo">Lượt thuê được chấp nhận</div>
+            <div class="stat-value-demo">4</div>
+          </div>
+
+          <div class="stat-card-demo">
+            <div class="stat-icon-demo">
+              <i>👥</i>
+            </div>
+            <div class="stat-label-demo">Lớp đã gặp mặt</div>
+            <div class="stat-value-demo">2</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🔄 Tab Navigation Demo</h2>
+
+        <div class="tabs-demo">
+          <button class="tab-demo active">🤝 Lượt thuê (5)</button>
+          <button class="tab-demo">⭐ Lớp học (3)</button>
+        </div>
+
+        <p>Tab navigation cho phép chuyển đổi giữa:</p>
+        <ul class="checklist">
+          <li>
+            <strong>Tab Lượt thuê:</strong> Hiển thị danh sách booking requests
+          </li>
+          <li>
+            <strong>Tab Lớp học:</strong> Hiển thị danh sách classroom
+            assessments
+          </li>
+          <li>
+            <strong>Keyboard shortcuts:</strong> Ctrl+1 (Lượt thuê), Ctrl+2 (Lớp
+            học)
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">📋 Data Tables Demo</h2>
+
+        <h3>🤝 Bảng Lượt thuê</h3>
+        <table class="table-demo">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Học sinh</th>
+              <th>Buổi/tuần</th>
+              <th>Tổng buổi</th>
+              <th>Giờ/buổi</th>
+              <th>Tổng xu</th>
+              <th>Trạng thái</th>
+              <th>Ngày bắt đầu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Nguyễn Văn An</td>
+              <td>2</td>
+              <td>10</td>
+              <td>1.5h</td>
+              <td style="font-weight: 700; color: #22543d">2,700 Xu</td>
+              <td>
+                <span class="status-badge-demo status-accept">
+                  ✅ Chấp nhận
+                </span>
+              </td>
+              <td>01/06/2025</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Trần Thị Bình</td>
+              <td>1</td>
+              <td>8</td>
+              <td>2h</td>
+              <td style="font-weight: 700; color: #22543d">3,200 Xu</td>
+              <td>
+                <span class="status-badge-demo status-pending">
+                  ⏰ Chờ duyệt
+                </span>
+              </td>
+              <td>15/06/2025</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>⭐ Bảng Lớp học</h3>
+        <table class="table-demo">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Tên lớp học</th>
+              <th>Học sinh</th>
+              <th>Trạng thái</th>
+              <th>Đã gặp mặt</th>
+              <th>Ngày bắt đầu</th>
+              <th>Ngày kết thúc</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Lớp học Toán cao cấp</td>
+              <td>Nguyễn Văn An</td>
+              <td>
+                <span class="status-badge-demo status-accept">
+                  ▶️ Đang học
+                </span>
+              </td>
+              <td>
+                <span class="meeting-badge-demo met"> ✅ Có </span>
+              </td>
+              <td>01/05/2025</td>
+              <td>25/05/2025</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Lớp học Lập trình Java</td>
+              <td>Trần Thị Bình</td>
+              <td>
+                <span class="status-badge-demo status-pending">
+                  ⏰ Chờ bắt đầu
+                </span>
+              </td>
+              <td>
+                <span class="meeting-badge-demo not-met"> ❌ Không </span>
+              </td>
+              <td>15/06/2025</td>
+              <td>30/07/2025</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">⚙️ Features & Functions</h2>
+
+        <ul class="checklist">
+          <li>
+            <strong>Dual API Integration:</strong> Kết nối 2 endpoint riêng biệt
+          </li>
+          <li>
+            <strong>Tab Navigation:</strong> Chuyển đổi giữa lượt thuê và lớp
+            học
+          </li>
+          <li><strong>Real-time Statistics:</strong> 4 cards thống kê động</li>
+          <li>
+            <strong>Search & Filter:</strong> Tìm kiếm theo tên, ID, trạng thái
+          </li>
+          <li>
+            <strong>Sort Options:</strong> Sắp xếp theo ngày, xu (cho lượt thuê)
+          </li>
+          <li><strong>Excel Export:</strong> Xuất dữ liệu với logo Van Lang</li>
+          <li>
+            <strong>Keyboard Shortcuts:</strong> Ctrl+E (Export), Ctrl+R
+            (Refresh), Ctrl+1/2 (Tabs)
+          </li>
+          <li>
+            <strong>Responsive Design:</strong> Tối ưu cho mobile và desktop
+          </li>
+          <li>
+            <strong>Error Handling:</strong> Xử lý lỗi API và hiển thị thông báo
+          </li>
+          <li><strong>Loading States:</strong> Spinner loading cho từng tab</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🎨 Design Highlights</h2>
+
+        <ul class="checklist">
+          <li>
+            <strong>Modern Gradient Background:</strong> Tương tự
+            TutorRevenueStable
+          </li>
+          <li>
+            <strong>Glass Morphism Effects:</strong> Backdrop blur cho cards
+          </li>
+          <li>
+            <strong>Color-coded Status Badges:</strong> Màu sắc phân biệt trạng
+            thái
+          </li>
+          <li><strong>Animated Icons:</strong> Pulse animation cho icons</li>
+          <li>
+            <strong>Hover Effects:</strong> Transform và shadow transitions
+          </li>
+          <li>
+            <strong>Professional Tables:</strong> Sticky headers, hover rows
+          </li>
+          <li><strong>Consistent Typography:</strong> Inter font family</li>
+          <li>
+            <strong>CSS Variables:</strong> Dễ customize colors và spacing
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🧪 Test Cases</h2>
+
+        <ul class="checklist">
+          <li><strong>Authentication:</strong> Kiểm tra user đã đăng nhập</li>
+          <li><strong>Role Check:</strong> Xác minh user là gia sư</li>
+          <li><strong>API Calls:</strong> Test cả 2 endpoints</li>
+          <li><strong>Data Display:</strong> Hiển thị đúng dữ liệu</li>
+          <li><strong>Tab Switching:</strong> Chuyển tab không bị lỗi</li>
+          <li><strong>Search Function:</strong> Tìm kiếm hoạt động</li>
+          <li><strong>Sort Function:</strong> Sắp xếp đúng thứ tự</li>
+          <li><strong>Export Excel:</strong> Xuất file thành công</li>
+          <li><strong>Responsive:</strong> Hiển thị tốt trên mobile</li>
+          <li><strong>Error Handling:</strong> Xử lý khi API lỗi</li>
+        </ul>
+      </div>
+
+      <div class="highlight">
+        <h3>🚀 Ready for Integration!</h3>
+        <p>
+          Component TutorHireAndRatingStatistics đã được tạo với đầy đủ tính
+          năng:
+        </p>
+        <ul>
+          <li>✅ Kết nối 2 API endpoints</li>
+          <li>✅ Tab navigation với keyboard shortcuts</li>
+          <li>✅ Statistics cards động</li>
+          <li>✅ Search, sort, export Excel</li>
+          <li>✅ Responsive design</li>
+          <li>✅ Error handling và loading states</li>
+          <li>✅ Styling tương tự TutorRevenueStable</li>
+        </ul>
+
+        <p><strong>Files created:</strong></p>
+        <ul>
+          <li>📄 TutorHireAndRatingStatistics.jsx</li>
+          <li>🎨 TutorHireAndRatingStatistics.style.css</li>
+          <li>🧪 tutor-hire-rating-test.html</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

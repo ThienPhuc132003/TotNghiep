@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug: Trang Thống Kê Gia Sư Không Hiển Thị</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        min-height: 100vh;
+      }
+
+      .debug-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .debug-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+      }
+
+      .debug-header h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .debug-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .debug-section h2 {
+        color: #4fc3f7;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+      }
+
+      .debug-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .debug-item:last-child {
+        border-bottom: none;
+      }
+
+      .debug-label {
+        font-weight: 600;
+      }
+
+      .debug-value {
+        font-family: "Courier New", monospace;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+
+      .status-good {
+        color: #4caf50;
+      }
+
+      .status-bad {
+        color: #f44336;
+      }
+
+      .status-warning {
+        color: #ff9800;
+      }
+
+      .code-block {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+      }
+
+      .solution-box {
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4caf50;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+
+      .problem-box {
+        background: rgba(244, 67, 54, 0.1);
+        border-left: 4px solid #f44336;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+
+      .step-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .step-list li {
+        padding: 10px 0;
+        padding-left: 30px;
+        position: relative;
+      }
+
+      .step-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #4caf50;
+        font-weight: bold;
+      }
+
+      .btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="debug-container">
+      <div class="debug-header">
+        <h1><i class="fas fa-bug"></i> Debug: Trang Thống Kê Không Hiển Thị</h1>
+        <p>Phân tích nguyên nhân và giải pháp khắc phục</p>
+      </div>
+
+      <div class="debug-section">
+        <h2>🔍 Phân Tích Vấn Đề</h2>
+
+        <div class="problem-box">
+          <h3>❌ Vấn đề báo cáo:</h3>
+          <p><strong>Trang thống kê gia sư không hiển thị gì cả</strong></p>
+          <ul>
+            <li>
+              Route: <code>/tai-khoan/ho-so/thong-ke-luot-thue-danh-gia</code>
+            </li>
+            <li>Component: <code>TutorHireAndRatingStatistics</code></li>
+            <li>Hiện tượng: Trang trắng, không có nội dung</li>
+          </ul>
+        </div>
+
+        <div class="debug-item">
+          <span class="debug-label">🎯 Routing Status:</span>
+          <span class="debug-value status-good">✅ Đã cập nhật</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">📄 Component File:</span>
+          <span class="debug-value status-good">✅ Tồn tại</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">🎨 CSS File:</span>
+          <span class="debug-value status-good">✅ Tồn tại</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">🔧 Compile Errors:</span>
+          <span class="debug-value status-good">✅ Không có lỗi</span>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h2>🚨 Nguyên Nhân Có Thể</h2>
+
+        <div class="debug-item">
+          <span class="debug-label">1. Authentication Check:</span>
+          <span class="debug-value status-warning">⚠️ Cần kiểm tra</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">2. Tutor Role Check:</span>
+          <span class="debug-value status-warning">⚠️ Cần kiểm tra</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">3. API Endpoints:</span>
+          <span class="debug-value status-warning">⚠️ Có thể lỗi</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">4. Redux State:</span>
+          <span class="debug-value status-warning">⚠️ Cần kiểm tra</span>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h2>💡 Component Render Logic</h2>
+
+        <div class="code-block">
+          // Component có 3 điều kiện render chính: 1. if (!isAuthenticated ||
+          !userProfile) { return AUTH_REQUIRED_MESSAGE; } 2. if (!isTutor) {
+          return ACCESS_DENIED_MESSAGE; } 3. return MAIN_COMPONENT;
+        </div>
+
+        <p><strong>Vấn đề có thể xảy ra:</strong></p>
+        <ul>
+          <li>
+            🔒 <strong>Authentication:</strong> User chưa đăng nhập hoặc session
+            hết hạn
+          </li>
+          <li>
+            👤 <strong>User Profile:</strong> Redux state không có userProfile
+          </li>
+          <li>
+            🎓 <strong>Tutor Role:</strong> User không có quyền TUTOR hoặc logic
+            check role sai
+          </li>
+          <li>
+            🌐 <strong>API Calls:</strong> Các API endpoint không phản hồi đúng
+          </li>
+        </ul>
+      </div>
+
+      <div class="debug-section">
+        <h2>🛠️ Giải Pháp Đã Thực Hiện</h2>
+
+        <div class="solution-box">
+          <h3>✅ Bước 1: Tạo Component Debug</h3>
+          <p>Đã tạo component debug để kiểm tra các điều kiện render</p>
+          <div class="code-block">
+            // File: TutorHireAndRatingStatistics-Debug.jsx - Console.log tất cả
+            các biến quan trọng - Hiển thị debug info trên UI - Kiểm tra
+            authentication, userProfile, isTutor
+          </div>
+        </div>
+
+        <div class="solution-box">
+          <h3>✅ Bước 2: Cập Nhật Routing Tạm Thời</h3>
+          <p>Chuyển routing sang component debug để xem thông tin chi tiết</p>
+          <div class="code-block">
+            // App.jsx const TutorHireAndRatingStatistics = lazy(() =>
+            import("./pages/User/TutorHireAndRatingStatistics-Debug") );
+          </div>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h2>🎯 Các Bước Kiểm Tra Tiếp Theo</h2>
+
+        <ol class="step-list">
+          <li>Truy cập trang thống kê gia sư và xem debug info</li>
+          <li>Kiểm tra console.log để xem các giá trị authentication</li>
+          <li>Xác nhận userProfile có đúng cấu trúc không</li>
+          <li>Kiểm tra logic isTutor có hoạt động đúng không</li>
+          <li>Test API endpoints riêng lẻ</li>
+          <li>Khôi phục component chính sau khi debug xong</li>
+        </ol>
+      </div>
+
+      <div class="debug-section">
+        <h2>🚀 Hành Động</h2>
+
+        <div style="text-align: center; margin: 20px 0">
+          <button class="btn" onclick="openDebugPage()">
+            <i class="fas fa-external-link-alt"></i>
+            Mở Trang Debug
+          </button>
+          <button class="btn" onclick="openConsole()" style="margin-left: 10px">
+            <i class="fas fa-terminal"></i>
+            Mở DevTools Console
+          </button>
+        </div>
+
+        <p style="text-align: center; margin-top: 20px; opacity: 0.8">
+          Sau khi debug xong, nhớ khôi phục routing về component chính!
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function openDebugPage() {
+        alert(
+          'Hãy chạy "npm run dev" và truy cập:\nhttp://localhost:3000/tai-khoan/ho-so/thong-ke-luot-thue-danh-gia'
+        );
+      }
+
+      function openConsole() {
+        alert(
+          "Nhấn F12 để mở DevTools và xem tab Console để theo dõi debug info"
+        );
+      }
+
+      // Simulate debug info
+      setTimeout(() => {
+        console.log(
+          "🔍 Đây là nơi bạn sẽ thấy debug info khi truy cập trang thực tế"
+        );
+      }, 1000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,803 @@
+/* =========================================== */
+/*     🎨 TUTOR STATISTICS DASHBOARD STYLES    */
+/* =========================================== */
+
+.tutor-statistics-container {
+  /* Modern gradient with enhanced visual appeal */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  padding: 24px;
+
+  /* Enhanced background with animated patterns */
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.tutor-statistics-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 255, 255, 0.15) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 70%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 40%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.03) 50%,
+      transparent 70%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tutor-statistics-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================== */
+/*           📊 SUMMARY CARDS STYLING           */
+/* =========================================== */
+
+.tutor-statistics-summary-card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(25px);
+  overflow: hidden;
+  position: relative;
+
+  /* Enhanced shadow system */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  /* Ensure equal height and proper flex behavior */
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Ensure MUI CardContent fills available space */
+.tutor-statistics-summary-card .MuiCardContent-root {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+}
+
+/* Responsive card content adjustments */
+@media (max-width: 600px) {
+  .tutor-statistics-summary-card .MuiCardContent-root {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .tutor-statistics-summary-card .MuiCardContent-root {
+    padding: 14px !important;
+  }
+}
+
+.tutor-statistics-summary-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Animated shimmer effect on hover */
+.tutor-statistics-summary-card::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  transform: rotate(45deg) translate(-50%, -50%);
+  transition: all 0.6s ease;
+  opacity: 0;
+  z-index: 1;
+}
+
+.tutor-statistics-summary-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 10px 25px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.tutor-statistics-summary-card:hover::after {
+  opacity: 1;
+  transform: rotate(45deg) translate(50%, 50%);
+}
+
+/* =========================================== */
+/*               🎛️ TABS STYLING               */
+/* =========================================== */
+
+.tutor-statistics-tabs {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2),
+    0 8px 30px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.tutor-statistics-tabs::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+  background-size: 200% 100%;
+  animation: borderMove 3s ease-in-out infinite;
+}
+
+@keyframes borderMove {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+}
+
+.tutor-statistics-tab-panel {
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.02);
+  min-height: 500px;
+}
+
+/* =========================================== */
+/*         🎨 CUSTOM MUI COMPONENT STYLES      */
+/* =========================================== */
+
+.MuiTab-root.tutor-statistics-tab {
+  min-height: 88px;
+  text-transform: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 20px 20px 0 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  color: #667eea;
+  position: relative;
+  margin: 0 6px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.MuiTab-root.tutor-statistics-tab::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.08) 0%,
+    rgba(118, 75, 162, 0.08) 100%
+  );
+  border-radius: 20px 20px 0 0;
+  opacity: 0;
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+
+.MuiTab-root.tutor-statistics-tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.MuiTab-root.tutor-statistics-tab:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.12) 0%,
+    rgba(118, 75, 162, 0.12) 100%
+  );
+  transform: translateY(-4px);
+  color: #5a67d8;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.MuiTab-root.tutor-statistics-tab:hover::before {
+  opacity: 1;
+}
+
+.MuiTab-root.tutor-statistics-tab:hover::after {
+  transform: scaleX(1);
+}
+
+.MuiTab-root.tutor-statistics-tab.Mui-selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+  color: white;
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4),
+    0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.MuiTab-root.tutor-statistics-tab.Mui-selected::after {
+  transform: scaleX(1);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.MuiTab-root.tutor-statistics-tab.Mui-selected .MuiSvgIcon-root {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* =========================================== */
+/*            🎯 HEADER STYLING                */
+/* =========================================== */
+
+.tutor-statistics-header {
+  text-align: center;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.tutor-statistics-header::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+}
+
+.tutor-statistics-header h4 {
+  color: white;
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3),
+    0 4px 20px rgba(102, 126, 234, 0.4);
+  margin-bottom: 16px;
+  font-size: 3rem;
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+.tutor-statistics-header h4::after {
+  content: "📊";
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.5rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(-70%);
+  }
+}
+
+.tutor-statistics-header .MuiTypography-body1 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* =========================================== */
+/*       📈 SUMMARY CARDS CONTENT STYLING      */
+/* =========================================== */
+
+.tutor-statistics-summary-card .MuiCardContent-root {
+  padding: 32px !important;
+  position: relative;
+  z-index: 2;
+}
+
+.tutor-statistics-summary-card .MuiSvgIcon-root {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
+  animation: iconFloat 4s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.tutor-statistics-summary-card:hover .MuiSvgIcon-root {
+  transform: scale(1.1) rotate(5deg);
+  animation-play-state: paused;
+}
+
+@keyframes iconFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-3px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+}
+
+.tutor-statistics-summary-card h6 {
+  font-weight: 600;
+  opacity: 0.95;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.tutor-statistics-summary-card h6::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 1px;
+}
+
+.tutor-statistics-summary-card h4 {
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 2.5rem;
+  letter-spacing: -0.02em;
+  margin: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.tutor-statistics-summary-card:hover h4 {
+  transform: scale(1.05);
+}
+
+/* =========================================== */
+/*        🎛️ TAB CONTENT AREA STYLING          */
+/* =========================================== */
+
+.tutor-statistics-tabs .MuiTabs-root {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.06) 0%,
+    rgba(118, 75, 162, 0.06) 100%
+  );
+  border-radius: 24px 24px 0 0;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tutor-statistics-tabs .MuiTabs-root::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(102, 126, 234, 0.3) 50%,
+    transparent 100%
+  );
+}
+
+.tutor-statistics-tabs .MuiTabs-indicator {
+  display: none;
+}
+
+.tutor-statistics-tab-content {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 0 0 24px 24px;
+  min-height: 650px;
+  position: relative;
+}
+
+.tutor-statistics-tab-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(102, 126, 234, 0.2) 50%,
+    transparent 100%
+  );
+}
+
+/* =========================================== */
+/*           📊 TABLE STYLING                  */
+/* =========================================== */
+
+.tutor-statistics-tab-panel .MuiPaper-root {
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(102, 126, 234, 0.1);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.tutor-statistics-tab-panel .MuiPaper-root::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+}
+
+.tutor-statistics-tab-panel .MuiTableHead-root {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+  position: relative;
+}
+
+.tutor-statistics-tab-panel .MuiTableHead-root::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.tutor-statistics-tab-panel .MuiTableHead-root .MuiTableCell-root {
+  color: white;
+  font-weight: 700;
+  border: none;
+  font-size: 1rem;
+  padding: 24px 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.02) 0%,
+    rgba(118, 75, 162, 0.02) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root:hover {
+  background: transparent;
+  transform: scale(1.01);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root:hover::before {
+  opacity: 1;
+}
+
+.tutor-statistics-tab-panel .MuiTableCell-root {
+  border-bottom: 1px solid rgba(102, 126, 234, 0.08);
+  padding: 20px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableCell-root {
+  font-size: 0.95rem;
+  color: #2d3748;
+}
+
+/* =========================================== */
+/*          📱 RESPONSIVE DESIGN               */
+/* =========================================== */
+
+@media (max-width: 1200px) {
+  .tutor-statistics-container {
+    padding: 20px;
+  }
+
+  .tutor-statistics-header h4 {
+    font-size: 2.5rem;
+  }
+
+  .tutor-statistics-summary-card h4 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .tutor-statistics-container {
+    padding: 16px;
+  }
+
+  .tutor-statistics-tab-panel {
+    padding: 24px;
+  }
+
+  .tutor-statistics-header h4 {
+    font-size: 2.2rem;
+  }
+
+  .tutor-statistics-header h4::after {
+    right: -45px;
+    font-size: 2rem;
+  }
+
+  .MuiTab-root.tutor-statistics-tab {
+    min-height: 76px;
+    font-size: 1rem;
+    margin: 0 3px;
+  }
+
+  .tutor-statistics-summary-card .MuiCardContent-root {
+    padding: 24px !important;
+  }
+
+  .tutor-statistics-summary-card h4 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tutor-statistics-container {
+    padding: 12px;
+  }
+
+  .tutor-statistics-header {
+    margin-bottom: 32px;
+  }
+
+  .tutor-statistics-header h4 {
+    font-size: 1.8rem;
+  }
+
+  .tutor-statistics-header h4::after {
+    display: none;
+  }
+
+  .tutor-statistics-header .MuiTypography-body1 {
+    font-size: 1rem;
+  }
+
+  .tutor-statistics-tab-panel {
+    padding: 16px;
+  }
+
+  .MuiTab-root.tutor-statistics-tab {
+    min-height: 64px;
+    font-size: 0.9rem;
+    margin: 0 2px;
+  }
+
+  .tutor-statistics-summary-card .MuiCardContent-root {
+    padding: 20px !important;
+  }
+
+  .tutor-statistics-summary-card h4 {
+    font-size: 1.8rem;
+  }
+
+  .tutor-statistics-summary-card h6 {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .tutor-statistics-container {
+    padding: 8px;
+  }
+
+  .tutor-statistics-header h4 {
+    font-size: 1.6rem;
+  }
+
+  .tutor-statistics-header .MuiTypography-body1 {
+    font-size: 0.9rem;
+  }
+
+  .MuiTab-root.tutor-statistics-tab {
+    min-height: 56px;
+    font-size: 0.8rem;
+    padding: 8px 4px;
+  }
+
+  .tutor-statistics-tab-panel {
+    padding: 12px;
+  }
+
+  .tutor-statistics-summary-card .MuiCardContent-root {
+    padding: 16px !important;
+  }
+
+  .tutor-statistics-summary-card h4 {
+    font-size: 1.5rem;
+  }
+
+  .tutor-statistics-summary-card h6 {
+    font-size: 0.85rem;
+  }
+
+  .tutor-statistics-summary-card .MuiSvgIcon-root {
+    font-size: 2rem;
+  }
+
+  .tutor-statistics-tab-content {
+    min-height: 500px;
+  }
+}
+
+/* =========================================== */
+/*        ✨ ACCESSIBILITY IMPROVEMENTS        */
+/* =========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .tutor-statistics-container,
+  .tutor-statistics-container::before,
+  .tutor-statistics-summary-card,
+  .MuiTab-root.tutor-statistics-tab {
+    animation: none;
+    transition: none;
+  }
+
+  .tutor-statistics-summary-card:hover,
+  .MuiTab-root.tutor-statistics-tab:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .tutor-statistics-tab-content {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .tutor-statistics-tab-panel .MuiTableBody-root .MuiTableCell-root {
+    color: #1a202c;
+  }
+}
+
+/* =========================================== */
+/*           🔥 PERFORMANCE OPTIMIZATIONS      */
+/* =========================================== */
+
+.tutor-statistics-container *,
+.tutor-statistics-container *::before,
+.tutor-statistics-container *::after {
+  will-change: auto;
+}
+
+.tutor-statistics-summary-card:hover,
+.MuiTab-root.tutor-statistics-tab:hover {
+  will-change: transform, box-shadow;
+}
+
+/* =========================================== */
+/*               🎉 FINAL TOUCHES              */
+/* =========================================== */
+
+.tutor-statistics-container {
+  /* Smooth scrolling for better UX */
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+.tutor-statistics-tab-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tutor-statistics-tab-panel::-webkit-scrollbar-track {
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+}
+
+.tutor-statistics-tab-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+.tutor-statistics-tab-panel::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Personal Revenue Statistics - Table Version Preview</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* CSS trực tiếp từ component mới */
+      body {
+        margin: 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          sans-serif;
+      }
+
+      .revenue-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+      }
+
+      /* Header */
+      .revenue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(215, 25, 33, 0.15);
+      }
+
+      .revenue-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .revenue-subtitle {
+        font-size: 1rem;
+        margin: 0;
+        opacity: 0.9;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 12px;
+      }
+
+      .refresh-btn,
+      .export-excel-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .refresh-btn:hover,
+      .export-excel-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      /* Statistics Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+      }
+
+      .stat-card-primary .stat-icon {
+        background: linear-gradient(135deg, #d71921, #e6394a);
+      }
+      .stat-card-secondary .stat-icon {
+        background: linear-gradient(135deg, #6c757d, #868e96);
+      }
+      .stat-card-success .stat-icon {
+        background: linear-gradient(135deg, #28a745, #34ce57);
+      }
+      .stat-card-info .stat-icon {
+        background: linear-gradient(135deg, #17a2b8, #20c997);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0 0 8px 0;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #212529;
+        margin: 0 0 4px 0;
+      }
+
+      .stat-description {
+        font-size: 0.85rem;
+        color: #868e96;
+        margin: 0;
+      }
+
+      /* Filters */
+      .filters-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 45px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #d71921;
+        box-shadow: 0 0 0 3px rgba(215, 25, 33, 0.1);
+      }
+
+      .filter-controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .filter-select,
+      .date-input {
+        padding: 10px 14px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        min-width: 150px;
+      }
+
+      .clear-filters-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* Table */
+      .table-section {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+      }
+
+      .table-title {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #212529;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .table-count {
+        color: #6c757d;
+        font-weight: 400;
+      }
+
+      .table-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .revenue-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      .revenue-table th {
+        background: #f8f9fa;
+        padding: 16px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        white-space: nowrap;
+      }
+
+      .revenue-table td {
+        padding: 16px 12px;
+        border-bottom: 1px solid #f1f3f4;
+        vertical-align: middle;
+      }
+
+      .revenue-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .student-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e9ecef;
+      }
+
+      .student-details {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .student-name {
+        font-weight: 600;
+        color: #212529;
+      }
+
+      .student-id {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-family: "Courier New", monospace;
+      }
+
+      .revenue-cell {
+        font-weight: 600;
+        color: #495057;
+        text-align: right;
+      }
+
+      .revenue-highlight {
+        color: #d71921;
+        font-size: 1rem;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .status-completed {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+      }
+
+      /* Pagination */
+      .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        gap: 16px;
+      }
+
+      .pagination-btn {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #495057;
+      }
+
+      .pagination-numbers {
+        display: flex;
+        gap: 8px;
+      }
+
+      .pagination-number {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        min-width: 40px;
+        text-align: center;
+        color: #495057;
+      }
+
+      .pagination-number.active {
+        background: #d71921;
+        border-color: #d71921;
+        color: white;
+      }
+
+      .shortcuts-help {
+        text-align: center;
+        padding: 20px;
+        background: rgba(215, 25, 33, 0.05);
+        border-radius: 8px;
+        border: 1px solid rgba(215, 25, 33, 0.1);
+      }
+
+      .shortcuts-help kbd {
+        background: #495057;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin: 0 2px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .revenue-header {
+          flex-direction: column;
+          gap: 20px;
+          text-align: center;
+        }
+
+        .header-actions {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .refresh-btn,
+        .export-excel-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-select,
+        .date-input {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="revenue-dashboard">
+      <!-- Header -->
+      <div class="revenue-header">
+        <div class="header-content">
+          <h1 class="revenue-title">
+            <i class="fas fa-table"></i>
+            Thống kê doanh thu cá nhân
+          </h1>
+          <p class="revenue-subtitle">
+            Quản lý và xem chi tiết về doanh thu từ hoạt động dạy học
+          </p>
+        </div>
+        <div class="header-actions">
+          <button class="refresh-btn" title="Làm mới dữ liệu (Ctrl+R)">
+            <i class="fas fa-sync-alt"></i>
+            Làm mới
+          </button>
+          <button class="export-excel-btn" title="Xuất Excel (Ctrl+E)">
+            <i class="fas fa-file-excel"></i>
+            Xuất Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card stat-card-primary">
+          <div class="stat-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-label">Tổng doanh thu</h3>
+            <div class="stat-value">125,500 Coin</div>
+            <p class="stat-description">Tổng coin nhận được</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-card-secondary">
+          <div class="stat-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-label">Tổng giao dịch</h3>
+            <div class="stat-value">47</div>
+            <p class="stat-description">Giao dịch hoàn thành</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-card-success">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-label">Học viên</h3>
+            <div class="stat-value">23</div>
+            <p class="stat-description">Học viên đã thanh toán</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-card-info">
+          <div class="stat-icon">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-label">TB/giao dịch</h3>
+            <div class="stat-value">2,670 Coin</div>
+            <p class="stat-description">Doanh thu trung bình</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters and Search -->
+      <div class="filters-section">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Tìm kiếm theo tên học viên, ID hoặc mã giao dịch (Ctrl+F)"
+          />
+        </div>
+
+        <div class="filter-controls">
+          <select class="filter-select">
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+            <option value="highest">Doanh thu cao nhất</option>
+            <option value="lowest">Doanh thu thấp nhất</option>
+          </select>
+
+          <input type="date" class="date-input" placeholder="Từ ngày" />
+          <input type="date" class="date-input" placeholder="Đến ngày" />
+
+          <button class="clear-filters-btn">
+            <i class="fas fa-times"></i>
+            Xóa bộ lọc
+          </button>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-section">
+        <div class="table-header">
+          <h3 class="table-title">
+            <i class="fas fa-table"></i>
+            Danh sách giao dịch
+            <span class="table-count">(47 giao dịch)</span>
+          </h3>
+          <div class="table-info">Hiển thị 1 - 10 / 47</div>
+        </div>
+
+        <div class="table-container">
+          <table class="revenue-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mã giao dịch</th>
+                <th>Học viên</th>
+                <th>Ngày tạo</th>
+                <th>Tiền học viên đóng</th>
+                <th>Tiền gia sư nhận</th>
+                <th>Phí website</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td class="transaction-id">MP001234</td>
+                <td>
+                  <div class="student-info">
+                    <img
+                      src="https://via.placeholder.com/40x40/28a745/ffffff?text=N"
+                      alt="Nguyễn Văn A"
+                      class="student-avatar"
+                    />
+                    <div class="student-details">
+                      <span class="student-name">Nguyễn Văn A</span>
+                      <span class="student-id">U001</span>
+                    </div>
+                  </div>
+                </td>
+                <td>15/12/2024</td>
+                <td class="revenue-cell">4,000 Coin</td>
+                <td class="revenue-cell revenue-highlight">3,200 Coin</td>
+                <td class="revenue-cell">800 Coin</td>
+                <td>
+                  <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td class="transaction-id">MP001235</td>
+                <td>
+                  <div class="student-info">
+                    <img
+                      src="https://via.placeholder.com/40x40/17a2b8/ffffff?text=T"
+                      alt="Trần Thị B"
+                      class="student-avatar"
+                    />
+                    <div class="student-details">
+                      <span class="student-name">Trần Thị B</span>
+                      <span class="student-id">U002</span>
+                    </div>
+                  </div>
+                </td>
+                <td>14/12/2024</td>
+                <td class="revenue-cell">3,500 Coin</td>
+                <td class="revenue-cell revenue-highlight">2,800 Coin</td>
+                <td class="revenue-cell">700 Coin</td>
+                <td>
+                  <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td class="transaction-id">MP001236</td>
+                <td>
+                  <div class="student-info">
+                    <img
+                      src="https://via.placeholder.com/40x40/ffc107/ffffff?text=L"
+                      alt="Lê Văn C"
+                      class="student-avatar"
+                    />
+                    <div class="student-details">
+                      <span class="student-name">Lê Văn C</span>
+                      <span class="student-id">U003</span>
+                    </div>
+                  </div>
+                </td>
+                <td>13/12/2024</td>
+                <td class="revenue-cell">2,500 Coin</td>
+                <td class="revenue-cell revenue-highlight">2,000 Coin</td>
+                <td class="revenue-cell">500 Coin</td>
+                <td>
+                  <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td class="transaction-id">MP001237</td>
+                <td>
+                  <div class="student-info">
+                    <img
+                      src="https://via.placeholder.com/40x40/dc3545/ffffff?text=P"
+                      alt="Phạm Thị D"
+                      class="student-avatar"
+                    />
+                    <div class="student-details">
+                      <span class="student-name">Phạm Thị D</span>
+                      <span class="student-id">U004</span>
+                    </div>
+                  </div>
+                </td>
+                <td>12/12/2024</td>
+                <td class="revenue-cell">5,000 Coin</td>
+                <td class="revenue-cell revenue-highlight">4,000 Coin</td>
+                <td class="revenue-cell">1,000 Coin</td>
+                <td>
+                  <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td class="transaction-id">MP001238</td>
+                <td>
+                  <div class="student-info">
+                    <img
+                      src="https://via.placeholder.com/40x40/6f42c1/ffffff?text=H"
+                      alt="Hoàng Văn E"
+                      class="student-avatar"
+                    />
+                    <div class="student-details">
+                      <span class="student-name">Hoàng Văn E</span>
+                      <span class="student-id">U005</span>
+                    </div>
+                  </div>
+                </td>
+                <td>11/12/2024</td>
+                <td class="revenue-cell">3,000 Coin</td>
+                <td class="revenue-cell revenue-highlight">2,400 Coin</td>
+                <td class="revenue-cell">600 Coin</td>
+                <td>
+                  <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="pagination-btn">
+            <i class="fas fa-chevron-left"></i>
+            Trang trước
+          </button>
+
+          <div class="pagination-numbers">
+            <button class="pagination-number active">1</button>
+            <button class="pagination-number">2</button>
+            <button class="pagination-number">3</button>
+            <button class="pagination-number">4</button>
+            <button class="pagination-number">5</button>
+          </div>
+
+          <span class="pagination-info">Trang 1 / 5</span>
+
+          <button class="pagination-btn">
+            Trang sau
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Keyboard shortcuts help -->
+      <div class="shortcuts-help">
+        <small>
+          💡 Phím tắt: <kbd>Ctrl+E</kbd> Xuất Excel, <kbd>Ctrl+R</kbd> Làm mới,
+          <kbd>Ctrl+F</kbd> Tìm kiếm
+        </small>
+      </div>
+    </div>
+
+    <script>
+      // Thêm một số JavaScript cơ bản để demo
+      document.addEventListener("DOMContentLoaded", function () {
+        // Demo search functionality
+        const searchInput = document.querySelector(".search-input");
+        const tableRows = document.querySelectorAll(".revenue-table tbody tr");
+
+        searchInput.addEventListener("input", function () {
+          const searchTerm = this.value.toLowerCase();
+          tableRows.forEach((row) => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+              row.style.display = "";
+            } else {
+              row.style.display = "none";
+            }
+          });
+        });
+
+        // Demo button clicks
+        document
+          .querySelector(".refresh-btn")
+          .addEventListener("click", function () {
+            this.innerHTML =
+              '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+            setTimeout(() => {
+              this.innerHTML = '<i class="fas fa-sync-alt"></i> Làm mới';
+              alert("Dữ liệu đã được làm mới!");
+            }, 1000);
+          });
+
+        document
+          .querySelector(".export-excel-btn")
+          .addEventListener("click", function () {
+            alert(
+              "Chức năng xuất Excel sẽ được thực hiện trong ứng dụng thực tế!"
+            );
+          });
+
+        document
+          .querySelector(".clear-filters-btn")
+          .addEventListener("click", function () {
+            searchInput.value = "";
+            document.querySelector(".filter-select").selectedIndex = 0;
+            document
+              .querySelectorAll(".date-input")
+              .forEach((input) => (input.value = ""));
+            tableRows.forEach((row) => (row.style.display = ""));
+            alert("Đã xóa tất cả bộ lọc!");
+          });
+
+        console.log(
+          "🎉 Tutor Personal Revenue Statistics - Table Version Preview loaded!"
+        );
+        console.log("✅ Features:", {
+          "Table Display": "Working",
+          "Search Function": "Demo working",
+          "Filter Controls": "Demo working",
+          Pagination: "UI ready",
+          "Export Excel": "Button ready",
+          "Responsive Design": "Implemented",
+          "Keyboard Shortcuts": "Ready for implementation",
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -18,7 +18,7 @@ import AccountPageLayout from "./components/User/layout/AccountPageLayout"; // �
 // Guards & Utils
 import AdminPrivateRoutes from "./route/AdminPrivateRoutes"; // Đảm bảo đường dẫn đúng
 import OtpProtectedRoute from "./route/OtpProtectedRoute"; // Đảm bảo đường dẫn đúng
-import TutorRegistrationGuard from "./route/TutorRegistrationGuard "; // Đảm bảo đường dẫn đúng
+import TutorRegistrationGuard from "./route/TutorRegistrationGuard"; // Đảm bảo đường dẫn đúng
 import ProtectRoute from "./route/ProtectRoute"; // Chỉ import default
 
 // User Pages
@@ -62,6 +62,7 @@ const StudentClassroomPage = lazy(() =>
 const TutorPersonalRevenueStatistics = lazy(() =>
   import("./pages/User/TutorRevenueStable")
 );
+const TutorStatistics = lazy(() => import("./pages/User/TutorStatistics"));
 
 // Test Components
 const IconTest = lazy(() => import("./components/IconTest"));
@@ -215,6 +216,10 @@ function App() {
                   <Route
                     path="thong-ke-doanh-thu"
                     element={<TutorPersonalRevenueStatistics />}
+                  />{" "}
+                  <Route
+                    path="thong-ke-tong-hop"
+                    element={<TutorStatistics />}
                   />
                 </Route>
 

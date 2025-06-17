@@ -24,59 +24,6 @@ const formatDate = (dateString) => {
   }
 };
 
-// Day labels for schedule parsing
-const dayLabels = {
-  1: "Thứ 2",
-  2: "Thứ 3",
-  3: "Thứ 4",
-  4: "Thứ 5",
-  5: "Thứ 6",
-  6: "Thứ 7",
-  0: "Chủ nhật",
-  7: "Chủ nhật",
-};
-
-// Parse dateTimeLearn from JSON string format
-const parseDateTimeLearn = (dateTimeLearn) => {
-  if (!dateTimeLearn || !Array.isArray(dateTimeLearn)) return [];
-  return dateTimeLearn.map((item) => {
-    try {
-      const parsed = JSON.parse(item);
-      return {
-        day: dayLabels[parsed.day] || parsed.day,
-        times: parsed.times.join(", "),
-      };
-    } catch (e) {
-      console.error("Error parsing dateTimeLearn item:", item, e);
-      return { day: "Lỗi", times: "Lỗi" };
-    }
-  });
-};
-
-// Helper function to calculate classroom progress
-const calculateClassProgress = (startDay, endDay) => {
-  if (!startDay || !endDay) return { percentage: 0, status: "unknown" };
-
-  try {
-    const start = new Date(startDay);
-    const end = new Date(endDay);
-    const now = new Date();
-
-    const totalDuration = end.getTime() - start.getTime();
-    const elapsed = now.getTime() - start.getTime();
-
-    if (elapsed < 0) return { percentage: 0, status: "not_started" };
-    if (elapsed > totalDuration)
-      return { percentage: 100, status: "completed" };
-
-    const percentage = Math.round((elapsed / totalDuration) * 100);
-    return { percentage, status: "in_progress" };
-  } catch (error) {
-    console.error("Error calculating progress:", error);
-    return { percentage: 0, status: "error" };
-  }
-};
-
 // Helper functions for accurate counting and pagination
 const getCountByStatus = (items, status) => {
   if (status === "IN_SESSION") {
@@ -325,10 +272,6 @@ const TutorClassroomPage = () => {
   const [isMeetingLoading, setIsMeetingLoading] = useState(false);
   const meetingsPerPage = 2;
 
-  // Classroom detail states
-  const [showClassroomDetail, setShowClassroomDetail] = useState(false);
-  const [currentClassroomDetail, setCurrentClassroomDetail] = useState(null);
-
   // View states
   const [showMeetingView, setShowMeetingView] = useState(false);
   const [currentClassroomForMeetings, setCurrentClassroomForMeetings] =
@@ -497,36 +440,12 @@ const TutorClassroomPage = () => {
       return () => clearTimeout(timer);
     }
   }, []);
-
   // Handle URL parameters to restore view state on refresh
   useEffect(() => {
     const view = searchParams.get("view");
     const classroomId = searchParams.get("id");
     const classroomName = searchParams.get("name");
-    if (view === "detail" && classroomId && classroomName) {
-      // Restore classroom detail view
-      const decodedClassroomId = decodeURIComponent(classroomId);
-      const decodedClassroomName = decodeURIComponent(classroomName);
-
-      // Try to find the full classroom object from allClassrooms
-      const foundClassroom = allClassrooms.find(
-        (c) => c.classroomId === decodedClassroomId
-      );
-
-      if (foundClassroom) {
-        // Use the full classroom object with all data
-        setCurrentClassroomDetail(foundClassroom);
-      } else {
-        // Fallback to basic data from URL
-        setCurrentClassroomDetail({
-          classroomId: decodedClassroomId,
-          nameOfRoom: decodedClassroomName,
-        });
-      }
-
-      setShowClassroomDetail(true);
-      setShowMeetingView(false);
-    } else if (view === "meetings" && classroomId && classroomName) {
+    if (view === "meetings" && classroomId && classroomName) {
       // Restore meeting view - need to load meetings
       const restoreMeetingView = async () => {
         try {
@@ -608,7 +527,6 @@ const TutorClassroomPage = () => {
                 nameOfRoom: decodeURIComponent(classroomName),
               });
               setShowMeetingView(true);
-              setShowClassroomDetail(false);
             } else {
               console.log(
                 "⚠️ TUTOR DEBUG - No meetings found during restore, showing empty view"
@@ -623,7 +541,6 @@ const TutorClassroomPage = () => {
                 nameOfRoom: decodeURIComponent(classroomName),
               });
               setShowMeetingView(true);
-              setShowClassroomDetail(false);
             }
           } else {
             console.log(
@@ -639,7 +556,6 @@ const TutorClassroomPage = () => {
               nameOfRoom: decodeURIComponent(classroomName),
             });
             setShowMeetingView(true);
-            setShowClassroomDetail(false);
           }
         } catch (error) {
           console.error(
@@ -652,11 +568,9 @@ const TutorClassroomPage = () => {
           setIsMeetingLoading(false);
         }
       };
-
       restoreMeetingView();
     } else {
       // Default view - classroom list
-      setShowClassroomDetail(false);
       setShowMeetingView(false);
     }
   }, [
@@ -741,6 +655,12 @@ const TutorClassroomPage = () => {
         tokenLength: token ? token.length : 0,
         tokenPreview: token ? token.substring(0, 20) + "..." : "No token",
       });
+      console.log("🔍 TUTOR DEBUG - About to call API:", {
+        endpoint: "meeting/get-meeting",
+        method: "POST",
+        data: { classroomId: classroomId },
+        requireToken: true,
+      });
 
       const response = await Api({
         endpoint: "meeting/get-meeting",
@@ -751,57 +671,39 @@ const TutorClassroomPage = () => {
         requireToken: true,
       });
 
+      console.log("🔍 TUTOR DEBUG - API call completed. Response:", response);
       console.log("🔍 TUTOR DEBUG - meeting/get-meeting response:", response);
       console.log(
         "🔍 TUTOR DEBUG - Full response structure:",
         JSON.stringify(response, null, 2)
       );
-      toast.dismiss(loadingToastId); // Check for data in the correct path based on API structure: response.data.result.items
-      let allMeetingsData = [];
-      if (response.success) {
-        if (
-          response.data &&
-          response.data.result &&
-          response.data.result.items
-        ) {
-          allMeetingsData = response.data.result.items;
-          console.log(
-            "✅ TUTOR DEBUG - Found meetings in response.data.result.items:",
-            allMeetingsData.length
-          );
-        } else if (response.result && response.result.items) {
-          allMeetingsData = response.result.items;
-          console.log(
-            "✅ TUTOR DEBUG - Found meetings in response.result.items (fallback):",
-            allMeetingsData.length
-          );
-        } else if (response.data && response.data.items) {
-          allMeetingsData = response.data.items;
-          console.log(
-            "✅ TUTOR DEBUG - Found meetings in response.data.items (fallback 2):",
-            allMeetingsData.length
-          );
-        } else {
-          console.log(
-            "⚠️ TUTOR DEBUG - No items found in response.data.result.items, response.result.items, or response.data.items"
-          );
-          console.log(
-            "🔍 TUTOR DEBUG - Available response keys:",
-            Object.keys(response)
-          );
-        }
+      toast.dismiss(loadingToastId);
 
+      // Check for data in the correct path based on API structure: response.data.result.items
+      let allMeetingsData = [];
+      if (
+        response.success &&
+        response.data &&
+        response.data.result &&
+        response.data.result.items
+      ) {
+        allMeetingsData = response.data.result.items;
         console.log(
-          "🔍 TUTOR DEBUG - Meeting data structure:",
-          allMeetingsData.length > 0 ? allMeetingsData[0] : "No meetings"
+          "✅ TUTOR DEBUG - Found meetings in response.data.result.items:",
+          allMeetingsData.length
         );
+        console.log(
+          "🔍 TUTOR DEBUG - Meeting statuses:",
+          allMeetingsData.map((m) => m.status)
+        );
+
         if (allMeetingsData.length > 0) {
           console.log(
             "🔍 TUTOR DEBUG - Setting meetings to state:",
             allMeetingsData.length
           );
           console.log(
-            "🔍 TUTOR DEBUG - Meeting statuses:",
+            "🔍 TUTOR DEBUG - Meeting details:",
             allMeetingsData.map((m) => ({
               meetingId: m.meetingId,
               status: m.status,
@@ -810,70 +712,60 @@ const TutorClassroomPage = () => {
           );
           setAllMeetings(allMeetingsData);
 
-          // CRITICAL DEBUG: Check filter operation step by step
-          console.log("🔍 TUTOR DEBUG - BEFORE FILTER OPERATION:", {
-            rawDataCount: allMeetingsData.length,
-            activeMeetingTab: activeMeetingTab,
-            activeMeetingTabType: typeof activeMeetingTab,
-            rawMeetings: allMeetingsData.map((m) => ({
-              id: m.meetingId,
-              status: m.status,
-              topic: m.topic,
-            })),
+          // Check meeting statuses and auto-set appropriate tab
+          const hasInSessionMeetings = allMeetingsData.some(
+            (m) =>
+              m.status === "IN_SESSION" || m.status === "PENDING" || !m.status
+          );
+          const hasEndedMeetings = allMeetingsData.some(
+            (m) =>
+              m.status === "ENDED" ||
+              m.status === "COMPLETED" ||
+              m.status === "CANCELLED"
+          );
+
+          console.log("🔍 TUTOR DEBUG - Meeting status analysis:", {
+            hasInSessionMeetings,
+            hasEndedMeetings,
+            currentActiveMeetingTab: activeMeetingTab,
           });
 
-          console.log("🔍 TUTOR DEBUG - FILTER CRITERIA CHECK:", {
-            tabIsENDED: activeMeetingTab === "ENDED",
-            tabIsIN_SESSION: activeMeetingTab === "IN_SESSION",
-            willFilterFor:
-              activeMeetingTab === "ENDED"
-                ? "COMPLETED || CANCELLED || ENDED"
-                : activeMeetingTab === "IN_SESSION"
-                ? "IN_SESSION || PENDING || !status"
-                : "unknown",
-            manualEndedCount: allMeetingsData.filter(
-              (m) =>
-                m.status === "COMPLETED" ||
-                m.status === "CANCELLED" ||
-                m.status === "ENDED"
-            ).length,
-            manualInSessionCount: allMeetingsData.filter(
-              (m) =>
-                m.status === "IN_SESSION" || m.status === "PENDING" || !m.status
-            ).length,
-          });
+          // Auto-adjust tab if current tab has no meetings
+          let finalTab = activeMeetingTab;
+          if (
+            activeMeetingTab === "IN_SESSION" &&
+            !hasInSessionMeetings &&
+            hasEndedMeetings
+          ) {
+            finalTab = "ENDED";
+            setActiveMeetingTab("ENDED");
+            console.log(
+              "🔄 TUTOR DEBUG - Auto-switching to ENDED tab (no IN_SESSION meetings found)"
+            );
+          } else if (
+            activeMeetingTab === "ENDED" &&
+            !hasEndedMeetings &&
+            hasInSessionMeetings
+          ) {
+            finalTab = "IN_SESSION";
+            setActiveMeetingTab("IN_SESSION");
+            console.log(
+              "� TUTOR DEBUG - Auto-switching to IN_SESSION tab (no ENDED meetings found)"
+            );
+          }
 
           const result = getFilteredItems(
             allMeetingsData,
-            activeMeetingTab,
+            finalTab,
             1,
             meetingsPerPage
           );
 
-          console.log("🔍 TUTOR DEBUG - AFTER FILTER OPERATION:", {
-            originalCount: allMeetingsData.length,
-            filteredCount: result.items.length,
-            totalAfterFilter: result.total,
-            activeTab: activeMeetingTab,
-            resultItems: result.items.map((m) => ({
-              id: m.meetingId,
-              status: m.status,
-            })),
-            success: result.items.length > 0,
-          });
-
           console.log("🔍 TUTOR DEBUG - Filtered result:", {
             totalItems: allMeetingsData.length,
             filteredItems: result.items.length,
-            activeTab: activeMeetingTab,
+            activeTab: finalTab,
             resultTotal: result.total,
-            filteringCriteria:
-              activeMeetingTab === "IN_SESSION"
-                ? "Looking for IN_SESSION, PENDING, or null status"
-                : activeMeetingTab === "ENDED"
-                ? "Looking for COMPLETED, CANCELLED, or ENDED status"
-                : "Showing all",
-            actualStatuses: allMeetingsData.map((m) => m.status),
           });
 
           setMeetingList(result.items);
@@ -930,7 +822,14 @@ const TutorClassroomPage = () => {
           toast.info("Chưa có phòng học nào được tạo cho lớp này.");
         }
       } else {
-        console.log("❌ TUTOR DEBUG - API call failed:", response);
+        console.log(
+          "❌ TUTOR DEBUG - API call failed or invalid response structure:",
+          response
+        );
+        console.log(
+          "🔍 TUTOR DEBUG - Response keys:",
+          Object.keys(response || {})
+        );
         toast.error("Không thể tải danh sách phòng học. Vui lòng thử lại!");
         setMeetingList([]);
         setAllMeetings([]);
@@ -953,37 +852,9 @@ const TutorClassroomPage = () => {
     setCurrentClassroomForMeetings(null);
     setMeetingList([]);
     setAllMeetings([]);
-    setShowClassroomDetail(false);
-    setCurrentClassroomDetail(null);
 
     // Clear URL params
     setSearchParams({});
-  }; // Function to show classroom detail from action button
-  const handleShowClassroomDetail = (classroom) => {
-    // Use data from the list instead of calling separate API
-    setCurrentClassroomDetail(classroom);
-    setShowClassroomDetail(true);
-
-    // Update URL params
-    setSearchParams({
-      view: "detail",
-      id: encodeURIComponent(classroom.classroomId),
-      name: encodeURIComponent(classroom.nameOfRoom),
-    });
-  }; // Function to go to meeting view from detail view
-  const handleGoToMeetingView = async (classroomId, classroomName) => {
-    // Exit classroom detail view first
-    setShowClassroomDetail(false);
-    setCurrentClassroomDetail(null);
-
-    // Update URL params for meeting view
-    setSearchParams({
-      view: "meetings",
-      id: encodeURIComponent(classroomId),
-      name: encodeURIComponent(classroomName),
-    });
-
-    await handleEnterClassroom(classroomId, classroomName);
   };
   const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
     console.log("🔍 DEBUG - Opening create meeting modal:", {
@@ -1097,260 +968,11 @@ const TutorClassroomPage = () => {
     return (
       <div className="tutor-classroom-page">
         <h2 className="tcp-page-title">Quản lý lớp học</h2>
-        <p>Vui lòng đăng nhập để xem thông tin lớp học.</p>
+        <p>Vui lòng đăng nhập để xem thông tin lớp học.</p>{" "}
       </div>
     );
   }
-
-  // Classroom Detail View Component
-  const ClassroomDetailView = () => {
-    if (!showClassroomDetail || !currentClassroomDetail) return null;
-
-    const classroom = currentClassroomDetail;
-    const schedule = parseDateTimeLearn(classroom.dateTimeLearn);
-    const progress = calculateClassProgress(
-      classroom.startDay,
-      classroom.endDay
-    );
-
-    return (
-      <div className="tutor-classroom-page">
-        <div className="tcp-detail-header">
-          <button className="tcp-back-btn" onClick={handleBackToClassrooms}>
-            <i className="fas fa-arrow-left" style={{ marginRight: "8px" }}></i>
-            Quay lại danh sách lớp học
-          </button>
-          <h3 className="tcp-detail-title">
-            Chi tiết lớp học - {classroom.nameOfRoom}
-          </h3>
-        </div>
-
-        <div className="tcp-detail-content">
-          <div className="tcp-detail-section">
-            <h4 className="tcp-detail-section-title">
-              <i className="fas fa-user-graduate"></i>
-              Thông tin học viên
-            </h4>
-
-            {/* Debug: Log classroom data */}
-            {console.log("🔍 DEBUG - Classroom data:", classroom)}
-            {console.log("🔍 DEBUG - User data:", classroom?.user)}
-
-            <div className="tcp-student-detail-info">
-              <img
-                src={classroom.user?.avatar || dfMale}
-                alt={classroom.user?.fullname || "Học viên"}
-                className="tcp-detail-avatar"
-              />
-              <div className="tcp-student-info-grid">
-                <div className="tcp-info-item">
-                  <i className="fas fa-user"></i>
-                  <span>
-                    <strong>Tên:</strong> {classroom.user?.fullname || "N/A"}
-                  </span>
-                </div>
-                <div className="tcp-info-item">
-                  <i className="fas fa-envelope"></i>
-                  <span>
-                    <strong>Email:</strong>{" "}
-                    {classroom.user?.personalEmail ||
-                      classroom.user?.workEmail ||
-                      "N/A"}
-                  </span>
-                </div>
-                <div className="tcp-info-item">
-                  <i className="fas fa-phone"></i>
-                  <span>
-                    <strong>Số điện thoại:</strong>{" "}
-                    {classroom.user?.phoneNumber || "N/A"}
-                  </span>
-                </div>
-                <div className="tcp-info-item">
-                  <i className="fas fa-birthday-cake"></i>
-                  <span>
-                    <strong>Ngày sinh:</strong>{" "}
-                    {classroom.user?.birthday
-                      ? formatDate(classroom.user.birthday)
-                      : "N/A"}
-                  </span>
-                </div>
-                <div className="tcp-info-item">
-                  <i className="fas fa-map-marker-alt"></i>
-                  <span>
-                    <strong>Địa chỉ:</strong>{" "}
-                    {classroom.user?.homeAddress || "N/A"}
-                  </span>
-                </div>
-                <div className="tcp-info-item">
-                  <i className="fas fa-graduation-cap"></i>
-                  <span>
-                    <strong>Ngành học:</strong>{" "}
-                    {classroom.user?.major?.majorName || "N/A"}
-                  </span>
-                </div>
-                <div className="tcp-info-item">
-                  <i className="fas fa-coins"></i>
-                  <span className="highlight">
-                    <strong>Học phí:</strong>{" "}
-                    {classroom.tutor?.coinPerHours
-                      ? `${classroom.tutor.coinPerHours.toLocaleString()} Xu/giờ`
-                      : "Thỏa thuận"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <hr className="tcp-divider" />
-
-          <div className="tcp-class-details">
-            <div className="tcp-class-info-grid">
-              <div className="tcp-info-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-play-circle"></i>
-                  Ngày bắt đầu:
-                </div>
-                <div className="tcp-info-value">
-                  {formatDate(classroom.startDay)}
-                </div>
-              </div>
-
-              <div className="tcp-info-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-stop-circle"></i>
-                  Ngày kết thúc:
-                </div>
-                <div className="tcp-info-value">
-                  {formatDate(classroom.endDay)}
-                </div>
-              </div>
-
-              <div className="tcp-info-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-chart-line"></i>
-                  Tiến độ lớp học:
-                </div>
-                <div className="tcp-info-value">
-                  {" "}
-                  <div className="tcp-progress-container">
-                    <div className="tcp-progress-bar">
-                      <div
-                        className="tcp-progress-fill"
-                        style={{ width: `${progress.percentage}%` }}
-                      ></div>
-                    </div>
-                    <span className="tcp-progress-text">
-                      {progress.percentage}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="tcp-info-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-info-circle"></i>
-                  Trạng thái:
-                </div>
-                <div className="tcp-info-value">
-                  <span
-                    className={`tcp-status ${
-                      classroom.status === "IN_SESSION"
-                        ? "tcp-status-active"
-                        : "tcp-status-ended"
-                    }`}
-                  >
-                    {classroom.status === "IN_SESSION"
-                      ? "Đang diễn ra"
-                      : "Đã kết thúc"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="tcp-info-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-book"></i>
-                  Môn học:
-                </div>
-                <div className="tcp-info-value">
-                  {classroom.subject?.subjectName || "N/A"}
-                </div>
-              </div>
-
-              <div className="tcp-info-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-star"></i>
-                  Đánh giá:
-                </div>
-                <div className="tcp-info-value">
-                  {classroom.rating ? (
-                    <div className="tcp-rating">
-                      <span className="tcp-rating-score">
-                        {classroom.rating.toFixed(1)}
-                      </span>
-                      <div className="tcp-stars">
-                        {[...Array(5)].map((_, i) => (
-                          <i
-                            key={i}
-                            className={`fas fa-star ${
-                              i < Math.floor(classroom.rating)
-                                ? "tcp-star-filled"
-                                : "tcp-star-empty"
-                            }`}
-                          ></i>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    "Chưa có đánh giá"
-                  )}
-                </div>
-              </div>
-
-              <div className="tcp-info-group tcp-schedule-group">
-                <div className="tcp-info-label">
-                  <i className="fas fa-calendar-alt"></i>
-                  Lịch học:
-                </div>
-                <div className="tcp-info-value">
-                  {schedule && schedule.length > 0 ? (
-                    <ul className="tcp-schedule-list">
-                      {schedule.map((s, index) => (
-                        <li key={index}>
-                          <strong>{s.day}:</strong> {s.times}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="tcp-info-value">Chưa có lịch học.</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="tcp-detail-actions">
-            <button
-              className="tcp-action-btn tcp-view-meetings-btn"
-              onClick={() =>
-                handleGoToMeetingView(
-                  classroom.classroomId,
-                  classroom.nameOfRoom
-                )
-              }
-            >
-              <i className="fas fa-video"></i>
-              Xem phòng học
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Show classroom detail view if active
-  if (showClassroomDetail) {
-    return <ClassroomDetailView />;
-  } // Meeting View Component
+  // Meeting View Component
   if (showMeetingView && currentClassroomForMeetings) {
     return (
       <div className="tutor-classroom-page">
@@ -1918,14 +1540,7 @@ const TutorClassroomPage = () => {
                 </div>{" "}
                 <div className="tcp-card-footer">
                   <div className="tcp-action-buttons">
-                    <button
-                      className="tcp-action-btn tcp-view-detail-btn"
-                      onClick={() => handleShowClassroomDetail(classroom)}
-                    >
-                      <i className="fas fa-eye"></i>
-                      Xem chi tiết
-                    </button>
-
+                    {" "}
                     <button
                       className="tcp-action-btn tcp-view-meetings-btn"
                       onClick={() =>

@@ -1,0 +1,871 @@
+/* Tutor Hire and Rating Statistics Dashboard Styles */
+
+/* ==================== Container & Base Styles ==================== */
+.thars-container {
+  height: 100vh;
+  max-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.thars-container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle at 25% 25%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 75% 75%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    );
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ==================== Header Section ==================== */
+.thars-header {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.95) 0%,
+    rgba(118, 75, 162, 0.95) 100%
+  );
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 30px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  min-height: 100px;
+  max-height: 140px;
+}
+
+.thars-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle at 20% 80%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.thars-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin: 0 0 8px 0;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(45deg, #ffffff, #f8f9ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.thars-title i {
+  font-size: 2.2rem;
+  color: #ffffff;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  -webkit-text-fill-color: initial;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.thars-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.6;
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ==================== Statistics Section ==================== */
+.thars-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  max-height: 180px;
+}
+
+.thars-stats-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 100px;
+  max-height: 120px;
+}
+
+.thars-stats-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transition: all 0.3s ease;
+}
+
+.thars-stats-card-primary::before {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.thars-stats-card-secondary::before {
+  background: linear-gradient(90deg, #f093fb, #f5576c);
+}
+
+.thars-stats-card-success::before {
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
+}
+
+.thars-stats-card-info::before {
+  background: linear-gradient(90deg, #43e97b, #38f9d7);
+}
+
+.thars-stats-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15), 0 12px 36px rgba(0, 0, 0, 0.1);
+}
+
+.thars-stats-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.thars-stats-icon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.thars-stats-card:hover .thars-stats-icon::before {
+  opacity: 1;
+}
+
+.thars-stats-card-primary .thars-stats-icon {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.thars-stats-card-secondary .thars-stats-icon {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  box-shadow: 0 8px 32px rgba(240, 147, 251, 0.3);
+}
+
+.thars-stats-card-success .thars-stats-icon {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  box-shadow: 0 8px 32px rgba(79, 172, 254, 0.3);
+}
+
+.thars-stats-card-info .thars-stats-icon {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  box-shadow: 0 8px 32px rgba(67, 233, 123, 0.3);
+}
+
+.thars-stats-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.thars-stats-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.thars-stats-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==================== Tab Navigation ==================== */
+.thars-tab-navigation {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 4px;
+  backdrop-filter: blur(10px);
+}
+
+.thars-tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.thars-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.thars-tab-btn.active {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.thars-tab-btn i {
+  font-size: 1rem;
+}
+
+/* ==================== Table Section ==================== */
+.thars-table-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  max-width: 1400px;
+  margin: 0 auto 20px auto;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(100vh - 380px);
+}
+
+.thars-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.thars-table-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex: 1;
+}
+
+.thars-table-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.thars-table-title i {
+  color: #667eea;
+  font-size: 1.6rem;
+  -webkit-text-fill-color: initial;
+}
+
+.thars-table-count-badge {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.thars-table-count-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.thars-table-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.thars-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.thars-search-container i {
+  position: absolute;
+  left: 12px;
+  color: #6b7280;
+  z-index: 1;
+}
+
+.thars-search-input {
+  padding: 12px 12px 12px 40px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  width: 280px;
+  transition: all 0.3s ease;
+}
+
+.thars-search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.thars-sort-select {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.thars-sort-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.thars-action-btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.thars-refresh-btn {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+.thars-refresh-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79, 172, 254, 0.4);
+}
+
+.thars-export-btn {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: white;
+  box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);
+}
+
+.thars-export-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(67, 233, 123, 0.4);
+}
+
+.thars-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.thars-table-container {
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  background: white;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100vh - 520px);
+}
+
+.thars-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 800px;
+}
+
+.thars-table thead {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.thars-table th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.thars-table td {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.thars-table tbody tr:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.thars-table-index {
+  font-weight: 600;
+  color: #6b7280;
+  width: 60px;
+  text-align: center;
+}
+
+.thars-student-name-simple {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  display: block;
+  padding: 4px 0;
+}
+
+.thars-room-name {
+  font-weight: 600;
+  color: #2d3748;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thars-coin-cell {
+  font-weight: 700;
+  color: #22543d;
+  background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+  border-left: 3px solid #48bb78;
+  font-family: "Monaco", "Menlo", monospace;
+}
+
+.thars-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.thars-status-accept {
+  background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+  color: #22543d;
+  border: 1px solid #48bb78;
+}
+
+.thars-status-pending {
+  background: linear-gradient(135deg, #fffbf0, #fed7aa);
+  color: #c05621;
+  border: 1px solid #f59e0b;
+}
+
+.thars-status-reject {
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.thars-status-in_session {
+  background: linear-gradient(135deg, #eff6ff, #bfdbfe);
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+}
+
+.thars-status-completed {
+  background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+  color: #22543d;
+  border: 1px solid #48bb78;
+}
+
+.thars-status-cancelled {
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.thars-meeting-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.thars-meeting-badge.met {
+  background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+  color: #22543d;
+  border: 1px solid #48bb78;
+}
+
+.thars-meeting-badge.not-met {
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.thars-date-cell {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* ==================== Loading & Error States ==================== */
+.thars-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.thars-loading-spinner {
+  font-size: 2rem;
+  color: #667eea;
+  margin-bottom: 16px;
+}
+
+.thars-loading p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.thars-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  border-radius: 12px;
+  border: 1px solid #ef4444;
+  margin: 20px;
+}
+
+.thars-error-icon {
+  font-size: 3rem;
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.thars-error h3 {
+  color: #991b1b;
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+}
+
+.thars-error p {
+  color: #7f1d1d;
+  margin: 4px 0;
+  text-align: center;
+}
+
+.thars-retry-btn {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.thars-retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}
+
+.thars-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.thars-empty-icon {
+  font-size: 4rem;
+  color: #cbd5e1;
+  margin-bottom: 24px;
+}
+
+.thars-empty-state h3 {
+  color: #374151;
+  margin: 0 0 12px 0;
+  font-size: 1.4rem;
+}
+
+.thars-empty-state p {
+  margin: 8px 0;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+/* ==================== Auth Warning ==================== */
+.auth-warning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: white;
+}
+
+.auth-warning h3 {
+  font-size: 1.8rem;
+  margin: 0 0 16px 0;
+  color: #fbbf24;
+}
+
+.auth-warning p {
+  font-size: 1.1rem;
+  margin: 8px 0;
+  opacity: 0.9;
+}
+
+.auth-warning details {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  border-radius: 8px;
+  max-width: 400px;
+}
+
+.auth-warning summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 1200px) {
+  .thars-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .thars-table-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .thars-table-controls {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .thars-container {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .thars-header {
+    padding: 16px 20px;
+  }
+
+  .thars-title {
+    font-size: 1.8rem;
+  }
+
+  .thars-title i {
+    font-size: 1.8rem;
+  }
+
+  .thars-subtitle {
+    font-size: 1rem;
+  }
+
+  .thars-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    padding: 16px 20px;
+  }
+
+  .thars-stats-card {
+    padding: 12px;
+    min-height: 80px;
+    max-height: 100px;
+  }
+
+  .thars-stats-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+
+  .thars-stats-label {
+    font-size: 0.75rem;
+  }
+
+  .thars-stats-value {
+    font-size: 1.6rem;
+  }
+
+  .thars-table-section {
+    padding: 16px;
+    margin: 0 10px 10px 10px;
+  }
+
+  .thars-table-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .thars-search-input {
+    width: 100%;
+  }
+
+  .thars-table {
+    font-size: 0.8rem;
+  }
+
+  .thars-table th,
+  .thars-table td {
+    padding: 8px 6px;
+  }
+
+  .thars-tab-navigation {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .thars-tab-btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .thars-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .thars-table-container {
+    overflow-x: scroll;
+  }
+
+  .thars-table {
+    min-width: 600px;
+  }
+}
