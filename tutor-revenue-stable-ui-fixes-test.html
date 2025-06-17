@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test UI Fixes - TutorRevenueStable</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        backdrop-filter: blur(10px);
+      }
+
+      h1 {
+        color: #2d3748;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+      }
+
+      .section h2 {
+        color: #2d3748;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status {
+        padding: 12px 20px;
+        border-radius: 10px;
+        margin: 10px 0;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status.success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.warning {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .test-item {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+      }
+
+      .test-item h3 {
+        color: #2d3748;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .test-item p {
+        color: #4a5568;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .code {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        margin: 10px 0;
+        overflow-x: auto;
+      }
+
+      .highlight {
+        background: linear-gradient(135deg, #4299e1, #3182ce);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-weight: 500;
+      }
+
+      .file-path {
+        background: #edf2f7;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        color: #2d3748;
+        font-size: 0.9rem;
+        border-left: 3px solid #4299e1;
+      }
+
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+
+      .checklist li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .checklist li::before {
+        content: "✅";
+        font-size: 1.2rem;
+      }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .before,
+      .after {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #dc3545;
+      }
+
+      .after {
+        border-left-color: #28a745;
+      }
+
+      .before h4,
+      .after h4 {
+        margin-bottom: 10px;
+        font-size: 1rem;
+      }
+
+      .before h4 {
+        color: #dc3545;
+      }
+
+      .after h4 {
+        color: #28a745;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎨 Test UI Fixes - TutorRevenueStable</h1>
+
+      <div class="section">
+        <h2><span>🎯</span> Mục tiêu hoàn thành</h2>
+        <p>Sửa các vấn đề UI trong trang TutorRevenueStable theo yêu cầu:</p>
+
+        <ul class="checklist">
+          <li>Đổi "Coin" thành "Xu" (terminology chuẩn tiếng Việt)</li>
+          <li>Cải thiện màu sắc statistics cards để phân biệt rõ ràng</li>
+          <li>Sửa layout học viên (thêm avatar, hiển thị đầy đủ thông tin)</li>
+          <li>Cải thiện title và count trong table</li>
+          <li>Đảm bảo responsive design</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2><span>🔧</span> Thay đổi đã thực hiện</h2>
+
+        <div class="test-item">
+          <h3>1. Terminology: "Coin" → "Xu"</h3>
+          <div class="comparison">
+            <div class="before">
+              <h4>❌ Trước</h4>
+              <div class="code">
+                "Coin gia sư nhận" "2,430 Coin" "Số coin gia sư nhận được"
+              </div>
+            </div>
+            <div class="after">
+              <h4>✅ Sau</h4>
+              <div class="code">
+                "Xu gia sư nhận" "2,430 Xu" "Số xu gia sư nhận được"
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>2. Statistics Cards Colors</h3>
+          <p>Đã có 4 màu gradient riêng biệt:</p>
+          <ul class="checklist">
+            <li>
+              <span
+                class="highlight"
+                style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                >Tổng doanh thu</span
+              >
+              - Xanh tím
+            </li>
+            <li>
+              <span
+                class="highlight"
+                style="background: linear-gradient(135deg, #f093fb, #f5576c)"
+                >Số giao dịch</span
+              >
+              - Hồng
+            </li>
+            <li>
+              <span
+                class="highlight"
+                style="background: linear-gradient(135deg, #4facfe, #00f2fe)"
+                >Học sinh</span
+              >
+              - Xanh dương
+            </li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>3. Student Info Layout</h3>
+          <div class="comparison">
+            <div class="before">
+              <h4>❌ Trước</h4>
+              <div class="code">
+                &lt;div className="tprs-student-info"&gt; &lt;div
+                className="tprs-student-details"&gt; &lt;span&gt;Tên học
+                sinh&lt;/span&gt; &lt;span&gt;ID: 12345&lt;/span&gt;
+                &lt;/div&gt; &lt;/div&gt;
+              </div>
+              <p>❌ Thiếu avatar, layout đơn điệu</p>
+            </div>
+            <div class="after">
+              <h4>✅ Sau</h4>
+              <div class="code">
+                &lt;div className="tprs-student-info"&gt; &lt;img
+                className="tprs-student-avatar" /&gt; &lt;div
+                className="tprs-student-details"&gt; &lt;span&gt;Tên học
+                sinh&lt;/span&gt; &lt;span&gt;ID: 12345&lt;/span&gt;
+                &lt;/div&gt; &lt;/div&gt;
+              </div>
+              <p>✅ Có avatar tròn, layout professional</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>4. Revenue Cell Highlighting</h3>
+          <p>Cột "Xu gia sư nhận" được highlight với:</p>
+          <div class="code">
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5); border-left:
+            3px solid #48bb78; color: #22543d; font-weight: 700;
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span>📂</span> Files đã chỉnh sửa</h2>
+
+        <div class="test-item">
+          <h3>1. Component chính:</h3>
+          <div class="file-path">src/pages/User/TutorRevenueStable.jsx</div>
+          <ul class="checklist">
+            <li>Đổi tất cả "Coin" thành "Xu"</li>
+            <li>Thêm avatar cho student info</li>
+            <li>Cập nhật table headers</li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>2. CSS Styles:</h3>
+          <div class="file-path">
+            src/assets/css/User/ModernRevenueStatistics.style.css
+          </div>
+          <ul class="checklist">
+            <li>Student avatar styles (40px, border-radius: 50%)</li>
+            <li>Student info layout improvements</li>
+            <li>Revenue highlight background</li>
+            <li>Responsive design cho mobile</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span>🧪</span> Hướng dẫn Test</h2>
+
+        <div class="test-item">
+          <h3>Step 1: Visual Check</h3>
+          <ul class="checklist">
+            <li>Mở trang TutorRevenueStable</li>
+            <li>Verify tất cả "Coin" đã thành "Xu"</li>
+            <li>Check 3 stat cards có màu khác nhau rõ ràng</li>
+            <li>Kiểm tra student có avatar tròn</li>
+            <li>Cột "Xu gia sư nhận" có highlight xanh</li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>Step 2: Responsive Test</h3>
+          <ul class="checklist">
+            <li>Test trên desktop (1920px)</li>
+            <li>Test trên tablet (768px)</li>
+            <li>Test trên mobile (480px)</li>
+            <li>Verify avatar size adjust properly</li>
+            <li>Check text không bị overflow</li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>Step 3: Functionality Test</h3>
+          <ul class="checklist">
+            <li>Export Excel vẫn hoạt động (xuất "Xu")</li>
+            <li>Search/filter functionality</li>
+            <li>Table sorting</li>
+            <li>Hover effects trên avatar</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span>✅</span> Expected Results</h2>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>Terminology chuẩn:</strong> Tất cả "Coin" đã thành "Xu" -
+            phù hợp tiếng Việt</span
+          >
+        </div>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>UI đẹp hơn:</strong> Stat cards có màu phân biệt, student
+            có avatar, revenue cell highlight</span
+          >
+        </div>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>Layout professional:</strong> Student info đầy đủ, không bị
+            cắt, responsive tốt</span
+          >
+        </div>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>User experience:</strong> Dễ nhìn, dễ phân biệt, hover
+            effects mượt mà</span
+          >
+        </div>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          margin-top: 40px;
+          padding: 20px;
+          color: #4a5568;
+          font-style: italic;
+        "
+      >
+        <p>🎉 TutorRevenueStable UI đã được cải thiện hoàn thiện!</p>
+        <p>Generated by GitHub Copilot - June 17, 2025</p>
+      </div>
+    </div>
+
+    <script>
+      console.log("🎨 TutorRevenueStable UI Fixes Test Ready");
+      console.log("📁 Component: src/pages/User/TutorRevenueStable.jsx");
+      console.log(
+        "🎨 CSS: src/assets/css/User/ModernRevenueStatistics.style.css"
+      );
+      console.log("✨ Features: Xu terminology + Colors + Avatar + Layout");
+    </script>
+  </body>
+</html>

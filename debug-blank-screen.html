@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Blank Screen Issue</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f0f0f0;
+      }
+      .debug-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+      }
+      .info {
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+      }
+      code {
+        background: #f4f4f4;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 15px;
+        border-left: 4px solid #007bff;
+        background: #f8f9fa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="debug-container">
+      <h1>🔍 Debug Blank Screen Issue</h1>
+
+      <div class="status info">
+        <strong>Current Status:</strong> Investigating blank screen issue
+        affecting all local pages
+      </div>
+
+      <div class="step">
+        <h3>Step 1: Check if React app is loading</h3>
+        <p>
+          Open <code>http://localhost:5176/</code> in your browser and follow
+          these steps:
+        </p>
+        <ol>
+          <li>Open Browser Developer Tools (F12)</li>
+          <li>Go to Console tab</li>
+          <li>Check for any JavaScript errors (red text)</li>
+          <li>Go to Network tab and refresh page</li>
+          <li>Look for failed requests (red status codes)</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <h3>Step 2: Common Issues to Check</h3>
+        <ul>
+          <li>
+            <strong>Import Errors:</strong> Missing or incorrect imports in
+            components
+          </li>
+          <li>
+            <strong>Syntax Errors:</strong> JSX syntax issues in recently
+            modified files
+          </li>
+          <li><strong>Route Errors:</strong> Broken routing configuration</li>
+          <li>
+            <strong>Dependency Issues:</strong> Missing or incompatible packages
+          </li>
+          <li><strong>Build Errors:</strong> Vite/React build failures</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h3>Step 3: Check Recent Changes</h3>
+        <p>
+          The following files were recently modified and could be causing the
+          issue:
+        </p>
+        <ul>
+          <li><code>src/App.jsx</code> - Added TutorStatistics route</li>
+          <li>
+            <code>src/pages/User/TutorStatistics.jsx</code> - New component
+          </li>
+          <li>
+            <code>src/pages/User/components/Tutor*.jsx</code> - New
+            subcomponents
+          </li>
+          <li><code>package.json</code> - Updated dependencies</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h3>Step 4: Quick Tests</h3>
+        <p>Try these URLs to isolate the issue:</p>
+        <ul>
+          <li>
+            <a href="http://localhost:5176/" target="_blank"
+              >http://localhost:5176/</a
+            >
+            - Home page
+          </li>
+          <li>
+            <a href="http://localhost:5176/dang-nhap" target="_blank"
+              >http://localhost:5176/dang-nhap</a
+            >
+            - Login page
+          </li>
+          <li>
+            <a href="http://localhost:5176/thong-ke-gia-su" target="_blank"
+              >http://localhost:5176/thong-ke-gia-su</a
+            >
+            - New Statistics page
+          </li>
+        </ul>
+      </div>
+
+      <div class="status warning">
+        <strong>Note:</strong> If all pages show blank screen, the issue is
+        likely in:
+        <ul>
+          <li>App.jsx component or its imports</li>
+          <li>Main layout components</li>
+          <li>Redux store configuration</li>
+          <li>A critical dependency issue</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      console.log("🔍 Debug page loaded successfully");
+      console.log("If you can see this message, basic JavaScript is working");
+      console.log("Server port: 5176");
+      console.log("Time:", new Date().toISOString());
+
+      // Test if we can access localhost
+      fetch("http://localhost:5176/")
+        .then((response) => {
+          console.log("✅ Server response status:", response.status);
+          console.log("✅ Server is reachable");
+        })
+        .catch((error) => {
+          console.error("❌ Server unreachable:", error);
+        });
+    </script>
+  </body>
+</html>

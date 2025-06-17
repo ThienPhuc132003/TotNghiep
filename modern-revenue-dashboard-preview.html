@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Revenue Dashboard - Preview</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Import the modern CSS styles */
+      @import url("./src/assets/css/User/ModernRevenueStatistics.style.css");
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", sans-serif;
+      }
+
+      .preview-badge {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        z-index: 1000;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        backdrop-filter: blur(10px);
+      }
+
+      .sample-chart {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-badge">
+      <i class="fas fa-eye"></i>
+      Preview Mode
+    </div>
+
+    <div class="tprs-container">
+      <!-- Header -->
+      <div class="tprs-header">
+        <h1 class="tprs-title">
+          <i class="fas fa-chart-line"></i>
+          Thống kê doanh thu cá nhân
+        </h1>
+        <p class="tprs-subtitle">
+          Xem thống kê chi tiết về doanh thu và hoạt động dạy học của bạn
+        </p>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="tprs-stats-grid">
+        <div class="tprs-stats-card tprs-stats-card-primary">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">Tổng doanh thu</h3>
+            <div class="tprs-stats-value">2,450,000 Coin</div>
+            <p class="tprs-stats-description">Tổng coin nhận được</p>
+          </div>
+        </div>
+
+        <div class="tprs-stats-card tprs-stats-card-secondary">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">Tổng giao dịch</h3>
+            <div class="tprs-stats-value">156</div>
+            <p class="tprs-stats-description">Giao dịch hoàn thành</p>
+          </div>
+        </div>
+
+        <div class="tprs-stats-card tprs-stats-card-success">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">Học viên</h3>
+            <div class="tprs-stats-value">42</div>
+            <p class="tprs-stats-description">Học viên đã thanh toán</p>
+          </div>
+        </div>
+
+        <div class="tprs-stats-card tprs-stats-card-info">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">TB/giao dịch</h3>
+            <div class="tprs-stats-value">15,705 Coin</div>
+            <p class="tprs-stats-description">Doanh thu trung bình</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="tprs-charts-section">
+        <div class="tprs-charts-grid">
+          <!-- Revenue Trend Chart -->
+          <div class="tprs-chart-card">
+            <h3 class="tprs-chart-title">
+              <i class="fas fa-chart-line"></i>
+              Xu hướng doanh thu
+            </h3>
+            <div class="tprs-chart-container">
+              <div class="sample-chart">
+                <i
+                  class="fas fa-chart-line"
+                  style="font-size: 3rem; opacity: 0.5"
+                ></i>
+                <span style="margin-left: 16px"
+                  >Biểu đồ xu hướng doanh thu</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Distribution Chart -->
+          <div class="tprs-chart-card">
+            <h3 class="tprs-chart-title">
+              <i class="fas fa-chart-pie"></i>
+              Phân bổ theo học viên
+            </h3>
+            <div class="tprs-chart-container">
+              <div class="sample-chart">
+                <i
+                  class="fas fa-chart-pie"
+                  style="font-size: 3rem; opacity: 0.5"
+                ></i>
+                <span style="margin-left: 16px">Biểu đồ phân bổ học viên</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions Table -->
+      <div class="tprs-table-section">
+        <h3 class="tprs-table-title">
+          <i class="fas fa-table"></i>
+          Giao dịch gần đây
+          <span class="tprs-table-count">(10 giao dịch)</span>
+        </h3>
+        <div class="tprs-table-container">
+          <table class="tprs-table">
+            <thead>
+              <tr>
+                <th>Học viên</th>
+                <th>Ngày tạo</th>
+                <th>Tiền học viên đóng</th>
+                <th>Tiền gia sư nhận</th>
+                <th>Phí website</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="tprs-student-info">
+                    <img
+                      src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=667eea&color=fff&size=50"
+                      alt="Nguyễn Văn A"
+                      class="tprs-student-avatar"
+                    />
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Nguyễn Văn A</span>
+                      <span class="tprs-student-id">USER001</span>
+                    </div>
+                  </div>
+                </td>
+                <td>15/06/2025</td>
+                <td class="tprs-revenue-cell">25,000 Coin</td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  22,500 Coin
+                </td>
+                <td class="tprs-revenue-cell">2,500 Coin</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="tprs-student-info">
+                    <img
+                      src="https://ui-avatars.com/api/?name=Tran+Thi+B&background=f093fb&color=fff&size=50"
+                      alt="Trần Thị B"
+                      class="tprs-student-avatar"
+                    />
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Trần Thị B</span>
+                      <span class="tprs-student-id">USER002</span>
+                    </div>
+                  </div>
+                </td>
+                <td>14/06/2025</td>
+                <td class="tprs-revenue-cell">30,000 Coin</td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  27,000 Coin
+                </td>
+                <td class="tprs-revenue-cell">3,000 Coin</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="tprs-student-info">
+                    <img
+                      src="https://ui-avatars.com/api/?name=Le+Van+C&background=4facfe&color=fff&size=50"
+                      alt="Lê Văn C"
+                      class="tprs-student-avatar"
+                    />
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Lê Văn C</span>
+                      <span class="tprs-student-id">USER003</span>
+                    </div>
+                  </div>
+                </td>
+                <td>13/06/2025</td>
+                <td class="tprs-revenue-cell">20,000 Coin</td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  18,000 Coin
+                </td>
+                <td class="tprs-revenue-cell">2,000 Coin</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="tprs-pagination">
+          <button class="tprs-pagination-btn" disabled>
+            <i class="fas fa-chevron-left"></i>
+            Trang trước
+          </button>
+
+          <span class="tprs-pagination-info"> Trang 1 / 16 </span>
+
+          <button class="tprs-pagination-btn">
+            Trang sau
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State Example -->
+      <div class="tprs-loading" style="display: none">
+        <div class="tprs-loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <p>Đang tải dữ liệu thống kê...</p>
+      </div>
+
+      <!-- Error State Example -->
+      <div class="tprs-error" style="display: none">
+        <div class="tprs-error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Không thể tải dữ liệu</h3>
+        <p>Đã có lỗi xảy ra khi tải dữ liệu thống kê. Vui lòng thử lại.</p>
+        <button class="tprs-retry-btn">
+          <i class="fas fa-redo"></i>
+          Thử lại
+        </button>
+      </div>
+
+      <!-- Empty State Example -->
+      <div class="tprs-empty-state" style="display: none">
+        <div class="tprs-empty-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>Chưa có dữ liệu thống kê</h3>
+        <p>Bạn chưa có giao dịch thanh toán nào từ học viên.</p>
+        <p>
+          Khi học viên thanh toán cho các buổi học, thông tin sẽ hiển thị tại
+          đây.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactive effects
+      document.addEventListener("DOMContentLoaded", function () {
+        // Add hover effects to cards
+        const cards = document.querySelectorAll(
+          ".tprs-stats-card, .tprs-chart-card"
+        );
+        cards.forEach((card) => {
+          card.addEventListener("mouseenter", function () {
+            this.style.transform = "translateY(-12px) scale(1.02)";
+          });
+
+          card.addEventListener("mouseleave", function () {
+            this.style.transform = "translateY(0) scale(1)";
+          });
+        });
+
+        // Add click effect to buttons
+        const buttons = document.querySelectorAll(
+          ".tprs-pagination-btn, .tprs-retry-btn"
+        );
+        buttons.forEach((button) => {
+          button.addEventListener("click", function (e) {
+            if (!this.disabled) {
+              // Create ripple effect
+              const ripple = document.createElement("span");
+              ripple.style.position = "absolute";
+              ripple.style.borderRadius = "50%";
+              ripple.style.background = "rgba(255, 255, 255, 0.6)";
+              ripple.style.transform = "scale(0)";
+              ripple.style.animation = "ripple 0.6s linear";
+              ripple.style.left = e.clientX - this.offsetLeft - 10 + "px";
+              ripple.style.top = e.clientY - this.offsetTop - 10 + "px";
+              ripple.style.width = "20px";
+              ripple.style.height = "20px";
+
+              this.appendChild(ripple);
+
+              setTimeout(() => {
+                ripple.remove();
+              }, 600);
+            }
+          });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement("style");
+        style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+                
+                .tprs-pagination-btn, .tprs-retry-btn {
+                    position: relative;
+                    overflow: hidden;
+                }
+            `;
+        document.head.appendChild(style);
+      });
+    </script>
+  </body>
+</html>

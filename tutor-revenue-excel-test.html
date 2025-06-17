@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Tutor Revenue Excel Export - Van Lang University</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #28a745;
+      }
+      .header h1 {
+        color: #28a745;
+        margin-bottom: 10px;
+      }
+      .test-section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+      }
+      .test-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+      }
+      .success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .feature {
+        background-color: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .code {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+      .step {
+        counter-increment: step-counter;
+        margin: 20px 0;
+        padding: 15px;
+        border-left: 4px solid #28a745;
+        background-color: #f8f9fa;
+      }
+      .step::before {
+        content: "✅ ";
+        font-weight: bold;
+        color: #28a745;
+        margin-right: 8px;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .comparison > div {
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+      .old {
+        background-color: #ffe6e6;
+        border-color: #ffb3b3;
+      }
+      .new {
+        background-color: #e6ffe6;
+        border-color: #b3ffb3;
+      }
+      .keyboard-shortcut {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-weight: bold;
+      }
+      .excel-preview {
+        background-color: #f0f8f0;
+        border: 2px solid #28a745;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .excel-preview h3 {
+        color: #28a745;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎓 Test Chức Năng Excel Export - Trang Gia Sư</h1>
+        <p>
+          Kiểm tra xuất Excel với logo Van Lang University cho trang thống kê
+          doanh thu gia sư
+        </p>
+      </div>
+
+      <div class="success">
+        <strong>✅ Hoàn thành nâng cấp:</strong> Trang TutorRevenueStable đã
+        được tích hợp chức năng Excel export chuyên nghiệp với logo Van Lang
+        University, giống như các trang admin!
+      </div>
+
+      <div class="test-section">
+        <h2>🔄 So Sánh Trước và Sau</h2>
+        <div class="comparison">
+          <div class="old">
+            <h3>❌ Trước đây (CSV Export)</h3>
+            <ul>
+              <li>Chỉ xuất file CSV thô</li>
+              <li>Không có logo trường</li>
+              <li>Định dạng đơn giản</li>
+              <li>Thiếu thông tin header</li>
+              <li>Không có thống kê tóm tắt</li>
+            </ul>
+          </div>
+          <div class="new">
+            <h3>✅ Hiện tại (Excel Export)</h3>
+            <ul>
+              <li>Xuất file Excel (.xlsx) chuyên nghiệp</li>
+              <li>Logo Van Lang University (80x80px)</li>
+              <li>Header với tên trường và khoa</li>
+              <li>Tiêu đề báo cáo động</li>
+              <li>Thống kê tóm tắt với màu nền</li>
+              <li>Dữ liệu có viền và alternate colors</li>
+              <li>Auto-sizing columns</li>
+              <li>Footer với ngày xuất</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>⚡ Tính Năng Mới</h2>
+
+        <div class="feature">
+          <h3>🎹 Keyboard Shortcuts</h3>
+          <ul>
+            <li>
+              <span class="keyboard-shortcut">Ctrl + E</span> - Xuất Excel nhanh
+            </li>
+            <li>
+              <span class="keyboard-shortcut">Ctrl + R</span> - Làm mới dữ liệu
+            </li>
+            <li>
+              <span class="keyboard-shortcut">Ctrl + F</span> - Focus vào ô tìm
+              kiếm
+            </li>
+          </ul>
+        </div>
+
+        <div class="feature">
+          <h3>🎨 UI/UX Improvements</h3>
+          <ul>
+            <li>Button xuất Excel có màu xanh lá (admin style)</li>
+            <li>Icon Excel chuyên nghiệp</li>
+            <li>Tooltip hướng dẫn chi tiết</li>
+            <li>Loading state với toast notifications</li>
+            <li>Error handling tốt hơn</li>
+          </ul>
+        </div>
+
+        <div class="feature">
+          <h3>📊 Data Quality</h3>
+          <ul>
+            <li>Thống kê tóm tắt: Tổng GD, Doanh thu, Học sinh, TB/GD</li>
+            <li>Định dạng số theo chuẩn Việt Nam</li>
+            <li>Ngày tháng hiển thị đúng múi giờ</li>
+            <li>Xử lý dữ liệu rỗng an toàn</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="excel-preview">
+        <h3>📋 Cấu Trúc File Excel Xuất Ra</h3>
+        <div class="code">
+          <strong>Cấu trúc file Excel:</strong>
+          [A1] 🎓 Logo Van Lang University (80x80px) [B1] TRƯỜNG ĐẠI HỌC VĂN
+          LANG [B2] KHOA CÔNG NGHỆ THÔNG TIN [A4] THỐNG KÊ DOANH THU GIA SƯ
+          (Title) [A5] Thời gian: Tổng cộng: X giao dịch [A7] === THỐNG KÊ TÓM
+          TẮT === (Background màu) [A8-A11] Tổng số giao dịch | Tổng doanh thu |
+          Số học sinh | Doanh thu TB/GD [A13] === DỮ LIỆU CHI TIẾT === [A14] STT
+          | Tên học sinh | ID học sinh | Coin gia sư nhận | Ngày tạo [A15+]
+          [Data rows với viền và alternate colors] [Footer] TP.Hồ Chí Minh, ngày
+          XX tháng XX năm XXXX | Người lập danh sách
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🧪 Hướng Dẫn Test</h2>
+
+        <div class="step">
+          <strong>Đăng nhập với tài khoản gia sư</strong>
+          <div class="code">
+            URL: http://localhost:3000/user/tutor-revenue-stable<br />
+            Yêu cầu: Tài khoản có role TUTOR
+          </div>
+        </div>
+
+        <div class="step">
+          <strong>Kiểm tra giao diện</strong>
+          <ul>
+            <li>Layout nằm gọn trong viewport (100vh)</li>
+            <li>Header: "Thống kê Doanh thu" (không có dòng chào mừng)</li>
+            <li>3 cards thống kê hiện đại</li>
+            <li>Table với controls tìm kiếm và sắp xếp</li>
+            <li>Button xuất Excel màu xanh lá với icon</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <strong>Test chức năng xuất Excel</strong>
+          <ul>
+            <li>
+              Click nút "Xuất Excel" hoặc nhấn
+              <span class="keyboard-shortcut">Ctrl + E</span>
+            </li>
+            <li>Kiểm tra toast notification "Đang tạo file Excel..."</li>
+            <li>
+              File tải về với tên: thong-ke-doanh-thu-gia-su-YYYY-MM-DD.xlsx
+            </li>
+            <li>Mở file Excel và kiểm tra cấu trúc như mô tả ở trên</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <strong>Test keyboard shortcuts</strong>
+          <ul>
+            <li><span class="keyboard-shortcut">Ctrl + E</span>: Xuất Excel</li>
+            <li>
+              <span class="keyboard-shortcut">Ctrl + R</span>: Làm mới data
+            </li>
+            <li>
+              <span class="keyboard-shortcut">Ctrl + F</span>: Focus search
+            </li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <strong>Test với dữ liệu khác nhau</strong>
+          <ul>
+            <li>Test khi có dữ liệu: Kiểm tra thống kê tóm tắt</li>
+            <li>Test khi không có dữ liệu: Kiểm tra warning message</li>
+            <li>Test filter và search: Xuất dữ liệu đã lọc</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🔧 Technical Implementation</h2>
+
+        <div class="code">
+          <strong>Files đã cập nhật:</strong>
+          1. src/pages/User/TutorRevenueStable.jsx - ✅ Import exportToExcel từ
+          utils/excelExport - ✅ Implement function exportToExcel với config đầy
+          đủ - ✅ Thêm keyboard shortcuts (Ctrl+E, Ctrl+R, Ctrl+F) - ✅ Update
+          button tooltip và style 2.
+          src/assets/css/User/ModernRevenueStatistics.style.css - ✅ Button xuất
+          Excel màu xanh lá (#28a745) - ✅ Hover effects và disabled states - ✅
+          Consistent với admin styling 3. src/utils/excelExport.js (Đã có sẵn) -
+          ✅ ExcelJS integration - ✅ Logo Van Lang University embedding - ✅
+          Professional formatting và styling
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>🎯 API & Data Integration</h2>
+
+        <div class="feature">
+          <h3>✅ API Endpoint</h3>
+          <div class="code">
+            GET manage-payment/search-with-time-by-tutor<br />
+            Params: { tutorId: userProfile.id }
+          </div>
+        </div>
+
+        <div class="feature">
+          <h3>✅ Data Processing</h3>
+          <ul>
+            <li>Transform API response thành format phù hợp</li>
+            <li>Calculate summary statistics (total, average, count)</li>
+            <li>Format currency theo chuẩn Việt Nam</li>
+            <li>Handle nested properties safely</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="success">
+        <h2>🎉 Kết Luận</h2>
+        <p>
+          <strong>Trang TutorRevenueStable đã được nâng cấp thành công!</strong>
+        </p>
+        <ul>
+          <li>✅ Giao diện hiện đại, nằm gọn trong viewport</li>
+          <li>✅ API mới đã được tích hợp đúng</li>
+          <li>✅ Excel export chuyên nghiệp với logo Van Lang</li>
+          <li>✅ Keyboard shortcuts như admin pages</li>
+          <li>✅ UI/UX consistency với hệ thống</li>
+          <li>✅ Code clean, error handling tốt</li>
+        </ul>
+
+        <p>
+          Trang này giờ đây có chất lượng tương đương với các trang admin, cung
+          cấp trải nghiệm xuất báo cáo chuyên nghiệp cho gia sư! 🚀
+        </p>
+      </div>
+    </div>
+
+    <script>
+      console.log("🎓 Tutor Revenue Excel Export Test Page Loaded");
+      console.log("✅ Features implemented:");
+      console.log("   - Excel export with Van Lang logo");
+      console.log("   - Keyboard shortcuts (Ctrl+E, Ctrl+R, Ctrl+F)");
+      console.log("   - Professional formatting");
+      console.log("   - Admin-style UI");
+      console.log("   - Layout fits in viewport");
+
+      // Auto test link after 3 seconds
+      setTimeout(() => {
+        if (
+          confirm("Bạn có muốn mở trang TutorRevenueStable để test ngay không?")
+        ) {
+          window.open(
+            "http://localhost:3000/user/tutor-revenue-stable",
+            "_blank"
+          );
+        }
+      }, 3000);
+    </script>
+  </body>
+</html>

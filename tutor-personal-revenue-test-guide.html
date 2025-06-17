@@ -1,0 +1,242 @@
+<!-- Test API manage-payment/search-for-tutor -->
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test API manage-payment/search-for-tutor</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        color: #d71921;
+        border-bottom: 2px solid #d71921;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .api-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        border-left: 4px solid #d71921;
+      }
+      .response-preview {
+        background: #212529;
+        color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+      }
+      .test-step {
+        background: #e7f3ff;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border-left: 4px solid #0d6efd;
+      }
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-list li {
+        background: #d4edda;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 5px;
+        border-left: 4px solid #28a745;
+      }
+      .feature-list li:before {
+        content: "✅ ";
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Test Trang Thống Kê Doanh Thu Gia Sư - API Mới</h1>
+
+    <div class="test-section">
+      <h2 class="test-title">📋 Thông Tin API Mới</h2>
+      <div class="api-info">
+        <strong>API Endpoint:</strong>
+        <code>manage-payment/search-for-tutor</code><br />
+        <strong>Method:</strong> GET<br />
+        <strong>Trang:</strong> /tai-khoan/ho-so/thong-ke-doanh-thu<br />
+        <strong>Component:</strong> TutorPersonalRevenueStatistics.jsx
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">📊 Cấu Trúc Response Mới</h2>
+      <div class="response-preview">
+        { "status": "OK", "code": 200, "success": true, "message": "Manage
+        Payment fetched successfully", "data": { "total": 6, "items": [ {
+        "createdAt": "2025-06-02T11:18:28.200Z", "updatedAt":
+        "2025-06-02T11:18:28.200Z", "managePaymentId":
+        "225bab1d-09dd-4a80-8884-fb141a66238d", "userId": "US00028", "tutorId":
+        "US00011", "coinOfUserPayment": 2700, "coinOfTutorReceive": 2430,
+        "coinOfWebReceive": 270, "user": { "userId": "US00028",
+        "userDisplayName": "Trần Thị Thanh", "fullname": "Trần Thị Thảo",
+        "avatar": "https://giasuvlu.click/api/media?...", "personalEmail":
+        "thanh.tran00@gmail.com", "phoneNumber": "0771234879", "homeAddress":
+        "120 Hải Triều, P. Bến Nghé, Q.1, TP. Hồ Chí Minh", "birthday":
+        "2000-07-04", "gender": "MALE", "major": { "majorId": "M0002",
+        "sumName": "CNTT", "majorName": "Công nghệ thông tin" } }, "tutor": {
+        "userId": "US00011", "avatar": "https://giasuvlu.click/api/media?...",
+        "fullname": "Nguyễn Văn An", "birthday": "2003-03-08", "gender": "MALE",
+        "univercity": "Đại học Văn Lang", "GPA": "3.8", "coinPerHours": 180,
+        "rating": "0.0", "numberOfRating": 0 } } ], "totalRevenue": 2430 } }
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">🔄 Thay Đổi Chính</h2>
+      <ul class="feature-list">
+        <li>
+          <strong>API Endpoint:</strong> Từ
+          "manage-payment/search-with-time-by-tutor" sang
+          "manage-payment/search-for-tutor"
+        </li>
+        <li>
+          <strong>Tham số API:</strong> Gửi tutorId trong query thay vì endpoint
+          khác
+        </li>
+        <li>
+          <strong>Dữ liệu Response:</strong> Sử dụng cấu trúc payment management
+          mới
+        </li>
+        <li>
+          <strong>Thống kê:</strong> Tính toán từ coinOfTutorReceive thay vì
+          totalcoins
+        </li>
+        <li><strong>UI:</strong> Hiển thị thông tin học viên từ user object</li>
+        <li>
+          <strong>Bảng:</strong> 5 cột - Học viên, Ngày tạo, Tiền học viên đóng,
+          Tiền gia sư nhận, Phí website
+        </li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">🎯 Hướng Dẫn Test</h2>
+
+      <div class="test-step">
+        <strong>Bước 1:</strong> Đăng nhập với tài khoản gia sư (roleId =
+        "TUTOR")
+      </div>
+
+      <div class="test-step">
+        <strong>Bước 2:</strong> Truy cập URL:
+        <code>http://localhost:5173/tai-khoan/ho-so/thong-ke-doanh-thu</code>
+      </div>
+
+      <div class="test-step">
+        <strong>Bước 3:</strong> Kiểm tra 4 thẻ thống kê:
+        <ul>
+          <li>Tổng doanh thu (từ totalRevenue API)</li>
+          <li>Tổng giao dịch (từ total API)</li>
+          <li>Học viên (đếm unique user.userId)</li>
+          <li>TB/giao dịch (totalRevenue / total)</li>
+        </ul>
+      </div>
+
+      <div class="test-step">
+        <strong>Bước 4:</strong> Kiểm tra 2 biểu đồ:
+        <ul>
+          <li>Xu hướng doanh thu theo tháng (Line Chart)</li>
+          <li>Phân bổ theo học viên (Doughnut Chart)</li>
+        </ul>
+      </div>
+
+      <div class="test-step">
+        <strong>Bước 5:</strong> Kiểm tra bảng giao dịch với 5 cột:
+        <ul>
+          <li>Học viên (avatar + tên + ID)</li>
+          <li>Ngày tạo (DD/MM/YYYY)</li>
+          <li>Tiền học viên đóng (coinOfUserPayment)</li>
+          <li>Tiền gia sư nhận (coinOfTutorReceive) - highlighted</li>
+          <li>Phí website (coinOfWebReceive)</li>
+        </ul>
+      </div>
+
+      <div class="test-step">
+        <strong>Bước 6:</strong> Kiểm tra pagination (nếu có nhiều hơn 10 giao
+        dịch)
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">🛡️ Kiểm Tra Bảo Mật</h2>
+      <div class="test-step">
+        <strong>Chưa đăng nhập:</strong> Hiển thị "Chưa đăng nhập"
+      </div>
+      <div class="test-step">
+        <strong>Không phải gia sư:</strong> Hiển thị "Truy cập bị từ chối"
+      </div>
+      <div class="test-step">
+        <strong>API Error:</strong> Hiển thị thông báo lỗi và nút "Thử lại"
+      </div>
+      <div class="test-step">
+        <strong>Không có dữ liệu:</strong> Hiển thị empty state với hướng dẫn
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">📱 Responsive Design</h2>
+      <div class="test-step">
+        <strong>Desktop (>1200px):</strong> Layout full width với charts 2 cột
+      </div>
+      <div class="test-step">
+        <strong>Tablet (768px-1200px):</strong> Charts responsive, bảng scroll
+        ngang
+      </div>
+      <div class="test-step">
+        <strong>Mobile (<768px):</strong> Stack layout, font nhỏ hơn
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">✅ Checklist Hoàn Thành</h2>
+      <ul class="feature-list">
+        <li>API integration với endpoint mới</li>
+        <li>Authentication và authorization</li>
+        <li>4 thẻ thống kê với dữ liệu real-time</li>
+        <li>2 biểu đồ interactive (Line + Doughnut)</li>
+        <li>Bảng giao dịch với 5 cột</li>
+        <li>Pagination cho dữ liệu lớn</li>
+        <li>Loading states và error handling</li>
+        <li>Empty state với UX tốt</li>
+        <li>Responsive design</li>
+        <li>Toast notifications</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">🔍 Debug Console</h2>
+      <p>Mở Developer Tools để xem:</p>
+      <div class="test-step">
+        <strong>Network tab:</strong> Kiểm tra API call tới
+        manage-payment/search-for-tutor
+      </div>
+      <div class="test-step">
+        <strong>Console:</strong> Xem log về tutorId và response data
+      </div>
+      <div class="test-step">
+        <strong>Redux DevTools:</strong> Kiểm tra userProfile state
+      </div>
+    </div>
+  </body>
+</html>

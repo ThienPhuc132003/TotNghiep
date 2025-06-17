@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thống kê gia sư với biểu đồ - Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #ffffff;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .tprs-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .tprs-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .tprs-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #fff, #f0f8ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .tprs-stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .tprs-stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .tprs-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .tprs-stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #4fc3f7;
+        margin-bottom: 10px;
+      }
+
+      .tprs-stat-label {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .tprs-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        padding: 5px;
+      }
+
+      .tprs-tab {
+        padding: 12px 25px;
+        border: none;
+        background: transparent;
+        color: #ffffff;
+        cursor: pointer;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin: 0 5px;
+      }
+
+      .tprs-tab.active {
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .tprs-chart-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tprs-chart-wrapper {
+        position: relative;
+        height: 400px;
+        margin-bottom: 20px;
+      }
+
+      .tprs-chart-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .tprs-loading {
+        text-align: center;
+        padding: 60px 20px;
+        font-size: 1.2rem;
+        opacity: 0.8;
+      }
+
+      .tprs-error {
+        background: rgba(244, 67, 54, 0.1);
+        border: 1px solid rgba(244, 67, 54, 0.3);
+        color: #ff9999;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .tprs-chart-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #ffffff;
+      }
+
+      .tprs-info-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tprs-info-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #4fc3f7;
+      }
+
+      .tprs-info-list {
+        list-style: none;
+      }
+
+      .tprs-info-item {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+      }
+      .tprs-info-item:last-child {
+        border-bottom: none;
+      }
+
+      /* Time Filter Controls */
+      .tprs-time-filter {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        flex-wrap: wrap;
+      }
+
+      .tprs-filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .tprs-filter-label {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .tprs-filter-label i {
+        color: #4fc3f7;
+        font-size: 1rem;
+      }
+
+      .tprs-filter-select,
+      .tprs-filter-input {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: #ffffff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        outline: none;
+        transition: all 0.3s ease;
+        min-width: 80px;
+      }
+
+      .tprs-filter-select:focus,
+      .tprs-filter-input:focus {
+        border-color: #4fc3f7;
+        box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .tprs-filter-select option {
+        background: #2d3748;
+        color: #ffffff;
+      }
+
+      .tprs-period-suffix {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.85rem;
+        font-style: italic;
+        margin-left: 5px;
+      }
+
+      .tprs-apply-filter-btn {
+        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+      }
+
+      .tprs-apply-filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
+        background: linear-gradient(135deg, #29b6f6 0%, #1e88e5 100%);
+      }
+
+      @media (max-width: 768px) {
+        .tprs-time-filter {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 15px;
+        }
+
+        .tprs-filter-group {
+          flex-direction: column;
+          align-items: flex-start;
+          min-width: unset;
+          gap: 8px;
+        }
+
+        .tprs-filter-select,
+        .tprs-filter-input {
+          width: 100%;
+        }
+
+        .tprs-apply-filter-btn {
+          justify-content: center;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .tprs-chart-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tprs-stats-overview {
+          grid-template-columns: 1fr;
+        }
+
+        .tprs-header h1 {
+          font-size: 2rem;
+        }
+
+        .tprs-container {
+          padding: 20px;
+        }
+      }
+
+      .chart-demo {
+        color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tprs-container">
+      <!-- Header -->
+      <div class="tprs-header">
+        <h1>📊 Thống kê gia sư</h1>
+        <p>Theo dõi lượt thuê và đánh giá của bạn qua biểu đồ trực quan</p>
+      </div>
+
+      <!-- Time Filter Controls -->
+      <div class="tprs-time-filter">
+        <div class="tprs-filter-group">
+          <label class="tprs-filter-label">
+            <i class="fas fa-calendar-alt"></i>
+            Loại thời gian:
+          </label>
+          <select class="tprs-filter-select" id="periodType">
+            <option value="DAY">Ngày</option>
+            <option value="WEEK">Tuần</option>
+            <option value="MONTH" selected>Tháng</option>
+            <option value="YEAR">Năm</option>
+          </select>
+        </div>
+
+        <div class="tprs-filter-group">
+          <label class="tprs-filter-label">
+            <i class="fas fa-clock"></i>
+            Số lượng:
+          </label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value="6"
+            class="tprs-filter-input"
+            id="periodValue"
+          />
+          <span class="tprs-period-suffix">tháng gần đây</span>
+        </div>
+
+        <button class="tprs-apply-filter-btn" onclick="updatePeriodSuffix()">
+          <i class="fas fa-sync-alt"></i>
+          Cập nhật
+        </button>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="tprs-stats-overview">
+        <div class="tprs-stat-card">
+          <div class="tprs-stat-number">25</div>
+          <div class="tprs-stat-label">Tổng lượt thuê</div>
+        </div>
+        <div class="tprs-stat-card">
+          <div class="tprs-stat-number">4.8</div>
+          <div class="tprs-stat-label">Đánh giá trung bình</div>
+        </div>
+        <div class="tprs-stat-card">
+          <div class="tprs-stat-number">18</div>
+          <div class="tprs-stat-label">Tổng đánh giá</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tprs-tabs">
+        <button class="tprs-tab active" onclick="showTab('charts')">
+          📈 Biểu đồ
+        </button>
+        <button class="tprs-tab" onclick="showTab('hires')">
+          📋 Lượt thuê
+        </button>
+        <button class="tprs-tab" onclick="showTab('ratings')">
+          ⭐ Đánh giá
+        </button>
+      </div>
+
+      <!-- Charts Tab -->
+      <div id="charts-tab" class="tprs-tab-content">
+        <div class="tprs-chart-grid">
+          <!-- Hire Chart -->
+          <div class="tprs-chart-container">
+            <div class="tprs-chart-title">📈 Xu hướng lượt thuê theo tháng</div>
+            <div class="tprs-chart-wrapper">
+              <canvas id="hireChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Rating Distribution -->
+          <div class="tprs-chart-container">
+            <div class="tprs-chart-title">⭐ Phân bổ đánh giá</div>
+            <div class="tprs-chart-wrapper">
+              <canvas id="ratingChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Panels -->
+        <div class="tprs-chart-grid">
+          <div class="tprs-info-panel">
+            <div class="tprs-info-title">📊 Thống kê lượt thuê</div>
+            <ul class="tprs-info-list">
+              <li class="tprs-info-item">
+                <span>Tháng hiệu quả nhất:</span>
+                <span>Tháng 11</span>
+              </li>
+              <li class="tprs-info-item">
+                <span>Tăng trưởng trung bình:</span>
+                <span>+15%</span>
+              </li>
+              <li class="tprs-info-item">
+                <span>Tỷ lệ thành công:</span>
+                <span>85%</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="tprs-info-panel">
+            <div class="tprs-info-title">⭐ Thống kê đánh giá</div>
+            <ul class="tprs-info-list">
+              <li class="tprs-info-item">
+                <span>5 sao:</span>
+                <span>65%</span>
+              </li>
+              <li class="tprs-info-item">
+                <span>4 sao:</span>
+                <span>25%</span>
+              </li>
+              <li class="tprs-info-item">
+                <span>3 sao:</span>
+                <span>10%</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hires Tab -->
+      <div id="hires-tab" class="tprs-tab-content" style="display: none">
+        <div class="tprs-loading">
+          📋 Danh sách lượt thuê sẽ hiển thị ở đây...
+        </div>
+      </div>
+
+      <!-- Ratings Tab -->
+      <div id="ratings-tab" class="tprs-tab-content" style="display: none">
+        <div class="tprs-loading">
+          ⭐ Danh sách đánh giá sẽ hiển thị ở đây...
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Tab functionality
+      function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll(".tprs-tab-content").forEach((tab) => {
+          tab.style.display = "none";
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll(".tprs-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Show selected tab
+        document.getElementById(tabName + "-tab").style.display = "block";
+
+        // Add active class to clicked tab
+        event.target.classList.add("active");
+      }
+
+      // Update period suffix based on selected type
+      function updatePeriodSuffix() {
+        const periodType = document.getElementById("periodType").value;
+        const periodValue = document.getElementById("periodValue").value;
+        const suffix = document.querySelector(".tprs-period-suffix");
+
+        let suffixText = "";
+        switch (periodType) {
+          case "DAY":
+            suffixText = `${periodValue} ngày gần đây`;
+            break;
+          case "WEEK":
+            suffixText = `${periodValue} tuần gần đây`;
+            break;
+          case "MONTH":
+            suffixText = `${periodValue} tháng gần đây`;
+            break;
+          case "YEAR":
+            suffixText = `${periodValue} năm gần đây`;
+            break;
+        }
+        suffix.textContent = suffixText;
+
+        // Simulate updating charts with new data
+        console.log(`🔄 Cập nhật dữ liệu cho ${suffixText}`);
+      }
+
+      // Add event listeners for period changes
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("periodType")
+          .addEventListener("change", updatePeriodSuffix);
+        document
+          .getElementById("periodValue")
+          .addEventListener("input", updatePeriodSuffix);
+      });
+
+      // Initialize charts
+      document.addEventListener("DOMContentLoaded", function () {
+        // Hire Chart (Line Chart)
+        const hireCtx = document.getElementById("hireChart").getContext("2d");
+        new Chart(hireCtx, {
+          type: "line",
+          data: {
+            labels: [
+              "Tháng 8",
+              "Tháng 9",
+              "Tháng 10",
+              "Tháng 11",
+              "Tháng 12",
+              "Tháng 1",
+            ],
+            datasets: [
+              {
+                label: "Số lượt thuê",
+                data: [3, 5, 4, 8, 6, 7],
+                borderColor: "#4fc3f7",
+                backgroundColor: "rgba(79, 195, 247, 0.1)",
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: "#4fc3f7",
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 2,
+                pointRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: {
+                  color: "#ffffff",
+                  font: { size: 14 },
+                },
+              },
+              tooltip: {
+                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                titleColor: "#ffffff",
+                bodyColor: "#ffffff",
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: "#ffffff",
+                  font: { size: 12 },
+                },
+                grid: {
+                  color: "rgba(255, 255, 255, 0.1)",
+                  borderColor: "rgba(255, 255, 255, 0.3)",
+                },
+              },
+              y: {
+                ticks: {
+                  color: "#ffffff",
+                  font: { size: 12 },
+                },
+                grid: {
+                  color: "rgba(255, 255, 255, 0.1)",
+                  borderColor: "rgba(255, 255, 255, 0.3)",
+                },
+              },
+            },
+          },
+        });
+
+        // Rating Chart (Doughnut Chart)
+        const ratingCtx = document
+          .getElementById("ratingChart")
+          .getContext("2d");
+        new Chart(ratingCtx, {
+          type: "doughnut",
+          data: {
+            labels: ["5 sao", "4 sao", "3 sao", "2 sao", "1 sao"],
+            datasets: [
+              {
+                data: [12, 4, 2, 0, 0],
+                backgroundColor: [
+                  "#4CAF50",
+                  "#2196F3",
+                  "#FF9800",
+                  "#FF5722",
+                  "#9E9E9E",
+                ],
+                borderColor: "#ffffff",
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: "#ffffff",
+                  font: { size: 12 },
+                  padding: 15,
+                },
+              },
+              tooltip: {
+                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                titleColor: "#ffffff",
+                bodyColor: "#ffffff",
+              },
+            },
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

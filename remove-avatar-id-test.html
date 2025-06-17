@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Bỏ Avatar và ID User</title>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f8fafc;
+      }
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 8px;
+      }
+      .highlight {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        margin: 20px 0;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .before,
+      .after {
+        padding: 16px;
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+      }
+      .before {
+        background: #fef2f2;
+        border-color: #fca5a5;
+      }
+      .after {
+        background: #f0fdf4;
+        border-color: #86efac;
+      }
+      .table-demo {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 0.9rem;
+      }
+      .table-demo th,
+      .table-demo td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .table-demo th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+      .student-name-simple {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.9rem;
+        display: block;
+        padding: 8px 4px;
+      }
+      .student-info-old {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 4px;
+      }
+      .avatar-old {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+      .student-details-old {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        overflow: hidden;
+        flex: 1;
+      }
+      .student-name-old {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.9rem;
+      }
+      .student-id-old {
+        font-size: 0.75rem;
+        color: #718096;
+      }
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+      .checklist li {
+        margin: 12px 0;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+      .checklist li::before {
+        content: "✓";
+        color: #10b981;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="highlight">
+        <h1>🚫 Test Bỏ Avatar và ID User</h1>
+        <p>Kiểm tra việc loại bỏ avatar và ID user trong bảng học sinh</p>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">📊 So sánh Trước và Sau</h2>
+
+        <div class="comparison">
+          <div class="before">
+            <h3>❌ TRƯỚC (Có Avatar + ID)</h3>
+            <table class="table-demo">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th style="width: 250px">Học sinh</th>
+                  <th>Xu nhận</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>
+                    <div class="student-info-old">
+                      <div class="avatar-old">A</div>
+                      <div class="student-details-old">
+                        <div class="student-name-old">Nguyễn Văn An</div>
+                        <div class="student-id-old">ID: 12345</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="font-weight: 600">2,430 Xu</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="after">
+            <h3>✅ SAU (Chỉ tên)</h3>
+            <table class="table-demo">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th style="width: 180px">Học sinh</th>
+                  <th>Xu nhận</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>
+                    <span class="student-name-simple">Nguyễn Văn An</span>
+                  </td>
+                  <td style="font-weight: 600">2,430 Xu</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🔧 Thay đổi Code</h2>
+
+        <h3>JSX Changes:</h3>
+        <div
+          style="
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+          "
+        >
+          <strong>Trước:</strong>
+          <pre
+            style="
+              background: #fee2e2;
+              padding: 8px;
+              border-radius: 4px;
+              margin: 8px 0;
+            "
+          ><code>&lt;td&gt;
+  &lt;div className="tprs-student-info"&gt;
+    &lt;img src="/default-avatar.png" className="tprs-student-avatar" /&gt;
+    &lt;div className="tprs-student-details"&gt;
+      &lt;span className="tprs-student-name"&gt;{item.studentName}&lt;/span&gt;
+      &lt;span className="tprs-student-id"&gt;ID: {item.studentId}&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;</code></pre>
+
+          <strong>Sau:</strong>
+          <pre
+            style="
+              background: #dcfce7;
+              padding: 8px;
+              border-radius: 4px;
+              margin: 8px 0;
+            "
+          ><code>&lt;td&gt;
+  &lt;span className="tprs-student-name-simple"&gt;
+    {item.studentName}
+  &lt;/span&gt;
+&lt;/td&gt;</code></pre>
+        </div>
+
+        <h3>CSS Changes:</h3>
+        <div
+          style="
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+          "
+        >
+          <strong>Thêm class mới:</strong>
+          <pre
+            style="
+              background: #dcfce7;
+              padding: 8px;
+              border-radius: 4px;
+              margin: 8px 0;
+            "
+          ><code>.tprs-student-name-simple {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  display: block;
+  padding: 8px 4px;
+}</code></pre>
+
+          <strong>Cập nhật column width:</strong>
+          <pre
+            style="
+              background: #dcfce7;
+              padding: 8px;
+              border-radius: 4px;
+              margin: 8px 0;
+            "
+          ><code>.tprs-table th:nth-child(2),
+.tprs-table td:nth-child(2) {
+  width: 180px !important;      /* Giảm từ 250px */
+  min-width: 180px !important;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">✅ Lợi ích của thay đổi</h2>
+        <ul class="checklist">
+          <li>
+            <strong>Giao diện gọn gàng hơn</strong> - Bỏ avatar và ID không cần
+            thiết
+          </li>
+          <li>
+            <strong>Tiết kiệm không gian</strong> - Cột học sinh thu nhỏ từ
+            250px xuống 180px
+          </li>
+          <li>
+            <strong>Tập trung vào thông tin quan trọng</strong> - Chỉ hiển thị
+            tên học sinh
+          </li>
+          <li>
+            <strong>Cải thiện performance</strong> - Ít DOM elements, ít CSS
+            rules
+          </li>
+          <li>
+            <strong>Dễ đọc hơn</strong> - Không bị phân tán bởi avatar và ID
+          </li>
+          <li>
+            <strong>Responsive tốt hơn</strong> - Ít space requirements trên
+            mobile
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2 class="test-title">🧪 Test Cases</h2>
+        <ul class="checklist">
+          <li>
+            <strong>Kiểm tra hiển thị tên học sinh</strong> - Có hiển thị đầy đủ
+            không
+          </li>
+          <li>
+            <strong>Kiểm tra không còn avatar</strong> - Avatar đã bị loại bỏ
+          </li>
+          <li>
+            <strong>Kiểm tra không còn ID</strong> - ID user đã bị loại bỏ
+          </li>
+          <li>
+            <strong>Kiểm tra column width</strong> - Cột học sinh nhỏ hơn, vừa
+            vặn
+          </li>
+          <li>
+            <strong>Kiểm tra styling</strong> - Font weight, color, padding đúng
+          </li>
+          <li>
+            <strong>Kiểm tra responsive</strong> - Hiển thị tốt trên mobile
+          </li>
+        </ul>
+      </div>
+
+      <div class="highlight">
+        <h3>🎯 Hướng dẫn test trên UI thực tế:</h3>
+        <ol>
+          <li><strong>Mở trang TutorRevenueStable</strong></li>
+          <li>
+            <strong>Kiểm tra bảng giao dịch:</strong>
+            <ul>
+              <li>✅ Cột học sinh chỉ hiển thị tên</li>
+              <li>❌ Không còn avatar tròn</li>
+              <li>❌ Không còn text "ID: xxxxx"</li>
+              <li>✅ Cột học sinh gọn hơn</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Kiểm tra responsive:</strong> Thu nhỏ màn hình xem layout
+          </li>
+          <li><strong>So sánh với version cũ:</strong> Đảm bảo gọn gàng hơn</li>
+        </ol>
+      </div>
+    </div>
+  </body>
+</html>

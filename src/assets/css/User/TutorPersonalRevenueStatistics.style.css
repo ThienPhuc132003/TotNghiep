@@ -4,8 +4,8 @@
                  TUTOR PERSONAL REVENUE STATISTICS STYLES
 ============================================================ */
 
-.tprs-container {
-  max-width: 1200px;
+.revenue-dashboard {
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f8f9fa;
@@ -15,38 +15,667 @@
 }
 
 /* ==================== Header Section ==================== */
-.tprs-header {
+.revenue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
   color: white;
   padding: 30px;
   border-radius: 12px;
   margin-bottom: 30px;
-  text-align: center;
   box-shadow: 0 4px 20px rgba(215, 25, 33, 0.15);
 }
 
-.tprs-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.header-content {
+  flex: 1;
 }
 
-.tprs-subtitle {
-  font-size: 1.1rem;
+.revenue-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.revenue-title i {
+  font-size: 2rem;
+}
+
+.revenue-subtitle {
+  font-size: 1rem;
   margin: 0;
   opacity: 0.9;
   font-weight: 400;
 }
 
-/* ==================== Filters Section ==================== */
-.tprs-filters {
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.refresh-btn,
+.export-excel-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.refresh-btn:hover,
+.export-excel-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.refresh-btn:disabled,
+.export-excel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ==================== Statistics Cards ==================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
   background: white;
-  padding: 20px;
   border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+}
+
+.stat-card-primary .stat-icon {
+  background: linear-gradient(135deg, #d71921, #e6394a);
+}
+
+.stat-card-secondary .stat-icon {
+  background: linear-gradient(135deg, #6c757d, #868e96);
+}
+
+.stat-card-success .stat-icon {
+  background: linear-gradient(135deg, #28a745, #34ce57);
+}
+
+.stat-card-info .stat-icon {
+  background: linear-gradient(135deg, #17a2b8, #20c997);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.stat-description {
+  font-size: 0.85rem;
+  color: #868e96;
+  margin: 0;
+}
+
+/* ==================== Filters Section ==================== */
+.filters-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
   margin-bottom: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border: 1px solid #e9ecef;
+}
+
+.search-box {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 45px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #d71921;
+  box-shadow: 0 0 0 3px rgba(215, 25, 33, 0.1);
+}
+
+.filter-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-select,
+.date-input {
+  padding: 10px 14px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.filter-select:focus,
+.date-input:focus {
+  outline: none;
+  border-color: #d71921;
+  box-shadow: 0 0 0 3px rgba(215, 25, 33, 0.1);
+}
+
+.clear-filters-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clear-filters-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* ==================== Loading & Error States ==================== */
+.loading-container,
+.error-container {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+}
+
+.loading-spinner {
+  font-size: 3rem;
+  color: #d71921;
+  margin-bottom: 20px;
+}
+
+.loading-container p,
+.error-container p {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.error-container h3 {
+  color: #dc3545;
+  margin: 0 0 12px 0;
+  font-size: 1.5rem;
+}
+
+.retry-btn {
+  background: #d71921;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retry-btn:hover {
+  background: #c01219;
+  transform: translateY(-2px);
+}
+
+/* ==================== Table Section ==================== */
+.table-section {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.table-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #212529;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-count {
+  color: #6c757d;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.table-info {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.revenue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.revenue-table th {
+  background: #f8f9fa;
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #e9ecef;
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+.revenue-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f1f3f4;
+  vertical-align: middle;
+}
+
+.revenue-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.transaction-id {
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+  color: #495057;
+}
+
+.student-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e9ecef;
+}
+
+.student-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-name {
+  font-weight: 600;
+  color: #212529;
+  line-height: 1.2;
+}
+
+.student-id {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-family: "Courier New", monospace;
+}
+
+.revenue-cell {
+  font-weight: 600;
+  color: #495057;
+  text-align: right;
+}
+
+.revenue-highlight {
+  color: #d71921;
+  font-size: 1rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-completed {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+/* ==================== Pagination ==================== */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  gap: 16px;
+}
+
+.pagination-btn {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #495057;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #d71921;
+  color: #d71921;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-number {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 40px;
+  text-align: center;
+  color: #495057;
+}
+
+.pagination-number:hover {
+  background: #f8f9fa;
+  border-color: #d71921;
+  color: #d71921;
+}
+
+.pagination-number.active {
+  background: #d71921;
+  border-color: #d71921;
+  color: white;
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* ==================== Empty State ==================== */
+.empty-container {
+  background: white;
+  border-radius: 12px;
+  padding: 80px 40px;
+  text-align: center;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: #6c757d;
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.empty-container h3 {
+  color: #495057;
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.empty-container p {
+  color: #6c757d;
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ==================== Auth Warning ==================== */
+.auth-warning {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+}
+
+.auth-warning h3 {
+  color: #dc3545;
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+}
+
+.auth-warning p {
+  color: #6c757d;
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+}
+
+/* ==================== Keyboard Shortcuts Help ==================== */
+.shortcuts-help {
+  text-align: center;
+  padding: 20px;
+  background: rgba(215, 25, 33, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(215, 25, 33, 0.1);
+}
+
+.shortcuts-help kbd {
+  background: #495057;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0 2px;
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 768px) {
+  .revenue-dashboard {
+    padding: 12px;
+  }
+
+  .revenue-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .refresh-btn,
+  .export-excel-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .revenue-title {
+    font-size: 1.8rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .filters-section {
+    padding: 20px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-select,
+  .date-input {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .table-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pagination-numbers {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .student-info {
+    gap: 8px;
+  }
+
+  .student-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .revenue-table th,
+  .revenue-table td {
+    padding: 12px 8px;
+    font-size: 0.8rem;
+  }
 }
 
 .tprs-filter-group {
@@ -134,26 +763,30 @@
 }
 
 .tprs-stat-icon.revenue {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
 }
 
 .tprs-stat-icon.lessons {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
 }
 
 .tprs-stat-icon.students {
-  background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%);
+  background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+  box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3);
 }
 
 .tprs-stat-icon.average {
-  background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+  background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+  box-shadow: 0 4px 12px rgba(237, 137, 54, 0.3);
 }
 
-.tprs-stat-content h3 {
+.tprs-stat-label {
   margin: 0 0 8px 0;
   font-size: 0.95rem;
   color: #6c757d;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -162,8 +795,19 @@
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #333;
+  color: #2d3748;
   line-height: 1.2;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.tprs-stat-description {
+  margin: 8px 0 0 0;
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 /* ==================== Charts Section ==================== */
@@ -202,9 +846,12 @@
   margin: 0 0 20px 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #333;
+  color: #2d3748;
   padding-bottom: 15px;
-  border-bottom: 2px solid #f8f9fa;
+  border-bottom: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .tprs-table-container {
@@ -249,12 +896,42 @@
   gap: 12px;
 }
 
+.tprs-student-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tprs-student-name {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.tprs-student-id {
+  font-size: 0.8rem;
+  color: #718096;
+  font-weight: 400;
+}
+
 .tprs-student-avatar {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #e9ecef;
+  border: 3px solid #e2e8f0;
+  transition: border-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.tprs-student-avatar:hover {
+  border-color: #4299e1;
 }
 
 .tprs-revenue-cell {
@@ -262,28 +939,33 @@
   color: #28a745;
 }
 
-.tprs-status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+/* ==================== Table Count Styling ==================== */
+.table-count {
+  font-size: 0.85rem;
+  color: #718096;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #cbd5e0;
 }
 
-.tprs-status-badge.completed {
-  background-color: #d4edda;
-  color: #155724;
+/* ==================== Revenue Cell Improvements ==================== */
+.revenue-cell {
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 8px !important;
+  text-align: right;
 }
 
-.tprs-status-badge.in_progress {
-  background-color: #d1ecf1;
-  color: #0c5460;
-}
-
-.tprs-status-badge.pending {
-  background-color: #fff3cd;
-  color: #856404;
+.revenue-highlight {
+  background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+  color: #22543d;
+  font-weight: 700;
+  border-left: 3px solid #48bb78;
 }
 
 /* ==================== Loading State ==================== */
@@ -391,6 +1073,108 @@
   font-size: 1.1rem;
 }
 
+/* ==================== Header Layout & Export Button ==================== */
+.revenue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: linear-gradient(135deg, #d71921 0%, #e6394a 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(215, 25, 33, 0.15);
+}
+
+.header-content {
+  flex: 1;
+  min-width: 300px;
+}
+
+.revenue-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.revenue-title i {
+  font-size: 2.5rem;
+  color: #ffffff;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.revenue-subtitle {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.export-excel-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  min-width: 140px;
+  justify-content: center;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  text-decoration: none;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.export-excel-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(40, 167, 69, 0.3);
+  background: linear-gradient(135deg, #218838, #1abc9c);
+}
+
+.export-excel-btn:disabled {
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-excel-btn i {
+  font-size: 1.1rem;
+}
+
+/* Pulse animation for chart icon */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
 /* ==================== Responsive Design ==================== */
 @media (max-width: 1200px) {
   .tprs-charts-grid {
@@ -418,10 +1202,25 @@
 
   .tprs-stat-card {
     padding: 20px;
+    gap: 15px;
+  }
+
+  .tprs-stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
   }
 
   .tprs-stat-value {
     font-size: 1.5rem;
+  }
+
+  .tprs-stat-label {
+    font-size: 0.85rem;
+  }
+
+  .tprs-stat-description {
+    font-size: 0.8rem;
   }
 
   .tprs-filter-group {
@@ -451,8 +1250,33 @@
   }
 
   .tprs-student-avatar {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
+  }
+
+  .revenue-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .header-content {
+    min-width: unset;
+  }
+
+  .revenue-title {
+    font-size: 2rem;
+    justify-content: center;
+  }
+
+  .header-actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .export-excel-btn {
+    width: 100%;
+    max-width: 300px;
   }
 }
 
@@ -475,6 +1299,23 @@
 
   .tprs-table-container {
     font-size: 0.8rem;
+  }
+
+  .tprs-stat-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .tprs-stat-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+
+  .tprs-stat-value {
+    font-size: 1.4rem;
+    justify-content: center;
   }
 }
 

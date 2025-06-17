@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎯 Tutor Statistics Layout Fix - Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 50%,
+          #6c5ce7 100%
+        );
+        min-height: 100vh;
+        padding: 24px;
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 24px;
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      /* Summary Cards Grid */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+
+      .summary-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(25px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        min-height: 140px;
+      }
+
+      .summary-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      }
+
+      .summary-card.revenue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .summary-card.booking {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      .summary-card.rating {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+      }
+
+      .summary-card.reviews {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+      }
+
+      .card-icon {
+        font-size: 48px;
+        flex-shrink: 0;
+      }
+
+      .card-content h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+        opacity: 0.9;
+      }
+
+      .card-content .value {
+        font-size: 2rem;
+        font-weight: bold;
+        line-height: 1.2;
+      }
+
+      /* Table Demo */
+      .table-demo {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      }
+
+      .table-demo h2 {
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .demo-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-table th,
+      .demo-table td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .demo-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .demo-table td:first-child {
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .status-chip {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .status-success {
+        background: #e8f5e8;
+        color: #2e7d32;
+      }
+
+      .status-pending {
+        background: #fff8e1;
+        color: #f57c00;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
+        }
+
+        .summary-grid {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 16px;
+        }
+
+        .summary-card {
+          padding: 20px;
+          min-height: 120px;
+        }
+
+        .card-icon {
+          font-size: 36px;
+        }
+
+        .card-content .value {
+          font-size: 1.5rem;
+        }
+
+        .demo-table th,
+        .demo-table td {
+          padding: 12px 8px;
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .summary-card {
+          padding: 16px;
+          min-height: 100px;
+        }
+
+        .card-icon {
+          font-size: 32px;
+        }
+
+        .card-content h3 {
+          font-size: 0.9rem;
+        }
+
+        .card-content .value {
+          font-size: 1.3rem;
+        }
+      }
+
+      .fix-info {
+        background: rgba(40, 167, 69, 0.1);
+        border: 2px solid rgba(40, 167, 69, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin: 30px 0;
+        color: white;
+      }
+
+      .fix-info h3 {
+        margin-bottom: 16px;
+        color: #28a745;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .fix-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .fix-list li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .fix-list li::before {
+        content: "✅";
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>
+          <i class="fas fa-chart-line"></i> Tutor Statistics - Layout Fixed
+        </h1>
+        <p>Demo trang thống kê tổng hợp với layout đã được sửa chữa</p>
+      </div>
+
+      <!-- Summary Cards - Fixed Layout -->
+      <div class="summary-grid">
+        <div class="summary-card revenue">
+          <div class="card-icon">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="card-content">
+            <h3>Tổng doanh thu</h3>
+            <div class="value">125,000 coins</div>
+          </div>
+        </div>
+
+        <div class="summary-card booking">
+          <div class="card-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="card-content">
+            <h3>Tổng lượt thuê</h3>
+            <div class="value">24</div>
+          </div>
+        </div>
+
+        <div class="summary-card rating">
+          <div class="card-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="card-content">
+            <h3>Đánh giá trung bình</h3>
+            <div class="value">4.8 ★</div>
+          </div>
+        </div>
+
+        <div class="summary-card reviews">
+          <div class="card-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="card-content">
+            <h3>Số đánh giá</h3>
+            <div class="value">18</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fix Information -->
+      <div class="fix-info">
+        <h3><i class="fas fa-tools"></i> Các vấn đề đã được sửa</h3>
+        <ul class="fix-list">
+          <li>
+            <strong>Layout Summary Cards:</strong> Chiều cao đều nhau, spacing
+            chuẩn, responsive hoàn hảo
+          </li>
+          <li>
+            <strong>Hiển thị STT:</strong> Thay thế ID bằng số thứ tự dễ đọc (1,
+            2, 3...)
+          </li>
+          <li>
+            <strong>Responsive Design:</strong> Tối ưu cho mobile, tablet,
+            desktop
+          </li>
+          <li>
+            <strong>User Experience:</strong> Giao diện thân thiện và dễ sử dụng
+            hơn
+          </li>
+        </ul>
+      </div>
+
+      <!-- Table Demo with STT -->
+      <div class="table-demo">
+        <h2><i class="fas fa-table"></i> Demo Bảng với STT (thay vì ID)</h2>
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Mã giao dịch</th>
+              <th>Tên học viên</th>
+              <th>Số tiền</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>TXN-001234</td>
+              <td>Nguyễn Văn A</td>
+              <td>5,000 coins</td>
+              <td>
+                <span class="status-chip status-success">Thành công</span>
+              </td>
+              <td>12/01/2024</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>TXN-001235</td>
+              <td>Trần Thị B</td>
+              <td>7,500 coins</td>
+              <td>
+                <span class="status-chip status-success">Thành công</span>
+              </td>
+              <td>11/01/2024</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>TXN-001236</td>
+              <td>Lê Văn C</td>
+              <td>3,200 coins</td>
+              <td><span class="status-chip status-pending">Đang chờ</span></td>
+              <td>10/01/2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin-top: 40px; color: white">
+        <p style="font-size: 1.1rem; opacity: 0.9">
+          🎉 <strong>Layout đã được sửa thành công!</strong> Truy cập
+          <code
+            style="
+              background: rgba(255, 255, 255, 0.2);
+              padding: 4px 8px;
+              border-radius: 4px;
+            "
+          >
+            http://localhost:5175/tai-khoan/ho-so/thong-ke-tong-hop
+          </code>
+          để xem kết quả thực tế.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      console.log("🎯 Tutor Statistics Layout Fix Demo Loaded");
+      console.log("✅ Summary cards: Equal height, responsive spacing");
+      console.log("✅ Table display: STT instead of ID");
+      console.log("✅ Responsive design: Mobile, tablet, desktop");
+      console.log(
+        "🌐 Access: http://localhost:5175/tai-khoan/ho-so/thong-ke-tong-hop"
+      );
+
+      // Add hover effects for demo
+      document.querySelectorAll(".summary-card").forEach((card) => {
+        card.addEventListener("mouseenter", () => {
+          console.log("🎨 Card hover effect activated");
+        });
+      });
+
+      // Table row highlighting
+      document.querySelectorAll(".demo-table tr").forEach((row) => {
+        row.addEventListener("mouseenter", () => {
+          row.style.backgroundColor = "#f8f9fa";
+        });
+        row.addEventListener("mouseleave", () => {
+          row.style.backgroundColor = "";
+        });
+      });
+    </script>
+  </body>
+</html>

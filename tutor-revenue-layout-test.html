@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Revenue Layout Test - Fit Screen</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Copy CSS từ ModernRevenueStatistics.style.css */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .tprs-container {
+        height: 100vh;
+        max-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        padding: 0;
+        margin: 0;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tprs-header {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.95) 0%,
+          rgba(118, 75, 162, 0.95) 100%
+        );
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px 30px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+        min-height: 80px;
+        max-height: 120px;
+      }
+
+      .tprs-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin: 0;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+        z-index: 2;
+        background: linear-gradient(45deg, #ffffff, #f8f9ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.2;
+      }
+
+      .tprs-title i {
+        font-size: 2.5rem;
+        color: #ffffff;
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+        -webkit-text-fill-color: initial;
+      }
+
+      .tprs-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 15px 30px;
+        position: relative;
+        z-index: 2;
+        flex-shrink: 0;
+        max-height: 200px;
+      }
+
+      .tprs-stats-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1),
+          0 4px 16px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 100px;
+        max-height: 120px;
+      }
+
+      .tprs-stats-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        transition: all 0.3s ease;
+      }
+
+      .tprs-stats-card-primary::before {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+      }
+
+      .tprs-stats-card-secondary::before {
+        background: linear-gradient(90deg, #f093fb, #f5576c);
+      }
+
+      .tprs-stats-card-success::before {
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
+      }
+
+      .tprs-stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .tprs-stats-card-primary .tprs-stats-icon {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .tprs-stats-card-secondary .tprs-stats-icon {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+      }
+
+      .tprs-stats-card-success .tprs-stats-icon {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+      }
+
+      .tprs-stats-content {
+        flex: 1;
+      }
+
+      .tprs-stats-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin: 0 0 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tprs-stats-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0 0 4px 0;
+        line-height: 1.2;
+      }
+
+      .tprs-stats-description {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin: 0;
+        line-height: 1.4;
+      }
+
+      .tprs-table-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1),
+          0 4px 16px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        max-width: 1400px;
+        margin: 0 auto 20px auto;
+        position: relative;
+        overflow: hidden;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        max-height: calc(100vh - 320px);
+      }
+
+      .tprs-table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+        flex-shrink: 0;
+      }
+
+      .tprs-table-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .tprs-table-title i {
+        color: #667eea;
+        margin-right: 12px;
+        font-size: 1.8rem;
+      }
+
+      .tprs-table-count {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #6b7280;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        padding: 8px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        margin-left: 10px;
+      }
+
+      .tprs-table-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+        margin-bottom: 12px;
+      }
+
+      .tprs-search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .tprs-search-container i {
+        position: absolute;
+        left: 16px;
+        color: #6b7280;
+        z-index: 1;
+      }
+
+      .tprs-search-input {
+        padding: 12px 16px 12px 48px;
+        border: 2px solid rgba(102, 126, 234, 0.1);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        background: white;
+        min-width: 280px;
+        transition: all 0.3s ease;
+      }
+
+      .tprs-search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .tprs-sort-select {
+        padding: 12px 16px;
+        border: 2px solid rgba(102, 126, 234, 0.1);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        background: white;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .tprs-action-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .tprs-refresh-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+
+      .tprs-export-btn {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        color: white;
+      }
+
+      .tprs-table-container {
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 16px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        background: white;
+        flex: 1;
+        min-height: 0;
+        max-height: calc(100vh - 480px);
+      }
+
+      .tprs-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      .tprs-table thead {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .tprs-table th {
+        padding: 20px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .tprs-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+      }
+
+      .tprs-table tbody tr:hover {
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        transform: scale(1.01);
+      }
+
+      .tprs-table td {
+        padding: 16px;
+        vertical-align: middle;
+      }
+
+      .tprs-table-index {
+        font-weight: 700;
+        color: #667eea;
+        text-align: center;
+        width: 60px;
+      }
+
+      .tprs-student-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .tprs-student-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .tprs-student-name {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.95rem;
+      }
+
+      .tprs-student-id {
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+
+      .tprs-revenue-cell {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .tprs-revenue-highlight {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .tprs-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tprs-status-completed {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border: 1px solid #10b981;
+      }
+
+      .tprs-date-cell {
+        color: #6b7280;
+        font-size: 0.9rem;
+      }
+
+      .debug-info {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-family: monospace;
+        z-index: 1000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Debug info -->
+    <div class="debug-info">
+      <div>Screen: <span id="screen-size"></span></div>
+      <div>Container: <span id="container-size"></span></div>
+      <div>Scroll: <span id="scroll-info"></span></div>
+    </div>
+
+    <div class="tprs-container">
+      <!-- Header -->
+      <div class="tprs-header">
+        <h1 class="tprs-title">
+          <i class="fas fa-chart-line"></i>
+          Thống kê Doanh thu
+        </h1>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="tprs-stats-grid">
+        <div class="tprs-stats-card tprs-stats-card-primary">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">Tổng doanh thu nhận</h3>
+            <div class="tprs-stats-value">1,250,000 Coin</div>
+            <p class="tprs-stats-description">Số coin gia sư nhận được</p>
+          </div>
+        </div>
+
+        <div class="tprs-stats-card tprs-stats-card-secondary">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-receipt"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">Số giao dịch</h3>
+            <div class="tprs-stats-value">24</div>
+            <p class="tprs-stats-description">Giao dịch hoàn thành</p>
+          </div>
+        </div>
+
+        <div class="tprs-stats-card tprs-stats-card-success">
+          <div class="tprs-stats-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="tprs-stats-content">
+            <h3 class="tprs-stats-label">Học sinh</h3>
+            <div class="tprs-stats-value">18</div>
+            <p class="tprs-stats-description">Học sinh đã thanh toán</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Data Table -->
+      <div class="tprs-table-section">
+        <div class="tprs-table-header">
+          <h3 class="tprs-table-title">
+            <i class="fas fa-list-alt"></i>
+            Chi tiết Giao dịch
+            <span class="tprs-table-count">(24 giao dịch)</span>
+          </h3>
+
+          <div class="tprs-table-controls">
+            <div class="tprs-search-container">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                class="tprs-search-input"
+                placeholder="Tìm học sinh theo tên hoặc ID"
+              />
+            </div>
+
+            <select class="tprs-sort-select">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="highest">Cao nhất</option>
+              <option value="lowest">Thấp nhất</option>
+            </select>
+
+            <button class="tprs-action-btn tprs-refresh-btn">
+              <i class="fas fa-sync-alt"></i>
+              Làm mới
+            </button>
+
+            <button class="tprs-action-btn tprs-export-btn">
+              <i class="fas fa-file-csv"></i>
+              Xuất CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="tprs-table-container">
+          <table class="tprs-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Học sinh</th>
+                <th>Coin gia sư nhận</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Sample data -->
+              <tr>
+                <td class="tprs-table-index">1</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Nguyễn Văn A</span>
+                      <span class="tprs-student-id">ID: student123</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  50,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed">
+                    <i class="fas fa-check-circle"></i>
+                    Hoàn thành
+                  </span>
+                </td>
+                <td class="tprs-date-cell">25/12/2024 14:30:00</td>
+              </tr>
+              <!-- Repeat for more sample data -->
+              <tr>
+                <td class="tprs-table-index">2</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Trần Thị B</span
+                      ><span class="tprs-student-id">ID: student456</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  75,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">24/12/2024 10:15:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">3</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Lê Văn C</span
+                      ><span class="tprs-student-id">ID: student789</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  60,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">23/12/2024 16:45:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">4</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Phạm Thị D</span
+                      ><span class="tprs-student-id">ID: student101</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  40,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">22/12/2024 09:20:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">5</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Hoàng Văn E</span
+                      ><span class="tprs-student-id">ID: student202</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  85,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">21/12/2024 14:10:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">6</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Đỗ Thị F</span
+                      ><span class="tprs-student-id">ID: student303</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  55,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">20/12/2024 11:30:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">7</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Vũ Văn G</span
+                      ><span class="tprs-student-id">ID: student404</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  70,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">19/12/2024 15:45:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">8</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Bùi Thị H</span
+                      ><span class="tprs-student-id">ID: student505</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  45,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">18/12/2024 08:25:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">9</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Đinh Văn I</span
+                      ><span class="tprs-student-id">ID: student606</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  90,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">17/12/2024 13:15:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">10</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Lý Thị K</span
+                      ><span class="tprs-student-id">ID: student707</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  65,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">16/12/2024 10:40:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">11</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Mai Văn L</span
+                      ><span class="tprs-student-id">ID: student808</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  80,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">15/12/2024 16:20:00</td>
+              </tr>
+              <tr>
+                <td class="tprs-table-index">12</td>
+                <td>
+                  <div class="tprs-student-info">
+                    <div class="tprs-student-details">
+                      <span class="tprs-student-name">Cao Thị M</span
+                      ><span class="tprs-student-id">ID: student909</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="tprs-revenue-cell tprs-revenue-highlight">
+                  50,000 Coin
+                </td>
+                <td>
+                  <span class="tprs-status-badge tprs-status-completed"
+                    ><i class="fas fa-check-circle"></i>Hoàn thành</span
+                  >
+                </td>
+                <td class="tprs-date-cell">14/12/2024 12:50:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updateDebugInfo() {
+        document.getElementById(
+          "screen-size"
+        ).textContent = `${window.innerWidth}x${window.innerHeight}`;
+
+        const container = document.querySelector(".tprs-container");
+        if (container) {
+          document.getElementById(
+            "container-size"
+          ).textContent = `${container.offsetWidth}x${container.offsetHeight}`;
+        }
+
+        const tableContainer = document.querySelector(".tprs-table-container");
+        if (tableContainer) {
+          document.getElementById("scroll-info").textContent = `${
+            tableContainer.scrollTop
+          }/${tableContainer.scrollHeight - tableContainer.clientHeight}`;
+        }
+      }
+
+      // Update debug info
+      updateDebugInfo();
+      window.addEventListener("resize", updateDebugInfo);
+
+      const tableContainer = document.querySelector(".tprs-table-container");
+      if (tableContainer) {
+        tableContainer.addEventListener("scroll", updateDebugInfo);
+      }
+
+      // Test scroll behavior
+      console.log("🧪 Layout Test Mode");
+      console.log(
+        "✅ Header height:",
+        document.querySelector(".tprs-header").offsetHeight + "px"
+      );
+      console.log(
+        "✅ Stats height:",
+        document.querySelector(".tprs-stats-grid").offsetHeight + "px"
+      );
+      console.log(
+        "✅ Table section height:",
+        document.querySelector(".tprs-table-section").offsetHeight + "px"
+      );
+      console.log("✅ Window height:", window.innerHeight + "px");
+
+      // Check if layout fits in viewport
+      const totalHeight =
+        document.querySelector(".tprs-header").offsetHeight +
+        document.querySelector(".tprs-stats-grid").offsetHeight +
+        document.querySelector(".tprs-table-section").offsetHeight +
+        40; // margins
+
+      console.log("📏 Total content height:", totalHeight + "px");
+      console.log("📏 Viewport height:", window.innerHeight + "px");
+      console.log(
+        totalHeight <= window.innerHeight
+          ? "✅ Layout fits in viewport"
+          : "⚠️ Layout exceeds viewport"
+      );
+    </script>
+  </body>
+</html>

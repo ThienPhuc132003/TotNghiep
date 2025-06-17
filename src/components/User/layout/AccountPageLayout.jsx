@@ -115,9 +115,15 @@ const AccountPageLayoutComponent = () => {
         },
         {
           id: "tutorRevenueStats",
-          label: "Thống kê doanh thu",
+          label: "Quản lý doanh thu",
           pathBase: "thong-ke-doanh-thu",
-          icon: "fas fa-chart-line",
+          icon: "fas fa-coins",
+        },
+        {
+          id: "tutorHireAndRatingStats",
+          label: "Thống kê gia sư",
+          pathBase: "thong-ke-tong-hop",
+          icon: "fas fa-chart-bar",
         },
       ];
     } else {

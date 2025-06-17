@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import "../../assets/css/ClassroomEvaluationModal.style.css";
+import ReactStars from "react-rating-stars-component";
 
 const ClassroomEvaluationModal = ({
   isOpen,
@@ -96,33 +97,29 @@ const ClassroomEvaluationModal = ({
             <p>
               <strong>Gia sư:</strong> {tutorName}
             </p>
-          </div>
-
+          </div>{" "}
           <form onSubmit={handleSubmit}>
+            {" "}
             <div className="evaluation-rating-section">
               <label>Đánh giá chung:</label>
               <div className="rating-stars">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    className={`star ${star <= rating ? "active" : ""}`}
-                    onClick={() => setRating(star)}
-                    disabled={isSubmitting}
-                  >
-                    ★
-                  </button>
-                ))}
+                <ReactStars
+                  count={5}
+                  onChange={setRating}
+                  size={32}
+                  value={rating}
+                  isHalf={true}
+                  activeColor="#ffc107"
+                  color="#e0e0e0"
+                  edit={!isSubmitting}
+                  classNames="rating-stars-component"
+                  emptyIcon={<span>☆</span>}
+                  halfIcon={<span>☆</span>}
+                  filledIcon={<span>★</span>}
+                />
+                <span className="rating-value">{rating.toFixed(1)} / 5</span>
               </div>
-              <span className="rating-text">
-                {rating === 1 && "Rất không hài lòng"}
-                {rating === 2 && "Không hài lòng"}
-                {rating === 3 && "Bình thường"}
-                {rating === 4 && "Hài lòng"}
-                {rating === 5 && "Rất hài lòng"}
-              </span>
             </div>
-
             <div className="evaluation-comment-section">
               <label htmlFor="evaluationComment">
                 Nhận xét chi tiết:
@@ -138,7 +135,6 @@ const ClassroomEvaluationModal = ({
                 rows={4}
               />
             </div>
-
             <div className="evaluation-modal-actions">
               <button
                 type="button"

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Xuất Excel - TutorPersonalRevenueStatistics</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        backdrop-filter: blur(10px);
+      }
+
+      h1 {
+        color: #2d3748;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+      }
+
+      .section h2 {
+        color: #2d3748;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status {
+        padding: 12px 20px;
+        border-radius: 10px;
+        margin: 10px 0;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status.success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.warning {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .status.error {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .test-item {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+      }
+
+      .test-item h3 {
+        color: #2d3748;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .test-item p {
+        color: #4a5568;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .code {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        margin: 10px 0;
+        overflow-x: auto;
+      }
+
+      .highlight {
+        background: linear-gradient(135deg, #4299e1, #3182ce);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-weight: 500;
+      }
+
+      .file-path {
+        background: #edf2f7;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        color: #2d3748;
+        font-size: 0.9rem;
+        border-left: 3px solid #4299e1;
+      }
+
+      .icon {
+        font-size: 1.2rem;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        margin: 10px 10px 10px 0;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .btn-secondary:hover {
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .keyboard-shortcut {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.8rem;
+        margin: 0 5px;
+      }
+
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+
+      .checklist li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .checklist li::before {
+        content: "✅";
+        font-size: 1.2rem;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #4a5568;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Test Chức Năng Xuất Excel - TutorPersonalRevenueStatistics</h1>
+
+      <div class="section">
+        <h2><span class="icon">🎯</span> Mục tiêu</h2>
+        <p>
+          Kiểm tra và debug chức năng xuất Excel cho trang thống kê doanh thu cá
+          nhân gia sư sau khi được nâng cấp.
+        </p>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            >Đã thêm chức năng xuất Excel với logo Van Lang và định dạng chuyên
+            nghiệp</span
+          >
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">🔧</span> Thay Đổi Đã Thực Hiện</h2>
+
+        <div class="test-item">
+          <h3>1. Import Excel Utility</h3>
+          <p>
+            Đã thêm import cho utility xuất Excel với alias để tránh xung đột
+            tên:
+          </p>
+          <div class="code">
+            import { exportToExcel as exportExcelUtil } from
+            "../../utils/excelExport";
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>2. Hàm exportToExcel</h3>
+          <p>Đã thêm hàm xuất Excel với các tính năng:</p>
+          <ul class="checklist">
+            <li>Toast loading trong quá trình tạo file</li>
+            <li>Định dạng dữ liệu chuyên nghiệp</li>
+            <li>Thống kê tóm tắt</li>
+            <li>Logo Van Lang University</li>
+            <li>Xử lý lỗi và thông báo</li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>3. Keyboard Shortcuts</h3>
+          <p>Đã thêm phím tắt:</p>
+          <div class="code">
+            <span class="keyboard-shortcut">Ctrl+E</span> : Xuất Excel
+            <span class="keyboard-shortcut">Ctrl+R</span> : Làm mới dữ liệu
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>4. UI Button Xuất Excel</h3>
+          <p>Đã thêm button xuất Excel vào header với style chuyên nghiệp:</p>
+          <ul class="checklist">
+            <li>Màu xanh lá gradation</li>
+            <li>Icon Excel</li>
+            <li>Hover effects</li>
+            <li>Disabled state khi loading</li>
+            <li>Tooltip hướng dẫn</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📂</span> Files Đã Chỉnh Sửa</h2>
+
+        <div class="test-item">
+          <h3>Component chính:</h3>
+          <div class="file-path">
+            src/pages/User/TutorPersonalRevenueStatistics.jsx
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>CSS Styles:</h3>
+          <div class="file-path">
+            src/assets/css/User/TutorPersonalRevenueStatistics.style.css
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>Excel Utility (sử dụng chung):</h3>
+          <div class="file-path">src/utils/excelExport.js</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">🧪</span> Hướng Dẫn Test</h2>
+
+        <div class="test-item">
+          <h3>Bước 1: Kiểm tra UI</h3>
+          <p>1. Mở trang TutorPersonalRevenueStatistics</p>
+          <p>2. Kiểm tra button "Xuất Excel" xuất hiện ở header</p>
+          <p>3. Verify button có màu xanh lá và icon Excel</p>
+          <p>4. Hover button để xem effect animation</p>
+        </div>
+
+        <div class="test-item">
+          <h3>Bước 2: Test Chức Năng Xuất Excel</h3>
+          <p>1. Click button "Xuất Excel"</p>
+          <p>2. Kiểm tra toast loading xuất hiện</p>
+          <p>3. Đợi file Excel được tải xuống</p>
+          <p>4. Kiểm tra toast success</p>
+          <p>5. Mở file Excel để verify:</p>
+          <ul class="checklist">
+            <li>Logo Van Lang University</li>
+            <li>Header chuyên nghiệp</li>
+            <li>Thống kê tóm tắt</li>
+            <li>Dữ liệu chi tiết</li>
+            <li>Định dạng đẹp</li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>Bước 3: Test Keyboard Shortcuts</h3>
+          <p>
+            1. Nhấn <span class="keyboard-shortcut">Ctrl+E</span> để xuất Excel
+          </p>
+          <p>
+            2. Nhấn <span class="keyboard-shortcut">Ctrl+R</span> để refresh
+          </p>
+          <p>3. Verify các phím tắt hoạt động đúng</p>
+        </div>
+
+        <div class="test-item">
+          <h3>Bước 4: Test Edge Cases</h3>
+          <p>1. Test khi không có dữ liệu (nên hiện thông báo lỗi)</p>
+          <p>2. Test khi đang loading (button nên bị disabled)</p>
+          <p>3. Test responsive trên mobile</p>
+          <p>4. Test multiple clicks nhanh</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">🚨</span> Debug Nếu Có Lỗi</h2>
+
+        <div class="test-item">
+          <h3>Lỗi: Trang đứng khi xuất Excel</h3>
+          <div class="status warning">
+            <span>⚠️</span>
+            <span>Có thể do xung đột tên hàm hoặc infinite recursion</span>
+          </div>
+          <p>
+            <strong>Giải pháp:</strong> Đã sử dụng alias import để tránh xung
+            đột
+          </p>
+          <div class="code">
+            // ❌ Cũ - có thể gây xung đột import { exportToExcel } from
+            "../../utils/excelExport"; // ✅ Mới - dùng alias import {
+            exportToExcel as exportExcelUtil } from "../../utils/excelExport";
+          </div>
+        </div>
+
+        <div class="test-item">
+          <h3>Lỗi: Button không xuất hiện</h3>
+          <p><strong>Kiểm tra:</strong></p>
+          <ul class="checklist">
+            <li>CSS đã được import đúng</li>
+            <li>Component render header đúng cấu trúc</li>
+            <li>Không có lỗi compile</li>
+          </ul>
+        </div>
+
+        <div class="test-item">
+          <h3>Lỗi: File Excel không tạo được</h3>
+          <p><strong>Kiểm tra:</strong></p>
+          <ul class="checklist">
+            <li>Utils/excelExport.js tồn tại và hoạt động</li>
+            <li>Dữ liệu revenueData có giá trị</li>
+            <li>Browser không block download</li>
+            <li>Console có error message gì không</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2><span class="icon">📊</span> Kết Quả Mong Đợi</h2>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>Chức năng hoạt động hoàn hảo:</strong> Button xuất Excel
+            hoạt động mượt mà, không lag, file Excel được tạo với logo Van Lang
+            và định dạng chuyên nghiệp</span
+          >
+        </div>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>UI/UX chuyên nghiệp:</strong> Button có style đẹp, hover
+            effects, responsive design, keyboard shortcuts tiện lợi</span
+          >
+        </div>
+
+        <div class="status success">
+          <span>✅</span>
+          <span
+            ><strong>Hiệu năng tốt:</strong> Không còn infinite recursion, toast
+            loading/success hoạt động đúng, không blocking UI</span
+          >
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          🎉 TutorPersonalRevenueStatistics đã được nâng cấp thành công với chức
+          năng xuất Excel chuyên nghiệp!
+        </p>
+        <p>Tạo bởi GitHub Copilot - June 17, 2025</p>
+      </div>
+    </div>
+
+    <script>
+      // Hiển thị thông tin debug
+      console.log("🧪 TutorPersonalRevenueStatistics Excel Export Test Ready");
+      console.log(
+        "📁 Component: src/pages/User/TutorPersonalRevenueStatistics.jsx"
+      );
+      console.log(
+        "🎨 CSS: src/assets/css/User/TutorPersonalRevenueStatistics.style.css"
+      );
+      console.log(
+        "⚡ Features: Excel Export + Keyboard Shortcuts + Professional UI"
+      );
+
+      // Add smooth scroll cho navigation
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

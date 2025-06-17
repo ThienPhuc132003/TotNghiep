@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Trang Thống Kê Gia Sư - Hire & Rating Statistics</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      /* Revenue container styles */
+      .revenue-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Header styles */
+      .revenue-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+      }
+
+      .header-content h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .header-content h1 i {
+        margin-right: 10px;
+      }
+
+      .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      /* Stats grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.2s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .hire-stats .stat-icon {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .rating-stats .stat-icon {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+      }
+
+      .reviews-stats .stat-icon {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+      }
+
+      .stat-content h3 {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        margin: 5px 0;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: #888;
+      }
+
+      /* Tabs navigation */
+      .tabs-navigation {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .tab-button {
+        background: none;
+        border: none;
+        padding: 15px 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tab-button:hover {
+        background-color: #f8f9fa;
+      }
+
+      .tab-button.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+        background-color: #f8f9fa;
+      }
+
+      /* Controls */
+      .revenue-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .controls-section {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .search-box {
+        position: relative;
+        min-width: 300px;
+      }
+
+      .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      .sort-select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        min-width: 150px;
+      }
+
+      .refresh-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .refresh-btn:hover {
+        background: #5a67d8;
+      }
+
+      /* Table styles */
+      .data-table-wrapper {
+        overflow-x: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .revenue-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .revenue-table th {
+        background: #f8f9fa;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #eee;
+        color: #333;
+      }
+
+      .revenue-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+      }
+
+      .revenue-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      /* Status badges */
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-success {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-danger {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-warning {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      /* Rating stars */
+      .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .stars {
+        display: flex;
+        gap: 2px;
+      }
+
+      .star-filled {
+        color: #ffc107;
+      }
+
+      .star-empty {
+        color: #e9ecef;
+      }
+
+      .rating-number {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      /* Cell content */
+      .student-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .student-name {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .description-cell,
+      .comment-cell {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* No data state */
+      .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .no-data i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #ddd;
+      }
+
+      /* Loading and error states */
+      .loading-state,
+      .error-state,
+      .auth-required,
+      .access-denied {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .retry-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 15px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .revenue-container {
+          padding: 15px;
+          margin: 10px;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .revenue-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .controls-section {
+          flex-direction: column;
+        }
+
+        .search-box {
+          min-width: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="revenue-container">
+      <!-- Header -->
+      <div class="revenue-header">
+        <div class="header-content">
+          <h1>
+            <i class="fas fa-chart-bar"></i>
+            Thống Kê Gia Sư
+          </h1>
+          <p class="page-subtitle">
+            Theo dõi lượt thuê và đánh giá từ học viên
+          </p>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card hire-stats">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Tổng Lượt Thuê</h3>
+            <p class="stat-number">24</p>
+            <span class="stat-label">yêu cầu</span>
+          </div>
+        </div>
+
+        <div class="stat-card rating-stats">
+          <div class="stat-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Đánh Giá Trung Bình</h3>
+            <p class="stat-number">4.7</p>
+            <span class="stat-label">/ 5 sao</span>
+          </div>
+        </div>
+
+        <div class="stat-card reviews-stats">
+          <div class="stat-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Tổng Đánh Giá</h3>
+            <p class="stat-number">18</p>
+            <span class="stat-label">lượt đánh giá</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="tabs-navigation">
+        <button class="tab-button active" onclick="switchTab('hires')">
+          <i class="fas fa-calendar-check"></i>
+          Lượt Thuê (24)
+        </button>
+        <button class="tab-button" onclick="switchTab('ratings')">
+          <i class="fas fa-star"></i>
+          Đánh Giá (18)
+        </button>
+      </div>
+
+      <!-- Controls -->
+      <div class="revenue-controls">
+        <div class="controls-section">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Tìm theo tên học viên, môn học..."
+            />
+          </div>
+          <div class="sort-controls">
+            <select class="sort-select" id="sortSelect">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="student">Tên học viên</option>
+              <option value="rating_high">Đánh giá cao nhất</option>
+              <option value="rating_low">Đánh giá thấp nhất</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="refresh-btn" onclick="refreshData()">
+          <i class="fas fa-sync-alt"></i>
+          Làm mới
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="data-content">
+        <!-- Hires Table -->
+        <div id="hiresTable" class="data-table-wrapper">
+          <table class="revenue-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Học viên</th>
+                <th>Môn học</th>
+                <th>Thời lượng</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Mô tả</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>
+                  <div class="student-info">
+                    <span class="student-name">Nguyễn Văn An</span>
+                  </div>
+                </td>
+                <td>Toán học</td>
+                <td>2 giờ</td>
+                <td>
+                  <span class="status-badge status-success">Đã chấp nhận</span>
+                </td>
+                <td>15/11/2024</td>
+                <td>
+                  <div
+                    class="description-cell"
+                    title="Cần gia sư dạy Toán lớp 12, chuyên đề về đạo hàm và tích phân"
+                  >
+                    Cần gia sư dạy Toán lớp 12, chuyên đề về đạo hàm và tích
+                    phân
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  <div class="student-info">
+                    <span class="student-name">Trần Thị Bình</span>
+                  </div>
+                </td>
+                <td>Tiếng Anh</td>
+                <td>1.5 giờ</td>
+                <td>
+                  <span class="status-badge status-success">Hoàn thành</span>
+                </td>
+                <td>14/11/2024</td>
+                <td>
+                  <div
+                    class="description-cell"
+                    title="Luyện thi IELTS Speaking và Writing"
+                  >
+                    Luyện thi IELTS Speaking và Writing
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>
+                  <div class="student-info">
+                    <span class="student-name">Lê Văn Cường</span>
+                  </div>
+                </td>
+                <td>Vật lý</td>
+                <td>3 giờ</td>
+                <td>
+                  <span class="status-badge status-pending">Chờ duyệt</span>
+                </td>
+                <td>13/11/2024</td>
+                <td>
+                  <div
+                    class="description-cell"
+                    title="Ôn tập Vật lý lớp 11, chương Dao động cơ học"
+                  >
+                    Ôn tập Vật lý lớp 11, chương Dao động cơ học
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Ratings Table -->
+        <div id="ratingsTable" class="data-table-wrapper" style="display: none">
+          <table class="revenue-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Học viên</th>
+                <th>Đánh giá</th>
+                <th>Nội dung</th>
+                <th>Ngày đánh giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>
+                  <div class="student-info">
+                    <span class="student-name">Nguyễn Văn An</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="rating-display">
+                    <div class="stars">
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                    </div>
+                    <span class="rating-number">(5/5)</span>
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="comment-cell"
+                    title="Giáo viên dạy rất hay, dễ hiểu. Em đã nắm được kiến thức về đạo hàm một cách rõ ràng."
+                  >
+                    Giáo viên dạy rất hay, dễ hiểu. Em đã nắm được kiến thức về
+                    đạo hàm một cách rõ ràng.
+                  </div>
+                </td>
+                <td>16/11/2024</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  <div class="student-info">
+                    <span class="student-name">Trần Thị Bình</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="rating-display">
+                    <div class="stars">
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-empty"></i>
+                    </div>
+                    <span class="rating-number">(4/5)</span>
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="comment-cell"
+                    title="Cô dạy tiếng Anh rất tốt, phương pháp dạy phù hợp. Chỉ có điều tốc độ hơi nhanh một chút."
+                  >
+                    Cô dạy tiếng Anh rất tốt, phương pháp dạy phù hợp. Chỉ có
+                    điều tốc độ hơi nhanh một chút.
+                  </div>
+                </td>
+                <td>15/11/2024</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>
+                  <div class="student-info">
+                    <span class="student-name">Phạm Thị Dung</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="rating-display">
+                    <div class="stars">
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                      <i class="fas fa-star star-filled"></i>
+                    </div>
+                    <span class="rating-number">(5/5)</span>
+                  </div>
+                </td>
+                <td>
+                  <div
+                    class="comment-cell"
+                    title="Rất hài lòng với cách dạy của thầy. Thầy giải thích rất kỹ và sabờ kiên nhẫn."
+                  >
+                    Rất hài lòng với cách dạy của thầy. Thầy giải thích rất kỹ
+                    và rất kiên nhẫn.
+                  </div>
+                </td>
+                <td>14/11/2024</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function switchTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll(".tab-button").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        event.target.classList.add("active");
+
+        // Update search placeholder
+        const searchInput = document.getElementById("searchInput");
+        if (tab === "hires") {
+          searchInput.placeholder = "Tìm theo tên học viên, môn học...";
+          document.getElementById("hiresTable").style.display = "block";
+          document.getElementById("ratingsTable").style.display = "none";
+        } else {
+          searchInput.placeholder =
+            "Tìm theo tên học viên, nội dung đánh giá...";
+          document.getElementById("hiresTable").style.display = "none";
+          document.getElementById("ratingsTable").style.display = "block";
+        }
+
+        // Update sort options
+        const sortSelect = document.getElementById("sortSelect");
+        if (tab === "ratings") {
+          if (!document.querySelector('option[value="rating_high"]')) {
+            sortSelect.innerHTML +=
+              '<option value="rating_high">Đánh giá cao nhất</option>';
+            sortSelect.innerHTML +=
+              '<option value="rating_low">Đánh giá thấp nhất</option>';
+          }
+        }
+      }
+
+      function refreshData() {
+        const icon = document.querySelector(".refresh-btn i");
+        icon.classList.add("fa-spin");
+
+        setTimeout(() => {
+          icon.classList.remove("fa-spin");
+          console.log("Dữ liệu đã được làm mới!");
+        }, 1000);
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("✅ Trang Thống Kê Gia Sư đã tải thành công");
+        console.log(
+          "📊 Route test: /tai-khoan/ho-so/thong-ke-luot-thue-danh-gia"
+        );
+      });
+    </script>
+  </body>
+</html>
