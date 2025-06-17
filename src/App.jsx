@@ -107,6 +107,15 @@ const ListOfTransactions = lazy(() =>
 const ListOfTutorPayments = lazy(() =>
   import("./pages/Admin/ListOfTutorPayments")
 );
+const ListOfWithdrawalRequests = lazy(() =>
+  import("./pages/Admin/ListOfWithdrawalRequests")
+);
+const ListOfWithdrawalRequestsSimple = lazy(() =>
+  import("./pages/Admin/ListOfWithdrawalRequestsSimple")
+);
+const SimpleWithdrawalTest = lazy(() =>
+  import("./pages/Admin/SimpleWithdrawalTest")
+);
 const RevenueStatistics = lazy(() => import("./pages/Admin/RevenueStatistics"));
 const TutorHireStatistics = lazy(() =>
   import("./pages/Admin/TutorHireStatistics")
@@ -269,7 +278,10 @@ function App() {
               <Route path="/admin/profile" element={<AdminProfile />} />
               <Route path="/admin/nhan-vien" element={<ListOfAdmin />} />
               <Route path="/admin/nganh" element={<ListOfMajor />} />
-              <Route path="/admin/yeu-cau" element={<ListOfRequest />} />
+              <Route
+                path="/admin/tai-khoan-gia-su"
+                element={<ListOfRequest />}
+              />
               <Route path="/admin/nguoi-hoc" element={<ListOfStudent />} />
               <Route path="/admin/gia-su" element={<ListOfTutor />} />
               <Route path="/admin/hang-gia-su" element={<ListOfTutorLevel />} />
@@ -283,6 +295,14 @@ function App() {
                 path="/admin/thanh-toan-cho-gia-su"
                 element={<ListOfTutorPayments />}
               />{" "}
+              <Route
+                path="/admin/rut-tien"
+                element={<ListOfWithdrawalRequests />}
+              />
+              <Route
+                path="/admin/rut-tien-test"
+                element={<SimpleWithdrawalTest />}
+              />
               <Route path="/admin/doanh-thu" element={<RevenueStatistics />} />
               <Route
                 path="/admin/luot-thue-gia-su"

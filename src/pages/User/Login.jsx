@@ -145,23 +145,49 @@ const SigninPageComponent = () => {
     }
     return result;
   };
-
-  // handleMicrosoftLogin (giữ nguyên)
+  // handleMicrosoftLogin - Optimized for URL length
   const handleMicrosoftLogin = async () => {
     setIsLoadingMicrosoftLogin(true);
     setErrorMessage("");
     try {
-      const state = generateRandomString(20);
-      Cookies.set("microsoft_auth_state", state, { expires: 1 / 24 / 6 }); // 10 phút
+      // Shorter state to reduce URL length
+      const state = generateRandomString(8); // Reduced from 20 to 8
+      Cookies.set("microsoft_auth_state", state, {
+        expires: 1 / 24 / 6,
+        secure: true,
+        sameSite: "Lax",
+      }); // 10 phút
 
       const response = await Api({
         endpoint: "user/auth/get-uri-microsoft",
         method: METHOD_TYPE.GET,
+        query: {
+          compact: true, // Request compact URL from backend
+        },
       });
 
       if (response.success && response.data?.authUrl) {
-        const authUrl = `${response.data.authUrl}&state=${state}`;
-        window.location.href = authUrl;
+        // Use POST method for Microsoft OAuth to avoid URL length limits
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = response.data.authUrl.split("?")[0]; // Base URL only
+
+        // Add parameters as hidden inputs
+        const urlParams = new URLSearchParams(
+          response.data.authUrl.split("?")[1]
+        );
+        urlParams.set("state", state);
+
+        urlParams.forEach((value, key) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
       } else {
         setErrorMessage("Không thể lấy địa chỉ đăng nhập Microsoft.");
         setIsLoadingMicrosoftLogin(false);

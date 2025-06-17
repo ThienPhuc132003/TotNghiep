@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Withdrawal Requests Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        line-height: 1.6;
+      }
+      .test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .test-section {
+        background: #f8f9fa;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+        border-left: 4px solid #007bff;
+      }
+      .status-good {
+        color: #28a745;
+      }
+      .status-warning {
+        color: #ffc107;
+      }
+      .status-error {
+        color: #dc3545;
+      }
+      .test-checklist li {
+        margin: 8px 0;
+        padding: 5px;
+      }
+      .test-checklist li:before {
+        content: "□ ";
+        margin-right: 8px;
+      }
+      .completed:before {
+        content: "✅ ";
+      }
+      .code-block {
+        background: #f4f4f4;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🧪 Test Withdrawal Requests Page (/admin/rut-tien)</h1>
+
+      <div class="test-section">
+        <h2>📋 Testing Checklist</h2>
+        <ul class="test-checklist">
+          <li class="completed">
+            ✅ Component structure fixed (matches ListOfRequest)
+          </li>
+          <li class="completed">✅ Export pattern corrected (React.memo)</li>
+          <li class="completed">✅ Modal structure aligned</li>
+          <li class="completed">✅ No compilation errors</li>
+          <li>□ Page loads without white screen</li>
+          <li>□ Data fetching works (API call)</li>
+          <li>□ Table displays data correctly</li>
+          <li>□ Search functionality works</li>
+          <li>□ Sort functionality works</li>
+          <li>□ Pagination works</li>
+          <li>□ Filter by status works</li>
+          <li>□ View detail modal works</li>
+          <li>□ Approve/Reject actions work</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>🔧 Testing Instructions</h2>
+
+        <h3>1. Start Development Server</h3>
+        <div class="code-block">
+          cd c:\Users\PHUC\Documents\GitHub\TotNghiep npm run dev
+        </div>
+
+        <h3>2. Login as Admin</h3>
+        <ol>
+          <li>Navigate to <code>/admin/login</code></li>
+          <li>Login with admin credentials</li>
+          <li>Ensure you have admin role</li>
+        </ol>
+
+        <h3>3. Test the Withdrawal Page</h3>
+        <ol>
+          <li>Navigate to <code>/admin/rut-tien</code></li>
+          <li><strong>Expected:</strong> Page loads (no white screen)</li>
+          <li>
+            <strong>Check console:</strong> Look for API calls and data logs
+          </li>
+          <li>
+            <strong>Verify:</strong> Table shows with columns and search/filter
+            controls
+          </li>
+        </ol>
+      </div>
+
+      <div class="test-section">
+        <h2>🔍 What to Look For</h2>
+
+        <h3>Console Logs (F12 → Console)</h3>
+        <div class="code-block">
+          🏗️ ListOfWithdrawalRequestsPage component is rendering... 🔄 Starting
+          fetchData for withdrawal requests... 📋 Query parameters: {...} 📥 API
+          Response received: {...} 🔄 Raw data items: [...] 📋 Processing item
+          0: {...} ✅ Transformed data: [...] ✅ Fetch data completed, setting
+          loading to false
+        </div>
+
+        <h3>UI Elements to Verify</h3>
+        <ul>
+          <li>✅ Page title: "Quản lý Yêu cầu Rút tiền"</li>
+          <li>
+            ✅ Search dropdown with fields: ID Yêu cầu, Mã Gia sư, Tên Gia sư,
+            etc.
+          </li>
+          <li>✅ Search input box</li>
+          <li>✅ Status filter dropdown</li>
+          <li>✅ Search and Reset buttons</li>
+          <li>
+            ✅ Table with columns: STT, ID Yêu cầu, Mã Gia sư, Tên Gia sư, Số
+            tiền, Thông tin NH, Trạng thái, Ngày tạo, Hành động
+          </li>
+          <li>✅ Pagination controls at bottom</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>🐛 Troubleshooting</h2>
+
+        <h3>If Page is White/Blank:</h3>
+        <ul>
+          <li>Check browser console for JavaScript errors</li>
+          <li>Verify component is imported correctly in App.jsx</li>
+          <li>Check if route is protected and you're logged in as admin</li>
+        </ul>
+
+        <h3>If No Data Shows:</h3>
+        <ul>
+          <li>Check API endpoint: <code>manage-banking/search</code></li>
+          <li>Verify API response format in console</li>
+          <li>
+            Check if transformation logic handles the actual API structure
+          </li>
+          <li>Test with different filters (try "Tất cả trạng thái")</li>
+        </ul>
+
+        <h3>If Search Doesn't Work:</h3>
+        <ul>
+          <li>Check if applied search values are set correctly</li>
+          <li>Verify API query parameters include filter and sort</li>
+          <li>Test different search fields and values</li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>📊 Test Cases</h2>
+
+        <h3>Test Search Functionality</h3>
+        <ol>
+          <li>Select "Tên Gia sư" in dropdown</li>
+          <li>Type a name and press Enter or click Search</li>
+          <li>Verify table updates with filtered results</li>
+          <li>Test Reset button clears search</li>
+        </ol>
+
+        <h3>Test Status Filter</h3>
+        <ol>
+          <li>Change status filter to "Đã duyệt"</li>
+          <li>Click Search or wait for auto-update</li>
+          <li>Verify only approved requests show</li>
+          <li>Test other status options</li>
+        </ol>
+
+        <h3>Test Sorting</h3>
+        <ol>
+          <li>Click on sortable column headers</li>
+          <li>Verify sort direction arrow appears</li>
+          <li>Check data is sorted correctly</li>
+          <li>Test ascending/descending toggle</li>
+        </ol>
+
+        <h3>Test Actions</h3>
+        <ol>
+          <li>Click eye icon to view details</li>
+          <li>For PENDING requests, test Approve/Reject buttons</li>
+          <li>Verify modals open and close correctly</li>
+          <li>Test action submission (if connected to real API)</li>
+        </ol>
+      </div>
+
+      <div class="test-section">
+        <h2>✅ Success Criteria</h2>
+        <ul>
+          <li class="status-good">✅ Page loads without white screen</li>
+          <li class="status-good">
+            ✅ Table displays with proper columns and structure
+          </li>
+          <li class="status-good">
+            ✅ Search and filter controls are visible and functional
+          </li>
+          <li class="status-good">✅ API calls work (check network tab)</li>
+          <li class="status-good">
+            ✅ Data transformation works (no errors in console)
+          </li>
+          <li class="status-good">✅ Modals open and display correctly</li>
+          <li class="status-good">
+            ✅ User experience matches other admin pages
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h2>🚀 Next Steps After Basic Testing</h2>
+        <ol>
+          <li>
+            <strong>API Integration:</strong> Verify actual API endpoints and
+            response format
+          </li>
+          <li>
+            <strong>Data Mapping:</strong> Adjust data transformation based on
+            real API response
+          </li>
+          <li>
+            <strong>Error Handling:</strong> Test with no data, API errors,
+            network failures
+          </li>
+          <li><strong>Performance:</strong> Test with large datasets</li>
+          <li>
+            <strong>Actions:</strong> Test approve/reject functionality with
+            real API
+          </li>
+          <li>
+            <strong>Permissions:</strong> Verify only authorized admins can
+            access
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactive testing functionality
+      console.log("🧪 Withdrawal Requests Test Page Loaded");
+      console.log("📝 Use this page to guide your testing of /admin/rut-tien");
+
+      // Function to test localStorage and session data
+      function checkAdminSession() {
+        const token =
+          localStorage.getItem("token") || document.cookie.includes("token");
+        const role =
+          localStorage.getItem("role") || document.cookie.includes("admin");
+
+        console.log("🔐 Session Check:");
+        console.log("- Has token:", !!token);
+        console.log("- Has admin role:", !!role);
+
+        if (!token) {
+          console.warn(
+            "⚠️ No authentication token found. Make sure you're logged in as admin."
+          );
+        }
+      }
+
+      // Auto-check session when page loads
+      checkAdminSession();
+
+      // Add click handlers to test items
+      document.addEventListener("DOMContentLoaded", function () {
+        const checkboxes = document.querySelectorAll(".test-checklist li");
+        checkboxes.forEach((item) => {
+          item.addEventListener("click", function () {
+            this.classList.toggle("completed");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
