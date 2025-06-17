@@ -11,16 +11,46 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import numeral from "numeral";
 import "numeral/locales/vi";
-import { format, parseISO, isValid } from "date-fns";
+import { format, parseISO } from "date-fns";
 
-// Helper định dạng ngày
+// Helper định dạng ngày - Cải tiến cho ISO strings
 const formatDate = (dateString, formatString = "dd/MM/yyyy HH:mm") => {
   if (!dateString) return "N/A";
+
   try {
-    const date = parseISO(dateString);
-    return isValid(date) ? format(date, formatString) : "Ngày không hợp lệ";
-  } catch (e) {
-    return "Lỗi ngày";
+    let date;
+
+    // Xử lý các loại input khác nhau
+    if (typeof dateString === "string") {
+      // Trường hợp ISO string như "2025-05-07T13:39:12.601Z"
+      if (
+        dateString.includes("T") ||
+        dateString.includes("Z") ||
+        dateString.includes("+")
+      ) {
+        date = new Date(dateString);
+      } else {
+        // Fallback sử dụng parseISO cho các format khác
+        date = parseISO(dateString);
+      }
+    } else if (dateString instanceof Date) {
+      date = dateString;
+    } else {
+      // Thử convert sang Date object
+      date = new Date(dateString);
+    }
+
+    // Kiểm tra tính hợp lệ của date
+    if (!date || isNaN(date.getTime())) {
+      console.warn("Invalid date detected:", dateString);
+      return "Ngày không hợp lệ";
+    }
+
+    // Format date với date-fns
+    return format(date, formatString);
+  } catch (error) {
+    console.error("Error formatting date:", error, "Input:", dateString);
+    return "Lỗi định dạng ngày";
   }
 };
 
@@ -130,25 +160,25 @@ const ListOfTutorPaymentsPage = () => {
         title: "Xu Thanh Toán",
         dataKey: "coinOfUserPayment",
         sortable: true,
-        renderCell: formatCoin,
+        renderCell: (value) => formatCoin(value),
       },
       {
         title: "Xu Gia Sư Nhận",
         dataKey: "coinOfTutorReceive",
         sortable: true,
-        renderCell: formatCoin,
+        renderCell: (value) => formatCoin(value),
       },
       {
         title: "Xu Web Nhận",
         dataKey: "coinOfWebReceive",
         sortable: true,
-        renderCell: formatCoin,
+        renderCell: (value) => formatCoin(value),
       },
       {
         title: "Ngày Giao Dịch",
         dataKey: "createdAt",
         sortable: true,
-        renderCell: formatDate,
+        renderCell: (value) => formatDate(value),
       },
     ],
     [currentPage, itemsPerPage]

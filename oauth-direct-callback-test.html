@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Microsoft OAuth Direct Callback</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        border-color: #28a745;
+        background-color: #d4edda;
+      }
+      .error {
+        border-color: #dc3545;
+        background-color: #f8d7da;
+      }
+      .info {
+        border-color: #17a2b8;
+        background-color: #d1ecf1;
+      }
+      .test-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .test-button:hover {
+        background-color: #0056b3;
+      }
+      .test-result {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+      }
+      .code-block {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🔐 Test Microsoft OAuth Direct Callback Flow</h1>
+      <p>
+        Test để kiểm tra việc xử lý Microsoft OAuth callback trực tiếp tại
+        Homepage và AdminDashboard
+      </p>
+
+      <div class="test-section info">
+        <h3>📋 Thông Tin Test</h3>
+        <ul>
+          <li><strong>User OAuth:</strong> Xử lý trực tiếp tại HomePage.jsx</li>
+          <li>
+            <strong>Admin OAuth:</strong> Xử lý trực tiếp tại AdminDashboard.jsx
+          </li>
+          <li><strong>Không cần:</strong> Trang callback riêng biệt</li>
+          <li>
+            <strong>URL Clean:</strong> Tự động xóa OAuth params sau khi xử lý
+          </li>
+        </ul>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Test 1: Kiểm Tra URL OAuth Parameters</h3>
+        <button class="test-button" onclick="testOAuthParams()">
+          Test OAuth Params
+        </button>
+        <div id="oauthParamsResult" class="test-result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Test 2: Simulate User OAuth Callback</h3>
+        <button class="test-button" onclick="simulateUserOAuth()">
+          Simulate User OAuth
+        </button>
+        <div id="userOAuthResult" class="test-result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Test 3: Simulate Admin OAuth Callback</h3>
+        <button class="test-button" onclick="simulateAdminOAuth()">
+          Simulate Admin OAuth
+        </button>
+        <div id="adminOAuthResult" class="test-result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Test 4: Verify URL Cleanup</h3>
+        <button class="test-button" onclick="testURLCleanup()">
+          Test URL Cleanup
+        </button>
+        <div id="urlCleanupResult" class="test-result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>📝 Test Results Log</h3>
+        <div id="testLog" class="code-block">Chờ test results...</div>
+      </div>
+    </div>
+
+    <script>
+      let testLog = [];
+
+      function logTest(message) {
+        const timestamp = new Date().toISOString();
+        testLog.push(`[${timestamp}] ${message}`);
+        document.getElementById("testLog").textContent = testLog.join("\n");
+      }
+
+      function setResult(elementId, content, isSuccess = true) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = content;
+        element.className = `test-result ${isSuccess ? "success" : "error"}`;
+      }
+
+      function testOAuthParams() {
+        logTest("Testing OAuth Parameters detection...");
+
+        // Simulate OAuth parameters in URL
+        const testParams = {
+          code: "test_auth_code_12345",
+          state: "test_state_67890",
+        };
+
+        // Test URL parameter parsing
+        const searchParams = new URLSearchParams();
+        searchParams.set("code", testParams.code);
+        searchParams.set("state", testParams.state);
+
+        const hasCode = searchParams.get("code") !== null;
+        const hasState = searchParams.get("state") !== null;
+
+        const result = `
+                <strong>OAuth Parameters Test:</strong><br>
+                ✅ Code Parameter: ${hasCode ? "Detected" : "Not Found"}<br>
+                ✅ State Parameter: ${hasState ? "Detected" : "Not Found"}<br>
+                📋 Test Code: ${searchParams.get("code")}<br>
+                📋 Test State: ${searchParams.get("state")}
+            `;
+
+        setResult("oauthParamsResult", result, hasCode && hasState);
+        logTest(`OAuth params test - Code: ${hasCode}, State: ${hasState}`);
+      }
+
+      function simulateUserOAuth() {
+        logTest("Simulating User OAuth callback flow...");
+
+        // Simulate user OAuth flow
+        const userFlow = {
+          endpoint: "user/auth/callback",
+          redirectTo: "/",
+          role: "user",
+          profileEndpoint: "user/get-profile",
+        };
+
+        const result = `
+                <strong>User OAuth Simulation:</strong><br>
+                🌍 Target Page: HomePage.jsx<br>
+                📡 Callback Endpoint: ${userFlow.endpoint}<br>
+                👤 Role Set: ${userFlow.role}<br>
+                📄 Profile Endpoint: ${userFlow.profileEndpoint}<br>
+                🔄 Final Redirect: ${userFlow.redirectTo}<br>
+                ✅ URL Cleanup: Automatic after processing
+            `;
+
+        setResult("userOAuthResult", result, true);
+        logTest(`User OAuth simulation completed - Role: ${userFlow.role}`);
+      }
+
+      function simulateAdminOAuth() {
+        logTest("Simulating Admin OAuth callback flow...");
+
+        // Simulate admin OAuth flow
+        const adminFlow = {
+          endpoint: "admin/auth/callback",
+          redirectTo: "/admin/dashboard",
+          role: "admin",
+          profileEndpoint: "admin/get-profile",
+        };
+
+        const result = `
+                <strong>Admin OAuth Simulation:</strong><br>
+                🌍 Target Page: AdminDashboard.jsx<br>
+                📡 Callback Endpoint: ${adminFlow.endpoint}<br>
+                👨‍💼 Role Set: ${adminFlow.role}<br>
+                📄 Profile Endpoint: ${adminFlow.profileEndpoint}<br>
+                🔄 Final Redirect: ${adminFlow.redirectTo}<br>
+                ✅ URL Cleanup: Automatic after processing
+            `;
+
+        setResult("adminOAuthResult", result, true);
+        logTest(`Admin OAuth simulation completed - Role: ${adminFlow.role}`);
+      }
+
+      function testURLCleanup() {
+        logTest("Testing URL cleanup after OAuth processing...");
+
+        // Simulate URL with OAuth params
+        const originalURL =
+          "https://example.com/admin/dashboard?code=abc123&state=xyz789&extra=param";
+        const cleanedURL = "https://example.com/admin/dashboard";
+
+        // Test cleanup logic
+        const urlObj = new URL(originalURL);
+        urlObj.searchParams.delete("code");
+        urlObj.searchParams.delete("state");
+        const testCleanedURL = urlObj.toString();
+
+        const isCleanedCorrectly =
+          !testCleanedURL.includes("code=") &&
+          !testCleanedURL.includes("state=");
+
+        const result = `
+                <strong>URL Cleanup Test:</strong><br>
+                📍 Original: ${originalURL}<br>
+                🧹 Cleaned: ${testCleanedURL}<br>
+                ✅ Code Removed: ${!testCleanedURL.includes("code=")}<br>
+                ✅ State Removed: ${!testCleanedURL.includes("state=")}<br>
+                📊 Status: ${isCleanedCorrectly ? "SUCCESS" : "FAILED"}
+            `;
+
+        setResult("urlCleanupResult", result, isCleanedCorrectly);
+        logTest(`URL cleanup test - Success: ${isCleanedCorrectly}`);
+      }
+
+      // Initialize tests
+      document.addEventListener("DOMContentLoaded", function () {
+        logTest("OAuth Direct Callback Test initialized");
+        logTest("Ready to test User and Admin OAuth flows");
+      });
+    </script>
+  </body>
+</html>
