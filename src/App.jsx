@@ -110,9 +110,9 @@ const ListOfTutorPayments = lazy(() =>
 const ListOfWithdrawalRequests = lazy(() =>
   import("./pages/Admin/ListOfWithdrawalRequests")
 );
-const ListOfWithdrawalRequestsSimple = lazy(() =>
-  import("./pages/Admin/ListOfWithdrawalRequestsSimple")
-);
+// const ListOfWithdrawalRequestsSimple = lazy(() =>
+//   import("./pages/Admin/ListOfWithdrawalRequestsSimple")
+// );
 const SimpleWithdrawalTest = lazy(() =>
   import("./pages/Admin/SimpleWithdrawalTest")
 );
@@ -243,8 +243,9 @@ function App() {
             <Route
               path="/otp-verify-register"
               element={<OtpVerifyRegister />}
-            />
+            />{" "}
             <Route path="/user/auth/callback" element={<MicrosoftCallback />} />
+            <Route path="/auth/callback" element={<MicrosoftCallback />} />
             <Route
               path="/admin/auth/callback"
               element={<MicrosoftCallback />}
@@ -292,16 +293,12 @@ function App() {
                 element={<ListOfValueConfigs />}
               />{" "}
               <Route
-                path="/admin/thanh-toan-cho-gia-su"
+                path="/admin/thu-nhap-gia-su"
                 element={<ListOfTutorPayments />}
               />{" "}
               <Route
                 path="/admin/rut-tien"
                 element={<ListOfWithdrawalRequests />}
-              />
-              <Route
-                path="/admin/rut-tien-test"
-                element={<SimpleWithdrawalTest />}
               />
               <Route path="/admin/doanh-thu" element={<RevenueStatistics />} />
               <Route
