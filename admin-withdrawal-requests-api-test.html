@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧪 Test Admin Withdrawal Requests API</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f7fa;
+      }
+      .container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+      }
+      .header h1 {
+        color: #2d3748;
+        margin-bottom: 10px;
+      }
+      .test-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+      .test-title {
+        color: #2b6cb0;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        font-weight: 600;
+      }
+      .test-button {
+        background: #3182ce;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 5px;
+        transition: background 0.2s;
+      }
+      .test-button:hover {
+        background: #2c5aa0;
+      }
+      .test-button:disabled {
+        background: #a0aec0;
+        cursor: not-allowed;
+      }
+      .btn-success {
+        background: #38a169;
+      }
+      .btn-success:hover {
+        background: #2f855a;
+      }
+      .btn-danger {
+        background: #e53e3e;
+      }
+      .btn-danger:hover {
+        background: #c53030;
+      }
+      .test-result {
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 6px;
+        white-space: pre-wrap;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .success {
+        background: #f0fff4;
+        border: 1px solid #9ae6b4;
+        color: #276749;
+      }
+      .error {
+        background: #fed7d7;
+        border: 1px solid #feb2b2;
+        color: #c53030;
+      }
+      .info {
+        background: #ebf8ff;
+        border: 1px solid #90cdf4;
+        color: #2c5aa0;
+      }
+      .warning {
+        background: #fffbeb;
+        border: 1px solid #f6e05e;
+        color: #d69e2e;
+      }
+      .input-group {
+        margin: 10px 0;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #4a5568;
+      }
+      .input-group input,
+      .input-group select,
+      .input-group textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d2d6dc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .api-endpoint {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: monospace;
+        margin: 10px 0;
+        font-size: 14px;
+      }
+      .data-structure {
+        background: #1a202c;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        overflow-x: auto;
+        margin: 15px 0;
+      }
+      .flex-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 15px 0;
+      }
+      .flex-controls > * {
+        flex: 1;
+        min-width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🧪 Test Admin Withdrawal Requests API</h1>
+        <p>
+          Kiểm tra tích hợp API <code>manage-banking/search</code> cho trang
+          quản lý yêu cầu rút tiền
+        </p>
+      </div>
+
+      <!-- Authentication Section -->
+      <div class="test-section">
+        <h2 class="test-title">🔐 Authentication Test</h2>
+        <button class="test-button" onclick="checkAuthStatus()">
+          Check Auth Status
+        </button>
+        <div id="auth-results" class="test-result info">
+          Click button để kiểm tra authentication...
+        </div>
+      </div>
+
+      <!-- API Search Test -->
+      <div class="test-section">
+        <h2 class="test-title">🔍 Withdrawal Requests Search API Test</h2>
+
+        <div class="flex-controls">
+          <div class="input-group">
+            <label for="pageSize">Page Size:</label>
+            <select id="pageSize">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="currentPage">Page:</label>
+            <input type="number" id="currentPage" value="1" min="1" />
+          </div>
+          <div class="input-group">
+            <label for="statusFilter">Status Filter:</label>
+            <select id="statusFilter">
+              <option value="">All</option>
+              <option value="PENDING" selected>PENDING</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="PROCESSED">PROCESSED</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex-controls">
+          <div class="input-group">
+            <label for="searchField">Search Field:</label>
+            <select id="searchField">
+              <option value="">No Search</option>
+              <option value="tutorId">Tutor ID</option>
+              <option value="tutorName">Tutor Name</option>
+              <option value="amount">Amount</option>
+              <option value="bankName">Bank Name</option>
+              <option value="accountNumber">Account Number</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="searchValue">Search Value:</label>
+            <input
+              type="text"
+              id="searchValue"
+              placeholder="Enter search term..."
+            />
+          </div>
+          <div class="input-group">
+            <label for="sortField">Sort By:</label>
+            <select id="sortField">
+              <option value="createdAt:DESC" selected>
+                Created Date (Newest)
+              </option>
+              <option value="createdAt:ASC">Created Date (Oldest)</option>
+              <option value="amount:DESC">Amount (High to Low)</option>
+              <option value="amount:ASC">Amount (Low to High)</option>
+              <option value="tutorName:ASC">Tutor Name (A-Z)</option>
+              <option value="status:ASC">Status</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="test-button" onclick="testWithdrawalSearchAPI()">
+          Test Search API
+        </button>
+        <button
+          class="test-button btn-success"
+          onclick="testWithdrawalSearchAPI(true)"
+        >
+          Test with Mock Data
+        </button>
+
+        <div id="search-results" class="test-result info">
+          Click button để test API...
+        </div>
+      </div>
+
+      <!-- Action API Test -->
+      <div class="test-section">
+        <h2 class="test-title">⚡ Action API Test</h2>
+
+        <div class="flex-controls">
+          <div class="input-group">
+            <label for="withdrawalId">Withdrawal Request ID:</label>
+            <input
+              type="text"
+              id="withdrawalId"
+              placeholder="Enter withdrawal request ID..."
+            />
+          </div>
+          <div class="input-group">
+            <label for="actionNote">Action Note:</label>
+            <textarea
+              id="actionNote"
+              rows="3"
+              placeholder="Enter note for approval/rejection..."
+            ></textarea>
+          </div>
+        </div>
+
+        <button class="test-button btn-success" onclick="testApprovalAPI()">
+          Test Approval API
+        </button>
+        <button class="test-button btn-danger" onclick="testRejectionAPI()">
+          Test Rejection API
+        </button>
+
+        <div id="action-results" class="test-result info">
+          Enter withdrawal ID and test actions...
+        </div>
+      </div>
+
+      <!-- API Documentation -->
+      <div class="test-section">
+        <h2 class="test-title">📋 API Documentation</h2>
+
+        <h3>🔍 Search Endpoint</h3>
+        <div class="api-endpoint">GET /api/manage-banking/search</div>
+
+        <h4>Query Parameters:</h4>
+        <div class="data-structure">
+          { "rpp": 10, // Records per page "page": 1, // Page number (1-based)
+          "filter":
+          "[{\"key\":\"status\",\"operator\":\"equal\",\"value\":\"PENDING\"}]",
+          "sort": "[{\"key\":\"createdAt\",\"type\":\"DESC\"}]" }
+        </div>
+
+        <h4>Expected Response:</h4>
+        <div class="data-structure">
+          { "success": true, "data": { "items": [ { "id": "withdrawal_001",
+          "tutorId": "TUTOR001", "tutorName": "Nguyễn Văn A", "amount": 500000,
+          "bankName": "Vietcombank", "accountNumber": "1234567890",
+          "accountHolderName": "NGUYEN VAN A", "status": "PENDING", "createdAt":
+          "2024-01-01T10:00:00Z", "note": null, "tutor": { "userId": "TUTOR001",
+          "fullname": "Nguyễn Văn A" }, "bankInfo": { "bankName": "Vietcombank",
+          "accountNumber": "1234567890", "accountHolderName": "NGUYEN VAN A" } }
+          ], "total": 1 } }
+        </div>
+
+        <h3>✅ Approval Endpoint</h3>
+        <div class="api-endpoint">PUT /api/manage-banking/approve/{id}</div>
+        <div class="data-structure">Body: {"note": "Approved with note"}</div>
+
+        <h3>❌ Rejection Endpoint</h3>
+        <div class="api-endpoint">PUT /api/manage-banking/reject/{id}</div>
+        <div class="data-structure">Body: {"note": "Rejected with reason"}</div>
+      </div>
+
+      <!-- Mock Data Section -->
+      <div class="test-section">
+        <h2 class="test-title">🎭 Mock Data Testing</h2>
+        <p>
+          Nếu backend chưa sẵn sàng, có thể test với mock data để verify UI
+          components.
+        </p>
+        <button class="test-button" onclick="generateMockData()">
+          Generate Mock Response
+        </button>
+        <div id="mock-results" class="test-result info">
+          Click button để tạo mock data...
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Authentication checking
+      function checkAuthStatus() {
+        const resultsDiv = document.getElementById("auth-results");
+        const token = localStorage.getItem("token") || getCookieValue("token");
+        const userProfile = localStorage.getItem("userProfile");
+
+        if (token) {
+          resultsDiv.innerHTML = `✅ Token found: ${token.substring(0, 20)}...
+User Profile: ${userProfile ? "Available" : "Not found"}
+Ready for API testing!`;
+          resultsDiv.className = "test-result success";
+        } else {
+          resultsDiv.innerHTML = `❌ No authentication token found.
+Please login to admin panel first.
+Token sources checked: localStorage.token, cookies.token`;
+          resultsDiv.className = "test-result error";
+        }
+      }
+
+      // Get cookie value helper
+      function getCookieValue(name) {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+          const [key, value] = cookie.trim().split("=");
+          if (key === name) return value;
+        }
+        return null;
+      }
+
+      // Test withdrawal search API
+      async function testWithdrawalSearchAPI(useMockData = false) {
+        const resultsDiv = document.getElementById("search-results");
+        resultsDiv.innerHTML = "🔄 Testing API...";
+        resultsDiv.className = "test-result info";
+
+        if (useMockData) {
+          generateMockData();
+          return;
+        }
+
+        try {
+          // Get form values
+          const pageSize = document.getElementById("pageSize").value;
+          const currentPage = document.getElementById("currentPage").value;
+          const statusFilter = document.getElementById("statusFilter").value;
+          const searchField = document.getElementById("searchField").value;
+          const searchValue = document.getElementById("searchValue").value;
+          const sortField = document.getElementById("sortField").value;
+
+          // Build filter array
+          const filters = [];
+          if (statusFilter) {
+            filters.push({
+              key: "status",
+              operator: "equal",
+              value: statusFilter,
+            });
+          }
+          if (searchField && searchValue) {
+            filters.push({
+              key: searchField,
+              operator: searchField === "amount" ? "equal" : "like",
+              value: searchValue,
+            });
+          }
+
+          // Build sort config
+          const [sortKey, sortType] = sortField.split(":");
+          const sortConfig = [{ key: sortKey, type: sortType }];
+
+          // Build query parameters
+          const queryParams = new URLSearchParams({
+            rpp: pageSize,
+            page: currentPage,
+            ...(filters.length > 0 && { filter: JSON.stringify(filters) }),
+            sort: JSON.stringify(sortConfig),
+          });
+
+          const url = `/api/manage-banking/search?${queryParams}`;
+
+          console.log("🌐 API Request:", url);
+          console.log("📋 Query Parameters:", Object.fromEntries(queryParams));
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${
+                localStorage.getItem("token") || getCookieValue("token")
+              }`,
+            },
+          });
+
+          console.log("📊 Response Status:", response.status);
+          const data = await response.json();
+          console.log("📥 Response Data:", data);
+
+          if (response.ok && data.success) {
+            resultsDiv.innerHTML = `✅ API Test Successful!
+
+📊 Response Summary:
+- Status: ${response.status}
+- Success: ${data.success}
+- Total Items: ${data.data?.total || 0}
+- Items in Page: ${data.data?.items?.length || 0}
+
+📋 First Item (if available):
+${
+  data.data?.items?.[0]
+    ? JSON.stringify(data.data.items[0], null, 2)
+    : "No items found"
+}
+
+🔍 Full Response:
+${JSON.stringify(data, null, 2)}`;
+            resultsDiv.className = "test-result success";
+          } else {
+            throw new Error(
+              `API Error: ${data.message || response.statusText}`
+            );
+          }
+        } catch (error) {
+          console.error("❌ API Test Error:", error);
+          resultsDiv.innerHTML = `❌ API Test Failed!
+
+Error: ${error.message}
+
+🔍 Possible Issues:
+- Backend API not implemented yet
+- Authentication token invalid/expired
+- Network connectivity issues
+- API endpoint URL incorrect
+
+🛠️ Troubleshooting:
+1. Check if you're logged in as admin
+2. Verify backend server is running
+3. Check console for detailed error logs
+4. Try with mock data instead`;
+          resultsDiv.className = "test-result error";
+        }
+      }
+
+      // Test approval API
+      async function testApprovalAPI() {
+        const withdrawalId = document.getElementById("withdrawalId").value;
+        const note = document.getElementById("actionNote").value;
+        const resultsDiv = document.getElementById("action-results");
+
+        if (!withdrawalId) {
+          resultsDiv.innerHTML = "❌ Please enter a withdrawal request ID";
+          resultsDiv.className = "test-result error";
+          return;
+        }
+
+        resultsDiv.innerHTML = "🔄 Testing approval API...";
+        resultsDiv.className = "test-result info";
+
+        try {
+          const response = await fetch(
+            `/api/manage-banking/approve/${withdrawalId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${
+                  localStorage.getItem("token") || getCookieValue("token")
+                }`,
+              },
+              body: JSON.stringify({ note: note || "Approved via API test" }),
+            }
+          );
+
+          const data = await response.json();
+          console.log("📊 Approval Response:", data);
+
+          if (response.ok && data.success) {
+            resultsDiv.innerHTML = `✅ Approval API Test Successful!
+
+📊 Response:
+${JSON.stringify(data, null, 2)}`;
+            resultsDiv.className = "test-result success";
+          } else {
+            throw new Error(
+              `API Error: ${data.message || response.statusText}`
+            );
+          }
+        } catch (error) {
+          console.error("❌ Approval API Error:", error);
+          resultsDiv.innerHTML = `❌ Approval API Test Failed!
+
+Error: ${error.message}
+
+Note: This is expected if backend is not implemented yet.`;
+          resultsDiv.className = "test-result error";
+        }
+      }
+
+      // Test rejection API
+      async function testRejectionAPI() {
+        const withdrawalId = document.getElementById("withdrawalId").value;
+        const note = document.getElementById("actionNote").value;
+        const resultsDiv = document.getElementById("action-results");
+
+        if (!withdrawalId) {
+          resultsDiv.innerHTML = "❌ Please enter a withdrawal request ID";
+          resultsDiv.className = "test-result error";
+          return;
+        }
+
+        resultsDiv.innerHTML = "🔄 Testing rejection API...";
+        resultsDiv.className = "test-result info";
+
+        try {
+          const response = await fetch(
+            `/api/manage-banking/reject/${withdrawalId}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${
+                  localStorage.getItem("token") || getCookieValue("token")
+                }`,
+              },
+              body: JSON.stringify({ note: note || "Rejected via API test" }),
+            }
+          );
+
+          const data = await response.json();
+          console.log("📊 Rejection Response:", data);
+
+          if (response.ok && data.success) {
+            resultsDiv.innerHTML = `✅ Rejection API Test Successful!
+
+📊 Response:
+${JSON.stringify(data, null, 2)}`;
+            resultsDiv.className = "test-result success";
+          } else {
+            throw new Error(
+              `API Error: ${data.message || response.statusText}`
+            );
+          }
+        } catch (error) {
+          console.error("❌ Rejection API Error:", error);
+          resultsDiv.innerHTML = `❌ Rejection API Test Failed!
+
+Error: ${error.message}
+
+Note: This is expected if backend is not implemented yet.`;
+          resultsDiv.className = "test-result error";
+        }
+      }
+
+      // Generate mock data for testing
+      function generateMockData() {
+        const resultsDiv =
+          document.getElementById("mock-results") ||
+          document.getElementById("search-results");
+
+        const mockData = {
+          success: true,
+          data: {
+            items: [
+              {
+                id: "WR001",
+                tutorId: "TUTOR001",
+                tutorName: "Nguyễn Văn A",
+                amount: 500000,
+                bankName: "Vietcombank",
+                accountNumber: "1234567890",
+                accountHolderName: "NGUYEN VAN A",
+                status: "PENDING",
+                createdAt: "2024-01-15T10:30:00Z",
+                note: null,
+                tutor: {
+                  userId: "TUTOR001",
+                  fullname: "Nguyễn Văn A",
+                },
+                bankInfo: {
+                  bankName: "Vietcombank",
+                  accountNumber: "1234567890",
+                  accountHolderName: "NGUYEN VAN A",
+                },
+              },
+              {
+                id: "WR002",
+                tutorId: "TUTOR002",
+                tutorName: "Trần Thị B",
+                amount: 750000,
+                bankName: "Techcombank",
+                accountNumber: "0987654321",
+                accountHolderName: "TRAN THI B",
+                status: "APPROVED",
+                createdAt: "2024-01-14T14:20:00Z",
+                note: "Đã duyệt - Gia sư uy tín",
+                tutor: {
+                  userId: "TUTOR002",
+                  fullname: "Trần Thị B",
+                },
+                bankInfo: {
+                  bankName: "Techcombank",
+                  accountNumber: "0987654321",
+                  accountHolderName: "TRAN THI B",
+                },
+              },
+              {
+                id: "WR003",
+                tutorId: "TUTOR003",
+                tutorName: "Lê Văn C",
+                amount: 300000,
+                bankName: "VPBank",
+                accountNumber: "5555666677",
+                accountHolderName: "LE VAN C",
+                status: "REJECTED",
+                createdAt: "2024-01-13T09:15:00Z",
+                note: "Từ chối - Không đủ số dư khả dụng",
+                tutor: {
+                  userId: "TUTOR003",
+                  fullname: "Lê Văn C",
+                },
+                bankInfo: {
+                  bankName: "VPBank",
+                  accountNumber: "5555666677",
+                  accountHolderName: "LE VAN C",
+                },
+              },
+            ],
+            total: 3,
+          },
+        };
+
+        resultsDiv.innerHTML = `🎭 Mock Data Generated Successfully!
+
+This mock response demonstrates the expected data structure for the withdrawal requests API.
+
+📊 Mock Response:
+${JSON.stringify(mockData, null, 2)}
+
+✅ Test Summary:
+- Total mock items: ${mockData.data.total}
+- Status variety: PENDING, APPROVED, REJECTED
+- Bank variety: Vietcombank, Techcombank, VPBank
+- Amount range: 300,000 - 750,000 Xu
+
+🔧 This data can be used to test the UI components even without backend implementation.`;
+        resultsDiv.className = "test-result success";
+      }
+
+      // Auto-check auth on page load
+      window.addEventListener("load", () => {
+        checkAuthStatus();
+      });
+    </script>
+  </body>
+</html>

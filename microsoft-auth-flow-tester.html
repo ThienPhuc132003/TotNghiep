@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Microsoft Authentication Flow Tester</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 30px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+
+      .flow-section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+
+      .user-flow {
+        border-color: #2196f3;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      }
+
+      .admin-flow {
+        border-color: #ff9800;
+        background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+      }
+
+      h2 {
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+        transition: transform 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .status {
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-weight: bold;
+      }
+
+      .status.success {
+        background: #c8e6c9;
+        color: #2e7d32;
+        border: 1px solid #4caf50;
+      }
+
+      .status.error {
+        background: #ffcdd2;
+        color: #c62828;
+        border: 1px solid #f44336;
+      }
+
+      .status.info {
+        background: #e1f5fe;
+        color: #0277bd;
+        border: 1px solid #03a9f4;
+      }
+
+      .status.warning {
+        background: #fff3e0;
+        color: #ef6c00;
+        border: 1px solid #ff9800;
+      }
+
+      .log-container {
+        background: #1e1e1e;
+        color: #fff;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 15px 0;
+      }
+
+      .auth-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .info-card {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .info-card h4 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        margin: 2px;
+      }
+
+      .badge.active {
+        background: #4caf50;
+        color: white;
+      }
+
+      .badge.inactive {
+        background: #f44336;
+        color: white;
+      }
+
+      .badge.pending {
+        background: #ff9800;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔐 Microsoft Authentication Flow Tester</h1>
+
+      <!-- Current Authentication Status -->
+      <div class="auth-info">
+        <div class="info-card">
+          <h4>🍪 Current Authentication Status</h4>
+          <div id="currentAuth">
+            <div>
+              Token:
+              <span class="badge inactive" id="tokenStatus">Not Found</span>
+            </div>
+            <div>
+              Role: <span class="badge inactive" id="roleStatus">None</span>
+            </div>
+            <div>
+              User Profile:
+              <span class="badge inactive" id="userProfileStatus"
+                >Not Loaded</span
+              >
+            </div>
+            <div>
+              Admin Profile:
+              <span class="badge inactive" id="adminProfileStatus"
+                >Not Loaded</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h4>🔄 Flow Status</h4>
+          <div id="flowStatus">
+            <div>
+              Microsoft State:
+              <span class="badge inactive" id="msStateStatus">No State</span>
+            </div>
+            <div>
+              OAuth Callback:
+              <span class="badge inactive" id="callbackStatus"
+                >Not In Progress</span
+              >
+            </div>
+            <div>
+              Current Page:
+              <span class="badge info" id="currentPageStatus">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Flow Testing -->
+      <div class="flow-section user-flow">
+        <h2>👤 NGƯỜI HỌC (USER) FLOW TESTING</h2>
+
+        <div class="test-section">
+          <h3>🚀 Simulation Tests</h3>
+          <button onclick="simulateUserMicrosoftLogin()">
+            Simulate User Microsoft Login
+          </button>
+          <button onclick="simulateUserCallback()">
+            Simulate User Callback
+          </button>
+          <button onclick="testUserRouteProtection()">
+            Test User Route Protection
+          </button>
+          <button onclick="checkUserReduxState()">
+            Check User Redux State
+          </button>
+        </div>
+
+        <div class="test-section">
+          <h3>🔗 Direct Navigation Tests</h3>
+          <button onclick="navigateToUserLogin()">Go to User Login</button>
+          <button onclick="navigateToUserDashboard()">
+            Go to User Dashboard
+          </button>
+          <button onclick="navigateToTutorPages()">Test Tutor Pages</button>
+          <button onclick="navigateToUserCallback()">
+            Go to User Callback (for testing)
+          </button>
+        </div>
+
+        <div id="userTestResults"></div>
+      </div>
+
+      <!-- Admin Flow Testing -->
+      <div class="flow-section admin-flow">
+        <h2>🛡️ QUẢN TRỊ (ADMIN) FLOW TESTING</h2>
+
+        <div class="test-section">
+          <h3>🚀 Simulation Tests</h3>
+          <button onclick="simulateAdminMicrosoftLogin()">
+            Simulate Admin Microsoft Login
+          </button>
+          <button onclick="simulateAdminCallback()">
+            Simulate Admin Callback
+          </button>
+          <button onclick="testAdminRouteProtection()">
+            Test Admin Route Protection
+          </button>
+          <button onclick="checkAdminReduxState()">
+            Check Admin Redux State
+          </button>
+        </div>
+
+        <div class="test-section">
+          <h3>🔗 Direct Navigation Tests</h3>
+          <button onclick="navigateToAdminLogin()">Go to Admin Login</button>
+          <button onclick="navigateToAdminDashboard()">
+            Go to Admin Dashboard
+          </button>
+          <button onclick="navigateToAdminPages()">Test Admin Pages</button>
+          <button onclick="navigateToAdminCallback()">
+            Go to Admin Callback (for testing)
+          </button>
+        </div>
+
+        <div id="adminTestResults"></div>
+      </div>
+
+      <!-- Utility Functions -->
+      <div class="flow-section">
+        <h2>🛠️ UTILITY FUNCTIONS</h2>
+
+        <div class="test-section">
+          <h3>🧹 Authentication Management</h3>
+          <button onclick="clearAllAuth()">Clear All Authentication</button>
+          <button onclick="mockUserAuth()">Mock User Authentication</button>
+          <button onclick="mockAdminAuth()">Mock Admin Authentication</button>
+          <button onclick="refreshCurrentStatus()">Refresh Status</button>
+        </div>
+
+        <div class="test-section">
+          <h3>🔍 Debugging Tools</h3>
+          <button onclick="dumpAllAuthData()">Dump All Auth Data</button>
+          <button onclick="testAPIConnectivity()">Test API Connectivity</button>
+          <button onclick="checkLocalStorageData()">Check LocalStorage</button>
+          <button onclick="checkCookieData()">Check Cookie Data</button>
+        </div>
+      </div>
+
+      <!-- Console Log Output -->
+      <div class="test-section">
+        <h3>📊 Console Output</h3>
+        <div class="log-container" id="consoleOutput">
+          <div>🔄 Ready for testing... Click any button to start.</div>
+        </div>
+        <button onclick="clearConsole()">Clear Console</button>
+        <button onclick="downloadTestResults()">Download Test Results</button>
+      </div>
+    </div>
+
+    <script>
+      // Global state for testing
+      let testResults = [];
+      let logHistory = [];
+
+      // Logging function
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `[${timestamp}] ${message}`;
+        logHistory.push(logEntry);
+
+        const consoleOutput = document.getElementById("consoleOutput");
+        const logDiv = document.createElement("div");
+        logDiv.textContent = logEntry;
+        logDiv.style.color = getLogColor(type);
+        consoleOutput.appendChild(logDiv);
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+        console.log(logEntry);
+      }
+
+      function getLogColor(type) {
+        switch (type) {
+          case "success":
+            return "#4caf50";
+          case "error":
+            return "#f44336";
+          case "warning":
+            return "#ff9800";
+          case "info":
+            return "#2196f3";
+          default:
+            return "#fff";
+        }
+      }
+
+      // Status update functions
+      function updateStatus() {
+        log("🔄 Updating authentication status...");
+
+        // Check cookies
+        const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+          const [key, value] = cookie.trim().split("=");
+          acc[key] = value;
+          return acc;
+        }, {});
+
+        // Update token status
+        const tokenElement = document.getElementById("tokenStatus");
+        if (cookies.token) {
+          tokenElement.textContent = "Active";
+          tokenElement.className = "badge active";
+        } else {
+          tokenElement.textContent = "Not Found";
+          tokenElement.className = "badge inactive";
+        }
+
+        // Update role status
+        const roleElement = document.getElementById("roleStatus");
+        if (cookies.role) {
+          roleElement.textContent = cookies.role.toUpperCase();
+          roleElement.className = "badge active";
+        } else {
+          roleElement.textContent = "None";
+          roleElement.className = "badge inactive";
+        }
+
+        // Check Redux state if available
+        if (window.store) {
+          const state = window.store.getState();
+
+          // User profile status
+          const userProfileElement =
+            document.getElementById("userProfileStatus");
+          if (state.user && state.user.userProfile) {
+            userProfileElement.textContent = "Loaded";
+            userProfileElement.className = "badge active";
+          } else {
+            userProfileElement.textContent = "Not Loaded";
+            userProfileElement.className = "badge inactive";
+          }
+
+          // Admin profile status
+          const adminProfileElement =
+            document.getElementById("adminProfileStatus");
+          if (state.admin && state.admin.adminProfile) {
+            adminProfileElement.textContent = "Loaded";
+            adminProfileElement.className = "badge active";
+          } else {
+            adminProfileElement.textContent = "Not Loaded";
+            adminProfileElement.className = "badge inactive";
+          }
+        }
+
+        // Check Microsoft state
+        const msStateElement = document.getElementById("msStateStatus");
+        if (cookies.microsoft_auth_state) {
+          msStateElement.textContent = "Present";
+          msStateElement.className = "badge pending";
+        } else {
+          msStateElement.textContent = "No State";
+          msStateElement.className = "badge inactive";
+        }
+
+        // Check if we're in callback
+        const callbackElement = document.getElementById("callbackStatus");
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("code") && urlParams.has("state")) {
+          callbackElement.textContent = "In Progress";
+          callbackElement.className = "badge pending";
+        } else {
+          callbackElement.textContent = "Not In Progress";
+          callbackElement.className = "badge inactive";
+        }
+
+        // Update current page
+        const currentPageElement = document.getElementById("currentPageStatus");
+        currentPageElement.textContent = window.location.pathname;
+        currentPageElement.className = "badge info";
+      }
+
+      // USER FLOW TESTING FUNCTIONS
+      function simulateUserMicrosoftLogin() {
+        log("🚀 Simulating User Microsoft Login...", "info");
+
+        try {
+          // Generate mock state
+          const state = "mock_state_" + Date.now();
+
+          // Set mock cookie
+          document.cookie = `microsoft_auth_state=${state}; path=/; max-age=600`;
+
+          log("✅ Mock state generated and stored", "success");
+          log(`📝 State: ${state}`, "info");
+
+          // Simulate what would happen in real scenario
+          const mockAuthUrl = `https://login.microsoftonline.com/oauth2/v2.0/authorize?state=${state}&redirect_uri=${encodeURIComponent(
+            window.location.origin + "/user/auth/callback"
+          )}`;
+
+          log("🔗 Mock Microsoft URL generated", "info");
+          log(`📝 URL: ${mockAuthUrl}`, "info");
+
+          testResults.push({
+            test: "User Microsoft Login Simulation",
+            status: "success",
+            details: `State: ${state}`,
+          });
+
+          updateStatus();
+        } catch (error) {
+          log(`❌ Error simulating user login: ${error.message}`, "error");
+          testResults.push({
+            test: "User Microsoft Login Simulation",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      function simulateUserCallback() {
+        log("🔄 Simulating User Callback...", "info");
+
+        try {
+          // Mock callback URL with code and state
+          const mockCode = "mock_auth_code_" + Date.now();
+          const mockState = "mock_state_" + Date.now();
+
+          log(`📝 Mock Code: ${mockCode}`, "info");
+          log(`📝 Mock State: ${mockState}`, "info");
+
+          // Simulate callback URL
+          const callbackUrl = `${window.location.origin}/user/auth/callback?code=${mockCode}&state=${mockState}`;
+
+          log("🔗 Mock callback URL generated", "success");
+          log(`📝 URL: ${callbackUrl}`, "info");
+
+          // Navigate to callback URL (commented out for safety)
+          // window.location.href = callbackUrl;
+
+          log(
+            "⚠️ Navigation to callback URL is disabled for safety",
+            "warning"
+          );
+          log(
+            "ℹ️ In real scenario, Microsoft would redirect to this URL",
+            "info"
+          );
+
+          testResults.push({
+            test: "User Callback Simulation",
+            status: "success",
+            details: `Code: ${mockCode}, State: ${mockState}`,
+          });
+        } catch (error) {
+          log(`❌ Error simulating user callback: ${error.message}`, "error");
+          testResults.push({
+            test: "User Callback Simulation",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      function testUserRouteProtection() {
+        log("🛡️ Testing User Route Protection...", "info");
+
+        try {
+          // Check protected routes
+          const protectedRoutes = [
+            "/tai-khoan/ho-so/thong-tin-ca-nhan",
+            "/tai-khoan/ho-so/quan-ly-lop-hoc",
+            "/tai-khoan/ho-so/yeu-cau-day",
+          ];
+
+          const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+            const [key, value] = cookie.trim().split("=");
+            acc[key] = value;
+            return acc;
+          }, {});
+
+          const hasToken = !!cookies.token;
+          const isUser = cookies.role === "user";
+
+          log(`📊 Token present: ${hasToken}`, hasToken ? "success" : "error");
+          log(`📊 User role: ${isUser}`, isUser ? "success" : "warning");
+
+          protectedRoutes.forEach((route) => {
+            const canAccess = hasToken && isUser;
+            log(
+              `🔗 ${route}: ${canAccess ? "ACCESSIBLE" : "BLOCKED"}`,
+              canAccess ? "success" : "error"
+            );
+          });
+
+          testResults.push({
+            test: "User Route Protection",
+            status: hasToken && isUser ? "success" : "warning",
+            details: `Token: ${hasToken}, Role: ${cookies.role || "none"}`,
+          });
+        } catch (error) {
+          log(
+            `❌ Error testing user route protection: ${error.message}`,
+            "error"
+          );
+          testResults.push({
+            test: "User Route Protection",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      function checkUserReduxState() {
+        log("🏪 Checking User Redux State...", "info");
+
+        try {
+          if (!window.store) {
+            log("❌ Redux store not available", "error");
+            return;
+          }
+
+          const state = window.store.getState();
+          log("📦 Full Redux State:", "info");
+          console.log(state);
+
+          if (state.user) {
+            log("👤 User State:", "info");
+            log(
+              `  - isAuthenticated: ${state.user.isAuthenticated}`,
+              state.user.isAuthenticated ? "success" : "error"
+            );
+            log(
+              `  - userProfile: ${
+                state.user.userProfile ? "Loaded" : "Not Loaded"
+              }`,
+              state.user.userProfile ? "success" : "warning"
+            );
+
+            if (state.user.userProfile) {
+              log(
+                `  - userId: ${state.user.userProfile.userId || "N/A"}`,
+                "info"
+              );
+              log(
+                `  - email: ${state.user.userProfile.email || "N/A"}`,
+                "info"
+              );
+              log(
+                `  - roleId: ${state.user.userProfile.roleId || "N/A"}`,
+                "info"
+              );
+            }
+          } else {
+            log("❌ User state not found in Redux", "error");
+          }
+
+          testResults.push({
+            test: "User Redux State Check",
+            status: "success",
+            details: `Authenticated: ${state.user?.isAuthenticated || false}`,
+          });
+        } catch (error) {
+          log(`❌ Error checking user Redux state: ${error.message}`, "error");
+          testResults.push({
+            test: "User Redux State Check",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      // ADMIN FLOW TESTING FUNCTIONS
+      function simulateAdminMicrosoftLogin() {
+        log("🚀 Simulating Admin Microsoft Login...", "info");
+
+        try {
+          // Generate mock state
+          const state = "mock_admin_state_" + Date.now();
+
+          // Set mock cookie
+          document.cookie = `microsoft_auth_state=${state}; path=/; max-age=600`;
+
+          log("✅ Mock admin state generated and stored", "success");
+          log(`📝 State: ${state}`, "info");
+
+          // Simulate what would happen in real scenario
+          const mockAuthUrl = `https://login.microsoftonline.com/oauth2/v2.0/authorize?state=${state}&redirect_uri=${encodeURIComponent(
+            window.location.origin + "/admin/auth/callback"
+          )}`;
+
+          log("🔗 Mock Microsoft URL generated", "info");
+          log(`📝 URL: ${mockAuthUrl}`, "info");
+
+          testResults.push({
+            test: "Admin Microsoft Login Simulation",
+            status: "success",
+            details: `State: ${state}`,
+          });
+
+          updateStatus();
+        } catch (error) {
+          log(`❌ Error simulating admin login: ${error.message}`, "error");
+          testResults.push({
+            test: "Admin Microsoft Login Simulation",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      function simulateAdminCallback() {
+        log("🔄 Simulating Admin Callback...", "info");
+
+        try {
+          // Mock callback URL with code and state
+          const mockCode = "mock_admin_auth_code_" + Date.now();
+          const mockState = "mock_admin_state_" + Date.now();
+
+          log(`📝 Mock Code: ${mockCode}`, "info");
+          log(`📝 Mock State: ${mockState}`, "info");
+
+          // Simulate callback URL
+          const callbackUrl = `${window.location.origin}/admin/auth/callback?code=${mockCode}&state=${mockState}`;
+
+          log("🔗 Mock admin callback URL generated", "success");
+          log(`📝 URL: ${callbackUrl}`, "info");
+
+          log(
+            "⚠️ Navigation to callback URL is disabled for safety",
+            "warning"
+          );
+          log(
+            "ℹ️ In real scenario, Microsoft would redirect to this URL",
+            "info"
+          );
+
+          testResults.push({
+            test: "Admin Callback Simulation",
+            status: "success",
+            details: `Code: ${mockCode}, State: ${mockState}`,
+          });
+        } catch (error) {
+          log(`❌ Error simulating admin callback: ${error.message}`, "error");
+          testResults.push({
+            test: "Admin Callback Simulation",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      function testAdminRouteProtection() {
+        log("🛡️ Testing Admin Route Protection...", "info");
+
+        try {
+          // Check admin protected routes
+          const adminRoutes = [
+            "/admin/dashboard",
+            "/admin/nguoi-hoc",
+            "/admin/gia-su",
+            "/admin/doanh-thu",
+          ];
+
+          const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+            const [key, value] = cookie.trim().split("=");
+            acc[key] = value;
+            return acc;
+          }, {});
+
+          const hasToken = !!cookies.token;
+          const isAdmin = cookies.role === "admin";
+
+          log(`📊 Token present: ${hasToken}`, hasToken ? "success" : "error");
+          log(`📊 Admin role: ${isAdmin}`, isAdmin ? "success" : "warning");
+
+          adminRoutes.forEach((route) => {
+            const canAccess = hasToken && isAdmin;
+            log(
+              `🔗 ${route}: ${canAccess ? "ACCESSIBLE" : "BLOCKED"}`,
+              canAccess ? "success" : "error"
+            );
+          });
+
+          testResults.push({
+            test: "Admin Route Protection",
+            status: hasToken && isAdmin ? "success" : "warning",
+            details: `Token: ${hasToken}, Role: ${cookies.role || "none"}`,
+          });
+        } catch (error) {
+          log(
+            `❌ Error testing admin route protection: ${error.message}`,
+            "error"
+          );
+          testResults.push({
+            test: "Admin Route Protection",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      function checkAdminReduxState() {
+        log("🏪 Checking Admin Redux State...", "info");
+
+        try {
+          if (!window.store) {
+            log("❌ Redux store not available", "error");
+            return;
+          }
+
+          const state = window.store.getState();
+
+          if (state.admin) {
+            log("🛡️ Admin State:", "info");
+            log(
+              `  - adminProfile: ${
+                state.admin.adminProfile ? "Loaded" : "Not Loaded"
+              }`,
+              state.admin.adminProfile ? "success" : "warning"
+            );
+
+            if (state.admin.adminProfile) {
+              log(
+                `  - adminId: ${state.admin.adminProfile.adminId || "N/A"}`,
+                "info"
+              );
+              log(
+                `  - email: ${state.admin.adminProfile.email || "N/A"}`,
+                "info"
+              );
+              log(
+                `  - role: ${state.admin.adminProfile.role || "N/A"}`,
+                "info"
+              );
+            }
+          } else {
+            log("❌ Admin state not found in Redux", "error");
+          }
+
+          testResults.push({
+            test: "Admin Redux State Check",
+            status: "success",
+            details: `Profile: ${
+              state.admin?.adminProfile ? "Loaded" : "Not Loaded"
+            }`,
+          });
+        } catch (error) {
+          log(`❌ Error checking admin Redux state: ${error.message}`, "error");
+          testResults.push({
+            test: "Admin Redux State Check",
+            status: "error",
+            details: error.message,
+          });
+        }
+      }
+
+      // NAVIGATION FUNCTIONS
+      function navigateToUserLogin() {
+        log("🔄 Navigating to User Login...", "info");
+        window.location.href = "/login";
+      }
+
+      function navigateToUserDashboard() {
+        log("🔄 Navigating to User Dashboard...", "info");
+        window.location.href = "/dashboard";
+      }
+
+      function navigateToTutorPages() {
+        log("🔄 Testing Tutor Pages...", "info");
+        const tutorPages = [
+          "/tai-khoan/ho-so/quan-ly-lop-hoc",
+          "/tai-khoan/ho-so/yeu-cau-day",
+        ];
+
+        log(`ℹ️ Tutor pages: ${tutorPages.join(", ")}`, "info");
+        log("⚠️ Auto-navigation disabled. Check manually.", "warning");
+      }
+
+      function navigateToUserCallback() {
+        log("🔄 Navigating to User Callback...", "info");
+        window.location.href = "/user/auth/callback?test=true";
+      }
+
+      function navigateToAdminLogin() {
+        log("🔄 Navigating to Admin Login...", "info");
+        window.location.href = "/admin/login";
+      }
+
+      function navigateToAdminDashboard() {
+        log("🔄 Navigating to Admin Dashboard...", "info");
+        window.location.href = "/admin/dashboard";
+      }
+
+      function navigateToAdminPages() {
+        log("🔄 Testing Admin Pages...", "info");
+        const adminPages = [
+          "/admin/nguoi-hoc",
+          "/admin/gia-su",
+          "/admin/doanh-thu",
+        ];
+
+        log(`ℹ️ Admin pages: ${adminPages.join(", ")}`, "info");
+        log("⚠️ Auto-navigation disabled. Check manually.", "warning");
+      }
+
+      function navigateToAdminCallback() {
+        log("🔄 Navigating to Admin Callback...", "info");
+        window.location.href = "/admin/auth/callback?test=true";
+      }
+
+      // UTILITY FUNCTIONS
+      function clearAllAuth() {
+        log("🧹 Clearing all authentication data...", "warning");
+
+        // Clear cookies
+        const cookies = ["token", "role", "microsoft_auth_state"];
+        cookies.forEach((cookie) => {
+          document.cookie = `${cookie}=; path=/; max-age=0`;
+        });
+
+        // Clear localStorage
+        localStorage.clear();
+
+        // Clear sessionStorage
+        sessionStorage.clear();
+
+        log("✅ All authentication data cleared", "success");
+        updateStatus();
+      }
+
+      function mockUserAuth() {
+        log("🎭 Setting up mock User authentication...", "info");
+
+        const mockToken = "mock_user_token_" + Date.now();
+        document.cookie = `token=${mockToken}; path=/; max-age=3600`;
+        document.cookie = `role=user; path=/; max-age=3600`;
+
+        log(`✅ Mock user auth set up`, "success");
+        log(`📝 Token: ${mockToken}`, "info");
+
+        updateStatus();
+      }
+
+      function mockAdminAuth() {
+        log("🎭 Setting up mock Admin authentication...", "info");
+
+        const mockToken = "mock_admin_token_" + Date.now();
+        document.cookie = `token=${mockToken}; path=/; max-age=3600`;
+        document.cookie = `role=admin; path=/; max-age=3600`;
+
+        log(`✅ Mock admin auth set up`, "success");
+        log(`📝 Token: ${mockToken}`, "info");
+
+        updateStatus();
+      }
+
+      function refreshCurrentStatus() {
+        log("🔄 Refreshing current status...", "info");
+        updateStatus();
+        log("✅ Status refreshed", "success");
+      }
+
+      function dumpAllAuthData() {
+        log("📊 Dumping all authentication data...", "info");
+
+        // Cookies
+        const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+          const [key, value] = cookie.trim().split("=");
+          acc[key] = value;
+          return acc;
+        }, {});
+
+        log("🍪 Cookies:", "info");
+        Object.entries(cookies).forEach(([key, value]) => {
+          log(`  - ${key}: ${value}`, "info");
+        });
+
+        // LocalStorage
+        log("💾 LocalStorage:", "info");
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          log(
+            `  - ${key}: ${value.substring(0, 50)}${
+              value.length > 50 ? "..." : ""
+            }`,
+            "info"
+          );
+        }
+
+        // Redux state
+        if (window.store) {
+          const state = window.store.getState();
+          log("🏪 Redux State:", "info");
+          log(`  - User: ${JSON.stringify(state.user || "N/A")}`, "info");
+          log(`  - Admin: ${JSON.stringify(state.admin || "N/A")}`, "info");
+        }
+      }
+
+      function testAPIConnectivity() {
+        log("🌐 Testing API connectivity...", "info");
+
+        // This would be implemented with actual API calls
+        log("⚠️ API connectivity test not implemented", "warning");
+        log("ℹ️ Check network tab in DevTools for actual API calls", "info");
+      }
+
+      function checkLocalStorageData() {
+        log("💾 Checking LocalStorage data...", "info");
+
+        const importantKeys = [
+          "persist:root",
+          "persist:user",
+          "user_emailOrPhoneNumber",
+          "user_password",
+          "admin_emailOrPhoneNumber",
+          "admin_password",
+        ];
+
+        importantKeys.forEach((key) => {
+          const value = localStorage.getItem(key);
+          if (value) {
+            log(`✅ ${key}: Present (${value.length} chars)`, "success");
+          } else {
+            log(`❌ ${key}: Not found`, "error");
+          }
+        });
+      }
+
+      function checkCookieData() {
+        log("🍪 Checking Cookie data...", "info");
+
+        const importantCookies = ["token", "role", "microsoft_auth_state"];
+        const cookies = document.cookie.split(";").reduce((acc, cookie) => {
+          const [key, value] = cookie.trim().split("=");
+          acc[key] = value;
+          return acc;
+        }, {});
+
+        importantCookies.forEach((cookieName) => {
+          if (cookies[cookieName]) {
+            log(`✅ ${cookieName}: ${cookies[cookieName]}`, "success");
+          } else {
+            log(`❌ ${cookieName}: Not found`, "error");
+          }
+        });
+      }
+
+      function clearConsole() {
+        document.getElementById("consoleOutput").innerHTML =
+          "<div>🧹 Console cleared</div>";
+        logHistory = [];
+      }
+
+      function downloadTestResults() {
+        const results = {
+          timestamp: new Date().toISOString(),
+          testResults: testResults,
+          logHistory: logHistory,
+          authState: {
+            cookies: document.cookie,
+            localStorage: Object.fromEntries(
+              Object.keys(localStorage).map((key) => [
+                key,
+                localStorage.getItem(key),
+              ])
+            ),
+            reduxState: window.store
+              ? window.store.getState()
+              : "Not available",
+          },
+        };
+
+        const blob = new Blob([JSON.stringify(results, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `microsoft-auth-test-results-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        log("📁 Test results downloaded", "success");
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        log("🚀 Microsoft Authentication Flow Tester loaded", "success");
+        updateStatus();
+
+        // Auto-refresh status every 5 seconds
+        setInterval(updateStatus, 5000);
+      });
+    </script>
+  </body>
+</html>

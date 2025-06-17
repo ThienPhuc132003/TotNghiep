@@ -230,7 +230,7 @@ const ListOfTutorPage = () => {
 
       console.log("Fetching tutors with query:", query);
       const response = await Api({
-        endpoint: `/user/search`, // Endpoint tìm user
+        endpoint: `user/search`, // Endpoint tìm user
         method: METHOD_TYPE.GET,
         query: query, // Truyền object query
       });
@@ -436,14 +436,14 @@ const ListOfTutorPage = () => {
   // --- Table Columns Definition ---
   const columns = useMemo(
     () => [
-      { title: "Mã GS", dataKey: "userId", sortable: true }, // Thêm Mã GS
+      { title: "Mã gia sư", dataKey: "userId", sortable: true }, // Thêm Mã GS
       {
         title: t("admin.name"),
-        dataKey: "userProfile.fullname",
-        sortKey: "userProfile.fullname",
+        dataKey: "tutorProfile.fullname",
+        sortKey: "tutorProfile.fullname",
         sortable: true,
         renderCell: (_, row) =>
-          getSafeNestedValue(row, "userProfile.fullname", "Chưa có tên"),
+          getSafeNestedValue(row, "tutorProfile.fullname", "Chưa có tên"),
       },
       {
         title: t("admin.email"),

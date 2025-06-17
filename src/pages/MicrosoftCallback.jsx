@@ -40,10 +40,15 @@ const MicrosoftCallbackPage = () => {
     const processMicrosoftCallback = async () => {
       setIsLoading(true); // Đảm bảo bắt đầu loading
       setError(null); // Reset lỗi cũ
+
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const state = urlParams.get("state"); // <-- Lấy state từ URL
+
+        // ✅ CLEAN URL IMMEDIATELY after getting params to prevent 414 errors
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
 
         // === XÁC MINH CSRF STATE ===
         const storedState = Cookies.get("microsoft_auth_state"); // <-- Lấy state từ cookie
@@ -58,9 +63,14 @@ const MicrosoftCallbackPage = () => {
             "Lỗi xác thực bảo mật (state không khớp hoặc bị thiếu). Yêu cầu có thể đã hết hạn. Vui lòng thử đăng nhập lại. Đang chuyển hướng..."
           );
           setIsLoading(false);
-          setTimeout(() => navigate("/signin", { replace: true }), 4000); // Chuyển về trang login user (hoặc trang chính)
+          // ✅ Fix: Determine correct login page based on current path
+          const loginPath = window.location.pathname.includes("/admin/")
+            ? "/admin/login"
+            : "/login";
+          setTimeout(() => navigate(loginPath, { replace: true }), 4000);
           return;
         }
+
         console.log("CSRF State verified successfully.");
         // ============================
 
@@ -69,7 +79,11 @@ const MicrosoftCallbackPage = () => {
             "Xác thực thất bại: Thiếu mã xác thực (code) trong URL. Đang chuyển hướng..."
           );
           setIsLoading(false);
-          setTimeout(() => navigate("/signin", { replace: true }), 3000);
+          // ✅ Fix: Determine correct login page based on current path
+          const loginPath = window.location.pathname.includes("/admin/")
+            ? "/admin/login"
+            : "/login";
+          setTimeout(() => navigate(loginPath, { replace: true }), 3000);
           return;
         }
 
@@ -78,7 +92,7 @@ const MicrosoftCallbackPage = () => {
         let roleFromPath = "user";
         let callbackEndpoint = "user/auth/callback";
         let profileEndpoint = "user/get-profile";
-        let dashboardPath = "/dashboard";
+        let dashboardPath = "/trang-chu"; // ✅ Fix: User redirect to correct route
 
         if (path.startsWith("/admin/auth/callback")) {
           roleFromPath = "admin";
@@ -177,11 +191,14 @@ const MicrosoftCallbackPage = () => {
         } else if (error.message) {
           errorMessageText = error.message;
         }
+
         setError(`${errorMessageText} Đang chuyển hướng...`);
         setIsLoading(false);
-        // Quyết định chuyển về đâu nếu lỗi: trang login user hay admin?
-        // Tạm thời chuyển về trang login user mặc định
-        setTimeout(() => navigate("/signin", { replace: true }), 3000);
+        // ✅ Fix: Determine correct login page based on current path
+        const loginPath = window.location.pathname.includes("/admin/")
+          ? "/admin/login"
+          : "/login";
+        setTimeout(() => navigate(loginPath, { replace: true }), 3000);
       }
       // Không cần finally để set isLoading = false nếu thành công vì đã navigate
     };
@@ -193,7 +210,7 @@ const MicrosoftCallbackPage = () => {
     if (existingToken && existingRole) {
       console.log("User already logged in, redirecting...");
       const redirectPath =
-        existingRole === "admin" ? "/admin/dashboard" : "/dashboard";
+        existingRole === "admin" ? "/admin/dashboard" : "/trang-chu"; // ✅ Fix: Correct user route
       navigate(redirectPath, { replace: true });
     } else {
       // Nếu chưa đăng nhập, xử lý callback
@@ -207,12 +224,11 @@ const MicrosoftCallbackPage = () => {
   if (isLoading) {
     return <LoadingSpinner />;
   }
-
   if (error) {
-    // Quyết định nút quay lại trỏ về đâu (signin/admin/login)
-    const loginPath = window.location.pathname.startsWith("/admin/")
+    // ✅ Fix: Determine correct login page based on current path
+    const loginPath = window.location.pathname.includes("/admin/")
       ? "/admin/login"
-      : "/signin";
+      : "/login";
     return (
       <div style={{ padding: "40px", textAlign: "center", color: "red" }}>
         <h1>Đăng nhập thất bại</h1>

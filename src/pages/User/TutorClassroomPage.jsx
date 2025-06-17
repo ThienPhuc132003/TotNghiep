@@ -853,6 +853,10 @@ const TutorClassroomPage = () => {
     setMeetingList([]);
     setAllMeetings([]);
 
+    // Reset modal states to prevent modal from showing when returning to classroom list
+    setIsModalOpen(false);
+    setSelectedClassroom(null);
+
     // Clear URL params
     setSearchParams({});
   };
@@ -1597,6 +1601,7 @@ const TutorClassroomPage = () => {
           onClose={() => {
             console.log("🔍 DEBUG - Closing modal");
             setIsModalOpen(false);
+            setSelectedClassroom(null);
           }}
           onSubmit={handleCreateMeetingSubmit}
           classroomName={selectedClassroom.classroomName}
