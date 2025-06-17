@@ -65,9 +65,7 @@ const ZoomCallback = () => {
                 const returnStateData = returnState
                   ? JSON.parse(returnState)
                   : {};
-                sessionStorage.removeItem("zoomReturnState");
-
-                // If returning to classroom page with classroom info, add URL params
+                sessionStorage.removeItem("zoomReturnState"); // If returning to classroom page with classroom info, add URL params
                 if (
                   returnPath.includes("quan-ly-lop-hoc") &&
                   returnStateData.classroomId
