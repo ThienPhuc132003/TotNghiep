@@ -893,7 +893,7 @@ const StudentClassroomPage = () => {
     const zoomUrl = meeting.joinUrl || meeting.join_url;
     if (zoomUrl) {
       window.open(zoomUrl, "_blank");
-      toast.success("Đang mở Zoom meeting...");
+      toast.success("Đang mở phòng học trực tuyến...");
     } else {
       toast.error("Không tìm thấy link tham gia buổi học.");
     }

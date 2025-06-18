@@ -8,7 +8,7 @@ import { METHOD_TYPE } from "../../network/methodType";
 const ZoomCallback = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [message, setMessage] = useState("Đang xử lý xác thực Zoom...");
+  const [message, setMessage] = useState("Đang xử lý xác thực hệ thống...");
   const [internalError, setInternalError] = useState(null); // Đổi tên để không trùng với prop 'error' nếu có
 
   useEffect(() => {
@@ -20,8 +20,8 @@ const ZoomCallback = () => {
     if (zoomErrorFromUrl) {
       const errorDescription =
         queryParams.get("error_description") || zoomErrorFromUrl;
-      setInternalError(`Lỗi từ Zoom: ${errorDescription}.`);
-      setMessage("Kết nối Zoom không thành công.");
+      setInternalError(`Lỗi từ hệ thống: ${errorDescription}.`);
+      setMessage("Kết nối hệ thống không thành công.");
 
       // Check if user came from classroom page
       const returnPath = sessionStorage.getItem("zoomReturnPath");
@@ -37,7 +37,7 @@ const ZoomCallback = () => {
           navigate(returnPath, {
             replace: true,
             state: {
-              zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.`,
+              zoomAuthError: `Lỗi từ hệ thống: ${errorDescription}.`,
               ...(returnState ? JSON.parse(returnState) : {}),
             },
           });
@@ -45,7 +45,7 @@ const ZoomCallback = () => {
           // Default return to meeting room page with error
           navigate("/tai-khoan/ho-so/phong-hoc", {
             replace: true,
-            state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
+            state: { zoomAuthError: `Lỗi từ hệ thống: ${errorDescription}.` },
           });
         }
       }, 3000);
@@ -72,7 +72,7 @@ const ZoomCallback = () => {
             localStorage.setItem("zoomAccessToken", accessToken);
             localStorage.setItem("zoomRefreshToken", refreshToken);
             if (userId) localStorage.setItem("zoomUserId", userId);
-            setMessage("Kết nối Zoom thành công! Đang chuyển hướng...");
+            setMessage("Kết nối hệ thống thành công! Đang chuyển hướng...");
 
             // Check if user came from classroom page for Zoom connection
             const returnPath = sessionStorage.getItem("zoomReturnPath");
@@ -120,7 +120,7 @@ const ZoomCallback = () => {
               backendResponse?.message ||
               "Phản hồi từ máy chủ không chứa token hợp lệ.";
             setInternalError(errMsg);
-            setMessage("Kết nối Zoom không thành công.");
+            setMessage("Kết nối hệ thống không thành công.");
 
             // Use returnPath if available, otherwise default to meeting room
             const returnPath = sessionStorage.getItem("zoomReturnPath");
@@ -150,9 +150,9 @@ const ZoomCallback = () => {
           const errMsg =
             err.response?.data?.message ||
             err.message ||
-            "Lỗi kết nối đến máy chủ khi xử lý Zoom token.";
+            "Lỗi kết nối đến máy chủ khi xử lý xác thực.";
           setInternalError(errMsg);
-          setMessage("Kết nối Zoom không thành công.");
+          setMessage("Kết nối hệ thống không thành công.");
 
           // Use returnPath if available, otherwise default to meeting room
           const returnPath = sessionStorage.getItem("zoomReturnPath");
@@ -180,9 +180,9 @@ const ZoomCallback = () => {
     } else {
       // Không có code và cũng không có zoomErrorFromUrl
       const errMsg =
-        "Không tìm thấy mã xác thực (code) từ Zoom trên URL callback.";
+        "Không tìm thấy mã xác thực từ hệ thống trên URL callback.";
       setInternalError(errMsg);
-      setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
+      setMessage("Kết nối hệ thống không thành công. Mã xác thực bị thiếu.");
 
       // Use returnPath if available, otherwise default to meeting room
       const returnPath = sessionStorage.getItem("zoomReturnPath");
@@ -250,7 +250,7 @@ const ZoomCallback = () => {
       )}
       <p style={{ color: "#555", fontSize: "1rem" }}>
         {internalError
-          ? "Vui lòng thử lại thao tác kết nối Zoom."
+          ? "Vui lòng thử lại thao tác kết nối hệ thống."
           : "Bạn sẽ được tự động chuyển hướng sau giây lát..."}
       </p>
       {/* Nút quay lại có thể không cần nếu luôn tự động redirect */}{" "}
