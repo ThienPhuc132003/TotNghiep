@@ -15,20 +15,38 @@ const ZoomCallback = () => {
     console.log("ZoomCallback mounted. location.search:", location.search);
     const queryParams = new URLSearchParams(location.search);
     const authorizationCode = queryParams.get("code");
-    const zoomErrorFromUrl = queryParams.get("error"); // Lỗi từ Zoom trên URL
-
-    if (zoomErrorFromUrl) {
+    const zoomErrorFromUrl = queryParams.get("error"); // Lỗi từ Zoom trên URL    if (zoomErrorFromUrl) {
       const errorDescription =
         queryParams.get("error_description") || zoomErrorFromUrl;
       setInternalError(`Lỗi từ Zoom: ${errorDescription}.`);
       setMessage("Kết nối Zoom không thành công.");
-      // Chuyển hướng về trang phòng họp với thông báo lỗi        setTimeout(
-      () =>
-        navigate("/tai-khoan/ho-so/phong-hoc", {
-          replace: true,
-          state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
-        }),
-        3000;
+      
+      // Check if user came from classroom page
+      const returnPath = sessionStorage.getItem("zoomReturnPath");
+      const returnState = sessionStorage.getItem("zoomReturnState");
+      
+      setTimeout(() => {
+        if (returnPath) {
+          // Clear stored return info
+          sessionStorage.removeItem("zoomReturnPath");
+          sessionStorage.removeItem("zoomReturnState");
+          
+          // Return to original page with error state
+          navigate(returnPath, {
+            replace: true,
+            state: { 
+              zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.`,
+              ...(returnState ? JSON.parse(returnState) : {})
+            },
+          });
+        } else {
+          // Default return to meeting room page with error
+          navigate("/tai-khoan/ho-so/phong-hoc", {
+            replace: true,
+            state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
+          });
+        }
+      }, 3000);
       return;
     }
 

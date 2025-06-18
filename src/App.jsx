@@ -300,7 +300,10 @@ function App() {
                 path="/admin/rut-tien"
                 element={<ListOfWithdrawalRequests />}
               />
-              <Route path="/admin/doanh-thu" element={<RevenueStatistics />} />
+              <Route
+                path="/admin/doanh-thu-giasuvlu"
+                element={<RevenueStatistics />}
+              />
               <Route
                 path="/admin/luot-thue-gia-su"
                 element={<TutorHireStatistics />}
