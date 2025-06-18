@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pagination Styling Demo - TutorSearch</title>
+    <style>
+      :root {
+        --primary-color: #d72134;
+        --background-white: #ffffff;
+        --background-light: #f8fafc;
+        --text-medium: #6b7280;
+        --text-dark: #1f2937;
+        --border-color: #e5e7eb;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--background-light);
+        margin: 0;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: var(--text-dark);
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .demo-section {
+        margin: 3rem 0;
+        padding: 2rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .demo-section h2 {
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+      }
+
+      /* ==================== PAGINATION STYLES ==================== */
+      .pagination-nav {
+        margin: 2rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .page-item {
+        display: flex;
+        align-items: center;
+      }
+
+      .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        min-height: 40px;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #e5e7eb;
+        background-color: var(--background-white);
+        color: var(--text-medium);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        gap: 0.5rem;
+      }
+
+      .page-link:hover:not(:disabled) {
+        background-color: #f8fafc;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .page-link:disabled {
+        background-color: #f9fafb;
+        color: #9ca3af;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--primary-color), #e53e3e);
+        border-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(215, 33, 52, 0.3);
+      }
+
+      .page-item.active .page-link:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(215, 33, 52, 0.4);
+      }
+
+      .page-item.disabled .page-link {
+        background-color: #f9fafb;
+        color: #d1d5db;
+        cursor: not-allowed;
+        border-color: #e5e7eb;
+      }
+
+      .page-item.disabled .page-link:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      .page-link.prev-next {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border: 1px solid #cbd5e1;
+      }
+
+      .page-link.prev-next:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-color), #e53e3e);
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .page-item.dots .page-link {
+        border: none;
+        background: transparent;
+        cursor: default;
+        font-weight: bold;
+        color: #6b7280;
+      }
+
+      .page-item.dots .page-link:hover {
+        background: transparent;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 768px) {
+        .pagination {
+          gap: 0.25rem;
+        }
+
+        .page-link {
+          min-width: 36px;
+          min-height: 36px;
+          padding: 0.4rem 0.6rem;
+          font-size: 0.85rem;
+        }
+
+        .page-link.prev-next {
+          padding: 0.4rem 0.8rem;
+        }
+
+        .page-link.prev-next span {
+          display: none;
+        }
+
+        .pagination-nav {
+          margin: 1.5rem 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .pagination {
+          gap: 0.2rem;
+        }
+
+        .page-link {
+          min-width: 32px;
+          min-height: 32px;
+          padding: 0.3rem 0.5rem;
+          font-size: 0.8rem;
+        }
+
+        .page-link.prev-next {
+          padding: 0.3rem 0.6rem;
+        }
+      }
+
+      /* Demo specific styles */
+      .feature-list {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      .feature-list ul {
+        margin: 0;
+        padding-left: 1.5rem;
+      }
+
+      .feature-list li {
+        margin: 0.5rem 0;
+        color: var(--text-medium);
+      }
+
+      .code-preview {
+        background: #1f2937;
+        color: #f3f4f6;
+        padding: 1rem;
+        border-radius: 6px;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 0.85rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <h1>🎨 Pagination Styling Demo - Trang Tìm Kiếm Gia Sư</h1>
+
+      <div class="demo-section">
+        <h2>✨ Tính năng pagination mới</h2>
+        <div class="feature-list">
+          <ul>
+            <li>
+              <strong>Design hiện đại:</strong> Gradient background, border
+              radius 8px, smooth transitions
+            </li>
+            <li>
+              <strong>Hover effects:</strong> Transform translateY(-1px), shadow
+              animation, color transition
+            </li>
+            <li>
+              <strong>Active state:</strong> Gradient background đỏ primary,
+              white text, shadow nổi bật
+            </li>
+            <li>
+              <strong>Responsive:</strong> Auto resize cho mobile/tablet, ẩn
+              text "Trước/Sau" ở mobile
+            </li>
+            <li>
+              <strong>Accessibility:</strong> Clear disabled states, focus
+              indicators, proper contrast
+            </li>
+            <li>
+              <strong>UX tốt:</strong> Gap spacing hợp lý, touch-friendly button
+              size (40px min)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="demo-section">
+        <h2>🔥 Demo Pagination - Ít trang (trang 2/5)</h2>
+        <nav class="pagination-nav" aria-label="Điều hướng trang">
+          <ul class="pagination">
+            <li class="page-item">
+              <button
+                class="page-link prev-next"
+                onclick="showAlert('Trang trước')"
+              >
+                ◀ <span>Trước</span>
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 1')">
+                1
+              </button>
+            </li>
+            <li class="page-item active">
+              <button class="page-link">2</button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 3')">
+                3
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 4')">
+                4
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 5')">
+                5
+              </button>
+            </li>
+            <li class="page-item">
+              <button
+                class="page-link prev-next"
+                onclick="showAlert('Trang sau')"
+              >
+                <span>Sau</span> ▶
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="demo-section">
+        <h2>🚀 Demo Pagination - Nhiều trang với dots (trang 5/15)</h2>
+        <nav class="pagination-nav" aria-label="Điều hướng trang">
+          <ul class="pagination">
+            <li class="page-item">
+              <button
+                class="page-link prev-next"
+                onclick="showAlert('Trang trước')"
+              >
+                ◀ <span>Trước</span>
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 1')">
+                1
+              </button>
+            </li>
+            <li class="page-item dots">
+              <span class="page-link">...</span>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 3')">
+                3
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 4')">
+                4
+              </button>
+            </li>
+            <li class="page-item active">
+              <button class="page-link">5</button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 6')">
+                6
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 7')">
+                7
+              </button>
+            </li>
+            <li class="page-item dots">
+              <span class="page-link">...</span>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 15')">
+                15
+              </button>
+            </li>
+            <li class="page-item">
+              <button
+                class="page-link prev-next"
+                onclick="showAlert('Trang sau')"
+              >
+                <span>Sau</span> ▶
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="demo-section">
+        <h2>🔒 Demo Pagination - Trạng thái disabled (trang đầu 1/10)</h2>
+        <nav class="pagination-nav" aria-label="Điều hướng trang">
+          <ul class="pagination">
+            <li class="page-item disabled">
+              <button class="page-link prev-next" disabled>
+                ◀ <span>Trước</span>
+              </button>
+            </li>
+            <li class="page-item active">
+              <button class="page-link">1</button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 2')">
+                2
+              </button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 3')">
+                3
+              </button>
+            </li>
+            <li class="page-item dots">
+              <span class="page-link">...</span>
+            </li>
+            <li class="page-item">
+              <button class="page-link" onclick="showAlert('Trang 10')">
+                10
+              </button>
+            </li>
+            <li class="page-item">
+              <button
+                class="page-link prev-next"
+                onclick="showAlert('Trang sau')"
+              >
+                <span>Sau</span> ▶
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="demo-section">
+        <h2>📱 Responsive Test</h2>
+        <p>Resize browser window để xem pagination adapt với mobile screens:</p>
+        <ul>
+          <li>
+            <strong>Desktop (>768px):</strong> Full text "Trước/Sau", button
+            size 40px
+          </li>
+          <li>
+            <strong>Tablet (≤768px):</strong> Ẩn text "Trước/Sau", button size
+            36px
+          </li>
+          <li>
+            <strong>Mobile (≤480px):</strong> Compact layout, button size 32px
+          </li>
+        </ul>
+      </div>
+
+      <div class="demo-section">
+        <h2>💻 Code Implementation</h2>
+        <p>CSS đã được thêm vào <code>TutorSearch.style.css</code>:</p>
+        <div class="code-preview">
+          /* ==================== PAGINATION STYLES ====================
+          .pagination-nav { margin: 2rem 0; display: flex; justify-content:
+          center; } .pagination { display: flex; list-style: none; gap: 0.5rem;
+          } .page-link { min-width: 40px; min-height: 40px; border-radius: 8px;
+          } .page-item.active .page-link { background: linear-gradient(135deg,
+          #d72134, #e53e3e); } /* + responsive breakpoints cho mobile/tablet */
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showAlert(message) {
+        alert(`Clicked: ${message}`);
+      }
+
+      // Add some interactive demo functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🎨 Pagination Styling Demo loaded successfully!");
+        console.log(
+          "📱 Try resizing the browser window to see responsive behavior"
+        );
+      });
+    </script>
+  </body>
+</html>

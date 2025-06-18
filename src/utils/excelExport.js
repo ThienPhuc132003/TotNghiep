@@ -95,7 +95,7 @@ export const exportToExcel = async (config) => {
       `A${currentRow}:${String.fromCharCode(64 + colCount)}${currentRow}`
     );
 
-    currentRow += 2;
+    currentRow += 1;
 
     // Add period information if provided
     if (period) {

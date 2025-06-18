@@ -281,6 +281,9 @@ const TutorClassroomPage = () => {
   const currentUser = useSelector((state) => state.user.userProfile);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle Zoom OAuth callback and auto-open modal// ...existing code...
+
   const fetchTutorClassrooms = useCallback(
     async (page = 1, forceRefresh = false) => {
       if (!currentUser?.userId) {
@@ -591,11 +594,47 @@ const TutorClassroomPage = () => {
     setSearchParams,
     allClassrooms,
   ]);
-
   useEffect(() => {
     console.log(`📱 Initial loading of tutor classrooms`);
     fetchTutorClassrooms(1);
   }, [fetchTutorClassrooms]);
+
+  // Handle Zoom OAuth callback and auto-open modal
+  useEffect(() => {
+    const fromZoomConnection = searchParams.get("fromZoomConnection");
+    const classroomId = searchParams.get("classroomId");
+    const classroomName = searchParams.get("classroomName");
+
+    if (fromZoomConnection === "true" && classroomId && classroomName) {
+      console.log("🔍 ZOOM CALLBACK - Auto-opening modal after OAuth:", {
+        classroomId: decodeURIComponent(classroomId),
+        classroomName: decodeURIComponent(classroomName),
+      });
+
+      // Clear the URL params
+      setSearchParams({});
+
+      // Small delay to ensure component is fully rendered
+      setTimeout(() => {
+        const decodedClassroomId = decodeURIComponent(classroomId);
+        const decodedClassroomName = decodeURIComponent(classroomName);
+
+        setSelectedClassroom({
+          classroomId: decodedClassroomId,
+          classroomName: decodedClassroomName,
+        });
+        setIsModalOpen(true);
+
+        toast.success(
+          "Đã kết nối Zoom thành công! Bạn có thể tạo phòng học ngay.",
+          {
+            duration: 4000,
+          }
+        );
+      }, 500);
+    }
+  }, [searchParams, setSearchParams]);
+
   const handlePageChange = (newPage) => {
     if (
       newPage >= 1 &&

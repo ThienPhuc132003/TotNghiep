@@ -22,13 +22,33 @@ const ZoomCallback = () => {
         queryParams.get("error_description") || zoomErrorFromUrl;
       setInternalError(`Lỗi từ Zoom: ${errorDescription}.`);
       setMessage("Kết nối Zoom không thành công.");
-      // Chuyển hướng về trang phòng họp với thông báo lỗi        setTimeout(
-      () =>
-        navigate("/tai-khoan/ho-so/phong-hoc", {
-          replace: true,
-          state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
-        }),
-        3000;
+
+      // Check if user came from classroom page
+      const returnPath = sessionStorage.getItem("zoomReturnPath");
+      const returnState = sessionStorage.getItem("zoomReturnState");
+
+      setTimeout(() => {
+        if (returnPath) {
+          // Clear stored return info
+          sessionStorage.removeItem("zoomReturnPath");
+          sessionStorage.removeItem("zoomReturnState");
+
+          // Return to original page with error state
+          navigate(returnPath, {
+            replace: true,
+            state: {
+              zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.`,
+              ...(returnState ? JSON.parse(returnState) : {}),
+            },
+          });
+        } else {
+          // Default return to meeting room page with error
+          navigate("/tai-khoan/ho-so/phong-hoc", {
+            replace: true,
+            state: { zoomAuthError: `Lỗi từ Zoom: ${errorDescription}.` },
+          });
+        }
+      }, 3000);
       return;
     }
 
@@ -61,11 +81,12 @@ const ZoomCallback = () => {
               if (returnPath) {
                 // Clear stored return info
                 sessionStorage.removeItem("zoomReturnPath");
-
                 const returnStateData = returnState
                   ? JSON.parse(returnState)
                   : {};
-                sessionStorage.removeItem("zoomReturnState"); // If returning to classroom page with classroom info, add URL params
+                sessionStorage.removeItem("zoomReturnState");
+
+                // If returning to classroom page with classroom info, add URL params
                 if (
                   returnPath.includes("quan-ly-lop-hoc") &&
                   returnStateData.classroomId
@@ -100,14 +121,29 @@ const ZoomCallback = () => {
               "Phản hồi từ máy chủ không chứa token hợp lệ.";
             setInternalError(errMsg);
             setMessage("Kết nối Zoom không thành công.");
-            setTimeout(
-              () =>
+
+            // Use returnPath if available, otherwise default to meeting room
+            const returnPath = sessionStorage.getItem("zoomReturnPath");
+            const returnState = sessionStorage.getItem("zoomReturnState");
+
+            setTimeout(() => {
+              if (returnPath) {
+                sessionStorage.removeItem("zoomReturnPath");
+                sessionStorage.removeItem("zoomReturnState");
+                navigate(returnPath, {
+                  replace: true,
+                  state: {
+                    zoomAuthError: errMsg,
+                    ...(returnState ? JSON.parse(returnState) : {}),
+                  },
+                });
+              } else {
                 navigate("/tai-khoan/ho-so/phong-hoc", {
                   replace: true,
                   state: { zoomAuthError: errMsg },
-                }),
-              3000
-            );
+                });
+              }
+            }, 3000);
           }
         })
         .catch((err) => {
@@ -117,14 +153,29 @@ const ZoomCallback = () => {
             "Lỗi kết nối đến máy chủ khi xử lý Zoom token.";
           setInternalError(errMsg);
           setMessage("Kết nối Zoom không thành công.");
-          setTimeout(
-            () =>
+
+          // Use returnPath if available, otherwise default to meeting room
+          const returnPath = sessionStorage.getItem("zoomReturnPath");
+          const returnState = sessionStorage.getItem("zoomReturnState");
+
+          setTimeout(() => {
+            if (returnPath) {
+              sessionStorage.removeItem("zoomReturnPath");
+              sessionStorage.removeItem("zoomReturnState");
+              navigate(returnPath, {
+                replace: true,
+                state: {
+                  zoomAuthError: errMsg,
+                  ...(returnState ? JSON.parse(returnState) : {}),
+                },
+              });
+            } else {
               navigate("/tai-khoan/ho-so/phong-hoc", {
                 replace: true,
                 state: { zoomAuthError: errMsg },
-              }),
-            3000
-          );
+              });
+            }
+          }, 3000);
         });
     } else {
       // Không có code và cũng không có zoomErrorFromUrl
@@ -132,14 +183,29 @@ const ZoomCallback = () => {
         "Không tìm thấy mã xác thực (code) từ Zoom trên URL callback.";
       setInternalError(errMsg);
       setMessage("Kết nối Zoom không thành công. Mã xác thực bị thiếu.");
-      setTimeout(
-        () =>
+
+      // Use returnPath if available, otherwise default to meeting room
+      const returnPath = sessionStorage.getItem("zoomReturnPath");
+      const returnState = sessionStorage.getItem("zoomReturnState");
+
+      setTimeout(() => {
+        if (returnPath) {
+          sessionStorage.removeItem("zoomReturnPath");
+          sessionStorage.removeItem("zoomReturnState");
+          navigate(returnPath, {
+            replace: true,
+            state: {
+              zoomAuthError: errMsg,
+              ...(returnState ? JSON.parse(returnState) : {}),
+            },
+          });
+        } else {
           navigate("/tai-khoan/ho-so/phong-hoc", {
             replace: true,
             state: { zoomAuthError: errMsg },
-          }),
-        3000
-      );
+          });
+        }
+      }, 3000);
     }
   }, [location.search, navigate]);
 
