@@ -165,7 +165,7 @@ const CreateMeetingModal = ({
     <div className="tcp-modal-overlay" onClick={onClose}>
       <div className="tcp-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="tcp-modal-header">
-          <h3>Tạo phòng học Zoom</h3>
+          <h3>Tạo phòng học trực tuyến</h3>
           <button className="tcp-modal-close" onClick={onClose}>
             <i className="fas fa-times"></i>
           </button>
@@ -423,7 +423,7 @@ const TutorClassroomPage = () => {
 
         if (zoomToken) {
           toast.success(
-            "Kết nối Zoom thành công! Bây giờ bạn có thể tạo phòng học."
+            "Kết nối hệ thống thành công! Bây giờ bạn có thể tạo phòng học."
           );
 
           // Clear URL parameters first to prevent re-triggering
@@ -441,7 +441,7 @@ const TutorClassroomPage = () => {
           setIsModalOpen(true);
           console.log("✅ Modal should be opened now");
         } else {
-          console.log("❌ No Zoom token found");
+          console.log("❌ No authorization token found");
           // Clean URL if no token
           window.history.replaceState(
             {},
@@ -626,7 +626,7 @@ const TutorClassroomPage = () => {
         setIsModalOpen(true);
 
         toast.success(
-          "Đã kết nối Zoom thành công! Bạn có thể tạo phòng học ngay.",
+          "Đã kết nối hệ thống thành công! Bạn có thể tạo phòng học ngay.",
           {
             duration: 4000,
           }
@@ -921,19 +921,38 @@ const TutorClassroomPage = () => {
     setSelectedClassroom(null);
     // Do NOT switch to meeting view when modal is closed
   };
+
+  // Force open modal function
+  const forceOpenModal = (classroomId, classroomName) => {
+    console.log("🚀 FORCE OPENING MODAL:", { classroomId, classroomName });
+    setSelectedClassroom({ classroomId, classroomName });
+    setIsModalOpen(true);
+
+    // Add a small delay to ensure state is set
+    setTimeout(() => {
+      console.log("🔍 Modal state after force open:", {
+        isModalOpen: true,
+        selectedClassroom: { classroomId, classroomName },
+      });
+    }, 100);
+  };
+
   const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
+    const zoomToken = localStorage.getItem("zoomAccessToken");
+
     console.log("🔍 DEBUG - Opening create meeting modal:", {
       classroomId,
       classroomName,
-      hasZoomToken: !!localStorage.getItem("zoomAccessToken"),
+      hasZoomToken: !!zoomToken,
+      zoomTokenLength: zoomToken?.length,
+      zoomTokenPreview: zoomToken ? zoomToken.substring(0, 20) + "..." : "null",
     });
 
-    const zoomToken = localStorage.getItem("zoomAccessToken");
-    if (!zoomToken) {
-      console.log("❌ No Zoom token, redirecting to profile");
+    // First check: Zoom token is required
+    if (!zoomToken || zoomToken.trim() === "") {
+      console.log("❌ No authorization token, redirecting to profile");
 
       // Save return path and state for OAuth callback
-      // Fix: Use the exact path without leading slash to match routing
       sessionStorage.setItem(
         "zoomReturnPath",
         "/tai-khoan/ho-so/quan-ly-lop-hoc"
@@ -947,7 +966,7 @@ const TutorClassroomPage = () => {
         })
       );
 
-      toast.error("Vui lòng kết nối với Zoom trước khi tạo phòng học!");
+      toast.error("Vui lòng kết nối với hệ thống trước khi tạo phòng học!");
       navigate("/tai-khoan/ho-so/phong-hoc", {
         state: {
           needZoomConnection: true,
@@ -958,10 +977,17 @@ const TutorClassroomPage = () => {
       });
       return;
     }
+    // If we have zoom token, always open the modal
+    console.log("✅ Zoom token found, opening modal immediately");
+    console.log("✅ Setting selected classroom:", {
+      classroomId,
+      classroomName,
+    });
 
-    console.log("✅ Setting selected classroom and opening modal");
-    setSelectedClassroom({ classroomId, classroomName });
-    setIsModalOpen(true);
+    // Use force open to ensure modal opens
+    forceOpenModal(classroomId, classroomName);
+
+    console.log("✅ Modal should be opening now");
   };
   const handleCreateMeetingSubmit = async (formData) => {
     if (!selectedClassroom) return;
@@ -1170,7 +1196,7 @@ const TutorClassroomPage = () => {
                     const zoomUrl = meeting.joinUrl || meeting.join_url;
                     if (zoomUrl) {
                       window.open(zoomUrl, "_blank");
-                      toast.success("Đang mở phòng học Zoom...");
+                      toast.success("Đang mở phòng học trực tuyến...");
                     } else {
                       toast.error("Không tìm thấy link tham gia phòng học.");
                     }

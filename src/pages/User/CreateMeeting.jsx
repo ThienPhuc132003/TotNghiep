@@ -26,7 +26,11 @@ const CreateMeetingPage = () => {
       const response = await Api({
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
-        data: { topic, password },
+        data: {
+          topic,
+          password,
+          // Note: classroomId should be provided if this component is used in a classroom context
+        },
       });
       if (response.success) {
         setStatus("Meeting created successfully.");
@@ -53,7 +57,7 @@ const CreateMeetingPage = () => {
   return (
     <>
       <div className="create-meeting-form">
-        <h1>Create Zoom Meeting</h1>
+        <h1>Tạo phòng học trực tuyến</h1>
         {status && <p className="status-message">{status}</p>}
         <form onSubmit={handleCreateMeeting}>
           <div className="form-group">

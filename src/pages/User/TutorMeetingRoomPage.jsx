@@ -423,7 +423,7 @@ const TutorMeetingRoomPage = () => {
       <div className="tutor-meeting-room-page">
         <h2 className="page-title">
           {classroomInfo?.needConnection
-            ? `Kết nối Zoom cho lớp: ${classroomInfo.name}`
+            ? `Kết nối hệ thống cho lớp: ${classroomInfo.name}`
             : "Quản Lý Phòng Họp"}
         </h2>
         {error && <p className="error-message">{error}</p>}
@@ -435,21 +435,23 @@ const TutorMeetingRoomPage = () => {
                   <i
                     className="fas fa-info-circle"
                     style={{ marginRight: "8px", color: "#007bff" }}
-                  ></i>
+                  ></i>{" "}
                   <span>
-                    Bạn cần kết nối tài khoản Zoom để tạo phòng học cho lớp:{" "}
+                    Bạn cần kết nối tài khoản hệ thống để tạo phòng học cho lớp:{" "}
                     <strong>{classroomInfo.name}</strong>
                   </span>
                 </div>
                 <p>
+                  {" "}
                   Sau khi kết nối thành công, bạn sẽ được đưa về trang quản lý
-                  lớp học để tiếp tục tạo phòng học Zoom.
+                  lớp học để tiếp tục tạo phòng học trực tuyến.
                 </p>
               </div>
             ) : (
               <p>
+                {" "}
                 Để sử dụng tính năng phòng họp trực tuyến, bạn cần kết nối tài
-                khoản Zoom của mình.
+                khoản hệ thống của mình.
               </p>
             )}
             <button
@@ -458,18 +460,20 @@ const TutorMeetingRoomPage = () => {
               disabled={isLoading}
             >
               <i className="fas fa-video" style={{ marginRight: "8px" }}></i>
-              Kết nối tài khoản Zoom
+              Kết nối tài khoản hệ thống
             </button>
           </div>
         ) : (
           <div className="zoom-connected-section">
             <div className="connection-status success">
               <i className="fas fa-check-circle"></i>
-              <span>Tài khoản Zoom của bạn đã được kết nối.</span>
+              <span>Tài khoản hệ thống của bạn đã được kết nối.</span>
             </div>
             <p className="info-text">
-              Chức năng tạo phòng học Zoom hiện đã được tích hợp vào trang quản
-              lý lớp học. Bạn có thể tạo phòng học trực tiếp từ mỗi lớp học.
+              {" "}
+              Chức năng tạo phòng học trực tuyến hiện đã được tích hợp vào trang
+              quản lý lớp học. Bạn có thể tạo phòng học trực tiếp từ mỗi lớp
+              học.
             </p>
             <button
               onClick={handleCreateMeeting}
