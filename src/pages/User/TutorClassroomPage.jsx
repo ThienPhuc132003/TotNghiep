@@ -394,8 +394,7 @@ const TutorClassroomPage = () => {
       }
     },
     [currentUser?.userId, allClassrooms, activeClassroomTab, itemsPerPage]
-  );
-  // Auto-open modal after returning from Zoom OAuth
+  ); // Auto-open modal after returning from Zoom OAuth
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const fromZoomConnection = urlParams.get("fromZoomConnection");
@@ -423,6 +422,15 @@ const TutorClassroomPage = () => {
           toast.success(
             "Kết nối Zoom thành công! Bây giờ bạn có thể tạo phòng học."
           );
+
+          // Clear URL parameters first to prevent re-triggering
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+
+          // Set classroom info and open modal
           setSelectedClassroom({
             classroomId: decodeURIComponent(classroomId),
             classroomName: decodeURIComponent(classroomName),
@@ -431,11 +439,14 @@ const TutorClassroomPage = () => {
           console.log("✅ Modal should be opened now");
         } else {
           console.log("❌ No Zoom token found");
+          // Clean URL if no token
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
         }
       }, 1000);
-
-      // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
 
       return () => clearTimeout(timer);
     }
@@ -644,6 +655,8 @@ const TutorClassroomPage = () => {
         classroomName,
         endpoint: "meeting/get-meeting",
         timestamp: new Date().toISOString(),
+        forceClearCache:
+          allMeetings.length === 0 ? "Yes - cache cleared" : "No - using cache",
       });
 
       // Debug token
@@ -708,6 +721,7 @@ const TutorClassroomPage = () => {
               meetingId: m.meetingId,
               status: m.status,
               topic: m.topic,
+              createdAt: m.createdAt,
             }))
           );
           setAllMeetings(allMeetingsData);
@@ -728,6 +742,7 @@ const TutorClassroomPage = () => {
             hasInSessionMeetings,
             hasEndedMeetings,
             currentActiveMeetingTab: activeMeetingTab,
+            totalMeetings: allMeetingsData.length,
           });
 
           // Auto-adjust tab if current tab has no meetings
@@ -750,7 +765,7 @@ const TutorClassroomPage = () => {
             finalTab = "IN_SESSION";
             setActiveMeetingTab("IN_SESSION");
             console.log(
-              "� TUTOR DEBUG - Auto-switching to IN_SESSION tab (no ENDED meetings found)"
+              "🔄 TUTOR DEBUG - Auto-switching to IN_SESSION tab (no ENDED meetings found)"
             );
           }
 
@@ -857,8 +872,15 @@ const TutorClassroomPage = () => {
     setIsModalOpen(false);
     setSelectedClassroom(null);
 
-    // Clear URL params
+    // Clear URL params to return to main classroom view
     setSearchParams({});
+  };
+
+  // Handler to close modal and stay on classroom list (not switch to meeting view)
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedClassroom(null);
+    // Do NOT switch to meeting view when modal is closed
   };
   const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
     console.log("🔍 DEBUG - Opening create meeting modal:", {
@@ -872,7 +894,11 @@ const TutorClassroomPage = () => {
       console.log("❌ No Zoom token, redirecting to profile");
 
       // Save return path and state for OAuth callback
-      sessionStorage.setItem("zoomReturnPath", "/quan-ly-lop-hoc");
+      // Fix: Use the exact path without leading slash to match routing
+      sessionStorage.setItem(
+        "zoomReturnPath",
+        "/tai-khoan/ho-so/quan-ly-lop-hoc"
+      );
       sessionStorage.setItem(
         "zoomReturnState",
         JSON.stringify({
@@ -898,7 +924,6 @@ const TutorClassroomPage = () => {
     setSelectedClassroom({ classroomId, classroomName });
     setIsModalOpen(true);
   };
-
   const handleCreateMeetingSubmit = async (formData) => {
     if (!selectedClassroom) return;
 
@@ -912,7 +937,6 @@ const TutorClassroomPage = () => {
         topic: formData.topic,
         password: formData.password,
       };
-
       const response = await Api({
         endpoint: "meeting/create",
         method: METHOD_TYPE.POST,
@@ -922,15 +946,49 @@ const TutorClassroomPage = () => {
 
       toast.dismiss(loadingToastId);
 
+      console.log("🔍 DEBUG - meeting/create response:", {
+        success: response.success,
+        data: response.data,
+        newMeeting: response.data?.meeting || response.data,
+        timestamp: new Date().toISOString(),
+      });
+
       if (response.success) {
+        console.log("✅ DEBUG - Meeting created successfully!");
+        const newMeeting = response.data?.meeting || response.data;
+        if (newMeeting) {
+          console.log("🔍 DEBUG - New meeting details:", {
+            meetingId: newMeeting.meetingId || newMeeting.id,
+            status: newMeeting.status,
+            topic: newMeeting.topic,
+            classroomId: newMeeting.classroomId,
+          });
+        }
+
         toast.success("Tạo phòng học thành công!");
         setIsModalOpen(false);
         setSelectedClassroom(null);
-        // Refresh meeting list
-        await handleEnterClassroom(
-          classroomId,
-          selectedClassroom.classroomName
-        );
+        // Reset cached meetings to force refresh
+        setAllMeetings([]);
+        setMeetingList([]);
+        setTotalMeetings(0);
+
+        // Clear any existing cache and force a fresh API call
+        console.log("🔍 DEBUG - Clearing all meeting cache before refresh");
+
+        // Refresh meeting list with a small delay to ensure backend has processed the new meeting
+        setTimeout(async () => {
+          // Auto-switch to IN_SESSION tab to show new meetings (since they're typically active when created)
+          console.log(
+            "🔍 DEBUG - Switching to IN_SESSION tab to show new meeting"
+          );
+          setActiveMeetingTab("IN_SESSION");
+
+          await handleEnterClassroom(
+            classroomId,
+            selectedClassroom.classroomName
+          );
+        }, 500); // Small delay to ensure API has time to process
       } else {
         toast.error(response.message || "Có lỗi xảy ra khi tạo phòng học!");
       }
@@ -1594,15 +1652,11 @@ const TutorClassroomPage = () => {
         isModalOpen,
         selectedClassroom,
         shouldRender: isModalOpen && selectedClassroom,
-      })}
+      })}{" "}
       {isModalOpen && selectedClassroom && (
         <CreateMeetingModal
           isOpen={isModalOpen}
-          onClose={() => {
-            console.log("🔍 DEBUG - Closing modal");
-            setIsModalOpen(false);
-            setSelectedClassroom(null);
-          }}
+          onClose={handleCloseModal}
           onSubmit={handleCreateMeetingSubmit}
           classroomName={selectedClassroom.classroomName}
           defaultTopic={`Lớp học: ${selectedClassroom.classroomName}`}

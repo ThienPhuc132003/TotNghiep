@@ -1,5 +1,5 @@
 /* global Intl */
-import { useEffect, useState, useRef, useCallback, memo } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Cookies from "js-cookie";
@@ -44,9 +44,6 @@ const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const adminProfile = useSelector((state) => state.admin.profile);
-
-  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
-  const [oauthError, setOauthError] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!(
@@ -54,7 +51,6 @@ const AdminDashboardPage = () => {
       (Cookies.get("token") && Cookies.get("role") === "admin")
     )
   );
-  const oauthProcessingRef = useRef(false);
 
   const [timeRange, setTimeRange] = useState("year");
 
@@ -649,9 +645,8 @@ const AdminDashboardPage = () => {
     },
     [isAuthenticated]
   );
-
   const fetchAdminProfile = useCallback(async () => {
-    // ... (giữ nguyên logic fetchAdminProfile)
+    // Fetch admin profile and set authentication state
     if (!Cookies.get("token") || Cookies.get("role") !== "admin") {
       setIsAuthenticated(false);
       setIsLoadingData(false);
@@ -666,132 +661,144 @@ const AdminDashboardPage = () => {
         dispatch(setAdminProfile(adminInfoResponse.data));
         setIsAuthenticated(true);
       } else {
-        setOauthError("Dữ liệu profile Admin không hợp lệ.");
+        console.error("Invalid admin profile data");
         setIsAuthenticated(false);
         Cookies.remove("token");
         Cookies.remove("role");
       }
     } catch (error) {
-      setOauthError(
-        error.response?.data?.message || "Lỗi tải thông tin Admin."
+      console.error(
+        "Error fetching admin profile:",
+        error.response?.data?.message || error.message
       );
       setIsAuthenticated(false);
       Cookies.remove("token");
       Cookies.remove("role");
     }
   }, [dispatch]);
-
   useEffect(() => {
-    // ... (giữ nguyên logic xử lý OAuth callback)
-    let isMounted = true;
     const searchParams = new URLSearchParams(location.search);
     const code = searchParams.get("code");
     const state = searchParams.get("state");
 
-    const exchangeAdminCodeForToken = async (authCode) => {
-      if (!isMounted) return;
-      setIsProcessingOAuth(true);
-      setOauthError(null);
-      try {
-        const response = await Api({
-          endpoint: "admin/auth/callback",
-          method: METHOD_TYPE.POST,
-          data: { code: authCode },
-        });
-        if (response?.success && response.data?.token && isMounted) {
-          Cookies.set("token", response.data.token, {
-            secure: true,
-            sameSite: "Lax",
-          });
-          Cookies.set("role", "admin", { secure: true, sameSite: "Lax" });
-          await fetchAdminProfile(); // fetchAdminProfile will set isAuthenticated
-        } else if (isMounted) {
-          throw new Error(response?.message || "Lỗi đổi mã xác thực.");
-        }
-      } catch (err) {
-        if (isMounted) {
-          setOauthError(err.message || "Lỗi xử lý đăng nhập.");
-          Cookies.remove("token");
-          Cookies.remove("role");
-          setIsAuthenticated(false);
-        }
-      } finally {
-        if (isMounted) {
-          setIsProcessingOAuth(false);
-          navigate("/admin/dashboard", { replace: true });
-        }
-      }
-    };
+    // Handle Microsoft OAuth callback directly on admin dashboard
+    if (code && state) {
+      let isMounted = true;
+      console.log("Processing Microsoft OAuth callback on AdminDashboard...");
 
-    if (code && state && !oauthProcessingRef.current) {
-      oauthProcessingRef.current = true;
       const storedState = Cookies.get("microsoft_auth_state");
-      Cookies.remove("microsoft_auth_state");
       if (!storedState || state !== storedState) {
+        console.error("OAuth state mismatch - security error");
+        Cookies.remove("microsoft_auth_state");
+        // Clean URL and show error
+        navigate("/admin/dashboard", { replace: true });
         if (isMounted) {
-          setOauthError("Lỗi bảo mật (state).");
-          navigate("/admin/dashboard", { replace: true }); // Clear query params
+          setIsAuthenticated(false);
+          setIsLoadingData(false);
         }
         return;
       }
-      exchangeAdminCodeForToken(code);
-    } else if (!code && !state) {
-      // Normal page load without OAuth params
-      if (Cookies.get("token") && Cookies.get("role") === "admin") {
-        if (!adminProfile?.adminId) {
-          // If no profile in Redux, fetch it
-          fetchAdminProfile();
-        } else {
-          setIsAuthenticated(true); // Already authenticated and profile exists
+
+      Cookies.remove("microsoft_auth_state");
+
+      const exchangeCodeForToken = async (authCode) => {
+        try {
+          const response = await Api({
+            endpoint: "admin/auth/callback",
+            method: METHOD_TYPE.POST,
+            data: { code: authCode },
+          });
+
+          if (response.success && response.data?.token && isMounted) {
+            Cookies.set("token", response.data.token, {
+              secure: true,
+              sameSite: "Lax",
+            });
+            Cookies.set("role", "admin", { secure: true, sameSite: "Lax" });
+
+            try {
+              const adminInfoResponse = await Api({
+                endpoint: "admin/get-profile",
+                method: METHOD_TYPE.GET,
+              });
+
+              if (
+                adminInfoResponse.success &&
+                adminInfoResponse.data &&
+                isMounted
+              ) {
+                dispatch(setAdminProfile(adminInfoResponse.data));
+                setIsAuthenticated(true);
+                console.log("Microsoft OAuth login successful for admin!");
+              } else if (isMounted) {
+                console.error(
+                  "Admin profile fetch error:",
+                  adminInfoResponse.message
+                );
+                setIsAuthenticated(false);
+              }
+            } catch (profileError) {
+              if (isMounted) {
+                console.error("Error fetching admin profile:", profileError);
+                setIsAuthenticated(false);
+              }
+            }
+          } else if (isMounted) {
+            throw new Error(
+              response.message || "Failed to exchange code for token."
+            );
+          }
+        } catch (err) {
+          if (isMounted) {
+            console.error("OAuth Callback Error:", err);
+            setIsAuthenticated(false);
+          }
+        } finally {
+          if (isMounted) {
+            // Clean URL after processing
+            navigate("/admin/dashboard", { replace: true });
+            setIsLoadingData(false);
+          }
         }
-      } else {
-        setIsAuthenticated(false);
-        setIsLoadingData(false); // Not authenticated, no data to load
-      }
+      };
+
+      exchangeCodeForToken(code);
+      return () => {
+        isMounted = false;
+      };
     }
-    return () => {
-      isMounted = false;
-    };
-  }, [location.search, navigate, fetchAdminProfile, adminProfile?.adminId]);
+
+    // Normal dashboard initialization - check authentication and load data
+    if (Cookies.get("token") && Cookies.get("role") === "admin") {
+      if (!adminProfile?.adminId) {
+        // If no profile in Redux, fetch it
+        fetchAdminProfile();
+      } else {
+        setIsAuthenticated(true); // Already authenticated and profile exists
+        setIsLoadingData(false);
+      }
+    } else {
+      setIsAuthenticated(false);
+      setIsLoadingData(false); // Not authenticated, no data to load
+    }
+  }, [
+    location.search,
+    navigate,
+    fetchAdminProfile,
+    adminProfile?.adminId,
+    dispatch,
+  ]);
 
   useEffect(() => {
-    if (isAuthenticated && !isProcessingOAuth) {
+    if (isAuthenticated) {
       fetchDataForRange(timeRange);
-    } else if (!isAuthenticated && !isProcessingOAuth) {
+    } else if (!isAuthenticated) {
       setIsLoadingData(false);
     }
-  }, [isAuthenticated, timeRange, fetchDataForRange, isProcessingOAuth]);
+  }, [isAuthenticated, timeRange, fetchDataForRange]);
 
-  if (isProcessingOAuth) {
-    return (
-      <AdminDashboardLayout currentPage="Đang xác thực...">
-        <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
-          <div className="loading-indicator">
-            <div className="spinner"></div>
-            <p>Đang xử lý đăng nhập với Microsoft...</p>
-          </div>
-        </div>
-      </AdminDashboardLayout>
-    );
-  }
-  if (oauthError) {
-    return (
-      <AdminDashboardLayout currentPage="Lỗi">
-        <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
-          <div className="status-message error-message">
-            <strong>Lỗi:</strong> {oauthError}
-            <button
-              onClick={() => navigate("/admin/login", { replace: true })}
-              className="status-button"
-            >
-              Đăng nhập lại
-            </button>
-          </div>
-        </div>
-      </AdminDashboardLayout>
-    );
-  }
-  if (!isAuthenticated && !isLoadingData && !isProcessingOAuth) {
+  // Redirect to login if not authenticated
+  if (!isAuthenticated && !isLoadingData) {
     return (
       <AdminDashboardLayout currentPage="Yêu Cầu Đăng Nhập">
         <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
@@ -808,7 +815,9 @@ const AdminDashboardPage = () => {
       </AdminDashboardLayout>
     );
   }
-  if (isLoadingData && !oauthError && isAuthenticated) {
+
+  // Show loading while fetching data
+  if (isLoadingData && isAuthenticated) {
     return (
       <AdminDashboardLayout currentPage="Bảng Điều Khiển">
         <div className="admin-dashboard-page-content admin-dashboard-page-content--centered">
