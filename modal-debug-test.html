@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modal Debug Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f0f0f0;
+      }
+
+      .test-button {
+        padding: 15px 30px;
+        font-size: 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+      }
+
+      .test-button:hover {
+        background: #0056b3;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+      }
+
+      .debug-modal {
+        background-color: rgba(255, 0, 0, 0.8);
+        color: white;
+        font-size: 20px;
+      }
+
+      .debug-content {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      .close-btn {
+        padding: 10px 20px;
+        background: white;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 15px;
+      }
+
+      .status-display {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #333;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        z-index: 10000;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Modal Debug Test</h1>
+    <p>Kiểm tra modal có hiển thị đúng cách khi ở các view khác nhau</p>
+
+    <button class="test-button" onclick="showNormalModal()">
+      Show Normal Modal
+    </button>
+
+    <button class="test-button" onclick="showDebugModal()">
+      Show Debug Modal (Red)
+    </button>
+
+    <button class="test-button" onclick="simulateMeetingView()">
+      Simulate Meeting View Modal
+    </button>
+
+    <button class="test-button" onclick="testZIndex()">
+      Test High Z-Index Modal
+    </button>
+
+    <div class="status-display" id="statusDisplay">Modal Status: Closed</div>
+
+    <!-- Normal Modal -->
+    <div id="normalModal" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <h3>Normal Modal</h3>
+        <p>This is a normal modal with standard styling</p>
+        <button class="close-btn" onclick="closeModal('normalModal')">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Debug Modal -->
+    <div
+      id="debugModal"
+      class="modal-overlay debug-modal"
+      style="display: none"
+    >
+      <div class="debug-content">
+        <h2>🔍 DEBUG MODAL</h2>
+        <p>Modal IS RENDERING!</p>
+        <p>Z-Index: 9999</p>
+        <p>Background: Red with opacity</p>
+        <button class="close-btn" onclick="closeModal('debugModal')">
+          CLOSE DEBUG MODAL
+        </button>
+      </div>
+    </div>
+
+    <!-- Meeting View Modal -->
+    <div
+      id="meetingModal"
+      class="modal-overlay"
+      style="display: none; background-color: rgba(0, 255, 0, 0.8)"
+    >
+      <div class="modal-content">
+        <h3>Meeting View Modal</h3>
+        <p>Simulating modal from meeting view</p>
+        <p>Green background to distinguish</p>
+        <button class="close-btn" onclick="closeModal('meetingModal')">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- High Z-Index Modal -->
+    <div
+      id="zIndexModal"
+      class="modal-overlay"
+      style="
+        display: none;
+        z-index: 999999;
+        background-color: rgba(255, 0, 255, 0.8);
+      "
+    >
+      <div class="modal-content">
+        <h3>High Z-Index Modal</h3>
+        <p>Z-Index: 999999</p>
+        <p>Purple background</p>
+        <p>Should appear above everything</p>
+        <button class="close-btn" onclick="closeModal('zIndexModal')">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function updateStatus(status) {
+        document.getElementById(
+          "statusDisplay"
+        ).textContent = `Modal Status: ${status}`;
+      }
+
+      function showNormalModal() {
+        document.getElementById("normalModal").style.display = "flex";
+        updateStatus("Normal Modal Open");
+        console.log("Normal modal opened");
+      }
+
+      function showDebugModal() {
+        document.getElementById("debugModal").style.display = "flex";
+        updateStatus("Debug Modal Open");
+        console.log("Debug modal opened");
+      }
+
+      function simulateMeetingView() {
+        document.getElementById("meetingModal").style.display = "flex";
+        updateStatus("Meeting Modal Open");
+        console.log("Meeting view modal opened");
+      }
+
+      function testZIndex() {
+        document.getElementById("zIndexModal").style.display = "flex";
+        updateStatus("High Z-Index Modal Open");
+        console.log("High z-index modal opened");
+      }
+
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+        updateStatus("Closed");
+        console.log(`${modalId} closed`);
+      }
+
+      // Test modal state persistence
+      function logModalStates() {
+        const modals = [
+          "normalModal",
+          "debugModal",
+          "meetingModal",
+          "zIndexModal",
+        ];
+        modals.forEach((id) => {
+          const modal = document.getElementById(id);
+          console.log(`${id}:`, {
+            display: modal.style.display,
+            zIndex: getComputedStyle(modal).zIndex,
+            visible: modal.offsetParent !== null,
+          });
+        });
+      }
+
+      // Log modal states every 2 seconds for debugging
+      setInterval(logModalStates, 2000);
+
+      console.log("Modal debug test loaded");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Filter Debug Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .debug-section {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 10px 0;
+      }
+      .status {
+        font-weight: bold;
+        color: #007bff;
+      }
+      .result {
+        color: #28a745;
+      }
+      .error {
+        color: #dc3545;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Meeting Filter Debug Test</h1>
+
+    <div class="debug-section">
+      <h3>Test Data (Sample from API)</h3>
+      <pre id="testData"></pre>
+    </div>
+
+    <div class="debug-section">
+      <h3>Filter Results</h3>
+      <div id="filterResults"></div>
+    </div>
+
+    <div class="debug-section">
+      <h3>Troubleshooting Steps</h3>
+      <ol>
+        <li>Check API response structure</li>
+        <li>Verify status values</li>
+        <li>Test filter logic</li>
+        <li>Check pagination</li>
+      </ol>
+    </div>
+
+    <script>
+      // Simulate meeting data from API response
+      const sampleMeetings = [
+        {
+          meetingId: "1",
+          status: "IN_SESSION",
+          topic: "Lớp Toán học",
+          createdAt: "2025-06-18T10:00:00Z",
+        },
+        {
+          meetingId: "2",
+          status: "ENDED",
+          topic: "Lớp Văn học",
+          createdAt: "2025-06-17T14:00:00Z",
+        },
+        {
+          meetingId: "3",
+          status: "PENDING",
+          topic: "Lớp Tiếng Anh",
+          createdAt: "2025-06-18T15:00:00Z",
+        },
+        {
+          meetingId: "4",
+          status: "STARTED",
+          topic: "Lớp Lý",
+          createdAt: "2025-06-18T16:00:00Z",
+        },
+        {
+          meetingId: "5",
+          status: null,
+          topic: "Lớp Hóa",
+          createdAt: "2025-06-18T17:00:00Z",
+        },
+      ];
+
+      // Filter function (copied from TutorClassroomPage)
+      function getFilteredItems(items, status, page, itemsPerPage) {
+        console.log("🔍 DEBUG - getFilteredItems called with:", {
+          totalItems: items.length,
+          status,
+          page,
+          itemsPerPage,
+          allStatuses: items.map((item) => item.status),
+        });
+
+        // Step 1: Filter theo status
+        let filtered = items;
+        if (status === "IN_SESSION") {
+          filtered = items.filter(
+            (item) =>
+              item.status === "IN_SESSION" ||
+              item.status === "PENDING" ||
+              item.status === "STARTED" ||
+              item.status === "WAITING" ||
+              !item.status
+          );
+          console.log("🔍 DEBUG - IN_SESSION filter result:", {
+            originalCount: items.length,
+            filteredCount: filtered.length,
+            filteredStatuses: filtered.map((item) => item.status),
+          });
+        } else if (status === "ENDED") {
+          filtered = items.filter(
+            (item) =>
+              item.status === "COMPLETED" ||
+              item.status === "CANCELLED" ||
+              item.status === "ENDED"
+          );
+          console.log("🔍 DEBUG - ENDED filter result:", {
+            originalCount: items.length,
+            filteredCount: filtered.length,
+            filteredStatuses: filtered.map((item) => item.status),
+          });
+        }
+
+        // Step 2: Apply client-side pagination
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        const result = {
+          items: filtered.slice(startIndex, endIndex),
+          total: filtered.length,
+        };
+
+        console.log("🔍 DEBUG - getFilteredItems result:", {
+          paginatedCount: result.items.length,
+          totalFiltered: result.total,
+        });
+
+        return result;
+      }
+
+      // Test the filter
+      function testFilter() {
+        document.getElementById("testData").textContent = JSON.stringify(
+          sampleMeetings,
+          null,
+          2
+        );
+
+        let html = "";
+
+        // Test IN_SESSION filter
+        console.log("=== Testing IN_SESSION filter ===");
+        const inSessionResult = getFilteredItems(
+          sampleMeetings,
+          "IN_SESSION",
+          1,
+          10
+        );
+        html += `<div class="result">
+                <h4>IN_SESSION Filter Results:</h4>
+                <p>Total found: ${inSessionResult.total}</p>
+                <p>Returned items: ${inSessionResult.items.length}</p>
+                <pre>${JSON.stringify(inSessionResult.items, null, 2)}</pre>
+            </div>`;
+
+        // Test ENDED filter
+        console.log("=== Testing ENDED filter ===");
+        const endedResult = getFilteredItems(sampleMeetings, "ENDED", 1, 10);
+        html += `<div class="result">
+                <h4>ENDED Filter Results:</h4>
+                <p>Total found: ${endedResult.total}</p>
+                <p>Returned items: ${endedResult.items.length}</p>
+                <pre>${JSON.stringify(endedResult.items, null, 2)}</pre>
+            </div>`;
+
+        // Status analysis
+        const statusCounts = {};
+        sampleMeetings.forEach((meeting) => {
+          const status = meeting.status || "null";
+          statusCounts[status] = (statusCounts[status] || 0) + 1;
+        });
+
+        html += `<div class="result">
+                <h4>Status Distribution:</h4>
+                <pre>${JSON.stringify(statusCounts, null, 2)}</pre>
+            </div>`;
+
+        document.getElementById("filterResults").innerHTML = html;
+      }
+
+      // Run test on page load
+      testFilter();
+    </script>
+  </body>
+</html>

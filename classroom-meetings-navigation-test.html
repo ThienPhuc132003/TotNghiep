@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Navigation - Tách Trang Lớp Học và Phòng Học</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .page-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+      }
+      .page-title {
+        color: #2c5aa0;
+        border-bottom: 2px solid #2c5aa0;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .classroom-card,
+      .meeting-card {
+        background: #f8f9fa;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 6px;
+        border-left: 4px solid #28a745;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .create-button {
+        background: #28a745;
+      }
+      .create-button:hover {
+        background: #1e7e34;
+      }
+      .back-button {
+        background: #6c757d;
+      }
+      .back-button:hover {
+        background: #545b62;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+      .modal-content {
+        background: white;
+        width: 500px;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .modal-header {
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        display: none;
+      }
+      .breadcrumb {
+        background: #e9ecef;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+      }
+      .current-page {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Test Navigation - Tách Trang Lớp Học và Phòng Học</h1>
+
+      <!-- Trang 1: Danh sách Lớp học -->
+      <div id="classroomListPage" class="page-section">
+        <div class="current-page">📚 TRANG HIỆN TẠI: Quản lý Lớp học</div>
+        <h2 class="page-title">Danh sách Lớp học của Gia sư</h2>
+        <p>
+          <strong>Path:</strong> <code>/tai-khoan/ho-so/quan-ly-lop-hoc</code>
+        </p>
+
+        <div class="classroom-card">
+          <h4>🎓 Lớp Toán 12 - Ôn thi THPT</h4>
+          <p><strong>Trạng thái:</strong> Đang hoạt động</p>
+          <p><strong>Học sinh:</strong> 15 người</p>
+          <button
+            class="button"
+            onclick="viewMeetings('classroom1', 'Lớp Toán 12 - Ôn thi THPT')"
+          >
+            👁️ Xem phòng học
+          </button>
+        </div>
+
+        <div class="classroom-card">
+          <h4>🧮 Lớp Toán 11 - Căn bản</h4>
+          <p><strong>Trạng thái:</strong> Đang hoạt động</p>
+          <p><strong>Học sinh:</strong> 8 người</p>
+          <button
+            class="button"
+            onclick="viewMeetings('classroom2', 'Lớp Toán 11 - Căn bản')"
+          >
+            👁️ Xem phòng học
+          </button>
+        </div>
+
+        <div class="classroom-card">
+          <h4>📐 Lớp Hình học 10</h4>
+          <p><strong>Trạng thái:</strong> Đã kết thúc</p>
+          <p><strong>Học sinh:</strong> 12 người</p>
+          <button
+            class="button"
+            onclick="viewMeetings('classroom3', 'Lớp Hình học 10')"
+          >
+            👁️ Xem phòng học
+          </button>
+        </div>
+      </div>
+
+      <!-- Trang 2: Quản lý Phòng học -->
+      <div id="meetingsPage" class="page-section" style="display: none">
+        <div class="current-page">🏫 TRANG HIỆN TẠI: Quản lý Phòng học</div>
+        <h2 class="page-title">
+          Phòng học của <span id="selectedClassName"></span>
+        </h2>
+        <p>
+          <strong>Path:</strong> <code>/tai-khoan/ho-so/quan-ly-phong-hoc</code>
+        </p>
+
+        <div class="breadcrumb">
+          <span
+            onclick="backToClassroomList()"
+            style="cursor: pointer; color: #007bff"
+            >📚 Danh sách lớp học</span
+          >
+          > <strong id="breadcrumbClassName"></strong>
+        </div>
+
+        <button class="button create-button" onclick="openCreateMeetingModal()">
+          ➕ Tạo phòng học mới
+        </button>
+
+        <div id="meetingsList">
+          <!-- Danh sách phòng học sẽ được load ở đây -->
+        </div>
+
+        <button class="button back-button" onclick="backToClassroomList()">
+          ⬅️ Quay lại danh sách lớp học
+        </button>
+      </div>
+
+      <!-- Modal tạo phòng học (CHỈ xuất hiện ở trang meetings) -->
+      <div id="createMeetingModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>➕ Tạo phòng học mới</h3>
+            <p>Lớp: <strong id="modalClassName"></strong></p>
+          </div>
+
+          <form id="createMeetingForm">
+            <div class="form-group">
+              <label for="meetingTopic">Chủ đề phòng học:</label>
+              <input
+                type="text"
+                id="meetingTopic"
+                placeholder="VD: Ôn tập chương 1 - Hàm số"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="meetingPassword">Mật khẩu phòng học:</label>
+              <input
+                type="text"
+                id="meetingPassword"
+                placeholder="VD: math123"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="meetingDescription">Mô tả (tùy chọn):</label>
+              <textarea
+                id="meetingDescription"
+                rows="3"
+                placeholder="Mô tả nội dung buổi học..."
+              ></textarea>
+            </div>
+
+            <div style="text-align: right; margin-top: 20px">
+              <button
+                type="button"
+                class="button back-button"
+                onclick="closeCreateMeetingModal()"
+              >
+                ❌ Hủy
+              </button>
+              <button type="submit" class="button create-button">
+                ✅ Tạo phòng học
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Thông báo thành công -->
+      <div id="successMessage" class="success-message">
+        ✅ Tạo phòng học thành công! Phòng học đã được thêm vào danh sách.
+      </div>
+    </div>
+
+    <script>
+      let currentClassroomId = null;
+      let currentClassName = "";
+
+      // Test data cho meetings
+      const meetingsData = {
+        classroom1: [
+          {
+            id: "m1",
+            topic: "Ôn tập Đạo hàm",
+            status: "IN_SESSION",
+            date: "2025-06-20",
+          },
+          {
+            id: "m2",
+            topic: "Bài tập Tích phân",
+            status: "ENDED",
+            date: "2025-06-18",
+          },
+          {
+            id: "m3",
+            topic: "Kiểm tra 15 phút",
+            status: "PENDING",
+            date: "2025-06-22",
+          },
+        ],
+        classroom2: [
+          {
+            id: "m4",
+            topic: "Hàm số bậc 2",
+            status: "IN_SESSION",
+            date: "2025-06-19",
+          },
+          {
+            id: "m5",
+            topic: "Phương trình bậc 2",
+            status: "ENDED",
+            date: "2025-06-17",
+          },
+        ],
+        classroom3: [
+          {
+            id: "m6",
+            topic: "Hình học không gian",
+            status: "ENDED",
+            date: "2025-06-10",
+          },
+          {
+            id: "m7",
+            topic: "Thể tích khối đa diện",
+            status: "ENDED",
+            date: "2025-06-12",
+          },
+        ],
+      };
+
+      // Navigation: Chuyển sang trang meetings
+      function viewMeetings(classroomId, className) {
+        console.log(`🚀 Navigation: ${className} → Trang phòng học`);
+
+        currentClassroomId = classroomId;
+        currentClassName = className;
+
+        // Hide classroom list page
+        document.getElementById("classroomListPage").style.display = "none";
+
+        // Show meetings page
+        document.getElementById("meetingsPage").style.display = "block";
+
+        // Update page title and breadcrumb
+        document.getElementById("selectedClassName").textContent = className;
+        document.getElementById("breadcrumbClassName").textContent = className;
+
+        // Load meetings for this classroom
+        loadMeetings(classroomId);
+      }
+
+      // Navigation: Quay lại trang danh sách lớp học
+      function backToClassroomList() {
+        console.log("🔙 Navigation: Quay lại danh sách lớp học");
+
+        // Hide meetings page
+        document.getElementById("meetingsPage").style.display = "none";
+
+        // Show classroom list page
+        document.getElementById("classroomListPage").style.display = "block";
+
+        // Reset states
+        currentClassroomId = null;
+        currentClassName = "";
+
+        // Close modal if open
+        closeCreateMeetingModal();
+      }
+
+      // Load meetings cho classroom cụ thể
+      function loadMeetings(classroomId) {
+        const meetings = meetingsData[classroomId] || [];
+        const meetingsList = document.getElementById("meetingsList");
+
+        if (meetings.length === 0) {
+          meetingsList.innerHTML =
+            "<p>Chưa có phòng học nào. Hãy tạo phòng học đầu tiên!</p>";
+          return;
+        }
+
+        meetingsList.innerHTML = meetings
+          .map(
+            (meeting) => `
+                <div class="meeting-card">
+                    <h4>🏫 ${meeting.topic}</h4>
+                    <p><strong>Trạng thái:</strong> ${getStatusText(
+                      meeting.status
+                    )}</p>
+                    <p><strong>Ngày:</strong> ${meeting.date}</p>
+                    <button class="button">📹 Vào phòng học</button>
+                    <button class="button back-button">🗑️ Xóa</button>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Modal: Mở modal tạo phòng học (CHỈ ở trang meetings)
+      function openCreateMeetingModal() {
+        if (!currentClassroomId) {
+          alert("❌ Lỗi: Không xác định được lớp học!");
+          return;
+        }
+
+        console.log(`📝 Mở modal tạo phòng học cho: ${currentClassName}`);
+
+        // Update modal title
+        document.getElementById("modalClassName").textContent =
+          currentClassName;
+
+        // Show modal
+        document.getElementById("createMeetingModal").style.display = "block";
+      }
+
+      // Modal: Đóng modal
+      function closeCreateMeetingModal() {
+        document.getElementById("createMeetingModal").style.display = "none";
+        document.getElementById("createMeetingForm").reset();
+      }
+
+      // Form: Submit tạo phòng học
+      document
+        .getElementById("createMeetingForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const topic = document.getElementById("meetingTopic").value;
+          const password = document.getElementById("meetingPassword").value;
+          const description =
+            document.getElementById("meetingDescription").value;
+
+          console.log("🎯 Tạo phòng học:", {
+            classroomId: currentClassroomId,
+            className: currentClassName,
+            topic,
+            password,
+            description,
+          });
+
+          // Simulate API call
+          setTimeout(() => {
+            // Add new meeting to data
+            if (!meetingsData[currentClassroomId]) {
+              meetingsData[currentClassroomId] = [];
+            }
+
+            meetingsData[currentClassroomId].unshift({
+              id: "m" + Date.now(),
+              topic: topic,
+              status: "PENDING",
+              date: new Date().toISOString().split("T")[0],
+            });
+
+            // Close modal
+            closeCreateMeetingModal();
+
+            // Show success message
+            const successMessage = document.getElementById("successMessage");
+            successMessage.style.display = "block";
+            setTimeout(() => {
+              successMessage.style.display = "none";
+            }, 3000);
+
+            // Reload meetings list
+            loadMeetings(currentClassroomId);
+
+            console.log("✅ Tạo phòng học thành công!");
+          }, 1000);
+        });
+
+      // Helper functions
+      function getStatusText(status) {
+        switch (status) {
+          case "IN_SESSION":
+            return "🔴 Đang diễn ra";
+          case "PENDING":
+            return "🟡 Chưa bắt đầu";
+          case "ENDED":
+            return "⚫ Đã kết thúc";
+          default:
+            return "❓ Không xác định";
+        }
+      }
+
+      // Close modal when clicking outside
+      document
+        .getElementById("createMeetingModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeCreateMeetingModal();
+          }
+        });
+
+      console.log("🧪 Navigation Test Ready!");
+      console.log('✅ Modal chỉ xuất hiện khi ở trang "Quản lý phòng học"');
+      console.log("✅ Navigation hoạt động giữa 2 trang riêng biệt");
+    </script>
+  </body>
+</html>

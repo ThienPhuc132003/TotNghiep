@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom Callback Flow Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        color: #2563eb;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .status {
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-weight: bold;
+      }
+      .status.success {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      .status.error {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .status.info {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        font-weight: bold;
+      }
+      .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+      }
+      .btn-danger {
+        background-color: #ef4444;
+        color: white;
+      }
+      .btn-success {
+        background-color: #10b981;
+        color: white;
+      }
+      .debug-log {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .flow-step {
+        background-color: #f0f9ff;
+        border-left: 4px solid #3b82f6;
+        padding: 15px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔧 Zoom Callback Flow - Test Tool</h1>
+
+    <div class="test-container">
+      <h2 class="test-title">📋 Current State</h2>
+
+      <div id="currentState">
+        <div class="status info">
+          <strong>Zoom Token:</strong> <span id="tokenStatus">Checking...</span>
+        </div>
+        <div class="status info">
+          <strong>Current URL:</strong> <span id="currentUrl"></span>
+        </div>
+        <div class="status info">
+          <strong>URL Params:</strong> <span id="urlParams"></span>
+        </div>
+      </div>
+
+      <button class="btn btn-danger" onclick="clearZoomToken()">
+        🗑️ Clear Zoom Token
+      </button>
+      <button class="btn btn-success" onclick="setMockZoomToken()">
+        ✅ Set Mock Token
+      </button>
+      <button class="btn btn-primary" onclick="refreshState()">
+        🔄 Refresh State
+      </button>
+    </div>
+
+    <div class="test-container">
+      <h2 class="test-title">🧪 Test Scenarios</h2>
+
+      <div class="flow-step">
+        <h3>Test 1: Simulate Zoom Callback Success</h3>
+        <p>
+          Mô phỏng việc quay về từ Zoom OAuth thành công với classroomId và
+          classroomName
+        </p>
+        <button class="btn btn-primary" onclick="simulateZoomCallback()">
+          🚀 Simulate Zoom Callback
+        </button>
+      </div>
+
+      <div class="flow-step">
+        <h3>Test 2: Test URL Parameter Parsing</h3>
+        <p>Kiểm tra việc parse URL parameters từ Zoom callback</p>
+        <button class="btn btn-primary" onclick="testUrlParsing()">
+          🔍 Test URL Parsing
+        </button>
+      </div>
+
+      <div class="flow-step">
+        <h3>Test 3: Mock Complete Flow</h3>
+        <p>Mô phỏng toàn bộ flow từ không có token đến có token và callback</p>
+        <button class="btn btn-primary" onclick="mockCompleteFlow()">
+          🎯 Mock Complete Flow
+        </button>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2 class="test-title">📝 Debug Log</h2>
+      <div id="debugLog" class="debug-log">Ready for testing...\n</div>
+      <button class="btn btn-danger" onclick="clearLog()">🗑️ Clear Log</button>
+    </div>
+
+    <script>
+      // Debug logging
+      function log(message) {
+        const logEl = document.getElementById("debugLog");
+        const timestamp = new Date().toLocaleTimeString();
+        logEl.textContent += `[${timestamp}] ${message}\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      // State management
+      function updateCurrentState() {
+        const zoomToken = localStorage.getItem("zoomAccessToken");
+        document.getElementById("tokenStatus").textContent = zoomToken
+          ? `Present (${zoomToken.substring(0, 20)}...)`
+          : "Not found";
+
+        document.getElementById("currentUrl").textContent =
+          window.location.href;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramsObj = {};
+        for (const [key, value] of urlParams) {
+          paramsObj[key] = value;
+        }
+        document.getElementById("urlParams").textContent =
+          Object.keys(paramsObj).length > 0
+            ? JSON.stringify(paramsObj, null, 2)
+            : "None";
+      }
+
+      function refreshState() {
+        updateCurrentState();
+        log("State refreshed");
+      }
+
+      // Token management
+      function clearZoomToken() {
+        localStorage.removeItem("zoomAccessToken");
+        localStorage.removeItem("zoomRefreshToken");
+        localStorage.removeItem("zoomUserId");
+        updateCurrentState();
+        log("❌ Zoom tokens cleared");
+      }
+
+      function setMockZoomToken() {
+        const mockToken = "mock_access_token_" + Date.now();
+        localStorage.setItem("zoomAccessToken", mockToken);
+        localStorage.setItem("zoomRefreshToken", "mock_refresh_token");
+        localStorage.setItem("zoomUserId", "mock_user_id");
+        updateCurrentState();
+        log("✅ Mock Zoom tokens set");
+      }
+
+      // Test scenarios
+      function simulateZoomCallback() {
+        const mockClassroomId = "classroom_" + Math.floor(Math.random() * 1000);
+        const mockClassroomName = "Lớp Toán học cơ bản";
+
+        // Set a mock token first
+        setMockZoomToken();
+
+        // Simulate the URL that would come from ZoomCallback.jsx
+        const params = new URLSearchParams({
+          fromZoomConnection: "true",
+          classroomId: encodeURIComponent(mockClassroomId),
+          classroomName: encodeURIComponent(mockClassroomName),
+        });
+
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({}, "", newUrl);
+
+        updateCurrentState();
+        log(`🚀 Simulated Zoom callback with:
+- classroomId: ${mockClassroomId}
+- classroomName: ${mockClassroomName}
+- URL: ${newUrl}`);
+
+        // Simulate what TutorClassroomPage should do
+        setTimeout(() => {
+          log("📱 TutorClassroomPage should now:");
+          log("  1. Detect fromZoomConnection=true");
+          log("  2. Read classroomId and classroomName");
+          log("  3. Clear URL params");
+          log("  4. Open modal with classroom info");
+          log("  5. Show success toast");
+
+          // Clear params to simulate setSearchParams({})
+          window.history.replaceState({}, "", window.location.pathname);
+          updateCurrentState();
+          log("✅ URL params cleared (simulating setSearchParams({}))");
+        }, 1000);
+      }
+
+      function testUrlParsing() {
+        const testParams = {
+          fromZoomConnection: "true",
+          classroomId: "test_classroom_123",
+          classroomName: "Lớp học thử nghiệm",
+          extraParam: "should_be_ignored",
+        };
+
+        const params = new URLSearchParams(testParams);
+        const testUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({}, "", testUrl);
+
+        updateCurrentState();
+
+        // Test parsing logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromZoomConnection = urlParams.get("fromZoomConnection");
+        const classroomId = urlParams.get("classroomId");
+        const classroomName = urlParams.get("classroomName");
+
+        log(`🔍 URL Parsing Test Results:
+- fromZoomConnection: ${fromZoomConnection}
+- classroomId: ${classroomId}
+- classroomName: ${classroomName}
+- decoded classroomId: ${decodeURIComponent(classroomId || "")}
+- decoded classroomName: ${decodeURIComponent(classroomName || "")}`);
+
+        const shouldTriggerCallback =
+          fromZoomConnection === "true" && classroomId && classroomName;
+        log(`✅ Should trigger callback: ${shouldTriggerCallback}`);
+      }
+
+      function mockCompleteFlow() {
+        log("🎯 Starting complete flow simulation...");
+
+        // Step 1: Start without token
+        clearZoomToken();
+        log("1️⃣ User starts without Zoom token");
+
+        setTimeout(() => {
+          log('2️⃣ User clicks "Tạo phòng học" → Should redirect to OAuth');
+
+          setTimeout(() => {
+            log("3️⃣ User completes OAuth → Setting token and returning");
+            setMockZoomToken();
+
+            setTimeout(() => {
+              log("4️⃣ ZoomCallback.jsx processes auth code and redirects back");
+              simulateZoomCallback();
+
+              setTimeout(() => {
+                log("5️⃣ TutorClassroomPage should auto-open modal");
+                log("✅ Complete flow simulation finished!");
+              }, 2000);
+            }, 1000);
+          }, 1000);
+        }, 500);
+      }
+
+      function clearLog() {
+        document.getElementById("debugLog").textContent = "Log cleared.\n";
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        updateCurrentState();
+        log("🚀 Zoom Callback Flow Test Tool initialized");
+        log(
+          "This tool helps verify the flow between ZoomCallback.jsx and TutorClassroomPage.jsx"
+        );
+      });
+
+      // Monitor URL changes
+      window.addEventListener("popstate", function () {
+        updateCurrentState();
+        log("🔄 URL changed (popstate event)");
+      });
+    </script>
+  </body>
+</html>

@@ -808,6 +808,27 @@
   margin-right: 6px;
 }
 
+/* Meeting Controls Section */
+.tcp-meeting-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.tcp-meeting-tabs {
+  display: flex;
+  gap: 8px;
+  background: white;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .tcp-classroom-list {
@@ -878,59 +899,59 @@
   .tcp-performance-notice {
     font-size: 13px;
   }
-}
 
-@media (max-width: 480px) {
-  .tcp-classroom-card {
-    margin: 0 -10px;
-    border-radius: 12px;
+  /* Meeting controls responsive */
+  .tcp-meeting-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
   }
 
-  .tcp-card-header,
-  .tcp-student-section,
-  .tcp-class-details,
-  .tcp-card-footer {
-    padding: 16px;
+  .tcp-meeting-tabs {
+    justify-content: center;
   }
 
-  .tcp-student-avatar {
-    width: 70px;
-    height: 70px;
+  .tcp-tab {
+    flex: 1;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 10px 16px;
   }
 
-  .tcp-avatar-overlay {
-    width: 24px;
-    height: 24px;
-    font-size: 0.7rem;
+  .tcp-create-meeting-btn {
+    width: 100%;
+    justify-content: center;
   }
 
-  .tcp-detail-header {
+  /* Meeting card responsive */
+  .tcp-meeting-topic h4 {
+    font-size: 1.1rem;
+  }
+
+  .tcp-meeting-detail-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-  }
-
-  .tcp-student-detail-info {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .tcp-student-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .tcp-class_info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .tcp-progress-container {
-    flex-direction: column;
     gap: 8px;
   }
 
-  .tcp-progress-text {
-    text-align: center;
+  .tcp-detail-label {
+    min-width: auto;
+  }
+
+  .tcp-detail-value {
+    margin-left: 0;
+  }
+}
+
+/* Bổ sung responsive cho tablet */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .tcp-meeting-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tcp-tab {
+    font-size: 0.9rem;
+    padding: 10px 18px;
   }
 }
 
@@ -1586,8 +1607,8 @@
   background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: white;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1595,13 +1616,15 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  min-width: 100px;
+  justify-content: center;
 }
 
 .tcp-pagination-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
 }
 
 .tcp-pagination-btn:disabled {
@@ -1615,6 +1638,10 @@
   color: #495057;
   font-weight: 600;
   font-size: 0.95rem;
+  background: #f8f9fa;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
 }
 
 /* Empty state */
@@ -1871,5 +1898,416 @@
 
   .tcp-btn {
     justify-content: center;
+  }
+}
+
+/* ============= MEETING CARDS STYLES ============= */
+/* Meeting card layout (đồng bộ với classroom cards) */
+.tcp-meeting-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.tcp-meeting-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  border-color: #007bff;
+}
+
+.tcp-meeting-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #20c997);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tcp-meeting-card:hover::before {
+  opacity: 1;
+}
+
+/* Meeting info section */
+.tcp-meeting-info {
+  padding: 24px;
+  flex: 1;
+}
+
+.tcp-meeting-topic {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f3f4;
+}
+
+.tcp-meeting-topic i {
+  color: #007bff;
+  font-size: 1.5rem;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tcp-meeting-topic h4 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Meeting details grid */
+.tcp-meeting-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.tcp-meeting-detail-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.tcp-meeting-detail-item:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-color: #007bff;
+}
+
+.tcp-detail-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 130px;
+  font-size: 0.9rem;
+}
+
+.tcp-detail-value {
+  color: #212529;
+  font-weight: 500;
+  flex: 1;
+  margin-left: 12px;
+}
+
+/* Meeting actions section */
+.tcp-meeting-actions {
+  padding: 20px 24px 24px 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.tcp-action-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.tcp-join-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.tcp-join-btn:hover {
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+.tcp-action-btn i {
+  font-size: 1rem;
+}
+
+/* Status badges */
+.tcp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid;
+}
+
+.tcp-status-in_session {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.tcp-status-pending {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.tcp-status-completed {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+  border-color: rgba(108, 117, 125, 0.3);
+}
+
+.tcp-status-cancelled {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.tcp-status-started {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  border-color: rgba(0, 123, 255, 0.3);
+}
+
+.tcp-status-waiting {
+  background: rgba(111, 66, 193, 0.1);
+  color: #6f42c1;
+  border-color: rgba(111, 66, 193, 0.3);
+}
+
+.tcp-status-ended {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+  border-color: rgba(108, 117, 125, 0.3);
+}
+
+/* Empty state for meeting cards */
+.tcp-empty-icon {
+  margin-bottom: 24px;
+}
+
+.tcp-empty-icon i {
+  font-size: 4rem;
+  color: #6c757d;
+  background: rgba(108, 117, 125, 0.1);
+  padding: 24px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Pagination styles */
+.tcp-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+}
+
+.tcp-pagination-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  min-width: 100px;
+  justify-content: center;
+}
+
+.tcp-pagination-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
+}
+
+.tcp-pagination-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tcp-pagination-info {
+  color: #495057;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: #f8f9fa;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid #dee2e6;
+}
+
+/* Loading and error states */
+.tcp-loading {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tcp-loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tcp-loading-text {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.tcp-error {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+  color: #c53030;
+}
+
+.tcp-error i {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  color: #e53e3e;
+}
+
+.tcp-retry-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  transition: all 0.3s ease;
+}
+
+.tcp-retry-btn:hover {
+  background: linear-gradient(135deg, #c82333 0%, #a02622 100%);
+  transform: translateY(-2px);
+}
+
+/* Back button */
+.tcp-back-btn {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+}
+
+.tcp-back-btn:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.3);
+}
+
+/* Zoom Status Alert */
+.tcp-zoom-status-alert {
+  margin: 15px 0;
+}
+
+.tcp-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tcp-alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.tcp-alert i {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.tcp-alert span {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Responsive cho alert */
+@media (max-width: 768px) {
+  .tcp-alert {
+    font-size: 13px;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .tcp-alert i {
+    font-size: 14px;
   }
 }

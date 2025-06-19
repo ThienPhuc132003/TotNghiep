@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Zoom OAuth API Logic - Final</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px 0;
+        font-size: 16px;
+        display: block;
+        width: 100%;
+      }
+      .test-button:hover {
+        background: #0056b3;
+      }
+      .status {
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .status.info {
+        background: #e7f3ff;
+        color: #004085;
+        border: 1px solid #b8daff;
+      }
+      .test-result {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+        font-family: monospace;
+        white-space: pre-line;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .comparison .old,
+      .comparison .new {
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .comparison .old {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+      }
+      .comparison .new {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔄 Test: Zoom OAuth API Logic (Cải tiến)</h1>
+
+      <div class="status info">
+        <strong>✅ Đã sửa logic:</strong> Thay vì hardcode URL, giờ sử dụng API
+        <code>meeting/auth</code> để lấy URL động như luồng cũ.
+      </div>
+
+      <div class="comparison">
+        <div class="old">
+          <h3>❌ Logic cũ (Sai):</h3>
+          <code
+            >const zoomOAuthUrl = `${apiBaseUrl}/api/zoom/authorize`;<br />
+            window.location.href = zoomOAuthUrl;</code
+          >
+          <p><small>→ Hardcode URL, có thể sai endpoint</small></p>
+        </div>
+        <div class="new">
+          <h3>✅ Logic mới (Đúng):</h3>
+          <code
+            >const response = await Api({ endpoint: "meeting/auth" });<br />
+            window.location.href = response.data.zoomAuthUrl;</code
+          >
+          <p><small>→ Gọi API để lấy URL động, giống luồng cũ</small></p>
+        </div>
+      </div>
+
+      <div id="zoomStatus" class="status">Checking Zoom connection...</div>
+
+      <button class="test-button" onclick="testNewRedirectLogic()">
+        🧪 Test New Redirect Logic (meeting/auth)
+      </button>
+
+      <button class="test-button" onclick="clearToken()">
+        ❌ Clear Zoom Token (để test)
+      </button>
+
+      <button class="test-button" onclick="setTestToken()">
+        ✅ Set Test Zoom Token
+      </button>
+
+      <div id="testResult" class="test-result" style="display: none"></div>
+    </div>
+
+    <script>
+      // Mock API call for testing
+      async function mockApiCall(endpoint) {
+        console.log(`📡 Mock API call to: ${endpoint}`);
+
+        if (endpoint === "meeting/auth") {
+          // Simulate successful response
+          return {
+            success: true,
+            data: {
+              zoomAuthUrl:
+                "https://zoom.us/oauth/authorize?response_type=code&client_id=MOCK_CLIENT_ID&redirect_uri=http://localhost:8080/api/meeting/handle&state=MOCK_STATE",
+            },
+          };
+        }
+
+        throw new Error(`Unknown endpoint: ${endpoint}`);
+      }
+
+      function updateStatus() {
+        const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+        const statusDiv = document.getElementById("zoomStatus");
+
+        if (zoomAccessToken) {
+          statusDiv.textContent = `✅ Zoom Connected (Token: ${zoomAccessToken.substring(
+            0,
+            10
+          )}...)`;
+          statusDiv.className = "status success";
+        } else {
+          statusDiv.textContent =
+            "❌ Zoom Not Connected - Ready to test redirect";
+          statusDiv.className = "status error";
+        }
+      }
+
+      function showResult(message) {
+        const resultDiv = document.getElementById("testResult");
+        resultDiv.textContent = message;
+        resultDiv.style.display = "block";
+      }
+
+      async function testNewRedirectLogic() {
+        showResult("🧪 Testing NEW redirectToZoomOAuth logic...\n\n");
+
+        const classroomId = "test-classroom-123";
+        const classroomName = "Test Classroom";
+
+        console.log("🔗 Redirecting to Zoom OAuth...");
+
+        // Store current page info to return after OAuth
+        const returnState = {
+          returnPath: `/tai-khoan/lop-hoc/meetings?classroomId=${classroomId}&classroomName=${encodeURIComponent(
+            classroomName
+          )}`,
+          classroomId,
+          classroomName,
+        };
+
+        localStorage.setItem(
+          "zoomOAuthReturnState",
+          JSON.stringify(returnState)
+        );
+
+        try {
+          // Use meeting/auth API to get dynamic OAuth URL
+          console.log("📡 Calling meeting/auth API...");
+          const response = await mockApiCall("meeting/auth");
+
+          console.log("📡 meeting/auth response:", response);
+
+          if (response?.success && response?.data?.zoomAuthUrl) {
+            const zoomOAuthUrl = response.data.zoomAuthUrl;
+            console.log("🔗 Zoom OAuth URL from API:", zoomOAuthUrl);
+
+            const result = `✅ SUCCESS! New logic working correctly:
+
+🔄 Flow:
+1. Store return state in localStorage ✅
+2. Call meeting/auth API ✅  
+3. Get dynamic zoomAuthUrl from response ✅
+4. Ready to redirect to: ${zoomOAuthUrl}
+
+📊 Comparison:
+❌ Old: Hardcoded /api/zoom/authorize
+✅ New: Dynamic URL from API
+
+🔧 Return state stored:
+${JSON.stringify(returnState, null, 2)}
+
+🎯 Would redirect to:
+${zoomOAuthUrl}
+
+✨ This matches the working flow in TutorMeetingRoomPage.jsx!`;
+
+            showResult(result);
+
+            if (
+              confirm(
+                `Ready to redirect to:\n${zoomOAuthUrl}\n\nThis is a MOCK URL for testing.\nIn real app, this would redirect now.\n\nContinue?`
+              )
+            ) {
+              console.log("🚀 Would redirect to:", zoomOAuthUrl);
+              alert(
+                "✅ Test completed! In real app, user would be redirected to Zoom OAuth now."
+              );
+            }
+          } else {
+            console.error("❌ Invalid response from meeting/auth:", response);
+            showResult("❌ ERROR: Invalid response from meeting/auth API");
+          }
+        } catch (error) {
+          console.error("❌ Error calling meeting/auth API:", error);
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Lỗi kết nối đến máy chủ";
+          showResult(`❌ ERROR: ${errorMessage}`);
+        }
+      }
+
+      function clearToken() {
+        localStorage.removeItem("zoomAccessToken");
+        updateStatus();
+        showResult("🗑️ Zoom token cleared - Ready for testing redirect logic");
+      }
+
+      function setTestToken() {
+        const testToken = "test_zoom_token_" + Date.now();
+        localStorage.setItem("zoomAccessToken", testToken);
+        updateStatus();
+        showResult(
+          `✅ Test token set: ${testToken}\n\nNow when you click "Tạo phòng học", modal should open directly instead of redirecting.`
+        );
+      }
+
+      // Initialize
+      updateStatus();
+
+      showResult(`🎯 Test Instructions:
+
+1. **Clear Zoom token** để simulate chưa đăng nhập
+2. **Test New Redirect Logic** để thấy luồng mới
+3. **So sánh** với luồng cũ:
+
+❌ Cũ: Hardcode "/api/zoom/authorize" 
+✅ Mới: Gọi "meeting/auth" API trước
+
+🔄 Luồng hoàn chỉnh:
+1. User clicks "Tạo phòng học"
+2. Check zoomAccessToken → Không có
+3. Call meeting/auth API
+4. Get dynamic OAuth URL
+5. Redirect to Zoom OAuth
+6. User authorizes → Callback
+7. Return to meetings page
+8. Modal opens automatically
+
+✨ Giờ logic giống y hệt TutorMeetingRoomPage!`);
+    </script>
+  </body>
+</html>

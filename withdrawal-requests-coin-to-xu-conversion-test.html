@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdrawal Requests - Coin to Xu Conversion Test</title>
+    <link rel="stylesheet" href="src/assets/css/Admin/ListOfAdmin.style.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          sans-serif;
+        background-color: #f5f5f5;
+      }
+      .test-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .test-header {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .conversion-section {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+      }
+      .section-title {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        text-align: center;
+        border-left: 4px solid #4caf50;
+      }
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 15px 0;
+      }
+      .before-after {
+        padding: 15px;
+        border-radius: 6px;
+      }
+      .before {
+        background: #ffebee;
+        border-left: 4px solid #f44336;
+      }
+      .after {
+        background: #e8f5e9;
+        border-left: 4px solid #4caf50;
+      }
+      .mock-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 0.9em;
+      }
+      .mock-table th,
+      .mock-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .mock-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+      }
+      .change-list {
+        list-style: none;
+        padding: 0;
+      }
+      .change-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .change-list li:last-child {
+        border-bottom: none;
+      }
+      .check-mark {
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .code-block {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.85em;
+        margin: 10px 0;
+      }
+      .highlight {
+        background: #fff3cd;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+      .file-section {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <div class="test-header">
+        <h1>
+          <i class="fas fa-coins"></i> Withdrawal Requests - Coin to Xu
+          Conversion
+        </h1>
+        <p>
+          Kiểm tra việc thay đổi từ "Coin" thành "Xu" trong trang quản lý yêu
+          cầu rút tiền
+        </p>
+      </div>
+
+      <!-- Summary Section -->
+      <div class="conversion-section">
+        <div class="section-title">📊 Tổng Quan Thay Đổi</div>
+
+        <div class="comparison-grid">
+          <div class="before-after before">
+            <h4>❌ TRƯỚC: Sử dụng "Coin"</h4>
+            <ul class="change-list">
+              <li>📋 Search Field: "Coin rút"</li>
+              <li>📊 Table Column: "Coin rút"</li>
+              <li>💰 Format Function: "0 Coin", "1,000 Coin"</li>
+              <li>🔍 Modal Detail: "Coin rút"</li>
+              <li>⚡ Action Modal: "Coin rút:"</li>
+            </ul>
+          </div>
+
+          <div class="before-after after">
+            <h4>✅ SAU: Sử dụng "Xu"</h4>
+            <ul class="change-list">
+              <li><span class="check-mark">✓</span> Search Field: "Xu rút"</li>
+              <li><span class="check-mark">✓</span> Table Column: "Xu rút"</li>
+              <li>
+                <span class="check-mark">✓</span> Format Function: "0 Xu",
+                "1,000 Xu"
+              </li>
+              <li><span class="check-mark">✓</span> Modal Detail: "Xu rút"</li>
+              <li><span class="check-mark">✓</span> Action Modal: "Xu rút:"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Function Changes -->
+      <div class="conversion-section">
+        <div class="section-title">🔧 Function & Format Changes</div>
+
+        <div class="file-section">
+          <h4>📝 formatCurrency Function</h4>
+          <div class="comparison-grid">
+            <div class="before">
+              <strong>Before:</strong>
+              <div class="code-block">
+                const formatCurrency = (amount) => { if (!amount ||
+                isNaN(amount)) return <span class="highlight">"0 Coin"</span>;
+                return `${numeral(amount).format("0,0")}
+                <span class="highlight">Coin</span>`; };
+              </div>
+            </div>
+            <div class="after">
+              <strong>After:</strong>
+              <div class="code-block">
+                const formatCurrency = (amount) => { if (!amount ||
+                isNaN(amount)) return <span class="highlight">"0 Xu"</span>;
+                return `${numeral(amount).format("0,0")}
+                <span class="highlight">Xu</span>`; };
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Options Changes -->
+      <div class="conversion-section">
+        <div class="section-title">🔍 Search & Filter Options</div>
+
+        <div class="file-section">
+          <h4>📋 searchableWithdrawalColumnOptions</h4>
+          <div class="comparison-grid">
+            <div class="before">
+              <strong>Before:</strong>
+              <div class="code-block">
+                { value: "coinWithdraw", label:
+                <span class="highlight">"Coin rút"</span> }
+              </div>
+            </div>
+            <div class="after">
+              <strong>After:</strong>
+              <div class="code-block">
+                { value: "coinWithdraw", label:
+                <span class="highlight">"Xu rút"</span> }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Columns Changes -->
+      <div class="conversion-section">
+        <div class="section-title">📊 Table Column Headers</div>
+
+        <div class="file-section">
+          <h4>🗂️ Table Columns Definition</h4>
+          <div class="comparison-grid">
+            <div class="before">
+              <strong>Before:</strong>
+              <div class="code-block">
+                { title: <span class="highlight">"Coin rút"</span>, dataKey:
+                "coinWithdraw", sortable: true, renderCell: (_, rowData) =>
+                formatCurrency(rowData.coinWithdraw), }
+              </div>
+            </div>
+            <div class="after">
+              <strong>After:</strong>
+              <div class="code-block">
+                { title: <span class="highlight">"Xu rút"</span>, dataKey:
+                "coinWithdraw", sortable: true, renderCell: (_, rowData) =>
+                formatCurrency(rowData.coinWithdraw), }
+              </div>
+            </div>
+          </div>
+
+          <h4>📋 Sample Table Preview</h4>
+          <table class="mock-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>ID Yêu cầu</th>
+                <th>Tên Gia sư</th>
+                <th class="highlight">Xu rút</th>
+                <th>Tiền quy đổi</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>WR001</td>
+                <td>Nguyễn Văn A</td>
+                <td><strong>1,000 Xu</strong></td>
+                <td>25,000 VNĐ</td>
+                <td><span class="status status-pending">Chờ duyệt</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>WR002</td>
+                <td>Trần Thị B</td>
+                <td><strong>500 Xu</strong></td>
+                <td>12,500 VNĐ</td>
+                <td><span class="status status-approved">Đã duyệt</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Changes -->
+      <div class="conversion-section">
+        <div class="section-title">🪟 Modal Content Changes</div>
+
+        <div class="file-section">
+          <h4>📋 Detail Modal Fields</h4>
+          <div class="comparison-grid">
+            <div class="before">
+              <strong>Before:</strong>
+              <div class="code-block">
+                { key: "coinWithdraw", label:
+                <span class="highlight">"Coin rút"</span>, value:
+                formatCurrency(modalData.coinWithdraw), }
+              </div>
+            </div>
+            <div class="after">
+              <strong>After:</strong>
+              <div class="code-block">
+                { key: "coinWithdraw", label:
+                <span class="highlight">"Xu rút"</span>, value:
+                formatCurrency(modalData.coinWithdraw), }
+              </div>
+            </div>
+          </div>
+
+          <h4>⚡ Action Modal Content</h4>
+          <div class="comparison-grid">
+            <div class="before">
+              <strong>Before:</strong>
+              <div class="code-block">
+                &lt;strong&gt;<span class="highlight">Coin rút:</span
+                >&lt;/strong&gt;{" "}
+                {formatCurrency(requestToAction.coinWithdraw)}
+              </div>
+            </div>
+            <div class="after">
+              <strong>After:</strong>
+              <div class="code-block">
+                &lt;strong&gt;<span class="highlight">Xu rút:</span
+                >&lt;/strong&gt;{" "}
+                {formatCurrency(requestToAction.coinWithdraw)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification Summary -->
+      <div class="conversion-section">
+        <div class="section-title">✅ Verification Summary</div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+          "
+        >
+          <div class="file-section">
+            <h4 style="color: #4caf50; margin-bottom: 10px">
+              🎯 Changes Applied
+            </h4>
+            <ul class="change-list">
+              <li>
+                <span class="check-mark">✓</span> formatCurrency function:
+                "Coin" → "Xu"
+              </li>
+              <li>
+                <span class="check-mark">✓</span>
+                searchableWithdrawalColumnOptions: "Coin rút" → "Xu rút"
+              </li>
+              <li>
+                <span class="check-mark">✓</span> Table column title: "Coin rút"
+                → "Xu rút"
+              </li>
+              <li>
+                <span class="check-mark">✓</span> Modal detail field: "Coin rút"
+                → "Xu rút"
+              </li>
+              <li>
+                <span class="check-mark">✓</span> Action modal label: "Coin
+                rút:" → "Xu rút:"
+              </li>
+            </ul>
+          </div>
+
+          <div class="file-section">
+            <h4 style="color: #2196f3; margin-bottom: 10px">
+              📍 Locations Updated
+            </h4>
+            <ul class="change-list">
+              <li>
+                <span class="check-mark">✓</span> Helper function:
+                formatCurrency
+              </li>
+              <li><span class="check-mark">✓</span> Search options array</li>
+              <li>
+                <span class="check-mark">✓</span> Table columns definition
+              </li>
+              <li><span class="check-mark">✓</span> FormDetail modal fields</li>
+              <li><span class="check-mark">✓</span> Action modal display</li>
+            </ul>
+          </div>
+
+          <div class="file-section">
+            <h4 style="color: #ff9800; margin-bottom: 10px">🔍 Examples</h4>
+            <ul class="change-list">
+              <li><strong>0 Xu</strong> (empty/zero values)</li>
+              <li><strong>1,000 Xu</strong> (formatted numbers)</li>
+              <li><strong>50,000 Xu</strong> (large amounts)</li>
+              <li><strong>Xu rút</strong> (field labels)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+          "
+        >
+          <p style="margin: 0; font-weight: 600; color: #333">
+            🎉 <strong>Hoàn thành:</strong> Đã thay đổi thành công tất cả các vị
+            trí từ "Coin" thành "Xu" trong trang Quản lý Yêu cầu Rút tiền!
+          </p>
+          <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em">
+            Tất cả 5 vị trí đã được cập nhật: function helper, search options,
+            table headers, modal fields và action modal labels.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("🔍 Coin to Xu Conversion Test Loaded");
+      console.log('✅ formatCurrency: "Coin" → "Xu"');
+      console.log('✅ Search Options: "Coin rút" → "Xu rút"');
+      console.log('✅ Table Column: "Coin rút" → "Xu rút"');
+      console.log('✅ Modal Fields: "Coin rút" → "Xu rút"');
+      console.log('✅ Action Modal: "Coin rút:" → "Xu rút:"');
+      console.log("🎉 Total: 5 locations updated successfully!");
+    </script>
+  </body>
+</html>

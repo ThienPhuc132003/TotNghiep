@@ -56,6 +56,9 @@ const TutorBookingRequestsPage = lazy(() =>
 const TutorClassroomPage = lazy(() =>
   import("./pages/User/TutorClassroomPage")
 );
+const TutorClassroomMeetingsPage = lazy(() =>
+  import("./pages/User/TutorClassroomMeetingsPage")
+);
 const StudentClassroomPage = lazy(() =>
   import("./pages/User/StudentClassroomPage")
 );
@@ -113,9 +116,6 @@ const ListOfWithdrawalRequests = lazy(() =>
 // const ListOfWithdrawalRequestsSimple = lazy(() =>
 //   import("./pages/Admin/ListOfWithdrawalRequestsSimple")
 // );
-const SimpleWithdrawalTest = lazy(() =>
-  import("./pages/Admin/SimpleWithdrawalTest")
-);
 const RevenueStatistics = lazy(() => import("./pages/Admin/RevenueStatistics"));
 const TutorHireStatistics = lazy(() =>
   import("./pages/Admin/TutorHireStatistics")
@@ -213,6 +213,10 @@ function App() {
                     <Route
                       path="quan-ly-lop-hoc"
                       element={<TutorClassroomPage />}
+                    />
+                    <Route
+                      path="quan-ly-phong-hoc"
+                      element={<TutorClassroomMeetingsPage />}
                     />
                     <Route
                       path="yeu-cau-day"

@@ -64,8 +64,8 @@ const safeFormatDate = (dateInput, formatString = "dd/MM/yyyy HH:mm") => {
 };
 
 const formatCurrency = (amount) => {
-  if (!amount || isNaN(amount)) return "0 Xu";
-  return `${numeral(amount).format("0,0")} Xu`;
+  if (!amount || isNaN(amount)) return "0 Coin";
+  return `${numeral(amount).format("0,0")} Coin`;
 };
 
 const formatVND = (amount) => {
@@ -75,13 +75,23 @@ const formatVND = (amount) => {
 
 // --- Searchable columns for withdrawal requests ---
 const searchableWithdrawalColumnOptions = [
-  { value: "manageBankingId", label: "ID Yêu cầu" },
   { value: "tutorId", label: "ID Gia sư" },
   { value: "tutor.fullname", label: "Tên gia sư" },
   { value: "tutor.bankNumber", label: "Số tài khoản" },
-  { value: "coinWithdraw", label: "Xu rút" },
-  { value: "gotValue", label: "Tiền quy đổi" },
+  { value: "coinWithdraw", label: "Coin rút" },
+  { value: "gotValue", label: "Tiền quy đổi", placeholderSuffix: " (VNĐ)" },
   { value: "createdAt", label: "Ngày tạo", placeholderSuffix: " (YYYY-MM-DD)" },
+];
+
+// Status filter options (separate from search fields)
+const statusFilterOptions = [
+  { value: "", label: "Tất cả" },
+  { value: "REQUEST", label: "Yêu cầu" },
+  { value: "PENDING", label: "Chờ duyệt" },
+  { value: "APPROVED", label: "Đã duyệt" },
+  { value: "REJECTED", label: "Từ chối" },
+  { value: "PROCESSED", label: "Đã xử lý" },
+  { value: "CANCEL", label: "Đã hủy" },
 ];
 
 const ListOfWithdrawalRequestsPage = () => {
@@ -103,7 +113,7 @@ const ListOfWithdrawalRequestsPage = () => {
     searchableWithdrawalColumnOptions[0].value
   );
 
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState("REQUEST");
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
@@ -141,7 +151,7 @@ const ListOfWithdrawalRequestsPage = () => {
       setSelectedSearchField(searchableWithdrawalColumnOptions[0].value);
       setAppliedSearchInput("");
       setAppliedSearchField(searchableWithdrawalColumnOptions[0].value);
-      setSelectedStatusFilter("REQUEST");
+      setSelectedStatusFilter("");
       setSortConfig({ key: "createdAt", direction: "desc" });
       setCurrentPage(0);
       console.log("🔍 DEBUG: resetState completed successfully");
@@ -174,7 +184,7 @@ const ListOfWithdrawalRequestsPage = () => {
           getSafeNestedValue(rowData, "tutor.fullname", "N/A"),
       },
       {
-        title: "Xu rút",
+        title: "Coin rút",
         dataKey: "coinWithdraw",
         sortable: true,
         renderCell: (_, rowData) => formatCurrency(rowData.coinWithdraw),
@@ -530,13 +540,26 @@ const ListOfWithdrawalRequestsPage = () => {
       setIsProcessingAction(false);
     }
   };
-  console.log("🔍 DEBUG: Rendering JSX...");
+  // --- JSX Render ---
+  const currentSearchFieldConfig = useMemo(
+    () =>
+      searchableWithdrawalColumnOptions.find(
+        (opt) => opt.value === selectedSearchField
+      ),
+    [selectedSearchField]
+  );
+  const searchPlaceholder = currentSearchFieldConfig
+    ? `Nhập ${currentSearchFieldConfig.label.toLowerCase()}${
+        currentSearchFieldConfig.placeholderSuffix || ""
+      }...`
+    : "Nhập tìm kiếm...";
 
-  // --- JSX Render Pattern (Matched with Other Admin Pages) ---
-  const childrenMiddleContentLower = (
-    <>
-      <div className="admin-content">
-        <h2 className="admin-list-title">Quản lý Yêu cầu Rút tiền</h2>
+  console.log("🔍 DEBUG: Rendering JSX...");
+  return (
+    <AdminDashboardLayout currentPath={currentPath}>
+      <div className="list-of-admin-page">
+        <h2 className="admin-list-title">Danh sách Yêu cầu Rút tiền</h2>
+        
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
             {/* Select chọn cột tìm kiếm */}
@@ -562,17 +585,9 @@ const ListOfWithdrawalRequestsPage = () => {
               onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder={`Nhập ${
-                searchableWithdrawalColumnOptions
-                  .find((opt) => opt.value === selectedSearchField)
-                  ?.label.toLowerCase() || "tìm kiếm"
-              }${
-                searchableWithdrawalColumnOptions.find(
-                  (opt) => opt.value === selectedSearchField
-                )?.placeholderSuffix || ""
-              }...`}
+              placeholder={searchPlaceholder}
             />
-
+            
             <button
               onClick={handleApplySearch}
               className="refresh-button"
@@ -582,6 +597,7 @@ const ListOfWithdrawalRequestsPage = () => {
             >
               <i className="fa-solid fa-search"></i>
             </button>
+            
             <button
               className="refresh-button"
               onClick={resetState}
@@ -592,31 +608,31 @@ const ListOfWithdrawalRequestsPage = () => {
               <i className="fa-solid fa-rotate-left"></i>
             </button>
 
-            {/* Filter trạng thái riêng biệt */}
+            {/* Filter trạng thái - riêng biệt */}
             <div className="filter-control">
-              <label htmlFor="status-filter">Trạng thái:</label>
+              <label htmlFor="status-filter" className="filter-label">
+                Trạng thái:
+              </label>
               <select
                 id="status-filter"
                 value={selectedStatusFilter}
                 onChange={handleStatusFilterChange}
                 className="status-filter-select"
+                aria-label="Lọc theo trạng thái"
               >
-                <option value="">Tất cả</option>
-                <option value="REQUEST">Yêu cầu</option>
-                <option value="PENDING">Chờ duyệt</option>
-                <option value="APPROVED">Đã duyệt</option>
-                <option value="REJECTED">Từ chối</option>
-                <option value="PROCESSED">Đã xử lý</option>
-                <option value="CANCEL">Đã hủy</option>
+                {statusFilterOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
-          </div>
-        </div>
-        {error && (
+          </div>        {error && (
           <Alert severity="error" className="error-alert">
             {error}
           </Alert>
         )}
+
         <div className="table-section">
           <Table
             columns={columns}
@@ -633,190 +649,187 @@ const ListOfWithdrawalRequestsPage = () => {
             totalItems={totalItems}
           />
         </div>
-      </div>
-    </>
-  );
 
-  return (
-    <AdminDashboardLayout
-      currentPath={currentPath}
-      childrenMiddleContentLower={childrenMiddleContentLower}
-    >
-      {/* Detail Modal */}
-      <Modal
-        isOpen={isDetailModalOpen}
-        onRequestClose={handleCloseDetailModal}
-        contentLabel="Chi tiết Yêu cầu Rút tiền"
-        className="modal large"
-        overlayClassName="overlay"
-        closeTimeoutMS={300}
-      >
-        {modalData && (
-          <FormDetail
-            formData={modalData}
-            fields={[
-              { key: "manageBankingId", label: "ID Yêu cầu" },
-              { key: "tutorId", label: "ID Gia sư" },
-              {
-                key: "tutorName",
-                label: "Tên Gia sư",
-                value: getSafeNestedValue(modalData, "tutor.fullname", "N/A"),
-              },
-              {
-                key: "coinWithdraw",
-                label: "Xu rút",
-                value: formatCurrency(modalData.coinWithdraw),
-              },
-              {
-                key: "gotValue",
-                label: "Tiền quy đổi",
-                value: formatVND(modalData.gotValue),
-              },
-              {
-                key: "bankName",
-                label: "Tên ngân hàng",
-                value: getSafeNestedValue(modalData, "tutor.bankName", "N/A"),
-              },
-              {
-                key: "bankNumber",
-                label: "Tài khoản ngân hàng",
-                value: getSafeNestedValue(modalData, "tutor.bankNumber", "N/A"),
-              },
-              {
-                key: "status",
-                label: "Trạng thái",
-                value: formatStatus(modalData.status),
-              },
-              {
-                key: "createdAt",
-                label: "Ngày tạo",
-                value: safeFormatDate(modalData.createdAt),
-              },
-              {
-                key: "note",
-                label: "Ghi chú",
-                value: modalData.description || "Không có",
-              },
-            ]}
-            mode="view"
-            onClose={handleCloseDetailModal}
-          />
-        )}
-      </Modal>
-
-      {/* Action Modal */}
-      <Modal
-        isOpen={isActionModalOpen}
-        onRequestClose={handleCloseActionModal}
-        contentLabel={`${
-          actionType === "approve" ? "Duyệt" : "Từ chối"
-        } Yêu cầu`}
-        className="modal medium"
-        overlayClassName="overlay"
-        closeTimeoutMS={300}
-      >
-        <div className="modal-header">
-          <h2>
-            {actionType === "approve" ? "Duyệt" : "Từ chối"} Yêu cầu Rút tiền
-          </h2>
-          <button
-            className="close-button"
-            onClick={handleCloseActionModal}
-            disabled={isProcessingAction}
-          >
-            ×
-          </button>
-        </div>
-        <div className="modal-content">
-          {requestToAction && (
-            <div className="form-content" style={{ padding: "20px" }}>
-              <p>
-                <strong>ID Gia sư:</strong> {requestToAction.tutorId}
-              </p>
-              <p>
-                <strong>Tên Gia sư:</strong>{" "}
-                {getSafeNestedValue(requestToAction, "tutor.fullname", "N/A")}
-              </p>{" "}
-              <p>
-                <strong>Xu rút:</strong>{" "}
-                {formatCurrency(requestToAction.coinWithdraw)}
-              </p>
-              <p>
-                <strong>Tiền quy đổi:</strong>{" "}
-                {formatVND(requestToAction.gotValue)}
-              </p>
-              <div className="form-detail-group">
-                <label
-                  htmlFor="actionNote"
-                  style={{
-                    display: "block",
-                    marginBottom: "8px",
-                    fontWeight: "500",
-                  }}
-                >
-                  Ghi chú:
-                </label>
-                <textarea
-                  id="actionNote"
-                  value={actionNote}
-                  onChange={(e) => setActionNote(e.target.value)}
-                  placeholder={`Nhập ghi chú cho việc ${
-                    actionType === "approve" ? "duyệt" : "từ chối"
-                  } yêu cầu...`}
-                  style={{
-                    width: "100%",
-                    minHeight: "80px",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                    resize: "vertical",
-                  }}
-                  disabled={isProcessingAction}
-                />
-              </div>
-            </div>
+        {/* Detail Modal */}
+        <Modal
+          isOpen={isDetailModalOpen}
+          onRequestClose={handleCloseDetailModal}
+          contentLabel="Chi tiết Yêu cầu Rút tiền"
+          className="modal large"
+          overlayClassName="overlay"
+          closeTimeoutMS={300}
+        >
+          {modalData && (
+            <FormDetail
+              formData={modalData}
+              fields={[
+                { key: "manageBankingId", label: "ID Yêu cầu" },
+                { key: "tutorId", label: "ID Gia sư" },
+                {
+                  key: "tutorName",
+                  label: "Tên Gia sư",
+                  value: getSafeNestedValue(modalData, "tutor.fullname", "N/A"),
+                },
+                {
+                  key: "coinWithdraw",
+                  label: "Coin rút",
+                  value: formatCurrency(modalData.coinWithdraw),
+                },
+                {
+                  key: "gotValue",
+                  label: "Tiền quy đổi",
+                  value: formatVND(modalData.gotValue),
+                },
+                {
+                  key: "bankName",
+                  label: "Tên ngân hàng",
+                  value: getSafeNestedValue(modalData, "tutor.bankName", "N/A"),
+                },
+                {
+                  key: "bankNumber",
+                  label: "Tài khoản ngân hàng",
+                  value: getSafeNestedValue(
+                    modalData,
+                    "tutor.bankNumber",
+                    "N/A"
+                  ),
+                },
+                {
+                  key: "status",
+                  label: "Trạng thái",
+                  value: formatStatus(modalData.status),
+                },
+                {
+                  key: "createdAt",
+                  label: "Ngày tạo",
+                  value: safeFormatDate(modalData.createdAt),
+                },
+                {
+                  key: "note",
+                  label: "Ghi chú",
+                  value: modalData.description || "Không có",
+                },
+              ]}
+              mode="view"
+              onClose={handleCloseDetailModal}
+            />
           )}
-        </div>
-        <div className="modal-buttons">
-          <button
-            type="button"
-            className="cancel-button"
-            onClick={handleCloseActionModal}
-            disabled={isProcessingAction}
-          >
-            Hủy
-          </button>
-          <button
-            type="button"
-            className={`${
-              actionType === "approve" ? "approve-button" : "delete-button"
-            }`}
-            onClick={handleConfirmAction}
-            disabled={isProcessingAction}
-          >
-            {isProcessingAction ? (
-              <FontAwesomeIcon icon={faSpinner} spin />
-            ) : actionType === "approve" ? (
-              "Duyệt"
-            ) : (
-              "Từ chối"
-            )}
-          </button>
-        </div>
-      </Modal>
+        </Modal>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+        {/* Action Modal */}
+        <Modal
+          isOpen={isActionModalOpen}
+          onRequestClose={handleCloseActionModal}
+          contentLabel={`${
+            actionType === "approve" ? "Duyệt" : "Từ chối"
+          } Yêu cầu`}
+          className="modal medium"
+          overlayClassName="overlay"
+          closeTimeoutMS={300}
+        >
+          <div className="modal-header">
+            <h2>
+              {actionType === "approve" ? "Duyệt" : "Từ chối"} Yêu cầu Rút tiền
+            </h2>
+            <button
+              className="close-button"
+              onClick={handleCloseActionModal}
+              disabled={isProcessingAction}
+            >
+              ×
+            </button>
+          </div>
+          <div className="modal-content">
+            {requestToAction && (
+              <div className="form-content" style={{ padding: "20px" }}>
+                <p>
+                  <strong>ID Gia sư:</strong> {requestToAction.tutorId}
+                </p>
+                <p>
+                  <strong>Tên Gia sư:</strong>{" "}
+                  {getSafeNestedValue(requestToAction, "tutor.fullname", "N/A")}
+                </p>
+                <p>
+                  <strong>Coin rút:</strong>{" "}
+                  {formatCurrency(requestToAction.coinWithdraw)}
+                </p>
+                <p>
+                  <strong>Tiền quy đổi:</strong>{" "}
+                  {formatVND(requestToAction.gotValue)}
+                </p>
+                <div className="form-detail-group">
+                  <label
+                    htmlFor="actionNote"
+                    style={{
+                      display: "block",
+                      marginBottom: "8px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Ghi chú:
+                  </label>
+                  <textarea
+                    id="actionNote"
+                    value={actionNote}
+                    onChange={(e) => setActionNote(e.target.value)}
+                    placeholder={`Nhập ghi chú cho việc ${
+                      actionType === "approve" ? "duyệt" : "từ chối"
+                    } yêu cầu...`}
+                    style={{
+                      width: "100%",
+                      minHeight: "80px",
+                      padding: "8px",
+                      border: "1px solid #ddd",
+                      borderRadius: "4px",
+                      fontSize: "14px",
+                      resize: "vertical",
+                    }}
+                    disabled={isProcessingAction}
+                  />
+                </div>
+              </div>
+            )}
+          </div>{" "}
+          <div className="modal-buttons">
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={handleCloseActionModal}
+              disabled={isProcessingAction}
+            >
+              Hủy
+            </button>{" "}
+            <button
+              type="button"
+              className={`${
+                actionType === "approve" ? "approve-button" : "delete-button"
+              }`}
+              onClick={handleConfirmAction}
+              disabled={isProcessingAction}
+            >
+              {isProcessingAction ? (
+                <FontAwesomeIcon icon={faSpinner} spin />
+              ) : actionType === "approve" ? (
+                "Duyệt"
+              ) : (
+                "Từ chối"
+              )}
+            </button>
+          </div>
+        </Modal>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+      </div>
     </AdminDashboardLayout>
   );
 };

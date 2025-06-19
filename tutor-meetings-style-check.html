@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Style Check - TutorClassroomMeetingsPage</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* CSS từ TutorClassroomPage.style.css hiện tại */
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        line-height: 1.6;
+      }
+
+      /* Page Layout */
+      .tutor-classroom-page {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        min-height: 100vh;
+      }
+
+      /* Breadcrumb */
+      .tcp-breadcrumb {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .tcp-breadcrumb-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .tcp-breadcrumb-link {
+        background: none;
+        border: none;
+        color: #007bff;
+        cursor: pointer;
+        text-decoration: none;
+        padding: 0;
+        font-size: inherit;
+        font-family: inherit;
+      }
+
+      .tcp-breadcrumb-link:hover {
+        color: #0056b3;
+        text-decoration: underline;
+      }
+
+      .tcp-breadcrumb-current {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .tcp-breadcrumb-separator {
+        margin: 0 8px;
+        color: #dee2e6;
+        font-size: 12px;
+      }
+
+      /* Page Title */
+      .tcp-page-title {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+      }
+
+      /* Meeting Controls */
+      .tcp-meeting-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .tcp-meeting-tabs {
+        display: flex;
+        gap: 8px;
+        background: white;
+        padding: 8px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        flex-wrap: wrap;
+      }
+
+      .tcp-tab {
+        background: transparent;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .tcp-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+
+      .tcp-tab:hover:not(.active) {
+        background: #f8f9fa;
+        color: #495057;
+      }
+
+      .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: 4px;
+      }
+
+      .tcp-tab.active .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .tcp-create-meeting-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-create-meeting-btn:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+
+      /* Modal styles */
+      .tcp-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 20px;
+      }
+
+      .tcp-modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow: auto;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e9ecef;
+      }
+
+      .tcp-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .tcp-modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .tcp-modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+      }
+
+      .tcp-modal-close:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .tcp-modal-body {
+        padding: 24px;
+      }
+
+      .tcp-form-group {
+        margin-bottom: 20px;
+      }
+
+      .tcp-form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+      }
+
+      .tcp-form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+      }
+
+      .tcp-form-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .tcp-password-group {
+        display: flex;
+        gap: 8px;
+      }
+
+      .tcp-password-group .tcp-form-input {
+        flex: 1;
+      }
+
+      .tcp-generate-password-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .tcp-generate-password-btn:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #3d4142 100%);
+      }
+
+      .tcp-form-help-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 6px;
+        display: block;
+      }
+
+      .tcp-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 20px 24px;
+        border-top: 1px solid #dee2e6;
+        background: #f8f9fa;
+        border-radius: 0 0 12px 12px;
+      }
+
+      .tcp-btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tcp-btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .tcp-btn-secondary:hover {
+        background: #5a6268;
+      }
+
+      .tcp-btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+
+      .tcp-btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+      }
+
+      /* Demo message */
+      .demo-message {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .demo-message h3 {
+        color: #0056b3;
+        margin: 0 0 10px 0;
+      }
+
+      .demo-message p {
+        color: #0056b3;
+        margin: 0;
+      }
+
+      /* Hidden by default, shown via JS */
+      .tcp-modal-overlay {
+        display: none;
+      }
+
+      .tcp-modal-overlay.show {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tutor-classroom-page">
+      <!-- Breadcrumb Navigation -->
+      <div class="tcp-breadcrumb">
+        <span class="tcp-breadcrumb-item">
+          <i class="fas fa-home"></i>
+          <button class="tcp-breadcrumb-link">Quản lý lớp học</button>
+        </span>
+        <span class="tcp-breadcrumb-separator">
+          <i class="fas fa-chevron-right"></i>
+        </span>
+        <span class="tcp-breadcrumb-item tcp-breadcrumb-current">
+          <i class="fas fa-video"></i>
+          Phòng học - Lớp Toán 12A1
+        </span>
+      </div>
+
+      <!-- Page Title Section -->
+      <div class="tcp-page-header">
+        <h1 class="tcp-page-title">
+          <i class="fas fa-video"></i>
+          Quản lý phòng học - Lớp Toán 12A1
+        </h1>
+      </div>
+
+      <!-- Meeting Controls -->
+      <div class="tcp-meeting-controls">
+        <div class="tcp-meeting-tabs">
+          <button class="tcp-tab">
+            <i class="fas fa-play-circle"></i>
+            Phòng học đang hoạt động
+            <span class="tcp-tab-count">(2)</span>
+          </button>
+          <button class="tcp-tab active">
+            <i class="fas fa-check-circle"></i>
+            Phòng học đã kết thúc
+            <span class="tcp-tab-count">(5)</span>
+          </button>
+        </div>
+
+        <button class="tcp-create-meeting-btn" onclick="showModal()">
+          <i class="fas fa-plus"></i>
+          Tạo phòng học
+        </button>
+      </div>
+
+      <div class="demo-message">
+        <h3>🎨 Style Check - TutorClassroomMeetingsPage</h3>
+        <p>Click "Tạo phòng học" để xem modal form tạo phòng học</p>
+      </div>
+    </div>
+
+    <!-- Create Meeting Modal -->
+    <div class="tcp-modal-overlay" id="createMeetingModal">
+      <div class="tcp-modal-content" onclick="event.stopPropagation()">
+        <div class="tcp-modal-header">
+          <h3>Tạo phòng học trực tuyến</h3>
+          <button class="tcp-modal-close" onclick="hideModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="tcp-modal-body">
+          <form>
+            <div class="tcp-form-group">
+              <label for="topic" class="tcp-form-label">
+                Chủ đề phòng học:
+              </label>
+              <input
+                type="text"
+                id="topic"
+                name="topic"
+                value="Lớp học: Toán 12A1"
+                placeholder="Nhập chủ đề phòng học..."
+                maxlength="200"
+                class="tcp-form-input"
+                required
+              />
+            </div>
+            <div class="tcp-form-group">
+              <label for="password" class="tcp-form-label">
+                Mật khẩu phòng học:
+              </label>
+              <div class="tcp-password-group">
+                <input
+                  type="text"
+                  id="password"
+                  name="password"
+                  value="abc123"
+                  placeholder="Nhập mật khẩu..."
+                  maxlength="10"
+                  class="tcp-form-input"
+                  required
+                />
+                <button
+                  type="button"
+                  class="tcp-generate-password-btn"
+                  onclick="generatePassword()"
+                  title="Tạo mật khẩu ngẫu nhiên"
+                >
+                  <i class="fas fa-random"></i>
+                </button>
+              </div>
+              <small class="tcp-form-help-text">
+                Mật khẩu từ 1-10 ký tự, có thể bao gồm chữ cái và số
+              </small>
+            </div>
+          </form>
+        </div>
+        <div class="tcp-modal-footer">
+          <button
+            type="button"
+            class="tcp-btn tcp-btn-secondary"
+            onclick="hideModal()"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            class="tcp-btn tcp-btn-primary"
+            onclick="submitForm()"
+          >
+            <i class="fas fa-video"></i>
+            Tạo phòng học
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Modal functions
+      function showModal() {
+        document.getElementById("createMeetingModal").classList.add("show");
+        console.log("✅ Modal shown - Form tạo phòng học hiển thị");
+      }
+
+      function hideModal() {
+        document.getElementById("createMeetingModal").classList.remove("show");
+        console.log("❌ Modal hidden");
+      }
+
+      function generatePassword() {
+        const newPassword = Math.random().toString(36).substring(2, 8);
+        document.getElementById("password").value = newPassword;
+        console.log("🔄 Generated new password:", newPassword);
+      }
+
+      function submitForm() {
+        const topic = document.getElementById("topic").value;
+        const password = document.getElementById("password").value;
+
+        if (!topic.trim()) {
+          alert("Vui lòng nhập chủ đề phòng học!");
+          return;
+        }
+        if (!password.trim()) {
+          alert("Vui lòng nhập mật khẩu phòng học!");
+          return;
+        }
+
+        console.log("📝 Form submitted:", { topic, password });
+        alert(
+          "✅ Đã tạo phòng học thành công!\n\nChủ đề: " +
+            topic +
+            "\nMật khẩu: " +
+            password
+        );
+        hideModal();
+      }
+
+      // Tab switching
+      document.querySelectorAll(".tcp-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tcp-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+
+      // Click outside modal to close
+      document
+        .getElementById("createMeetingModal")
+        .addEventListener("click", hideModal);
+
+      console.log("🎨 Style Check loaded successfully");
+      console.log("✅ Form tạo phòng học sẵn sàng");
+    </script>
+  </body>
+</html>
