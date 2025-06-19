@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧪 Zoom Token Debug Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+      .container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #2563eb;
+        margin-bottom: 10px;
+      }
+      h2 {
+        color: #1e40af;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 8px;
+      }
+      .status-box {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-weight: 500;
+      }
+      .success {
+        background: #dcfce7;
+        border-left: 4px solid #16a34a;
+        color: #166534;
+      }
+      .error {
+        background: #fee2e2;
+        border-left: 4px solid #dc2626;
+        color: #991b1b;
+      }
+      .info {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        color: #1e40af;
+      }
+
+      .btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        margin: 8px;
+        transition: all 0.2s;
+      }
+      .btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+      }
+      .btn-danger {
+        background: #dc2626;
+      }
+      .btn-danger:hover {
+        background: #b91c1c;
+      }
+
+      #logOutput {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 14px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        margin: 15px 0;
+      }
+
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 14px;
+      }
+
+      .token-display {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 12px;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Zoom Token Debug Test</h1>
+      <div class="status-box info">
+        <strong>📋 Mục đích:</strong> Kiểm tra xem zoomAccessToken có được lưu
+        và truyền đúng cách không khi gọi API <code>meeting/create</code>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>🔍 Current Token Status</h2>
+
+      <button class="btn" onclick="checkTokens()">🔄 Check Tokens</button>
+      <button class="btn btn-danger" onclick="clearTokens()">
+        🗑️ Clear All Tokens
+      </button>
+
+      <div id="tokenStatus"></div>
+    </div>
+
+    <div class="container">
+      <h2>🧪 Test Meeting API Call</h2>
+
+      <div class="status-box info">
+        <strong>⚠️ Lưu ý:</strong> Test này sẽ mô phỏng việc gọi API
+        <code>meeting/create</code> để xem header Authorization có được set đúng
+        không.
+      </div>
+
+      <button class="btn" onclick="testMeetingAPI()">
+        🚀 Test meeting/create API
+      </button>
+
+      <div id="logOutput">Logs sẽ hiển thị ở đây...\n\n</div>
+    </div>
+
+    <div class="container">
+      <h2>📋 Instructions</h2>
+
+      <div class="status-box success">
+        <h3>🎯 Cách sử dụng:</h3>
+        <ol>
+          <li>
+            <strong>Kiểm tra token hiện tại:</strong> Nhấn "Check Tokens" để xem
+            zoomAccessToken
+          </li>
+          <li>
+            <strong>Nếu chưa có token:</strong> Đăng nhập Zoom OAuth trong app
+            trước
+          </li>
+          <li>
+            <strong>Test API call:</strong> Nhấn "Test meeting/create API" để
+            xem debug logs
+          </li>
+          <li>
+            <strong>Quan sát logs:</strong> Xem console logs để debug
+            axiosClient
+          </li>
+        </ol>
+      </div>
+
+      <div class="status-box error">
+        <h3>🔍 Những gì cần kiểm tra:</h3>
+        <ul>
+          <li>
+            ✅ <code>zoomAccessToken</code> có tồn tại trong localStorage không
+          </li>
+          <li>
+            ✅ <code>needsZoomToken</code> có được detect đúng cho
+            <code>meeting/create</code> không
+          </li>
+          <li>
+            ✅ <code>Authorization</code> header có được set với Zoom token
+            không
+          </li>
+          <li>✅ Console logs từ axiosClient interceptor</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      function log(message) {
+        const output = document.getElementById("logOutput");
+        const timestamp = new Date().toLocaleTimeString();
+        output.textContent += `[${timestamp}] ${message}\n`;
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function clearLog() {
+        document.getElementById("logOutput").textContent = "";
+      }
+
+      function checkTokens() {
+        clearLog();
+        log("🔍 CHECKING TOKENS...");
+        log("=" * 40);
+
+        const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+        const zoomRefreshToken = localStorage.getItem("zoomRefreshToken");
+        const zoomUserId = localStorage.getItem("zoomUserId");
+        const userSystemToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("token="))
+          ?.split("=")[1];
+
+        log(
+          `✅ Zoom Access Token: ${zoomAccessToken ? "EXISTS" : "NOT_FOUND"}`
+        );
+        if (zoomAccessToken) {
+          log(`   Length: ${zoomAccessToken.length} chars`);
+          log(`   Preview: ${zoomAccessToken.substring(0, 50)}...`);
+        }
+
+        log(
+          `✅ Zoom Refresh Token: ${zoomRefreshToken ? "EXISTS" : "NOT_FOUND"}`
+        );
+        log(`✅ Zoom User ID: ${zoomUserId ? "EXISTS" : "NOT_FOUND"}`);
+        log(
+          `✅ System Token (Cookie): ${
+            userSystemToken ? "EXISTS" : "NOT_FOUND"
+          }`
+        );
+
+        // Update UI
+        const statusDiv = document.getElementById("tokenStatus");
+        statusDiv.innerHTML = `
+            <div class="token-display">
+                <h4>🔑 Token Status:</h4>
+                <p><strong>Zoom Access Token:</strong> ${
+                  zoomAccessToken ? "✅ Available" : "❌ Missing"
+                }</p>
+                <p><strong>Zoom Refresh Token:</strong> ${
+                  zoomRefreshToken ? "✅ Available" : "❌ Missing"
+                }</p>
+                <p><strong>System Token:</strong> ${
+                  userSystemToken ? "✅ Available" : "❌ Missing"
+                }</p>
+                ${
+                  zoomAccessToken
+                    ? `
+                    <p><strong>Token Preview:</strong></p>
+                    <div style="background: #f1f5f9; padding: 10px; border-radius: 4px; margin-top: 5px; word-break: break-all;">
+                        ${zoomAccessToken.substring(0, 100)}...
+                    </div>
+                `
+                    : ""
+                }
+            </div>
+        `;
+
+        log("\n📝 Tokens checked successfully!");
+      }
+
+      function clearTokens() {
+        localStorage.removeItem("zoomAccessToken");
+        localStorage.removeItem("zoomRefreshToken");
+        localStorage.removeItem("zoomUserId");
+
+        log("🗑️ All Zoom tokens cleared from localStorage");
+        checkTokens();
+      }
+
+      async function testMeetingAPI() {
+        clearLog();
+        log("🧪 TESTING MEETING API CALL...");
+        log("=" * 40);
+
+        // Check token first
+        const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+        if (!zoomAccessToken) {
+          log("❌ ERROR: No zoomAccessToken found!");
+          log("💡 Please login with Zoom OAuth first.");
+          return;
+        }
+
+        log("✅ zoomAccessToken found, proceeding with API test...");
+
+        // Mock API call data
+        const meetingData = {
+          classroomId: "test_classroom_123",
+          topic: "Test Meeting for Debug",
+          password: "123456",
+        };
+
+        log("📦 Meeting data prepared:");
+        log(JSON.stringify(meetingData, null, 2));
+
+        // Note: This would need actual API implementation
+        // For now, just simulate the call structure
+        log("\n🔍 API Call Structure:");
+        log("   Endpoint: meeting/create");
+        log("   Method: POST");
+        log("   Data: " + JSON.stringify(meetingData));
+        log(
+          "   Expected Auth Header: Bearer " +
+            zoomAccessToken.substring(0, 50) +
+            "..."
+        );
+
+        log("\n💡 To see actual debug logs:");
+        log("   1. Open DevTools Console (F12)");
+        log("   2. Try creating a meeting in the actual app");
+        log("   3. Look for axiosClient interceptor logs");
+        log("   4. Check Network tab for Authorization header");
+
+        // Show expected behavior
+        log("\n📋 Expected axiosClient logs:");
+        log("   🔍 axiosClient interceptor - URL: meeting/create");
+        log("   🔍 User token: EXISTS/NOT_FOUND");
+        log("   🔍 Zoom token: EXISTS/NOT_FOUND");
+        log("   🔍 Endpoint detection:");
+        log("      - isNoAuthEndpoint: false");
+        log("      - needsZoomToken: true");
+        log("   🔑 Meeting API detected - setting Zoom token only");
+        log("   📝 URL: meeting/create");
+        log("   📝 Zoom token available: true");
+        log("   ✅ Authorization header set with Zoom token");
+      }
+
+      // Initialize
+      window.addEventListener("DOMContentLoaded", function () {
+        log("🧪 Zoom Token Debug Test initialized");
+        log("📝 Click 'Check Tokens' to see current status\n");
+        checkTokens();
+      });
+    </script>
+  </body>
+</html>

@@ -39,9 +39,14 @@ axiosClient.interceptors.request.use(
 
     // Log API call if in development
     logApiCall(method, url, config.data);
-
     const userSystemToken = Cookies.get("token");
     const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+
+    // Debug logging
+    console.log("🔍 axiosClient interceptor - URL:", url);
+    console.log("🔍 User token:", userSystemToken ? "EXISTS" : "NOT_FOUND");
+    console.log("🔍 Zoom token:", zoomAccessToken ? "EXISTS" : "NOT_FOUND");
+
     const noAuthEndpoints = [
       "auth/login",
       "auth/register",
@@ -60,18 +65,35 @@ axiosClient.interceptors.request.use(
     const needsZoomToken = zoomTokenEndpoints.some((endpoint) =>
       url.startsWith(endpoint)
     );
+
+    console.log("🔍 Endpoint detection:");
+    console.log("   - isNoAuthEndpoint:", isNoAuthEndpoint);
+    console.log("   - needsZoomToken:", needsZoomToken);
+    console.log("   - zoomTokenEndpoints:", zoomTokenEndpoints);
     if (isNoAuthEndpoint) {
+      console.log("🔓 No-auth endpoint detected:", url);
       delete config.headers.Authorization;
     } else if (needsZoomToken) {
       // API cho Zoom - chỉ cần Zoom token
       console.log("🔑 Meeting API detected - setting Zoom token only");
+      console.log("📝 URL:", url);
       console.log("📝 Zoom token available:", !!zoomAccessToken);
+      console.log(
+        "📝 Full Zoom token:",
+        zoomAccessToken ? zoomAccessToken.substring(0, 50) + "..." : "null"
+      );
 
       if (zoomAccessToken) {
         config.headers.Authorization = `Bearer ${zoomAccessToken}`;
+        console.log("✅ Authorization header set with Zoom token");
+      } else {
+        console.warn("❌ No Zoom token available for meeting API!");
       }
     } else {
       // API hệ thống khác (bao gồm meeting/get-meeting, meeting/search)
+      console.log("🏢 System API detected - setting user token");
+      console.log("📝 URL:", url);
+      console.log("📝 User token available:", !!userSystemToken);
       config.headers.Authorization = `Bearer ${userSystemToken}`;
     }
 
