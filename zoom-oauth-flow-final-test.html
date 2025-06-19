@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧪 Final Zoom OAuth Flow Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+      .container {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #2563eb;
+        margin-bottom: 10px;
+      }
+      h2 {
+        color: #1e40af;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 8px;
+      }
+      h3 {
+        color: #3b82f6;
+      }
+      .status-box {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-weight: 500;
+      }
+      .success {
+        background: #dcfce7;
+        border-left: 4px solid #16a34a;
+        color: #166534;
+      }
+      .warning {
+        background: #fef3cd;
+        border-left: 4px solid #f59e0b;
+        color: #92400e;
+      }
+      .error {
+        background: #fee2e2;
+        border-left: 4px solid #dc2626;
+        color: #991b1b;
+      }
+      .info {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        color: #1e40af;
+      }
+
+      .test-section {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+      }
+
+      .btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        margin: 8px;
+        transition: all 0.2s;
+      }
+      .btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+      }
+      .btn-danger {
+        background: #dc2626;
+      }
+      .btn-danger:hover {
+        background: #b91c1c;
+      }
+      .btn-success {
+        background: #16a34a;
+      }
+      .btn-success:hover {
+        background: #15803d;
+      }
+
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 14px;
+      }
+
+      .flow-step {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 6px;
+        border-left: 4px solid #3b82f6;
+      }
+
+      .step-number {
+        background: #3b82f6;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+
+      #logOutput {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 14px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        margin: 15px 0;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .comparison-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #374151;
+      }
+      .old-logic {
+        background: #fef2f2;
+      }
+      .new-logic {
+        background: #f0fdf4;
+      }
+
+      .emoji {
+        font-size: 1.2em;
+        margin-right: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Final Zoom OAuth Flow Verification Test</h1>
+      <div class="status-box success">
+        <strong>✅ STATUS:</strong> Zoom OAuth logic đã được chuẩn hóa hoàn
+        toàn. Tất cả luồng đều sử dụng API <code>meeting/auth</code> để lấy URL
+        động.
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>📋 Code Changes Summary</h2>
+
+      <div class="test-section">
+        <h3>🔄 Before vs After Comparison</h3>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th class="old-logic">❌ Before (Hardcoded)</th>
+              <th class="new-logic">✅ After (Dynamic API)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>URL Source</strong></td>
+              <td class="old-logic">
+                Hardcoded <code>/api/zoom/authorize</code>
+              </td>
+              <td class="new-logic">API <code>meeting/auth</code> response</td>
+            </tr>
+            <tr>
+              <td><strong>Code Logic</strong></td>
+              <td class="old-logic">
+                <code>const url = `${apiBaseUrl}/api/zoom/authorize`;</code
+                ><br />
+                <code>window.location.href = url;</code>
+              </td>
+              <td class="new-logic">
+                <code
+                  >const response = await Api({endpoint: "meeting/auth"});</code
+                ><br />
+                <code>window.location.href = response.data.zoomAuthUrl;</code>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Error Handling</strong></td>
+              <td class="old-logic">None</td>
+              <td class="new-logic">Try/catch + Toast notifications</td>
+            </tr>
+            <tr>
+              <td><strong>Consistency</strong></td>
+              <td class="old-logic">Different from other flows</td>
+              <td class="new-logic">
+                Same as LoginZoomButton, TutorMeetingRoomPage
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>🚀 Flow Verification</h2>
+
+      <div class="test-section">
+        <h3>📝 Expected Flow Steps</h3>
+
+        <div class="flow-step">
+          <div class="step-number">1</div>
+          <div>
+            <strong>Check Access Token:</strong><br />
+            <code
+              >const zoomAccessToken =
+              localStorage.getItem("zoomAccessToken");</code
+            >
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">2</div>
+          <div>
+            <strong>If No Token → Call API:</strong><br />
+            <code
+              >Api({ endpoint: "meeting/auth", method: METHOD_TYPE.GET })</code
+            >
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">3</div>
+          <div>
+            <strong>Extract OAuth URL:</strong><br />
+            <code>const zoomAuthUrl = response.data.zoomAuthUrl;</code>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">4</div>
+          <div>
+            <strong>Redirect to Zoom:</strong><br />
+            <code>window.location.href = zoomAuthUrl;</code>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-number">5</div>
+          <div>
+            <strong>After OAuth Success:</strong><br />
+            User returns with token → Modal reopens (if returnState exists)
+          </div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🧪 Simulate Flow</h3>
+        <button class="btn" onclick="simulateNewFlow()">
+          🔥 Test New Flow (meeting/auth)
+        </button>
+        <button class="btn btn-danger" onclick="clearTokens()">
+          🗑️ Clear Tokens (Test No-Auth)
+        </button>
+        <button class="btn btn-success" onclick="setMockToken()">
+          ✅ Set Mock Token (Test With-Auth)
+        </button>
+
+        <div id="logOutput">Ready to test...\n\n</div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>📊 All Files Status</h2>
+
+      <div class="test-section">
+        <h3>✅ Files Using Correct API (meeting/auth)</h3>
+
+        <div class="status-box success">
+          <span class="emoji">📄</span
+          ><strong>TutorClassroomMeetingsPage.jsx</strong> - ✅ FIXED (Now uses
+          meeting/auth API)
+        </div>
+
+        <div class="status-box success">
+          <span class="emoji">📄</span><strong>LoginZoomButton.jsx</strong> - ✅
+          Already correct (meeting/auth)
+        </div>
+
+        <div class="status-box success">
+          <span class="emoji">📄</span
+          ><strong>TutorMeetingRoomPage.jsx</strong> - ✅ Already correct
+          (meeting/auth)
+        </div>
+
+        <div class="status-box success">
+          <span class="emoji">📄</span
+          ><strong>TutorMeetingRoomPage_new.jsx</strong> - ✅ Already correct
+          (meeting/auth)
+        </div>
+
+        <div class="status-box info">
+          <span class="emoji">🔍</span><strong>Verification:</strong> grep
+          search confirmed NO hardcoded URLs in <code>src/**/*.jsx</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h2>🎯 UI Testing Checklist</h2>
+
+      <div class="test-section">
+        <h3>📋 Manual Testing Steps</h3>
+
+        <div class="status-box warning">
+          <strong>⚠️ Prerequisites:</strong>
+          <ul>
+            <li>Backend server running on port 8080</li>
+            <li>Frontend React app running on port 3000</li>
+            <li><code>/api/meeting/auth</code> endpoint working</li>
+          </ul>
+        </div>
+
+        <ol style="line-height: 1.8">
+          <li>
+            <strong>Navigate to meetings page:</strong><br />
+            <code
+              >http://localhost:3000/tai-khoan/ho-so/quan-ly-lop-hoc/{classroomId}/meetings</code
+            >
+          </li>
+
+          <li>
+            <strong>Clear Zoom token in DevTools:</strong><br />
+            <code>localStorage.removeItem("zoomAccessToken");</code>
+          </li>
+
+          <li><strong>Click "Tạo phòng học" button</strong></li>
+
+          <li>
+            <strong>Expected behavior:</strong>
+            <ul>
+              <li>✅ Console log: "📡 Calling meeting/auth API..."</li>
+              <li>
+                ✅ Network tab shows: GET request to
+                <code>/api/meeting/auth</code>
+              </li>
+              <li>
+                ✅ Response contains:
+                <code>{ data: { zoomAuthUrl: "..." } }</code>
+              </li>
+              <li>✅ Browser redirects to dynamic URL (not hardcoded)</li>
+            </ul>
+          </li>
+
+          <li>
+            <strong>After OAuth completion:</strong>
+            <ul>
+              <li>✅ Returns to meetings page with token</li>
+              <li>✅ Modal reopens if returnState exists</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="status-box success">
+        <h3>🎉 Final Status: READY FOR UI TESTING</h3>
+        <p><strong>✅ All code changes completed:</strong></p>
+        <ul>
+          <li>
+            TutorClassroomMeetingsPage.jsx logic updated to use meeting/auth API
+          </li>
+          <li>
+            All flows now consistent (LoginZoomButton, TutorMeetingRoomPage,
+            etc.)
+          </li>
+          <li>No hardcoded URLs remaining in source code</li>
+          <li>Error handling and logging added</li>
+          <li>Return state management implemented</li>
+        </ul>
+        <p>
+          <strong>🚀 Next step:</strong> Test on actual UI to verify redirect
+          works correctly.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function log(message) {
+        const output = document.getElementById("logOutput");
+        const timestamp = new Date().toLocaleTimeString();
+        output.textContent += `[${timestamp}] ${message}\n`;
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function clearLog() {
+        document.getElementById("logOutput").textContent = "";
+      }
+
+      // Mock API function
+      async function mockApiCall(endpoint) {
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+
+        if (endpoint === "meeting/auth") {
+          return {
+            success: true,
+            data: {
+              zoomAuthUrl:
+                "https://zoom.us/oauth/authorize?response_type=code&client_id=mock_client_id&redirect_uri=http://localhost:8080/api/zoom/callback&state=mock_state_123",
+            },
+          };
+        }
+
+        throw new Error(`Unknown endpoint: ${endpoint}`);
+      }
+
+      async function simulateNewFlow() {
+        clearLog();
+        log("🧪 TESTING NEW FLOW (meeting/auth API)");
+        log("=" * 50);
+
+        try {
+          // Step 1: Check token
+          log("1️⃣ Checking zoomAccessToken...");
+          const token = localStorage.getItem("zoomAccessToken");
+          log(`   Token: ${token ? "EXISTS" : "NOT FOUND"}`);
+
+          if (!token) {
+            log("\n2️⃣ No token found, calling meeting/auth API...");
+
+            // Step 2: Call API
+            log("📡 Calling: Api({ endpoint: 'meeting/auth', method: 'GET' })");
+            const response = await mockApiCall("meeting/auth");
+
+            log("📡 Response received:");
+            log(JSON.stringify(response, null, 2));
+
+            // Step 3: Extract URL
+            if (response?.success && response?.data?.zoomAuthUrl) {
+              const zoomAuthUrl = response.data.zoomAuthUrl;
+              log(`\n3️⃣ OAuth URL extracted: ${zoomAuthUrl}`);
+
+              // Step 4: Save return state
+              const returnState = {
+                fromZoomOAuth: true,
+                classroomId: "mock_classroom_123",
+                classroomName: "Test Classroom",
+              };
+              localStorage.setItem(
+                "zoomOAuthReturnState",
+                JSON.stringify(returnState)
+              );
+              log("💾 Return state saved to localStorage");
+
+              // Step 5: Simulate redirect
+              log(`\n4️⃣ REDIRECT: window.location.href = "${zoomAuthUrl}"`);
+              log("\n✅ FLOW COMPLETED SUCCESSFULLY!");
+              log(
+                "📝 In real app, user would be redirected to Zoom OAuth now."
+              );
+            } else {
+              log("❌ ERROR: Invalid response from meeting/auth API");
+            }
+          } else {
+            log("✅ Token exists, proceeding with meeting creation...");
+          }
+        } catch (error) {
+          log(`❌ ERROR: ${error.message}`);
+        }
+      }
+
+      function clearTokens() {
+        localStorage.removeItem("zoomAccessToken");
+        localStorage.removeItem("zoomOAuthReturnState");
+        log("🗑️ All Zoom tokens cleared from localStorage");
+        log("💡 Now you can test the no-auth flow");
+      }
+
+      function setMockToken() {
+        localStorage.setItem("zoomAccessToken", "mock_token_123456");
+        log("✅ Mock Zoom token set in localStorage");
+        log("💡 Now you can test the with-auth flow");
+      }
+
+      // Initialize
+      log("🧪 Zoom OAuth Flow Test Environment Ready");
+      log("📝 Use buttons above to test different scenarios\n");
+    </script>
+  </body>
+</html>

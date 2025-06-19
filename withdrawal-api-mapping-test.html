@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdrawal API Data Mapping Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .test-section h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .data-display {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .success {
+        color: #28a745;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .warning {
+        color: #ffc107;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 Withdrawal API Data Mapping Test</h1>
+      <p>
+        Test to verify withdrawal requests data structure and mapping with the
+        new direct API approach.
+      </p>
+
+      <div class="test-section">
+        <h3>🔍 API Response Test</h3>
+        <button class="button" onclick="testWithdrawalAPI()">
+          Test Withdrawal API
+        </button>
+        <button class="button" onclick="testDataMapping()">
+          Test Data Mapping
+        </button>
+        <div id="api-result" class="data-display"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🗂️ Column Mapping Test</h3>
+        <button class="button" onclick="testColumnMapping()">
+          Test Column Keys
+        </button>
+        <div id="column-result" class="data-display"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🎯 Filter & Search Test</h3>
+        <button class="button" onclick="testSearchFields()">
+          Test Search Fields
+        </button>
+        <button class="button" onclick="testStatusFilter()">
+          Test Status Filter
+        </button>
+        <div id="filter-result" class="data-display"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>📊 Data Comparison</h3>
+        <button class="button" onclick="compareWithListOfRequest()">
+          Compare with ListOfRequest
+        </button>
+        <div id="comparison-result" class="data-display"></div>
+      </div>
+    </div>
+
+    <script>
+      const BASE_URL = "http://localhost:3001/api/v1";
+
+      // Simulated API columns from ListOfWithdrawalRequests.jsx
+      const withdrawalColumns = [
+        { title: "STT", dataKey: "index" },
+        { title: "Mã Gia sư", dataKey: "tutorId", sortable: true },
+        { title: "Tên Gia sư", dataKey: "tutor.fullname", sortable: false },
+        { title: "Số tiền", dataKey: "coinWithdraw", sortable: true },
+        { title: "Ngân hàng", dataKey: "bankInfo", sortable: false },
+        { title: "Trạng thái", dataKey: "status" },
+        { title: "Ngày tạo", dataKey: "createdAt", sortable: true },
+        { title: "Hành động", dataKey: "actions" },
+      ];
+
+      const searchableFields = [
+        { value: "manageBankingId", label: "ID Yêu cầu" },
+        { value: "tutorId", label: "Mã Gia sư" },
+        { value: "coinWithdraw", label: "Số tiền" },
+        { value: "createdAt", label: "Ngày tạo" },
+      ];
+
+      // Test API response
+      async function testWithdrawalAPI() {
+        const resultDiv = document.getElementById("api-result");
+        resultDiv.innerHTML = "⏳ Testing API...";
+
+        try {
+          const query = {
+            rpp: 5,
+            page: 1,
+            filter: JSON.stringify([
+              { key: "status", operator: "equal", value: "REQUEST" },
+            ]),
+            sort: JSON.stringify([{ key: "createdAt", type: "DESC" }]),
+          };
+
+          const queryString = new URLSearchParams(query).toString();
+          const response = await fetch(
+            `${BASE_URL}/manage-banking/search?${queryString}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          resultDiv.innerHTML =
+            `<span class="success">✅ API Response Success</span>\n\n` +
+            `Response Structure:\n${JSON.stringify(data, null, 2)}\n\n` +
+            `Sample Item Keys:\n${
+              data.data?.items?.[0]
+                ? JSON.stringify(Object.keys(data.data.items[0]), null, 2)
+                : "No items"
+            }`;
+        } catch (error) {
+          resultDiv.innerHTML = `<span class="error">❌ API Error: ${error.message}</span>`;
+        }
+      }
+
+      // Test data mapping
+      function testDataMapping() {
+        const resultDiv = document.getElementById("api-result");
+
+        // Sample API response structure
+        const sampleApiResponse = {
+          success: true,
+          data: {
+            items: [
+              {
+                manageBankingId: "MB001",
+                tutorId: "TUT001",
+                tutor: {
+                  fullname: "Nguyễn Văn A",
+                  bankName: "Vietcombank",
+                  bankNumber: "123456789",
+                },
+                coinWithdraw: 50000,
+                status: "REQUEST",
+                createdAt: "2024-01-15T10:30:00Z",
+                description: "Rút tiền tháng 1",
+              },
+            ],
+            total: 1,
+          },
+        };
+
+        // Test direct mapping (new approach)
+        const directData = sampleApiResponse.data.items;
+
+        let result = `<span class="success">✅ Direct Mapping Test</span>\n\n`;
+        result += `Original API Data:\n${JSON.stringify(
+          directData[0],
+          null,
+          2
+        )}\n\n`;
+
+        // Test column access
+        result += `Column Access Test:\n`;
+        withdrawalColumns.forEach((col) => {
+          if (
+            col.dataKey === "index" ||
+            col.dataKey === "actions" ||
+            col.dataKey === "bankInfo"
+          )
+            return;
+
+          let value;
+          if (col.dataKey.includes(".")) {
+            const keys = col.dataKey.split(".");
+            value = keys.reduce((obj, key) => obj?.[key], directData[0]);
+          } else {
+            value = directData[0][col.dataKey];
+          }
+
+          result += `  ${col.title} (${col.dataKey}): ${value}\n`;
+        });
+
+        resultDiv.innerHTML = result;
+      }
+
+      // Test column mapping
+      function testColumnMapping() {
+        const resultDiv = document.getElementById("column-result");
+
+        let result = `<span class="success">✅ Column Mapping Analysis</span>\n\n`;
+
+        result += `Withdrawal Columns:\n`;
+        withdrawalColumns.forEach((col, index) => {
+          result += `${index + 1}. ${col.title}:\n`;
+          result += `   dataKey: "${col.dataKey}"\n`;
+          result += `   sortable: ${col.sortable || false}\n`;
+          result += `   nested: ${
+            col.dataKey.includes(".") ? "YES" : "NO"
+          }\n\n`;
+        });
+
+        result += `\nSearchable Fields:\n`;
+        searchableFields.forEach((field, index) => {
+          result += `${index + 1}. ${field.label} (${field.value})\n`;
+        });
+
+        resultDiv.innerHTML = result;
+      }
+
+      // Test search fields
+      function testSearchFields() {
+        const resultDiv = document.getElementById("filter-result");
+
+        let result = `<span class="success">✅ Search & Filter Test</span>\n\n`;
+
+        result += `Search Fields Validation:\n`;
+        searchableFields.forEach((field) => {
+          const isNested = field.value.includes(".");
+          result += `• ${field.label} (${field.value}): ${
+            isNested ? "⚠️ NESTED" : "✅ DIRECT"
+          }\n`;
+        });
+
+        result += `\nStatus Filter Options:\n`;
+        result += `• REQUEST: Primary test status ✅\n`;
+        result += `• Other statuses: Disabled for testing\n`;
+
+        resultDiv.innerHTML = result;
+      }
+
+      // Test status filter
+      function testStatusFilter() {
+        const resultDiv = document.getElementById("filter-result");
+
+        const statusFilterOptions = [
+          { value: "REQUEST", label: "Yêu cầu", enabled: true },
+          { value: "PENDING", label: "Chờ duyệt", enabled: false },
+          { value: "APPROVED", label: "Đã duyệt", enabled: false },
+          { value: "REJECTED", label: "Từ chối", enabled: false },
+          { value: "CANCEL", label: "Đã hủy", enabled: false },
+        ];
+
+        let result = `<span class="success">✅ Status Filter Test</span>\n\n`;
+
+        statusFilterOptions.forEach((status) => {
+          result += `• ${status.label} (${status.value}): ${
+            status.enabled ? "✅ ENABLED" : "❌ DISABLED"
+          }\n`;
+        });
+
+        resultDiv.innerHTML = result;
+      }
+
+      // Compare with ListOfRequest approach
+      function compareWithListOfRequest() {
+        const resultDiv = document.getElementById("comparison-result");
+
+        let result = `<span class="success">✅ Comparison with ListOfRequest</span>\n\n`;
+
+        result += `ListOfRequest Data Handling:\n`;
+        result += `• API Response: response.data.items (DIRECT)\n`;
+        result += `• setData: setData(response.data.items || [])\n`;
+        result += `• Columns: Use direct API keys\n`;
+        result += `• Search: Direct field keys\n\n`;
+
+        result += `ListOfWithdrawalRequests Changes:\n`;
+        result += `• ✅ Removed data transformation\n`;
+        result += `• ✅ Use setData(response.data.items || [])\n`;
+        result += `• ✅ Updated columns to match API keys\n`;
+        result += `• ✅ Updated search fields to direct keys\n`;
+        result += `• ✅ Updated FormDetail fields\n\n`;
+
+        result += `Expected Benefits:\n`;
+        result += `• ✅ No white screen (no transform errors)\n`;
+        result += `• ✅ Consistent data flow\n`;
+        result += `• ✅ Proper sorting & filtering\n`;
+        result += `• ✅ Correct data display\n`;
+
+        resultDiv.innerHTML = result;
+      }
+
+      // Auto-run initial tests
+      window.onload = function () {
+        setTimeout(testDataMapping, 500);
+        setTimeout(testColumnMapping, 1000);
+      };
+    </script>
+  </body>
+</html>

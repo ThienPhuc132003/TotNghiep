@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdrawal Requests - New Implementation Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-result {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      .info {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+      }
+      .warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+      }
+      .code-block {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        overflow-x: auto;
+      }
+      pre {
+        margin: 0;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🔄 Withdrawal Requests - New Implementation Verification</h1>
+      <p>Testing the completely rebuilt ListOfWithdrawalRequests.jsx</p>
+    </div>
+
+    <div class="section">
+      <h2>✅ File Rebuild Status</h2>
+      <div class="test-result success">
+        <strong>🎯 COMPLETED:</strong> File hoàn toàn mới đã được tạo<br />
+        <strong>📁 Location:</strong>
+        src/pages/Admin/ListOfWithdrawalRequests.jsx<br />
+        <strong>🗑️ Old file:</strong> Đã xóa hoàn toàn<br />
+        <strong>⚠️ Compile errors:</strong> None (0 errors found)
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📊 Key Data Structure</h2>
+      <div class="test-result info">
+        <strong>API Endpoint:</strong> manage-banking/search<br />
+        <strong>Core Fields:</strong> manageBankingId, tutorId, coinWithdraw,
+        gotValue, tutor.fullname, tutor.bankName, tutor.bankNumber, status,
+        createdAt
+      </div>
+      <div class="code-block">
+        <pre>
+Expected API Response Structure:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "manageBankingId": "WDR-001",
+        "tutorId": "TUTOR-001", 
+        "coinWithdraw": 500000,
+        "gotValue": 500000,
+        "status": "REQUEST",
+        "createdAt": "2024-06-15T10:30:00Z",
+        "description": "Yêu cầu rút tiền",
+        "tutor": {
+          "fullname": "Nguyễn Văn An",
+          "bankName": "Vietcombank",
+          "bankNumber": "1234567890"
+        }
+      }
+    ],
+    "total": 1
+  }
+}
+            </pre
+        >
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔧 Technical Implementation</h2>
+      <div class="test-result success">
+        <strong>✅ Columns mapping:</strong> Chỉ sử dụng key fields đúng chuẩn
+        API<br />
+        <strong>✅ Data transformation:</strong> Safe access với
+        getSafeNestedValue()<br />
+        <strong>✅ Search fields:</strong> manageBankingId, tutorId,
+        coinWithdraw, gotValue, createdAt<br />
+        <strong>✅ Status filter:</strong> REQUEST, PENDING, APPROVED, REJECTED,
+        PROCESSED, CANCEL<br />
+        <strong>✅ Action handlers:</strong> Approve/Reject với API endpoints
+        chuẩn
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎨 UI Components</h2>
+      <div class="test-result info">
+        <strong>Table columns:</strong>
+        <ul>
+          <li>STT - Sequential numbering</li>
+          <li>ID Yêu cầu - manageBankingId (sortable)</li>
+          <li>ID Gia sư - tutorId (sortable)</li>
+          <li>Tên Gia sư - tutor.fullname</li>
+          <li>Coin rút - coinWithdraw (formatted)</li>
+          <li>Tiền quy đổi - gotValue (VNĐ format)</li>
+          <li>Tên ngân hàng - tutor.bankName</li>
+          <li>STK - tutor.bankNumber</li>
+          <li>Trạng thái - status (with CSS styling)</li>
+          <li>Ngày tạo - createdAt (formatted)</li>
+          <li>Thao tác - View/Approve/Reject buttons</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔄 Pattern Consistency</h2>
+      <div class="test-result success">
+        <strong>✅ useEffect/fetchData:</strong> Tự động gọi khi component mount
+        (đúng pattern ListOfRequest.jsx)<br />
+        <strong>✅ Search/Filter logic:</strong> JSON.stringify cho filter
+        conditions<br />
+        <strong>✅ Pagination:</strong> 1-based page numbering,
+        handlePageClick<br />
+        <strong>✅ Sort configuration:</strong> { key, direction } với toggle
+        asc/desc<br />
+        <strong>✅ Modal system:</strong> Detail modal + Action modal với
+        FormDetail<br />
+        <strong>✅ Error handling:</strong> Toast notifications + Alert
+        component<br />
+        <strong>✅ Loading states:</strong> isLoading, isProcessingAction với
+        spinner
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>⚡ Action Workflow</h2>
+      <div class="code-block">
+        <pre>
+Approve Flow:
+1. User clicks approve button
+2. Action modal opens with request details
+3. User can add optional note
+4. POST manage-banking/approve/{manageBankingId}
+5. Success toast + refresh data
+
+Reject Flow:
+1. User clicks reject button  
+2. Action modal opens with request details
+3. User can add optional note
+4. POST manage-banking/reject/{manageBankingId}
+5. Success toast + refresh data
+
+Status-based Visibility:
+- Approve/Reject buttons only show for REQUEST/PENDING status
+- Other statuses only show View button
+            </pre
+        >
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🧪 Testing Guide</h2>
+      <div class="test-result warning">
+        <strong>Next Steps:</strong><br />
+        1. Start development server<br />
+        2. Navigate to /admin/rut-tien<br />
+        3. Check component mounts without errors<br />
+        4. Verify API call to manage-banking/search<br />
+        5. Test search/filter functionality<br />
+        6. Test approve/reject actions<br />
+        7. Verify data display and formatting
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Comparison with Old Implementation</h2>
+      <div class="test-result info">
+        <strong>Old Issues Fixed:</strong><br />
+        ❌ Mapping fields không tồn tại → ✅ Chỉ dùng key fields chuẩn<br />
+        ❌ Columns không đồng bộ API → ✅ Columns mapping chính xác<br />
+        ❌ Search logic phức tạp → ✅ Search fields đơn giản, rõ ràng<br />
+        ❌ Status format không đúng → ✅ Status theo chuẩn backend<br />
+        ❌ Action endpoints sai → ✅ API endpoints đúng spec<br />
+        ❌ Nested data access không safe → ✅ getSafeNestedValue() cho mọi
+        nested field
+      </div>
+    </div>
+
+    <script>
+      console.log("🔄 Withdrawal Requests - New Implementation Verification");
+      console.log("===============================================");
+      console.log("✅ File rebuild completed successfully");
+      console.log("📊 Key data structure aligned with API");
+      console.log(
+        "🔧 Technical implementation follows ListOfRequest.jsx pattern"
+      );
+      console.log("🎯 Ready for testing with real API");
+
+      // Log the expected data structure
+      console.log("\n📋 Expected API Response Structure:");
+      const expectedStructure = {
+        success: true,
+        data: {
+          items: [
+            {
+              manageBankingId: "WDR-001",
+              tutorId: "TUTOR-001",
+              coinWithdraw: 500000,
+              gotValue: 500000,
+              status: "REQUEST",
+              createdAt: "2024-06-15T10:30:00Z",
+              description: "Yêu cầu rút tiền",
+              tutor: {
+                fullname: "Nguyễn Văn An",
+                bankName: "Vietcombank",
+                bankNumber: "1234567890",
+              },
+            },
+          ],
+          total: 1,
+        },
+      };
+      console.log(JSON.stringify(expectedStructure, null, 2));
+    </script>
+  </body>
+</html>

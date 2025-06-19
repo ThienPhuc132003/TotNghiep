@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import PropTypes from "prop-types";
 import Api from "../../network/Api";
 import { METHOD_TYPE } from "../../network/methodType";
 import { useSelector } from "react-redux";
@@ -31,6 +30,8 @@ const getCountByStatus = (items, status) => {
       (item) =>
         item.status === "IN_SESSION" ||
         item.status === "PENDING" ||
+        item.status === "STARTED" || // Add STARTED status
+        item.status === "WAITING" || // Add WAITING status
         !item.status
     ).length;
   } else if (status === "ENDED") {
@@ -47,6 +48,14 @@ const getCountByStatus = (items, status) => {
 // Client-side filtering và pagination cho classrooms/meetings
 // Lý do dùng client-side: API không hỗ trợ filter theo status
 const getFilteredItems = (items, status, page, itemsPerPage) => {
+  console.log("🔍 DEBUG - getFilteredItems called with:", {
+    totalItems: items.length,
+    status,
+    page,
+    itemsPerPage,
+    allStatuses: items.map((item) => item.status),
+  });
+
   // Step 1: Filter theo status
   let filtered = items;
   if (status === "IN_SESSION") {
@@ -54,8 +63,15 @@ const getFilteredItems = (items, status, page, itemsPerPage) => {
       (item) =>
         item.status === "IN_SESSION" ||
         item.status === "PENDING" ||
+        item.status === "STARTED" || // Add STARTED status
+        item.status === "WAITING" || // Add WAITING status
         !item.status
     );
+    console.log("🔍 DEBUG - IN_SESSION filter result:", {
+      originalCount: items.length,
+      filteredCount: filtered.length,
+      filteredStatuses: filtered.map((item) => item.status),
+    });
   } else if (status === "ENDED") {
     filtered = items.filter(
       (item) =>
@@ -63,16 +79,28 @@ const getFilteredItems = (items, status, page, itemsPerPage) => {
         item.status === "CANCELLED" ||
         item.status === "ENDED"
     );
+    console.log("🔍 DEBUG - ENDED filter result:", {
+      originalCount: items.length,
+      filteredCount: filtered.length,
+      filteredStatuses: filtered.map((item) => item.status),
+    });
   }
 
   // Step 2: Apply client-side pagination trên filtered data
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
-  return {
+  const result = {
     items: filtered.slice(startIndex, endIndex), // Paginated items
     total: filtered.length, // Total items AFTER filtering
   };
+
+  console.log("🔍 DEBUG - getFilteredItems result:", {
+    paginatedCount: result.items.length,
+    totalFiltered: result.total,
+  });
+
+  return result;
 };
 
 // Helper function to get safe avatar URL
@@ -98,172 +126,21 @@ const statusLabels = {
   CANCELLED: "Đã hủy",
 };
 
-// Modal component for creating Zoom meeting
-const CreateMeetingModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  classroomName,
-  defaultTopic,
-}) => {
-  console.log("🔍 DEBUG - CreateMeetingModal props:", {
-    isOpen,
-    classroomName,
-    defaultTopic,
-  });
-
-  const [formData, setFormData] = useState({
-    topic: defaultTopic || `Lớp học: ${classroomName}`,
-    password: Math.random().toString(36).substring(2, 8),
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      console.log("🔍 DEBUG - Modal opened, setting form data");
-      setFormData({
-        topic: defaultTopic || `Lớp học: ${classroomName}`,
-        password: Math.random().toString(36).substring(2, 8),
-      });
-    }
-  }, [isOpen, classroomName, defaultTopic]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.topic.trim()) {
-      toast.error("Vui lòng nhập chủ đề phòng họp!");
-      return;
-    }
-    if (!formData.password.trim()) {
-      toast.error("Vui lòng nhập mật khẩu phòng họp!");
-      return;
-    }
-    onSubmit(formData);
-  };
-
-  const generateRandomPassword = () => {
-    const newPassword = Math.random().toString(36).substring(2, 8);
-    setFormData((prev) => ({
-      ...prev,
-      password: newPassword,
-    }));
-  };
-  if (!isOpen) {
-    console.log("🔍 DEBUG - Modal not open, returning null");
-    return null;
-  }
-
-  console.log("🔍 DEBUG - Rendering modal UI with form data:", formData);
-  return (
-    <div className="tcp-modal-overlay" onClick={onClose}>
-      <div className="tcp-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="tcp-modal-header">
-          <h3>Tạo phòng học trực tuyến</h3>
-          <button className="tcp-modal-close" onClick={onClose}>
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
-        <div className="tcp-modal-body">
-          <form onSubmit={handleSubmit}>
-            <div className="tcp-form-group">
-              <label htmlFor="topic" className="tcp-form-label">
-                Chủ đề phòng học:
-              </label>
-              <input
-                type="text"
-                id="topic"
-                name="topic"
-                value={formData.topic}
-                onChange={handleInputChange}
-                placeholder="Nhập chủ đề phòng học..."
-                maxLength={200}
-                className="tcp-form-input"
-                required
-              />
-            </div>
-            <div className="tcp-form-group">
-              <label htmlFor="password" className="tcp-form-label">
-                Mật khẩu phòng học:
-              </label>
-              <div className="tcp-password-group">
-                <input
-                  type="text"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Nhập mật khẩu..."
-                  maxLength={10}
-                  className="tcp-form-input"
-                  required
-                />
-                <button
-                  type="button"
-                  className="tcp-generate-password-btn"
-                  onClick={generateRandomPassword}
-                  title="Tạo mật khẩu ngẫu nhiên"
-                >
-                  <i className="fas fa-random"></i>
-                </button>
-              </div>
-              <small className="tcp-form-help-text">
-                Mật khẩu từ 1-10 ký tự, có thể bao gồm chữ cái và số
-              </small>
-            </div>
-          </form>
-        </div>
-        <div className="tcp-modal-footer">
-          <button
-            type="button"
-            className="tcp-btn tcp-btn-secondary"
-            onClick={onClose}
-          >
-            Hủy
-          </button>
-          <button
-            type="button"
-            className="tcp-btn tcp-btn-primary"
-            onClick={handleSubmit}
-          >
-            <i className="fas fa-video"></i>
-            Tạo phòng học
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// PropTypes for CreateMeetingModal
-CreateMeetingModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  classroomName: PropTypes.string.isRequired,
-  defaultTopic: PropTypes.string,
-};
-
 const TutorClassroomPage = () => {
+  // TEMP: Add render log to track re-renders
+  console.log("🔄 RENDER - TutorClassroomPage rendering...", {
+    timestamp: new Date().toISOString(),
+  });
+
   const [classrooms, setClassrooms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [totalClassrooms, setTotalClassrooms] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
-
   // Store all classrooms for accurate filtering and pagination
   const [allClassrooms, setAllClassrooms] = useState([]);
 
-  // Modal states
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedClassroom, setSelectedClassroom] = useState(null);
   // Meeting states
   const [meetingList, setMeetingList] = useState([]);
   const [allMeetings, setAllMeetings] = useState([]);
@@ -397,63 +274,7 @@ const TutorClassroomPage = () => {
       }
     },
     [currentUser?.userId, allClassrooms, activeClassroomTab, itemsPerPage]
-  ); // Auto-open modal after returning from Zoom OAuth
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const fromZoomConnection = urlParams.get("fromZoomConnection");
-    const classroomId = urlParams.get("classroomId");
-    const classroomName = urlParams.get("classroomName");
-
-    console.log("🔍 DEBUG - OAuth callback check:", {
-      fromZoomConnection,
-      classroomId,
-      classroomName,
-      hasZoomToken: !!localStorage.getItem("zoomAccessToken"),
-    });
-
-    if (fromZoomConnection === "true" && classroomId && classroomName) {
-      // Wait for classrooms to load, then auto-open modal
-      const timer = setTimeout(() => {
-        const zoomToken = localStorage.getItem("zoomAccessToken");
-        console.log("🔍 DEBUG - Setting up auto-open modal:", {
-          hasZoomToken: !!zoomToken,
-          classroomId: decodeURIComponent(classroomId),
-          classroomName: decodeURIComponent(classroomName),
-        });
-
-        if (zoomToken) {
-          toast.success(
-            "Kết nối hệ thống thành công! Bây giờ bạn có thể tạo phòng học."
-          );
-
-          // Clear URL parameters first to prevent re-triggering
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
-
-          // Set classroom info and open modal
-          setSelectedClassroom({
-            classroomId: decodeURIComponent(classroomId),
-            classroomName: decodeURIComponent(classroomName),
-          });
-          setIsModalOpen(true);
-          console.log("✅ Modal should be opened now");
-        } else {
-          console.log("❌ No authorization token found");
-          // Clean URL if no token
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
-        }
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, []);
+  );
   // Handle URL parameters to restore view state on refresh
   useEffect(() => {
     const view = searchParams.get("view");
@@ -599,42 +420,6 @@ const TutorClassroomPage = () => {
     fetchTutorClassrooms(1);
   }, [fetchTutorClassrooms]);
 
-  // Handle Zoom OAuth callback and auto-open modal
-  useEffect(() => {
-    const fromZoomConnection = searchParams.get("fromZoomConnection");
-    const classroomId = searchParams.get("classroomId");
-    const classroomName = searchParams.get("classroomName");
-
-    if (fromZoomConnection === "true" && classroomId && classroomName) {
-      console.log("🔍 ZOOM CALLBACK - Auto-opening modal after OAuth:", {
-        classroomId: decodeURIComponent(classroomId),
-        classroomName: decodeURIComponent(classroomName),
-      });
-
-      // Clear the URL params
-      setSearchParams({});
-
-      // Small delay to ensure component is fully rendered
-      setTimeout(() => {
-        const decodedClassroomId = decodeURIComponent(classroomId);
-        const decodedClassroomName = decodeURIComponent(classroomName);
-
-        setSelectedClassroom({
-          classroomId: decodedClassroomId,
-          classroomName: decodedClassroomName,
-        });
-        setIsModalOpen(true);
-
-        toast.success(
-          "Đã kết nối hệ thống thành công! Bạn có thể tạo phòng học ngay.",
-          {
-            duration: 4000,
-          }
-        );
-      }, 500);
-    }
-  }, [searchParams, setSearchParams]);
-
   const handlePageChange = (newPage) => {
     if (
       newPage >= 1 &&
@@ -685,17 +470,27 @@ const TutorClassroomPage = () => {
       fetchTutorClassrooms(1, true); // Force refresh
     }
   };
-  const handleEnterClassroom = async (classroomId, classroomName) => {
+  // eslint-disable-next-line no-unused-vars
+  const handleEnterClassroom = async (
+    classroomId,
+    classroomName,
+    page = 1,
+    forceRefresh = false
+  ) => {
     try {
       setIsMeetingLoading(true);
       const loadingToastId = toast.loading("Đang tải danh sách phòng học...");
       console.log("🔍 TUTOR DEBUG - Fetching meetings for classroom:", {
         classroomId,
         classroomName,
+        page,
+        forceRefresh,
         endpoint: "meeting/get-meeting",
         timestamp: new Date().toISOString(),
         forceClearCache:
-          allMeetings.length === 0 ? "Yes - cache cleared" : "No - using cache",
+          forceRefresh || allMeetings.length === 0
+            ? "Yes - cache cleared"
+            : "No - using cache",
       });
 
       // Debug token
@@ -763,12 +558,14 @@ const TutorClassroomPage = () => {
               createdAt: m.createdAt,
             }))
           );
-          setAllMeetings(allMeetingsData);
-
-          // Check meeting statuses and auto-set appropriate tab
+          setAllMeetings(allMeetingsData); // Check meeting statuses and auto-set appropriate tab
           const hasInSessionMeetings = allMeetingsData.some(
             (m) =>
-              m.status === "IN_SESSION" || m.status === "PENDING" || !m.status
+              m.status === "IN_SESSION" ||
+              m.status === "PENDING" ||
+              m.status === "STARTED" ||
+              m.status === "WAITING" ||
+              !m.status
           );
           const hasEndedMeetings = allMeetingsData.some(
             (m) =>
@@ -782,6 +579,25 @@ const TutorClassroomPage = () => {
             hasEndedMeetings,
             currentActiveMeetingTab: activeMeetingTab,
             totalMeetings: allMeetingsData.length,
+            inSessionItems: allMeetingsData.filter(
+              (m) =>
+                m.status === "IN_SESSION" ||
+                m.status === "PENDING" ||
+                m.status === "STARTED" ||
+                m.status === "WAITING" ||
+                !m.status
+            ),
+            endedItems: allMeetingsData.filter(
+              (m) =>
+                m.status === "ENDED" ||
+                m.status === "COMPLETED" ||
+                m.status === "CANCELLED"
+            ),
+            allStatuses: allMeetingsData.map((m) => ({
+              meetingId: m.meetingId,
+              status: m.status,
+              topic: m.topic,
+            })),
           });
 
           // Auto-adjust tab if current tab has no meetings
@@ -907,160 +723,17 @@ const TutorClassroomPage = () => {
     setMeetingList([]);
     setAllMeetings([]);
 
-    // Reset modal states to prevent modal from showing when returning to classroom list
-    setIsModalOpen(false);
-    setSelectedClassroom(null);
-
     // Clear URL params to return to main classroom view
     setSearchParams({});
   };
-
-  // Handler to close modal and stay on classroom list (not switch to meeting view)
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedClassroom(null);
-    // Do NOT switch to meeting view when modal is closed
-  };
-
-  // Force open modal function
-  const forceOpenModal = (classroomId, classroomName) => {
-    console.log("🚀 FORCE OPENING MODAL:", { classroomId, classroomName });
-    setSelectedClassroom({ classroomId, classroomName });
-    setIsModalOpen(true);
-
-    // Add a small delay to ensure state is set
-    setTimeout(() => {
-      console.log("🔍 Modal state after force open:", {
-        isModalOpen: true,
-        selectedClassroom: { classroomId, classroomName },
-      });
-    }, 100);
-  };
-
   const handleOpenCreateMeetingModal = (classroomId, classroomName) => {
-    const zoomToken = localStorage.getItem("zoomAccessToken");
-
-    console.log("🔍 DEBUG - Opening create meeting modal:", {
-      classroomId,
-      classroomName,
-      hasZoomToken: !!zoomToken,
-      zoomTokenLength: zoomToken?.length,
-      zoomTokenPreview: zoomToken ? zoomToken.substring(0, 20) + "..." : "null",
-    });
-
-    // First check: Zoom token is required
-    if (!zoomToken || zoomToken.trim() === "") {
-      console.log("❌ No authorization token, redirecting to profile");
-
-      // Save return path and state for OAuth callback
-      sessionStorage.setItem(
-        "zoomReturnPath",
-        "/tai-khoan/ho-so/quan-ly-lop-hoc"
-      );
-      sessionStorage.setItem(
-        "zoomReturnState",
-        JSON.stringify({
-          classroomId,
-          classroomName,
-          fromClassroom: true,
-        })
-      );
-
-      toast.error("Vui lòng kết nối với hệ thống trước khi tạo phòng học!");
-      navigate("/tai-khoan/ho-so/phong-hoc", {
-        state: {
-          needZoomConnection: true,
-          classroomId,
-          classroomName,
-          fromClassroom: true,
-        },
-      });
-      return;
-    }
-    // If we have zoom token, always open the modal
-    console.log("✅ Zoom token found, opening modal immediately");
-    console.log("✅ Setting selected classroom:", {
-      classroomId,
-      classroomName,
-    });
-
-    // Use force open to ensure modal opens
-    forceOpenModal(classroomId, classroomName);
-
-    console.log("✅ Modal should be opening now");
-  };
-  const handleCreateMeetingSubmit = async (formData) => {
-    if (!selectedClassroom) return;
-
-    const { classroomId } = selectedClassroom;
-
-    try {
-      const loadingToastId = toast.loading("Đang tạo phòng học...");
-
-      const meetingData = {
+    // Chuyển hướng đến trang quản lý phòng học
+    navigate("/tai-khoan/ho-so/quan-ly-phong-hoc", {
+      state: {
         classroomId: classroomId,
-        topic: formData.topic,
-        password: formData.password,
-      };
-      const response = await Api({
-        endpoint: "meeting/create",
-        method: METHOD_TYPE.POST,
-        body: meetingData,
-        requireToken: false,
-      });
-
-      toast.dismiss(loadingToastId);
-
-      console.log("🔍 DEBUG - meeting/create response:", {
-        success: response.success,
-        data: response.data,
-        newMeeting: response.data?.meeting || response.data,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (response.success) {
-        console.log("✅ DEBUG - Meeting created successfully!");
-        const newMeeting = response.data?.meeting || response.data;
-        if (newMeeting) {
-          console.log("🔍 DEBUG - New meeting details:", {
-            meetingId: newMeeting.meetingId || newMeeting.id,
-            status: newMeeting.status,
-            topic: newMeeting.topic,
-            classroomId: newMeeting.classroomId,
-          });
-        }
-
-        toast.success("Tạo phòng học thành công!");
-        setIsModalOpen(false);
-        setSelectedClassroom(null);
-        // Reset cached meetings to force refresh
-        setAllMeetings([]);
-        setMeetingList([]);
-        setTotalMeetings(0);
-
-        // Clear any existing cache and force a fresh API call
-        console.log("🔍 DEBUG - Clearing all meeting cache before refresh");
-
-        // Refresh meeting list with a small delay to ensure backend has processed the new meeting
-        setTimeout(async () => {
-          // Auto-switch to IN_SESSION tab to show new meetings (since they're typically active when created)
-          console.log(
-            "🔍 DEBUG - Switching to IN_SESSION tab to show new meeting"
-          );
-          setActiveMeetingTab("IN_SESSION");
-
-          await handleEnterClassroom(
-            classroomId,
-            selectedClassroom.classroomName
-          );
-        }, 500); // Small delay to ensure API has time to process
-      } else {
-        toast.error(response.message || "Có lỗi xảy ra khi tạo phòng học!");
-      }
-    } catch (error) {
-      console.error("Error creating meeting:", error);
-      toast.error("Có lỗi xảy ra khi tạo phòng học. Vui lòng thử lại!");
-    }
+        classroomName: classroomName,
+      },
+    });
   };
 
   const handleMeetingTabChange = (newTab) => {
@@ -1161,19 +834,25 @@ const TutorClassroomPage = () => {
                   ({getCountByStatus(allMeetings, "ENDED")})
                 </span>
               </button>
-            </div>
+            </div>{" "}
             <button
               className="tcp-create-meeting-btn"
-              onClick={() =>
+              onClick={() => {
+                console.log("🔍 MEETING VIEW - Tạo phòng học button clicked");
+                console.log(
+                  "currentClassroomForMeetings:",
+                  currentClassroomForMeetings
+                );
+
                 handleOpenCreateMeetingModal(
                   currentClassroomForMeetings.classroomId,
                   currentClassroomForMeetings.nameOfRoom
-                )
-              }
+                );
+              }}
             >
               <i className="fas fa-plus"></i>
               Tạo phòng học
-            </button>{" "}
+            </button>
           </div>
           <div className="tcp-meeting-content">
             {isMeetingLoading ? (
@@ -1290,6 +969,30 @@ const TutorClassroomPage = () => {
               </ul>
             ) : (
               <div className="tcp-empty-state">
+                {/* DEBUG: Why empty state is showing */}
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "red",
+                    marginBottom: "10px",
+                    textAlign: "left",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  DEBUG EMPTY STATE:{" "}
+                  {JSON.stringify(
+                    {
+                      meetingListLength: meetingList?.length || 0,
+                      totalMeetings,
+                      allMeetingsLength: allMeetings?.length || 0,
+                      activeMeetingTab,
+                      isMeetingLoading,
+                    },
+                    null,
+                    2
+                  )}
+                </div>
+
                 <i
                   className={`fas ${
                     activeMeetingTab === "IN_SESSION"
@@ -1671,10 +1374,12 @@ const TutorClassroomPage = () => {
                     <button
                       className="tcp-action-btn tcp-view-meetings-btn"
                       onClick={() =>
-                        handleEnterClassroom(
-                          classroom.classroomId,
-                          classroom.nameOfRoom
-                        )
+                        navigate("/tai-khoan/ho-so/quan-ly-phong-hoc", {
+                          state: {
+                            classroomId: classroom.classroomId,
+                            classroomName: classroom.nameOfRoom,
+                          },
+                        })
                       }
                       disabled={!classroom.classroomId}
                     >
@@ -1709,23 +1414,8 @@ const TutorClassroomPage = () => {
           >
             Sau
             <i className="fas fa-chevron-right"></i>
-          </button>
+          </button>{" "}
         </div>
-      )}{" "}
-      {/* Create Meeting Modal */}
-      {console.log("🔍 DEBUG - Modal render check:", {
-        isModalOpen,
-        selectedClassroom,
-        shouldRender: isModalOpen && selectedClassroom,
-      })}{" "}
-      {isModalOpen && selectedClassroom && (
-        <CreateMeetingModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleCreateMeetingSubmit}
-          classroomName={selectedClassroom.classroomName}
-          defaultTopic={`Lớp học: ${selectedClassroom.classroomName}`}
-        />
       )}
     </div>
   );

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modal Debug Test v2</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+
+      .test-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px;
+      }
+
+      .test-btn:hover {
+        background: #0056b3;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .debug-info {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 20px 0;
+      }
+
+      .status {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .status.success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 Modal Quick Test</h1>
+
+    <div class="debug-info">
+      <button class="test-btn" onclick="showModal()">Show Modal</button>
+      <button class="test-btn" onclick="hideModal()">Hide Modal</button>
+    </div>
+
+    <div id="status-area"></div>
+
+    <!-- Test Modal -->
+    <div class="modal-overlay" id="testModal">
+      <div class="modal-content">
+        <h3>Test Modal - Form tạo phòng học</h3>
+        <p>✅ Modal hiển thị thành công!</p>
+        <button onclick="hideModal()">Đóng</button>
+      </div>
+    </div>
+
+    <script>
+      function showModal() {
+        document.getElementById("testModal").classList.add("show");
+        document.getElementById("status-area").innerHTML =
+          '<div class="status success">✅ Modal shown - Form đã hiển thị</div>';
+      }
+
+      function hideModal() {
+        document.getElementById("testModal").classList.remove("show");
+        document.getElementById("status-area").innerHTML =
+          '<div class="status success">❌ Modal hidden</div>';
+      }
+
+      console.log("🧪 Quick Modal Test ready");
+    </script>
+  </body>
+</html>

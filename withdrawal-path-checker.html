@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔍 Withdrawal Path Checker</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+      .test-box {
+        background: white;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .success {
+        border-left: 4px solid #28a745;
+        background: #d4edda;
+      }
+      .error {
+        border-left: 4px solid #dc3545;
+        background: #f8d7da;
+      }
+      .warning {
+        border-left: 4px solid #ffc107;
+        background: #fff3cd;
+      }
+      .info {
+        border-left: 4px solid #17a2b8;
+        background: #d1ecf1;
+      }
+
+      .path-link {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 5px;
+      }
+      .path-link:hover {
+        background: #0056b3;
+      }
+
+      code {
+        background: #f1f3f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: monospace;
+      }
+
+      .log-box {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Withdrawal Component Path Checker</h1>
+
+    <div class="test-box info">
+      <h3>📍 Current Page Status</h3>
+      <p><strong>URL:</strong> <span id="current-url"></span></p>
+      <p><strong>Path:</strong> <span id="current-path"></span></p>
+      <p><strong>Status:</strong> <span id="page-status"></span></p>
+    </div>
+
+    <div class="test-box">
+      <h3>🔗 Quick Navigation</h3>
+      <p>Click links below to test different paths:</p>
+      <a href="/admin/rut-tien" class="path-link">Target: /admin/rut-tien</a>
+      <a href="/admin/tai-khoan-gia-su" class="path-link"
+        >Working: /admin/tai-khoan-gia-su</a
+      >
+      <a href="/admin/gia-su" class="path-link">Test: /admin/gia-su</a>
+    </div>
+
+    <div class="test-box">
+      <h3>🔧 Path Configuration Check</h3>
+      <div id="path-config-results">
+        <p>Checking route configurations...</p>
+      </div>
+    </div>
+
+    <div class="test-box">
+      <h3>📊 Component Mount Detection</h3>
+      <div id="component-status">
+        <p>Monitoring for component logs...</p>
+      </div>
+      <div id="console-logs" class="log-box">Waiting for console logs...</div>
+    </div>
+
+    <div class="test-box">
+      <h3>🚀 Manual Tests</h3>
+      <button onclick="testDirectNavigation()">Test Direct Navigation</button>
+      <button onclick="checkReactMount()">Check React Mount</button>
+      <button onclick="monitorConsole()">Monitor Console (10s)</button>
+      <button onclick="testRouterPush()">Test Router Push</button>
+    </div>
+
+    <div class="test-box">
+      <h3>📝 Test Results</h3>
+      <div id="test-results">Click buttons above to run tests...</div>
+    </div>
+
+    <script>
+      // Update current status
+      function updateCurrentStatus() {
+        document.getElementById("current-url").textContent =
+          window.location.href;
+        document.getElementById("current-path").textContent =
+          window.location.pathname;
+
+        const path = window.location.pathname;
+        let status = "";
+        let statusClass = "";
+
+        if (path === "/admin/rut-tien") {
+          status = "✅ On target withdrawal page";
+          statusClass = "success";
+        } else if (path.startsWith("/admin/")) {
+          status = "⚠️ On admin page but not withdrawal";
+          statusClass = "warning";
+        } else {
+          status = "❌ Not on admin page";
+          statusClass = "error";
+        }
+
+        const statusElement = document.getElementById("page-status");
+        statusElement.textContent = status;
+        statusElement.className = statusClass;
+      }
+
+      // Check path configurations
+      function checkPathConfig() {
+        const results = document.getElementById("path-config-results");
+
+        // Expected configurations
+        const expectedRoutes = [
+          {
+            path: "/admin/rut-tien",
+            component: "ListOfWithdrawalRequests",
+            status: "Target",
+          },
+          {
+            path: "/admin/tai-khoan-gia-su",
+            component: "ListOfRequest",
+            status: "Working",
+          },
+          { path: "/admin/gia-su", component: "ListOfTutor", status: "Test" },
+        ];
+
+        let configHtml =
+          '<table style="width:100%; border-collapse: collapse;">';
+        configHtml +=
+          '<tr style="background:#f8f9fa;"><th>Path</th><th>Component</th><th>Status</th></tr>';
+
+        expectedRoutes.forEach((route) => {
+          const isCurrent = window.location.pathname === route.path;
+          const rowStyle = isCurrent
+            ? "background:#e8f5e8; font-weight:bold;"
+            : "";
+          configHtml += `<tr style="${rowStyle}">
+                    <td style="padding:8px; border:1px solid #ddd;"><code>${route.path}</code></td>
+                    <td style="padding:8px; border:1px solid #ddd;">${route.component}</td>
+                    <td style="padding:8px; border:1px solid #ddd;">${route.status}</td>
+                </tr>`;
+        });
+
+        configHtml += "</table>";
+        results.innerHTML = configHtml;
+      }
+
+      // Test functions
+      function testDirectNavigation() {
+        const results = document.getElementById("test-results");
+        results.innerHTML =
+          "🔄 Testing direct navigation to /admin/rut-tien...";
+
+        // Save current location
+        const originalPath = window.location.pathname;
+
+        // Navigate
+        window.location.href = "/admin/rut-tien";
+
+        // The page will reload, so we can't check results here
+      }
+
+      function checkReactMount() {
+        const results = document.getElementById("test-results");
+
+        const reactRoot =
+          document.querySelector("[data-reactroot]") ||
+          document.getElementById("root") ||
+          document.querySelector("#app");
+
+        if (reactRoot) {
+          results.innerHTML = `✅ React app is mounted
+                
+Root element: ${reactRoot.tagName}${reactRoot.id ? "#" + reactRoot.id : ""}
+Children count: ${reactRoot.children.length}
+Has content: ${reactRoot.innerHTML.length > 100 ? "Yes" : "No"}`;
+          results.className = "test-box success";
+        } else {
+          results.innerHTML = `❌ React app not found
+                
+No React root element detected.
+This indicates a critical React mounting issue.`;
+          results.className = "test-box error";
+        }
+      }
+
+      function monitorConsole() {
+        const results = document.getElementById("test-results");
+        const logsDiv = document.getElementById("console-logs");
+
+        results.innerHTML = "🔄 Monitoring console for 10 seconds...";
+        logsDiv.innerHTML = "Monitoring started...\n";
+
+        let logCount = 0;
+        const originalLog = console.log;
+
+        console.log = function (...args) {
+          const message = args.join(" ");
+          logCount++;
+
+          if (
+            message.includes("DEBUG:") ||
+            message.includes("ListOfWithdrawal") ||
+            message.includes("fetchData")
+          ) {
+            logsDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+          }
+
+          originalLog.apply(console, args);
+        };
+
+        setTimeout(() => {
+          console.log = originalLog;
+          results.innerHTML = `✅ Console monitoring complete
+                
+Total logs captured: ${logCount}
+Check the log box above for relevant component logs.`;
+          results.className = "test-box success";
+        }, 10000);
+      }
+
+      function testRouterPush() {
+        const results = document.getElementById("test-results");
+
+        // Try to use React Router programmatically
+        if (window.history && window.history.pushState) {
+          results.innerHTML = "🔄 Testing history.pushState...";
+
+          window.history.pushState(null, "", "/admin/rut-tien");
+
+          setTimeout(() => {
+            updateCurrentStatus();
+            results.innerHTML = `✅ History push completed
+                    
+New path: ${window.location.pathname}
+Note: This only changes URL, component may not re-render without React Router.`;
+          }, 1000);
+        } else {
+          results.innerHTML = "❌ History API not available";
+          results.className = "test-box error";
+        }
+      }
+
+      // Auto-update status every 2 seconds
+      setInterval(updateCurrentStatus, 2000);
+
+      // Initial setup
+      updateCurrentStatus();
+      checkPathConfig();
+
+      // Auto-check component mount
+      setTimeout(() => {
+        const componentStatus = document.getElementById("component-status");
+
+        // Look for withdrawal-related content
+        const bodyText = document.body.innerText.toLowerCase();
+        const hasWithdrawalContent =
+          bodyText.includes("rút tiền") ||
+          bodyText.includes("withdrawal") ||
+          bodyText.includes("quản lý yêu cầu");
+
+        if (hasWithdrawalContent) {
+          componentStatus.innerHTML = "✅ Withdrawal content detected on page";
+          componentStatus.className = "success";
+        } else {
+          componentStatus.innerHTML = "❌ No withdrawal content found";
+          componentStatus.className = "error";
+        }
+      }, 2000);
+    </script>
+  </body>
+</html>

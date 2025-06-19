@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔍 Debug Withdrawal Component Loading</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+        line-height: 1.6;
+      }
+      .test-container {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .test-title {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .test-step {
+        background: #ecf0f1;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #3498db;
+      }
+      .test-result {
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      .error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+      .info {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+      }
+      .warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+      }
+
+      .debug-button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        margin: 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .debug-button:hover {
+        background: #2980b9;
+      }
+      .debug-button:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+      }
+
+      .console-log {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1 class="test-title">🔍 Debug Withdrawal Component Loading Issue</h1>
+
+      <div class="test-step">
+        <h3>📋 Debug Checklist:</h3>
+        <ol>
+          <li>Verify if component console.log appears</li>
+          <li>Check if useEffect fetchData is called</li>
+          <li>Monitor API calls to manage-banking/search</li>
+          <li>Check for JavaScript errors blocking render</li>
+          <li>Test if AdminDashboardLayout renders properly</li>
+        </ol>
+      </div>
+
+      <div class="test-step">
+        <h3>🚀 Quick Tests:</h3>
+        <button class="debug-button" onclick="checkCurrentPage()">
+          Check Current Page
+        </button>
+        <button class="debug-button" onclick="testConsoleLogging()">
+          Test Console Monitoring
+        </button>
+        <button class="debug-button" onclick="testAPIEndpoint()">
+          Test API Endpoint
+        </button>
+        <button class="debug-button" onclick="checkReactErrors()">
+          Check React Errors
+        </button>
+      </div>
+
+      <div class="test-step">
+        <h3>📊 Expected Console Logs (When Working):</h3>
+        <div class="console-log">
+          🔍 DEBUG: ListOfWithdrawalRequestsPage rendering... 🔍 DEBUG:
+          statusFilterOptions: [...] 🔍 DEBUG:
+          searchableWithdrawalColumnOptions: [...] 🔍 DEBUG:
+          selectedStatusFilter initialized: REQUEST 🔍 DEBUG: resetState called
+          🔍 DEBUG: resetState completed successfully 🔄 Starting fetchData for
+          withdrawal requests... 📋 Query parameters: {...} 📥 API Response
+          received: {...} ✅ Fetch data completed
+        </div>
+      </div>
+
+      <div id="test-results" class="test-result info">
+        Click buttons above to run tests...
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2 class="test-title">🔧 Manual Debug Instructions</h2>
+
+      <div class="test-step">
+        <h3>1. Navigate to Withdrawal Page</h3>
+        <p>Go to: <strong>http://localhost:3000/admin/rut-tien</strong></p>
+        <p>Expected: Component should load, not white screen</p>
+      </div>
+
+      <div class="test-step">
+        <h3>2. Open Browser DevTools (F12)</h3>
+        <ul>
+          <li><strong>Console Tab:</strong> Look for component debug logs</li>
+          <li><strong>Network Tab:</strong> Monitor API calls</li>
+          <li><strong>Elements Tab:</strong> Check if DOM renders</li>
+        </ul>
+      </div>
+
+      <div class="test-step">
+        <h3>3. What to Look For</h3>
+        <ul>
+          <li>✅ Component console.log appears → Component loads</li>
+          <li>✅ fetchData console.log appears → useEffect works</li>
+          <li>✅ API request in Network tab → API call made</li>
+          <li>❌ No logs → Component not loading/rendering</li>
+          <li>❌ JavaScript errors → Code issue blocking render</li>
+        </ul>
+      </div>
+
+      <div class="test-step">
+        <h3>4. Common Issues to Check</h3>
+        <ul>
+          <li><strong>Import Errors:</strong> Missing components/modules</li>
+          <li><strong>Syntax Errors:</strong> Malformed JSX/JavaScript</li>
+          <li><strong>Route Issues:</strong> Component not properly routed</li>
+          <li><strong>Infinite Loops:</strong> useEffect dependency issues</li>
+          <li><strong>Memory Issues:</strong> Component too heavy to render</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-container">
+      <h2 class="test-title">📝 Debug Results Log</h2>
+      <div id="debug-log" class="console-log">
+        Ready for debugging... Click test buttons or manually navigate to
+        /admin/rut-tien Monitoring console for component logs...
+      </div>
+    </div>
+
+    <script>
+      let debugLog = [];
+
+      function addToDebugLog(message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString();
+        debugLog.push(`[${timestamp}] ${message}`);
+        updateDebugDisplay();
+      }
+
+      function updateDebugDisplay() {
+        const logElement = document.getElementById("debug-log");
+        logElement.textContent = debugLog.join("\n");
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      function checkCurrentPage() {
+        const results = document.getElementById("test-results");
+        const currentPath = window.location.pathname;
+
+        addToDebugLog(`Current page: ${currentPath}`);
+
+        if (currentPath === "/admin/rut-tien") {
+          results.innerHTML = `✅ Currently on withdrawal page!
+                
+Page: ${currentPath}
+Status: On target page
+Next: Check console for component logs`;
+          results.className = "test-result success";
+        } else {
+          results.innerHTML = `ℹ️ Not on withdrawal page
+                
+Current: ${currentPath}
+Target: /admin/rut-tien
+Action: Navigate to withdrawal page first`;
+          results.className = "test-result info";
+        }
+      }
+
+      function testConsoleLogging() {
+        const results = document.getElementById("test-results");
+
+        // Monitor console.log
+        const originalLog = console.log;
+        let capturedLogs = [];
+
+        console.log = function (...args) {
+          capturedLogs.push(args.join(" "));
+          originalLog.apply(console, args);
+        };
+
+        // Test log
+        console.log("🧪 Debug test log - monitoring active");
+        addToDebugLog("Console monitoring started");
+
+        setTimeout(() => {
+          console.log = originalLog; // Restore
+
+          results.innerHTML = `📝 Console Monitoring Test Complete
+                
+Captured logs in last 3 seconds:
+${capturedLogs.map((log) => `- ${log}`).join("\n")}
+
+✅ Console monitoring is working
+Now navigate to /admin/rut-tien and watch for component logs`;
+          results.className = "test-result success";
+
+          addToDebugLog(`Captured ${capturedLogs.length} console logs`);
+        }, 3000);
+
+        results.innerHTML = "🔄 Monitoring console for 3 seconds...";
+        results.className = "test-result info";
+      }
+
+      async function testAPIEndpoint() {
+        const results = document.getElementById("test-results");
+        results.innerHTML = "🔄 Testing API endpoint...";
+        results.className = "test-result info";
+
+        try {
+          const response = await fetch(
+            "/api/manage-banking/search?rpp=1&page=1",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+
+          addToDebugLog(
+            `API Response: ${response.status} ${response.statusText}`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            results.innerHTML = `✅ API Endpoint Accessible!
+                    
+Status: ${response.status}
+Success: ${data.success}
+Data available: ${data.data ? "Yes" : "No"}
+
+API is working - component should be able to call it`;
+            results.className = "test-result success";
+            addToDebugLog("API test successful");
+          } else {
+            results.innerHTML = `⚠️ API Error Response
+                    
+Status: ${response.status}
+Error: ${response.statusText}
+
+API may not be implemented yet, but this shouldn't cause white screen`;
+            results.className = "test-result warning";
+            addToDebugLog(`API error: ${response.status}`);
+          }
+        } catch (error) {
+          results.innerHTML = `❌ API Test Failed
+                
+Error: ${error.message}
+
+Network/connection issue, but component should still render with error handling`;
+          results.className = "test-result error";
+          addToDebugLog(`API test failed: ${error.message}`);
+        }
+      }
+
+      function checkReactErrors() {
+        const results = document.getElementById("test-results");
+
+        // Check for React error boundary
+        const hasReactError =
+          document.querySelector("[data-reactroot]") === null;
+
+        if (hasReactError) {
+          results.innerHTML = `❌ React App Not Mounted
+                
+React root element not found
+This indicates a critical React error preventing app load
+Check console for JavaScript errors`;
+          results.className = "test-result error";
+          addToDebugLog("React app not mounted - critical error");
+        } else {
+          results.innerHTML = `✅ React App is Running
+                
+React root element found
+App is mounted and functional
+Issue is likely component-specific`;
+          results.className = "test-result success";
+          addToDebugLog("React app is running normally");
+        }
+      }
+
+      // Auto-detect page changes
+      let lastPath = window.location.pathname;
+      setInterval(() => {
+        if (window.location.pathname !== lastPath) {
+          addToDebugLog(
+            `Page changed: ${lastPath} → ${window.location.pathname}`
+          );
+          lastPath = window.location.pathname;
+        }
+      }, 1000);
+
+      // Initial status
+      addToDebugLog("Debug tool loaded and ready");
+      checkCurrentPage();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔧 Test API meeting/get-meeting - TutorClassroomMeetingsPage</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+      }
+      .problem {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .solution {
+        background: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .code {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        border-left: 4px solid #007bff;
+        margin: 10px 0;
+      }
+      .debug-step {
+        background: #fff3cd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        border-left: 4px solid #ffc107;
+      }
+      .success {
+        color: #155724;
+        background: #d4edda;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .error {
+        color: #721c24;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      h1 {
+        color: #dc3545;
+      }
+      h2 {
+        color: #28a745;
+      }
+      h3 {
+        color: #007bff;
+      }
+      .status {
+        padding: 5px 10px;
+        border-radius: 4px;
+        color: white;
+        font-weight: bold;
+      }
+      .fixed {
+        background: #28a745;
+      }
+      .testing {
+        background: #ffc107;
+        color: #000;
+      }
+      ul li {
+        margin: 5px 0;
+      }
+      .highlight {
+        background: yellow;
+        padding: 2px 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 API Fix: meeting/get-meeting - TutorClassroomMeetingsPage</h1>
+      <p>
+        <span class="status fixed">✅ FIXED</span> API endpoint đã được sửa từ
+        meeting/search → meeting/get-meeting
+      </p>
+
+      <div class="section problem">
+        <h2>🚨 VẤN ĐỀ ĐÃ ĐƯỢC SỬA</h2>
+        <p>
+          <strong>Triệu chứng:</strong> Nhấn vào "Xem phòng học" → Không load
+          được danh sách phòng học
+        </p>
+
+        <h3>❌ Code Cũ (Sai):</h3>
+        <div class="code">
+          // TutorClassroomMeetingsPage.jsx - BEFORE const response = await
+          Api({ endpoint: "meeting/search", // ❌ SAI API method:
+          METHOD_TYPE.GET, query: { classroomId: classroomId, page: 1, rpp:
+          1000, sort: JSON.stringify([{ key: "startTime", type: "DESC" }]), },
+          requireToken: true, }); // Expect response structure: ❌ SAI
+          response.data.items // Không đúng structure
+        </div>
+
+        <h3>✅ Code Mới (Đúng):</h3>
+        <div class="code">
+          // TutorClassroomMeetingsPage.jsx - AFTER const response = await Api({
+          endpoint: "meeting/get-meeting", // ✅ ĐÚNG API method:
+          METHOD_TYPE.GET, query: { classroomId: classroomId, // Chỉ cần
+          classroomId }, requireToken: true, }); // Expect response structure:
+          ✅ ĐÚNG response.data.result.items // Đúng structure như document
+        </div>
+      </div>
+
+      <div class="section solution">
+        <h2>✅ NHỮNG GÌ ĐÃ SỬA</h2>
+        <ul>
+          <li>
+            ✅ <strong>API endpoint:</strong> meeting/search →
+            <span class="highlight">meeting/get-meeting</span>
+          </li>
+          <li>
+            ✅ <strong>Response path:</strong> response.data.items →
+            <span class="highlight">response.data.result.items</span>
+          </li>
+          <li>
+            ✅ <strong>Query params:</strong> Bỏ page, rpp, sort - chỉ cần
+            classroomId
+          </li>
+          <li>
+            ✅ <strong>Default tab:</strong> IN_SESSION →
+            <span class="highlight">ENDED</span> (vì hầu hết meetings đã kết
+            thúc)
+          </li>
+          <li>
+            ✅ <strong>Debug logging:</strong> Thêm console.log để debug dễ hơn
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>📋 VERIFIED API STRUCTURE</h2>
+        <p>
+          Dựa trên attachment
+          StudentClassroom-Meeting-ClientSide-Pagination-Test.html:
+        </p>
+
+        <div class="code">
+          // API Call: GET /meeting/get-meeting?classroomId={id} // Response
+          Structure: { "status": "OK", "code": 200, "success": true, "message":
+          "Get meeting successfully", "data": { "result": { "total": 5, "items":
+          [ { "meetingId": "52a4f229-fb9e-45b7-ab98-546fc5e2f14f",
+          "zoomMeetingId": "79516124830", "topic": "Lớp học: Lớp học với gia sư
+          Nguyễn Văn An", "startTime": "2025-06-07T01:32:37.000Z", "duration":
+          1, "endTime": "2025-06-07T01:33:45.000Z", "joinUrl":
+          "https://us04web.zoom.us/j/79516124830?pwd=...", "password": "123",
+          "classroomId": "0d27f835-83e7-408f-b2ab-d932450afc95", "status":
+          "ENDED", "isRating": false } // ... more meetings ] } } }
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🧪 TESTING GUIDE</h2>
+
+        <div class="debug-step">
+          <h3>🔍 Bước 1: Kiểm tra Navigation</h3>
+          <ol>
+            <li>
+              Vào trang "Quản lý lớp học" (/tai-khoan/ho-so/quan-ly-lop-hoc)
+            </li>
+            <li>Click button "Xem phòng học" của bất kỳ lớp nào</li>
+            <li>Xem Console logs để kiểm tra:</li>
+          </ol>
+          <div class="code">
+            🏫 TutorClassroomMeetingsPage - Classroom info: { classroomId:
+            "...", classroomName: "...", searchParams: {...}, locationState:
+            {...} }
+          </div>
+        </div>
+
+        <div class="debug-step">
+          <h3>🔍 Bước 2: Kiểm tra API Call</h3>
+          <p>Trong Console, tìm logs:</p>
+          <div class="code">
+            🔄 Initial loading meetings for classroom: {classroomId} 🔍 Fetching
+            meetings for classroom: {classroomId} using meeting/get-meeting
+            endpoint 📥 Meeting API response: {response} ✅ Fetched {count}
+            meetings
+          </div>
+        </div>
+
+        <div class="debug-step">
+          <h3>🔍 Bước 3: Kiểm tra Kết Quả</h3>
+          <p>Nếu thành công:</p>
+          <div class="success">
+            ✅ Danh sách phòng học hiển thị<br />
+            ✅ Tab "Phòng học đã kết thúc" có số lượng meetings<br />
+            ✅ Pagination hoạt động (nếu >3 meetings)<br />
+            ✅ Modal "Tạo phòng học" hoạt động
+          </div>
+
+          <p>Nếu có lỗi:</p>
+          <div class="error">
+            ❌ Kiểm tra classroomId có null không<br />
+            ❌ Kiểm tra API response structure<br />
+            ❌ Kiểm tra Console logs error details
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🚀 EXPECTED BEHAVIOR</h2>
+
+        <h3>✅ Sau khi sửa:</h3>
+        <ul>
+          <li>Click "Xem phòng học" → Chuyển sang /quan-ly-phong-hoc</li>
+          <li>Tự động gọi API meeting/get-meeting với classroomId</li>
+          <li>Hiển thị danh sách meetings trong tab "Phòng học đã kết thúc"</li>
+          <li>Tab counts hiển thị đúng (IN_SESSION: 0, ENDED: X)</li>
+          <li>Modal "Tạo phòng học" hoạt động khi click button</li>
+          <li>Pagination hoạt động nếu có >3 meetings</li>
+        </ul>
+
+        <h3>🔧 Nếu vẫn lỗi:</h3>
+        <ul>
+          <li>Kiểm tra Network tab trong DevTools</li>
+          <li>Xem response của API meeting/get-meeting</li>
+          <li>Kiểm tra classroomId có được truyền đúng không</li>
+          <li>Xem Console logs để debug flow</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>📊 SUMMARY</h2>
+        <p>
+          <span class="status fixed">✅ FIXED</span> API integration đã được sửa
+          từ meeting/search → meeting/get-meeting
+        </p>
+        <p>
+          <span class="status fixed">✅ FIXED</span> Response parsing đã được
+          sửa cho đúng structure
+        </p>
+        <p>
+          <span class="status fixed">✅ FIXED</span> Default tab đã được sửa
+          thành ENDED
+        </p>
+        <p>
+          <span class="status testing">🧪 TESTING</span> Cần test thực tế trên
+          UI để xác nhận hoạt động
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

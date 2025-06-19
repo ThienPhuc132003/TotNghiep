@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdrawal Requests Search/Filter Test</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Import styles from ListOfAdmin.style.css */
+      .list-of-admin-page {
+        padding: 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+      }
+
+      .page-header {
+        margin-bottom: 30px;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .page-description {
+        color: #666;
+        font-size: 1rem;
+      }
+
+      /* Search Bar Filter Container */
+      .search-bar-filter-container {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-bar-filter {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      /* Filter Control */
+      .filter-control {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .filter-control label {
+        font-size: 0.9em;
+        color: #555;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      .status-filter-select {
+        padding: 0 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em;
+        background-color: #fff;
+        min-width: 160px;
+        height: 38px;
+        box-sizing: border-box;
+        cursor: pointer;
+      }
+
+      .status-filter-select:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      /* Search Bar Input */
+      .admin-search {
+        flex: 1;
+        min-width: 250px;
+      }
+
+      .admin-search-input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.9em;
+        height: 38px;
+        box-sizing: border-box;
+      }
+
+      .admin-search-input:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      /* Refresh Button */
+      .refresh-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        height: 38px;
+        cursor: pointer;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 38px;
+      }
+
+      .refresh-button:hover {
+        background-color: #0056b3;
+      }
+
+      .refresh-button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      /* Table Section */
+      .table-section {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      .demo-table th,
+      .demo-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .demo-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+      }
+
+      /* Status badges */
+      .status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .status-request {
+        background-color: #e3f2fd;
+        color: #1976d2;
+      }
+      .status-pending {
+        background-color: #fff3e0;
+        color: #f57c00;
+      }
+      .status-approved {
+        background-color: #e8f5e8;
+        color: #388e3c;
+      }
+      .status-rejected {
+        background-color: #ffebee;
+        color: #d32f2f;
+      }
+      .status-processed {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+      }
+      .status-cancel {
+        background-color: #fafafa;
+        color: #616161;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .search-bar-filter {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-control {
+          justify-content: space-between;
+        }
+
+        .admin-search {
+          min-width: 100%;
+        }
+
+        .refresh-button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="list-of-admin-page">
+      <div class="page-header">
+        <h1 class="page-title">Quản Lý Yêu Cầu Rút Tiền</h1>
+        <p class="page-description">
+          Quản lý và duyệt các yêu cầu rút tiền từ gia sư
+        </p>
+      </div>
+
+      <div class="search-bar-filter-container">
+        <div class="search-bar-filter">
+          <!-- Select chọn cột tìm kiếm -->
+          <div class="filter-control">
+            <select
+              id="searchFieldSelect"
+              class="status-filter-select"
+              aria-label="Chọn trường để tìm kiếm"
+            >
+              <option value="manageBankingId">ID Yêu cầu</option>
+              <option value="tutorId">ID Gia sư</option>
+              <option value="tutor.fullname" selected>Tên gia sư</option>
+              <option value="tutor.bankNumber">Số tài khoản</option>
+              <option value="coinWithdraw">Coin rút</option>
+              <option value="gotValue">Tiền quy đổi</option>
+              <option value="createdAt">Ngày tạo (YYYY-MM-DD)</option>
+            </select>
+          </div>
+
+          <div class="admin-search">
+            <input
+              type="text"
+              class="admin-search-input"
+              placeholder="Nhập tên gia sư..."
+              aria-label="Tìm kiếm"
+            />
+          </div>
+
+          <button class="refresh-button" title="Tìm kiếm" aria-label="Tìm kiếm">
+            <i class="fa-solid fa-search"></i>
+          </button>
+
+          <button
+            class="refresh-button"
+            title="Làm mới bộ lọc"
+            aria-label="Làm mới bộ lọc"
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+
+          <!-- Filter trạng thái -->
+          <div class="filter-control">
+            <label for="status-filter">Trạng thái:</label>
+            <select id="status-filter" class="status-filter-select">
+              <option value="">Tất cả</option>
+              <option value="REQUEST" selected>Yêu cầu</option>
+              <option value="PENDING">Chờ duyệt</option>
+              <option value="APPROVED">Đã duyệt</option>
+              <option value="REJECTED">Từ chối</option>
+              <option value="PROCESSED">Đã xử lý</option>
+              <option value="CANCEL">Đã hủy</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-section">
+        <table class="demo-table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>ID Gia sư</th>
+              <th>Tên Gia sư</th>
+              <th>Coin rút</th>
+              <th>Tiền quy đổi</th>
+              <th>Tên ngân hàng</th>
+              <th>STK</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>GS001</td>
+              <td>Nguyễn Văn An</td>
+              <td>500,000 Coin</td>
+              <td>4,500,000 VNĐ</td>
+              <td>Vietcombank</td>
+              <td>1234567890</td>
+              <td><span class="status status-request">Yêu cầu</span></td>
+              <td>15/12/2024 10:30</td>
+              <td>
+                <button
+                  class="refresh-button"
+                  style="background-color: #28a745; margin-right: 5px"
+                >
+                  Duyệt
+                </button>
+                <button
+                  class="refresh-button"
+                  style="background-color: #dc3545"
+                >
+                  Từ chối
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>GS002</td>
+              <td>Trần Thị Bình</td>
+              <td>300,000 Coin</td>
+              <td>2,700,000 VNĐ</td>
+              <td>BIDV</td>
+              <td>0987654321</td>
+              <td><span class="status status-pending">Chờ duyệt</span></td>
+              <td>14/12/2024 14:15</td>
+              <td>
+                <button
+                  class="refresh-button"
+                  style="background-color: #28a745; margin-right: 5px"
+                >
+                  Duyệt
+                </button>
+                <button
+                  class="refresh-button"
+                  style="background-color: #dc3545"
+                >
+                  Từ chối
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>GS003</td>
+              <td>Lê Minh Cường</td>
+              <td>750,000 Coin</td>
+              <td>6,750,000 VNĐ</td>
+              <td>Agribank</td>
+              <td>1122334455</td>
+              <td><span class="status status-approved">Đã duyệt</span></td>
+              <td>13/12/2024 09:45</td>
+              <td>
+                <button
+                  class="refresh-button"
+                  style="background-color: #007bff"
+                >
+                  Xem chi tiết
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      // JavaScript để test search/filter functionality
+      const searchFieldSelect = document.getElementById("searchFieldSelect");
+      const searchInput = document.querySelector(".admin-search-input");
+      const statusFilter = document.getElementById("status-filter");
+
+      // Update placeholder based on selected search field
+      searchFieldSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const fieldName = selectedOption.text.toLowerCase();
+        const placeholderSuffix =
+          selectedOption.value === "createdAt" ? " (YYYY-MM-DD)" : "";
+        searchInput.placeholder = `Nhập ${fieldName}${placeholderSuffix}...`;
+      });
+
+      // Demo search functionality
+      document
+        .querySelector(".fa-search")
+        .parentElement.addEventListener("click", function () {
+          const field = searchFieldSelect.value;
+          const value = searchInput.value;
+          const status = statusFilter.value;
+
+          alert(
+            `Tìm kiếm:\nTrường: ${
+              searchFieldSelect.options[searchFieldSelect.selectedIndex].text
+            }\nGiá trị: ${value || "(trống)"}\nTrạng thái: ${
+              status || "Tất cả"
+            }`
+          );
+        });
+
+      // Demo reset functionality
+      document
+        .querySelector(".fa-rotate-left")
+        .parentElement.addEventListener("click", function () {
+          searchFieldSelect.selectedIndex = 0;
+          searchInput.value = "";
+          statusFilter.selectedIndex = 1; // Reset to "Yêu cầu"
+          searchInput.placeholder = "Nhập id yêu cầu...";
+          alert("Đã làm mới bộ lọc!");
+        });
+
+      // Enter key search
+      searchInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          document.querySelector(".fa-search").parentElement.click();
+        }
+      });
+    </script>
+  </body>
+</html>

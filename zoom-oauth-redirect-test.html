@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Zoom OAuth Redirect Logic</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .test-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .test-button:hover {
+        background: #0056b3;
+      }
+      .status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .status.connected {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.disconnected {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .log {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Test Zoom OAuth Redirect Logic</h1>
+
+      <div class="test-section">
+        <h3>Current Zoom Status</h3>
+        <div id="zoomStatus" class="status">Checking...</div>
+        <button class="test-button" onclick="checkZoomStatus()">
+          Refresh Status
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Zoom Access Token</h3>
+        <button class="test-button" onclick="setTestToken()">
+          Set Test Token
+        </button>
+        <button class="test-button" onclick="clearToken()">Clear Token</button>
+        <button class="test-button" onclick="setInvalidToken()">
+          Set Invalid Token
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Create Meeting Flow</h3>
+        <p>This simulates what happens when user clicks "Tạo phòng học":</p>
+        <button class="test-button" onclick="simulateCreateMeeting()">
+          Simulate Create Meeting
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h3>Test Zoom OAuth Redirect</h3>
+        <p>This will redirect to Zoom OAuth page:</p>
+        <button class="test-button" onclick="testZoomRedirect()">
+          Test Zoom Redirect
+        </button>
+      </div>
+
+      <div class="test-section">
+        <h3>Console Log</h3>
+        <div id="consoleLog" class="log"></div>
+        <button class="test-button" onclick="clearLog()">Clear Log</button>
+      </div>
+    </div>
+
+    <script>
+      // Mock data for testing
+      const testClassroomId = "classroom123";
+      const testClassroomName = "Test Classroom";
+
+      // Console log capture
+      const originalLog = console.log;
+      console.log = function (...args) {
+        originalLog.apply(console, args);
+        logToPage(args.join(" "));
+      };
+
+      function logToPage(message) {
+        const logDiv = document.getElementById("consoleLog");
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
+
+      function clearLog() {
+        document.getElementById("consoleLog").innerHTML = "";
+      }
+
+      function checkZoomStatus() {
+        const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+        const statusDiv = document.getElementById("zoomStatus");
+
+        console.log("🔍 Checking Zoom connection:", {
+          hasToken: !!zoomAccessToken,
+          tokenLength: zoomAccessToken?.length,
+        });
+
+        if (zoomAccessToken) {
+          statusDiv.textContent = `✅ Connected (Token length: ${zoomAccessToken.length})`;
+          statusDiv.className = "status connected";
+          console.log("✅ Zoom is connected");
+        } else {
+          statusDiv.textContent = "❌ Not connected - No access token found";
+          statusDiv.className = "status disconnected";
+          console.log("❌ Zoom not connected");
+        }
+      }
+
+      function setTestToken() {
+        const testToken = "test_zoom_access_token_" + Date.now();
+        localStorage.setItem("zoomAccessToken", testToken);
+        console.log("🔧 Set test token:", testToken);
+        checkZoomStatus();
+      }
+
+      function clearToken() {
+        localStorage.removeItem("zoomAccessToken");
+        console.log("🗑️ Cleared Zoom access token");
+        checkZoomStatus();
+      }
+
+      function setInvalidToken() {
+        localStorage.setItem("zoomAccessToken", "invalid_token");
+        console.log("🔧 Set invalid token");
+        checkZoomStatus();
+      }
+
+      function simulateCreateMeeting() {
+        console.log("🚀 Simulating handleCreateMeetingSubmit...");
+
+        const formData = {
+          topic: "Test Meeting",
+          password: "123456",
+        };
+
+        console.log("🚀 handleCreateMeetingSubmit called with:", formData);
+        console.log("🏫 Current classroom info:", {
+          classroomId: testClassroomId,
+          classroomName: testClassroomName,
+        });
+
+        // Check Zoom access token first
+        const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+        console.log("🔍 Checking Zoom access token:", {
+          hasToken: !!zoomAccessToken,
+          tokenLength: zoomAccessToken?.length,
+        });
+
+        if (!zoomAccessToken) {
+          console.log(
+            "❌ No Zoom access token found - redirecting to Zoom OAuth"
+          );
+          alert(
+            "Bạn cần đăng nhập Zoom để tạo phòng học!\n\nSẽ chuyển đến trang đăng nhập Zoom..."
+          );
+
+          // Simulate redirect (but don't actually redirect in test)
+          console.log("🔗 Would redirect to Zoom OAuth...");
+          simulateZoomRedirect();
+          return;
+        }
+
+        console.log("✅ Zoom token found - proceeding with meeting creation");
+        alert("✅ Zoom đã kết nối - Tiếp tục tạo phòng học!");
+      }
+
+      function simulateZoomRedirect() {
+        console.log("🔗 Simulating redirectToZoomOAuth...");
+
+        // Store current page info to return after OAuth
+        const returnState = {
+          returnPath: `/tai-khoan/lop-hoc/meetings?classroomId=${testClassroomId}&classroomName=${encodeURIComponent(
+            testClassroomName
+          )}`,
+          classroomId: testClassroomId,
+          classroomName: testClassroomName,
+        };
+
+        localStorage.setItem(
+          "zoomOAuthReturnState",
+          JSON.stringify(returnState)
+        );
+        console.log("💾 Stored return state:", returnState);
+
+        // Determine OAuth URL
+        const apiBaseUrl = window.location.origin.includes("localhost")
+          ? "http://localhost:8080"
+          : window.location.origin;
+        const zoomOAuthUrl = `${apiBaseUrl}/api/zoom/authorize`;
+
+        console.log("🔗 Zoom OAuth URL:", zoomOAuthUrl);
+        console.log("📍 Would redirect to:", zoomOAuthUrl);
+
+        alert(`📍 Simulation: Would redirect to:\n${zoomOAuthUrl}`);
+      }
+
+      function testZoomRedirect() {
+        if (confirm("This will actually redirect to Zoom OAuth. Continue?")) {
+          const apiBaseUrl = window.location.origin.includes("localhost")
+            ? "http://localhost:8080"
+            : window.location.origin;
+          const zoomOAuthUrl = `${apiBaseUrl}/api/zoom/authorize`;
+
+          console.log("🔗 Redirecting to:", zoomOAuthUrl);
+          window.location.href = zoomOAuthUrl;
+        }
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🧪 Zoom OAuth Redirect Test Page Loaded");
+        checkZoomStatus();
+      });
+    </script>
+  </body>
+</html>

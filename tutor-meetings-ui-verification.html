@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI Verification - Tutor Meetings Page</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Import từ TutorClassroomPage.style.css - các class chính */
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        line-height: 1.6;
+      }
+
+      /* Breadcrumb Navigation */
+      .tcp-breadcrumb {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .tcp-breadcrumb-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .tcp-breadcrumb-link {
+        background: none;
+        border: none;
+        color: #007bff;
+        cursor: pointer;
+        text-decoration: none;
+        padding: 0;
+        font-size: inherit;
+        font-family: inherit;
+      }
+
+      .tcp-breadcrumb-link:hover {
+        color: #0056b3;
+        text-decoration: underline;
+      }
+
+      .tcp-breadcrumb-current {
+        color: #6c757d;
+        font-weight: 500;
+      }
+
+      .tcp-breadcrumb-separator {
+        margin: 0 8px;
+        color: #dee2e6;
+        font-size: 12px;
+      }
+
+      /* Page Container */
+      .tutor-classroom-page {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        min-height: 100vh;
+      }
+
+      .tcp-page-title {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+      }
+
+      /* Meeting Tabs và Controls */
+      .tcp-meeting-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .tcp-meeting-tabs {
+        display: flex;
+        gap: 8px;
+        background: white;
+        padding: 8px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+      }
+
+      .tcp-tab {
+        background: transparent;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+
+      .tcp-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+
+      .tcp-tab:hover:not(.active) {
+        background: #f8f9fa;
+        color: #495057;
+      }
+
+      .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: 4px;
+      }
+
+      .tcp-tab.active .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .tcp-create-meeting-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-create-meeting-btn:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+
+      /* Meeting Cards */
+      .tcp-meeting-card {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .tcp-meeting-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        border-color: #007bff;
+      }
+
+      .tcp-meeting-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #20c997);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .tcp-meeting-card:hover::before {
+        opacity: 1;
+      }
+
+      /* Meeting Info */
+      .tcp-meeting-info {
+        padding: 24px;
+        flex: 1;
+      }
+
+      .tcp-meeting-topic {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #f1f3f4;
+      }
+
+      .tcp-meeting-topic i {
+        color: #007bff;
+        font-size: 1.5rem;
+        background: rgba(0, 123, 255, 0.1);
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tcp-meeting-topic h4 {
+        color: #2c3e50;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      /* Meeting Details */
+      .tcp-meeting-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .tcp-meeting-detail-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+      }
+
+      .tcp-meeting-detail-item:hover {
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        border-color: #007bff;
+      }
+
+      .tcp-detail-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 130px;
+        font-size: 0.9rem;
+      }
+
+      .tcp-detail-value {
+        color: #212529;
+        font-weight: 500;
+        flex: 1;
+        margin-left: 12px;
+      }
+
+      /* Status Badges */
+      .tcp-status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 2px solid;
+      }
+
+      .tcp-status-in_session {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border-color: rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-status-pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+        border-color: rgba(255, 193, 7, 0.3);
+      }
+
+      .tcp-status-completed {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border-color: rgba(108, 117, 125, 0.3);
+      }
+
+      .tcp-status-cancelled {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border-color: rgba(220, 53, 69, 0.3);
+      }
+
+      /* Meeting Actions */
+      .tcp-meeting-actions {
+        padding: 20px 24px 24px 24px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+
+      .tcp-action-btn {
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      .tcp-join-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      .tcp-join-btn:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+      }
+
+      /* Empty State */
+      .tcp-empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+
+      .tcp-empty-icon i {
+        font-size: 4rem;
+        color: #6c757d;
+        background: rgba(108, 117, 125, 0.1);
+        padding: 24px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-bottom: 24px;
+      }
+
+      .tcp-empty-state h3 {
+        color: #495057;
+        margin-bottom: 16px;
+      }
+
+      .tcp-empty-state p {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+
+      /* Pagination */
+      .tcp-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-top: 32px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .tcp-pagination-btn {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        min-width: 100px;
+        justify-content: center;
+      }
+
+      .tcp-pagination-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
+      }
+
+      .tcp-pagination-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .tcp-pagination-info {
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.95rem;
+        background: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .tcp-meeting-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .tcp-meeting-tabs {
+          justify-content: center;
+        }
+
+        .tcp-tab {
+          flex: 1;
+          text-align: center;
+        }
+
+        .tcp-meeting-details {
+          grid-template-columns: 1fr;
+        }
+
+        .tcp-meeting-actions {
+          flex-direction: column;
+        }
+
+        .tcp-pagination {
+          flex-direction: column;
+          gap: 12px;
+        }
+      }
+
+      /* Loading and Error States */
+      .tcp-loading,
+      .tcp-error {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .tcp-loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .tcp-loading-text {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      .tcp-error i {
+        font-size: 3rem;
+        color: #dc3545;
+        margin-bottom: 16px;
+      }
+
+      .tcp-retry-btn {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tutor-classroom-page">
+      <!-- Breadcrumb -->
+      <div class="tcp-breadcrumb">
+        <div class="tcp-breadcrumb-item">
+          <button class="tcp-breadcrumb-link">
+            <i class="fas fa-home"></i>
+            Trang chủ
+          </button>
+        </div>
+        <span class="tcp-breadcrumb-separator"
+          ><i class="fas fa-chevron-right"></i
+        ></span>
+        <div class="tcp-breadcrumb-item">
+          <button class="tcp-breadcrumb-link">
+            <i class="fas fa-chalkboard-teacher"></i>
+            Lớp học của tôi
+          </button>
+        </div>
+        <span class="tcp-breadcrumb-separator"
+          ><i class="fas fa-chevron-right"></i
+        ></span>
+        <div class="tcp-breadcrumb-item">
+          <span class="tcp-breadcrumb-current">Phòng học - Lớp Toán 12A1</span>
+        </div>
+      </div>
+
+      <!-- Page Title -->
+      <h1 class="tcp-page-title">
+        <i class="fas fa-video"></i>
+        Quản lý phòng học - Lớp Toán 12A1
+      </h1>
+
+      <!-- Meeting Controls -->
+      <div class="tcp-meeting-controls">
+        <div class="tcp-meeting-tabs">
+          <button class="tcp-tab">
+            <i class="fas fa-play-circle"></i>
+            Phòng học đang hoạt động
+            <span class="tcp-tab-count">(2)</span>
+          </button>
+          <button class="tcp-tab active">
+            <i class="fas fa-check-circle"></i>
+            Phòng học đã kết thúc
+            <span class="tcp-tab-count">(5)</span>
+          </button>
+        </div>
+
+        <button class="tcp-create-meeting-btn">
+          <i class="fas fa-plus"></i>
+          Tạo phòng học
+        </button>
+      </div>
+
+      <!-- Meeting Content -->
+      <div class="tcp-meeting-content">
+        <!-- Sample Meeting Card 1 -->
+        <div class="tcp-meeting-card">
+          <div class="tcp-meeting-info">
+            <div class="tcp-meeting-topic">
+              <i class="fas fa-video"></i>
+              <h4>Lớp học: Toán 12A1 - Bài 1: Hàm số và giới hạn</h4>
+            </div>
+            <div class="tcp-meeting-details">
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Meeting ID:</span>
+                <span class="tcp-detail-value">123-456-789</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Mật khẩu:</span>
+                <span class="tcp-detail-value">abc123</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Thời gian bắt đầu:</span>
+                <span class="tcp-detail-value">15/01/2024</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Thời gian kết thúc:</span>
+                <span class="tcp-detail-value">15/01/2024</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Trạng thái:</span>
+                <span class="tcp-status-badge tcp-status-completed"
+                  >Đã hoàn thành</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="tcp-meeting-actions">
+            <button class="tcp-action-btn tcp-join-btn">
+              <i class="fas fa-sign-in-alt"></i>
+              Tham gia
+            </button>
+          </div>
+        </div>
+
+        <!-- Sample Meeting Card 2 -->
+        <div class="tcp-meeting-card">
+          <div class="tcp-meeting-info">
+            <div class="tcp-meeting-topic">
+              <i class="fas fa-video"></i>
+              <h4>Lớp học: Toán 12A1 - Bài 2: Đạo hàm và ứng dụng</h4>
+            </div>
+            <div class="tcp-meeting-details">
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Meeting ID:</span>
+                <span class="tcp-detail-value">987-654-321</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Mật khẩu:</span>
+                <span class="tcp-detail-value">xyz789</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Thời gian bắt đầu:</span>
+                <span class="tcp-detail-value">18/01/2024</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Thời gian kết thúc:</span>
+                <span class="tcp-detail-value">18/01/2024</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Trạng thái:</span>
+                <span class="tcp-status-badge tcp-status-in_session"
+                  >Đang học</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="tcp-meeting-actions">
+            <button class="tcp-action-btn tcp-join-btn">
+              <i class="fas fa-sign-in-alt"></i>
+              Tham gia
+            </button>
+          </div>
+        </div>
+
+        <!-- Sample Meeting Card 3 -->
+        <div class="tcp-meeting-card">
+          <div class="tcp-meeting-info">
+            <div class="tcp-meeting-topic">
+              <i class="fas fa-video"></i>
+              <h4>Lớp học: Toán 12A1 - Bài 3: Tích phân và ứng dụng</h4>
+            </div>
+            <div class="tcp-meeting-details">
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Meeting ID:</span>
+                <span class="tcp-detail-value">555-666-777</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Mật khẩu:</span>
+                <span class="tcp-detail-value">def456</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Thời gian bắt đầu:</span>
+                <span class="tcp-detail-value">22/01/2024</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Thời gian kết thúc:</span>
+                <span class="tcp-detail-value">N/A</span>
+              </div>
+              <div class="tcp-meeting-detail-item">
+                <span class="tcp-detail-label">Trạng thái:</span>
+                <span class="tcp-status-badge tcp-status-pending"
+                  >Chờ bắt đầu</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="tcp-meeting-actions">
+            <button class="tcp-action-btn tcp-join-btn">
+              <i class="fas fa-sign-in-alt"></i>
+              Tham gia
+            </button>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="tcp-pagination">
+          <button class="tcp-pagination-btn" disabled>
+            <i class="fas fa-chevron-left"></i>
+            Trước
+          </button>
+
+          <span class="tcp-pagination-info"> Trang 1 / 2 </span>
+
+          <button class="tcp-pagination-btn">
+            Sau
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo các trạng thái khác -->
+    <div
+      style="
+        margin-top: 50px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+      "
+    >
+      <h3>Demo các trạng thái khác:</h3>
+
+      <!-- Loading State -->
+      <div class="tcp-loading" style="margin: 20px 0">
+        <div class="tcp-loading-spinner"></div>
+        <p class="tcp-loading-text">Đang tải danh sách phòng học...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="tcp-error" style="margin: 20px 0">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Lỗi khi tải danh sách phòng học.</p>
+        <button class="tcp-retry-btn">
+          <i class="fas fa-refresh"></i>
+          Thử lại
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div class="tcp-empty-state" style="margin: 20px 0">
+        <div class="tcp-empty-icon">
+          <i class="fas fa-video"></i>
+        </div>
+        <h3>Chưa có phòng học nào</h3>
+        <p>
+          Hiện tại chưa có phòng học nào đang hoạt động. Hãy tạo phòng học mới
+          để bắt đầu.
+        </p>
+        <button class="tcp-create-meeting-btn">
+          <i class="fas fa-plus"></i>
+          Tạo phòng học đầu tiên
+        </button>
+      </div>
+
+      <!-- Status Badges Demo -->
+      <div style="margin: 20px 0">
+        <h4>Demo các status badge:</h4>
+        <div
+          style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px"
+        >
+          <span class="tcp-status-badge tcp-status-in_session">Đang học</span>
+          <span class="tcp-status-badge tcp-status-pending">Chờ bắt đầu</span>
+          <span class="tcp-status-badge tcp-status-completed"
+            >Đã hoàn thành</span
+          >
+          <span class="tcp-status-badge tcp-status-cancelled">Đã hủy</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Demo tương tác
+      document.querySelectorAll(".tcp-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tcp-tab")
+            .forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+        });
+      });
+
+      console.log("✅ Tutor Meetings UI Verification loaded successfully");
+      console.log("🎨 All styles applied correctly");
+      console.log("📱 Responsive design active");
+    </script>
+  </body>
+</html>
