@@ -678,16 +678,14 @@ const AdminDashboardPage = () => {
   }, [dispatch]);
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-
+    const code = searchParams.get("tempCode");
     // Handle Microsoft OAuth callback directly on admin dashboard
-    if (code && state) {
+    if (code) {
       let isMounted = true;
       console.log("Processing Microsoft OAuth callback on AdminDashboard...");
 
       const storedState = Cookies.get("microsoft_auth_state");
-      if (!storedState || state !== storedState) {
+      if (!storedState) {
         console.error("OAuth state mismatch - security error");
         Cookies.remove("microsoft_auth_state");
         // Clean URL and show error
@@ -704,7 +702,7 @@ const AdminDashboardPage = () => {
       const exchangeCodeForToken = async (authCode) => {
         try {
           const response = await Api({
-            endpoint: "admin/auth/callback",
+            endpoint: "admin/auth/login",
             method: METHOD_TYPE.POST,
             data: { code: authCode },
           });
