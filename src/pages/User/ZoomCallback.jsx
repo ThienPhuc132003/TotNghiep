@@ -106,10 +106,24 @@ const ZoomCallback = () => {
                     replace: true,
                   });
                 } else if (returnPath.includes("quan-ly-phong-hoc")) {
-                  // This is the general room management page, add success indicator
+                  // This is the general room management page
                   const params = new URLSearchParams({
                     fromZoomConnection: "true",
                   });
+
+                  // Add classroom info if available from returnState
+                  if (returnStateData.classroomId) {
+                    params.set("classroomId", returnStateData.classroomId);
+                  }
+                  if (returnStateData.classroomName) {
+                    params.set("classroomName", returnStateData.classroomName);
+                  }
+
+                  console.log(
+                    "🎯 Returning to quan-ly-phong-hoc with params:",
+                    params.toString()
+                  );
+
                   navigate(`${returnPath}?${params.toString()}`, {
                     replace: true,
                   });
