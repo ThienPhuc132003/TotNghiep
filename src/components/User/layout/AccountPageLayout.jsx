@@ -22,9 +22,21 @@ const SidebarUserInfo = React.memo(() => {
         altText: "User Avatar Placeholder",
       };
     }
+    const getAvatar = () => {
+      // Check if user is TUTOR and has tutorProfile.avatar
+      if (user.roleId === "TUTOR" && user.tutorProfile?.avatar) {
+        return user.tutorProfile.avatar;
+      }
 
-    const getAvatar = () =>
-      user.avatar ? user.avatar : user.gender === "FEMALE" ? dfFemale : dfMale;
+      // For regular users or if tutor doesn't have avatar, use userProfile.avatar
+      if (user.userProfile?.avatar) {
+        return user.userProfile.avatar;
+      }
+
+      // Fallback to default avatar based on gender
+      const gender = user.userProfile?.gender || user.gender;
+      return gender === "FEMALE" ? dfFemale : dfMale;
+    };
 
     return {
       avatar: getAvatar(),

@@ -13,17 +13,15 @@ const DefaultAdminAvatar = () => (
 
 const AdminProfileDisplayComponent = () => {
   const adminProfile = useSelector((state) => state.admin.adminProfile); // Lấy profile từ Redux
- console.log("Admin Profile:", adminProfile); // Kiểm tra dữ liệu profile
+  console.log("Admin Profile:", adminProfile); // Kiểm tra dữ liệu profile
   if (!adminProfile) {
     // Có thể hiển thị một trạng thái loading hoặc null nếu profile chưa có
     // Hoặc một placeholder cho biết chưa đăng nhập (dù toolbar thường chỉ hiện khi đã đăng nhập)
     return <div className="admin-profile-display-placeholder">Đang tải...</div>;
   }
-
-  // Giả sử adminProfile có các trường như name, role, avatarUrl
-  // Điều chỉnh các trường này cho phù hợp với cấu trúc dữ liệu của bạn
+  // Sử dụng field name đúng theo API response structure
   const displayName =
-    adminProfile.fullName || adminProfile.name || adminProfile.email || "Admin";
+    adminProfile.fullname || adminProfile.name || adminProfile.email || "Admin";
   const roleName = "Quản trị viên"; // Hoặc lấy từ adminProfile.role nếu có
 
   return (

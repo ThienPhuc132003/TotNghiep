@@ -3,8 +3,11 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import "../../assets/css/User.style.css"; // Đảm bảo đường dẫn CSS đúng
 import { useSelector } from "react-redux";
-import dfMale from "../../assets/images/df-male.png";
-import dfFemale from "../../assets/images/df-female.png";
+import {
+  getUserAvatar,
+  getUserDisplayName,
+  getUserRoleText,
+} from "../../utils/avatarUtils";
 
 const UserComponent = () => {
   // onEditProfile vẫn giữ nếu có kế hoạch dùng
@@ -20,19 +23,10 @@ const UserComponent = () => {
   const handleDoubleClick = () => {
     navigate("/tai-khoan/ho-so");
   };
+  const getAvatar = () => getUserAvatar(userInfo);
 
-  const getAvatar = () => {
-    if (userInfo.avatar) {
-      return userInfo.avatar;
-    }
-    return userInfo.gender === "FEMALE" ? dfFemale : dfMale;
-  };
-
-  const displayName =
-    userInfo.userProfile && userInfo.userProfile.fullname
-      ? userInfo.userProfile.fullname
-      : "Người dùng";
-  const userRole = userInfo.tutorProfile ? "Gia sư" : "Học viên";
+  const displayName = getUserDisplayName(userInfo);
+  const userRole = getUserRoleText(userInfo);
   const userCoin = userInfo.coin ? `${userInfo.coin} Xu` : "0 Xu";
 
   return (
