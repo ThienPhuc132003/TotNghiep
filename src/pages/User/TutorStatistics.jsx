@@ -141,11 +141,15 @@ const TutorStatistics = () => {
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
-
   // Load summary statistics on component mount
   useEffect(() => {
     fetchSummaryStats();
   }, [fetchSummaryStats]);
+
+  // Debug: Log summaryStats whenever it changes
+  useEffect(() => {
+    console.log("🔍 SummaryStats updated:", summaryStats);
+  }, [summaryStats]);
 
   // If not a tutor, show access denied
   if (!isTutor) {
@@ -188,275 +192,314 @@ const TutorStatistics = () => {
         draggable
         pauseOnHover
         theme="light"
-      />
-
+      />{" "}
       {/* Header */}
-      <div className="tutor-statistics-header">
-        <Typography variant="h4" component="h1" gutterBottom>
+      <Box
+        className="tutor-statistics-header"
+        sx={{ textAlign: "center", mb: 4 }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            mb: 2,
+            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+          }}
+        >
           Thống Kê Tổng Hợp
         </Typography>
-        <Typography variant="body1">
+        <Typography
+          variant="h6"
+          sx={{
+            color: "rgba(255, 255, 255, 0.9)",
+            fontWeight: 400,
+            fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
+            textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+          }}
+        >
           Theo dõi hiệu suất giảng dạy và doanh thu của bạn một cách chi tiết và
           trực quan
         </Typography>
-      </div>
-
+      </Box>
       {/* Summary Cards - 2x2 Layout */}
       <Grid
         container
-        spacing={{ xs: 2, sm: 2, lg: 3 }}
+        spacing={3}
         sx={{
           mb: 4,
-          maxWidth: "600px", // Compact width for 2x2 layout
+          maxWidth: "800px", // Increased width for better proportion
           margin: "0 auto 32px auto", // Center the grid
+          justifyContent: "center",
           "& .MuiGrid-item": {
             display: "flex",
             alignItems: "stretch",
           },
         }}
       >
+        {" "}
         {/* Card 1: Tổng doanh thu */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} md={6} lg={3}>
+          {" "}
           <Card
             className="tutor-statistics-summary-card"
             sx={{
               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               color: "white",
               width: "100%",
+              height: "160px",
               display: "flex",
               flexDirection: "column",
-              minHeight: { xs: 70, sm: 80, lg: 90 },
+              borderRadius: "20px",
+              boxShadow: "0 8px 32px rgba(102, 126, 234, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 16px 48px rgba(102, 126, 234, 0.4)",
+              },
             }}
           >
+            {" "}
             <CardContent
               sx={{
                 flexGrow: 1,
                 display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
                 alignItems: "center",
-                p: { xs: 1, sm: 1.5, lg: 2 },
-                "&:last-child": { pb: { xs: 1, sm: 1.5, lg: 2 } },
+                textAlign: "center",
               }}
             >
-              <Box
-                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              <AttachMoney
+                sx={{
+                  fontSize: 40,
+                  mb: 1,
+                  opacity: 0.9,
+                }}
+              />{" "}
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 1,
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  opacity: 0.8,
+                }}
               >
-                <AttachMoney
-                  sx={{
-                    fontSize: { xs: 24, sm: 28, lg: 32 },
-                    mr: { xs: 1, sm: 1.5, lg: 2 },
-                    flexShrink: 0,
-                  }}
-                />
-                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: 0.2,
-                      fontSize: { xs: "0.7rem", sm: "0.8rem", lg: "0.85rem" },
-                      lineHeight: 1.2,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Tổng doanh thu
-                  </Typography>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: { xs: "0.85rem", sm: "0.95rem", lg: "1rem" },
-                      lineHeight: 1.1,
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {formatCurrency(summaryStats.totalRevenue)}
-                  </Typography>
-                </Box>
-              </Box>
+                Tổng doanh thu
+              </Typography>{" "}
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "1.5rem",
+                  lineHeight: 1,
+                }}
+              >
+                {formatCurrency(summaryStats.totalRevenue)}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-
         {/* Card 2: Tổng lượt thuê */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} md={6} lg={3}>
           <Card
             className="tutor-statistics-summary-card"
             sx={{
               background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
               color: "white",
               width: "100%",
+              height: "160px",
               display: "flex",
               flexDirection: "column",
-              minHeight: { xs: 70, sm: 80, lg: 90 },
+              borderRadius: "20px",
+              boxShadow: "0 8px 32px rgba(240, 147, 251, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 16px 48px rgba(240, 147, 251, 0.4)",
+              },
             }}
           >
+            {" "}
             <CardContent
               sx={{
                 flexGrow: 1,
                 display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
                 alignItems: "center",
-                p: { xs: 1, sm: 1.5, lg: 2 },
-                "&:last-child": { pb: { xs: 1, sm: 1.5, lg: 2 } },
+                textAlign: "center",
               }}
             >
-              <Box
-                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              <BookOnline
+                sx={{
+                  fontSize: 40,
+                  mb: 1,
+                  opacity: 0.9,
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 1,
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  opacity: 0.8,
+                }}
               >
-                <BookOnline
-                  sx={{
-                    fontSize: { xs: 24, sm: 28, lg: 32 },
-                    mr: { xs: 1, sm: 1.5, lg: 2 },
-                    flexShrink: 0,
-                  }}
-                />
-                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: 0.2,
-                      fontSize: { xs: "0.7rem", sm: "0.8rem", lg: "0.85rem" },
-                      lineHeight: 1.2,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Tổng lượt thuê
-                  </Typography>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: { xs: "0.85rem", sm: "0.95rem", lg: "1rem" },
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {summaryStats.totalBookings}
-                  </Typography>
-                </Box>
-              </Box>
+                Tổng lượt thuê
+              </Typography>{" "}
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "1.5rem",
+                  lineHeight: 1,
+                }}
+              >
+                {summaryStats.totalBookings}
+              </Typography>
             </CardContent>
           </Card>
-        </Grid>
-
+        </Grid>{" "}
         {/* Card 3: Đánh giá trung bình */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} md={6} lg={3}>
           <Card
             className="tutor-statistics-summary-card"
             sx={{
               background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
               color: "white",
               width: "100%",
+              height: "160px",
               display: "flex",
               flexDirection: "column",
-              minHeight: { xs: 70, sm: 80, lg: 90 },
+              borderRadius: "20px",
+              boxShadow: "0 8px 32px rgba(79, 172, 254, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 16px 48px rgba(79, 172, 254, 0.4)",
+              },
             }}
           >
+            {" "}
             <CardContent
               sx={{
                 flexGrow: 1,
                 display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
                 alignItems: "center",
-                p: { xs: 1, sm: 1.5, lg: 2 },
-                "&:last-child": { pb: { xs: 1, sm: 1.5, lg: 2 } },
+                textAlign: "center",
               }}
             >
-              <Box
-                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              <Star
+                sx={{
+                  fontSize: 40,
+                  mb: 1,
+                  opacity: 0.9,
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 1,
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  opacity: 0.8,
+                }}
               >
-                <Star
-                  sx={{
-                    fontSize: { xs: 24, sm: 28, lg: 32 },
-                    mr: { xs: 1, sm: 1.5, lg: 2 },
-                    flexShrink: 0,
-                  }}
-                />
-                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: 0.2,
-                      fontSize: { xs: "0.7rem", sm: "0.8rem", lg: "0.85rem" },
-                      lineHeight: 1.2,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Đánh giá trung bình
-                  </Typography>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: { xs: "0.85rem", sm: "0.95rem", lg: "1rem" },
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {summaryStats.averageRating.toFixed(1)} ★
-                  </Typography>
-                </Box>
-              </Box>
+                Đánh giá trung bình
+              </Typography>{" "}
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "1.5rem",
+                  lineHeight: 1,
+                }}
+              >
+                {summaryStats.averageRating.toFixed(1)} ★
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-
         {/* Card 4: Số đánh giá */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} md={6} lg={3}>
           <Card
             className="tutor-statistics-summary-card"
             sx={{
               background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
               color: "white",
               width: "100%",
+              height: "160px",
               display: "flex",
               flexDirection: "column",
-              minHeight: { xs: 70, sm: 80, lg: 90 },
+              borderRadius: "20px",
+              boxShadow: "0 8px 32px rgba(67, 233, 123, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-8px)",
+                boxShadow: "0 16px 48px rgba(67, 233, 123, 0.4)",
+              },
             }}
           >
             <CardContent
               sx={{
                 flexGrow: 1,
                 display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
                 alignItems: "center",
-                p: { xs: 1, sm: 1.5, lg: 2 },
-                "&:last-child": { pb: { xs: 1, sm: 1.5, lg: 2 } },
+                textAlign: "center",
               }}
             >
-              <Box
-                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              {" "}
+              <People
+                sx={{
+                  fontSize: 40,
+                  mb: 1,
+                  opacity: 0.9,
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 1,
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  opacity: 0.8,
+                }}
               >
-                <People
-                  sx={{
-                    fontSize: { xs: 24, sm: 28, lg: 32 },
-                    mr: { xs: 1, sm: 1.5, lg: 2 },
-                    flexShrink: 0,
-                  }}
-                />
-                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: 0.2,
-                      fontSize: { xs: "0.7rem", sm: "0.8rem", lg: "0.85rem" },
-                      lineHeight: 1.2,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Số đánh giá
-                  </Typography>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: { xs: "0.85rem", sm: "0.95rem", lg: "1rem" },
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {summaryStats.totalRatings}
-                  </Typography>
-                </Box>
-              </Box>
+                Số đánh giá
+              </Typography>{" "}
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "1.5rem",
+                  lineHeight: 1,
+                }}
+              >
+                {summaryStats.totalRatings}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
-
       {/* Tabs */}
       <Card className="tutor-statistics-tabs">
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -492,16 +535,27 @@ const TutorStatistics = () => {
               iconPosition="start"
             />
           </Tabs>
-        </Box>
-
+        </Box>{" "}
         {/* Tab Panels */}
         <Box
           className="tutor-statistics-tab-panel tutor-statistics-tab-content"
-          sx={{ p: 3 }}
+          sx={{ p: 3, minHeight: 600 }}
         >
-          {currentTab === 0 && <TutorRevenueStatistics />}
-          {currentTab === 1 && <TutorBookingStatistics />}
-          {currentTab === 2 && <TutorRatingStatistics />}
+          {currentTab === 0 && (
+            <Box className="tutor-statistics-tab-content">
+              <TutorRevenueStatistics />
+            </Box>
+          )}
+          {currentTab === 1 && (
+            <Box className="tutor-statistics-tab-content">
+              <TutorBookingStatistics />
+            </Box>
+          )}
+          {currentTab === 2 && (
+            <Box className="tutor-statistics-tab-content">
+              <TutorRatingStatistics />
+            </Box>
+          )}
         </Box>
       </Card>
     </Box>

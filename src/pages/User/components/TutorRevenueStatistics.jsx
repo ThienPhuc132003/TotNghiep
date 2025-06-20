@@ -22,6 +22,7 @@ import {
   Grid,
   Card,
   CardContent,
+  Chip,
 } from "@mui/material";
 import {
   FileDownload,
@@ -320,7 +321,6 @@ const TutorRevenueStatistics = () => {
           </Card>
         </Grid>
       </Grid>
-
       {/* Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -388,7 +388,6 @@ const TutorRevenueStatistics = () => {
           </Grid>
         </CardContent>
       </Card>
-
       {/* Export Button */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
@@ -400,45 +399,44 @@ const TutorRevenueStatistics = () => {
           Xuất Excel
         </Button>
       </Box>
-
       {/* Error Display */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      )}
-
+      )}{" "}
       {/* Data Table */}
-      <Paper>
-        <TableContainer>
+      <Paper elevation={0}>
+        <TableContainer className="revenue-table">
           <Table>
             {" "}
             <TableHead>
               <TableRow>
                 <TableCell>STT</TableCell>
-                <TableCell>Mã giao dịch</TableCell>
                 <TableCell>Tên học viên</TableCell>
-                <TableCell>Mã học viên</TableCell>
-                <TableCell align="right">Học viên trả</TableCell>
                 <TableCell align="right">Gia sư nhận</TableCell>
-                <TableCell align="right">Web nhận</TableCell>
                 <TableCell>Ngày giao dịch</TableCell>
                 <TableCell>Trạng thái</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
+              {" "}
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    <CircularProgress />
+                  <TableCell colSpan={5}>
+                    <div className="tutor-statistics-loading">
+                      <CircularProgress />
+                      <Typography>Đang tải dữ liệu...</Typography>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    <Typography variant="body1" color="text.secondary">
-                      Không có dữ liệu
-                    </Typography>
+                  <TableCell colSpan={5}>
+                    <div className="tutor-statistics-empty-state">
+                      <AttachMoney />
+                      <Typography>Không có dữ liệu doanh thu</Typography>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -450,45 +448,42 @@ const TutorRevenueStatistics = () => {
                         <strong>{page * rowsPerPage + index + 1}</strong>
                       </TableCell>
                       <TableCell>
-                        {row.transactionId || row.paymentTransactionId || "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {row.studentName || row.userName || "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {row.studentId || row.userId || "N/A"}
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {row.studentName || row.userName || "N/A"}
+                        </Typography>
                       </TableCell>
                       <TableCell align="right">
-                        {formatCurrency(row.userPayment || row.amount)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {formatCurrency(row.tutorReceive || row.tutorRevenue)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {formatCurrency(row.webReceive || row.systemRevenue)}
-                      </TableCell>
-                      <TableCell>
-                        {formatDate(row.createdAt || row.paymentDate)}
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: "#059669" }}
+                        >
+                          {formatCurrency(row.tutorReceive || row.tutorRevenue)}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Typography
                           variant="body2"
-                          sx={{
-                            color:
-                              row.status === "SUCCESS" ||
-                              row.status === "COMPLETED"
-                                ? "success.main"
-                                : row.status === "PENDING"
-                                ? "warning.main"
-                                : row.status === "FAILED"
-                                ? "error.main"
-                                : "text.secondary",
-                            fontWeight: "medium",
-                            textTransform: "capitalize",
-                          }}
+                          sx={{ fontSize: "0.85rem" }}
                         >
-                          {row.status || "N/A"}
+                          {formatDate(row.createdAt || row.paymentDate)}
                         </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.status || "COMPLETED"}
+                          color={
+                            row.status === "SUCCESS" ||
+                            row.status === "COMPLETED"
+                              ? "success"
+                              : row.status === "PENDING"
+                              ? "warning"
+                              : row.status === "FAILED"
+                              ? "error"
+                              : "default"
+                          }
+                          size="small"
+                          variant="filled"
+                        />
                       </TableCell>
                     </TableRow>
                   ))

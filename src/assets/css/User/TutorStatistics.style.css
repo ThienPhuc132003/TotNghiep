@@ -70,6 +70,19 @@
 /*           📊 SUMMARY CARDS STYLING           */
 /* =========================================== */
 
+/* Grid container for summary cards */
+.tutor-statistics-container .MuiGrid-container {
+  max-width: 1200px !important;
+  margin: 0 auto 32px auto !important;
+  justify-content: center !important;
+}
+
+/* Ensure all grid items have equal sizing */
+.tutor-statistics-container .MuiGrid-item {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
 .tutor-statistics-summary-card {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border-radius: 20px !important;
@@ -81,9 +94,9 @@
   /* Enhanced shadow system */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-
   /* Ensure equal height and proper flex behavior */
-  height: 100% !important;
+  width: 100% !important;
+  height: 160px !important;
   display: flex !important;
   flex-direction: column !important;
 }
@@ -92,21 +105,188 @@
 .tutor-statistics-summary-card .MuiCardContent-root {
   flex: 1 !important;
   display: flex !important;
+  flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 24px !important;
+  text-align: center !important;
+  padding: 16px !important;
+  min-height: 120px !important;
+  /* Remove the "&:last-child" padding override that might cause issues */
+}
+
+/* Icon styling for consistency */
+.tutor-statistics-summary-card .MuiSvgIcon-root {
+  font-size: 40px !important;
+  margin-bottom: 8px !important;
+  opacity: 0.9 !important;
+}
+
+/* Typography consistency */
+.tutor-statistics-summary-card .MuiTypography-h6 {
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  opacity: 0.8 !important;
+  margin-bottom: 8px !important;
+  color: white !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 10 !important;
+  position: relative !important;
+  /* Prevent text wrapping that might push content down */
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.tutor-statistics-summary-card .MuiTypography-h4 {
+  font-weight: bold !important;
+  font-size: 1.5rem !important;
+  line-height: 1.2 !important;
+  color: white !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+  position: relative !important;
+  /* Prevent overflow issues */
+  word-break: break-word !important;
+  hyphens: auto !important;
+  max-width: 100% !important;
+}
+
+/* Debug caption for raw values */
+.tutor-statistics-summary-card .MuiTypography-caption {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.7rem !important;
+  margin-top: 4px !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+/* Hover effects */
+.tutor-statistics-summary-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Responsive card content adjustments */
+@media (max-width: 1200px) {
+  .tutor-statistics-container .MuiGrid-container {
+    max-width: 960px !important;
+  }
+
+  .tutor-statistics-summary-card {
+    height: 150px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiSvgIcon-root {
+    font-size: 36px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiTypography-h4 {
+    font-size: 1.4rem !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .tutor-statistics-container .MuiGrid-container {
+    max-width: 100% !important;
+  }
+
+  .tutor-statistics-summary-card {
+    height: 140px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiSvgIcon-root {
+    font-size: 32px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .tutor-statistics-summary-card {
+    height: 120px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiCardContent-root {
+    padding: 12px !important;
+    min-height: 96px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiSvgIcon-root {
+    font-size: 28px !important;
+    margin-bottom: 4px !important;
+  }
+  .tutor-statistics-summary-card .MuiTypography-h6 {
+    font-size: 0.8rem !important;
+    margin-bottom: 4px !important;
+    color: white !important;
+    opacity: 0.9 !important;
+    line-height: 1.1 !important;
+  }
+
+  .tutor-statistics-summary-card .MuiTypography-h4 {
+    font-size: 1.2rem !important;
+    color: white !important;
+    opacity: 1 !important;
+    line-height: 1.1 !important;
+  }
+}
+
 @media (max-width: 600px) {
   .tutor-statistics-summary-card .MuiCardContent-root {
-    padding: 16px !important;
+    padding: 12px !important;
+    min-height: 76px !important;
+  }
+
+  .tutor-statistics-summary-card {
+    height: 100px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiSvgIcon-root {
+    font-size: 24px !important;
+    margin-bottom: 2px !important;
+  }
+  .tutor-statistics-summary-card .MuiTypography-h6 {
+    font-size: 0.7rem !important;
+    color: white !important;
+    margin-bottom: 2px !important;
+    line-height: 1 !important;
+  }
+  .tutor-statistics-summary-card .MuiTypography-h4 {
+    font-size: 1rem !important;
+    color: white !important;
+    line-height: 1 !important;
   }
 }
 
 @media (max-width: 480px) {
   .tutor-statistics-summary-card .MuiCardContent-root {
     padding: 14px !important;
+  }
+
+  .tutor-statistics-summary-card {
+    height: 90px !important;
+  }
+
+  .tutor-statistics-summary-card .MuiSvgIcon-root {
+    font-size: 20px !important;
+    margin-bottom: 4px !important;
+  }
+  .tutor-statistics-summary-card .MuiTypography-h6 {
+    font-size: 0.7rem !important;
+    margin-bottom: 4px !important;
+    color: white !important;
+    opacity: 0.9 !important;
+  }
+
+  .tutor-statistics-summary-card .MuiTypography-h4 {
+    font-size: 1rem !important;
+    color: white !important;
+    opacity: 1 !important;
   }
 }
 
@@ -491,104 +671,234 @@
 }
 
 /* =========================================== */
-/*           📊 TABLE STYLING                  */
+/*        📊 TABLE STYLING - ENHANCED         */
 /* =========================================== */
 
 .tutor-statistics-tab-panel .MuiPaper-root {
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.05),
     0 0 0 1px rgba(102, 126, 234, 0.1);
-  overflow: hidden;
   background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.tutor-statistics-tab-panel .MuiPaper-root::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+.tutor-statistics-tab-panel .MuiPaper-root:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
 }
 
+/* Enhanced Table Header Styling */
 .tutor-statistics-tab-panel .MuiTableHead-root {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6c5ce7 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
 }
 
-.tutor-statistics-tab-panel .MuiTableHead-root::before {
+.tutor-statistics-tab-panel .MuiTableHead-root::after {
   content: "";
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: 2px;
   background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 100%
+    90deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.3) 100%
   );
-  pointer-events: none;
 }
 
 .tutor-statistics-tab-panel .MuiTableHead-root .MuiTableCell-root {
   color: white;
   font-weight: 700;
-  border: none;
-  font-size: 1rem;
-  padding: 24px 20px;
+  font-size: 0.95rem;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  position: relative;
-  z-index: 1;
-}
-
-.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.05em;
+  border-bottom: none;
+  padding: 20px 16px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
-.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root::before {
+.tutor-statistics-tab-panel
+  .MuiTableHead-root
+  .MuiTableCell-root:not(:last-child)::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
   right: 0;
-  bottom: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Table Body Styling */
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.08);
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.04) 0%,
+    rgba(118, 75, 162, 0.04) 100%
+  );
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableCell-root {
+  padding: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.05);
+  color: #4a5568;
+  vertical-align: middle;
+}
+
+/* Consistent column widths for all tables */
+.tutor-statistics-tab-panel .MuiTable-root {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Revenue Statistics Table Columns - Updated after removing columns */
+.tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(1) {
+  width: 8%;
+} /* STT */
+.tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(2) {
+  width: 25%;
+} /* Student Name */
+.tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(3) {
+  width: 18%;
+} /* Student ID */
+.tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(4) {
+  width: 20%;
+} /* Tutor Receive */
+.tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(5) {
+  width: 17%;
+} /* Date */
+.tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(6) {
+  width: 12%;
+} /* Status */
+
+/* Booking Statistics Table Columns - Updated after removing Booking ID */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(1) {
+  width: 8%;
+} /* STT */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(2) {
+  width: 20%;
+} /* Student ID */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(3) {
+  width: 12%;
+} /* Sessions/week */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(4) {
+  width: 12%;
+} /* Total sessions */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(5) {
+  width: 12%;
+} /* Hours/session */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(6) {
+  width: 15%;
+} /* Total Cost */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(7) {
+  width: 13%;
+} /* Start Date */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(8) {
+  width: 10%;
+} /* Status */
+.tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(9) {
+  width: 13%;
+} /* Created Date */
+
+/* Rating Statistics Table Columns - Updated after removing IDs */
+.tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(1) {
+  width: 10%;
+} /* STT */
+.tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(2) {
+  width: 25%;
+} /* Student ID */
+.tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(3) {
+  width: 20%;
+} /* Rating */
+.tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(4) {
+  width: 30%;
+} /* Comment */
+.tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(5) {
+  width: 15%;
+} /* Date */
+
+/* Number formatting for consistency */
+.tutor-statistics-tab-panel .MuiTableCell-root[align="right"] strong {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+/* Status chips styling */
+.tutor-statistics-tab-panel .MuiChip-root {
+  font-weight: 600;
+  min-width: 80px;
+  height: 28px;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Pagination styling */
+.tutor-statistics-tab-panel .MuiTablePagination-root {
   background: linear-gradient(
     135deg,
     rgba(102, 126, 234, 0.02) 0%,
     rgba(118, 75, 162, 0.02) 100%
   );
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  border-radius: 0 0 20px 20px;
 }
 
-.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root:hover {
-  background: transparent;
-  transform: scale(1.01);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.05);
+.tutor-statistics-tab-panel .MuiTablePagination-toolbar {
+  padding: 16px 24px;
 }
 
-.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root:hover::before {
-  opacity: 1;
-}
-
-.tutor-statistics-tab-panel .MuiTableCell-root {
-  border-bottom: 1px solid rgba(102, 126, 234, 0.08);
-  padding: 20px;
+.tutor-statistics-tab-panel .MuiTablePagination-selectLabel,
+.tutor-statistics-tab-panel .MuiTablePagination-displayedRows {
   font-weight: 500;
-  transition: all 0.2s ease;
+  color: #4a5568;
 }
 
-.tutor-statistics-tab-panel .MuiTableBody-root .MuiTableCell-root {
-  font-size: 0.95rem;
-  color: #2d3748;
+/* Loading and empty state styling */
+.tutor-statistics-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tutor-statistics-loading .MuiCircularProgress-root {
+  color: #667eea;
+}
+
+.tutor-statistics-empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  flex-direction: column;
+  gap: 12px;
+  color: #718096;
+}
+
+.tutor-statistics-empty-state .MuiSvgIcon-root {
+  font-size: 64px;
+  opacity: 0.5;
+  margin-bottom: 8px;
 }
 
 /* =========================================== */
@@ -727,6 +1037,114 @@
 
   .tutor-statistics-tab-content {
     min-height: 500px;
+  }
+}
+
+/* Mobile responsive table styles */
+@media (max-width: 768px) {
+  /* Table Container Scrolling */
+  .tutor-statistics-tab-panel .MuiTableContainer-root {
+    overflow-x: auto;
+  }
+
+  /* Adjust table cell padding for mobile */
+  .tutor-statistics-tab-panel .MuiTableCell-root {
+    padding: 12px 8px;
+    font-size: 0.8rem;
+  }
+
+  .tutor-statistics-tab-panel .MuiTableHead-root .MuiTableCell-root {
+    padding: 16px 8px;
+    font-size: 0.75rem;
+  }
+  /* Responsive column widths for mobile - Updated after removing columns */
+  .tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(1) {
+    width: 50px;
+  } /* STT */
+  .tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(2) {
+    width: 150px;
+  } /* Student Name */
+  .tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(3) {
+    width: 100px;
+  } /* Student ID */
+  .tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(4) {
+    width: 120px;
+  } /* Tutor Receive */
+  .tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(5) {
+    width: 100px;
+  } /* Date */
+  .tutor-statistics-tab-panel .revenue-table .MuiTableCell-root:nth-child(6) {
+    width: 80px;
+  } /* Status */
+
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(1) {
+    width: 50px;
+  } /* STT */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(2) {
+    width: 100px;
+  } /* Student ID */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(3) {
+    width: 80px;
+  } /* Sessions/week */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(4) {
+    width: 80px;
+  } /* Total sessions */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(5) {
+    width: 80px;
+  } /* Hours/session */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(6) {
+    width: 100px;
+  } /* Total Cost */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(7) {
+    width: 100px;
+  } /* Start Date */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(8) {
+    width: 80px;
+  } /* Status */
+  .tutor-statistics-tab-panel .booking-table .MuiTableCell-root:nth-child(9) {
+    width: 100px;
+  } /* Created Date */
+
+  .tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(1) {
+    width: 50px;
+  } /* STT */
+  .tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(2) {
+    width: 120px;
+  } /* Student ID */
+  .tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(3) {
+    width: 100px;
+  } /* Rating */
+  .tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(4) {
+    width: 200px;
+  } /* Comment */
+  .tutor-statistics-tab-panel .rating-table .MuiTableCell-root:nth-child(5) {
+    width: 100px;
+  } /* Date */
+
+  /* Reduce transform effect on mobile */
+  .tutor-statistics-tab-panel .MuiTableBody-root .MuiTableRow-root:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further adjustments for very small screens */
+  .tutor-statistics-tab-panel .MuiTableCell-root {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .tutor-statistics-tab-panel .MuiTableHead-root .MuiTableCell-root {
+    padding: 12px 4px;
+    font-size: 0.7rem;
+  }
+
+  /* Chips smaller on mobile */
+  .tutor-statistics-tab-panel .MuiChip-root {
+    min-width: 60px;
+    height: 24px;
+    font-size: 0.7rem;
   }
 }
 

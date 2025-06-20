@@ -127,6 +127,7 @@ const mapApiTutorToCardProps = (apiTutor, isLoggedInFlag) => {
 
 const TutorList = ({
   searchTerm,
+  searchType = "all",
   selectedLevelId,
   selectedMajorId,
   sortBy,
@@ -172,10 +173,106 @@ const TutorList = ({
         : "user/get-list-tutor-public-without-login";
       try {
         const query = { page: pageToFetch, rpp: TUTORS_PER_PAGE };
-        if (searchTerm) query.searchTerm = searchTerm;
-        if (selectedLevelId) query.levelId = selectedLevelId;
-        if (selectedMajorId) query.majorId = selectedMajorId;
-        if (sortBy) query.sortBy = sortBy;
+
+        // Tạo filter array theo chuẩn backend
+        const filterConditions = [];
+        // Filter theo search term với nhiều trường
+        if (searchTerm && searchTerm.trim()) {
+          const searchValue = searchTerm.trim();
+
+          if (searchType === "name") {
+            filterConditions.push({
+              key: "tutorProfile.fullname",
+              operator: "like",
+              value: searchValue,
+            });
+          } else if (searchType === "university") {
+            filterConditions.push({
+              key: "tutorProfile.univercity",
+              operator: "like",
+              value: searchValue,
+            });
+          } else if (searchType === "subject") {
+            // Tìm kiếm trong các môn học - chỉ thêm các filter riêng biệt
+            filterConditions.push(
+              {
+                key: "tutorProfile.subject.subjectName",
+                operator: "like",
+                value: searchValue,
+              },
+              {
+                key: "tutorProfile.subject2.subjectName",
+                operator: "like",
+                value: searchValue,
+              },
+              {
+                key: "tutorProfile.subject3.subjectName",
+                operator: "like",
+                value: searchValue,
+              }
+            );
+          } else {
+            // Tìm kiếm tất cả - thêm multiple filters cho các trường khác nhau
+            filterConditions.push(
+              {
+                key: "tutorProfile.fullname",
+                operator: "like",
+                value: searchValue,
+              },
+              {
+                key: "tutorProfile.univercity",
+                operator: "like",
+                value: searchValue,
+              },
+              {
+                key: "tutorProfile.subject.subjectName",
+                operator: "like",
+                value: searchValue,
+              },
+              {
+                key: "tutorProfile.subject2.subjectName",
+                operator: "like",
+                value: searchValue,
+              },
+              {
+                key: "tutorProfile.subject3.subjectName",
+                operator: "like",
+                value: searchValue,
+              }
+            );
+          }
+        }
+
+        // Filter theo level ID
+        if (selectedLevelId) {
+          filterConditions.push({
+            key: "tutorProfile.tutorLevelId",
+            operator: "equal",
+            value: selectedLevelId,
+          });
+        }
+
+        // Filter theo major ID
+        if (selectedMajorId) {
+          filterConditions.push({
+            key: "tutorProfile.majorId",
+            operator: "equal",
+            value: selectedMajorId,
+          });
+        }
+
+        // Thêm filter conditions vào query
+        if (filterConditions.length > 0) {
+          query.filter = JSON.stringify(filterConditions);
+        }
+
+        // Thêm sort
+        if (sortBy) {
+          const sortConfig = getSortConfig(sortBy);
+          if (sortConfig) {
+            query.sort = JSON.stringify([sortConfig]);
+          }
+        }
 
         const response = await Api({
           endpoint: endpoint,
@@ -249,7 +346,14 @@ const TutorList = ({
         setIsLoading(false);
       }
     },
-    [isLoggedIn, searchTerm, selectedLevelId, selectedMajorId, sortBy] // Dependencies của fetchTutorsData
+    [
+      isLoggedIn,
+      searchTerm,
+      searchType,
+      selectedLevelId,
+      selectedMajorId,
+      sortBy,
+    ] // Dependencies của fetchTutorsData
   );
 
   useEffect(() => {
@@ -474,8 +578,31 @@ const TutorList = ({
   );
 };
 
+// Helper function để convert sortBy thành sort config
+const getSortConfig = (sortBy) => {
+  switch (sortBy) {
+    case "rating_desc":
+      return { key: "tutorProfile.rating", type: "DESC" };
+    case "rating_asc":
+      return { key: "tutorProfile.rating", type: "ASC" };
+    case "price_asc":
+      return { key: "tutorProfile.coinPerHours", type: "ASC" };
+    case "price_desc":
+      return { key: "tutorProfile.coinPerHours", type: "DESC" };
+    case "experience_desc":
+      return { key: "tutorProfile.teachingTime", type: "DESC" };
+    case "createdAt_desc":
+      return { key: "createdAt", type: "DESC" };
+    case "createdAt_asc":
+      return { key: "createdAt", type: "ASC" };
+    default:
+      return { key: "tutorProfile.rating", type: "DESC" };
+  }
+};
+
 TutorList.propTypes = {
   searchTerm: PropTypes.string,
+  searchType: PropTypes.string,
   selectedLevelId: PropTypes.string,
   selectedMajorId: PropTypes.string,
   sortBy: PropTypes.string,

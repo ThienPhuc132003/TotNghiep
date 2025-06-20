@@ -342,17 +342,16 @@ const TutorPersonalRevenueStatistics = () => {
 
   return (
     <div className="revenue-dashboard">
-      <ToastContainer />
-
-      {/* Header */}
+      <ToastContainer /> {/* Header */}
       <div className="revenue-header">
         <div className="header-content">
           <h1 className="revenue-title">
-            <i className="fas fa-table"></i>
-            Thống kê doanh thu cá nhân
+            <i className="fas fa-chart-line"></i>
+            Thống Kê Doanh Thu Cá Nhân
           </h1>
           <p className="revenue-subtitle">
-            Quản lý và xem chi tiết về doanh thu từ hoạt động dạy học
+            Theo dõi và phân tích chi tiết doanh thu từ hoạt động giảng dạy của
+            bạn
           </p>
         </div>
         <div className="header-actions">
@@ -376,7 +375,6 @@ const TutorPersonalRevenueStatistics = () => {
           </button>
         </div>
       </div>
-
       {/* Statistics Cards */}
       <div className="stats-grid">
         <div className="stat-card stat-card-primary">
@@ -429,7 +427,6 @@ const TutorPersonalRevenueStatistics = () => {
           </div>
         </div>
       </div>
-
       {/* Filters and Search */}
       <div className="filters-section">
         <div className="search-box">
@@ -489,7 +486,6 @@ const TutorPersonalRevenueStatistics = () => {
           </button>
         </div>
       </div>
-
       {/* Loading State */}
       {isLoading && (
         <div className="loading-container">
@@ -499,7 +495,6 @@ const TutorPersonalRevenueStatistics = () => {
           <p>Đang tải dữ liệu thống kê...</p>
         </div>
       )}
-
       {/* Error State */}
       {error && (
         <div className="error-container">
@@ -514,7 +509,6 @@ const TutorPersonalRevenueStatistics = () => {
           </button>
         </div>
       )}
-
       {/* Data Table */}
       {!isLoading && !error && filteredData.length > 0 && (
         <div className="table-section">
@@ -645,7 +639,6 @@ const TutorPersonalRevenueStatistics = () => {
           )}
         </div>
       )}
-
       {/* Empty State */}
       {!isLoading && !error && filteredData.length === 0 && (
         <div className="empty-container">
@@ -665,7 +658,6 @@ const TutorPersonalRevenueStatistics = () => {
           </p>
         </div>
       )}
-
       {/* Keyboard shortcuts help */}
       <div className="shortcuts-help">
         <small>

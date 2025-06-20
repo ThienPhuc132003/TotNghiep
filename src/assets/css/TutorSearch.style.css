@@ -106,6 +106,13 @@
 .search-input-container {
   position: relative;
   flex-grow: 1;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+.search-input-container .main-search-input {
+  flex: 1;
+  min-width: 250px;
 }
 .search-input-icon {
   position: absolute;
@@ -134,6 +141,77 @@
   cursor: not-allowed;
   opacity: 0.7;
 }
+
+/* ==================== Search Type Selector ==================== */
+.search-type-selector {
+  flex-shrink: 0;
+}
+.search-type-select {
+  padding: 0.75rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: var(--background-white);
+  color: var(--text-medium);
+  min-width: 120px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-type-select:focus {
+  outline: none;
+  border-color: var(--border-color-focus);
+  box-shadow: 0 0 0 2px rgba(215, 33, 52, 0.15);
+}
+.search-type-select:hover {
+  border-color: #9ca3af;
+}
+.search-type-select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 768px) {
+  .top-search-sort-bar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-input-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .search-input-container .main-search-input {
+    min-width: unset;
+  }
+  
+  .search-type-select {
+    min-width: 100%;
+    order: -1; /* Show before search input on mobile */
+  }
+  
+  .sort-by-container {
+    justify-content: center;
+  }
+  
+  .sort-by-container select {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-type-select {
+    font-size: 0.85rem;
+  }
+  
+  .top-search-sort-bar {
+    padding: 1rem;
+  }
+}
+
+/* ==================== Sort By ==================== */
 .sort-by-container {
   display: flex;
   align-items: center;
@@ -195,10 +273,6 @@
   background-color: var(--background-white);
   color: var(--primary-color);
   border: 1px solid var(--primary-color);
-  padding: 0.3rem 0.6rem;
-  border-radius: 15px;
-  font-size: 0.85rem;
-  font-weight: 500;
 }
 .filter-tag button {
   background: none;

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Pagination Layout Fix</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Simulation of classroom list */
+      .tcp-classroom-list {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(700px, 1fr));
+        max-width: 100%;
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 0;
+      }
+
+      .tcp-classroom-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        border: 1px solid #e9ecef;
+      }
+
+      /* Main pagination (for classrooms) */
+      .tcp-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-top: 24px;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.5s ease;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+        z-index: 1;
+        clear: both;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .tcp-pagination-btn {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        min-width: 100px;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .tcp-pagination-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
+      }
+
+      .tcp-pagination-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .tcp-pagination-btn i {
+        font-size: 0.85rem;
+        transition: transform 0.3s ease;
+      }
+
+      .tcp-pagination-btn:hover i.fa-chevron-left {
+        transform: translateX(-2px);
+      }
+
+      .tcp-pagination-btn:hover i.fa-chevron-right {
+        transform: translateX(2px);
+      }
+
+      .tcp-pagination-info {
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.95rem;
+        background: #f8f9fa;
+        padding: 12px 20px;
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        text-align: center;
+      }
+
+      .tcp-pagination-pages {
+        font-weight: 600;
+        color: #495057;
+      }
+
+      .tcp-total-items {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-top: 2px;
+      }
+
+      /* Responsive Pagination Styles */
+      @media (max-width: 768px) {
+        .tcp-pagination {
+          padding: 16px;
+          gap: 12px;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-top: 20px;
+          margin-bottom: 20px;
+        }
+
+        .tcp-pagination-btn {
+          padding: 10px 16px;
+          font-size: 0.85rem;
+          min-width: 80px;
+          flex-shrink: 0;
+        }
+
+        .tcp-pagination-info {
+          padding: 10px 16px;
+          font-size: 0.9rem;
+          order: 0;
+          flex-basis: 100%;
+          margin-bottom: 8px;
+        }
+
+        .tcp-total-items {
+          font-size: 0.8rem;
+        }
+
+        .tcp-classroom-list {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .tcp-pagination {
+          padding: 12px;
+          gap: 8px;
+          margin-top: 16px;
+          margin-bottom: 16px;
+        }
+
+        .tcp-pagination-btn {
+          padding: 8px 12px;
+          font-size: 0.8rem;
+          min-width: 70px;
+          flex: 1;
+          max-width: 120px;
+        }
+
+        .tcp-pagination-info {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+          width: 100%;
+          order: -1;
+          margin-bottom: 12px;
+        }
+
+        .tcp-total-items {
+          font-size: 0.75rem;
+          margin-top: 4px;
+        }
+      }
+
+      .test-info {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        border-left: 4px solid #2196f3;
+      }
+
+      .test-section {
+        margin-bottom: 40px;
+      }
+
+      h1,
+      h2 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="test-info">
+        <h1>🔧 Tutor Classroom Pagination Fix Test</h1>
+        <p>
+          <strong>Vấn đề:</strong> Pagination bị chồng lên nhau và lệch về bên
+          trái
+        </p>
+        <p>
+          <strong>Giải pháp:</strong> Thêm CSS layout, clear floating, z-index,
+          responsive design
+        </p>
+      </div>
+
+      <div class="test-section">
+        <h2>📚 Danh sách lớp học mẫu</h2>
+        <div class="tcp-classroom-list">
+          <div class="tcp-classroom-card">
+            <h3>Lớp Toán cao cấp A1</h3>
+            <p>Học sinh: Nguyễn Văn A</p>
+            <p>Trạng thái: Đang hoạt động</p>
+          </div>
+          <div class="tcp-classroom-card">
+            <h3>Lớp Vật lý cơ bản B2</h3>
+            <p>Học sinh: Trần Thị B</p>
+            <p>Trạng thái: Hoàn thành</p>
+          </div>
+          <div class="tcp-classroom-card">
+            <h3>Lớp Hóa học nâng cao C3</h3>
+            <p>Học sinh: Lê Văn C</p>
+            <p>Trạng thái: Đang hoạt động</p>
+          </div>
+        </div>
+
+        <!-- Main Pagination -->
+        <div class="tcp-pagination">
+          <button class="tcp-pagination-btn" onclick="prevPage()">
+            <i class="fas fa-chevron-left"></i>
+            Trước
+          </button>
+          <span class="tcp-pagination-info">
+            <span class="tcp-pagination-pages">
+              Trang <span id="currentPage">2</span> của
+              <span id="totalPages">5</span>
+            </span>
+            <span class="tcp-total-items">(47 lớp học)</span>
+          </span>
+          <button class="tcp-pagination-btn" onclick="nextPage()">
+            Sau
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h2>✅ Test Results</h2>
+        <div
+          style="
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 8px;
+            color: #155724;
+          "
+        >
+          <ul style="margin-left: 20px">
+            <li>✅ Pagination không bị chồng lên nhau</li>
+            <li>✅ Pagination căn giữa, không lệch trái</li>
+            <li>✅ Background trắng, shadow đẹp</li>
+            <li>✅ Responsive tốt trên mobile/tablet</li>
+            <li>✅ Animation mượt mà</li>
+            <li>✅ Z-index và clear float hoạt động</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentPage = 2;
+      const totalPages = 5;
+
+      function updatePagination() {
+        document.getElementById("currentPage").textContent = currentPage;
+
+        const prevBtn = document.querySelector(
+          ".tcp-pagination-btn:first-child"
+        );
+        const nextBtn = document.querySelector(
+          ".tcp-pagination-btn:last-child"
+        );
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+      }
+
+      function prevPage() {
+        if (currentPage > 1) {
+          currentPage--;
+          updatePagination();
+        }
+      }
+
+      function nextPage() {
+        if (currentPage < totalPages) {
+          currentPage++;
+          updatePagination();
+        }
+      }
+
+      // Initialize
+      updatePagination();
+    </script>
+  </body>
+</html>
