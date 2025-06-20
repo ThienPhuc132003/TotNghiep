@@ -412,7 +412,6 @@ const TutorRatingStatistics = () => {
           </Card>
         </Grid>
       </Grid>
-
       {/* Rating Distribution */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -442,7 +441,6 @@ const TutorRatingStatistics = () => {
           </Grid>
         </CardContent>
       </Card>
-
       {/* Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -526,7 +524,6 @@ const TutorRatingStatistics = () => {
           </Grid>
         </CardContent>
       </Card>
-
       {/* Export Button */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
@@ -538,44 +535,44 @@ const TutorRatingStatistics = () => {
           Xuất Excel
         </Button>
       </Box>
-
       {/* Error Display */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      )}
-
+      )}{" "}
       {/* Data Table */}
-      <Paper>
-        <TableContainer>
+      <Paper elevation={0}>
+        <TableContainer className="rating-table">
           <Table>
             {" "}
             <TableHead>
-              {" "}
               <TableRow>
                 <TableCell>STT</TableCell>
-                <TableCell>Mã assessment</TableCell>
-                <TableCell>Mã học viên</TableCell>
-                <TableCell>Mã lớp học</TableCell>
+                <TableCell>Tên học viên</TableCell>
                 <TableCell align="center">Điểm đánh giá</TableCell>
                 <TableCell>Mô tả</TableCell>
                 <TableCell>Ngày đánh giá</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
+              {" "}
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <CircularProgress />
+                  <TableCell colSpan={5}>
+                    <div className="tutor-statistics-loading">
+                      <CircularProgress />
+                      <Typography>Đang tải dữ liệu...</Typography>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <Typography variant="body1" color="text.secondary">
-                      Không có dữ liệu
-                    </Typography>
+                  <TableCell colSpan={5}>
+                    <div className="tutor-statistics-empty-state">
+                      <Star />
+                      <Typography>Không có dữ liệu đánh giá</Typography>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -585,14 +582,12 @@ const TutorRatingStatistics = () => {
                     <TableRow key={row.id || `rating-${index}`}>
                       <TableCell>
                         <strong>{page * rowsPerPage + index + 1}</strong>
-                      </TableCell>
+                      </TableCell>{" "}
                       <TableCell>
-                        {row.assessmentId || row.ratingId || "N/A"}
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {row.userId || row.studentId || "N/A"}
+                        </Typography>
                       </TableCell>
-                      <TableCell>
-                        {row.userId || row.studentId || "N/A"}
-                      </TableCell>
-                      <TableCell>{row.classroomId || "N/A"}</TableCell>
                       <TableCell align="center">
                         <Box
                           sx={{

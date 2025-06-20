@@ -54,6 +54,10 @@
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .tcp-page-title {
@@ -176,6 +180,9 @@
   gap: 24px;
   grid-template-columns: repeat(auto-fit, minmax(700px, 1fr));
   max-width: 100%;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 0;
 }
 
 .tcp-classroom-card {
@@ -1593,7 +1600,10 @@
   gap: 12px;
   flex: 1;
 }
-
+.tcp-pagination {
+  display: flex;
+  flex-direction: row;
+}
 /* Meeting pagination */
 .tcp-meeting-pagination {
   display: flex;
@@ -1601,10 +1611,50 @@
   align-items: center;
   gap: 16px;
   margin-top: 24px;
+  margin-bottom: 24px;
   padding: 20px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+  clear: both;
+}
+
+/* Main pagination (for classrooms) */
+.tcp-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+  clear: both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .tcp-pagination-btn {
@@ -1623,6 +1673,23 @@
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
   min-width: 100px;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tcp-pagination-btn i {
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
+}
+
+.tcp-pagination-btn:hover i.fa-chevron-left {
+  transform: translateX(-2px);
+}
+
+.tcp-pagination-btn:hover i.fa-chevron-right {
+  transform: translateX(2px);
 }
 
 .tcp-pagination-btn:hover:not(:disabled) {
@@ -1646,6 +1713,23 @@
   padding: 12px 20px;
   border-radius: 10px;
   border: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.tcp-pagination-pages {
+  font-weight: 600;
+  color: #495057;
+}
+
+.tcp-total-items {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 /* Empty state */
@@ -2254,5 +2338,93 @@
 
   .selection-instruction {
     font-size: 14px;
+  }
+}
+
+/* Responsive Pagination Styles */
+@media (max-width: 768px) {
+  .tcp-pagination,
+  .tcp-meeting-pagination {
+    padding: 16px;
+    gap: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .tcp-pagination-btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .tcp-pagination-info {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    order: 0;
+    flex-basis: 100%;
+    margin-bottom: 8px;
+  }
+
+  .tcp-total-items {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tcp-pagination,
+  .tcp-meeting-pagination {
+    padding: 12px;
+    gap: 8px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .tcp-pagination-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-width: 70px;
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .tcp-pagination-info {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    width: 100%;
+    order: -1;
+    margin-bottom: 12px;
+  }
+
+  .tcp-total-items {
+    font-size: 0.75rem;
+    margin-top: 4px;
+  }
+}
+
+/* Improve pagination button layout on very small screens */
+@media (max-width: 360px) {
+  .tcp-pagination,
+  .tcp-meeting-pagination {
+    padding: 10px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tcp-pagination-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  .tcp-pagination-info {
+    order: -1;
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 }

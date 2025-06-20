@@ -8,8 +8,32 @@ import { METHOD_TYPE } from "../../network/methodType";
 // 1. Import file CSS mới
 import "../../assets/css/MajorList.style.css"; // Đảm bảo đường dẫn đúng
 
-// 2. Xóa hoặc comment đối tượng customSelectStyles
-// const customSelectStyles = { ... };
+// Style cơ bản cho react-select - tương tự TutorLevelList
+const customSelectStyles = {
+  control: (provided) => ({
+    ...provided,
+    borderColor: "#ced4da",
+    minHeight: "calc(1.5em + 1.8rem + 2px)",
+    padding: "0.2rem 0.1rem",
+    boxShadow: "none",
+    "&:hover": { borderColor: "#b41e2d" },
+  }),
+  valueContainer: (provided) => ({ ...provided, padding: "0 0.8rem" }),
+  input: (provided) => ({ ...provided, margin: "0px", padding: "0px" }),
+  indicatorSeparator: () => ({ display: "none" }),
+  indicatorsContainer: (provided) => ({ ...provided, padding: "1px" }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? "#b41e2d"
+      : state.isFocused
+      ? "#f8d7da"
+      : "#fff",
+    color: state.isSelected ? "#fff" : "#212529",
+    "&:active": { backgroundColor: "#f5c6cb" },
+  }),
+  menu: (provided) => ({ ...provided, zIndex: 5 }),
+};
 
 const MajorList = ({
   onChange,
@@ -105,8 +129,7 @@ const MajorList = ({
         }
         loadingMessage={() => "Đang tải..."}
         menuPortalTarget={menuPortalTarget} // Add support for portal rendering
-        // 3. Xóa prop 'styles'
-        // styles={customSelectStyles}
+        styles={customSelectStyles}
         // Bạn có thể thêm classNamePrefix nếu muốn có một tiền tố cố định cho các class thay vì dựa hoàn toàn vào instanceId.
         // Ví dụ: classNamePrefix="custom-major-select"
         // Nếu dùng classNamePrefix, bạn cần cập nhật các class trong file CSS cho phù hợp.

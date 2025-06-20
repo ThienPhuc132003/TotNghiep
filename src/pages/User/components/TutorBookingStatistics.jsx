@@ -430,7 +430,6 @@ const TutorBookingStatistics = () => {
           </Card>
         </Grid>
       </Grid>
-
       {/* Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -514,7 +513,6 @@ const TutorBookingStatistics = () => {
           </Grid>
         </CardContent>
       </Card>
-
       {/* Export Button */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <Button
@@ -526,25 +524,21 @@ const TutorBookingStatistics = () => {
           Xuất Excel
         </Button>
       </Box>
-
       {/* Error Display */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      )}
-
+      )}{" "}
       {/* Data Table */}
-      <Paper>
-        <TableContainer>
+      <Paper elevation={0}>
+        <TableContainer className="booking-table">
           <Table>
             {" "}
             <TableHead>
-              {" "}
               <TableRow>
                 <TableCell>STT</TableCell>
-                <TableCell>Mã booking</TableCell>
-                <TableCell>Mã học viên</TableCell>
+                <TableCell>Tên học viên</TableCell>
                 <TableCell align="center">Buổi/tuần</TableCell>
                 <TableCell align="center">Tổng buổi</TableCell>
                 <TableCell align="center">Giờ/buổi</TableCell>
@@ -555,18 +549,23 @@ const TutorBookingStatistics = () => {
               </TableRow>
             </TableHead>
             <TableBody>
+              {" "}
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={10} align="center">
-                    <CircularProgress />
+                  <TableCell colSpan={9}>
+                    <div className="tutor-statistics-loading">
+                      <CircularProgress />
+                      <Typography>Đang tải dữ liệu...</Typography>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} align="center">
-                    <Typography variant="body1" color="text.secondary">
-                      Không có dữ liệu
-                    </Typography>
+                  <TableCell colSpan={9}>
+                    <div className="tutor-statistics-empty-state">
+                      <BookOnline />
+                      <Typography>Không có dữ liệu đặt lịch</Typography>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -578,10 +577,9 @@ const TutorBookingStatistics = () => {
                         <strong>{page * rowsPerPage + index + 1}</strong>
                       </TableCell>
                       <TableCell>
-                        {row.bookingId || row.bookingCode || "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {row.userId || row.studentId || "N/A"}
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {row.studentName || row.userName || "N/A"}
+                        </Typography>
                       </TableCell>
                       <TableCell align="center">
                         {row.lessonsPerWeek || 0}
@@ -593,10 +591,20 @@ const TutorBookingStatistics = () => {
                         {row.hoursPerLesson || 0} giờ
                       </TableCell>
                       <TableCell align="right">
-                        {formatCurrency(row.totalcoins || row.totalCost)}
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: "#059669" }}
+                        >
+                          {formatCurrency(row.totalcoins || row.totalCost)}
+                        </Typography>
                       </TableCell>
                       <TableCell>
-                        {formatDate(row.startDay || row.startDate)}
+                        <Typography
+                          variant="body2"
+                          sx={{ fontSize: "0.85rem" }}
+                        >
+                          {formatDate(row.startDay || row.startDate)}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip

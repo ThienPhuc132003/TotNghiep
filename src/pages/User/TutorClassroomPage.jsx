@@ -1016,6 +1016,7 @@ const TutorClassroomPage = () => {
           {/* Meeting Pagination */}
           {totalMeetings > meetingsPerPage && (
             <div className="tcp-meeting-pagination">
+              {" "}
               <button
                 onClick={() => handleMeetingPageChange(currentMeetingPage - 1)}
                 disabled={currentMeetingPage === 1}
@@ -1025,8 +1026,13 @@ const TutorClassroomPage = () => {
                 Trước
               </button>
               <span className="tcp-pagination-info">
-                Trang {currentMeetingPage} /{" "}
-                {Math.ceil(totalMeetings / meetingsPerPage)}
+                <span className="tcp-pagination-pages">
+                  Trang {currentMeetingPage} /{" "}
+                  {Math.ceil(totalMeetings / meetingsPerPage)}
+                </span>
+                <span className="tcp-total-items">
+                  ({totalMeetings} phòng học)
+                </span>
               </span>
               <button
                 onClick={() => handleMeetingPageChange(currentMeetingPage + 1)}
@@ -1395,6 +1401,7 @@ const TutorClassroomPage = () => {
       )}
       {!isLoading && totalClassrooms > itemsPerPage && (
         <div className="tcp-pagination">
+          {" "}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -1404,7 +1411,10 @@ const TutorClassroomPage = () => {
             Trước
           </button>
           <span className="tcp-pagination-info">
-            Trang {currentPage} của {Math.ceil(totalClassrooms / itemsPerPage)}
+            <span className="tcp-pagination-pages">
+              Trang {currentPage} của{" "}
+              {Math.ceil(totalClassrooms / itemsPerPage)}
+            </span>
             <span className="tcp-total-items">({totalClassrooms} lớp học)</span>
           </span>
           <button
@@ -1414,7 +1424,7 @@ const TutorClassroomPage = () => {
           >
             Sau
             <i className="fas fa-chevron-right"></i>
-          </button>{" "}
+          </button>
         </div>
       )}
     </div>
