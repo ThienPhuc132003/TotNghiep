@@ -623,6 +623,7 @@
   overflow: hidden;
   min-width: 180px;
   justify-content: center;
+  white-space: nowrap; /* Đảm bảo text không xuống dòng */
 }
 
 .tcp-tab:before {
@@ -826,7 +827,8 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #e9ecef;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Đảm bảo tabs luôn nằm ngang */
+  min-width: fit-content;
 }
 
 /* Responsive Design */
@@ -899,7 +901,6 @@
   .tcp-performance-notice {
     font-size: 13px;
   }
-
   /* Meeting controls responsive */
   .tcp-meeting-controls {
     flex-direction: column;
@@ -909,6 +910,8 @@
 
   .tcp-meeting-tabs {
     justify-content: center;
+    flex-wrap: nowrap; /* Giữ tabs nằm ngang trên mobile */
+    overflow-x: auto; /* Cho phép scroll ngang nếu cần */
   }
 
   .tcp-tab {
@@ -916,6 +919,7 @@
     text-align: center;
     font-size: 0.85rem;
     padding: 10px 16px;
+    min-width: 140px; /* Giảm min-width trên mobile */
   }
 
   .tcp-create-meeting-btn {

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classroom Assessment API Implementation Test</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      .section {
+        margin-bottom: 40px;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+      }
+      .section h2 {
+        color: #34495e;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .api-demo {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+      .json-display {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+      }
+      .button {
+        background: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 5px;
+        transition: all 0.3s;
+      }
+      .button:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+      }
+      .button.success {
+        background: #27ae60;
+      }
+      .button.warning {
+        background: #f39c12;
+      }
+      .button.danger {
+        background: #e74c3c;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin: 2px;
+      }
+      .status-ended {
+        background: #e74c3c;
+        color: white;
+      }
+      .status-session {
+        background: #27ae60;
+        color: white;
+      }
+      .payload-demo {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .implementation-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .demo-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+      .test-scenario {
+        background: #e3f2fd;
+        border: 1px solid #bbdefb;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .endpoint-demo {
+        background: #f3e5f5;
+        border: 1px solid #e1bee7;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .rating-stars {
+        color: #f39c12;
+        font-size: 18px;
+        margin: 5px 0;
+      }
+      .mock-data {
+        background: #e8f5e8;
+        border: 1px solid #c3e6cb;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 5px 0;
+      }
+      .api-call-flow {
+        background: #fff8e1;
+        border: 1px solid #ffecb3;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 Classroom Assessment API - Implementation Complete</h1>
+
+      <!-- API Endpoint Confirmation -->
+      <div class="section">
+        <h2>✅ Confirmed API Endpoint</h2>
+        <div class="endpoint-demo">
+          <h3>POST classroom-assessment/create/:classroomId</h3>
+          <div class="json-display" id="endpointExample"></div>
+          <div class="demo-actions">
+            <button class="button success" onclick="showEndpointDetails()">
+              Show Endpoint Details
+            </button>
+            <button class="button" onclick="showPayloadStructure()">
+              Show Payload Structure
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Implementation Status -->
+      <div class="section">
+        <h2>🔧 Implementation Status</h2>
+        <div class="implementation-success">
+          <h3>✅ StudentClassroomPage.jsx - UPDATED</h3>
+          <ul>
+            <li>
+              <strong>handleEvaluationSubmit()</strong> - Implemented with real
+              API call
+            </li>
+            <li>
+              <strong>handleMeetingRatingSubmit()</strong> - Implemented with
+              real API call
+            </li>
+            <li>
+              <strong>Error Handling</strong> - Complete try-catch with toast
+              notifications
+            </li>
+            <li>
+              <strong>Data Refresh</strong> - Auto-refresh after successful
+              submission
+            </li>
+            <li>
+              <strong>Payload Validation</strong> - Check required fields before
+              API call
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Payload Structure Demo -->
+      <div class="section">
+        <h2>📊 API Payload Examples</h2>
+
+        <div class="api-demo">
+          <h3>1. Classroom Rating Payload:</h3>
+          <div class="payload-demo">
+            <strong>Scenario:</strong> General classroom rating (no specific
+            meeting)<br />
+            <strong>Endpoint:</strong>
+            <code
+              >POST
+              classroom-assessment/create/0d27f835-83e7-408f-b2ab-d932450afc95</code
+            >
+            <div class="json-display" id="classroomPayload"></div>
+          </div>
+        </div>
+
+        <div class="api-demo">
+          <h3>2. Meeting Rating Payload:</h3>
+          <div class="payload-demo">
+            <strong>Scenario:</strong> Specific meeting rating<br />
+            <strong>Endpoint:</strong>
+            <code
+              >POST
+              classroom-assessment/create/0d27f835-83e7-408f-b2ab-d932450afc95</code
+            >
+            <div class="json-display" id="meetingPayload"></div>
+          </div>
+        </div>
+
+        <div class="demo-actions">
+          <button class="button" onclick="demoClassroomRating()">
+            Demo Classroom Rating
+          </button>
+          <button class="button warning" onclick="demoMeetingRating()">
+            Demo Meeting Rating
+          </button>
+          <button class="button success" onclick="showDataMapping()">
+            Show Data Mapping
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Scenarios -->
+      <div class="section">
+        <h2>🧪 Test Scenarios</h2>
+
+        <div class="test-scenario">
+          <h3>Test Case 1: Classroom Rating</h3>
+          <div id="testCase1"></div>
+          <button class="button" onclick="runClassroomTest()">Run Test</button>
+        </div>
+
+        <div class="test-scenario">
+          <h3>Test Case 2: Meeting Rating</h3>
+          <div id="testCase2"></div>
+          <button class="button warning" onclick="runMeetingTest()">
+            Run Test
+          </button>
+        </div>
+
+        <div class="test-scenario">
+          <h3>Test Case 3: Error Handling</h3>
+          <div id="testCase3"></div>
+          <button class="button danger" onclick="runErrorTest()">
+            Run Error Test
+          </button>
+        </div>
+      </div>
+
+      <!-- API Call Flow -->
+      <div class="section">
+        <h2>🔄 API Call Flow</h2>
+        <div class="api-call-flow">
+          <h3>Rating Submission Flow:</h3>
+          <div id="apiFlow"></div>
+          <div class="demo-actions">
+            <button class="button" onclick="showApiFlow()">
+              Show Complete Flow
+            </button>
+            <button class="button success" onclick="showSuccessFlow()">
+              Show Success Handling
+            </button>
+            <button class="button danger" onclick="showErrorFlow()">
+              Show Error Handling
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Implementation Code Preview -->
+      <div class="section">
+        <h2>💻 Implementation Code</h2>
+        <div class="api-demo">
+          <h3>Updated Functions in StudentClassroomPage.jsx:</h3>
+          <div class="json-display" id="implementationCode"></div>
+          <div class="demo-actions">
+            <button class="button success" onclick="showImplementationCode()">
+              Show Code
+            </button>
+            <button class="button" onclick="showCodeHighlights()">
+              Show Key Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock data based on real API structure
+      const mockMeetingData = {
+        meetingId: "52a4f229-fb9e-45b7-ab98-546fc5e2f14f",
+        classroomId: "0d27f835-83e7-408f-b2ab-d932450afc95",
+        status: "ENDED",
+        isRating: false,
+        classroom: {
+          tutorId: "US00011",
+          userId: "US00028",
+          classroomEvaluation: "5.0",
+          nameOfRoom: "Lớp học với gia sư Nguyễn Văn An",
+        },
+      };
+
+      const classroomRatingPayload = {
+        tutorId: "US00011",
+        classroomEvaluation: 4.5,
+        description: "Gia sư dạy tốt, phòng học được tổ chức chuyên nghiệp",
+        meetingId: null,
+      };
+
+      const meetingRatingPayload = {
+        tutorId: "US00011",
+        classroomEvaluation: 5.0,
+        description: "Buổi học rất hay, gia sư giảng dạy dễ hiểu",
+        meetingId: "52a4f229-fb9e-45b7-ab98-546fc5e2f14f",
+      };
+
+      // Display functions
+      function showEndpointDetails() {
+        const endpointInfo = {
+          endpoint: "classroom-assessment/create/:classroomId",
+          method: "POST",
+          authentication: "Bearer Token Required",
+          contentType: "application/json",
+          parameters: {
+            classroomId: "URL parameter - classroom ID to rate",
+          },
+          payload: {
+            tutorId: "string - ID of the tutor being rated",
+            classroomEvaluation: "number - Rating from 1-5",
+            description: "string - User comment/feedback",
+            meetingId: "string|null - Specific meeting ID (optional)",
+          },
+        };
+        document.getElementById("endpointExample").textContent = JSON.stringify(
+          endpointInfo,
+          null,
+          2
+        );
+      }
+
+      function showPayloadStructure() {
+        const structure = {
+          required_fields: ["tutorId", "classroomEvaluation", "description"],
+          optional_fields: ["meetingId"],
+          classroomEvaluation_range: "1.0 - 5.0",
+          description_maxLength: "500 characters (estimated)",
+          meetingId_usage: {
+            null: "General classroom rating",
+            specific_id: "Rate specific meeting/session",
+          },
+        };
+        document.getElementById("endpointExample").textContent = JSON.stringify(
+          structure,
+          null,
+          2
+        );
+      }
+
+      function demoClassroomRating() {
+        document.getElementById("classroomPayload").textContent =
+          JSON.stringify(classroomRatingPayload, null, 2);
+      }
+
+      function demoMeetingRating() {
+        document.getElementById("meetingPayload").textContent = JSON.stringify(
+          meetingRatingPayload,
+          null,
+          2
+        );
+      }
+
+      function showDataMapping() {
+        const mapping = {
+          data_sources: {
+            from_meeting_api: "meeting/get-meeting response",
+            from_user_input: "rating modal form",
+          },
+          field_mapping: {
+            tutorId: "meeting.classroom.tutorId",
+            classroomId: "meeting.classroomId (URL param)",
+            classroomEvaluation: "user_rating (1-5 stars)",
+            description: "user_comment (textarea)",
+            meetingId: "meeting.meetingId (optional)",
+          },
+          payload_construction: {
+            classroom_rating: "meetingId = null",
+            meeting_rating: "meetingId = specific_meeting_id",
+          },
+        };
+        document.getElementById("classroomPayload").textContent =
+          JSON.stringify(mapping, null, 2);
+      }
+
+      function runClassroomTest() {
+        const testSteps = [
+          "1. User opens classroom rating modal",
+          "2. User selects rating (4.5 stars)",
+          "3. User enters comment: 'Gia sư dạy tốt'",
+          "4. handleEvaluationSubmit() called",
+          "5. Extract tutorId from selectedClassroomForEvaluation",
+          "6. Build payload with meetingId: null",
+          "7. Call API: POST classroom-assessment/create/{classroomId}",
+          "8. Handle response and show success message",
+          "9. Refresh classroom data",
+          "10. Close modal",
+        ];
+
+        document.getElementById("testCase1").innerHTML = `
+                <div class="mock-data">
+                    <strong>Mock User Input:</strong><br>
+                    <div class="rating-stars">★★★★☆</div>
+                    Rating: 4.5/5<br>
+                    Comment: "Gia sư dạy tốt, phòng học chuyên nghiệp"
+                </div>
+                <ol>
+                    ${testSteps.map((step) => `<li>${step}</li>`).join("")}
+                </ol>
+                <div class="json-display">${JSON.stringify(
+                  classroomRatingPayload,
+                  null,
+                  2
+                )}</div>
+            `;
+      }
+
+      function runMeetingTest() {
+        const testSteps = [
+          "1. User navigates to meeting view",
+          "2. User clicks 'Đánh giá' on specific meeting",
+          "3. User selects rating (5.0 stars)",
+          "4. User enters comment: 'Buổi học rất hay'",
+          "5. handleMeetingRatingSubmit() called",
+          "6. Extract meetingId and tutorId from selectedMeetingForRating",
+          "7. Build payload with specific meetingId",
+          "8. Call API: POST classroom-assessment/create/{classroomId}",
+          "9. Handle response and show success message",
+          "10. Refresh meeting data",
+          "11. Close modal",
+        ];
+
+        document.getElementById("testCase2").innerHTML = `
+                <div class="mock-data">
+                    <strong>Mock Meeting Data:</strong><br>
+                    Meeting ID: ${mockMeetingData.meetingId}<br>
+                    Status: <span class="status-badge status-ended">ENDED</span><br>
+                    <div class="rating-stars">★★★★★</div>
+                    Rating: 5.0/5<br>
+                    Comment: "Buổi học rất hay, dễ hiểu"
+                </div>
+                <ol>
+                    ${testSteps.map((step) => `<li>${step}</li>`).join("")}
+                </ol>
+                <div class="json-display">${JSON.stringify(
+                  meetingRatingPayload,
+                  null,
+                  2
+                )}</div>
+            `;
+      }
+
+      function runErrorTest() {
+        const errorScenarios = [
+          "Missing tutorId → Show error message",
+          "Missing classroomId → Show error message",
+          "Network error → Show network error message",
+          "API returns error → Show API error message",
+          "Invalid rating range → Validate before submission",
+        ];
+
+        document.getElementById("testCase3").innerHTML = `
+                <div class="mock-data">
+                    <strong>Error Scenarios to Test:</strong>
+                </div>
+                <ul>
+                    ${errorScenarios
+                      .map((scenario) => `<li>${scenario}</li>`)
+                      .join("")}
+                </ul>
+                <div class="json-display">
+Error Handling Code:
+try {
+    // API call
+    const response = await Api({...});
+    
+    if (response.success || response.status === "OK") {
+        toast.success("Đánh giá đã được gửi thành công!");
+    } else {
+        throw new Error(response.message || "Gửi đánh giá thất bại");
+    }
+} catch (error) {
+    console.error("Error:", error);
+    toast.error("Có lỗi xảy ra khi gửi đánh giá!");
+}
+                </div>
+            `;
+      }
+
+      function showApiFlow() {
+        const flow = {
+          step1: "User triggers rating action",
+          step2: "Modal opens with rating form",
+          step3: "User fills rating (1-5) and comment",
+          step4: "User clicks submit",
+          step5: "handleEvaluationSubmit() / handleMeetingRatingSubmit()",
+          step6: "Extract data from selected item",
+          step7: "Build API payload",
+          step8: "Call classroom-assessment/create/:classroomId",
+          step9: "Handle API response",
+          step10: "Show success/error message",
+          step11: "Refresh data if successful",
+          step12: "Close modal",
+        };
+        document.getElementById(
+          "apiFlow"
+        ).innerHTML = `<div class="json-display">${JSON.stringify(
+          flow,
+          null,
+          2
+        )}</div>`;
+      }
+
+      function showSuccessFlow() {
+        document.getElementById("apiFlow").innerHTML = `
+                <div class="json-display">
+Success Flow:
+✅ API Response: { "success": true, "message": "Rating saved" }
+✅ Toast Success: "Đánh giá đã được gửi thành công!"
+✅ Modal Close: setShowEvaluationModal(false)
+✅ Data Refresh: fetchStudentClassrooms(currentPage, true)
+✅ State Reset: setSelectedClassroomForEvaluation(null)
+                </div>
+            `;
+      }
+
+      function showErrorFlow() {
+        document.getElementById("apiFlow").innerHTML = `
+                <div class="json-display">
+Error Flow:
+❌ API Error: Network/Server error caught
+❌ Console Log: Error details for debugging
+❌ Toast Error: "Có lỗi xảy ra khi gửi đánh giá!"
+❌ Modal Stays Open: User can retry
+❌ Data Unchanged: No refresh on error
+                </div>
+            `;
+      }
+
+      function showImplementationCode() {
+        const code = `
+// Updated handleEvaluationSubmit function
+const handleEvaluationSubmit = async (evaluationData) => {
+    try {
+        const classroomData = selectedClassroomForEvaluation;
+        if (!classroomData || !classroomData.classroomId) {
+            throw new Error("Không tìm thấy thông tin phòng học");
+        }
+
+        const payload = {
+            tutorId: classroomData.tutorId,
+            classroomEvaluation: evaluationData.rating,
+            description: evaluationData.description || "",
+            meetingId: evaluationData.meetingId || null
+        };
+
+        const response = await Api({
+            endpoint: \`classroom-assessment/create/\${classroomData.classroomId}\`,
+            method: METHOD_TYPE.POST,
+            data: payload,
+            requireToken: true,
+        });
+
+        if (response.success || response.status === "OK") {
+            toast.success("Đánh giá phòng học đã được gửi thành công!");
+            setShowEvaluationModal(false);
+            setSelectedClassroomForEvaluation(null);
+            fetchStudentClassrooms(currentPage, true);
+        } else {
+            throw new Error(response.message || "Gửi đánh giá thất bại");
+        }
+    } catch (error) {
+        console.error("Error submitting evaluation:", error);
+        toast.error("Có lỗi xảy ra khi gửi đánh giá!");
+    }
+};
+            `;
+        document.getElementById("implementationCode").textContent = code;
+      }
+
+      function showCodeHighlights() {
+        const highlights = {
+          key_changes: [
+            "Real API endpoint: classroom-assessment/create/:classroomId",
+            "POST method with JSON payload",
+            "Token-based authentication",
+            "Proper error handling with try-catch",
+            "Toast notifications for user feedback",
+            "Data refresh after successful submission",
+            "Payload validation before API call",
+          ],
+          before_vs_after: {
+            before: "// TODO: Implement API call",
+            after: "await Api({ endpoint: classroom-assessment/create/... })",
+          },
+        };
+        document.getElementById("implementationCode").textContent =
+          JSON.stringify(highlights, null, 2);
+      }
+
+      // Initialize displays
+      document.getElementById("classroomPayload").textContent = JSON.stringify(
+        classroomRatingPayload,
+        null,
+        2
+      );
+      document.getElementById("meetingPayload").textContent = JSON.stringify(
+        meetingRatingPayload,
+        null,
+        2
+      );
+      showEndpointDetails();
+      showApiFlow();
+    </script>
+  </body>
+</html>

@@ -1,14 +1,14 @@
-/* global Intl */
 import { useEffect, useState, useCallback, memo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Cookies from "js-cookie";
-import Api from "../../network/Api"; // Điều chỉnh đường dẫn nếu cần
-import { METHOD_TYPE } from "../../network/methodType"; // Điều chỉnh đường dẫn nếu cần
-import { setAdminProfile } from "../../redux/adminSlice"; // Điều chỉnh đường dẫn nếu cần
-import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout"; // Điều chỉnh đường dẫn nếu cần
-import ChartComponent from "../../components/Chart"; // Điều chỉnh đường dẫn nếu cần
-import "../../assets/css/Admin/AdminDashboard.style.css"; // CSS cho trang này
+import Api from "../../network/Api";
+import { METHOD_TYPE } from "../../network/methodType";
+import { setAdminProfile } from "../../redux/adminSlice";
+import { handleAdminMicrosoftAuth } from "../../../admin-oauth-alternative-handlers";
+import AdminDashboardLayout from "../../components/Admin/layout/AdminDashboardLayout";
+import ChartComponent from "../../components/Chart";
+import "../../assets/css/Admin/AdminDashboard.style.css";
 
 // Helper để lấy giá trị CSS Variable trong JS
 const getCssVariable = (variableName) => {
@@ -213,12 +213,6 @@ const AdminDashboardPage = () => {
         {displayValue}
       </span>
     );
-  };
-
-  const getTimeRangeText = (range) => {
-    if (range === "week") return "Tuần";
-    if (range === "year") return "Năm";
-    return "Tháng";
   };
 
   const fetchDataForRange = useCallback(
@@ -678,96 +672,66 @@ const AdminDashboardPage = () => {
   }, [dispatch]);
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
+    // Xử lý redirect từ backend Microsoft OAuth
+    // Backend redirect về: /admin/dashboard?token=xxx&admin=xxx&state=xxx
+    // hoặc khi lỗi: /admin/dashboard?error=xxx&state=xxx
+    const token = searchParams.get("token");
+    const error = searchParams.get("error");
 
-    // Handle Microsoft OAuth callback directly on admin dashboard
-    if (code && state) {
+    if (error) {
+      // Backend trả về lỗi OAuth
+      console.error("❌ Microsoft OAuth error from backend:", error);
+      // Clean URL và hiển thị error
+      navigate("/admin/dashboard", { replace: true });
+      setIsAuthenticated(false);
+      setIsLoadingData(false);
+      return;
+    }
+
+    if (token) {
       let isMounted = true;
-      console.log("Processing Microsoft OAuth callback on AdminDashboard...");
+      console.log(
+        "🔄 Processing Microsoft authentication from backend redirect..."
+      );
 
-      const storedState = Cookies.get("microsoft_auth_state");
-      if (!storedState || state !== storedState) {
-        console.error("OAuth state mismatch - security error");
-        Cookies.remove("microsoft_auth_state");
-        // Clean URL and show error
-        navigate("/admin/dashboard", { replace: true });
-        if (isMounted) {
-          setIsAuthenticated(false);
-          setIsLoadingData(false);
-        }
-        return;
-      }
-
-      Cookies.remove("microsoft_auth_state");
-
-      const exchangeCodeForToken = async (authCode) => {
+      (async () => {
         try {
-          const response = await Api({
-            endpoint: "admin/auth/callback",
-            method: METHOD_TYPE.POST,
-            data: { code: authCode },
-          });
+          const result = await handleAdminMicrosoftAuth(
+            dispatch,
+            setIsAuthenticated,
+            navigate
+          );
 
-          if (response.success && response.data?.token && isMounted) {
-            Cookies.set("token", response.data.token, {
-              secure: true,
-              sameSite: "Lax",
-            });
-            Cookies.set("role", "admin", { secure: true, sameSite: "Lax" });
-
-            try {
-              const adminInfoResponse = await Api({
-                endpoint: "admin/get-profile",
-                method: METHOD_TYPE.GET,
-              });
-
-              if (
-                adminInfoResponse.success &&
-                adminInfoResponse.data &&
-                isMounted
-              ) {
-                dispatch(setAdminProfile(adminInfoResponse.data));
-                setIsAuthenticated(true);
-                console.log("Microsoft OAuth login successful for admin!");
-              } else if (isMounted) {
-                console.error(
-                  "Admin profile fetch error:",
-                  adminInfoResponse.message
-                );
-                setIsAuthenticated(false);
+          if (isMounted) {
+            if (result.success) {
+              if (result.needsFetch && !result.redirecting) {
+                // Fallback: Lấy admin profile từ API nếu backend không gửi kèm
+                await fetchAdminProfile();
               }
-            } catch (profileError) {
-              if (isMounted) {
-                console.error("Error fetching admin profile:", profileError);
-                setIsAuthenticated(false);
-              }
+              setIsLoadingData(false);
+            } else {
+              console.error("❌ OAuth authentication failed:", result.error);
+              setIsAuthenticated(false);
+              setIsLoadingData(false);
             }
-          } else if (isMounted) {
-            throw new Error(
-              response.message || "Failed to exchange code for token."
-            );
           }
-        } catch (err) {
+        } catch (error) {
           if (isMounted) {
-            console.error("OAuth Callback Error:", err);
+            console.error("❌ Error processing OAuth authentication:", error);
             setIsAuthenticated(false);
-          }
-        } finally {
-          if (isMounted) {
-            // Clean URL after processing
-            navigate("/admin/dashboard", { replace: true });
             setIsLoadingData(false);
           }
         }
-      };
+      })();
 
-      exchangeCodeForToken(code);
       return () => {
         isMounted = false;
       };
     }
+  }, [location.search, navigate, dispatch, fetchAdminProfile]);
 
+  // Authentication check useEffect
+  useEffect(() => {
     // Normal dashboard initialization - check authentication and load data
     if (Cookies.get("token") && Cookies.get("role") === "admin") {
       if (!adminProfile?.adminId) {
@@ -781,13 +745,7 @@ const AdminDashboardPage = () => {
       setIsAuthenticated(false);
       setIsLoadingData(false); // Not authenticated, no data to load
     }
-  }, [
-    location.search,
-    navigate,
-    fetchAdminProfile,
-    adminProfile?.adminId,
-    dispatch,
-  ]);
+  }, [fetchAdminProfile, adminProfile?.adminId, dispatch]);
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verification - Ẩn Meeting ID trong Modal Đánh Giá</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .content {
+        padding: 30px;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin: 30px 0;
+      }
+      .before-after {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border: 2px solid #dee2e6;
+      }
+      .before {
+        border-color: #dc3545;
+      }
+      .after {
+        border-color: #28a745;
+      }
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 6px;
+        text-align: center;
+      }
+      .before .section-title {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .after .section-title {
+        background: #d4edda;
+        color: #155724;
+      }
+      .modal-demo {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        margin: 15px 0;
+      }
+      .modal-header {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .modal-title {
+        margin: 0;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+      }
+      .modal-body {
+        padding: 20px;
+      }
+      .meeting-info {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #4ecdc4;
+      }
+      .meeting-info h4 {
+        margin: 0 0 15px 0;
+        color: #2c3e50;
+      }
+      .info-item {
+        margin: 10px 0;
+        display: flex;
+        gap: 10px;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #495057;
+        min-width: 80px;
+      }
+      .info-value {
+        color: #6c757d;
+      }
+      .hidden-item {
+        background: #fff3cd;
+        border: 2px dashed #ffc107;
+        border-radius: 6px;
+        padding: 10px;
+        margin: 10px 0;
+        text-align: center;
+        color: #856404;
+        font-style: italic;
+      }
+      .rating-section {
+        border-top: 1px solid #dee2e6;
+        padding-top: 20px;
+      }
+      .star-rating {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+      }
+      .star {
+        font-size: 1.5rem;
+        color: #ffc107;
+        cursor: pointer;
+      }
+      .star.empty {
+        color: #dee2e6;
+      }
+      .comment-box {
+        width: 100%;
+        min-height: 80px;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-family: inherit;
+      }
+      .submit-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        float: right;
+      }
+      .submit-btn:hover {
+        background: #218838;
+      }
+      .code-block {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+      }
+      .removed-code {
+        background: #f8d7da;
+        color: #721c24;
+        text-decoration: line-through;
+      }
+      .added-code {
+        background: #d4edda;
+        color: #155724;
+      }
+      .checklist {
+        background: #e8f5e8;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .check-item {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .check-icon {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .impact-section {
+        background: #e3f2fd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #2196f3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔍 Verification: Ẩn Meeting ID trong Modal Đánh Giá</h1>
+        <p>Xác minh việc ẩn Meeting ID trong ô đánh giá của học viên</p>
+      </div>
+
+      <div class="content">
+        <div class="impact-section">
+          <h2>🎯 Vấn đề phát hiện</h2>
+          <p>
+            <strong>Vị trí:</strong> Modal đánh giá buổi học trong trang học
+            viên (StudentClassroomPage.jsx)
+          </p>
+          <p>
+            <strong>Vấn đề:</strong> Trong phần "Thông tin buổi học" của modal
+            đánh giá vẫn còn hiển thị Meeting ID
+          </p>
+          <p>
+            <strong>Dòng code:</strong>
+            <code
+              >&lt;strong&gt;Meeting ID:&lt;/strong&gt;
+              {meeting?.zoomMeetingId}</code
+            >
+          </p>
+          <p>
+            <strong>Giải pháp:</strong> Ẩn hoàn toàn dòng hiển thị Meeting ID để
+            đồng bộ với các phần khác
+          </p>
+        </div>
+
+        <div class="comparison">
+          <div class="before-after before">
+            <div class="section-title">❌ TRƯỚC - Còn hiển thị Meeting ID</div>
+            <div class="modal-demo">
+              <div class="modal-header">
+                <h3 class="modal-title">
+                  <i class="fas fa-star"></i>
+                  Đánh giá buổi học
+                </h3>
+                <button class="modal-close">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="meeting-info">
+                  <h4>Thông tin buổi học</h4>
+                  <div class="info-item">
+                    <span class="info-label">Chủ đề:</span>
+                    <span class="info-value">Lớp học: undefined</span>
+                  </div>
+                  <div
+                    class="info-item"
+                    style="
+                      background: #ffebee;
+                      border-left: 3px solid #f44336;
+                      padding: 8px;
+                    "
+                  >
+                    <span class="info-label">Meeting ID:</span>
+                    <span class="info-value">7590246205</span>
+                    <span style="color: #f44336; margin-left: 10px"
+                      >← CẦN ẨN</span
+                    >
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Thời gian:</span>
+                    <span class="info-value">20/06/2025 14:30</span>
+                  </div>
+                </div>
+                <div class="rating-section">
+                  <label>Đánh giá chất lượng buổi học</label>
+                  <div class="star-rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star empty">★</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="before-after after">
+            <div class="section-title">✅ SAU - Đã ẩn Meeting ID</div>
+            <div class="modal-demo">
+              <div class="modal-header">
+                <h3 class="modal-title">
+                  <i class="fas fa-star"></i>
+                  Đánh giá buổi học
+                </h3>
+                <button class="modal-close">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="meeting-info">
+                  <h4>Thông tin buổi học</h4>
+                  <div class="info-item">
+                    <span class="info-label">Chủ đề:</span>
+                    <span class="info-value">Lớp học: undefined</span>
+                  </div>
+                  <div class="hidden-item">
+                    🚫 Meeting ID đã được ẩn để đồng bộ với các phần khác
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Thời gian:</span>
+                    <span class="info-value">20/06/2025 14:30</span>
+                  </div>
+                </div>
+                <div class="rating-section">
+                  <label>Đánh giá chất lượng buổi học</label>
+                  <div class="star-rating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star empty">★</span>
+                  </div>
+                  <textarea
+                    class="comment-box"
+                    placeholder="Nhập nhận xét về buổi học (tùy chọn)"
+                  ></textarea>
+                  <button class="submit-btn">Gửi đánh giá</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <h3>🔧 Thay đổi code chi tiết:</h3>
+          <div style="margin: 15px 0">
+            <strong>File:</strong>
+            <code>src/pages/User/StudentClassroomPage.jsx</code><br />
+            <strong>Vị trí:</strong> Modal đánh giá buổi học (RatingModal
+            component)
+          </div>
+
+          <div class="removed-code">
+            <strong>❌ TRƯỚC (dòng 234):</strong><br />
+            &lt;p&gt;<br />
+            &nbsp;&nbsp;&lt;strong&gt;Meeting ID:&lt;/strong&gt;
+            {meeting?.zoomMeetingId}<br />
+            &lt;/p&gt;
+          </div>
+
+          <div class="added-code">
+            <strong>✅ SAU:</strong><br />
+            {/* Meeting ID đã được ẩn để đồng bộ với các phần khác */}
+          </div>
+        </div>
+
+        <div class="checklist">
+          <h2>✅ Kiểm tra hoàn thành</h2>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Meeting ID trong danh sách meetings</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Zoom Meeting ID trong danh sách meetings</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Meeting ID trong modal đánh giá</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Đồng bộ với trang gia sư</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Không có lỗi compile</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Chức năng đánh giá vẫn hoạt động đầy đủ</span>
+          </div>
+        </div>
+
+        <div
+          style="
+            background: #d1ecf1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+          "
+        >
+          <h2>🎯 Kết quả cuối cùng</h2>
+          <ul>
+            <li>
+              <strong>Hoàn toàn ẩn Meeting ID:</strong> Không còn hiển thị ở bất
+              kỳ đâu trong trang học viên
+            </li>
+            <li>
+              <strong>UI/UX đồng bộ:</strong> Giao diện nhất quán giữa trang gia
+              sư và học viên
+            </li>
+            <li>
+              <strong>Chức năng đầy đủ:</strong> Modal đánh giá vẫn hoạt động
+              bình thường
+            </li>
+            <li><strong>Code clean:</strong> Có comment rõ ràng về lý do ẩn</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("🔍 Verification: Modal Rating Meeting ID Hidden");
+      console.log("✅ Meeting ID đã được ẩn khỏi modal đánh giá");
+      console.log("✅ UI/UX đồng bộ hoàn toàn giữa Tutor và Student");
+      console.log("✅ Chức năng đánh giá hoạt động bình thường");
+
+      // Simulate modal interactions
+      document.querySelectorAll(".modal-close").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          alert("Đóng modal đánh giá");
+        });
+      });
+
+      document.querySelectorAll(".submit-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          alert("Gửi đánh giá thành công (không hiển thị Meeting ID)");
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutor Meetings Style - Before Path Change</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* CURRENT TUTOR MEETING STYLES */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f9f9f9;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .style-comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .style-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .style-section h3 {
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      /* TUTOR STYLES (CURRENT) */
+      .tcp-meeting-view {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .tcp-meeting-view::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #0056b3, #004085);
+      }
+
+      .tcp-meeting-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+      }
+
+      .tcp-meeting-title {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .tcp-meeting-title i {
+        color: #007bff;
+        font-size: 1.5rem;
+      }
+
+      .tcp-back-btn {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .tcp-meeting-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .tcp-meeting-tabs {
+        display: flex;
+        gap: 12px;
+        flex: 1;
+      }
+
+      .tcp-tab {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tcp-tab.active {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+      }
+
+      .tcp-tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .tcp-create-meeting-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      /* MEETING LIST - CURRENT ISSUE */
+      .tcp-meeting-list {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(350px, 1fr)
+        ); /* SMALLER than student */
+        gap: 20px;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      /* ISSUE: JSX uses tcp-meeting-card but CSS defines tcp-meeting-item */
+      .tcp-meeting-item {
+        /* ✅ CSS has this */
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border-radius: 12px; /* SMALLER than student 16px */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 20px; /* SMALLER than student 24px */
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+      }
+
+      .tcp-meeting-card {
+        /* ❌ JSX uses this but no CSS */
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+      }
+
+      .tcp-meeting-item:hover,
+      .tcp-meeting-card:hover {
+        transform: translateY(-5px); /* LESS than student -6px */
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: #0d6efd;
+      }
+
+      .tcp-meeting-info {
+        flex: 1;
+      }
+
+      .tcp-meeting-topic {
+        margin-bottom: 16px;
+      }
+
+      .tcp-meeting-topic h4 {
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .tcp-meeting-topic i {
+        color: #007bff;
+        font-size: 1rem;
+      }
+
+      .tcp-meeting-details {
+        display: grid;
+        gap: 8px;
+      }
+
+      .tcp-meeting-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f8f9fa;
+      }
+
+      .tcp-detail-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .tcp-detail-value {
+        color: #495057;
+        font-weight: 600;
+        text-align: right;
+      }
+
+      .tcp-status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tcp-status-in_session {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid rgba(40, 167, 69, 0.2);
+      }
+
+      .tcp-status-ended {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.2);
+      }
+
+      .tcp-meeting-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #f8f9fa;
+      }
+
+      .tcp-action-btn {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .tcp-action-btn:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+
+      /* STUDENT STYLES FOR COMPARISON */
+      .scp-meeting-list {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(450px, 1fr)
+        ); /* BIGGER than tutor */
+        gap: 24px; /* BIGGER gap */
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .scp-meeting-item {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border-radius: 16px; /* BIGGER than tutor 12px */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 24px; /* BIGGER than tutor 20px */
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+      }
+
+      .scp-meeting-item:hover {
+        transform: translateY(-6px); /* MORE than tutor -5px */
+        box-shadow: 0 12px 35px rgba(40, 167, 69, 0.15);
+        border-color: #28a745;
+      }
+
+      .scp-meeting-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #28a745, #20c997); /* GREEN accent */
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .scp-meeting-item:hover::before {
+        opacity: 1;
+      }
+
+      /* DEMO CONTENT */
+      .demo-section {
+        margin-bottom: 40px;
+      }
+
+      .issue-callout {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 20px 0;
+      }
+
+      .issue-callout h4 {
+        color: #856404;
+        margin-bottom: 8px;
+      }
+
+      .issue-callout p {
+        color: #856404;
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .style-comparison {
+          grid-template-columns: 1fr;
+        }
+
+        .tcp-meeting-list,
+        .scp-meeting-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 style="text-align: center; color: #333; margin-bottom: 30px">
+        📊 Tutor Meetings Style Analysis - Before Path Change
+      </h1>
+
+      <div class="issue-callout">
+        <h4><i class="fas fa-exclamation-triangle"></i> Main Issue Detected</h4>
+        <p>
+          <strong>Class Name Mismatch:</strong> JSX uses
+          <code>tcp-meeting-card</code> but CSS defines
+          <code>tcp-meeting-item</code>. This causes styling issues where cards
+          don't get proper styles applied.
+        </p>
+      </div>
+
+      <div class="style-comparison">
+        <div class="style-section">
+          <h3>
+            <i class="fas fa-chalkboard-teacher"></i> Tutor Meeting Styles
+            (Current)
+          </h3>
+
+          <div class="tcp-meeting-view">
+            <div class="tcp-meeting-header">
+              <div class="tcp-meeting-title">
+                <i class="fas fa-video"></i>
+                Phòng học - Toán cao cấp
+              </div>
+              <button class="tcp-back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại
+              </button>
+            </div>
+
+            <div class="tcp-meeting-controls">
+              <div class="tcp-meeting-tabs">
+                <button class="tcp-tab active">
+                  <i class="fas fa-play-circle"></i>
+                  Đang hoạt động
+                  <span class="tcp-tab-count">3</span>
+                </button>
+                <button class="tcp-tab">
+                  <i class="fas fa-check-circle"></i>
+                  Đã kết thúc
+                  <span class="tcp-tab-count">12</span>
+                </button>
+              </div>
+              <button class="tcp-create-meeting-btn">
+                <i class="fas fa-plus"></i>
+                Tạo phòng học
+              </button>
+            </div>
+
+            <div class="tcp-meeting-list">
+              <div class="tcp-meeting-card">
+                <!-- ISSUE: Using tcp-meeting-card -->
+                <div class="tcp-meeting-info">
+                  <div class="tcp-meeting-topic">
+                    <h4>
+                      <i class="fas fa-video"></i> Buổi học Toán - Chương 5
+                    </h4>
+                  </div>
+                  <div class="tcp-meeting-details">
+                    <div class="tcp-meeting-detail-item">
+                      <span class="tcp-detail-label">Meeting ID:</span>
+                      <span class="tcp-detail-value">123-456-789</span>
+                    </div>
+                    <div class="tcp-meeting-detail-item">
+                      <span class="tcp-detail-label">Mật khẩu:</span>
+                      <span class="tcp-detail-value">abc123</span>
+                    </div>
+                    <div class="tcp-meeting-detail-item">
+                      <span class="tcp-detail-label">Trạng thái:</span>
+                      <span class="tcp-status-badge tcp-status-in_session"
+                        >Đang hoạt động</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="tcp-meeting-actions">
+                  <button class="tcp-action-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Tham gia
+                  </button>
+                </div>
+              </div>
+
+              <div class="tcp-meeting-item">
+                <!-- WORKING: Using tcp-meeting-item -->
+                <div class="tcp-meeting-info">
+                  <div class="tcp-meeting-topic">
+                    <h4>
+                      <i class="fas fa-video"></i> Buổi học Toán - Chương 6
+                    </h4>
+                  </div>
+                  <div class="tcp-meeting-details">
+                    <div class="tcp-meeting-detail-item">
+                      <span class="tcp-detail-label">Meeting ID:</span>
+                      <span class="tcp-detail-value">987-654-321</span>
+                    </div>
+                    <div class="tcp-meeting-detail-item">
+                      <span class="tcp-detail-label">Mật khẩu:</span>
+                      <span class="tcp-detail-value">xyz789</span>
+                    </div>
+                    <div class="tcp-meeting-detail-item">
+                      <span class="tcp-detail-label">Trạng thái:</span>
+                      <span class="tcp-status-badge tcp-status-ended"
+                        >Đã kết thúc</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="tcp-meeting-actions">
+                  <button class="tcp-action-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Tham gia
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 8px;
+              margin-top: 15px;
+            "
+          >
+            <h5 style="color: #007bff; margin-bottom: 10px">📏 Tutor Specs:</h5>
+            <ul
+              style="
+                font-size: 0.9rem;
+                color: #6c757d;
+                margin: 0;
+                padding-left: 20px;
+              "
+            >
+              <li>Grid: <code>minmax(350px, 1fr)</code></li>
+              <li>Padding: <code>20px</code></li>
+              <li>Border Radius: <code>12px</code></li>
+              <li>Hover: <code>translateY(-5px)</code></li>
+              <li>Blue accent theme</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="style-section">
+          <h3>
+            <i class="fas fa-user-graduate"></i> Student Meeting Styles
+            (Reference)
+          </h3>
+
+          <div class="scp-meeting-list">
+            <div class="scp-meeting-item">
+              <div class="tcp-meeting-info">
+                <div class="tcp-meeting-topic">
+                  <h4>
+                    <i class="fas fa-video"></i> Buổi học Vật lý - Chương 3
+                  </h4>
+                </div>
+                <div class="tcp-meeting-details">
+                  <div class="tcp-meeting-detail-item">
+                    <span class="tcp-detail-label">Meeting ID:</span>
+                    <span class="tcp-detail-value">456-789-123</span>
+                  </div>
+                  <div class="tcp-meeting-detail-item">
+                    <span class="tcp-detail-label">Mật khẩu:</span>
+                    <span class="tcp-detail-value">def456</span>
+                  </div>
+                  <div class="tcp-meeting-detail-item">
+                    <span class="tcp-detail-label">Trạng thái:</span>
+                    <span class="tcp-status-badge tcp-status-in_session"
+                      >Đang học</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="tcp-meeting-actions">
+                <button
+                  class="tcp-action-btn"
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #28a745 0%,
+                      #20c997 100%
+                    );
+                  "
+                >
+                  <i class="fas fa-sign-in-alt"></i>
+                  Tham gia
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 8px;
+              margin-top: 15px;
+            "
+          >
+            <h5 style="color: #28a745; margin-bottom: 10px">
+              📏 Student Specs:
+            </h5>
+            <ul
+              style="
+                font-size: 0.9rem;
+                color: #6c757d;
+                margin: 0;
+                padding-left: 20px;
+              "
+            >
+              <li>Grid: <code>minmax(450px, 1fr)</code> ⬆️</li>
+              <li>Padding: <code>24px</code> ⬆️</li>
+              <li>Border Radius: <code>16px</code> ⬆️</li>
+              <li>Hover: <code>translateY(-6px)</code> ⬆️</li>
+              <li>Green accent theme</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-section">
+        <h2 style="color: #333; margin-bottom: 20px">🔧 Recommended Fixes</h2>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+          "
+        >
+          <div
+            style="
+              background: #d4edda;
+              border: 1px solid #c3e6cb;
+              border-radius: 8px;
+              padding: 20px;
+            "
+          >
+            <h4 style="color: #155724; margin-bottom: 10px">
+              <i class="fas fa-check-circle"></i> Option 1: Fix Class Names
+            </h4>
+            <p style="color: #155724; font-size: 0.9rem; margin: 0">
+              Change <code>tcp-meeting-card</code> to
+              <code>tcp-meeting-item</code> in JSX. Quick fix, uses existing
+              styles.
+            </p>
+          </div>
+
+          <div
+            style="
+              background: #cce5ff;
+              border: 1px solid #99d6ff;
+              border-radius: 8px;
+              padding: 20px;
+            "
+          >
+            <h4 style="color: #004085; margin-bottom: 10px">
+              <i class="fas fa-sync-alt"></i> Option 2: Sync with Student
+            </h4>
+            <p style="color: #004085; font-size: 0.9rem; margin: 0">
+              Update grid to 450px, padding to 24px, radius to 16px. Better UX
+              consistency.
+            </p>
+          </div>
+
+          <div
+            style="
+              background: #fff3cd;
+              border: 1px solid #ffeaa7;
+              border-radius: 8px;
+              padding: 20px;
+            "
+          >
+            <h4 style="color: #856404; margin-bottom: 10px">
+              <i class="fas fa-magic"></i> Option 3: New Card Styles
+            </h4>
+            <p style="color: #856404; font-size: 0.9rem; margin: 0">
+              Create <code>tcp-meeting-card</code> styles specifically. Most
+              flexible for future changes.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          background: #f8f9fa;
+          border-radius: 12px;
+          padding: 30px;
+          text-align: center;
+          margin-top: 40px;
+        "
+      >
+        <h3 style="color: #333; margin-bottom: 15px">
+          <i class="fas fa-tools"></i> Ready for Path Change Implementation
+        </h3>
+        <p style="color: #6c757d; margin: 0; font-size: 1.1rem">
+          All style issues identified and solutions prepared. The new path
+          structure will benefit from these style improvements.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Add interactive demo
+      console.log("🎨 Style Analysis Tool Loaded");
+      console.log("Current Issues:");
+      console.log(
+        "1. Class name mismatch: JSX uses tcp-meeting-card, CSS uses tcp-meeting-item"
+      );
+      console.log("2. Grid size smaller than student page");
+      console.log("3. Padding and border radius inconsistent");
+
+      // Highlight the difference in hover effects
+      document
+        .querySelectorAll(
+          ".tcp-meeting-card, .tcp-meeting-item, .scp-meeting-item"
+        )
+        .forEach((card) => {
+          card.addEventListener("mouseenter", function () {
+            console.log(`Hovered: ${this.className}`);
+          });
+        });
+    </script>
+  </body>
+</html>

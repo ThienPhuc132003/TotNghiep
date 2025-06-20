@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Rating Implementation Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      .section {
+        margin-bottom: 40px;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+      }
+      .section h2 {
+        color: #34495e;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .api-demo {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+      .json-display {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        overflow-x: auto;
+      }
+      .button {
+        background: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .button:hover {
+        background: #2980b9;
+      }
+      .button.success {
+        background: #27ae60;
+      }
+      .button.warning {
+        background: #f39c12;
+      }
+      .button.danger {
+        background: #e74c3c;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .status-ended {
+        background: #e74c3c;
+        color: white;
+      }
+      .status-session {
+        background: #27ae60;
+        color: white;
+      }
+      .rating-display {
+        color: #f39c12;
+        font-weight: bold;
+      }
+      .hidden-field {
+        background: #ff6b6b;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        text-decoration: line-through;
+      }
+      .key-field {
+        background: #51cf66;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+      .demo-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+      .payload-demo {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .implementation-status {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+      .next-steps {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 API Rating Implementation Demo - Real Data Structure</h1>
+
+      <!-- API Response Structure -->
+      <div class="section">
+        <h2>📊 Confirmed API Response Structure</h2>
+        <div class="api-demo">
+          <h3>GET /api/meeting/get-meeting Response:</h3>
+          <div class="json-display" id="apiResponse"></div>
+          <div class="demo-actions">
+            <button class="button" onclick="showFullResponse()">
+              Show Full Response
+            </button>
+            <button class="button warning" onclick="highlightHiddenFields()">
+              Highlight Hidden Fields
+            </button>
+            <button class="button success" onclick="highlightKeyFields()">
+              Highlight Key Fields
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Fields Analysis -->
+      <div class="section">
+        <h2>🎯 Key Fields for Rating APIs</h2>
+
+        <div class="api-demo">
+          <h3>1. Meeting Rating Keys:</h3>
+          <div class="payload-demo">
+            <strong>Required from API:</strong><br />
+            • <span class="key-field">meetingId</span>:
+            "52a4f229-fb9e-45b7-ab98-546fc5e2f14f"<br />
+            • <span class="key-field">classroomId</span>:
+            "0d27f835-83e7-408f-b2ab-d932450afc95"<br />
+            • <span class="key-field">tutorId</span>: "US00011" (từ
+            classroom.tutorId)<br /><br />
+
+            <strong>Payload Structure:</strong>
+            <div class="json-display" id="meetingRatingPayload"></div>
+          </div>
+        </div>
+
+        <div class="api-demo">
+          <h3>2. Classroom Rating Keys:</h3>
+          <div class="payload-demo">
+            <strong>Required from API:</strong><br />
+            • <span class="key-field">classroomId</span>:
+            "0d27f835-83e7-408f-b2ab-d932450afc95"<br />
+            • <span class="key-field">tutorId</span>: "US00011" (từ
+            classroom.tutorId)<br />
+            • <span class="key-field">userId</span>: "US00028" (từ
+            classroom.userId)<br /><br />
+
+            <strong>Payload Structure:</strong>
+            <div class="json-display" id="classroomRatingPayload"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rating Logic Demo -->
+      <div class="section">
+        <h2>🔄 Rating Logic Demonstration</h2>
+
+        <div class="api-demo">
+          <h3>Meeting Status & Rating Logic:</h3>
+          <div id="ratingLogicDemo"></div>
+          <div class="demo-actions">
+            <button class="button" onclick="demoRatingLogic()">
+              Demo Rating Logic
+            </button>
+            <button class="button warning" onclick="demoStatusLogic()">
+              Demo Status Logic
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Implementation Status -->
+      <div class="section">
+        <h2>🔧 Implementation Status</h2>
+
+        <div class="implementation-status">
+          <h3>✅ Completed:</h3>
+          <ul>
+            <li>Ẩn hoàn toàn meetingId và zoomMeetingId</li>
+            <li>Đồng bộ UI/UX giữa Tutor và Student pages</li>
+            <li>Logic hiển thị nút based on status và isRating</li>
+            <li>Modal structure và validation</li>
+            <li>Pagination style đồng bộ</li>
+            <li>Key fields mapping và payload structure</li>
+          </ul>
+        </div>
+
+        <div class="next-steps">
+          <h3>🚧 Next Implementation Steps:</h3>
+          <ol>
+            <li>
+              <strong>Meeting Rating API Call</strong> - Implement actual API
+              call với payload đã chuẩn bị
+            </li>
+            <li>
+              <strong>Classroom Rating API Call</strong> - Implement actual API
+              call với payload đã chuẩn bị
+            </li>
+            <li>
+              <strong>Loading States & Refresh</strong> - Add loading spinner và
+              refresh data
+            </li>
+            <li>
+              <strong>Backend Endpoint Verification</strong> - Test endpoints và
+              compatibility
+            </li>
+            <li>
+              <strong>Error Handling</strong> - Enhanced error handling và user
+              feedback
+            </li>
+          </ol>
+        </div>
+
+        <div class="demo-actions">
+          <button class="button success" onclick="showImplementationCode()">
+            Show Implementation Code
+          </button>
+          <button class="button" onclick="showTestPlan()">
+            Show Test Plan
+          </button>
+        </div>
+      </div>
+
+      <!-- Implementation Code Preview -->
+      <div class="section" id="implementationSection" style="display: none">
+        <h2>💻 Implementation Code Preview</h2>
+
+        <div class="api-demo">
+          <h3>Meeting Rating Implementation:</h3>
+          <div class="json-display" id="meetingRatingCode"></div>
+        </div>
+
+        <div class="api-demo">
+          <h3>Classroom Rating Implementation:</h3>
+          <div class="json-display" id="classroomRatingCode"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Sample API Response Data
+      const apiResponseData = {
+        status: "OK",
+        code: 200,
+        success: true,
+        message: "Get meeting successfully",
+        data: {
+          result: {
+            total: 7,
+            items: [
+              {
+                meetingId: "52a4f229-fb9e-45b7-ab98-546fc5e2f14f",
+                zoomMeetingId: "79516124830",
+                topic: "Lớp học: Lớp học với gia sư Nguyễn Văn An",
+                startTime: "2025-06-07T01:32:37.000Z",
+                duration: 1,
+                endTime: "2025-06-07T01:33:45.000Z",
+                status: "ENDED",
+                classroomId: "0d27f835-83e7-408f-b2ab-d932450afc95",
+                isRating: false,
+                classroom: {
+                  classroomId: "0d27f835-83e7-408f-b2ab-d932450afc95",
+                  nameOfRoom: "Lớp học với gia sư Nguyễn Văn An",
+                  userId: "US00028",
+                  tutorId: "US00011",
+                  classroomEvaluation: "5.0",
+                  status: "IN_SESSION",
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      // Meeting Rating Payload Example
+      const meetingRatingPayload = {
+        meetingId: "52a4f229-fb9e-45b7-ab98-546fc5e2f14f",
+        rating: 5,
+        description: "Buổi học rất tốt, gia sư giảng dạy dễ hiểu",
+      };
+
+      // Classroom Rating Payload Example
+      const classroomRatingPayload = {
+        classroomId: "0d27f835-83e7-408f-b2ab-d932450afc95",
+        tutorId: "US00011",
+        classroomEvaluation: "4.5",
+        description:
+          "Gia sư giảng dạy tốt, phòng học được tổ chức chuyên nghiệp",
+      };
+
+      // Display functions
+      function showFullResponse() {
+        document.getElementById("apiResponse").textContent = JSON.stringify(
+          apiResponseData,
+          null,
+          2
+        );
+      }
+
+      function highlightHiddenFields() {
+        let jsonStr = JSON.stringify(apiResponseData, null, 2);
+        jsonStr = jsonStr.replace(
+          /"zoomMeetingId".*,/g,
+          '<span style="background: #ff6b6b; color: white; padding: 2px;">"zoomMeetingId": "79516124830", // ẨN - KHÔNG HIỂN THỊ</span>'
+        );
+        jsonStr = jsonStr.replace(
+          /"meetingId".*,/g,
+          '<span style="background: #ff6b6b; color: white; padding: 2px;">"meetingId": "52a4f229-fb9e-45b7-ab98-546fc5e2f14f", // ẨN - KHÔNG HIỂN THỊ</span>'
+        );
+        document.getElementById(
+          "apiResponse"
+        ).innerHTML = `<pre>${jsonStr}</pre>`;
+      }
+
+      function highlightKeyFields() {
+        let jsonStr = JSON.stringify(apiResponseData, null, 2);
+        jsonStr = jsonStr.replace(
+          /"meetingId".*,/g,
+          '<span style="background: #51cf66; color: white; padding: 2px; font-weight: bold;">"meetingId": "52a4f229-fb9e-45b7-ab98-546fc5e2f14f", // KEY FIELD</span>'
+        );
+        jsonStr = jsonStr.replace(
+          /"classroomId".*,/g,
+          '<span style="background: #51cf66; color: white; padding: 2px; font-weight: bold;">"classroomId": "0d27f835-83e7-408f-b2ab-d932450afc95", // KEY FIELD</span>'
+        );
+        jsonStr = jsonStr.replace(
+          /"tutorId".*,/g,
+          '<span style="background: #51cf66; color: white; padding: 2px; font-weight: bold;">"tutorId": "US00011", // KEY FIELD</span>'
+        );
+        jsonStr = jsonStr.replace(
+          /"userId".*,/g,
+          '<span style="background: #51cf66; color: white; padding: 2px; font-weight: bold;">"userId": "US00028", // KEY FIELD</span>'
+        );
+        jsonStr = jsonStr.replace(
+          /"isRating".*,/g,
+          '<span style="background: #f39c12; color: white; padding: 2px; font-weight: bold;">"isRating": false, // RATING STATUS</span>'
+        );
+        jsonStr = jsonStr.replace(
+          /"status".*,/g,
+          '<span style="background: #e74c3c; color: white; padding: 2px; font-weight: bold;">"status": "ENDED", // MEETING STATUS</span>'
+        );
+        document.getElementById(
+          "apiResponse"
+        ).innerHTML = `<pre>${jsonStr}</pre>`;
+      }
+
+      function demoRatingLogic() {
+        const demo = document.getElementById("ratingLogicDemo");
+        demo.innerHTML = `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                    <h4>Rating Logic Examples:</h4>
+                    <div style="margin: 10px 0;">
+                        <strong>Meeting 1:</strong> 
+                        <span class="status-badge status-ended">ENDED</span>
+                        <span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px;">isRating: false</span>
+                        → <button class="button success">Hiển thị nút "Đánh giá"</button>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>Meeting 2:</strong> 
+                        <span class="status-badge status-ended">ENDED</span>
+                        <span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 4px;">isRating: true</span>
+                        → <button class="button" disabled>Đã đánh giá</button>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>Meeting 3:</strong> 
+                        <span class="status-badge status-session">IN_SESSION</span>
+                        <span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px;">isRating: false</span>
+                        → <button class="button warning">Tham gia</button>
+                    </div>
+                </div>
+            `;
+      }
+
+      function demoStatusLogic() {
+        const demo = document.getElementById("ratingLogicDemo");
+        demo.innerHTML = `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                    <h4>Status Logic Flow:</h4>
+                    <div style="margin: 10px 0;">
+                        <strong>Step 1:</strong> Check meeting.status<br>
+                        • <span class="status-badge status-session">IN_SESSION</span> → Show "Tham gia" button<br>
+                        • <span class="status-badge status-ended">ENDED</span> → Check isRating status
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>Step 2:</strong> If ENDED, check meeting.isRating<br>
+                        • <span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px;">isRating: false</span> → Show "Đánh giá" button<br>
+                        • <span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 4px;">isRating: true</span> → Show "Đã đánh giá"
+                    </div>
+                </div>
+            `;
+      }
+
+      function showImplementationCode() {
+        document.getElementById("implementationSection").style.display =
+          "block";
+
+        document.getElementById("meetingRatingCode").textContent = `
+const submitMeetingRating = async (meeting, rating, description) => {
+    try {
+        setLoading(true);
+        
+        const payload = {
+            meetingId: meeting.meetingId,
+            rating: rating,
+            description: description
+        };
+        
+        const response = await fetch('/api/meeting/rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update local state
+            setMeetings(prev => prev.map(m => 
+                m.meetingId === meeting.meetingId 
+                    ? { ...m, isRating: true }
+                    : m
+            ));
+            
+            setShowRatingModal(false);
+            showSuccessMessage('Đánh giá buổi học thành công!');
+        }
+        
+    } catch (error) {
+        console.error('Meeting rating failed:', error);
+        showErrorMessage('Đánh giá thất bại, vui lòng thử lại!');
+    } finally {
+        setLoading(false);
+    }
+};`;
+
+        document.getElementById("classroomRatingCode").textContent = `
+const submitClassroomRating = async (meeting, classroomEvaluation, description) => {
+    try {
+        setLoading(true);
+        
+        const payload = {
+            classroomId: meeting.classroomId,
+            tutorId: meeting.classroom.tutorId,
+            classroomEvaluation: classroomEvaluation.toString(),
+            description: description
+        };
+        
+        const response = await fetch('/api/classroom/rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update local state
+            setMeetings(prev => prev.map(m => 
+                m.classroomId === meeting.classroomId 
+                    ? { 
+                        ...m, 
+                        classroom: { 
+                            ...m.classroom, 
+                            classroomEvaluation: classroomEvaluation.toString() 
+                        }
+                    }
+                    : m
+            ));
+            
+            setShowClassroomRatingModal(false);
+            showSuccessMessage('Đánh giá phòng học thành công!');
+        }
+        
+    } catch (error) {
+        console.error('Classroom rating failed:', error);
+        showErrorMessage('Đánh giá thất bại, vui lòng thử lại!');
+    } finally {
+        setLoading(false);
+    }
+};`;
+      }
+
+      function showTestPlan() {
+        alert(
+          "Test Plan sẽ bao gồm:\n1. Unit test cho API calls\n2. Integration test với backend\n3. UI test cho modal interactions\n4. Error handling scenarios\n5. Loading states verification"
+        );
+      }
+
+      // Initial display
+      document.getElementById("meetingRatingPayload").textContent =
+        JSON.stringify(meetingRatingPayload, null, 2);
+      document.getElementById("classroomRatingPayload").textContent =
+        JSON.stringify(classroomRatingPayload, null, 2);
+      showFullResponse();
+    </script>
+  </body>
+</html>

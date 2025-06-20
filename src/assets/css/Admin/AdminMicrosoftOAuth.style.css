@@ -1,0 +1,70 @@
+/* CSS for AdminMicrosoftOAuth.jsx */
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.admin-oauth-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.admin-oauth-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.admin-oauth-message {
+  font-size: 1.2em;
+  color: #333;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-oauth-error {
+  padding: 40px;
+  text-align: center;
+  color: red;
+  max-width: 500px;
+  margin: 0 auto;
+  margin-top: 100px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-oauth-error h1 {
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.admin-oauth-error p {
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.admin-oauth-error button {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.admin-oauth-error button:hover {
+  background-color: #0056b3;
+}

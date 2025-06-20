@@ -285,23 +285,65 @@ const TutorClassroomMeetingsPage = () => {
         console.log("❌ Zoom not connected");
       }
     };
-
     checkZoomConnection();
   }, []);
-  // Function to redirect to Zoom OAuth
+
+  // Handle return from Zoom OAuth
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const fromZoomConnection = urlParams.get("fromZoomConnection");
+    const returnClassroomId = urlParams.get("classroomId");
+
+    console.log("🔍 Checking OAuth return params:", {
+      fromZoomConnection,
+      returnClassroomId,
+      currentClassroomId: classroomId,
+    });
+
+    // If user just came back from Zoom OAuth for this specific classroom
+    if (fromZoomConnection === "true" && returnClassroomId === classroomId) {
+      console.log("🔙 User returned from Zoom OAuth - opening create modal");
+
+      // Check if Zoom is now connected
+      const zoomAccessToken = localStorage.getItem("zoomAccessToken");
+      if (zoomAccessToken) {
+        console.log("✅ Zoom token found after OAuth - opening modal");
+        setIsZoomConnected(true);
+        // Auto-open create meeting modal after successful OAuth
+        setTimeout(() => {
+          setSelectedClassroom({
+            classroomId: classroomId,
+            classroomName: classroomName || "Lớp học",
+          });
+          setIsModalOpen(true);
+          toast.success(
+            "Zoom đã kết nối thành công! Bạn có thể tạo phòng học ngay bây giờ."
+          );
+        }, 1000);
+
+        // Clean up URL params
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, "", newUrl);
+      } else {
+        console.log("❌ No Zoom token found after OAuth return");
+        toast.error("Kết nối Zoom không thành công. Vui lòng thử lại!");
+      }
+    }
+  }, [location.search, classroomId, classroomName]); // Function to redirect to Zoom OAuth
   const redirectToZoomOAuth = async () => {
     console.log("🔗 Redirecting to Zoom OAuth...");
 
-    // Store current page info to return after OAuth
+    // Store current page info to return after OAuth (using sessionStorage like other pages)
+    const returnPath = `/tai-khoan/ho-so/quan-ly-lop-hoc/${classroomId}/meetings`;
     const returnState = {
-      returnPath: `/tai-khoan/lop-hoc/meetings?classroomId=${classroomId}&classroomName=${encodeURIComponent(
-        classroomName || ""
-      )}`,
+      fromZoomOAuth: true,
       classroomId,
       classroomName,
     };
 
-    localStorage.setItem("zoomOAuthReturnState", JSON.stringify(returnState));
+    console.log("💾 Storing return state:", { returnPath, returnState });
+    sessionStorage.setItem("zoomReturnPath", returnPath);
+    sessionStorage.setItem("zoomReturnState", JSON.stringify(returnState));
 
     try {
       // Use meeting/auth API to get dynamic OAuth URL
@@ -589,17 +631,24 @@ const TutorClassroomMeetingsPage = () => {
       if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
-
-  // Handle join meeting
+  // Handle join meeting - Direct to Zoom URL
   const handleJoinMeeting = (meeting) => {
-    navigate("/tai-khoan/ho-so/phong-hoc", {
-      state: {
-        meetingData: meeting,
-        classroomName: classroomName,
-        classroomId: classroomId,
-        userRole: "host",
-        isNewMeeting: false,
-      },
+    const joinUrl = meeting.joinUrl || meeting.join_url;
+
+    if (!joinUrl) {
+      toast.error("Không tìm thấy link tham gia phòng học.");
+      console.error("❌ No joinUrl found for meeting:", meeting);
+      return;
+    }
+
+    // Open Zoom meeting in new window/tab
+    window.open(joinUrl, "_blank", "noopener,noreferrer");
+    toast.success("Đang mở phòng học Zoom...");
+
+    console.log("🔗 Opening Zoom meeting:", {
+      meetingId: meeting.meetingId,
+      topic: meeting.topic,
+      joinUrl: joinUrl,
     });
   };
 
@@ -752,66 +801,81 @@ const TutorClassroomMeetingsPage = () => {
             </div>
           ) : (
             <div className="tcp-meeting-list">
-              {meetings.map((meeting) => (
-                <div key={meeting.meetingId} className="tcp-meeting-card">
-                  <div className="tcp-meeting-info">
-                    <div className="tcp-meeting-topic">
-                      <i className="fas fa-video"></i>
-                      <h4>{meeting.topic}</h4>
+              {" "}
+              {meetings.map((meeting) => {
+                // Check if meeting has ended - improved logic
+                const isEnded =
+                  meeting.status === "ENDED" ||
+                  meeting.status === "COMPLETED" ||
+                  meeting.status === "FINISHED" ||
+                  meeting.status === "CANCELLED" ||
+                  (meeting.endTime && new Date(meeting.endTime) < new Date());
+
+                return (
+                  <div key={meeting.meetingId} className="tcp-meeting-card">
+                    <div className="tcp-meeting-info">
+                      <div className="tcp-meeting-topic">
+                        <i className="fas fa-video"></i>
+                        <h4>{meeting.topic}</h4>
+                      </div>{" "}
+                      <div className="tcp-meeting-details">
+                        {/* Meeting ID và Zoom Meeting ID đã được ẩn theo yêu cầu gia sư */}
+                        <div className="tcp-meeting-detail-item">
+                          <span className="tcp-detail-label">Mật khẩu:</span>
+                          <span className="tcp-detail-value">
+                            {meeting.password || "N/A"}
+                          </span>
+                        </div>
+                        <div className="tcp-meeting-detail-item">
+                          <span className="tcp-detail-label">
+                            Thời gian bắt đầu:
+                          </span>
+                          <span className="tcp-detail-value">
+                            {formatDate(meeting.startTime)}
+                          </span>
+                        </div>
+                        <div className="tcp-meeting-detail-item">
+                          <span className="tcp-detail-label">
+                            Thời gian kết thúc:
+                          </span>
+                          <span className="tcp-detail-value">
+                            {formatDate(meeting.endTime)}
+                          </span>
+                        </div>
+                        <div className="tcp-meeting-detail-item">
+                          <span className="tcp-detail-label">Trạng thái:</span>
+                          <span
+                            className={`tcp-status-badge tcp-status-${meeting.status?.toLowerCase()}`}
+                          >
+                            {statusLabels[meeting.status] ||
+                              meeting.status ||
+                              "Chưa xác định"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="tcp-meeting-details">
-                      <div className="tcp-meeting-detail-item">
-                        <span className="tcp-detail-label">Meeting ID:</span>
-                        <span className="tcp-detail-value">
-                          {meeting.zoomMeetingId}
-                        </span>
-                      </div>
-                      <div className="tcp-meeting-detail-item">
-                        <span className="tcp-detail-label">Mật khẩu:</span>
-                        <span className="tcp-detail-value">
-                          {meeting.password}
-                        </span>
-                      </div>
-                      <div className="tcp-meeting-detail-item">
-                        <span className="tcp-detail-label">
-                          Thời gian bắt đầu:
-                        </span>
-                        <span className="tcp-detail-value">
-                          {formatDate(meeting.startTime)}
-                        </span>
-                      </div>
-                      <div className="tcp-meeting-detail-item">
-                        <span className="tcp-detail-label">
-                          Thời gian kết thúc:
-                        </span>
-                        <span className="tcp-detail-value">
-                          {formatDate(meeting.endTime)}
-                        </span>
-                      </div>
-                      <div className="tcp-meeting-detail-item">
-                        <span className="tcp-detail-label">Trạng thái:</span>
-                        <span
-                          className={`tcp-status-badge tcp-status-${meeting.status?.toLowerCase()}`}
+                    <div className="tcp-meeting-actions">
+                      {!isEnded ? (
+                        <button
+                          className="tcp-action-btn tcp-join-btn"
+                          onClick={() => handleJoinMeeting(meeting)}
+                          title="Tham gia phòng học"
                         >
-                          {statusLabels[meeting.status] ||
-                            meeting.status ||
-                            "Chưa xác định"}
-                        </span>
-                      </div>
+                          <i className="fas fa-sign-in-alt"></i>
+                          Tham gia
+                        </button>
+                      ) : (
+                        <div className="tcp-meeting-ended">
+                          <span className="tcp-ended-label">
+                            <i className="fas fa-check-circle"></i>
+                            Phiên đã kết thúc
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="tcp-meeting-actions">
-                    <button
-                      className="tcp-action-btn tcp-join-btn"
-                      onClick={() => handleJoinMeeting(meeting)}
-                      title="Tham gia phòng học"
-                    >
-                      <i className="fas fa-sign-in-alt"></i>
-                      Tham gia
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

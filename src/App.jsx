@@ -93,6 +93,9 @@ const SmartZoomLoader = lazy(() =>
 // Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
+const AdminMicrosoftOAuth = lazy(() =>
+  import("./pages/Admin/AdminMicrosoftOAuth")
+);
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
 const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
 const ListOfRequest = lazy(() => import("./pages/Admin/ListOfRequest"));
@@ -126,6 +129,7 @@ const TutorRevenueStatistics = lazy(() =>
 const TutorAssessmentStatistics = lazy(() =>
   import("./pages/Admin/TutorAssessmentStatistics")
 );
+const ListOfAssessments = lazy(() => import("./pages/Admin/ListOfAssessments"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -275,9 +279,13 @@ function App() {
                   }}
                 />
               }
-            />
+            />{" "}
             {/* ADMIN ROUTES */}
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/MicrosoftOauth"
+              element={<AdminMicrosoftOAuth />}
+            />
             <Route element={<AdminPrivateRoutes />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/profile" element={<AdminProfile />} />
@@ -315,11 +323,12 @@ function App() {
               <Route
                 path="/admin/doanh-thu-gia-su"
                 element={<TutorRevenueStatistics />}
-              />
+              />{" "}
               <Route
                 path="/admin/danh-gia-gia-su"
                 element={<TutorAssessmentStatistics />}
               />
+              <Route path="/admin/danh-gia" element={<ListOfAssessments />} />
               <Route
                 path="/admin/nap-vi-nguoi-dung"
                 element={<ListOfTransactions />}

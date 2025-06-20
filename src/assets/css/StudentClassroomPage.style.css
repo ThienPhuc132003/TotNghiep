@@ -1389,6 +1389,60 @@
   border: 1px solid rgba(40, 167, 69, 0.2);
 }
 
+/* Classroom Pagination */
+.scp-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #e9ecef;
+}
+
+.scp-pagination .scp-pagination-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.scp-pagination .scp-pagination-btn:hover:not(:disabled) {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.scp-pagination .scp-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+.scp-pagination .scp-pagination-info {
+  font-size: 0.95rem;
+  color: #495057;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
 /* Custom Star Rating with Half Star Support */
 .scp-custom-star-rating {
   display: flex !important;
@@ -1416,12 +1470,10 @@
 
 .scp-star-left {
   left: 0 !important;
-  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%) !important;
 }
 
 .scp-star-right {
   right: 0 !important;
-  clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%) !important;
 }
 
 .scp-star-half i {
