@@ -249,20 +249,63 @@ const TutorClassroomMeetingsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeMeetingTab, setActiveMeetingTab] = useState("ENDED"); // Default to ENDED since most meetings are usually ended
   const meetingsPerPage = 3;
-
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
 
-  // Get classroom info from URL params
+  // Get classroom info from URL params and state
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.userProfile);
-  const classroomId =
-    searchParams.get("classroomId") || location.state?.classroomId;
-  const classroomName =
-    searchParams.get("classroomName") || location.state?.classroomName;
+
+  // Create states for classroom info to properly track changes
+  const [currentClassroomId, setCurrentClassroomId] = useState(null);
+  const [currentClassroomName, setCurrentClassroomName] = useState(null);
+
+  // Update classroom info when URL params or location state changes
+  useEffect(() => {
+    const urlClassroomId = searchParams.get("classroomId");
+    const stateClassroomId = location.state?.classroomId;
+    const urlClassroomName = searchParams.get("classroomName");
+    const stateClassroomName = location.state?.classroomName;
+
+    const newClassroomId = urlClassroomId || stateClassroomId;
+    const newClassroomName = urlClassroomName || stateClassroomName;
+
+    console.log("🔍 Classroom info update:", {
+      urlClassroomId,
+      stateClassroomId,
+      urlClassroomName,
+      stateClassroomName,
+      newClassroomId,
+      newClassroomName,
+    });
+
+    if (newClassroomId !== currentClassroomId) {
+      setCurrentClassroomId(newClassroomId);
+      console.log(
+        "🔄 Classroom ID changed:",
+        currentClassroomId,
+        "->",
+        newClassroomId
+      );
+    }
+
+    if (newClassroomName !== currentClassroomName) {
+      setCurrentClassroomName(newClassroomName);
+      console.log(
+        "🔄 Classroom name changed:",
+        currentClassroomName,
+        "->",
+        newClassroomName
+      );
+    }
+  }, [searchParams, location.state, currentClassroomId, currentClassroomName]);
+
+  // Maintain backward compatibility
+  const classroomId = currentClassroomId;
+  const classroomName = currentClassroomName;
 
   // New states for classroom selection when no classroomId provided
   const [availableClassrooms, setAvailableClassrooms] = useState([]);
@@ -291,8 +334,7 @@ const TutorClassroomMeetingsPage = () => {
       }
     };
     checkZoomConnection();
-  }, []);
-  // Handle return from Zoom OAuth
+  }, []); // Handle return from Zoom OAuth
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const fromZoomConnection = urlParams.get("fromZoomConnection");
@@ -302,20 +344,58 @@ const TutorClassroomMeetingsPage = () => {
       fromZoomConnection,
       returnClassroomId,
       currentClassroomId: classroomId,
-    }); // If user just came back from Zoom OAuth
+    });
+
+    // If user just came back from Zoom OAuth
     if (fromZoomConnection === "true") {
-      console.log("🔙 User returned from Zoom OAuth - opening create modal");
+      console.log("🔙 User returned from Zoom OAuth - processing return");
 
       // Check if Zoom is now connected
       const zoomAccessToken = localStorage.getItem("zoomAccessToken");
       if (zoomAccessToken) {
-        console.log("✅ Zoom token found after OAuth - opening modal");
+        console.log("✅ Zoom token found after OAuth - setting up connection");
         setIsZoomConnected(true);
+
+        // If we don't have classroomId in current state but have it from return
+        if (!classroomId && returnClassroomId) {
+          console.log(
+            "🔄 Updating page context with classroom info from Zoom return"
+          );
+
+          // Decode classroomName to handle double-encoding from URL
+          const encodedClassroomName = urlParams.get("classroomName");
+          let decodedClassroomName = "Lớp học";
+
+          if (encodedClassroomName) {
+            try {
+              decodedClassroomName = decodeURIComponent(encodedClassroomName);
+              console.log("🔍 Decoded classroom name:", {
+                original: encodedClassroomName,
+                decoded: decodedClassroomName,
+              });
+            } catch (error) {
+              console.warn("❌ Failed to decode classroomName:", error);
+              decodedClassroomName = encodedClassroomName;
+            }
+          }
+
+          // Navigate to same page with classroom context to trigger data reload
+          navigate(`/tai-khoan/ho-so/quan-ly-phong-hoc`, {
+            state: {
+              classroomId: returnClassroomId,
+              classroomName: decodedClassroomName,
+              fromZoomOAuth: true,
+            },
+            replace: true,
+          });
+          return; // Exit early, let the page reload with proper context
+        }
 
         // Auto-open create meeting modal after successful OAuth if we have classroom info
         if (
           returnClassroomId &&
-          (returnClassroomId === classroomId || !classroomId)
+          classroomId &&
+          returnClassroomId === classroomId
         ) {
           setTimeout(() => {
             // Decode classroomName to handle double-encoding from URL
@@ -344,7 +424,7 @@ const TutorClassroomMeetingsPage = () => {
             toast.success(
               "Zoom đã kết nối thành công! Bạn có thể tạo phòng học ngay bây giờ."
             );
-          }, 1000);
+          }, 1500); // Increased delay to ensure meetings are loaded
         } else {
           // Just show success message if no specific classroom
           toast.success("Zoom đã kết nối thành công!");
@@ -358,7 +438,7 @@ const TutorClassroomMeetingsPage = () => {
         toast.error("Kết nối Zoom không thành công. Vui lòng thử lại!");
       }
     }
-  }, [location.search, classroomId, classroomName]); // Function to redirect to Zoom OAuth
+  }, [location.search, classroomId, classroomName, navigate]); // Function to redirect to Zoom OAuth
   const redirectToZoomOAuth = async () => {
     console.log("🔗 Redirecting to Zoom OAuth...");
 
@@ -412,11 +492,17 @@ const TutorClassroomMeetingsPage = () => {
   const handleBackToClassrooms = () => {
     navigate("/tai-khoan/ho-so/quan-ly-lop-hoc");
   };
-
   // Simple fetch function for manual calls (like pagination)
   const fetchMeetings = useCallback(
-    async (page = 1) => {
-      if (!classroomId || isLoading) return;
+    async (page = 1, forceReload = false) => {
+      if (!classroomId || (isLoading && !forceReload)) {
+        console.log("❌ Cannot fetch meetings:", {
+          classroomId,
+          isLoading,
+          forceReload,
+        });
+        return;
+      }
 
       try {
         setIsLoading(true);
@@ -424,6 +510,13 @@ const TutorClassroomMeetingsPage = () => {
         const queryParams = {
           classroomId: classroomId,
         };
+
+        console.log(
+          "📡 Manual fetch meetings for classroom:",
+          classroomId,
+          "page:",
+          page
+        );
 
         const response = await Api({
           endpoint: "meeting/get-meeting",
@@ -439,6 +532,9 @@ const TutorClassroomMeetingsPage = () => {
           Array.isArray(response.data.result.items)
         ) {
           const allMeetingsData = response.data.result.items;
+          console.log(
+            `✅ Manual fetch: Found ${allMeetingsData.length} meetings`
+          );
           setAllMeetings(allMeetingsData);
 
           // Apply client-side filtering
@@ -452,12 +548,13 @@ const TutorClassroomMeetingsPage = () => {
           setTotalMeetings(result.total);
           setCurrentPage(page);
         } else {
+          console.log("❌ Manual fetch: No meetings data");
           setMeetings([]);
           setAllMeetings([]);
           setTotalMeetings(0);
         }
       } catch (error) {
-        console.error("❌ Error fetching meetings:", error);
+        console.error("❌ Error in manual fetch meetings:", error);
         setError("Lỗi khi tải danh sách phòng học.");
         setMeetings([]);
         setAllMeetings([]);
@@ -469,7 +566,10 @@ const TutorClassroomMeetingsPage = () => {
     [classroomId, isLoading, activeMeetingTab, meetingsPerPage]
   ); // Initial load - ONLY when classroomId changes
   useEffect(() => {
-    if (!classroomId) return;
+    if (!classroomId) {
+      console.log("❌ No classroomId provided, skipping meeting load");
+      return;
+    }
 
     console.log("🔄 Loading meetings for classroom:", classroomId);
 
@@ -478,12 +578,19 @@ const TutorClassroomMeetingsPage = () => {
         setIsLoading(true);
         setError(null);
 
+        console.log(
+          "📡 Calling meeting/get-meeting API with classroomId:",
+          classroomId
+        );
+
         const response = await Api({
           endpoint: "meeting/get-meeting",
           method: METHOD_TYPE.POST,
           data: { classroomId: classroomId },
           requireToken: true,
         });
+
+        console.log("📡 API Response:", response);
 
         if (
           response.success &&
@@ -492,14 +599,21 @@ const TutorClassroomMeetingsPage = () => {
           Array.isArray(response.data.result.items)
         ) {
           const allMeetingsData = response.data.result.items;
-          console.log(`✅ Fetched ${allMeetingsData.length} meetings`);
+          console.log(
+            `✅ Fetched ${allMeetingsData.length} meetings for classroom ${classroomId}`
+          );
           setAllMeetings(allMeetingsData);
         } else {
-          console.log("❌ No meetings data");
+          console.log("❌ No meetings data for classroom:", classroomId);
           setAllMeetings([]);
         }
       } catch (error) {
-        console.error("❌ Error fetching meetings:", error);
+        console.error(
+          "❌ Error fetching meetings for classroom",
+          classroomId,
+          ":",
+          error
+        );
         setError("Lỗi khi tải danh sách phòng học.");
         setAllMeetings([]);
       } finally {
@@ -627,7 +741,6 @@ const TutorClassroomMeetingsPage = () => {
 
       console.log("📡 API Response:", response);
       toast.dismiss(loadingToastId);
-
       if (response.success) {
         console.log("✅ Meeting created successfully:", response.data);
         toast.success("Tạo phòng học thành công!");
@@ -637,7 +750,10 @@ const TutorClassroomMeetingsPage = () => {
         // Auto-switch to IN_SESSION tab if not already there
         if (activeMeetingTab !== "IN_SESSION") {
           setActiveMeetingTab("IN_SESSION");
-        } // Refresh the meeting list
+        }
+
+        // Refresh the meeting list immediately
+        console.log("🔄 Refreshing meetings after creating new meeting");
         setTimeout(() => {
           fetchMeetings(1, true);
         }, 500);

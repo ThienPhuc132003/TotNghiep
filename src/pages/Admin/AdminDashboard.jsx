@@ -933,24 +933,6 @@ const AdminDashboardPage = () => {
                 </div>
               </div>
             </div>
-            <div className="admin-card admin-card--active-classes">
-              <div className="admin-card__icon-wrapper">
-                <i className="fas fa-chalkboard-user admin-card__icon"></i>
-              </div>
-              <div className="admin-card__content">
-                <div className="admin-card__header">
-                  <h3 className="admin-card__title">Lớp mới hoạt động</h3>
-                  <span className="admin-card__data">
-                    {dashboardStats.newClassActive.value?.toLocaleString(
-                      "vi-VN"
-                    ) || "N/A"}
-                  </span>
-                </div>
-                <div className="admin-card__change">
-                  {renderChange(dashboardStats.newClassActive.change, true)}
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="admin-dashboard__charts-grid">
