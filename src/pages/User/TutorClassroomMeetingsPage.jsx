@@ -298,10 +298,8 @@ const TutorClassroomMeetingsPage = () => {
       fromZoomConnection,
       returnClassroomId,
       currentClassroomId: classroomId,
-    });
-
-    // If user just came back from Zoom OAuth for this specific classroom
-    if (fromZoomConnection === "true" && returnClassroomId === classroomId) {
+    }); // If user just came back from Zoom OAuth
+    if (fromZoomConnection === "true") {
       console.log("🔙 User returned from Zoom OAuth - opening create modal");
 
       // Check if Zoom is now connected
@@ -309,17 +307,27 @@ const TutorClassroomMeetingsPage = () => {
       if (zoomAccessToken) {
         console.log("✅ Zoom token found after OAuth - opening modal");
         setIsZoomConnected(true);
-        // Auto-open create meeting modal after successful OAuth
-        setTimeout(() => {
-          setSelectedClassroom({
-            classroomId: classroomId,
-            classroomName: classroomName || "Lớp học",
-          });
-          setIsModalOpen(true);
-          toast.success(
-            "Zoom đã kết nối thành công! Bạn có thể tạo phòng học ngay bây giờ."
-          );
-        }, 1000);
+
+        // Auto-open create meeting modal after successful OAuth if we have classroom info
+        if (
+          returnClassroomId &&
+          (returnClassroomId === classroomId || !classroomId)
+        ) {
+          setTimeout(() => {
+            setSelectedClassroom({
+              classroomId: returnClassroomId,
+              classroomName:
+                urlParams.get("classroomName") || classroomName || "Lớp học",
+            });
+            setIsModalOpen(true);
+            toast.success(
+              "Zoom đã kết nối thành công! Bạn có thể tạo phòng học ngay bây giờ."
+            );
+          }, 1000);
+        } else {
+          // Just show success message if no specific classroom
+          toast.success("Zoom đã kết nối thành công!");
+        }
 
         // Clean up URL params
         const newUrl = window.location.pathname;
@@ -329,7 +337,8 @@ const TutorClassroomMeetingsPage = () => {
         toast.error("Kết nối Zoom không thành công. Vui lòng thử lại!");
       }
     }
-  }, [location.search, classroomId, classroomName]); // Function to redirect to Zoom OAuth
+  }, [location.search, classroomId, classroomName]);
+  // Function to redirect to Zoom OAuth
   const redirectToZoomOAuth = async () => {
     console.log("🔗 Redirecting to Zoom OAuth...");
 
@@ -789,15 +798,6 @@ const TutorClassroomMeetingsPage = () => {
                   ? "Hiện tại chưa có phòng học nào đang hoạt động. Hãy tạo phòng học mới để bắt đầu."
                   : "Chưa có phòng học nào đã kết thúc."}
               </p>
-              {activeMeetingTab === "IN_SESSION" && (
-                <button
-                  className="tcp-create-meeting-btn"
-                  onClick={handleOpenCreateMeetingModal}
-                >
-                  <i className="fas fa-plus"></i>
-                  Tạo phòng học đầu tiên
-                </button>
-              )}
             </div>
           ) : (
             <div className="tcp-meeting-list">
