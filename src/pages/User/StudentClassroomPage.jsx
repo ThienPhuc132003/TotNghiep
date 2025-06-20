@@ -225,14 +225,13 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
         </div>
 
         <div className="scp-modal-body">
+          {" "}
           <div className="scp-meeting-info-summary">
             <h4>Thông tin buổi học</h4>
             <p>
               <strong>Chủ đề:</strong> {meeting?.topic || "Không có chủ đề"}
             </p>
-            <p>
-              <strong>Meeting ID:</strong> {meeting?.zoomMeetingId}
-            </p>
+            {/* Meeting ID đã được ẩn để đồng bộ với các phần khác */}
             <p>
               <strong>Thời gian:</strong>{" "}
               {meeting?.startTime
@@ -240,7 +239,6 @@ const MeetingRatingModal = ({ meeting, isOpen, onClose, onSubmit }) => {
                 : "N/A"}
             </p>
           </div>
-
           <form onSubmit={handleSubmit} className="scp-rating-form">
             <div className="scp-rating-section">
               <label className="scp-rating-label">
@@ -847,12 +845,57 @@ const StudentClassroomPage = () => {
     setSelectedClassroomForEvaluation(classroom);
     setShowEvaluationModal(true);
   };
-
   const handleEvaluationSubmit = async (evaluationData) => {
-    console.log("Evaluation submitted:", evaluationData);
-    toast.success("Đánh giá đã được gửi thành công!");
-    setShowEvaluationModal(false);
-    setSelectedClassroomForEvaluation(null);
+    try {
+      console.log("🎯 Submitting classroom evaluation:", evaluationData);
+
+      // Get classroom and meeting information
+      const classroomData = selectedClassroomForEvaluation;
+      if (!classroomData || !classroomData.classroomId) {
+        throw new Error("Không tìm thấy thông tin phòng học");
+      }
+
+      // Prepare payload for classroom-assessment/create/:classroomId
+      const payload = {
+        tutorId: classroomData.tutorId,
+        classroomEvaluation:
+          evaluationData.rating || evaluationData.classroomEvaluation,
+        description: evaluationData.description || evaluationData.comment || "",
+        meetingId: evaluationData.meetingId || null, // Optional meetingId
+      };
+
+      console.log("🎯 API payload:", payload);
+      console.log(
+        "🎯 Calling endpoint:",
+        `classroom-assessment/create/${classroomData.classroomId}`
+      );
+
+      // Call the classroom assessment API
+      const response = await Api({
+        endpoint: `classroom-assessment/create/${classroomData.classroomId}`,
+        method: METHOD_TYPE.POST,
+        data: payload,
+        requireToken: true,
+      });
+
+      console.log("✅ Classroom evaluation response:", response);
+
+      if (response.success || response.status === "OK") {
+        toast.success("Đánh giá phòng học đã được gửi thành công!");
+        setShowEvaluationModal(false);
+        setSelectedClassroomForEvaluation(null);
+
+        // Refresh classroom data to reflect changes
+        fetchStudentClassrooms(currentPage, true);
+      } else {
+        throw new Error(response.message || "Gửi đánh giá thất bại");
+      }
+    } catch (error) {
+      console.error("❌ Error submitting classroom evaluation:", error);
+      toast.error(
+        error.message || "Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại!"
+      );
+    }
   };
 
   const handleCloseEvaluationModal = () => {
@@ -870,13 +913,71 @@ const StudentClassroomPage = () => {
     setShowMeetingRatingModal(false);
     setSelectedMeetingForRating(null);
   };
-
   const handleMeetingRatingSubmit = async (ratingData) => {
-    console.log("Meeting rating submitted:", ratingData);
-    // TODO: Implement API call to submit rating
-    toast.success("Đánh giá buổi học đã được gửi thành công!");
-    setShowMeetingRatingModal(false);
-    setSelectedMeetingForRating(null);
+    try {
+      console.log("🎯 Submitting meeting rating:", ratingData);
+
+      // Get meeting information
+      const meetingData = selectedMeetingForRating;
+      if (!meetingData || !meetingData.meetingId) {
+        throw new Error("Không tìm thấy thông tin buổi học");
+      }
+
+      // Prepare payload for classroom-assessment/create/:classroomId with meetingId
+      const payload = {
+        tutorId:
+          meetingData.classroom?.tutorId ||
+          currentClassroomForMeetings?.tutorId,
+        classroomEvaluation:
+          ratingData.rating || ratingData.classroomEvaluation,
+        description: ratingData.description || ratingData.comment || "",
+        meetingId: meetingData.meetingId, // Include specific meetingId for meeting rating
+      };
+
+      const classroomId =
+        meetingData.classroomId || currentClassroomForMeetings?.classroomId;
+      if (!classroomId) {
+        throw new Error("Không tìm thấy thông tin phòng học");
+      }
+
+      console.log("🎯 Meeting rating API payload:", payload);
+      console.log(
+        "🎯 Calling endpoint:",
+        `classroom-assessment/create/${classroomId}`
+      );
+
+      // Call the same classroom assessment API but with meetingId in payload
+      const response = await Api({
+        endpoint: `classroom-assessment/create/${classroomId}`,
+        method: METHOD_TYPE.POST,
+        data: payload,
+        requireToken: true,
+      });
+
+      console.log("✅ Meeting rating response:", response);
+
+      if (response.success || response.status === "OK") {
+        toast.success("Đánh giá buổi học đã được gửi thành công!");
+        setShowMeetingRatingModal(false);
+        setSelectedMeetingForRating(null);
+
+        // Refresh meeting data to reflect changes
+        if (currentClassroomForMeetings) {
+          handleViewMeetings(
+            currentClassroomForMeetings.classroomId,
+            currentClassroomForMeetings.nameOfRoom,
+            currentMeetingPage
+          );
+        }
+      } else {
+        throw new Error(response.message || "Gửi đánh giá thất bại");
+      }
+    } catch (error) {
+      console.error("❌ Error submitting meeting rating:", error);
+      toast.error(
+        error.message || "Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại!"
+      );
+    }
   };
 
   // Early return check for user authentication
@@ -979,11 +1080,13 @@ const StudentClassroomPage = () => {
               </div>
             ) : meetingList.length > 0 ? (
               <ul className="scp-meeting-list">
+                {" "}
                 {meetingList.map((meeting, index) => {
                   const isEnded =
                     meeting.status === "COMPLETED" ||
                     meeting.status === "ENDED" ||
                     meeting.status === "FINISHED" ||
+                    meeting.status === "CANCELLED" ||
                     (meeting.endTime && new Date(meeting.endTime) < new Date());
 
                   return (
@@ -992,18 +1095,13 @@ const StudentClassroomPage = () => {
                       className="scp-meeting-item"
                     >
                       <div className="scp-meeting-info">
+                        {" "}
                         <p>
                           <i className="fas fa-bookmark"></i>
                           <strong>Chủ đề:</strong>{" "}
                           {meeting.topic || "Không có chủ đề"}
                         </p>
-                        <p>
-                          <i className="fas fa-id-card"></i>
-                          <strong>Meeting ID:</strong>{" "}
-                          {meeting.zoomMeetingId ||
-                            meeting.id ||
-                            meeting.meetingId}
-                        </p>
+                        {/* Meeting ID và Zoom Meeting ID đã được ẩn để đồng bộ với trang gia sư */}
                         {meeting.password && (
                           <p>
                             <i className="fas fa-key"></i>
@@ -1041,30 +1139,17 @@ const StudentClassroomPage = () => {
                               "Chưa xác định"}
                           </span>
                         </p>
-                      </div>
-
+                      </div>{" "}
                       {!isEnded ? (
                         <div className="scp-meeting-actions">
                           <button
                             className="scp-action-btn scp-join-meeting-btn"
                             onClick={() => handleJoinMeeting(meeting)}
+                            title="Tham gia phòng học"
                           >
-                            <i className="fas fa-external-link-alt"></i>
+                            <i className="fas fa-sign-in-alt"></i>
                             Tham gia
                           </button>
-                          {meeting.joinUrl && (
-                            <button
-                              className="scp-action-btn scp-copy-link-btn"
-                              onClick={() => {
-                                navigator.clipboard.writeText(meeting.joinUrl);
-                                toast.success("Đã sao chép link tham gia!");
-                              }}
-                              title="Sao chép link"
-                            >
-                              <i className="fas fa-copy"></i>
-                              Sao chép link
-                            </button>
-                          )}
                         </div>
                       ) : meeting.isRating === false ? (
                         <div className="scp-meeting-actions">

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Assessment Management API Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .section h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .controls {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+      .controls input,
+      .controls select {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        flex: 1;
+        min-width: 200px;
+      }
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+      }
+      .btn-primary {
+        background-color: #007bff;
+      }
+      .btn-success {
+        background-color: #28a745;
+      }
+      .btn-warning {
+        background-color: #ffc107;
+        color: #333;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+      .result {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        border: 1px solid #e9ecef;
+        white-space: pre-wrap;
+        font-family: monospace;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .success {
+        color: #28a745;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .loading {
+        color: #007bff;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      .data-table th,
+      .data-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .data-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+      .data-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+      .rating {
+        color: #f39c12;
+        font-weight: bold;
+      }
+      .stats {
+        display: flex;
+        gap: 20px;
+        margin: 15px 0;
+      }
+      .stat-card {
+        background: #e9ecef;
+        padding: 10px;
+        border-radius: 4px;
+        text-align: center;
+        flex: 1;
+      }
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎓 Admin Assessment Management API Test</h1>
+      <p>
+        Test và verify API <code>classroom-assessment/search</code> cho trang
+        quản lý đánh giá phía admin
+      </p>
+    </div>
+
+    <div class="container">
+      <div class="section">
+        <h3>🔧 API Configuration</h3>
+        <div class="controls">
+          <input
+            type="text"
+            id="apiBase"
+            placeholder="API Base URL"
+            value="http://localhost:3000/api"
+          />
+          <input type="text" id="authToken" placeholder="Authorization Token" />
+          <button class="btn btn-warning" onclick="saveConfig()">
+            💾 Lưu Config
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🔍 Search & Filter Parameters</h3>
+        <div class="controls">
+          <input
+            type="number"
+            id="page"
+            placeholder="Page (0-based)"
+            value="0"
+            min="0"
+          />
+          <input
+            type="number"
+            id="size"
+            placeholder="Size per page"
+            value="10"
+            min="1"
+            max="100"
+          />
+          <input type="text" id="searchValue" placeholder="Search value" />
+          <select id="searchField">
+            <option value="">No search</option>
+            <option value="studentName">Student Name</option>
+            <option value="tutorName">Tutor Name</option>
+            <option value="classroomName">Classroom Name</option>
+            <option value="description">Description</option>
+            <option value="classroomEvaluation">Rating</option>
+          </select>
+        </div>
+        <div class="controls">
+          <input
+            type="text"
+            id="sortBy"
+            placeholder="Sort by field"
+            value="createdAt"
+          />
+          <select id="sortDirection">
+            <option value="DESC">Descending</option>
+            <option value="ASC">Ascending</option>
+          </select>
+          <button class="btn btn-primary" onclick="fetchAssessments()">
+            🚀 Fetch Assessments
+          </button>
+          <button class="btn btn-success" onclick="clearResults()">
+            🧹 Clear Results
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 Results & Statistics</h3>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="totalItems">0</div>
+            <div>Total Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="currentPageNum">0</div>
+            <div>Current Page</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="avgRating">0</div>
+            <div>Avg Rating</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="responseTime">0ms</div>
+            <div>Response Time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📋 API Response</h3>
+        <div id="apiResult" class="result">
+          Click "Fetch Assessments" to see results...
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 Data Table</h3>
+        <div id="dataTableContainer">
+          <p>No data loaded yet...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let assessmentData = [];
+      let startTime = 0;
+
+      // Load saved config
+      document.addEventListener("DOMContentLoaded", function () {
+        const savedApiBase = localStorage.getItem("adminAssessmentApiBase");
+        const savedToken = localStorage.getItem("adminAssessmentToken");
+
+        if (savedApiBase)
+          document.getElementById("apiBase").value = savedApiBase;
+        if (savedToken) document.getElementById("authToken").value = savedToken;
+      });
+
+      function saveConfig() {
+        const apiBase = document.getElementById("apiBase").value;
+        const token = document.getElementById("authToken").value;
+
+        localStorage.setItem("adminAssessmentApiBase", apiBase);
+        localStorage.setItem("adminAssessmentToken", token);
+
+        log("✅ Configuration saved!", "success");
+      }
+
+      function log(message, type = "info") {
+        const result = document.getElementById("apiResult");
+        const timestamp = new Date().toLocaleTimeString();
+        const className =
+          type === "error"
+            ? "error"
+            : type === "success"
+            ? "success"
+            : type === "loading"
+            ? "loading"
+            : "";
+        result.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+        result.scrollTop = result.scrollHeight;
+      }
+
+      function clearResults() {
+        document.getElementById("apiResult").innerHTML = "";
+        document.getElementById("dataTableContainer").innerHTML =
+          "<p>No data loaded yet...</p>";
+        assessmentData = [];
+        updateStats(null);
+        log("🧹 Results cleared", "success");
+      }
+
+      function formatRating(rating) {
+        const stars =
+          "★".repeat(Math.floor(rating)) + "☆".repeat(5 - Math.floor(rating));
+        return `${stars} (${parseFloat(rating).toFixed(1)})`;
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return "N/A";
+        try {
+          return new Date(dateString).toLocaleDateString("vi-VN");
+        } catch (e) {
+          return "Invalid Date";
+        }
+      }
+
+      function updateStats(data) {
+        if (!data) {
+          document.getElementById("totalItems").textContent = "0";
+          document.getElementById("currentPageNum").textContent = "0";
+          document.getElementById("avgRating").textContent = "0";
+          document.getElementById("responseTime").textContent = "0ms";
+          return;
+        }
+
+        document.getElementById("totalItems").textContent = data.total || 0;
+        document.getElementById("currentPageNum").textContent =
+          (data.page || 0) + 1;
+
+        // Calculate average rating
+        if (data.items && data.items.length > 0) {
+          const ratings = data.items.map(
+            (item) => parseFloat(item.classroomEvaluation) || 0
+          );
+          const avgRating =
+            ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+          document.getElementById("avgRating").textContent =
+            avgRating.toFixed(1);
+        } else {
+          document.getElementById("avgRating").textContent = "0";
+        }
+
+        const endTime = Date.now();
+        document.getElementById("responseTime").textContent =
+          endTime - startTime + "ms";
+      }
+
+      function renderDataTable(data) {
+        if (!data || !data.items || data.items.length === 0) {
+          document.getElementById("dataTableContainer").innerHTML =
+            "<p>No assessments found.</p>";
+          return;
+        }
+
+        let tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Student Name</th>
+                            <th>Tutor Name</th>
+                            <th>Classroom</th>
+                            <th>Rating</th>
+                            <th>Description</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+        data.items.forEach((item, index) => {
+          const pageOffset = (data.page || 0) * (data.size || 10);
+          tableHTML += `
+                    <tr>
+                        <td>${pageOffset + index + 1}</td>
+                        <td>
+                            <strong>${item.studentName || "N/A"}</strong><br>
+                            <small>ID: ${item.userId || "N/A"}</small>
+                        </td>
+                        <td>
+                            <strong>${item.tutorName || "N/A"}</strong><br>
+                            <small>ID: ${item.tutorId || "N/A"}</small>
+                        </td>
+                        <td>
+                            <strong>${item.classroomName || "N/A"}</strong><br>
+                            <small>ID: ${item.classroomId || "N/A"}</small>
+                        </td>
+                        <td class="rating">${formatRating(
+                          item.classroomEvaluation
+                        )}</td>
+                        <td title="${item.description || "No description"}">
+                            ${(item.description || "No description").substring(
+                              0,
+                              50
+                            )}${
+            (item.description || "").length > 50 ? "..." : ""
+          }
+                        </td>
+                        <td>${formatDate(item.startDay)}</td>
+                        <td>${formatDate(item.endDay)}</td>
+                        <td>${formatDate(item.createdAt)}</td>
+                    </tr>
+                `;
+        });
+
+        tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+        document.getElementById("dataTableContainer").innerHTML = tableHTML;
+      }
+
+      async function fetchAssessments() {
+        const apiBase = document.getElementById("apiBase").value;
+        const token = document.getElementById("authToken").value;
+        const page = parseInt(document.getElementById("page").value) || 0;
+        const size = parseInt(document.getElementById("size").value) || 10;
+        const searchValue = document.getElementById("searchValue").value.trim();
+        const searchField = document.getElementById("searchField").value;
+        const sortBy = document.getElementById("sortBy").value.trim();
+        const sortDirection = document.getElementById("sortDirection").value;
+
+        if (!apiBase) {
+          log("❌ Please enter API Base URL", "error");
+          return;
+        }
+
+        startTime = Date.now();
+        log("🔄 Fetching assessments...", "loading");
+
+        try {
+          // Build query parameters
+          const queryParams = {
+            page: page,
+            size: size,
+          };
+
+          // Add search filter if provided
+          if (searchValue && searchField) {
+            queryParams.filterConditions = [
+              {
+                key: searchField,
+                operation: "LIKE",
+                value: searchValue,
+              },
+            ];
+          }
+
+          // Add sorting if provided
+          if (sortBy) {
+            queryParams.sortConditions = [
+              {
+                key: sortBy,
+                direction: sortDirection,
+              },
+            ];
+          }
+
+          log(`📋 Query parameters: ${JSON.stringify(queryParams, null, 2)}`);
+
+          const headers = {
+            "Content-Type": "application/json",
+          };
+
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          const response = await fetch(
+            `${apiBase}/classroom-assessment/search`,
+            {
+              method: "GET",
+              headers: headers,
+              body: JSON.stringify(queryParams),
+            }
+          );
+
+          const responseText = await response.text();
+          log(`📡 HTTP Status: ${response.status}`);
+          log(`📡 Raw Response: ${responseText}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${responseText}`);
+          }
+
+          const data = JSON.parse(responseText);
+          log(`✅ API Response received`, "success");
+          log(`📊 Response Structure: ${JSON.stringify(data, null, 2)}`);
+
+          assessmentData = data;
+          updateStats(data.data || data);
+          renderDataTable(data.data || data);
+
+          log(
+            `✅ Found ${data.data?.total || data.total || 0} total assessments`,
+            "success"
+          );
+        } catch (error) {
+          log(`❌ Error: ${error.message}`, "error");
+          console.error("Full error:", error);
+        }
+      }
+
+      // Sample data for testing (if API is not available)
+      function loadSampleData() {
+        const sampleData = {
+          success: true,
+          data: {
+            items: [
+              {
+                classroomAssessmentId: "test-001",
+                userId: "user123",
+                studentName: "Nguyễn Văn A",
+                tutorId: "tutor456",
+                tutorName: "Trần Thị B",
+                classroomId: "classroom789",
+                classroomName: "Toán học lớp 12",
+                classroomEvaluation: 4.5,
+                description: "Gia sư dạy rất tốt, giải thích dễ hiểu",
+                startDay: "2024-01-15T00:00:00Z",
+                endDay: "2024-06-15T00:00:00Z",
+                createdAt: "2024-01-20T10:30:00Z",
+                updatedAt: "2024-01-20T10:30:00Z",
+                meetingId: "meeting123",
+              },
+              {
+                classroomAssessmentId: "test-002",
+                userId: "user124",
+                studentName: "Lê Thị C",
+                tutorId: "tutor457",
+                tutorName: "Phạm Văn D",
+                classroomId: "classroom790",
+                classroomName: "Tiếng Anh giao tiếp",
+                classroomEvaluation: 5.0,
+                description: "Excellent teaching, very patient and helpful",
+                startDay: "2024-02-01T00:00:00Z",
+                endDay: "2024-07-01T00:00:00Z",
+                createdAt: "2024-02-05T14:15:00Z",
+                updatedAt: "2024-02-05T14:15:00Z",
+                meetingId: null,
+              },
+            ],
+            total: 2,
+            page: 0,
+            size: 10,
+          },
+        };
+
+        log("📋 Loading sample data for testing...", "success");
+        log(`📊 Sample Data: ${JSON.stringify(sampleData, null, 2)}`);
+
+        assessmentData = sampleData;
+        updateStats(sampleData.data);
+        renderDataTable(sampleData.data);
+
+        log("✅ Sample data loaded successfully", "success");
+      }
+
+      // Add sample data button
+      document.addEventListener("DOMContentLoaded", function () {
+        const controlsDiv = document.querySelector(".controls");
+        const sampleButton = document.createElement("button");
+        sampleButton.className = "btn btn-warning";
+        sampleButton.innerHTML = "📋 Load Sample Data";
+        sampleButton.onclick = loadSampleData;
+        controlsDiv.appendChild(sampleButton);
+      });
+    </script>
+  </body>
+</html>

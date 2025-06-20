@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting ID Display Fix - Both Tutor & Student Pages</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f7fa;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .header {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+      .header p {
+        margin: 10px 0 0 0;
+        color: #7f8c8d;
+        font-size: 1.1rem;
+      }
+      .status-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+      .status-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+      .status-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 1.3rem;
+      }
+      .status-card p {
+        margin: 0;
+        opacity: 0.9;
+      }
+      .fix-section {
+        margin: 40px 0;
+        padding: 25px;
+        border: 1px solid #e1e8ed;
+        border-radius: 10px;
+        background: #f8f9fa;
+      }
+      .fix-title {
+        color: #27ae60;
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+      .fix-title i {
+        margin-right: 12px;
+        font-size: 1.2rem;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin: 20px 0;
+      }
+      .before,
+      .after {
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .before {
+        background: #ffebee;
+        border-left: 4px solid #e74c3c;
+      }
+      .after {
+        background: #e8f5e8;
+        border-left: 4px solid #27ae60;
+      }
+      .code-block {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        font-size: 14px;
+        overflow-x: auto;
+        margin: 15px 0;
+        line-height: 1.5;
+      }
+      .file-list {
+        background: #fff;
+        border: 1px solid #e1e8ed;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .file-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e1e8ed;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .file-item:last-child {
+        border-bottom: none;
+      }
+      .file-name {
+        font-family: "Consolas", monospace;
+        color: #2c3e50;
+        font-weight: 600;
+      }
+      .file-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .status-fixed {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-already-correct {
+        background: #cce5ff;
+        color: #004085;
+      }
+      .test-checklist {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+      }
+      .test-checklist h4 {
+        margin: 0 0 15px 0;
+        color: #495057;
+      }
+      .checklist-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f3f4;
+      }
+      .checklist-item:last-child {
+        border-bottom: none;
+      }
+      .checklist-item input[type="checkbox"] {
+        margin-right: 12px;
+        transform: scale(1.2);
+      }
+      .summary {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        margin-top: 30px;
+      }
+      .summary h3 {
+        margin: 0 0 15px 0;
+        font-size: 1.5rem;
+      }
+      .summary p {
+        margin: 0;
+        font-size: 1.1rem;
+        opacity: 0.95;
+      }
+      .highlight {
+        background: #fff3cd;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+        color: #856404;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>
+          <i class="fas fa-sync-alt"></i> Meeting ID Display Synchronization
+          Complete
+        </h1>
+        <p>Đồng bộ hiển thị Meeting ID giữa trang Gia sư và Học viên</p>
+      </div>
+
+      <!-- Status Overview -->
+      <div class="status-overview">
+        <div class="status-card">
+          <h3><i class="fas fa-chalkboard-teacher"></i> Tutor Page</h3>
+          <p>TutorClassroomMeetingsPage.jsx</p>
+          <p><strong>✅ FIXED</strong></p>
+        </div>
+        <div class="status-card">
+          <h3><i class="fas fa-user-graduate"></i> Student Page</h3>
+          <p>StudentClassroomPage.jsx</p>
+          <p><strong>✅ FIXED</strong></p>
+        </div>
+      </div>
+
+      <!-- Problem Description -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-exclamation-triangle"></i>
+          Vấn đề được phát hiện
+        </div>
+        <p>
+          <strong>Báo cáo từ người dùng:</strong> "các phòng học của cả gia sư
+          và người học không được hiển thị id"
+        </p>
+
+        <h4>Root Cause Analysis:</h4>
+        <ul>
+          <li>
+            <strong>TutorClassroomMeetingsPage:</strong> Đã được sửa trước đó -
+            hiển thị riêng biệt Meeting ID và Zoom Meeting ID
+          </li>
+          <li>
+            <strong>StudentClassroomPage:</strong> Vẫn dùng logic fallback cũ -
+            chỉ hiển thị 1 ID duy nhất
+          </li>
+          <li>
+            <strong>Logic isEnded:</strong> StudentClassroomPage thiếu trạng
+            thái "CANCELLED"
+          </li>
+        </ul>
+      </div>
+
+      <!-- Fix 1: Student Page Meeting ID Display -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-id-card"></i>
+          Fix 1: StudentClassroomPage Meeting ID Display
+        </div>
+
+        <div class="comparison">
+          <div class="before">
+            <h4>❌ Trước khi sửa (StudentClassroomPage.jsx)</h4>
+            <div class="code-block">
+              &lt;p&gt; &lt;i className="fas fa-id-card"&gt;&lt;/i&gt;
+              &lt;strong&gt;Meeting ID:&lt;/strong&gt;{" "}
+              {meeting.zoomMeetingId || meeting.id || meeting.meetingId}
+              &lt;/p&gt;
+            </div>
+            <p>
+              <strong>Vấn đề:</strong> Chỉ hiển thị 1 ID duy nhất với fallback
+              logic
+            </p>
+          </div>
+
+          <div class="after">
+            <h4>✅ Sau khi sửa (StudentClassroomPage.jsx)</h4>
+            <div class="code-block">
+              &lt;p&gt; &lt;i className="fas fa-id-card"&gt;&lt;/i&gt;
+              &lt;strong&gt;Meeting ID:&lt;/strong&gt;{" "} {meeting.meetingId
+              || "N/A"} &lt;/p&gt; &lt;p&gt; &lt;i className="fas
+              fa-id-card"&gt;&lt;/i&gt; &lt;strong&gt;Zoom Meeting
+              ID:&lt;/strong&gt;{" "} {meeting.zoomMeetingId || "N/A"}
+              &lt;/p&gt;
+            </div>
+            <p>
+              <strong>Giải pháp:</strong> Hiển thị riêng biệt cả 2 loại ID với
+              label rõ ràng
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fix 2: Student Page isEnded Logic -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-ban"></i>
+          Fix 2: StudentClassroomPage isEnded Logic
+        </div>
+
+        <div class="comparison">
+          <div class="before">
+            <h4>❌ Logic cũ (thiếu CANCELLED)</h4>
+            <div class="code-block">
+              const isEnded = meeting.status === "COMPLETED" || meeting.status
+              === "ENDED" || meeting.status === "FINISHED" || (meeting.endTime
+              && new Date(meeting.endTime) < new Date());
+            </div>
+          </div>
+
+          <div class="after">
+            <h4>✅ Logic đã sửa (bổ sung CANCELLED)</h4>
+            <div class="code-block">
+              const isEnded = meeting.status === "COMPLETED" || meeting.status
+              === "ENDED" || meeting.status === "FINISHED" || meeting.status ===
+              "CANCELLED" || // ← Thêm mới (meeting.endTime && new
+              Date(meeting.endTime) < new Date());
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification: Join Meeting Logic -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-check-circle"></i>
+          Xác minh: Logic Join Meeting đã đúng
+        </div>
+
+        <p>Cả 2 trang đều đã sử dụng logic join meeting đúng:</p>
+        <div class="code-block">
+          const handleJoinMeeting = (meeting) => { const joinUrl =
+          meeting.joinUrl || meeting.join_url; if (joinUrl) {
+          window.open(joinUrl, "_blank"); toast.success("Đang mở phòng học trực
+          tuyến..."); } else { toast.error("Không tìm thấy link tham gia phòng
+          học."); } };
+        </div>
+
+        <p><strong>✅ Ưu điểm:</strong></p>
+        <ul>
+          <li>Mở trực tiếp URL Zoom trong tab mới</li>
+          <li>Không phụ thuộc Zoom SDK</li>
+          <li>Đơn giản, tin cậy</li>
+          <li>Có error handling và user feedback</li>
+        </ul>
+      </div>
+
+      <!-- Files Changed -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-file-code"></i>
+          Files đã thay đổi
+        </div>
+
+        <div class="file-list">
+          <div class="file-item">
+            <span class="file-name">TutorClassroomMeetingsPage.jsx</span>
+            <span class="file-status status-already-correct"
+              >Đã sửa trước đó</span
+            >
+          </div>
+          <div class="file-item">
+            <span class="file-name">StudentClassroomPage.jsx</span>
+            <span class="file-status status-fixed">Vừa sửa</span>
+          </div>
+          <div class="file-item">
+            <span class="file-name"
+              >both-pages-meeting-id-fix-verification.html</span
+            >
+            <span class="file-status status-fixed">File báo cáo mới</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Changes -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-list-alt"></i>
+          Chi tiết thay đổi
+        </div>
+
+        <h4>StudentClassroomPage.jsx:</h4>
+        <ul>
+          <li>
+            <strong>Dòng 1000-1007:</strong> Sửa hiển thị Meeting ID từ fallback
+            logic sang hiển thị riêng biệt
+          </li>
+          <li>
+            <strong>Dòng 984-988:</strong> Bổ sung "CANCELLED" vào logic isEnded
+          </li>
+          <li>
+            <strong>Dòng 892-899:</strong> handleJoinMeeting logic đã đúng
+            (không cần sửa)
+          </li>
+        </ul>
+
+        <h4>TutorClassroomMeetingsPage.jsx:</h4>
+        <ul>
+          <li><strong>Đã sửa trước đó:</strong> Hiển thị Meeting ID đầy đủ</li>
+          <li>
+            <strong>Đã sửa trước đó:</strong> Logic isEnded bao gồm "CANCELLED"
+          </li>
+          <li>
+            <strong>Đã sửa trước đó:</strong> handleJoinMeeting dùng
+            window.open()
+          </li>
+        </ul>
+      </div>
+
+      <!-- Testing Checklist -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-clipboard-check"></i>
+          Testing Checklist
+        </div>
+
+        <div class="test-checklist">
+          <h4>🎯 Test cho Gia sư (TutorClassroomMeetingsPage):</h4>
+          <div class="checklist-item">
+            <input type="checkbox" id="tutor1" />
+            <label for="tutor1"
+              >Kiểm tra hiển thị <span class="highlight">Meeting ID</span> và
+              <span class="highlight">Zoom Meeting ID</span> riêng biệt</label
+            >
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="tutor2" />
+            <label for="tutor2"
+              >Nút "Tham gia" chỉ hiện với meeting chưa kết thúc</label
+            >
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="tutor3" />
+            <label for="tutor3">Click "Tham gia" mở tab mới với Zoom URL</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="tutor4" />
+            <label for="tutor4"
+              >Meeting với status "CANCELLED" ẩn nút tham gia</label
+            >
+          </div>
+        </div>
+
+        <div class="test-checklist">
+          <h4>👨‍🎓 Test cho Học viên (StudentClassroomPage):</h4>
+          <div class="checklist-item">
+            <input type="checkbox" id="student1" />
+            <label for="student1"
+              >Kiểm tra hiển thị <span class="highlight">Meeting ID</span> và
+              <span class="highlight">Zoom Meeting ID</span> riêng biệt</label
+            >
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="student2" />
+            <label for="student2"
+              >Nút "Tham gia" chỉ hiện với meeting chưa kết thúc</label
+            >
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="student3" />
+            <label for="student3"
+              >Click "Tham gia" mở tab mới với Zoom URL</label
+            >
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="student4" />
+            <label for="student4"
+              >Meeting với status "CANCELLED" ẩn nút tham gia</label
+            >
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="student5" />
+            <label for="student5"
+              >Đồng bộ UI/UX giữa trang gia sư và học viên</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Expected Results -->
+      <div class="fix-section">
+        <div class="fix-title">
+          <i class="fas fa-bullseye"></i>
+          Kết quả mong đợi
+        </div>
+
+        <h4>🔍 Meeting ID Display:</h4>
+        <div class="code-block">
+          Meeting ID: MTG-123456789 Zoom Meeting ID: 987654321 Mật khẩu: abc123
+          Thời gian bắt đầu: 20/06/2025 14:30 Trạng thái: Đang học
+        </div>
+
+        <h4>🎯 Join Button Behavior:</h4>
+        <ul>
+          <li>
+            <strong>Meeting đang hoạt động:</strong> Hiển thị nút "Tham gia"
+          </li>
+          <li>
+            <strong>Meeting đã kết thúc:</strong> Hiển thị "Phiên đã kết thúc"
+          </li>
+          <li><strong>Click "Tham gia":</strong> Mở Zoom trong tab mới</li>
+          <li><strong>No joinUrl:</strong> Hiển thị error message</li>
+        </ul>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary">
+        <h3><i class="fas fa-medal"></i> Hoàn thành đồng bộ</h3>
+        <p>
+          <strong
+            >✅ CẢ 2 TRANG GIA SƯ VÀ HỌC VIÊN ĐÃ ĐƯỢC ĐỒNG BỘ HOÀN TOÀN</strong
+          ><br />
+          Meeting ID hiển thị đầy đủ, logic join meeting nhất quán, UI/UX đồng
+          bộ
+        </p>
+      </div>
+    </div>
+
+    <script>
+      console.log("🔍 Both Pages Meeting ID Fix Verification loaded");
+      console.log("✅ All synchronization fixes completed");
+
+      // Add interactive checklist functionality
+      document
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            const checkedCount = document.querySelectorAll(
+              'input[type="checkbox"]:checked'
+            ).length;
+            const totalCount = document.querySelectorAll(
+              'input[type="checkbox"]'
+            ).length;
+
+            console.log(
+              `📊 Test progress: ${checkedCount}/${totalCount} completed`
+            );
+
+            if (checkedCount === totalCount) {
+              console.log("🎉 All tests completed!");
+              alert(
+                "🎉 Tất cả kiểm tra đã hoàn thành! Cả 2 trang đã được đồng bộ."
+              );
+            }
+          });
+        });
+
+      // Test data examples
+      const testMeetings = [
+        {
+          meetingId: "MTG-123456789",
+          zoomMeetingId: "987654321",
+          topic: "Lớp học: Toán cao cấp A1",
+          status: "IN_SESSION",
+          joinUrl: "https://zoom.us/j/987654321?pwd=test",
+        },
+        {
+          meetingId: "MTG-987654321",
+          zoomMeetingId: "123456789",
+          topic: "Lớp học: Vật lý đại cương",
+          status: "COMPLETED",
+          joinUrl: "https://zoom.us/j/123456789?pwd=test",
+        },
+        {
+          meetingId: "MTG-555666777",
+          zoomMeetingId: "111222333",
+          topic: "Lớp học: Hóa học hữu cơ",
+          status: "CANCELLED",
+          joinUrl: "https://zoom.us/j/111222333?pwd=test",
+        },
+      ];
+
+      console.log("📊 Test data samples:", testMeetings);
+    </script>
+  </body>
+</html>

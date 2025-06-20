@@ -126,6 +126,7 @@ const TutorRevenueStatistics = lazy(() =>
 const TutorAssessmentStatistics = lazy(() =>
   import("./pages/Admin/TutorAssessmentStatistics")
 );
+const ListOfAssessments = lazy(() => import("./pages/Admin/ListOfAssessments"));
 const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 function App() {
@@ -315,11 +316,12 @@ function App() {
               <Route
                 path="/admin/doanh-thu-gia-su"
                 element={<TutorRevenueStatistics />}
-              />
+              />{" "}
               <Route
                 path="/admin/danh-gia-gia-su"
                 element={<TutorAssessmentStatistics />}
               />
+              <Route path="/admin/danh-gia" element={<ListOfAssessments />} />
               <Route
                 path="/admin/nap-vi-nguoi-dung"
                 element={<ListOfTransactions />}

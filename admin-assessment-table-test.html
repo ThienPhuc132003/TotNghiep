@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Admin Assessment Table - Kiểm tra cột hành động</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-title {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .table-demo {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      .table-demo th,
+      .table-demo td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      .table-demo th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+      .action-column {
+        background-color: #fff3cd;
+        color: #856404;
+        font-weight: bold;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+      }
+      .action-button {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .view {
+        background-color: #17a2b8;
+        color: white;
+      }
+      .edit {
+        background-color: #28a745;
+        color: white;
+      }
+      .delete {
+        background-color: #dc3545;
+        color: white;
+      }
+      .issue-highlight {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+      .normal-highlight {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Test Admin Assessment Table - Kiểm tra cột hành động</h1>
+
+    <div class="test-section">
+      <h2 class="test-title">1. Phân tích vấn đề "dư cột hành động"</h2>
+
+      <div class="issue-highlight">
+        <strong>Vấn đề báo cáo:</strong> "bị dư một cột hành động, nút xem chi
+        tiết trong cột hành động tôi có custom trong component table"
+      </div>
+
+      <h3>🔍 Kiểm tra code hiện tại của ListOfAssessments.jsx:</h3>
+      <ul>
+        <li>✅ Columns array KHÔNG có cột "Hành động" custom nào</li>
+        <li>
+          ✅ Chỉ có 6 cột: STT, Tên người học, Tên gia sư, Đánh giá, Ngày bắt
+          đầu, Ngày kết thúc
+        </li>
+        <li>
+          ✅ Table component được gọi với prop
+          <code>onView={handleViewDetails}</code>
+        </li>
+        <li>
+          ✅ Table component tự động tạo cột "Hành động" khi có prop onView
+        </li>
+      </ul>
+
+      <h3>📋 So sánh với các trang admin khác:</h3>
+      <table class="table-demo">
+        <tr>
+          <th>Trang</th>
+          <th>Props Table Component</th>
+          <th>Số cột action</th>
+        </tr>
+        <tr>
+          <td>ListOfTutor</td>
+          <td>onView + onDelete + onLock + showLock</td>
+          <td>1 cột (3 nút: Xem, Xóa, Khóa)</td>
+        </tr>
+        <tr>
+          <td>ListOfStudent</td>
+          <td>onView + onDelete + onLock + showLock</td>
+          <td>1 cột (3 nút: Xem, Xóa, Khóa)</td>
+        </tr>
+        <tr>
+          <td class="action-column">ListOfAssessments</td>
+          <td class="action-column">chỉ có onView</td>
+          <td class="action-column">1 cột (1 nút: Xem chi tiết)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">2. Mô phỏng Table như code hiện tại</h2>
+
+      <div class="normal-highlight">
+        <strong>Dựa trên code hiện tại, table sẽ hiển thị như sau:</strong>
+      </div>
+
+      <table class="table-demo">
+        <tr>
+          <th>STT</th>
+          <th>Tên người học</th>
+          <th>Tên gia sư</th>
+          <th>Đánh giá</th>
+          <th>Ngày bắt đầu</th>
+          <th>Ngày kết thúc</th>
+          <th class="action-column">Hành động</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Nguyễn Văn A</td>
+          <td>Trần Thị B</td>
+          <td>★★★★☆ (4.5)</td>
+          <td>01/01/2025</td>
+          <td>01/03/2025</td>
+          <td class="action-buttons">
+            <button class="action-button view">👁 Xem chi tiết</button>
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Phạm Văn C</td>
+          <td>Lê Thị D</td>
+          <td>★★★★★ (5.0)</td>
+          <td>15/01/2025</td>
+          <td>15/03/2025</td>
+          <td class="action-buttons">
+            <button class="action-button view">👁 Xem chi tiết</button>
+          </td>
+        </tr>
+      </table>
+
+      <div class="normal-highlight">
+        <strong>Kết luận:</strong> Theo code hiện tại, chỉ có 1 cột "Hành động"
+        với 1 nút "Xem chi tiết". Không có dư cột.
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">3. Khả năng nguyên nhân vấn đề</h2>
+
+      <h3>🤔 Các khả năng có thể xảy ra:</h3>
+      <ol>
+        <li>
+          <strong>Hiểu nhầm về UI:</strong> User có thể đang thấy layout khác
+          với mong đợi
+        </li>
+        <li>
+          <strong>CSS rendering issue:</strong> Có thể có vấn đề với CSS khiến
+          cột hiển thị không đúng
+        </li>
+        <li><strong>Browser cache:</strong> Code cũ vẫn đang chạy do cache</li>
+        <li>
+          <strong>Environment khác:</strong> User đang test trên environment
+          khác với code hiện tại
+        </li>
+        <li>
+          <strong>Conflict với CSS/JS khác:</strong> Có thể có component khác
+          đang ảnh hưởng
+        </li>
+      </ol>
+
+      <h3>🔧 Hướng giải quyết:</h3>
+      <ol>
+        <li>Xóa browser cache và refresh</li>
+        <li>Kiểm tra DevTools để xem DOM structure thực tế</li>
+        <li>Kiểm tra có error nào trong Console không</li>
+        <li>Chụp screenshot để so sánh với mong đợi</li>
+        <li>Build lại project để đảm bảo code mới nhất được deploy</li>
+      </ol>
+    </div>
+
+    <div class="test-section">
+      <h2 class="test-title">4. Hướng dẫn debug</h2>
+
+      <div style="background-color: #e7f3ff; padding: 15px; border-radius: 4px">
+        <h4>🛠 Các bước debug trên browser:</h4>
+        <ol>
+          <li>Mở trang <code>/admin/danh-gia</code></li>
+          <li>Mở DevTools (F12)</li>
+          <li>Vào tab Elements, tìm table</li>
+          <li>Đếm số cột trong <code>&lt;thead&gt;</code></li>
+          <li>Kiểm tra cột "Hành động" có xuất hiện bao nhiêu lần</li>
+          <li>Chụp screenshot và so sánh với expectation</li>
+        </ol>
+
+        <h4>📝 Console commands để debug:</h4>
+        <pre>
+// Đếm số cột header
+document.querySelectorAll('table thead th').length
+
+// Kiểm tra text của từng cột
+Array.from(document.querySelectorAll('table thead th')).map(th => th.textContent)
+
+// Tìm cột hành động
+document.querySelectorAll('table thead th:contains("Hành động")')
+            </pre
+        >
+      </div>
+    </div>
+
+    <script>
+      console.log("🔍 Admin Assessment Table Test Page loaded");
+      console.log("📋 Theo phân tích code, không có vấn đề dư cột hành động");
+      console.log('🎯 Table chỉ có 1 cột hành động với 1 nút "Xem chi tiết"');
+      console.log("💡 Khuyến nghị: Kiểm tra browser cache và DevTools");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo - Luồng API Đánh Giá</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .content {
+        padding: 30px;
+      }
+      .api-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin: 30px 0;
+      }
+      .api-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        border-left: 5px solid #28a745;
+      }
+      .api-card.meeting {
+        border-left-color: #007bff;
+      }
+      .api-card.classroom {
+        border-left-color: #28a745;
+      }
+      .api-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+      .status-todo {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffc107;
+      }
+      .status-done {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #28a745;
+      }
+      .code-block {
+        background: #2c3e50;
+        color: #ecf0f1;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+        position: relative;
+      }
+      .code-title {
+        position: absolute;
+        top: -10px;
+        left: 15px;
+        background: #34495e;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+      .request-data {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 6px;
+      }
+      .response-data {
+        background: #f3e5f5;
+        border-left: 4px solid #9c27b0;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 6px;
+      }
+      .flow-diagram {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 25px 0;
+      }
+      .flow-step {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 4px solid #28a745;
+      }
+      .flow-step.todo {
+        border-left-color: #ffc107;
+        background: #fff9e5;
+      }
+      .step-number {
+        background: #28a745;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .step-number.todo {
+        background: #ffc107;
+      }
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .comparison-table th {
+        background: #34495e;
+        color: white;
+        padding: 15px;
+        text-align: left;
+      }
+      .comparison-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .comparison-table tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+      .todo-list {
+        background: #fff3cd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #ffc107;
+      }
+      .todo-item {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .todo-checkbox {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ffc107;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+      }
+      .modal-demo {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .demo-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 5px;
+        transition: all 0.3s ease;
+      }
+      .demo-button:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+      }
+      .demo-button.success {
+        background: #28a745;
+      }
+      .demo-button.success:hover {
+        background: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔄 Demo: Luồng API Đánh Giá Phía Người Học</h1>
+        <p>Phân tích chi tiết các API endpoints và dữ liệu truyền/nhận</p>
+      </div>
+
+      <div class="content">
+        <div class="flow-diagram">
+          <h2>📋 Tổng quan hệ thống đánh giá</h2>
+          <p>Hệ thống có <strong>2 loại đánh giá</strong> riêng biệt:</p>
+
+          <div class="flow-step">
+            <div class="step-number">1</div>
+            <div>
+              <strong>📝 Đánh giá Buổi học (Meeting Rating)</strong><br />
+              <small
+                >Đánh giá chất lượng một buổi học cụ thể sau khi kết thúc</small
+              >
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="step-number">2</div>
+            <div>
+              <strong>🏛️ Đánh giá Lớp học (Classroom Evaluation)</strong><br />
+              <small
+                >Đánh giá tổng thể lớp học, giáo viên và chương trình</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="api-section">
+          <div class="api-card meeting">
+            <h3 class="api-title">
+              📝 Meeting Rating API
+              <span class="status-badge status-todo">TODO</span>
+            </h3>
+
+            <div class="code-block">
+              <div class="code-title">API Endpoint</div>
+              <div>
+                POST /api/meeting/rating<br />
+                Content-Type: application/json<br />
+                Authorization: Bearer &lt;jwt_token&gt;
+              </div>
+            </div>
+
+            <div class="request-data">
+              <h4>📤 Request Data</h4>
+              <div class="code-block">
+                <div class="code-title">JSON Body</div>
+                {<br />
+                &nbsp;&nbsp;"meetingId": "string",<br />
+                &nbsp;&nbsp;"rating": 4.5,<br />
+                &nbsp;&nbsp;"comment": "Buổi học rất bổ ích"<br />
+                }
+              </div>
+              <p><strong>Validation:</strong></p>
+              <ul>
+                <li>meetingId: required, string</li>
+                <li>rating: required, 0.5-5.0 (half star support)</li>
+                <li>comment: required, trim whitespace</li>
+              </ul>
+            </div>
+
+            <div class="response-data">
+              <h4>📥 Response Data</h4>
+              <div class="code-block">
+                <div class="code-title">JSON Response</div>
+                {<br />
+                &nbsp;&nbsp;"success": true,<br />
+                &nbsp;&nbsp;"message": "Rating submitted successfully",<br />
+                &nbsp;&nbsp;"data": {<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"ratingId": "rating_123",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"meetingId": "meeting_456",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"userId": "user_789",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"rating": 4.5,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"comment": "Buổi học rất bổ ích",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"createdAt": "2025-06-20T10:30:00Z"<br />
+                &nbsp;&nbsp;}<br />
+                }
+              </div>
+            </div>
+
+            <button class="demo-button" onclick="demonstrateMeetingRating()">
+              🔍 Demo Meeting Rating
+            </button>
+          </div>
+
+          <div class="api-card classroom">
+            <h3 class="api-title">
+              🏛️ Classroom Evaluation API
+              <span class="status-badge status-todo">TODO</span>
+            </h3>
+
+            <div class="code-block">
+              <div class="code-title">API Endpoint</div>
+              <div>
+                POST /api/classroom/evaluation<br />
+                Content-Type: application/json<br />
+                Authorization: Bearer &lt;jwt_token&gt;
+              </div>
+            </div>
+
+            <div class="request-data">
+              <h4>📤 Request Data</h4>
+              <div class="code-block">
+                <div class="code-title">JSON Body</div>
+                {<br />
+                &nbsp;&nbsp;"classroomId": "string",<br />
+                &nbsp;&nbsp;"rating": 5,<br />
+                &nbsp;&nbsp;"comment": "Lớp học tuyệt vời",<br />
+                &nbsp;&nbsp;"teacherRating": 4.5,<br />
+                &nbsp;&nbsp;"contentRating": 4.0<br />
+                }
+              </div>
+              <p>
+                <strong
+                  >Có thể có thêm fields từ ClassroomEvaluationModal</strong
+                >
+              </p>
+            </div>
+
+            <div class="response-data">
+              <h4>📥 Response Data</h4>
+              <div class="code-block">
+                <div class="code-title">JSON Response</div>
+                {<br />
+                &nbsp;&nbsp;"success": true,<br />
+                &nbsp;&nbsp;"message": "Evaluation submitted successfully",<br />
+                &nbsp;&nbsp;"data": {<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"evaluationId": "eval_123",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"classroomId": "class_456", <br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"userId": "user_789",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"rating": 5,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"comment": "Lớp học tuyệt vời",<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;"createdAt": "2025-06-20T10:30:00Z"<br />
+                &nbsp;&nbsp;}<br />
+                }
+              </div>
+            </div>
+
+            <button
+              class="demo-button success"
+              onclick="demonstrateClassroomEvaluation()"
+            >
+              🔍 Demo Classroom Evaluation
+            </button>
+          </div>
+        </div>
+
+        <div class="flow-diagram">
+          <h2>🔄 Luồng xử lý hiện tại vs Mong đợi</h2>
+
+          <h3>❌ Hiện tại (TODO Implementation)</h3>
+          <div class="flow-step todo">
+            <div class="step-number todo">1</div>
+            <div>User click đánh giá → Modal mở</div>
+          </div>
+          <div class="flow-step todo">
+            <div class="step-number todo">2</div>
+            <div>User nhập rating & comment → Submit</div>
+          </div>
+          <div class="flow-step todo">
+            <div class="step-number todo">3</div>
+            <div>console.log(data) → toast.success() → Close modal</div>
+          </div>
+
+          <h3>✅ Mong đợi (Sau khi implement)</h3>
+          <div class="flow-step">
+            <div class="step-number">1</div>
+            <div>User click đánh giá → Modal mở</div>
+          </div>
+          <div class="flow-step">
+            <div class="step-number">2</div>
+            <div>User nhập rating & comment → Validate → Submit</div>
+          </div>
+          <div class="flow-step">
+            <div class="step-number">3</div>
+            <div>Loading state → API call → Success → toast → Close modal</div>
+          </div>
+          <div class="flow-step">
+            <div class="step-number">4</div>
+            <div>Refresh data → Update UI → Show completed status</div>
+          </div>
+        </div>
+
+        <div class="modal-demo">
+          <h2>📱 Demo Modal Interactions</h2>
+          <p>Mô phỏng luồng đánh giá với UI thực tế:</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+            <div>
+              <h4>📝 Meeting Rating Modal</h4>
+              <div
+                style="
+                  background: #f8f9fa;
+                  padding: 15px;
+                  border-radius: 6px;
+                  border: 1px solid #dee2e6;
+                "
+              >
+                <p><strong>Thông tin buổi học</strong></p>
+                <p>Chủ đề: Toán cao cấp</p>
+                <p>Thời gian: 20/06/2025 14:30</p>
+                <hr />
+                <p>Đánh giá: ⭐⭐⭐⭐⭐ (5 sao)</p>
+                <textarea
+                  placeholder="Nhập nhận xét..."
+                  style="width: 100%; height: 60px; margin: 10px 0"
+                ></textarea>
+                <button class="demo-button" onclick="submitMeetingRating()">
+                  Gửi đánh giá
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h4>🏛️ Classroom Evaluation Modal</h4>
+              <div
+                style="
+                  background: #f8f9fa;
+                  padding: 15px;
+                  border-radius: 6px;
+                  border: 1px solid #dee2e6;
+                "
+              >
+                <p><strong>Đánh giá lớp học</strong></p>
+                <p>Lớp: Toán cao cấp A1</p>
+                <p>Giáo viên: Nguyễn Văn A</p>
+                <hr />
+                <p>Chất lượng tổng thể: ⭐⭐⭐⭐⭐</p>
+                <p>Giảng viên: ⭐⭐⭐⭐⭐</p>
+                <textarea
+                  placeholder="Nhận xét chung..."
+                  style="width: 100%; height: 60px; margin: 10px 0"
+                ></textarea>
+                <button
+                  class="demo-button success"
+                  onclick="submitClassroomEvaluation()"
+                >
+                  Gửi đánh giá
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Đặc điểm</th>
+              <th>Meeting Rating</th>
+              <th>Classroom Evaluation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mục đích</strong></td>
+              <td>Đánh giá 1 buổi học cụ thể</td>
+              <td>Đánh giá tổng thể lớp học</td>
+            </tr>
+            <tr>
+              <td><strong>Thời điểm</strong></td>
+              <td>Sau khi buổi học kết thúc</td>
+              <td>Sau khi hoàn thành lớp học</td>
+            </tr>
+            <tr>
+              <td><strong>API Endpoint</strong></td>
+              <td>/api/meeting/rating</td>
+              <td>/api/classroom/evaluation</td>
+            </tr>
+            <tr>
+              <td><strong>Handler Function</strong></td>
+              <td>handleMeetingRatingSubmit</td>
+              <td>handleEvaluationSubmit</td>
+            </tr>
+            <tr>
+              <td><strong>Modal Component</strong></td>
+              <td>RatingModal (inline)</td>
+              <td>ClassroomEvaluationModal</td>
+            </tr>
+            <tr>
+              <td><strong>Status</strong></td>
+              <td>❌ TODO Implementation</td>
+              <td>❌ TODO Implementation</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="todo-list">
+          <h2>📋 TODO List Implementation</h2>
+
+          <h3>🔧 Frontend Tasks</h3>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Implement handleMeetingRatingSubmit API call</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Implement handleEvaluationSubmit API call</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Thêm loading states khi submit</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Thêm error handling đầy đủ</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Refresh data sau khi đánh giá thành công</span>
+          </div>
+
+          <h3>🖥️ Backend Tasks</h3>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Tạo endpoint POST /api/meeting/rating</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Tạo endpoint POST /api/classroom/evaluation</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Database schema cho ratings và evaluations</span>
+          </div>
+          <div class="todo-item">
+            <div class="todo-checkbox">□</div>
+            <span>Validation rules trên server</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function demonstrateMeetingRating() {
+        const data = {
+          meetingId: "meeting_12345",
+          rating: 4.5,
+          comment: "Buổi học rất bổ ích và dễ hiểu",
+        };
+
+        console.log("📝 Meeting Rating Data:", data);
+        alert(
+          `📝 Meeting Rating Demo\n\nData sẽ gửi:\n${JSON.stringify(
+            data,
+            null,
+            2
+          )}`
+        );
+      }
+
+      function demonstrateClassroomEvaluation() {
+        const data = {
+          classroomId: "classroom_67890",
+          rating: 5,
+          comment: "Lớp học tuyệt vời, giáo viên nhiệt tình",
+          teacherRating: 4.5,
+          contentRating: 4.8,
+        };
+
+        console.log("🏛️ Classroom Evaluation Data:", data);
+        alert(
+          `🏛️ Classroom Evaluation Demo\n\nData sẽ gửi:\n${JSON.stringify(
+            data,
+            null,
+            2
+          )}`
+        );
+      }
+
+      function submitMeetingRating() {
+        // Simulate API call
+        console.log("Submitting meeting rating...");
+        setTimeout(() => {
+          alert(
+            "✅ Meeting rating submitted successfully!\n(This is just a demo)"
+          );
+        }, 1000);
+      }
+
+      function submitClassroomEvaluation() {
+        // Simulate API call
+        console.log("Submitting classroom evaluation...");
+        setTimeout(() => {
+          alert(
+            "✅ Classroom evaluation submitted successfully!\n(This is just a demo)"
+          );
+        }, 1000);
+      }
+
+      console.log("🔄 API Rating Flow Demo Loaded");
+      console.log("📝 Meeting Rating: handleMeetingRatingSubmit");
+      console.log("🏛️ Classroom Evaluation: handleEvaluationSubmit");
+      console.log("❌ Both need API implementation");
+    </script>
+  </body>
+</html>

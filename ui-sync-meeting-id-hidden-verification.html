@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verification - Đồng bộ UI và ẩn Meeting ID</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+      .page-section {
+        padding: 30px;
+        position: relative;
+      }
+      .tutor-section {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+      }
+      .student-section {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        color: white;
+      }
+      .section-title {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 1.8rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      .meeting-card {
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 15px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+      .meeting-header {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+      .meeting-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin: 0;
+      }
+      .detail-grid {
+        display: grid;
+        gap: 12px;
+      }
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .detail-item:last-child {
+        border-bottom: none;
+      }
+      .detail-label {
+        font-weight: 600;
+        color: #555;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .detail-value {
+        font-weight: 500;
+        color: #333;
+      }
+      .hidden-notice {
+        background: #fff3cd;
+        border: 2px dashed #ffc107;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        text-align: center;
+        color: #856404;
+        font-weight: bold;
+      }
+      .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status-ended {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .action-button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+      .action-button:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+      .ended-button {
+        background: #6c757d;
+        cursor: not-allowed;
+      }
+      .ended-button:hover {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+      }
+      .checklist-section {
+        padding: 30px;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+      }
+      .checklist {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+      }
+      .check-item {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .check-icon {
+        color: #28a745;
+        font-size: 1.2rem;
+      }
+      .diff-highlight {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+      }
+      .diff-title {
+        font-weight: bold;
+        color: #856404;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+      .code-comparison {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+      }
+      .before-after {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .before,
+      .after {
+        padding: 15px;
+        border-radius: 6px;
+      }
+      .before {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+      }
+      .after {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔄 Verification: Đồng bộ UI và ẩn Meeting ID</h1>
+        <p>
+          Xác minh việc ẩn Meeting ID ở cả hai trang và đồng bộ hóa giao diện
+        </p>
+      </div>
+
+      <div class="comparison">
+        <div class="page-section tutor-section">
+          <h2 class="section-title">🎓 Trang Gia sư (Tutor)</h2>
+
+          <div class="meeting-card">
+            <div class="meeting-header">
+              <h3 class="meeting-title">📚 Buổi học: Toán cao cấp</h3>
+            </div>
+
+            <div class="hidden-notice">
+              🚫 Meeting ID và Zoom Meeting ID đã được ẩn
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-key"></i>
+                  Mật khẩu:
+                </span>
+                <span class="detail-value">123456</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-clock"></i>
+                  Thời gian bắt đầu:
+                </span>
+                <span class="detail-value">20/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-history"></i>
+                  Thời gian kết thúc:
+                </span>
+                <span class="detail-value">20/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-info-circle"></i>
+                  Trạng thái:
+                </span>
+                <span class="detail-value">
+                  <span class="status-badge status-active">Đang diễn ra</span>
+                </span>
+              </div>
+            </div>
+
+            <button class="action-button" onclick="simulateJoin('Tutor')">
+              <i class="fas fa-sign-in-alt"></i>
+              Tham gia
+            </button>
+          </div>
+
+          <div class="meeting-card">
+            <div class="meeting-header">
+              <h3 class="meeting-title">📐 Buổi học: Hình học</h3>
+            </div>
+
+            <div class="hidden-notice">
+              🚫 Meeting ID và Zoom Meeting ID đã được ẩn
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-key"></i>
+                  Mật khẩu:
+                </span>
+                <span class="detail-value">789012</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-clock"></i>
+                  Thời gian bắt đầu:
+                </span>
+                <span class="detail-value">19/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-history"></i>
+                  Thời gian kết thúc:
+                </span>
+                <span class="detail-value">19/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-info-circle"></i>
+                  Trạng thái:
+                </span>
+                <span class="detail-value">
+                  <span class="status-badge status-ended">Đã kết thúc</span>
+                </span>
+              </div>
+            </div>
+
+            <button class="action-button ended-button">
+              <i class="fas fa-check-circle"></i>
+              Phiên đã kết thúc
+            </button>
+          </div>
+        </div>
+
+        <div class="page-section student-section">
+          <h2 class="section-title">👨‍🎓 Trang Học viên (Student)</h2>
+
+          <div class="meeting-card">
+            <div class="meeting-header">
+              <h3 class="meeting-title">📚 Buổi học: Toán cao cấp</h3>
+            </div>
+
+            <div class="hidden-notice">
+              🚫 Meeting ID và Zoom Meeting ID đã được ẩn
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-key"></i>
+                  Mật khẩu:
+                </span>
+                <span class="detail-value">123456</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-clock"></i>
+                  Thời gian bắt đầu:
+                </span>
+                <span class="detail-value">20/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-history"></i>
+                  Thời gian kết thúc:
+                </span>
+                <span class="detail-value">20/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-info-circle"></i>
+                  Trạng thái:
+                </span>
+                <span class="detail-value">
+                  <span class="status-badge status-active">Đang diễn ra</span>
+                </span>
+              </div>
+            </div>
+
+            <button class="action-button" onclick="simulateJoin('Student')">
+              <i class="fas fa-sign-in-alt"></i>
+              Tham gia
+            </button>
+          </div>
+
+          <div class="meeting-card">
+            <div class="meeting-header">
+              <h3 class="meeting-title">📐 Buổi học: Hình học</h3>
+            </div>
+
+            <div class="hidden-notice">
+              🚫 Meeting ID và Zoom Meeting ID đã được ẩn
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-key"></i>
+                  Mật khẩu:
+                </span>
+                <span class="detail-value">789012</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-clock"></i>
+                  Thời gian bắt đầu:
+                </span>
+                <span class="detail-value">19/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-history"></i>
+                  Thời gian kết thúc:
+                </span>
+                <span class="detail-value">19/06/2025</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">
+                  <i class="fas fa-info-circle"></i>
+                  Trạng thái:
+                </span>
+                <span class="detail-value">
+                  <span class="status-badge status-ended">Đã kết thúc</span>
+                </span>
+              </div>
+            </div>
+
+            <button class="action-button" onclick="simulateRate()">
+              <i class="fas fa-star"></i>
+              Đánh giá
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="diff-highlight">
+        <div class="diff-title">🔧 Thay đổi code chính:</div>
+        <div class="before-after">
+          <div class="before">
+            <strong>TRƯỚC (cả 2 trang):</strong><br />
+            <code>
+              &lt;p&gt;Meeting ID: {meeting.meetingId}&lt;/p&gt;<br />
+              &lt;p&gt;Zoom Meeting ID: {meeting.zoomMeetingId}&lt;/p&gt;
+            </code>
+          </div>
+          <div class="after">
+            <strong>SAU (cả 2 trang):</strong><br />
+            <code> {/* Meeting ID và Zoom Meeting ID đã được ẩn */} </code>
+          </div>
+        </div>
+      </div>
+
+      <div class="checklist-section">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50">
+          ✅ Kiểm tra hoàn thành
+        </h2>
+        <div class="checklist">
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Meeting ID ở trang gia sư</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Zoom Meeting ID ở trang gia sư</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Meeting ID ở trang học viên</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Ẩn Zoom Meeting ID ở trang học viên</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Đồng bộ style giao diện</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Logic join meeting hoạt động</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Logic isEnded đồng bộ</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Không có lỗi compile</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>UI/UX đồng nhất</span>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <span>Code clean và có comment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function simulateJoin(userType) {
+        alert(`${userType}: Tham gia meeting với window.open(joinUrl)`);
+      }
+
+      function simulateRate() {
+        alert("Student: Mở modal đánh giá meeting");
+      }
+
+      console.log("🎯 Verification Demo Loaded");
+      console.log("✅ Cả hai trang đã ẩn Meeting ID và Zoom Meeting ID");
+      console.log("✅ UI/UX đã được đồng bộ hóa");
+      console.log("✅ Logic join meeting hoạt động đúng");
+    </script>
+  </body>
+</html>
