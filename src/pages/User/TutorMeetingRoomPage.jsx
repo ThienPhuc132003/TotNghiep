@@ -190,12 +190,10 @@ const TutorMeetingRoomPage = () => {
   };
   const handleConnectZoom = async () => {
     setIsLoading(true);
-    setError(null); // Xóa lỗi cũ trước khi thử kết nối mới
-
-    // Store return path and state before OAuth redirect
+    setError(null); // Xóa lỗi cũ trước khi thử kết nối mới    // Store return path and state before OAuth redirect
     sessionStorage.setItem(
       "zoomReturnPath",
-      "/tai-khoan/ho-so/quan-ly-lop-hoc"
+      "/tai-khoan/ho-so/quan-ly-phong-hoc"
     );
     if (classroomInfo?.needConnection) {
       const returnState = {
