@@ -11,6 +11,11 @@ import "react-toastify/dist/ReactToastify.css";
 import numeral from "numeral";
 import "numeral/locales/vi";
 import { exportToExcel } from "../../utils/excelExport";
+import {
+  formatDateForAPI,
+  validateDateRange,
+  getDefaultDateRange,
+} from "../../utils/dateUtils";
 
 // Helper định dạng tiền tệ
 const formatCurrency = (value) => {
@@ -28,13 +33,13 @@ const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
   return value !== undefined && value !== null ? value : defaultValue;
 };
 
-// Period Type Options
-const periodTypeOptions = [
-  { value: "DAY", label: "Ngày" },
-  { value: "WEEK", label: "Tuần" },
-  { value: "MONTH", label: "Tháng" },
-  { value: "YEAR", label: "Năm" },
-];
+// Period Type Options - DEPRECATED: Now using date range
+// const periodTypeOptions = [
+//   { value: "DAY", label: "Ngày" },
+//   { value: "WEEK", label: "Tuần" },
+//   { value: "MONTH", label: "Tháng" },
+//   { value: "YEAR", label: "Năm" },
+// ];
 
 // Search Key Options
 const searchKeyOptions = [
@@ -51,10 +56,16 @@ const RevenueStatisticsPage = () => {
   const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  // Filter states
-  const [periodType, setPeriodType] = useState("MONTH");
-  const [periodValue, setPeriodValue] = useState(1);
+  const [totalRevenue, setTotalRevenue] = useState(0); // Date range states (replacing periodType/periodValue)
+  const [startDate, setStartDate] = useState(() => {
+    const defaultRange = getDefaultDateRange();
+    return defaultRange.startDate;
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const defaultRange = getDefaultDateRange();
+    return defaultRange.endDate;
+  });
+  const [dateError, setDateError] = useState("");
   // Search states
   const [searchInput, setSearchInput] = useState("");
   const [selectedSearchField, setSelectedSearchField] = useState(
@@ -71,19 +82,36 @@ const RevenueStatisticsPage = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const currentPath = "/doanh-thu";
-
-  // --- Reset State ---
+  const currentPath = "/doanh-thu"; // --- Reset State ---
   const resetState = useCallback(() => {
-    setPeriodType("MONTH");
-    setPeriodValue(1);
+    // Reset to current year range
+    const defaultRange = getDefaultDateRange();
+    setStartDate(defaultRange.startDate);
+    setEndDate(defaultRange.endDate);
+    setDateError("");
     setSearchInput("");
     setSelectedSearchField(searchKeyOptions[0].value);
     setAppliedSearchInput("");
     setAppliedSearchField(searchKeyOptions[0].value);
     setSortConfig({ key: "createdAt", direction: "desc" });
     setCurrentPage(0);
-  }, []);
+  }, []); // Date change handlers with validation
+  const handleStartDateChange = (event) => {
+    const newStartDate = event.target.value;
+    setStartDate(newStartDate);
+
+    const error = validateDateRange(newStartDate, endDate);
+    setDateError(error || "");
+  };
+
+  const handleEndDateChange = (event) => {
+    const newEndDate = event.target.value;
+    setEndDate(newEndDate);
+
+    const error = validateDateRange(startDate, newEndDate);
+    setDateError(error || "");
+  };
+
   // Export data handler
   const handleExportData = useCallback(async () => {
     try {
@@ -121,19 +149,8 @@ const RevenueStatisticsPage = () => {
         "Tổng số giao dịch": totalTransactions,
         "Tổng doanh thu": formatCurrency(totalRevenue),
         "Doanh thu TB/GD": formatCurrency(averageRevenue),
-      };
-
-      // Format period information
-      const periodLabels = {
-        DAY: "Ngày",
-        WEEK: "Tuần",
-        MONTH: "Tháng",
-        YEAR: "Năm",
-      };
-
-      const periodInfo = periodValue
-        ? `${periodLabels[periodType] || periodType}: ${periodValue}`
-        : "Tất cả thời gian";
+      }; // Format date range information
+      const periodInfo = `Từ ${startDate} đến ${endDate}`;
 
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().slice(0, 10);
@@ -164,8 +181,8 @@ const RevenueStatisticsPage = () => {
     itemsPerPage,
     totalItems,
     totalRevenue,
-    periodType,
-    periodValue,
+    startDate,
+    endDate,
   ]);
 
   // Keyboard shortcuts
@@ -280,12 +297,11 @@ const RevenueStatisticsPage = () => {
           value: appliedSearchInput.trim(),
         });
       }
-
       const query = {
         rpp: itemsPerPage,
         page: currentPage + 1,
-        periodType: periodType,
-        periodValue: periodValue,
+        startDate: formatDateForAPI(startDate),
+        endDate: formatDateForAPI(endDate),
         ...(finalFilterConditions.length > 0 && {
           filter: JSON.stringify(finalFilterConditions),
         }),
@@ -337,8 +353,8 @@ const RevenueStatisticsPage = () => {
     currentPage,
     itemsPerPage,
     sortConfig,
-    periodType,
-    periodValue,
+    startDate,
+    endDate,
     appliedSearchInput,
     appliedSearchField,
   ]);
@@ -368,19 +384,6 @@ const RevenueStatisticsPage = () => {
   const handleItemsPerPageChange = (newPageSize) => {
     setItemsPerPage(newPageSize);
     setCurrentPage(0);
-  };
-
-  const handlePeriodTypeChange = (event) => {
-    setPeriodType(event.target.value);
-    setCurrentPage(0);
-  };
-
-  const handlePeriodValueChange = (event) => {
-    const value = parseInt(event.target.value);
-    if (value > 0) {
-      setPeriodValue(value);
-      setCurrentPage(0);
-    }
   };
 
   // Search handlers following ListOfAdmin pattern
@@ -445,46 +448,57 @@ const RevenueStatisticsPage = () => {
           >
             ?
           </div>
-        </div>
-
+        </div>{" "}
         {/* Filter Controls */}
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
-            {/* Period Type */}
+            {/* Start Date */}
             <div className="filter-control">
-              <label htmlFor="periodTypeSelect" className="filter-label">
-                Loại thời gian:
-              </label>
-              <select
-                id="periodTypeSelect"
-                value={periodType}
-                onChange={handlePeriodTypeChange}
-                className="status-filter-select"
-                aria-label="Chọn loại thời gian"
-              >
-                {periodTypeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Period Value */}
-            <div className="filter-control">
-              <label htmlFor="periodValueInput" className="filter-label">
-                Số lượng:
+              <label htmlFor="startDateInput" className="filter-label">
+                Từ ngày:
               </label>
               <input
-                id="periodValueInput"
-                type="number"
-                min="1"
-                value={periodValue}
-                onChange={handlePeriodValueChange}
+                id="startDateInput"
+                type="text"
+                value={startDate}
+                onChange={handleStartDateChange}
                 className="status-filter-select"
-                style={{ width: "80px" }}
-                aria-label="Nhập số lượng thời gian"
+                placeholder="DD/MM/YYYY"
+                aria-label="Nhập ngày bắt đầu (DD/MM/YYYY)"
+                style={{ width: "120px" }}
               />
             </div>
+            {/* End Date */}
+            <div className="filter-control">
+              <label htmlFor="endDateInput" className="filter-label">
+                Đến ngày:
+              </label>
+              <input
+                id="endDateInput"
+                type="text"
+                value={endDate}
+                onChange={handleEndDateChange}
+                className="status-filter-select"
+                placeholder="DD/MM/YYYY"
+                aria-label="Nhập ngày kết thúc (DD/MM/YYYY)"
+                style={{ width: "120px" }}
+              />
+            </div>
+            {/* Date Error Display */}
+            {dateError && (
+              <div className="filter-control">
+                <span
+                  className="date-error-message"
+                  style={{
+                    color: "red",
+                    fontSize: "12px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {dateError}
+                </span>
+              </div>
+            )}
             {/* Search Field Dropdown */}
             <div className="filter-control">
               <select
@@ -596,7 +610,7 @@ const RevenueStatisticsPage = () => {
                 }}
               >
                 💰 Tổng doanh thu: {formatCurrency(totalRevenue)}
-              </h3>
+              </h3>{" "}
               <p
                 style={{
                   margin: "0.5rem 0 0 0",
@@ -605,11 +619,7 @@ const RevenueStatisticsPage = () => {
                   fontSize: "0.9rem",
                 }}
               >
-                Trong {periodValue}{" "}
-                {periodTypeOptions
-                  .find((opt) => opt.value === periodType)
-                  ?.label.toLowerCase()}{" "}
-                gần đây
+                Từ {startDate} đến {endDate}
                 {data.length > 0 && ` • ${totalItems} giao dịch`}
               </p>
             </>

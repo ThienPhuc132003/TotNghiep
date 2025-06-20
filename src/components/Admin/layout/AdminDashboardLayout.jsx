@@ -25,7 +25,7 @@ const AdminDashboardLayoutInner = (props) => {
   const navigate = useNavigate(); // Thêm useNavigate
 
   const isSidebarVisible = useSelector((state) => state.ui.isSidebarVisible);
-  const adminProfile = useSelector((state) => state.admin.profile);
+  const adminProfile = useSelector((state) => state.admin.adminProfile);
   const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
   // Memoize authentication check

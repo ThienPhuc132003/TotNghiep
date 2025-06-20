@@ -9,6 +9,7 @@ import AvatarDisplay from "../../components/AvatarDisplay";
 import ImageCropModal from "../../components/ImageCropModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { getUserAvatar } from "../../utils/avatarUtils";
 
 const ProfilePage = () => {
   // Lấy toàn bộ object userProfile từ Redux state
@@ -35,28 +36,37 @@ const ProfilePage = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef(null);
-
   // Đồng bộ từ Redux vào state local khi userProfileFromRedux thay đổi hoặc khi component mount
   useEffect(() => {
-    if (userProfileFromRedux) {
-      // Truy cập trực tiếp các thuộc tính của userProfileFromRedux
-      // Giả sử cấu trúc API trả về fullname, personalEmail, workEmail,... trực tiếp trong object data
+    if (userProfileFromRedux && userProfileFromRedux.userProfile) {
+      console.log(
+        "🔄 Profile.jsx - Syncing Redux data to local state:",
+        userProfileFromRedux
+      );
+
+      // Sử dụng getUserAvatar để lấy avatar đúng theo logic role
+      const avatar = getUserAvatar(userProfileFromRedux);
+
       setProfileData({
-        avatar: userProfileFromRedux.avatar || null,
-        fullName: userProfileFromRedux.userProfile.fullname || "", // Thay vì userProfileFromRedux.userProfile.fullname
-        birthday: userProfileFromRedux.birthday
-          ? userProfileFromRedux.birthday.split("T")[0]
+        avatar: avatar,
+        fullName: userProfileFromRedux.userProfile.fullname || "",
+        birthday: userProfileFromRedux.userProfile.birthday
+          ? userProfileFromRedux.userProfile.birthday.split("T")[0]
           : "",
         email:
-          userProfileFromRedux.personalEmail ||
+          userProfileFromRedux.userProfile.personalEmail ||
           userProfileFromRedux.email ||
-          "", // Ưu tiên personalEmail
-        phoneNumber: userProfileFromRedux.phoneNumber || "",
-        homeAddress: userProfileFromRedux.homeAddress || "",
+          "",
+        phoneNumber:
+          userProfileFromRedux.userProfile.phoneNumber ||
+          userProfileFromRedux.phoneNumber ||
+          "",
+        homeAddress: userProfileFromRedux.userProfile.homeAddress || "",
         gender: userProfileFromRedux.userProfile.gender || "",
-        workEmail: userProfileFromRedux.workEmail || "", // Nếu API có workEmail riêng
+        workEmail: userProfileFromRedux.userProfile.workEmail || "", // Nếu API có workEmail riêng
       });
     } else {
+      console.log("⚠️ Profile.jsx - No userProfile data in Redux");
       // Nếu chưa có userProfile trong Redux (ví dụ: mới vào trang, chưa kịp fetch),
       // bạn có thể dispatch fetchUserProfile ở đây
       // dispatch(fetchUserProfile()); // Cẩn thận vòng lặp vô hạn nếu không có điều kiện dừng
@@ -313,7 +323,7 @@ const ProfilePage = () => {
                     aria-label="Email cá nhân không thể thay đổi"
                     onChange={handleChange} // Vẫn cần onChange dù là readonly để state không bị warning
                   />
-                </div>
+                </div>{" "}
                 <div className="form-group">
                   <label htmlFor="workEmail">Email liên hệ (VLU)</label>
                   <input
@@ -322,7 +332,11 @@ const ProfilePage = () => {
                     name="workEmail"
                     value={profileData.workEmail}
                     onChange={handleChange}
-                    placeholder="Nhập email liên hệ VLU"
+                    placeholder={
+                      profileData.workEmail
+                        ? profileData.workEmail
+                        : "Chưa có Email liên hệ"
+                    }
                   />
                 </div>
                 <div className="form-group">

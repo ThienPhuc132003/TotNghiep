@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Page - Testing Results</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .test-result {
+        background: #f8f9fa;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        border-left: 4px solid #007cba;
+      }
+      .success {
+        border-left-color: #28a745;
+        background: #d4edda;
+      }
+      .warning {
+        border-left-color: #ffc107;
+        background: #fff3cd;
+      }
+      .error {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+      }
+      .field-demo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin: 10px 0;
+      }
+      .field-demo div {
+        padding: 8px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .field-demo .label {
+        font-weight: bold;
+        color: #555;
+      }
+      .field-demo .value {
+        color: #333;
+      }
+      .avatar-demo {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .avatar-demo img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+        object-fit: cover;
+      }
+      code {
+        background: #e9ecef;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+      }
+      .placeholder-demo {
+        background: #f8f9fa;
+        border: 1px dashed #ccc;
+        padding: 8px;
+        color: #6c757d;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Profile Page - Test Results</h1>
+
+    <div class="test-result success">
+      <h3>✅ Fixes Applied Successfully</h3>
+      <p>
+        Đã cập nhật logic trong <code>Profile.jsx</code> để hiển thị đúng thông
+        tin user profile:
+      </p>
+      <ul>
+        <li>Import và sử dụng <code>getUserAvatar</code> từ avatarUtils</li>
+        <li>Fix logic mapping dữ liệu từ Redux state</li>
+        <li>Cập nhật placeholder cho workEmail</li>
+        <li>Đảm bảo birthday format đúng</li>
+      </ul>
+    </div>
+
+    <div class="test-result">
+      <h3>📋 Expected Profile Display</h3>
+      <p>Với dữ liệu response mẫu bạn cung cấp:</p>
+
+      <div class="avatar-demo">
+        <h4>Avatar Display</h4>
+        <img
+          src="https://via.placeholder.com/100/007cba/white?text=User"
+          alt="Avatar placeholder"
+        />
+        <p>
+          <strong>Expected:</strong> Tutor avatar từ
+          <code>tutorProfile.avatar</code>
+        </p>
+        <p>
+          URL:
+          <code
+            >https://giasuvlu.click/api/media?mediaCategory=TUTOR_AVATAR&fileName=55de8b4f-fcaa-4b79-889b-c387f11354de.jpeg</code
+          >
+        </p>
+      </div>
+
+      <div class="field-demo">
+        <div class="label">Họ và tên</div>
+        <div class="value">Nguyễn Văn An</div>
+
+        <div class="label">Số điện thoại</div>
+        <div class="value">0978123456</div>
+
+        <div class="label">Email cá nhân</div>
+        <div class="value">an.nguyen2000@gmail.com</div>
+
+        <div class="label">Email liên hệ (VLU)</div>
+        <div class="placeholder-demo">Chưa có Email liên hệ</div>
+
+        <div class="label">Ngày sinh</div>
+        <div class="value">2000-05-05</div>
+
+        <div class="label">Giới tính</div>
+        <div class="value">Nam</div>
+
+        <div class="label">Địa chỉ hiện tại</div>
+        <div class="value">
+          123 Đường Láng, P. Láng Thượng, Q. Đống Đa, Hà Nội
+        </div>
+      </div>
+    </div>
+
+    <div class="test-result warning">
+      <h3>⚠️ Important Notes</h3>
+      <ul>
+        <li>
+          <strong>Avatar Priority:</strong> tutorProfile.avatar →
+          userProfile.avatar → default by gender
+        </li>
+        <li>
+          <strong>Work Email:</strong> Khi null/empty sẽ hiển thị placeholder
+          "Chưa có Email liên hệ"
+        </li>
+        <li>
+          <strong>Birthday Format:</strong> Tự động format từ
+          "2000-05-05T00:00:00.000Z" thành "2000-05-05"
+        </li>
+        <li>
+          <strong>Data Source:</strong> Tất cả data lấy từ
+          <code>userProfile</code> object trong Redux state
+        </li>
+      </ul>
+    </div>
+
+    <div class="test-result">
+      <h3>🔧 Debug Console Logs</h3>
+      <p>Khi mở trang Profile, bạn sẽ thấy console logs:</p>
+      <pre><code>🔄 Profile.jsx - Syncing Redux data to local state: {userId: "US00011", ...}
+🖼️ getUserAvatar called with userInfo: {userId: "US00011", roleId: "TUTOR", ...}
+✅ Using tutorProfile.avatar: https://giasuvlu.click/api/media?...</code></pre>
+    </div>
+
+    <div class="test-result error">
+      <h3>🚨 Potential Issues to Check</h3>
+      <ol>
+        <li>
+          <strong>Redux State Empty:</strong> Nếu Redux chưa có dữ liệu user,
+          trang sẽ hiển thị form trống
+        </li>
+        <li>
+          <strong>Avatar Not Loading:</strong> Kiểm tra URL có access được không
+        </li>
+        <li>
+          <strong>Date Format Issues:</strong> Birthday có thể null hoặc format
+          khác
+        </li>
+        <li>
+          <strong>CSS Not Applied:</strong> Đảm bảo Profile.style.css được
+          import đúng
+        </li>
+      </ol>
+    </div>
+
+    <div class="test-result success">
+      <h3>✅ Next Steps</h3>
+      <ol>
+        <li>Test trên browser với account gia sư thực tế</li>
+        <li>Kiểm tra console logs để verify data mapping</li>
+        <li>Xác nhận avatar hiển thị đúng</li>
+        <li>Test với account USER để verify logic fallback</li>
+        <li>Nếu hoạt động tốt, remove debug console.log statements</li>
+      </ol>
+    </div>
+
+    <div class="test-result">
+      <h3>📝 Code Changes Summary</h3>
+      <h4>Files Modified:</h4>
+      <ul>
+        <li>
+          <code>src/pages/User/Profile.jsx</code> - Updated data mapping logic
+        </li>
+        <li>
+          <code>src/utils/avatarUtils.js</code> - Added debug logs (temporary)
+        </li>
+      </ul>
+
+      <h4>Key Changes:</h4>
+      <ul>
+        <li>Import getUserAvatar from avatarUtils</li>
+        <li>
+          Fixed data mapping from
+          <code>userProfileFromRedux.userProfile.*</code>
+        </li>
+        <li>Updated workEmail placeholder logic</li>
+        <li>Added console logs for debugging</li>
+      </ul>
+    </div>
+
+    <script>
+      console.log("📋 Profile Page Test Documentation loaded");
+      console.log(
+        "🔍 Check the actual Profile page to verify these fixes work correctly"
+      );
+    </script>
+  </body>
+</html>

@@ -14,23 +14,71 @@ import dfFemale from "../../../assets/images/df-female.png";
 const SidebarUserInfo = React.memo(() => {
   const user = useSelector((state) => state.user.userProfile);
 
+  // Debug Redux state
+  console.log("🏠 AccountPageLayout - Redux user:", user);
+  console.log(
+    "🏠 AccountPageLayout - Redux full user state:",
+    useSelector((state) => state.user)
+  );
+
   const userDisplayData = useMemo(() => {
+    console.log(
+      "🔄 AccountPageLayout - useMemo recalculating with user:",
+      user
+    );
+
     if (!user || !user.userProfile) {
+      console.log(
+        "❌ AccountPageLayout - No user or userProfile, using defaults"
+      );
       return {
         avatar: dfMale,
         fullname: "Người dùng",
         altText: "User Avatar Placeholder",
       };
     }
+    const getAvatar = () => {
+      console.log("🖼️ AccountPageLayout - getAvatar called:");
+      console.log("   - roleId:", user.roleId);
+      console.log("   - tutorProfile?.avatar:", user.tutorProfile?.avatar);
+      console.log("   - userProfile?.avatar:", user.userProfile?.avatar);
 
-    const getAvatar = () =>
-      user.avatar ? user.avatar : user.gender === "FEMALE" ? dfFemale : dfMale;
+      // Check if user is TUTOR and has tutorProfile.avatar
+      if (user.roleId === "TUTOR" && user.tutorProfile?.avatar) {
+        console.log(
+          "✅ AccountPageLayout - Using tutorProfile.avatar:",
+          user.tutorProfile.avatar
+        );
+        return user.tutorProfile.avatar;
+      }
 
-    return {
+      // For regular users or if tutor doesn't have avatar, use userProfile.avatar
+      if (user.userProfile?.avatar) {
+        console.log(
+          "✅ AccountPageLayout - Using userProfile.avatar:",
+          user.userProfile.avatar
+        );
+        return user.userProfile.avatar;
+      }
+
+      // Fallback to default avatar based on gender
+      const gender = user.userProfile?.gender || user.gender;
+      const defaultAvatar = gender === "FEMALE" ? dfFemale : dfMale;
+      console.log(
+        "⚠️ AccountPageLayout - Using default avatar:",
+        defaultAvatar
+      );
+      return defaultAvatar;
+    };
+
+    const result = {
       avatar: getAvatar(),
       fullname: user.userProfile.fullname || "Người dùng",
       altText: user.userProfile.fullname || "User Avatar",
     };
+
+    console.log("📋 AccountPageLayout - Final userDisplayData:", result);
+    return result;
   }, [user]);
 
   return (

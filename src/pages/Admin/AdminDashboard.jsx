@@ -43,7 +43,7 @@ const AdminDashboardPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const adminProfile = useSelector((state) => state.admin.profile);
+  const adminProfile = useSelector((state) => state.admin.adminProfile);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!(
