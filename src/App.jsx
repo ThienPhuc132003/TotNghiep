@@ -93,9 +93,6 @@ const SmartZoomLoader = lazy(() =>
 // Admin Pages
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminLogin = lazy(() => import("./pages/Admin/AdminLogin"));
-const AdminMicrosoftOAuth = lazy(() =>
-  import("./pages/Admin/AdminMicrosoftOAuth")
-);
 const ListOfAdmin = lazy(() => import("./pages/Admin/ListOfAdmin"));
 const ListOfMajor = lazy(() => import("./pages/Admin/ListOfMajor"));
 const ListOfRequest = lazy(() => import("./pages/Admin/ListOfRequest"));
@@ -279,13 +276,9 @@ function App() {
                   }}
                 />
               }
-            />{" "}
+            />
             {/* ADMIN ROUTES */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin/MicrosoftOauth"
-              element={<AdminMicrosoftOAuth />}
-            />
             <Route element={<AdminPrivateRoutes />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/profile" element={<AdminProfile />} />

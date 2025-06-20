@@ -1,14 +1,13 @@
-import { useState, useEffect, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, memo } from "react"; // Bỏ import React nếu không dùng
+import { useNavigate } from "react-router-dom"; // Bỏ Link nếu không dùng
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import Api from "../../network/Api";
-import { METHOD_TYPE } from "../../network/methodType";
-import { setAdminProfile } from "../../redux/adminSlice";
-import { getMicrosoftAuthUrl } from "../../../admin-oauth-alternative-handlers";
-import "../../assets/css/Admin/AdminLogin.style.css";
-import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg";
-import LoginLayout from "../../components/User/layout/LoginLayout";
+import Api from "../../network/Api"; // Đảm bảo đường dẫn đúng
+import { METHOD_TYPE } from "../../network/methodType"; // Đảm bảo đường dẫn đúng
+import { setAdminProfile } from "../../redux/adminSlice"; // Đảm bảo đường dẫn đúng
+import "../../assets/css/Admin/AdminLogin.style.css"; // Đảm bảo đường dẫn CSS đúng
+import MicrosoftLogo from "../../assets/images/microsoft_logo.jpg"; // Đảm bảo đường dẫn đúng
+import LoginLayout from "../../components/User/layout/LoginLayout"; // Xem xét Layout riêng cho Admin nếu cần
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -122,29 +121,49 @@ const AdminLoginPage = () => {
       setIsSubmitting(false);
     }
   };
+
+  const generateRandomString = (length) => {
+    let result = "";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+
   const handleMicrosoftLogin = async () => {
     setIsLoadingMicrosoftLogin(true);
     setErrorMessage("");
-
     try {
-      console.log("🔄 Getting Microsoft OAuth URL from backend...");
+      const state = generateRandomString(20);
+      Cookies.set("microsoft_auth_state", state, {
+        secure: true,
+        sameSite: "Lax",
+        expires: 1 / 24 / 6,
+      }); // 10 phút
 
-      // Lấy OAuth URL từ backend API
-      const result = await getMicrosoftAuthUrl();
+      const response = await Api({
+        endpoint: "admin/auth/get-uri-microsoft", // Endpoint lấy URI cho admin
+        method: METHOD_TYPE.GET,
+      });
 
-      if (result.success && result.authUrl) {
-        console.log("✅ Got OAuth URL, redirecting to Microsoft...");
-        // Redirect đến Microsoft OAuth
-        window.location.href = result.authUrl;
+      if (response.success && response.data?.authUrl) {
+        const authUrl = `${response.data.authUrl}&state=${state}`;
+        console.log("Redirecting to Microsoft for admin login:", authUrl);
+        window.location.href = authUrl;
       } else {
-        throw new Error(
-          result.error || "Không thể lấy URL đăng nhập Microsoft"
+        setErrorMessage(
+          "Không thể lấy được địa chỉ đăng nhập Microsoft. Vui lòng thử lại."
         );
+        setIsLoadingMicrosoftLogin(false);
       }
     } catch (error) {
-      console.error("❌ Error initiating Microsoft login:", error);
+      console.error("Error initiating Microsoft admin login:", error);
       setErrorMessage(
-        "Không thể khởi tạo đăng nhập Microsoft. Vui lòng thử lại."
+        error.response?.data?.message ||
+          "Đã xảy ra lỗi khi bắt đầu đăng nhập Microsoft."
       );
       setIsLoadingMicrosoftLogin(false);
     }
