@@ -287,7 +287,6 @@ const TutorClassroomMeetingsPage = () => {
     };
     checkZoomConnection();
   }, []);
-
   // Handle return from Zoom OAuth
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -314,10 +313,27 @@ const TutorClassroomMeetingsPage = () => {
           (returnClassroomId === classroomId || !classroomId)
         ) {
           setTimeout(() => {
+            // Decode classroomName to handle double-encoding from URL
+            const encodedClassroomName = urlParams.get("classroomName");
+            let decodedClassroomName = classroomName || "Lớp học";
+
+            if (encodedClassroomName) {
+              try {
+                // Try to decode - if it's double-encoded, this will fix it
+                decodedClassroomName = decodeURIComponent(encodedClassroomName);
+                console.log("🔍 Decoded classroom name:", {
+                  original: encodedClassroomName,
+                  decoded: decodedClassroomName,
+                });
+              } catch (error) {
+                console.warn("❌ Failed to decode classroomName:", error);
+                decodedClassroomName = encodedClassroomName;
+              }
+            }
+
             setSelectedClassroom({
               classroomId: returnClassroomId,
-              classroomName:
-                urlParams.get("classroomName") || classroomName || "Lớp học",
+              classroomName: decodedClassroomName,
             });
             setIsModalOpen(true);
             toast.success(
@@ -337,13 +353,12 @@ const TutorClassroomMeetingsPage = () => {
         toast.error("Kết nối Zoom không thành công. Vui lòng thử lại!");
       }
     }
-  }, [location.search, classroomId, classroomName]);
-  // Function to redirect to Zoom OAuth
+  }, [location.search, classroomId, classroomName]); // Function to redirect to Zoom OAuth
   const redirectToZoomOAuth = async () => {
     console.log("🔗 Redirecting to Zoom OAuth...");
 
     // Store current page info to return after OAuth (using sessionStorage like other pages)
-    const returnPath = `/tai-khoan/ho-so/quan-ly-lop-hoc/${classroomId}/meetings`;
+    const returnPath = `/tai-khoan/ho-so/quan-ly-phong-hoc`;
     const returnState = {
       fromZoomOAuth: true,
       classroomId,

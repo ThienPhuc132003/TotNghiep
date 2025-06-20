@@ -84,12 +84,15 @@ const ZoomCallback = () => {
                 const returnStateData = returnState
                   ? JSON.parse(returnState)
                   : {};
-                sessionStorage.removeItem("zoomReturnState"); // If returning to classroom meetings page with classroom info, add URL params
+                sessionStorage.removeItem("zoomReturnState");
+
+                // If returning to classroom meetings page with classroom info, add URL params
                 if (
-                  (returnPath.includes("quan-ly-lop-hoc") ||
-                    returnPath.includes("quan-ly-phong-hoc")) &&
+                  returnPath.includes("quan-ly-lop-hoc") &&
+                  returnPath.includes("/meetings") &&
                   returnStateData.classroomId
                 ) {
+                  // This is a specific classroom meetings page
                   const params = new URLSearchParams({
                     fromZoomConnection: "true",
                     classroomId: encodeURIComponent(
@@ -98,6 +101,14 @@ const ZoomCallback = () => {
                     classroomName: encodeURIComponent(
                       returnStateData.classroomName || "Lớp học"
                     ),
+                  });
+                  navigate(`${returnPath}?${params.toString()}`, {
+                    replace: true,
+                  });
+                } else if (returnPath.includes("quan-ly-phong-hoc")) {
+                  // This is the general room management page, add success indicator
+                  const params = new URLSearchParams({
+                    fromZoomConnection: "true",
                   });
                   navigate(`${returnPath}?${params.toString()}`, {
                     replace: true,
