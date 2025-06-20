@@ -812,8 +812,7 @@ const HomePage = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const code = searchParams.get("tempCode");
-    const state = searchParams.get("state");
-    if (code && state) {
+    if (code) {
       let isMounted = true;
       setIsProcessingOAuth(true);
       setOauthError(null);
@@ -822,7 +821,7 @@ const HomePage = () => {
       }, 0);
 
       const storedState = Cookies.get("microsoft_auth_state");
-      if (!storedState || state !== storedState) {
+      if (!storedState) {
         if (isMounted) {
           setOauthError(
             "Lỗi bảo mật (state không khớp). Vui lòng thử đăng nhập lại."
@@ -838,7 +837,7 @@ const HomePage = () => {
       const exchangeCodeForToken = async (authCode) => {
         try {
           const response = await Api({
-            endpoint: "user/auth/callback",
+            endpoint: "user/auth/login",
             method: METHOD_TYPE.POST,
             data: { code: authCode },
           });

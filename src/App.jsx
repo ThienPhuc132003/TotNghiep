@@ -279,8 +279,9 @@ function App() {
             />
             {/* ADMIN ROUTES */}
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route element={<AdminPrivateRoutes />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              {" "}
               <Route path="/admin/profile" element={<AdminProfile />} />
               <Route path="/admin/nhan-vien" element={<ListOfAdmin />} />
               <Route path="/admin/nganh" element={<ListOfMajor />} />
