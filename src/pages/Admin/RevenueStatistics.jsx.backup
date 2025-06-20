@@ -11,25 +11,15 @@ import "react-toastify/dist/ReactToastify.css";
 import numeral from "numeral";
 import "numeral/locales/vi";
 import { exportToExcel } from "../../utils/excelExport";
-import {
-  formatDateForAPI,
-  validateDateRange,
-  getDefaultDateRange,
-} from "../../utils/dateUtils";
+import { formatDateForAPI, validateDateRange, getDefaultDateRange } from "../../utils/dateUtils";
 
-// Helper định dạng ngày
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch (error) {
+// Helper định dạng tiền tệ
+const formatCurrency = (value) => {
+  if (value === null || value === undefined || isNaN(Number(value))) {
     return "N/A";
   }
+  numeral.locale("vi");
+  return numeral(value).format("0,0 đ");
 };
 
 // Helper lấy giá trị lồng nhau an toàn
@@ -37,19 +27,6 @@ const getSafeNestedValue = (obj, path, defaultValue = "N/A") => {
   if (!obj || !path) return defaultValue;
   const value = path.split(".").reduce((acc, part) => acc && acc[part], obj);
   return value !== undefined && value !== null ? value : defaultValue;
-};
-
-// Helper lấy placeholder cho search input
-const getSearchPlaceholder = (selectedField) => {
-  const placeholders = {
-    "user.userId": "Nhập mã học viên...",
-    "user.fullname": "Nhập tên học viên...",
-    "tutor.userId": "Nhập mã gia sư...",
-    "tutor.fullname": "Nhập tên gia sư...",
-    "user.major.majorName": "Nhập tên ngành...",
-    createdAt: "Nhập ngày thuê (dd/mm/yyyy)...",
-  };
-  return placeholders[selectedField] || "Nhập từ khóa tìm kiếm...";
 };
 
 // Period Type Options - DEPRECATED: Now using date range
@@ -66,29 +43,25 @@ const searchKeyOptions = [
   { value: "user.fullname", label: "Tên học viên" },
   { value: "tutor.userId", label: "Mã gia sư" },
   { value: "tutor.fullname", label: "Tên gia sư" },
-  { value: "user.major.majorName", label: "Ngành" },
-  { value: "createdAt", label: "Ngày thuê" },
 ];
 
-const TutorHireStatisticsPage = () => {
-  // --- States ---
+const RevenueStatisticsPage = () => {  // --- States ---
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalHires, setTotalHires] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
   // Date range states (replacing periodType/periodValue)
   const [startDate, setStartDate] = useState(() => {
-    const defaultRange = getDefaultDateRange();
-    return defaultRange.startDate;
+    const today = new Date();
+    const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+    return firstDayOfYear.toISOString().split('T')[0];
   });
   const [endDate, setEndDate] = useState(() => {
-    const defaultRange = getDefaultDateRange();
-    return defaultRange.endDate;
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   });
-  const [dateError, setDateError] = useState("");
-
   // Search states
   const [searchInput, setSearchInput] = useState("");
   const [selectedSearchField, setSelectedSearchField] = useState(
@@ -105,13 +78,14 @@ const TutorHireStatisticsPage = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const currentPath = "/luot-thue-gia-su"; // --- Reset State ---
+  const currentPath = "/doanh-thu";
+  // --- Reset State ---
   const resetState = useCallback(() => {
     // Reset to current year range
-    const defaultRange = getDefaultDateRange();
-    setStartDate(defaultRange.startDate);
-    setEndDate(defaultRange.endDate);
-    setDateError("");
+    const today = new Date();
+    const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+    setStartDate(firstDayOfYear.toISOString().split('T')[0]);
+    setEndDate(today.toISOString().split('T')[0]);
     setSearchInput("");
     setSelectedSearchField(searchKeyOptions[0].value);
     setAppliedSearchInput("");
@@ -119,112 +93,89 @@ const TutorHireStatisticsPage = () => {
     setSortConfig({ key: "createdAt", direction: "desc" });
     setCurrentPage(0);
   }, []);
-
-  // Date change handlers with validation
-  const handleStartDateChange = (event) => {
-    const newStartDate = event.target.value;
-    setStartDate(newStartDate);
-
-    const error = validateDateRange(newStartDate, endDate);
-    setDateError(error || "");
-  };
-
-  const handleEndDateChange = (event) => {
-    const newEndDate = event.target.value;
-    setEndDate(newEndDate);
-
-    const error = validateDateRange(startDate, newEndDate);
-    setDateError(error || "");
-  };
   // Export data handler
   const handleExportData = useCallback(async () => {
-    if (data.length === 0) {
-      toast.warning("Không có dữ liệu để xuất");
-      return;
-    }
-
-    const toastId = toast.loading("Đang xuất dữ liệu...");
-
     try {
-      // Define columns for Excel export
+      if (!data || data.length === 0) {
+        toast.warning("Không có dữ liệu để xuất");
+        return;
+      }
+
+      // Show loading toast
+      const loadingToast = toast.loading("Đang tạo file Excel...");
+
+      // Define columns for export
       const exportColumns = [
         { title: "STT", dataKey: "stt" },
-        { title: "Mã học viên", dataKey: "userId" },
-        { title: "Tên học viên", dataKey: "studentName" },
-        { title: "Mã gia sư", dataKey: "tutorId" },
-        { title: "Tên gia sư", dataKey: "tutorName" },
-        { title: "Ngành", dataKey: "major" },
-        { title: "Ngày thuê", dataKey: "hireDate" },
+        { title: "Mã học viên", dataKey: "user.userId" },
+        { title: "Tên học viên", dataKey: "user.fullname" },
+        { title: "Mã gia sư", dataKey: "tutor.userId" },
+        { title: "Tên gia sư", dataKey: "tutor.fullname" },
+        { title: "Tiền học viên đóng", dataKey: "coinOfUserPayment" },
+        { title: "Tiền trả gia sư", dataKey: "coinOfTutorReceive" },
+        { title: "Doanh thu", dataKey: "coinOfWebReceive" },
       ];
 
-      // Prepare data for Excel export
-      const exportData = data.map((row, index) => ({
-        stt: currentPage * itemsPerPage + index + 1,
-        userId: getSafeNestedValue(row, "user.userId", ""),
-        studentName: getSafeNestedValue(row, "user.fullname", ""),
-        tutorId: getSafeNestedValue(row, "tutor.userId", ""),
-        tutorName: getSafeNestedValue(row, "tutor.fullname", ""),
-        major: getSafeNestedValue(row, "user.major.majorName", ""),
-        hireDate: formatDate(row.createdAt),
-      }));
-
       // Calculate summary statistics
-      const summaryStats = [
-        { label: "Tổng số lượt thuê", value: data.length },
-        {
-          label: "Số gia sư được thuê",
-          value: new Set(
-            data.map((item) => getSafeNestedValue(item, "tutor.userId"))
-          ).size,
-        },
-        {
-          label: "Số học viên thuê",
-          value: new Set(
-            data.map((item) => getSafeNestedValue(item, "user.userId"))
-          ).size,
-        },
-        {
-          label: "Số ngành học",
-          value: new Set(
-            data.map((item) => getSafeNestedValue(item, "user.major.majorName"))
-          ).size,
-        },
-      ]; // Format date range information
-      const periodInfo = `Từ ${startDate} đến ${endDate}`;
+      const totalTransactions = totalItems;
+      const averageRevenue =
+        data.length > 0
+          ? (
+              data.reduce((sum, row) => sum + (row.coinOfWebReceive || 0), 0) /
+              data.length
+            ).toFixed(0)
+          : 0;
 
-      console.log("=== DEBUG TUTOR HIRE EXPORT ===");
-      console.log("exportData:", exportData);
-      console.log("exportColumns:", exportColumns);
-      console.log("summaryStats:", summaryStats);
-      console.log("periodInfo:", periodInfo);
+      const summaryStats = {
+        "Tổng số giao dịch": totalTransactions,
+        "Tổng doanh thu": formatCurrency(totalRevenue),
+        "Doanh thu TB/GD": formatCurrency(averageRevenue),
+      };
 
+      // Format period information
+      const periodLabels = {
+        DAY: "Ngày",
+        WEEK: "Tuần",
+        MONTH: "Tháng",
+        YEAR: "Năm",
+      };
+
+      const periodInfo = periodValue
+        ? `${periodLabels[periodType] || periodType}: ${periodValue}`
+        : "Tất cả thời gian";
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().slice(0, 10);
+      const filename = `thong-ke-doanh-thu-${timestamp}.xlsx`;
+
+      // Export to Excel
       await exportToExcel({
-        data: exportData,
+        data: data,
         columns: exportColumns,
-        filename: `thong-ke-luot-thue-gia-su-${new Date()
-          .toISOString()
-          .slice(0, 10)}`,
-        title: "THỐNG KÊ LƯỢT THUÊ GIA SƯ",
+        title: "THỐNG KÊ DOANH THU CỦA GIASUVLU",
+        filename: filename,
+        summaryStats: summaryStats,
         period: periodInfo,
-        summaryStats,
+        currentPage: currentPage,
+        itemsPerPage: itemsPerPage,
       });
 
-      toast.update(toastId, {
-        render: `Đã xuất ${data.length} bản ghi thành công!`,
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
+      // Dismiss loading toast and show success
+      toast.dismiss(loadingToast);
+      toast.success(`Đã xuất ${data.length} bản ghi thành công!`);
     } catch (error) {
       console.error("Export error:", error);
-      toast.update(toastId, {
-        render: "Có lỗi xảy ra khi xuất dữ liệu",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
+      toast.error("Có lỗi xảy ra khi xuất dữ liệu Excel");
     }
-  }, [data, currentPage, itemsPerPage, startDate, endDate]);
+  }, [
+    data,
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalRevenue,
+    periodType,
+    periodValue,
+  ]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -268,41 +219,52 @@ const TutorHireStatisticsPage = () => {
       {
         title: "Mã học viên",
         dataKey: "user.userId",
+        sortKey: "user.userId",
         sortable: true,
-        renderCell: (value, row) => getSafeNestedValue(row, "user.userId", ""),
+        renderCell: (_, row) => getSafeNestedValue(row, "user.userId", "..."),
       },
       {
         title: "Tên học viên",
         dataKey: "user.fullname",
+        sortKey: "user.fullname",
         sortable: true,
-        renderCell: (value, row) =>
-          getSafeNestedValue(row, "user.fullname", ""),
+        renderCell: (_, row) => getSafeNestedValue(row, "user.fullname", "..."),
       },
       {
         title: "Mã gia sư",
         dataKey: "tutor.userId",
+        sortKey: "tutor.userId",
         sortable: true,
-        renderCell: (value, row) => getSafeNestedValue(row, "tutor.userId", ""),
+        renderCell: (_, row) => getSafeNestedValue(row, "tutor.userId", "..."),
       },
       {
         title: "Tên gia sư",
         dataKey: "tutor.fullname",
+        sortKey: "tutor.fullname",
         sortable: true,
-        renderCell: (value, row) =>
-          getSafeNestedValue(row, "tutor.fullname", ""),
+        renderCell: (_, row) =>
+          getSafeNestedValue(row, "tutor.fullname", "..."),
       },
       {
-        title: "Ngành",
-        dataKey: "user.major.majorName",
+        title: "Tiền học viên đóng",
+        dataKey: "coinOfUserPayment",
+        sortKey: "coinOfUserPayment",
         sortable: true,
-        renderCell: (value, row) =>
-          getSafeNestedValue(row, "user.major.majorName", ""),
+        renderCell: formatCurrency,
       },
       {
-        title: "Ngày thuê",
-        dataKey: "createdAt",
+        title: "Tiền trả gia sư",
+        dataKey: "coinOfTutorReceive",
+        sortKey: "coinOfTutorReceive",
         sortable: true,
-        renderCell: (value) => formatDate(value),
+        renderCell: formatCurrency,
+      },
+      {
+        title: "Doanh thu",
+        dataKey: "coinOfWebReceive",
+        sortKey: "coinOfWebReceive",
+        sortable: true,
+        renderCell: formatCurrency,
       },
     ],
     [currentPage, itemsPerPage]
@@ -313,43 +275,34 @@ const TutorHireStatisticsPage = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const finalFilterConditions = []; // Add search filter if search value is provided
+      const finalFilterConditions = [];
+
+      // Add search filter if search value is provided
       if (
         appliedSearchInput &&
         appliedSearchInput.trim() &&
         appliedSearchField
       ) {
-        // Use different operators based on the field type
-        let operator = "like";
-
-        // For user/tutor IDs, use exact match
-        if (appliedSearchField.includes("userId")) {
-          operator = "equal";
-        }
-        // For date fields, use date-specific operator
-        else if (appliedSearchField === "createdAt") {
-          operator = "like"; // Assuming the backend can handle date-like searches
-        }
-
         finalFilterConditions.push({
           key: appliedSearchField,
-          operator: operator,
+          operator: "like",
           value: appliedSearchInput.trim(),
         });
-      }
-      const query = {
+      }      const query = {
+        rpp: itemsPerPage,
         page: currentPage + 1,
-        limit: itemsPerPage,
         startDate: formatDateForAPI(startDate),
         endDate: formatDateForAPI(endDate),
-        filter: JSON.stringify(finalFilterConditions),
+        ...(finalFilterConditions.length > 0 && {
+          filter: JSON.stringify(finalFilterConditions),
+        }),
         sort: JSON.stringify([
           { key: sortConfig.key, type: sortConfig.direction.toUpperCase() },
         ]),
       };
 
       const responsePayload = await Api({
-        endpoint: `booking-request/search-with-time`,
+        endpoint: `manage-payment/search-with-time`,
         method: METHOD_TYPE.GET,
         query: query,
       });
@@ -364,8 +317,8 @@ const TutorHireStatisticsPage = () => {
           setTotalItems(responseInnerData.total);
           setPageCount(Math.ceil(responseInnerData.total / itemsPerPage));
 
-          // Set total hires from API response
-          setTotalHires(responseInnerData.total || 0);
+          // Set total revenue from API response
+          setTotalRevenue(responseInnerData.totalRevenue || 0);
         } else {
           throw new Error("Lỗi xử lý dữ liệu từ API.");
         }
@@ -377,12 +330,12 @@ const TutorHireStatisticsPage = () => {
     } catch (errorCatch) {
       const errorMessage =
         errorCatch.message ||
-        "Có lỗi xảy ra khi tải dữ liệu thống kê lượt thuê gia sư.";
+        "Có lỗi xảy ra khi tải dữ liệu thống kê doanh thu.";
       setError(errorMessage);
       setData([]);
       setTotalItems(0);
       setPageCount(1);
-      setTotalHires(0);
+      setTotalRevenue(0);
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -391,8 +344,8 @@ const TutorHireStatisticsPage = () => {
     currentPage,
     itemsPerPage,
     sortConfig,
-    startDate,
-    endDate,
+    periodType,
+    periodValue,
     appliedSearchInput,
     appliedSearchField,
   ]);
@@ -424,6 +377,19 @@ const TutorHireStatisticsPage = () => {
     setCurrentPage(0);
   };
 
+  const handlePeriodTypeChange = (event) => {
+    setPeriodType(event.target.value);
+    setCurrentPage(0);
+  };
+
+  const handlePeriodValueChange = (event) => {
+    const value = parseInt(event.target.value);
+    if (value > 0) {
+      setPeriodValue(value);
+      setCurrentPage(0);
+    }
+  };
+
   // Search handlers following ListOfAdmin pattern
   const handleSearchInputChange = (value) => {
     setSearchInput(value);
@@ -435,17 +401,24 @@ const TutorHireStatisticsPage = () => {
   };
 
   const handleApplyFiltersAndSearch = () => {
-    setAppliedSearchInput(searchInput);
-    setAppliedSearchField(selectedSearchField);
+    if (searchInput.trim()) {
+      setAppliedSearchField(selectedSearchField);
+      setAppliedSearchInput(searchInput);
+    } else {
+      setAppliedSearchField(selectedSearchField);
+      setAppliedSearchInput("");
+    }
     setCurrentPage(0);
   };
 
-  // Clear search when Enter is pressed
-  const handleSearchKeyPress = (event) => {
-    if (event.key === "Enter") {
-      handleApplyFiltersAndSearch();
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      if (searchInput.trim()) {
+        handleApplyFiltersAndSearch();
+      }
     }
   };
+
   // --- JSX Render ---
   const childrenMiddleContentLower = (
     <>
@@ -460,7 +433,7 @@ const TutorHireStatisticsPage = () => {
           }}
         >
           <h2 className="admin-list-title" style={{ margin: 0 }}>
-            Thống kê lượt thuê gia sư
+            Doanh thu GiaSuVLU
           </h2>
           <div
             title="Keyboard Shortcuts:&#10;Ctrl + R: Refresh&#10;Ctrl + E: Export&#10;Ctrl + F: Focus Search"
@@ -479,57 +452,46 @@ const TutorHireStatisticsPage = () => {
           >
             ?
           </div>
-        </div>{" "}
+        </div>
+
         {/* Filter Controls */}
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
-            {/* Start Date */}
+            {/* Period Type */}
             <div className="filter-control">
-              <label htmlFor="startDateInput" className="filter-label">
-                Từ ngày:
+              <label htmlFor="periodTypeSelect" className="filter-label">
+                Loại thời gian:
+              </label>
+              <select
+                id="periodTypeSelect"
+                value={periodType}
+                onChange={handlePeriodTypeChange}
+                className="status-filter-select"
+                aria-label="Chọn loại thời gian"
+              >
+                {periodTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Period Value */}
+            <div className="filter-control">
+              <label htmlFor="periodValueInput" className="filter-label">
+                Số lượng:
               </label>
               <input
-                id="startDateInput"
-                type="text"
-                value={startDate}
-                onChange={handleStartDateChange}
+                id="periodValueInput"
+                type="number"
+                min="1"
+                value={periodValue}
+                onChange={handlePeriodValueChange}
                 className="status-filter-select"
-                placeholder="DD/MM/YYYY"
-                aria-label="Nhập ngày bắt đầu (DD/MM/YYYY)"
-                style={{ width: "120px" }}
+                style={{ width: "80px" }}
+                aria-label="Nhập số lượng thời gian"
               />
             </div>
-            {/* End Date */}
-            <div className="filter-control">
-              <label htmlFor="endDateInput" className="filter-label">
-                Đến ngày:
-              </label>
-              <input
-                id="endDateInput"
-                type="text"
-                value={endDate}
-                onChange={handleEndDateChange}
-                className="status-filter-select"
-                placeholder="DD/MM/YYYY"
-                aria-label="Nhập ngày kết thúc (DD/MM/YYYY)"
-                style={{ width: "120px" }}
-              />
-            </div>
-            {/* Date Error Display */}
-            {dateError && (
-              <div className="filter-control">
-                <span
-                  className="date-error-message"
-                  style={{
-                    color: "red",
-                    fontSize: "12px",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {dateError}
-                </span>
-              </div>
-            )}
             {/* Search Field Dropdown */}
             <div className="filter-control">
               <select
@@ -545,7 +507,7 @@ const TutorHireStatisticsPage = () => {
                   </option>
                 ))}
               </select>
-            </div>{" "}
+            </div>
             {/* Search Bar */}
             <SearchBar
               value={searchInput}
@@ -553,7 +515,15 @@ const TutorHireStatisticsPage = () => {
               onKeyPress={handleSearchKeyPress}
               searchBarClassName="admin-search"
               searchInputClassName="admin-search-input"
-              placeholder={getSearchPlaceholder(selectedSearchField)}
+              placeholder={
+                searchKeyOptions.find(
+                  (opt) => opt.value === selectedSearchField
+                )
+                  ? `Nhập ${searchKeyOptions
+                      .find((opt) => opt.value === selectedSearchField)
+                      ?.label.toLowerCase()}...`
+                  : "Nhập tìm kiếm..."
+              }
             />
             {/* Apply Filters Button */}
             <button
@@ -579,13 +549,13 @@ const TutorHireStatisticsPage = () => {
               disabled={isLoading}
             >
               <i className="fa-solid fa-rotate-left"></i>
-            </button>
+            </button>{" "}
             {/* Export Button */}
             <button
               className="refresh-button"
               onClick={handleExportData}
               title="Xuất Excel (Ctrl+E)"
-              aria-label="Xuất dữ liệu Excel"
+              aria-label="Xuất Excel"
               disabled={isLoading || data.length === 0}
               style={{
                 backgroundColor: data.length > 0 ? "#28a745" : undefined,
@@ -596,7 +566,7 @@ const TutorHireStatisticsPage = () => {
             </button>
           </div>
         </div>
-        {/* Total Hires Display */}
+        {/* Total Revenue Display */}
         <div
           style={{
             backgroundColor: "#f8f9fa",
@@ -612,7 +582,7 @@ const TutorHireStatisticsPage = () => {
                 className="fa-solid fa-spinner fa-spin"
                 style={{ marginRight: "0.5rem" }}
               ></i>
-              Đang tải dữ liệu lượt thuê...
+              Đang tải dữ liệu doanh thu...
             </div>
           ) : error ? (
             <div style={{ textAlign: "center", color: "#dc3545" }}>
@@ -620,21 +590,35 @@ const TutorHireStatisticsPage = () => {
                 className="fa-solid fa-exclamation-triangle"
                 style={{ marginRight: "0.5rem" }}
               ></i>
-              Không thể tải dữ liệu lượt thuê
+              Không thể tải dữ liệu doanh thu
             </div>
           ) : (
             <>
               <h3
                 style={{
                   margin: "0",
-                  color: "#17a2b8",
+                  color: "#28a745",
                   fontSize: "1.2rem",
                   textAlign: "center",
                 }}
               >
-                📊 Tổng số lượt thuê:{" "}
-                <strong>{totalHires.toLocaleString()} lượt</strong>
+                💰 Tổng doanh thu: {formatCurrency(totalRevenue)}
               </h3>
+              <p
+                style={{
+                  margin: "0.5rem 0 0 0",
+                  textAlign: "center",
+                  color: "#6c757d",
+                  fontSize: "0.9rem",
+                }}
+              >
+                Trong {periodValue}{" "}
+                {periodTypeOptions
+                  .find((opt) => opt.value === periodType)
+                  ?.label.toLowerCase()}{" "}
+                gần đây
+                {data.length > 0 && ` • ${totalItems} giao dịch`}
+              </p>
             </>
           )}
         </div>
@@ -647,17 +631,40 @@ const TutorHireStatisticsPage = () => {
           columns={columns}
           data={data}
           totalItems={totalItems}
-          showLock={false}
           pageCount={pageCount}
           onPageChange={handlePageClick}
           forcePage={currentPage}
           onSort={handleSort}
           currentSortConfig={sortConfig}
+          loading={isLoading}
+          itemsPerPage={itemsPerPage}
           onItemsPerPageChange={handleItemsPerPageChange}
-          isLoading={isLoading}
         />
+        {!isLoading && !error && data.length > 0 && (
+          <p
+            style={{
+              textAlign: "right",
+              marginTop: "1rem",
+              fontSize: "0.9em",
+              color: "#555",
+            }}
+          >
+            Tổng số giao dịch: {totalItems}
+          </p>
+        )}
+        {!isLoading && !error && data.length === 0 && totalItems === 0 && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "2rem",
+              fontSize: "1em",
+              color: "#777",
+            }}
+          >
+            Không có dữ liệu thống kê cho khoảng thời gian này.
+          </p>
+        )}
       </div>
-      <ToastContainer />
     </>
   );
 
@@ -665,9 +672,11 @@ const TutorHireStatisticsPage = () => {
     <AdminDashboardLayout
       currentPath={currentPath}
       childrenMiddleContentLower={childrenMiddleContentLower}
-    />
+    >
+      <ToastContainer position="top-right" autoClose={3000} theme="light" />
+    </AdminDashboardLayout>
   );
 };
 
-const TutorHireStatistics = React.memo(TutorHireStatisticsPage);
-export default TutorHireStatistics;
+const RevenueStatistics = React.memo(RevenueStatisticsPage);
+export default RevenueStatistics;

@@ -11,6 +11,11 @@ import "react-toastify/dist/ReactToastify.css";
 import numeral from "numeral";
 import "numeral/locales/vi";
 import { exportToExcel } from "../../utils/excelExport";
+import {
+  formatDateForAPI,
+  validateDateRange,
+  getDefaultDateRange,
+} from "../../utils/dateUtils";
 
 // Helper định dạng ngày (reserved for future use)
 // const formatDate = (dateString) => {
@@ -46,13 +51,13 @@ const getSearchPlaceholder = (selectedField) => {
   return placeholders[selectedField] || "Nhập từ khóa tìm kiếm...";
 };
 
-// Period Type Options
-const periodTypeOptions = [
-  { value: "DAY", label: "Ngày" },
-  { value: "WEEK", label: "Tuần" },
-  { value: "MONTH", label: "Tháng" },
-  { value: "YEAR", label: "Năm" },
-];
+// Period Type Options - DEPRECATED: Now using date range
+// const periodTypeOptions = [
+//   { value: "DAY", label: "Ngày" },
+//   { value: "WEEK", label: "Tuần" },
+//   { value: "MONTH", label: "Tháng" },
+//   { value: "YEAR", label: "Năm" },
+// ];
 
 // Search Key Options
 const searchKeyOptions = [
@@ -72,9 +77,16 @@ const TutorRevenueStatisticsPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalRevenue, setTotalRevenue] = useState(0);
 
-  // Period selection states
-  const [periodType, setPeriodType] = useState("MONTH");
-  const [periodValue, setPeriodValue] = useState(1);
+  // Date range states (replacing periodType/periodValue)
+  const [startDate, setStartDate] = useState(() => {
+    const defaultRange = getDefaultDateRange();
+    return defaultRange.startDate;
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const defaultRange = getDefaultDateRange();
+    return defaultRange.endDate;
+  });
+  const [dateError, setDateError] = useState("");
   // Search states
   const [searchInput, setSearchInput] = useState("");
   const [selectedSearchField, setSelectedSearchField] = useState("all");
@@ -87,11 +99,13 @@ const TutorRevenueStatisticsPage = () => {
   // });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const currentPath = "/doanh-thu-gia-su";
-  // --- Reset State ---
+  const currentPath = "/doanh-thu-gia-su"; // --- Reset State ---
   const resetState = useCallback(() => {
-    setPeriodType("MONTH");
-    setPeriodValue(1);
+    // Reset to current year range
+    const defaultRange = getDefaultDateRange();
+    setStartDate(defaultRange.startDate);
+    setEndDate(defaultRange.endDate);
+    setDateError("");
     setSearchInput("");
     setSelectedSearchField("all");
     setAppliedSearchInput("");
@@ -100,6 +114,23 @@ const TutorRevenueStatisticsPage = () => {
     setCurrentPage(0);
     setItemsPerPage(10);
   }, []);
+
+  // Date change handlers with validation
+  const handleStartDateChange = (event) => {
+    const newStartDate = event.target.value;
+    setStartDate(newStartDate);
+
+    const error = validateDateRange(newStartDate, endDate);
+    setDateError(error || "");
+  };
+
+  const handleEndDateChange = (event) => {
+    const newEndDate = event.target.value;
+    setEndDate(newEndDate);
+
+    const error = validateDateRange(startDate, newEndDate);
+    setDateError(error || "");
+  };
 
   // --- Event Handlers ---
   const handlePageClick = (event) => {
@@ -118,16 +149,6 @@ const TutorRevenueStatisticsPage = () => {
 
   const handleItemsPerPageChange = (newItemsPerPage) => {
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(0);
-  };
-
-  const handlePeriodTypeChange = (event) => {
-    setPeriodType(event.target.value);
-    setCurrentPage(0);
-  };
-
-  const handlePeriodValueChange = (event) => {
-    setPeriodValue(parseInt(event.target.value) || 1);
     setCurrentPage(0);
   };
 
@@ -157,8 +178,7 @@ const TutorRevenueStatisticsPage = () => {
   // handleApplyFiltersAndSearch function (reserved for future use)
   // const handleApplyFiltersAndSearch = () => {
   //   handleSearchSubmit();
-  // };
-  // Export data handler
+  // };  // Export data handler
   const handleExportData = useCallback(async () => {
     if (!data || data.length === 0) {
       toast.warning("Không có dữ liệu để xuất");
@@ -168,13 +188,22 @@ const TutorRevenueStatisticsPage = () => {
     const toastId = toast.loading("Đang xuất dữ liệu...");
 
     try {
+      // Define columns for Excel export
+      const exportColumns = [
+        { title: "STT", dataKey: "stt" },
+        { title: "Mã gia sư", dataKey: "userId" },
+        { title: "Tên gia sư", dataKey: "fullname" },
+        { title: "Tổng số lượt được thuê", dataKey: "totalHire" },
+        { title: "Tổng doanh thu của gia sư", dataKey: "totalRevenue" },
+      ];
+
       // Prepare data for Excel export
       const exportData = data.map((row, index) => ({
-        STT: currentPage * itemsPerPage + index + 1,
-        "Mã gia sư": getSafeNestedValue(row, "userId", ""),
-        "Tên gia sư": getSafeNestedValue(row, "fullname", ""),
-        "Tổng số lượt được thuê": getSafeNestedValue(row, "totalHire", 0),
-        "Tổng doanh thu của gia sư": numeral(
+        stt: currentPage * itemsPerPage + index + 1,
+        userId: getSafeNestedValue(row, "userId", ""),
+        fullname: getSafeNestedValue(row, "fullname", ""),
+        totalHire: getSafeNestedValue(row, "totalHire", 0),
+        totalRevenue: numeral(
           getSafeNestedValue(row, "totalRevenueWithTime", 0)
         ).format("0,0"),
       }));
@@ -193,53 +222,26 @@ const TutorRevenueStatisticsPage = () => {
         data.length > 0 ? totalRevenue / data.length : 0;
       const averageHiresPerTutor =
         data.length > 0 ? totalHires / data.length : 0;
-
-      const summaryStats = [
-        { label: "Tổng số gia sư", value: data.length },
-        {
-          label: "Tổng doanh thu",
-          value: numeral(totalRevenue).format("0,0") + " VNĐ",
-        },
-        { label: "Tổng số lượt thuê", value: totalHires },
-        {
-          label: "Doanh thu trung bình/gia sư",
-          value: numeral(averageRevenuePerTutor).format("0,0") + " VNĐ",
-        },
-        {
-          label: "Số lượt thuê trung bình/gia sư",
-          value: numeral(averageHiresPerTutor).format("0.0"),
-        },
-      ];
-
-      // Generate period text based on selected period type and value
-      const getPeriodText = () => {
-        const now = new Date();
-        switch (periodType) {
-          case "DAY": {
-            const dayDate = new Date(now);
-            dayDate.setDate(dayDate.getDate() - periodValue + 1);
-            return `${periodValue} ngày gần nhất (${dayDate.toLocaleDateString(
-              "vi-VN"
-            )} - ${now.toLocaleDateString("vi-VN")})`;
-          }
-          case "WEEK":
-            return `${periodValue} tuần gần nhất`;
-          case "MONTH":
-            return `${periodValue} tháng gần nhất`;
-          case "YEAR":
-            return `${periodValue} năm gần nhất`;
-          default:
-            return "Tất cả thời gian";
-        }
+      const summaryStats = {
+        "Tổng số gia sư": data.length,
+        "Tổng doanh thu": numeral(totalRevenue).format("0,0") + " VNĐ",
+        "Tổng số lượt thuê": totalHires,
+        "Doanh thu trung bình/gia sư":
+          numeral(averageRevenuePerTutor).format("0,0") + " VNĐ",
+        "Số lượt thuê trung bình/gia sư":
+          numeral(averageHiresPerTutor).format("0.0"),
       };
 
+      // Format date range information
+      const periodInfo = `Từ ${startDate} đến ${endDate}`;
       await exportToExcel({
         data: exportData,
+        columns: exportColumns,
         filename: `thong-ke-doanh-thu-gia-su-${new Date()
           .toISOString()
           .slice(0, 10)}`,
         title: "THỐNG KÊ DOANH THU GIA SƯ",
-        period: getPeriodText(),
+        period: periodInfo,
         summaryStats,
       });
 
@@ -258,7 +260,7 @@ const TutorRevenueStatisticsPage = () => {
         autoClose: 3000,
       });
     }
-  }, [data, currentPage, itemsPerPage, periodType, periodValue]);
+  }, [data, currentPage, itemsPerPage, startDate, endDate]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -388,8 +390,8 @@ const TutorRevenueStatisticsPage = () => {
       const query = {
         page: currentPage + 1,
         limit: itemsPerPage,
-        periodType,
-        periodValue,
+        startDate: formatDateForAPI(startDate),
+        endDate: formatDateForAPI(endDate),
         filter: JSON.stringify(finalFilterConditions),
         // Tạm thời comment sort để test
         // sort: JSON.stringify([
@@ -444,8 +446,8 @@ const TutorRevenueStatisticsPage = () => {
   }, [
     currentPage,
     itemsPerPage,
-    periodType,
-    periodValue,
+    startDate,
+    endDate,
     appliedSearchInput,
     appliedSearchField,
   ]);
@@ -500,41 +502,50 @@ const TutorRevenueStatisticsPage = () => {
         {/* All Controls in One Row */}
         <div className="search-bar-filter-container">
           <div className="search-bar-filter">
-            {/* Period Type */}
+            {" "}
+            {/* Date Range Controls */}
             <div className="filter-control">
-              <label htmlFor="periodTypeSelect" className="filter-label">
-                Loại thời gian:
-              </label>
-              <select
-                id="periodTypeSelect"
-                value={periodType}
-                onChange={handlePeriodTypeChange}
-                className="status-filter-select"
-                disabled={isLoading}
-              >
-                {periodTypeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Period Value */}
-            <div className="filter-control">
-              <label htmlFor="periodValueInput" className="filter-label">
-                Giá trị:
+              <label htmlFor="startDateInput" className="filter-label">
+                Từ ngày:
               </label>
               <input
-                id="periodValueInput"
-                type="number"
-                min="1"
-                value={periodValue}
-                onChange={handlePeriodValueChange}
-                className="admin-search-input"
-                style={{ width: "80px" }}
+                id="startDateInput"
+                type="text"
+                value={startDate}
+                onChange={handleStartDateChange}
+                className="status-filter-select"
+                placeholder="DD/MM/YYYY"
                 disabled={isLoading}
+                style={{ width: "120px" }}
+                maxLength={10}
+                aria-label="Nhập ngày bắt đầu (DD/MM/YYYY)"
               />
             </div>
+            <div className="filter-control">
+              <label htmlFor="endDateInput" className="filter-label">
+                Đến ngày:
+              </label>
+              <input
+                id="endDateInput"
+                type="text"
+                value={endDate}
+                onChange={handleEndDateChange}
+                className="status-filter-select"
+                placeholder="DD/MM/YYYY"
+                disabled={isLoading}
+                style={{ width: "120px" }}
+                maxLength={10}
+                aria-label="Nhập ngày kết thúc (DD/MM/YYYY)"
+              />
+            </div>
+            {/* Date Error Display */}
+            {dateError && (
+              <div className="filter-control">
+                <span style={{ color: "#dc3545", fontSize: "12px" }}>
+                  {dateError}
+                </span>
+              </div>
+            )}
             {/* Select chọn cột tìm kiếm */}
             <div className="filter-control">
               <select

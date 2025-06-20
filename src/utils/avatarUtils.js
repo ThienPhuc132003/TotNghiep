@@ -10,23 +10,41 @@ import dfFemale from "../assets/images/df-female.png";
  * @returns {string} - Avatar URL to display
  */
 export const getUserAvatar = (userInfo) => {
+  console.log("🖼️ getUserAvatar called with userInfo:", userInfo);
+
   if (!userInfo) {
+    console.log("❌ No userInfo provided, returning default male avatar");
     return dfMale; // Default fallback
   }
 
+  console.log("🔍 Checking avatar logic:");
+  console.log("   - roleId:", userInfo.roleId);
+  console.log("   - tutorProfile?.avatar:", userInfo.tutorProfile?.avatar);
+  console.log("   - userProfile?.avatar:", userInfo.userProfile?.avatar);
+  console.log("   - userProfile?.gender:", userInfo.userProfile?.gender);
+
   // Check if user is TUTOR and has tutorProfile.avatar
   if (userInfo.roleId === "TUTOR" && userInfo.tutorProfile?.avatar) {
+    console.log("✅ Using tutorProfile.avatar:", userInfo.tutorProfile.avatar);
     return userInfo.tutorProfile.avatar;
   }
 
   // For regular users or if tutor doesn't have avatar, use userProfile.avatar
   if (userInfo.userProfile?.avatar) {
+    console.log("✅ Using userProfile.avatar:", userInfo.userProfile.avatar);
     return userInfo.userProfile.avatar;
   }
 
   // Fallback to default avatar based on gender
   const gender = userInfo.userProfile?.gender || userInfo.gender;
-  return gender === "FEMALE" ? dfFemale : dfMale;
+  const defaultAvatar = gender === "FEMALE" ? dfFemale : dfMale;
+  console.log(
+    "⚠️ Using default avatar based on gender:",
+    gender,
+    "->",
+    defaultAvatar
+  );
+  return defaultAvatar;
 };
 
 /**

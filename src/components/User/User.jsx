@@ -15,6 +15,13 @@ const UserComponent = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Debug Redux state
+  console.log("👤 User.jsx - Redux userInfo:", userInfo);
+  console.log(
+    "👤 User.jsx - Redux full user state:",
+    useSelector((state) => state.user)
+  );
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
     // Logic cho dropdown menu có thể được thêm ở đây

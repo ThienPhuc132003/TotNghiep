@@ -264,6 +264,11 @@ const TutorClassroomMeetingsPage = () => {
   const classroomName =
     searchParams.get("classroomName") || location.state?.classroomName;
 
+  // New states for classroom selection when no classroomId provided
+  const [availableClassrooms, setAvailableClassrooms] = useState([]);
+  const [isLoadingClassrooms, setIsLoadingClassrooms] = useState(false);
+  const [classroomSelectionError, setClassroomSelectionError] = useState(null);
+
   // Zoom OAuth states
   const [isZoomConnected, setIsZoomConnected] = useState(false);
 
@@ -676,6 +681,75 @@ const TutorClassroomMeetingsPage = () => {
     });
   };
 
+  // Function to fetch available classrooms for selection
+  const fetchAvailableClassrooms = useCallback(async () => {
+    if (!currentUser?.userId) {
+      setClassroomSelectionError("Không tìm thấy thông tin người dùng.");
+      return;
+    }
+
+    setIsLoadingClassrooms(true);
+    setClassroomSelectionError(null);
+
+    try {
+      console.log("🔍 Fetching available classrooms for selection...");
+
+      const response = await Api({
+        endpoint: "classroom/search-for-tutor",
+        method: METHOD_TYPE.GET,
+        query: {
+          page: 1,
+          rpp: 1000, // Get all classrooms
+        },
+        requireToken: true,
+      });
+
+      if (
+        response.success &&
+        response.data &&
+        Array.isArray(response.data.items)
+      ) {
+        const classrooms = response.data.items;
+        console.log(`✅ Found ${classrooms.length} available classrooms`);
+        setAvailableClassrooms(classrooms);
+      } else {
+        console.error("❌ Failed to fetch classrooms:", response);
+        setClassroomSelectionError("Không thể tải danh sách lớp học.");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching classrooms:", error);
+      setClassroomSelectionError("Có lỗi xảy ra khi tải danh sách lớp học.");
+    } finally {
+      setIsLoadingClassrooms(false);
+    }
+  }, [currentUser?.userId]);
+
+  // Function to handle classroom selection
+  const handleClassroomSelect = useCallback(
+    (classroom) => {
+      console.log("🎯 Classroom selected:", classroom);
+
+      // Navigate to the same page but with classroomId and classroomName
+      navigate(`/tai-khoan/ho-so/quan-ly-phong-hoc`, {
+        state: {
+          classroomId: classroom.classroomId,
+          classroomName: classroom.className,
+        },
+      });
+    },
+    [navigate]
+  );
+
+  // Load available classrooms when component mounts and no classroomId
+  useEffect(() => {
+    if (!classroomId && currentUser?.userId) {
+      console.log(
+        "🔄 No classroomId provided, loading available classrooms..."
+      );
+      fetchAvailableClassrooms();
+    }
+  }, [classroomId, currentUser?.userId, fetchAvailableClassrooms]);
+
   // Early return checks
   if (!currentUser?.userId) {
     return (
@@ -685,16 +759,109 @@ const TutorClassroomMeetingsPage = () => {
       </div>
     );
   }
-
   if (!classroomId || !classroomName) {
     return (
       <div className="tutor-classroom-page">
         <h2 className="tcp-page-title">Quản lý phòng học</h2>
-        <p>Thông tin lớp học không hợp lệ.</p>
-        <button className="tcp-back-btn" onClick={handleBackToClassrooms}>
-          <i className="fas fa-arrow-left"></i>
-          Quay lại danh sách lớp học
-        </button>
+
+        {/* Show classroom selection when no classroomId */}
+        {!classroomId && (
+          <div className="classroom-selection-container">
+            <p className="selection-instruction">
+              Vui lòng chọn lớp học để quản lý phòng học:
+            </p>
+
+            {isLoadingClassrooms && (
+              <div className="loading-container">
+                <i className="fas fa-spinner fa-spin"></i>
+                <span>Đang tải danh sách lớp học...</span>
+              </div>
+            )}
+
+            {classroomSelectionError && (
+              <div className="error-container">
+                <i className="fas fa-exclamation-triangle"></i>
+                <span>{classroomSelectionError}</span>
+                <button
+                  className="retry-btn"
+                  onClick={fetchAvailableClassrooms}
+                >
+                  <i className="fas fa-redo"></i>
+                  Thử lại
+                </button>
+              </div>
+            )}
+
+            {!isLoadingClassrooms &&
+              !classroomSelectionError &&
+              availableClassrooms.length === 0 && (
+                <div className="no-classrooms-container">
+                  <i className="fas fa-info-circle"></i>
+                  <span>Bạn chưa có lớp học nào.</span>
+                  <button
+                    className="tcp-back-btn"
+                    onClick={handleBackToClassrooms}
+                  >
+                    <i className="fas fa-arrow-left"></i>
+                    Quay lại trang chính
+                  </button>
+                </div>
+              )}
+
+            {!isLoadingClassrooms && availableClassrooms.length > 0 && (
+              <div className="classrooms-grid">
+                {availableClassrooms.map((classroom) => (
+                  <div
+                    key={classroom.classroomId}
+                    className="classroom-card"
+                    onClick={() => handleClassroomSelect(classroom)}
+                  >
+                    <div className="classroom-info">
+                      <h3 className="classroom-name">{classroom.className}</h3>
+                      <p className="classroom-subject">
+                        <i className="fas fa-book"></i>
+                        {classroom.subject?.subjectName || "N/A"}
+                      </p>
+                      <p className="classroom-student">
+                        <i className="fas fa-user"></i>
+                        {classroom.student?.fullname || "N/A"}
+                      </p>
+                      <p className="classroom-status">
+                        <i
+                          className="fas fa-circle"
+                          style={{
+                            color:
+                              classroom.status === "IN_SESSION"
+                                ? "#28a745"
+                                : "#6c757d",
+                          }}
+                        ></i>
+                        {classroom.status === "IN_SESSION"
+                          ? "Đang học"
+                          : "Không hoạt động"}
+                      </p>
+                    </div>
+                    <div className="classroom-actions">
+                      <i className="fas fa-arrow-right"></i>
+                      <span>Xem phòng học</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Show error for missing classroomName when classroomId exists */}
+        {classroomId && !classroomName && (
+          <div>
+            <p>Thông tin lớp học không hợp lệ.</p>
+            <button className="tcp-back-btn" onClick={handleBackToClassrooms}>
+              <i className="fas fa-arrow-left"></i>
+              Quay lại danh sách lớp học
+            </button>
+          </div>
+        )}
       </div>
     );
   }
