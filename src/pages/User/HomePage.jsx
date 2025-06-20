@@ -809,10 +809,9 @@ const HomePage = () => {
   const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
   const [oauthError, setOauthError] = useState(null);
   const oauthProcessingRef = useRef(null);
-
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const code = searchParams.get("code");
+    const code = searchParams.get("tempCode");
     const state = searchParams.get("state");
     if (code && state) {
       let isMounted = true;
